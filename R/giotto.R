@@ -550,7 +550,10 @@ readExprMatrix = function(path,
 
 #' @title Evaluate expression matrix
 #' @name evaluate_expr_matrix
-#' @description Evaluate expression matrices that are provided as input.
+#' @description Evaluate expression matrices that are provided as input and converts
+#' them to preferred format for Giotto object. A filepath can also be provided through
+#' \code{inputmatrix} param. If this is done, the function will attempt to read the
+#' matrix file in using \code{\link{readExprMatrix}}.
 #' @param inputmatrix inputmatrix to evaluate
 #' @param sparse create sparse matrix (default = TRUE)
 #' @param cores how many cores to use
@@ -562,13 +565,13 @@ evaluate_expr_matrix = function(inputmatrix,
                                 cores = NA) {
 
 
-  if(methods::is(inputmatrix, 'character')) {
-    mymatrix = readExprMatrix(inputmatrix, cores =  cores)
-  } else if(methods::is(inputmatrix, 'Matrix')) {
+  if(inherits(inputmatrix, 'character')) {
+    mymatrix = readExprMatrix(inputmatrix, cores = cores)
+  } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
-  } else if(methods::is(inputmatrix, 'DelayedMatrix')) {
+  } else if(inherits(inputmatrix, 'DelayedMatrix')) {
     mymatrix = inputmatrix
-  } else if(methods::is(inputmatrix, 'data.table')) {
+  } else if(inherits(inputmatrix, 'data.table')) {
     if(sparse == TRUE) {
       # force sparse class
       mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
@@ -2407,10 +2410,10 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
             spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
             gobject@spatial_network[[networkname]] = spatial_network_Obj
           } else {
-            stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
+            stop('\n network ', networkname, ' does not have all necessary column names, see details\n')
           }
         } else {
-          stop('\n network ', networkname, ' is not a data.frame or data.table \n')
+          stop('\n network ', networkname, ' is not a data.frame or data.table\n')
         }
       }
     }
@@ -2428,7 +2431,8 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
         gridname = spatial_grid_name[[grid_i]]
         grid     = spatial_grid[[grid_i]]
 
-        if(any(c('data.frame', 'data.table') %in% class(grid))) {
+        if(inherits(grid, c('data.table', 'data.frame'))) {
+          if(!inherits(grid, 'data.table')) grid = as.data.table(grid)
           if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
             gobject@spatial_grid[[gridname]] = grid
           } else {

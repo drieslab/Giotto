@@ -197,8 +197,8 @@ create_average_DT <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = values)
 
 
@@ -253,8 +253,8 @@ create_average_detection_DT <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = values)
 
   # metadata
@@ -435,16 +435,16 @@ subset_feature_metadata = function(gobject,
 
 #' @title Subset spatial network
 #' @name subset_spatial_network
-#' @description subset spatial networks from giotto object
+#' @description subset ALL spatial networks from giotto object of the given
+#' spat_unit
 #' @keywords internal
 subset_spatial_network = function(gobject,
                                   spat_unit,
                                   cells_to_keep) {
 
   # define for data.table [] subset
-  to = NULL
-  from = NULL
-  
+  to = from = NULL
+
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(spat_unit_name in names(gobject@spatial_network)) {
@@ -727,7 +727,7 @@ subset_giotto_points_object = function(gpoints,
   # define for data.table [] subset
   x = NULL
   y = NULL
-  
+
   if(!is.null(gpoints@spatVector)) {
 
     if(!is.null(feat_ids)) {
@@ -1263,8 +1263,8 @@ filterDistributions <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # plot distribution for genes or cells
@@ -1419,8 +1419,8 @@ filterCombinations <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # feat and cell minimums need to have the same length
@@ -1576,8 +1576,8 @@ filterGiotto <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
 
@@ -1621,7 +1621,7 @@ filterGiotto <- function(gobject,
 
 
   ## update parameters used ##
-  
+
   # Do not update downstream of processGiotto
   # Parameters will be updated within processGiotto
   try({
@@ -1630,11 +1630,11 @@ filterGiotto <- function(gobject,
     if (fname == 'processGiotto') return(newGiottoObject)
   },
   silent = TRUE)
-  
-  
+
+
   # If this function call is not downstream of processGiotto, update normally
   newGiottoObject = update_giotto_params(newGiottoObject, description = '_filter')
-  
+
   return(newGiottoObject)
 
 
@@ -1956,8 +1956,8 @@ normalizeGiotto <- function(gobject,
   ## default is to start from raw data
   values = match.arg(expression_values, unique(c('raw', expression_values)))
   raw_expr = get_expression_values(gobject = gobject,
-                                   feat_type = feat_type,
                                    spat_unit = spat_unit,
+                                   feat_type = feat_type,
                                    values = values)
 
   norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'pearson_resid', 'osmFISH'))
@@ -2006,7 +2006,7 @@ normalizeGiotto <- function(gobject,
   }
 
   ## update parameters used ##
-  
+
   # Do not update downstream of processGiotto
   # Parameters will be updated within processGiotto
   try({
@@ -2015,8 +2015,8 @@ normalizeGiotto <- function(gobject,
     if (fname == 'processGiotto') return(gobject)
   },
   silent = TRUE)
-  
-  
+
+
   # If this function call is not downstream of processGiotto, update normally
   gobject = update_giotto_params(gobject, description = '_normalize')
 
@@ -2085,8 +2085,8 @@ adjustGiottoMatrix <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = values)
 
 
@@ -2125,9 +2125,9 @@ adjustGiottoMatrix <- function(gobject,
                                     feat_type = feat_type,
                                     name = update_slot,
                                     values = adjusted_matrix)
-    
+
     ## update parameters used ##
-    
+
     # Do not update downstream of processGiotto
     # Parameters will be updated within processGiotto
     try({
@@ -2136,11 +2136,11 @@ adjustGiottoMatrix <- function(gobject,
       if (fname == 'processGiotto') return(gobject)
     },
     silent = TRUE)
-    
-    
+
+
     # If this function call is not downstream of processGiotto, update normally
     gobject = update_giotto_params(gobject, description = '_adj_matrix')
-    
+
     return(gobject)
 
   } else {
@@ -2200,7 +2200,7 @@ processGiotto = function(gobject,
   }
 
   gobject = update_giotto_params(gobject, description = '_process')
-  
+
   return(gobject)
 
 }
@@ -2463,7 +2463,7 @@ addCellMetadata <- function(gobject,
                                                  by.y = column_cell_ID,
                                                  all.x = TRUE)
   }
-  
+
   # data.table variables
   cell_ID = NULL
 
@@ -2599,8 +2599,8 @@ addFeatStatistics <- function(gobject,
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = expression_values)
 
   # calculate stats
@@ -2651,9 +2651,9 @@ addFeatStatistics <- function(gobject,
       if (fname == 'processGiotto') return(gobject)
     },
     silent = TRUE)
-    
-    
-    # If this function call is not downstream of processGiotto, update normally    
+
+
+    # If this function call is not downstream of processGiotto, update normally
     if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_feat_stats')
     } else {
@@ -2750,8 +2750,8 @@ addCellStatistics <- function(gobject,
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = expression_values)
 
   # calculate stats
@@ -2785,10 +2785,10 @@ addCellStatistics <- function(gobject,
                               column_cell_ID = 'cells')
 
     ## update parameters used ##
-    
+
     # parent function name
     cl = sys.call(-1)
-    
+
     # Do not update downstream of processGiotto
     # Parameters will be updated within processGiotto
     try({
@@ -2797,7 +2797,7 @@ addCellStatistics <- function(gobject,
       if (fname == 'processGiotto') return(gobject)
     },
     silent = TRUE)
-    
+
     # If this function call is not downstream of processGiotto, update normally
     if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_cell_stats')
@@ -3147,8 +3147,8 @@ calculateMetaTable = function(gobject,
   ## get expression data
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
   if(!is.null(selected_feats)) {
     expr_values = expr_values[rownames(expr_values) %in% selected_feats, ]

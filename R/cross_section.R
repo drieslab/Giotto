@@ -56,8 +56,8 @@ create_crossSection_object <- function(name=NULL,
 #' @param spatial_network_name spatial_network_name
 #' @keywords internal
 read_crossSection <- function(gobject,
-                              name=NULL,
-                              spatial_network_name=NULL){
+                              name = NULL,
+                              spatial_network_name = NULL){
   if(is.null(spatial_network_name)){
     stop("spatial_network_name is not specified.")
   }else if (!is.element(spatial_network_name,names(gobject@spatial_network))){

@@ -11,9 +11,9 @@
 #' @keywords internal
 mean_flex = function(x, ...) {
 
-  if(methods::is(x, 'dgCMatrix')) {
+  if(inherits(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
-  } else if(methods::is(x, 'Matrix')) {
+  } else if(inherits(x, 'Matrix')) {
     return(Matrix::mean(x, ...))
   } else {
     return(base::mean(x, ...))
@@ -28,11 +28,11 @@ mean_flex = function(x, ...) {
 #' @keywords internal
 rowSums_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
+  if(inherits(mymatrix, 'DelayedMatrix')) {
     return(DelayedMatrixStats::rowSums2(mymatrix))
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
+  } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
+  } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -52,11 +52,11 @@ rowMeans_flex = function(mymatrix) {
 
   # replace by MatrixGenerics?
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
+  if(inherits(mymatrix, 'DelayedMatrix')) {
     return(DelayedMatrixStats::rowMeans2(mymatrix))
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
+  } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
+  } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::rowMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -75,11 +75,11 @@ rowMeans_flex = function(mymatrix) {
 #' @keywords internal
 colSums_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
+  if(inherits(mymatrix, 'DelayedMatrix')) {
     return(DelayedMatrixStats::colSums2(mymatrix))
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
+  } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
+  } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::colSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -97,11 +97,11 @@ colSums_flex = function(mymatrix) {
 #' @keywords internal
 colMeans_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
+  if(inherits(mymatrix, 'DelayedMatrix')) {
     return(DelayedMatrixStats::colMeans2(mymatrix))
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
+  } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
+  } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::colMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -119,11 +119,11 @@ colMeans_flex = function(mymatrix) {
 #' @keywords internal
 t_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
+  if(inherits(mymatrix, 'DelayedMatrix')) {
     return(t(mymatrix))
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
+  } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
+  } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)

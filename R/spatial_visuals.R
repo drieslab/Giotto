@@ -4956,8 +4956,8 @@ dimFeatPlot2D <- function(gobject,
   # expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # only keep feats that are in the dataset
@@ -8718,8 +8718,8 @@ spatGenePlot3D <- function(gobject,
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # only keep genes that are in the dataset
@@ -9081,8 +9081,8 @@ dimGenePlot3D <- function(gobject,
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # only keep genes that are in the dataset
@@ -9473,8 +9473,8 @@ spatDimGenePlot3D <- function(gobject,
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   # only keep genes that are in the dataset

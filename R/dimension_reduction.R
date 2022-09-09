@@ -13,7 +13,7 @@
 #' @param misc any additional information will be added to this slot
 #' @param my_rownames rownames
 #' @keywords internal
-#' @return number of distinct colors
+#' @return a dimObj
 create_dimObject = function(name = 'test',
                             spat_unit = 'cell',
                             feat_type = 'rna',

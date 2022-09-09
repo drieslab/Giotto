@@ -19,8 +19,8 @@
 #' @family functions to get data from giotto object
 #' @export
 get_expression_values <- function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   values) {
 
 

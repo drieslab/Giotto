@@ -1697,16 +1697,16 @@ createSpatialNetwork <- function(gobject,
 #' @name annotateSpatialNetwork
 #' @description Annotate spatial network with cell metadata information.
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param create_full_network convert from reduced to full network representation
 #' @return annotated network in data.table format
 #' @export
 annotateSpatialNetwork = function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
                                   create_full_network = FALSE) {
@@ -2215,7 +2215,7 @@ createSpatialGrid <- function(gobject,
                               minimum_padding = 1,
                               return_gobject = TRUE) {
 
-  # get paramters
+  # get parameters
   method = match.arg(method, c('default'))
 
   if(method == 'default') {

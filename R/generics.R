@@ -1,5 +1,7 @@
 # Methods and Generics ####
 
+
+
 # nrow() S4 generic ####
 
 # Define base::nrow() for giottoPoints and giottoPolygon objects
@@ -15,8 +17,8 @@ setOldClass('nrow')
 # setMethod('nrow', signature = 'giotto', function(x) {
 #   avail_exp = list_expression(x)
 #   get_expression_values(x,
-#                         feat_type = avail_exp$feat_type[1],
 #                         spat_unit = avail_exp$spat_unit[1],
+#                         feat_type = avail_exp$feat_type[1],
 #                         values = avail_exp$name[1]) %>%
 #     nrow()
 # })
