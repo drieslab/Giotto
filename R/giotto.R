@@ -2,6 +2,109 @@
 #### Giotto class ####
 
 
+##### Giotto Class Check Function ####
+#TODO
+# @title Check Giotto Object
+# @name checkGiottoObj
+# @description check function for S4 giotto object
+# @param object giotto object to check
+# @keywords internal
+# checkGiottoObj = function(object) {
+#
+#   # !!! (validity check still under construction) !!!
+#   # Add check class definition when finished
+#
+#   errors = character()
+#   ch = box_chars()
+#
+#   gDataSlots = list(expression = 'expression',
+#                     expression_feat = 'expression_feat',
+#                     spatial_locs = 'spatial_locs',
+#                     spatial_info = 'spatial_info',
+#                     feat_info = 'feat_info',
+#                     cell_metadata = 'cell_metadata',
+#                     feat_metadata = 'feat_metadata',
+#                     cell_ID = 'cell_ID',
+#                     feat_ID = 'feat_ID',
+#                     spatial_network = 'spatial_network',
+#                     spatial_grid = 'spatial_grid',
+#                     spatial_enrichment = 'spatial_enrichment',
+#                     dimension_reduction = 'dimension_reduction',
+#                     nn_network = 'nn_network')
+#
+#
+#   if(!is.null(slot(object, 'expression'))) {
+#     avail_expr = list_expression(object)
+#     for(expr in seq(nrow(avail_expr)))
+#     if(!inherits(slot(object, 'expression')[[avail_expr[[expr]]]][[avail_expr[[expr]]]][[avail_expr[[expr]]]], 'data.table')) {
+#       print('uh oh')
+#     }
+#   }
+#
+#
+#
+#
+#
+#   # Check for nesting issues (due to updates) - to be deprecated
+#   available_nn = list_nearest_networks(object)
+#   available_grids = list_spatial_grids(object)
+#
+#
+#
+#
+#   ## Match spatial units and feature types ##
+#
+#   # Find existing spat_units in source data
+#   uniqueSrcSU = list_expression(object)$spat_unit
+#   uniqueSrcSU = unique(uniqueSrcSU, list_spatial_info_names(object))
+#
+#   # Find existing feat_types in source data
+#   uniqueSrcFT = list_expression(object)$feat_type
+#   uniqueSrcFT = unique(uniqueSrcFT, list_feature_info_names(object))
+#
+#   # Find existing spat_units and feat_types within other data slots
+#   uniqueDatSU = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$spat_unit)
+#   uniqueDatFT = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$feat_type)
+#
+#   # # If any spat_units exist, ensure that associated objects have identical cell_IDs
+#   # if(length(uniqueSU) > 0) {
+#   #   for(SU in seq_along(uniqueSU)) {
+#   #
+#   #     all(lapply(gDataSlots, function(x) {
+#   #       list_giotto_data(gobject = object,
+#   #                        slot = x)
+#   #     }))
+#   #   }
+#   # }
+#
+#
+#   # cell_ID slot
+#   slot_cell_ID = slot(object, 'cell_ID')
+#
+#   ## check nesting depth
+#   if(depth(slot_cell_ID) != 1) {
+#     msg = paste0('Nesting depth of cell_ID is ', depth(slot_cell_ID), '.
+#         Should be 1. Ex:
+#         \t.
+#         \t', ch$b,'spat_unit
+#         \t', ch$s, ch$b,'cell IDs\n')
+#     errors = c(errors, msg)
+#   }
+#
+#   for(spat_unit in names(slot_cell_ID)) {
+#     if(!inherits(slot_cell_ID[[spat_unit]], 'character')) {
+#       msg = paste0('cell_ID slot info for spat_unit "', spat_unit,'" is of class "',
+#                    class(slot_cell_ID[[spat_unit]]), '".\n    Should be "character"\n')
+#       errors = c(errors, msg)
+#     }
+#   }
+#
+#
+#   if(length(errors) == 0) TRUE else errors
+# }
+
+
+
 
 ##### Giotto Class Definition ####
 
