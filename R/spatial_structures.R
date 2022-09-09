@@ -2367,7 +2367,9 @@ createSpatialDefaultGrid <- function(gobject,
                       method = 'default',
                       parameters = parameters,
                       gridDT = resultgrid,
-                      outputObj = NULL, # NULL with default
+                      # outputObj = NULL, # NULL with default (from original S3 definition)
+                      spat_unit = spat_unit,
+                      feat_type = feat_type,
                       misc = NULL)
 
     # 3. assign spatial grid object
