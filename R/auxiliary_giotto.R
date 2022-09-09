@@ -2050,12 +2050,12 @@ adjustGiottoMatrix <- function(gobject,
                                covariate_columns = NULL,
                                return_gobject = TRUE,
                                update_slot = c('custom')) {
-  
+
   # Catch for both batch and covariate being null
   if (is.null(batch_columns) & is.null(covariate_columns)){
     stop('\nMetadata for either different batches or covariates must be provided.')
   }
-  
+
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)

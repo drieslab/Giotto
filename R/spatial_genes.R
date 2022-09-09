@@ -2403,7 +2403,7 @@ detectSpatialPatterns <- function(gobject,
 
 
   # spatial grid and spatial locations
-  if(is.null(gobject@spatial_grid)) {
+  if(is.null(slot(gobject, 'spatial_grid'))) {
     stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
   }
   if(!spatial_grid_name %in% names(gobject@spatial_grid)) {

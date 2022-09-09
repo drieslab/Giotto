@@ -303,3 +303,31 @@ list_element_exists = function(x, index) {
     return(FALSE)
   })
 }
+
+
+
+# methods imports ####
+
+
+# Additional methods functions that might also be imported later...
+
+#  getSlots slotNames .hasSlot
+# Usage tag content:
+
+#' .hasSlot(object, name)
+#'
+#' slotNames(x)
+#' getSlots(x)
+#' slot(object, name, check = TRUE) <- value
+
+
+#' See \code{methods::\link[methods]{slot}} for details.
+#'
+#' @rdname slot
+#' @name slot
+#' @keywords internal
+#' @export
+#' @importFrom methods slot slot<-
+#' @usage slot(object, name)
+NULL
+

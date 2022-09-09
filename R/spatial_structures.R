@@ -908,7 +908,7 @@ create_delaunayNetwork2D <- function (gobject,
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
-    parameters_list = gobject@parameters
+    parameters_list = slot(gobject, 'parameters')
     number_of_rounds = length(parameters_list)
     update_name = paste0(number_of_rounds, "_delaunay_spatial_network")
 
@@ -1551,7 +1551,7 @@ createSpatialKNNnetwork <- function (gobject,
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
-    parameters_list = gobject@parameters
+    parameters_list = slot(gobject, 'parameters')
     number_of_rounds = length(parameters_list)
     update_name = paste0(number_of_rounds, "_spatial_network")
 
@@ -1559,8 +1559,7 @@ createSpatialKNNnetwork <- function (gobject,
                                        `dimensions used` = dimensions,
                                        `maximum distance threshold` = ifelse(is.null(maximum_distance), NA, maximum_distance),
                                        `name of spatial network` = name)
-    gobject@parameters = parameters_list
-    #gobject@spatial_network[[name]] = spatial_network_DT
+    slot(gobject, 'parameters') = parameters_list
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject@spatial_network[[spat_unit]][[name]] = spatial_network_Obj

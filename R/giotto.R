@@ -1225,7 +1225,7 @@ read_spatial_networks = function(gobject,
       for(name in names(spatial_network[[spat_unit]])) {
 
         # first check if corresponding expression matrix exists
-        if(!is.null(gobject@expression[[spat_unit]])) {
+        if(!is.null(slot(gobject, 'expression')[[spat_unit]])) {
 
 
           # TODO: use fread if it's an existing path

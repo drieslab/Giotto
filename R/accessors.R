@@ -256,7 +256,7 @@ get_dimReduction = function(gobject,
   reduction_method = match.arg(arg = reduction_method, choices = unique(c('pca', 'umap', 'tsne', reduction_method)))
 
   ## check reduction
-  reduction_res = gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]]
+  reduction_res = slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]]
   if(is.null(reduction_res)) {
     stop('No dimension reduction for ', reduction, ' has been applied \n')
   }
@@ -328,7 +328,7 @@ set_dimReduction <- function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
+  potential_names = names(slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new dimension reduction object \n')
   }
@@ -337,7 +337,7 @@ set_dimReduction <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
+  slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
 
   return(gobject)
 
@@ -525,9 +525,9 @@ get_spatialNetwork <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  if (!is.element(name, names(gobject@spatial_network[[spat_unit]]))){
+  if (!is.element(name, names(slot(gobject, 'spatial_network')[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
-                      check which spatial networks exist with showNetworks() \n", name)
+                      check which spatial networks exist with showGiottoSpatNetworks()\n", name)
     warning(message)
     return(NULL)
   }else{
@@ -592,7 +592,7 @@ set_spatialNetwork <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_network[[spat_unit]][[name]] = spatial_network
+  slot(gobject, 'spatial_network')[[spat_unit]][[name]] = spatial_network
   return(gobject)
 
 }
@@ -1780,8 +1780,11 @@ list_spatial_enrichments = function(gobject,
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector of names for available spatial enrichments
 list_spatial_enrichments_names = function(gobject,
-                                          spat_unit,
-                                          feat_type) {
+                                          spat_unit = NULL,
+                                          feat_type = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
 
   spatenr_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])
 
@@ -1848,13 +1851,17 @@ list_dim_reductions = function(gobject,
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param dim_type dimensional reduction type (method)
-#' @return names pf dimension reduction object
+#' @return names of dimension reduction object
 #' @details function that can be used to find which names have been used
 list_dim_reductions_names = function(gobject,
                                      data_type = 'cells',
-                                     spat_unit,
-                                     feat_type,
-                                     dim_type) {
+                                     spat_unit = NULL,
+                                     feat_type = NULL,
+                                     dim_type = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
+  if(is.null(dim_type)) stop('dim_type must be given\n')
 
   dim_red_object_names = names(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]])
 
@@ -2032,8 +2039,8 @@ list_images = function(gobject,
 
   availableImages = data.table()
 
-  g_image_names = names(gobject@images)
-  g_limage_names = names(gobject@largeImages)
+  g_image_names = names(slot(gobject, 'images'))
+  g_limage_names = names(slot(gobject, 'largeImages'))
 
   for(image_type in c('image', 'largeImage')) {
     if(image_type == 'image') {
