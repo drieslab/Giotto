@@ -143,7 +143,7 @@
 giotto <- setClass(
   "giotto",
   slots = c(
-    expression = "list",
+    expression = "nullOrList",
     expression_feat = "ANY",
     spatial_locs = "ANY",
     spatial_info = "ANY",
