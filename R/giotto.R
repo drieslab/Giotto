@@ -2208,6 +2208,9 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
 
+  # data.table: set global variable
+  barcode = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
   if(!is.null(h5_visium_path)) {
 
     if(verbose) cat("A path to an .h5 10X file was provided and will be used \n")
@@ -2224,8 +2227,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
     # spatial locations
     spatial_results = data.table::fread(h5_tissue_positions_path)
-    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
     colnames(spatial_locs) = c('sdimx', 'sdimy')
 
@@ -2309,9 +2312,6 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
     if(verbose) cat("A structured visium directory will be used \n")
 
-    # data.table: set global variable
-    V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
-
     ## check arguments
     if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
     if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
@@ -2334,8 +2334,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     spatial_path = paste0(visium_dir, '/', 'spatial/')
     # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
     spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
-    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
     colnames(spatial_locs) = c('sdimx', 'sdimy')
 
