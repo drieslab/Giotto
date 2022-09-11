@@ -1222,6 +1222,9 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
 
+  # data.table: set global variable
+  barcode = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
   if(!is.null(h5_visium_path)) {
 
     if(verbose) cat("A path to an .h5 10X file was provided and will be used \n")
@@ -1238,8 +1241,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
     # spatial locations
     spatial_results = data.table::fread(h5_tissue_positions_path)
-    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
     colnames(spatial_locs) = c('sdimx', 'sdimy')
 
@@ -1252,10 +1255,14 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
       mg_img = magick::image_read(h5_image_png_path)
 
-      visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                     mg_object = mg_img, name = 'image',
-                                     xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                     ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+      visium_png = createGiottoImage(gobject = NULL,
+                                     spatial_locs =  spatial_locs,
+                                     mg_object = mg_img,
+                                     name = 'image',
+                                     xmax_adj = xmax_adj,
+                                     xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj,
+                                     ymin_adj = ymin_adj)
       visium_png_list = list(visium_png)
       names(visium_png_list) = c('image')
     } else {
@@ -1274,9 +1281,6 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   } else {
 
     if(verbose) cat("A structured visium directory will be used \n")
-
-    # data.table: set global variable
-    V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
 
     ## check arguments
     if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
@@ -1300,16 +1304,22 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     spatial_path = paste0(visium_dir, '/', 'spatial/')
     # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
     spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
-    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
     colnames(spatial_locs) = c('sdimx', 'sdimy')
 
     ## spatial image
-    if(is.null(png_name)) { # Automatically select and find scale_factor for hires
-      png_name = list.files(spatial_path, pattern = "*hires_image.png")
+    if(is.null(png_name)) png_name = NA
+    if(is.na(png_name) | grepl('hires', png_name)) { # Automatically select and find scale_factor for hires
+      png_path = Sys.glob(paths = file.path(spatial_path, paste0('*',png_name,'*')))
+      if(length(png_path) == 0) stop(png_name, ' was not found within the Visium spatial folder\n')
+      if(length(png_path) >1) {
+        message('More than one file was found matching pattern in png_name.\n First will be selected.')
+        png_path = png_path[[1]]
+      }
 
-      json_path = list.files(spatial_path, pattern = "*json.json", full.names = TRUE)
+      json_path = Sys.glob(paths = file.path(spatial_path, '*scalefactors*'))[[1]]
       json = base::readChar(json_path, nchars = 1000)
       scale_factor = base::regmatches(json,
                                       base::gregexpr('(?<="tissue_hires_scalef": ).*?(?=,|})',
@@ -1317,8 +1327,23 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                                      perl = TRUE)
                                       )
       scale_factor = as.numeric(scale_factor)
+    } else if(grepl('lowres', png_name)) {
+      png_path = Sys.glob(paths = file.path(spatial_path, paste0('*',png_name,'*')))
+      if(length(png_path) == 0) stop(png_name, ' was not found within the Visium spatial folder\n')
+      if(length(png_path) >1) {
+        message('More than one file was found matching pattern in png_name.\n First will be selected.')
+        png_path = png_path[[1]]
+      }
+
+      json_path = Sys.glob(paths = file.path(spatial_path, '*scalefactors*'))[[1]]
+      json = base::readChar(json_path, nchars = 1000)
+      scale_factor = base::regmatches(json,
+                                      base::gregexpr('(?<="tissue_lowres_scalef": ).*?(?=,|})',
+                                                     json,
+                                                     perl = TRUE)
+                                      )
+      scale_factor = as.numeric(scale_factor)
     }
-    png_path = paste0(spatial_path,'/',png_name)
     if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
 
     mg_img = magick::image_read(png_path)
