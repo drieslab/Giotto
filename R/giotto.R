@@ -1312,7 +1312,12 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     ## spatial image
     if(is.null(png_name)) png_name = NA
     if(is.na(png_name) | grepl('hires', png_name)) { # Automatically select and find scale_factor for hires
-      png_path = Sys.glob(paths = file.path(spatial_path, '*hires*'))[[1]]
+      png_path = Sys.glob(paths = file.path(spatial_path, paste0('*',png_name,'*')))
+      if(length(png_path) == 0) stop(png_name, ' was not found within the Visium spatial folder\n')
+      if(length(png_path) >1) {
+        message('More than one file was found matching pattern in png_name.\n First will be selected.')
+        png_path = png_path[[1]]
+      }
 
       json_path = Sys.glob(paths = file.path(spatial_path, '*scalefactors*'))[[1]]
       json = base::readChar(json_path, nchars = 1000)
@@ -1323,7 +1328,12 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                       )
       scale_factor = as.numeric(scale_factor)
     } else if(grepl('lowres', png_name)) {
-      png_path = Sys.glob(paths = file.path(spatial_path, '*lowres*'))[[1]]
+      png_path = Sys.glob(paths = file.path(spatial_path, paste0('*',png_name,'*')))
+      if(length(png_path) == 0) stop(png_name, ' was not found within the Visium spatial folder\n')
+      if(length(png_path) >1) {
+        message('More than one file was found matching pattern in png_name.\n First will be selected.')
+        png_path = png_path[[1]]
+      }
 
       json_path = Sys.glob(paths = file.path(spatial_path, '*scalefactors*'))[[1]]
       json = base::readChar(json_path, nchars = 1000)
