@@ -1447,7 +1447,7 @@ read_spatial_networks = function(gobject,
                                  spatial_network) {
 
   if(is.null(spatial_network)) {
-    cat('No spatial networks are provided \n')
+    message('No spatial networks are provided')
     return(gobject)
 
   } else {
@@ -1502,7 +1502,7 @@ read_spatial_enrichment = function(gobject,
                                    spatial_enrichment) {
 
   if(is.null(spatial_enrichment)) {
-    cat('No spatial enrichment results are provided \n')
+    message('No spatial enrichment results are provided')
     return(gobject)
 
   } else {
@@ -1550,7 +1550,7 @@ read_dimension_reduction <- function(gobject,
 
 
   if(is.null(dimension_reduction)) {
-    cat('No dimension reduction results are provided \n')
+    message('No dimension reduction results are provided')
     return(gobject)
 
   } else {
@@ -1600,7 +1600,7 @@ read_nearest_networks = function(gobject,
                                  nn_network) {
 
   if(is.null(nn_network)) {
-    cat('No nearest network results are provided \n')
+    message('No nearest network results are provided')
     return(gobject)
 
   } else {
@@ -1895,16 +1895,15 @@ createGiottoObject <- function(expression,
   ## check if all optional packages are installed
   # TODO: update at the end
   # TODO: extract from suggest field of DESCRIPTION
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMineR")
 
   pack_index = extra_packages %in% rownames(utils::installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
 
   if(any(pack_index == FALSE) == TRUE) {
-    cat("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ",
-        extra_not_installed_packages)
-    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies \n")
+    wrap_msg("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ", extra_not_installed_packages)
+    wrap_msg(" Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
   }
 
 
@@ -1936,7 +1935,7 @@ createGiottoObject <- function(expression,
 
   }
 
-  if(verbose) cat('finished expression data \n')
+  if(verbose) message('finished expression data')
 
 
   ## parameters ##
@@ -2014,7 +2013,7 @@ createGiottoObject <- function(expression,
     }
   }
 
-  if(verbose) cat('finished spatial location data \n')
+  if(verbose) message('finished spatial location data')
 
 
   ## spatial info ##
@@ -2035,7 +2034,7 @@ createGiottoObject <- function(expression,
   gobject = set_cell_metadata(gobject = gobject,
                               cell_metadata = cell_metadata)
 
-  if(verbose) cat('finished cell metadata  \n')
+  if(verbose) message('finished cell metadata')
 
   ## feat metadata ##
   ## ------------- ##
@@ -2213,7 +2212,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
   if(!is.null(h5_visium_path)) {
 
-    if(verbose) cat("A path to an .h5 10X file was provided and will be used \n")
+    if(verbose) wrap_msg("A path to an .h5 10X file was provided and will be used \n")
 
     if(!file.exists(h5_visium_path)) stop("The provided path ", h5_visium_path, " does not exist \n")
 
@@ -2245,7 +2244,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
       if(png_name == 'tissue_lowres_image.png') {
         if(file.exists(h5_json_scalefactors_path)) {
-          if(verbose == TRUE && do_manual_adj == FALSE) cat('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted \n')
+          if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
 
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_lowres_scalef']]
@@ -2264,7 +2263,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
         }
       } else if(png_name == 'tissue_hires_image.png') {
         if(file.exists(h5_json_scalefactors_path)) {
-          if(verbose == TRUE && do_manual_adj == FALSE) cat('png and scalefactors paths are found and automatic alignment for the hires image will be attempted \n')
+          if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
 
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_hires_scalef']]
@@ -2310,7 +2309,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
   } else {
 
-    if(verbose) cat("A structured visium directory will be used \n")
+    if(verbose) message("A structured visium directory will be used \n")
 
     ## check arguments
     if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
@@ -2356,7 +2355,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
       scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
       if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) cat('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted \n')
+        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
 
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_lowres_scalef']]
@@ -2378,7 +2377,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
       scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
        if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) cat('png and scalefactors paths are found and automatic alignment for the hires image will be attempted \n')
+        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
 
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_hires_scalef']]
@@ -2396,10 +2395,14 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
       }
     } else {
-      visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                     mg_object = png_path, name = 'image',
-                                     xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                     ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+      visium_png = createGiottoImage(gobject = NULL,
+                                     spatial_locs =  spatial_locs,
+                                     mg_object = png_path,
+                                     name = 'image',
+                                     xmax_adj = xmax_adj,
+                                     xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj,
+                                     ymin_adj = ymin_adj)
     }
 
     visium_png_list = list(visium_png)
@@ -3452,7 +3455,7 @@ joinGiottoObjects = function(gobject_list,
   # expand z_vals if given as a step value
   if(join_method == 'z_stack') {
     if(length(z_vals) == 1) {
-      if(isTRUE(verbose)) cat('Only one value given through z_vals param\n Treating this value as a z step\n')
+      if(isTRUE(verbose)) message('Only one value given through z_vals param\n Treating this value as a z step')
       z_vals = ((1:length(gobject_list)) - 1) * z_vals # Find z vals stepwise
     }
   }
@@ -3483,7 +3486,7 @@ joinGiottoObjects = function(gobject_list,
 
   ## 1. update giotto objects ##
   ## ------------------------ ##
-  if(verbose == TRUE) cat('start updating objects \n')
+  if(verbose == TRUE) message('start updating objects')
 
   all_feat_ID_list = list()
   all_cell_ID_list = list()
@@ -3911,7 +3914,7 @@ joinGiottoObjects = function(gobject_list,
 
   ## expression and feat IDs
   ## if no expression matrices are provided, then just combine all feature IDs
-  if(verbose == TRUE) cat('start expression combination \n')
+  if(verbose == TRUE) message('start expression combination')
 
   expr_names = names(first_obj@expression)
 

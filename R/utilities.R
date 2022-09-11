@@ -409,4 +409,22 @@ box_chars <- function() {
 }
 
 
+# Print Formatting ####
+
+#' @title Wrap message
+#' @name wrap_msg
+#' @keywords internal
+#' @inheritDotParams string elements to pass to cat
+#' @param collapse how to join elements of string (default is no space)
+wrap_msg = function(..., collapse = '') {
+  cat(...) %>%
+    capture.output() %>%
+    strwrap() %>%
+    paste(., collapse = '\n') %>%
+    message()
+}
+
+
+
+
 

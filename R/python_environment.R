@@ -23,13 +23,12 @@ checkGiottoEnvironment =  function(verbose = TRUE) {
   }
 
   if(file.exists(full_path)) {
-    if(verbose) cat('\n giotto environment found at \n',
-                    full_path, '\n')
+    if(verbose) message('\n giotto environment found at \n',
+                        full_path, '\n')
     return(TRUE)
 
   } else {
-    if(verbose) cat('\n giotto environment was expected, but NOT found at \n',
-                    full_path, '\n')
+    if(verbose) wrap_msg('\n giotto environment was expected, but NOT found at \n', full_path, '\n')
     return(FALSE)
   }
 
@@ -100,7 +99,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                                                verbose = TRUE) {
 
   ## install Giotto environment
-  if(verbose) cat('\n |---- install giotto environment ----| \n')
+  if(verbose) message('\n |---- install giotto environment ----| \n')
   conda_path = reticulate::miniconda_path()
 
   ## 3. identify operating system and adjust the necessary packages
@@ -191,7 +190,7 @@ install_giotto_environment = function(force_environment = FALSE,
   if(giotto_installed == TRUE & force_environment == FALSE) {
     # do nothing if already installed and no force required
 
-    if(verbose) cat('Giotto environment is already installed, set force_environment = TRUE to reinstall \n')
+    if(verbose) wrap_msg('Giotto environment is already installed, set force_environment = TRUE to reinstall \n')
 
   } else if(giotto_installed == TRUE & force_environment == TRUE) {
     # reinstall giotto if force required
@@ -281,7 +280,7 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas==1.1.5',
   conda_path = reticulate::miniconda_path()
 
   if(!file.exists(conda_path) | isTRUE(force_miniconda)) {
-    if(verbose) cat('\n |---- install local miniconda ----| \n')
+    if(verbose) message('\n |---- install local miniconda ----| \n')
     reticulate::install_miniconda(force = force_miniconda)
   }
 
@@ -309,7 +308,7 @@ removeGiottoEnvironment = function(verbose = TRUE) {
   giotto_installed = checkGiottoEnvironment(verbose = verbose)
 
   if(giotto_installed == FALSE) {
-    cat('Giotto environment is not found and probably never installed')
+    wrap_msg('Giotto environment is not found and probably never installed')
   }
 
   # first remove giotto environment, then install
@@ -330,19 +329,19 @@ set_giotto_python_path = function(python_path = NULL) {
 
   ## if a python path is provided, use that path
   if(!is.null(python_path)) {
-    cat('\n external python path provided and will be used \n')
+    message('\n external python path provided and will be used \n')
     python_path = as.character(python_path)
     reticulate::use_python(required = T, python = python_path)
 
   } else if(giotto_environment_installed == TRUE) {
 
-    cat('\n no external python path was provided, but a giotto python environment was found and will be used \n')
+    wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
     python_path = return_giotto_environment_path_executable()
     reticulate::use_python(required = T, python = python_path)
 
   } else {
 
-    cat('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
+    wrap_msg('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
 
     if(.Platform[['OS.type']] == 'unix') {
       python_path = try(system('which python3', intern = T))
@@ -351,17 +350,17 @@ set_giotto_python_path = function(python_path = NULL) {
     }
 
     if(inherits(python_path, 'try-error')) {
-      cat('\n no default python path found, install python and/or use strategy 1 or 2 \n')
+      wrap_msg('\n no default python path found, install python and/or use strategy 1 or 2 \n')
       python_path = '/need/to/set/path/to/python'
     } else {
       python_path = python_path
       reticulate::use_python(required = T, python = python_path)
-      cat('\n A default python path was found: ', python_path, ' and will be used\n')
+      wrap_msg('\n A default python path was found: ', python_path, ' and will be used\n')
     }
 
-    cat('\n If this is not the correct python path, either\n')
-    cat('\n 1. use installGiottoEnvironment() to install a local miniconda python environment along with required modules \n')
-    cat('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed \n')
+    wrap_msg('\n If this is not the correct python path, either')
+    wrap_msg('\n 1. use installGiottoEnvironment() to install a local miniconda python environment along with required modules')
+    wrap_msg('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed')
 
   }
 
