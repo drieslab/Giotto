@@ -1320,7 +1320,7 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = as.character(sort(unique(cell_metadata[[cluster_column]])))
 
 
   # data.table variables
@@ -1347,17 +1347,18 @@ doLeidenSubCluster = function(gobject,
       ## calculate stats
       temp_giotto <- addStatistics(gobject = temp_giotto)
 
-      ## calculate variable genes
-      temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
-
-      ## get hvg
       gene_metadata = fDataDT(temp_giotto)
-      featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
-      ## catch too low number of hvg
       if(use_all_genes_as_hvg == TRUE) {
-        featgenes == gene_metadata$gene_ID
+        featgenes = gene_metadata$gene_ID
       } else {
+        ## calculate variable genes
+        temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+        ## get hvg
+        featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+        ## catch too low number of hvg
         if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
         if(length(featgenes) <= min_nr_of_hvg) {
           cat('\n too few genes, will continue with all genes instead \n')
@@ -1492,10 +1493,8 @@ doLouvainSubCluster_community = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = as.character(sort(unique(cell_metadata[[cluster_column]])))
 
-  ## if clusters start at 0, then add +1 for the index ##
-  index_offset = ifelse(0 %in% unique_clusters, 1, 0)
 
   for(cluster in unique_clusters) {
 
@@ -1509,7 +1508,7 @@ doLouvainSubCluster_community = function(gobject,
     if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
 
       temp_cluster = data.table('cell_ID' = subset_cell_IDs, 'tempclus' = 1, 'parent_cluster' = cluster)
-      iter_list[[cluster+index_offset]] = temp_cluster
+      iter_list[[cluster]] = temp_cluster
 
     } else {
       # continue for selected clusters or all clusters if there is no selection
@@ -1517,21 +1516,21 @@ doLouvainSubCluster_community = function(gobject,
       ## calculate stats
       temp_giotto <- addStatistics(gobject = temp_giotto)
 
-      ## calculate variable genes
-      temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
-
-      ## get hvg
       gene_metadata = fDataDT(temp_giotto)
 
-      # data.table variables
-      hvg = perc_cells = mean_expr_det = NULL
-
-      featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
-
-      ## catch too low number of hvg
       if(use_all_genes_as_hvg == TRUE) {
-        featgenes == gene_metadata$gene_ID
+        featgenes = gene_metadata$gene_ID
       } else {
+        ## calculate variable genes
+        temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+        # data.table variables
+        hvg = perc_cells = mean_expr_det = NULL
+
+        ## get hvg
+        featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+        ## catch too low number of hvg
         if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
         if(length(featgenes) <= min_nr_of_hvg) {
           cat('\n too few genes, will continue with all genes instead \n')
@@ -1558,7 +1557,7 @@ doLouvainSubCluster_community = function(gobject,
 
       temp_cluster[, parent_cluster := cluster]
 
-      iter_list[[cluster+index_offset]] = temp_cluster
+      iter_list[[cluster]] = temp_cluster
 
 
 
@@ -1681,10 +1680,7 @@ doLouvainSubCluster_multinet =  function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
-
-  ## if clusters start at 0, then add +1 for the index ##
-  index_offset = ifelse(0 %in% unique_clusters, 1, 0)
+  unique_clusters = as.character(sort(unique(cell_metadata[[cluster_column]])))
 
 
   # data.table variables
@@ -1703,7 +1699,7 @@ doLouvainSubCluster_multinet =  function(gobject,
     if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
 
       temp_cluster = data.table('cell_ID' = subset_cell_IDs, 'tempclus' = 1, 'parent_cluster' = cluster)
-      iter_list[[cluster+index_offset]] = temp_cluster
+      iter_list[[cluster]] = temp_cluster
 
     } else {
       # continue for selected clusters or all clusters if there is no selection
@@ -1711,17 +1707,18 @@ doLouvainSubCluster_multinet =  function(gobject,
       ## calculate stats
       temp_giotto <- addStatistics(gobject = temp_giotto)
 
-      ## calculate variable genes
-      temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
-
-      ## get hvg
       gene_metadata = fDataDT(temp_giotto)
-      featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
-      ## catch too low number of hvg
       if(use_all_genes_as_hvg == TRUE) {
-        featgenes == gene_metadata$gene_ID
+        featgenes = gene_metadata$gene_ID
       } else {
+        ## calculate variable genes
+        temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+        ## get hvg
+        featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+        ## catch too low number of hvg
         if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
         if(length(featgenes) <= min_nr_of_hvg) {
           cat('\n too few genes, will continue with all genes instead \n')
@@ -1746,7 +1743,7 @@ doLouvainSubCluster_multinet =  function(gobject,
       temp_cluster[, parent_cluster := cluster]
       temp_cluster = temp_cluster[,.(cell_ID, tempclus, parent_cluster)]
 
-      iter_list[[cluster+index_offset]] = temp_cluster
+      iter_list[[cluster]] = temp_cluster
 
 
 
