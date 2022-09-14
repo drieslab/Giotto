@@ -45,6 +45,7 @@
 #' @param largeImage_name name of \code{largeImage} in \code{gobject}
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
+#' @param polygon_feat_type name of polygon/spatial_info to plot
 #' @param include_image_in_border [boolean] expand the extent sampled to also show image in
 #' border regions not included in spatlocs. This prevents images in plots from
 #' being sharply cut off around the furthest spatial locations. (default is \code{TRUE})
@@ -62,6 +63,7 @@ plot_auto_largeImage_resample = function(gobject,
                                          largeImage_name = NULL,
                                          spat_unit = NULL,
                                          spat_loc_name = NULL,
+                                         polygon_feat_type = NULL,
                                          include_image_in_border = TRUE,
                                          flex_resample = TRUE,
                                          max_crop = 1e+08,
@@ -81,6 +83,22 @@ plot_auto_largeImage_resample = function(gobject,
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
                                          spat_loc_name = spat_loc_name)
+
+  # If no spatial locations are available, rely on first existing polygon extent
+  if(is.null(cell_locations)) {
+    sub_obj = get_polygon_info(gobject = gobject,
+                                  polygon_name = polygon_feat_type)
+    # No point in checking feat_info right now. Subcellular gobj creation requires both poly and points
+    # if(is.null(sub_obj)) {
+    #   sub_obj = get_feature_info(gobject = gobject,
+    #                              feat_type = feat_type)
+    # }
+    cell_locations = list()
+    cell_locations$sdimx = c(terra::ext(sub_obj)[1:2])
+    cell_locations$sdimy = c(terra::ext(sub_obj)[3:4])
+  }
+
+  if(is.null(cell_locations)) stop('No spatial locations or polygons discovered.\n Cannot determine largeImage resample extent\n')
 
   # Get image extent minmax
   im_minmax = terra::ext(giottoLargeImage@raster_object)[1:4]
