@@ -93,9 +93,9 @@ plot_auto_largeImage_resample = function(gobject,
     #   sub_obj = get_feature_info(gobject = gobject,
     #                              feat_type = feat_type)
     # }
-    cell_locations = list()
-    cell_locations$sdimx = c(terra::ext(sub_obj)[1:2])
-    cell_locations$sdimy = c(terra::ext(sub_obj)[3:4])
+    cell_locations = data.table::data.table()
+    cell_locations$sdimx = as.vector(terra::ext(sub_obj)[1:2])
+    cell_locations$sdimy = as.vector(terra::ext(sub_obj)[3:4])
   }
 
   if(is.null(cell_locations)) stop('No spatial locations or polygons discovered.\n Cannot determine largeImage resample extent\n')
