@@ -1105,10 +1105,10 @@ subsetGiottoLocs = function(gobject,
 
   # function requires spat_loc_name
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = names(slot(gobject, 'spatial_locs')[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
-    } else if(!is.null(gobject@spatial_info)) {
+    } else if(!is.null(slot(gobject, 'spatial_info'))) {
       # EXCEPTION: if no spatlocs found but polys exist, find cell_IDs from polys
       polys_list = slot(gobject, 'spatial_info')
       cropped_IDs = lapply(polys_list, function(x) {

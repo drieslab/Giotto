@@ -87,15 +87,24 @@ plot_auto_largeImage_resample = function(gobject,
   # If no spatial locations are available, rely on first existing polygon extent
   if(is.null(cell_locations)) {
     sub_obj = get_polygon_info(gobject = gobject,
-                               polygon_name = polygon_feat_type)
-    # No point in checking feat_info right now. Subcellular gobj creation requires both poly and points
-    # if(is.null(sub_obj)) {
-    #   sub_obj = get_feature_info(gobject = gobject,
-    #                              feat_type = feat_type)
-    # }
-    sub_ext = terra::ext(sub_obj)[1:4]
-    cell_locations = data.table::data.table(sdimx = c(sub_ext[['xmin']], sub_ext[['xmax']]),
-                                            sdimy = c(sub_ext[['ymin']], sub_ext[['ymax']]))
+                               polygon_name = polygon_feat_type,
+                               return_giottoPolygon = TRUE)
+
+    # Find centroids then if there are more than 100, sample 30%
+    sub_obj = calculate_centroids_polygons(sub_obj)
+    sampleSize = ifelse(nrow(sub_obj) > 100, ceiling(0.3*nrow(sub_obj)), nrow(sub_obj))
+
+    centroid_sample_DT = slot(sub_obj, 'spatVectorCentroids') %>%
+      sample() %>%
+      terra::geom() %>%
+      as.data.table()
+
+    cell_locations = data.table::data.table(sdimx = c(centroid_sample_DT$x),
+                                            sdimy = c(centroid_sample_DT$y))
+
+    # sub_ext = terra::ext(sub_obj)[1:4]
+    # cell_locations = data.table::data.table(sdimx = c(sub_ext[['xmin']], sub_ext[['xmax']]),
+    #                                         sdimy = c(sub_ext[['ymin']], sub_ext[['ymax']]))
   }
 
   if(is.null(cell_locations)) stop('No spatial locations or polygons discovered.\n Cannot determine largeImage resample extent\n')
