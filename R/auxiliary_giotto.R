@@ -942,9 +942,9 @@ subsetGiotto <- function(gobject,
   ## cell & feature metadata ##
   # cell metadata
   gobject = subset_cell_metadata(gobject = gobject,
-                                 feat_type = feat_type,
-                                 filter_bool_cells = filter_bool_cells,
-                                 spat_unit = spat_unit)
+                                  feat_type = feat_type,
+                                  filter_bool_cells = filter_bool_cells,
+                                  spat_unit = spat_unit)
 
   if(verbose) cat('completed 5: subset cell metadata \n')
 
@@ -1109,17 +1109,16 @@ subsetGiottoLocs = function(gobject,
       spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else if(!is.null(gobject@spatial_info)) {
-      # EXCEPTION: if no spatlocs found but polys exist, directly crop
+      # EXCEPTION: if no spatlocs found but polys exist, find cell_IDs from polys
       polys_list = slot(gobject, 'spatial_info')
-      polys_list = lapply(polys_list, function(x) {
+      cropped_IDs = lapply(polys_list, function(x) {
         sv = slot(x, 'spatVector')
         sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
-        slot(x, 'spatVector') = sv
-        x
+        sv$poly_ID
         # TODO add cropping for z values as well
       })
 
-      slot(gobject, 'spatial_info') = polys_list
+      cropped_IDs = unique(unlist(cropped_IDs))
 
       subset_object = subsetGiotto(gobject = gobject,
                                    spat_unit = spat_unit,
