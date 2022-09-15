@@ -797,6 +797,7 @@ dimPlot2D_single <- function(gobject,
 
   dim_dfr = get_dimReduction(gobject = gobject,
                              spat_unit = spat_unit,
+                             feat_type = feat_type,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
@@ -830,6 +831,7 @@ dimPlot2D_single <- function(gobject,
     # nn_network
     selected_nn_network = get_NearestNetwork(gobject = gobject,
                                              spat_unit = spat_unit,
+                                             feat_type = feat_type,
                                              nn_network_to_use = nn_network_to_use,
                                              network_name = network_name,
                                              output = 'igraph')
