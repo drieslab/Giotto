@@ -1108,9 +1108,34 @@ subsetGiottoLocs = function(gobject,
     if(!is.null(gobject@spatial_locs)) {
       spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else if(!is.null(gobject@spatial_info)) {
+      # EXCEPTION: if no spatlocs found but polys exist, find cell_IDs from polys
+      polys_list = slot(gobject, 'spatial_info')
+      cropped_IDs = lapply(polys_list, function(x) {
+        sv = slot(x, 'spatVector')
+        sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
+        sv$poly_ID
+        # TODO add cropping for z values as well
+      })
+
+      cropped_IDs = unique(unlist(cropped_IDs))
+
+      subset_object = subsetGiotto(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   cell_ids = cropped_IDs,
+                                   poly_info = poly_info,
+                                   x_max = x_max,
+                                   x_min = x_min,
+                                   y_max = y_max,
+                                   y_min = y_min,
+                                   verbose = verbose)
+
+      return(subset_object)
+
     } else {
       spat_loc_name = NULL
-      cat('No spatial locations have been found \n')
+      cat('No spatial locations or spatial info have been found \n')
       return(NULL)
     }
   }
