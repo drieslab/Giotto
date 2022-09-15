@@ -87,15 +87,15 @@ plot_auto_largeImage_resample = function(gobject,
   # If no spatial locations are available, rely on first existing polygon extent
   if(is.null(cell_locations)) {
     sub_obj = get_polygon_info(gobject = gobject,
-                                  polygon_name = polygon_feat_type)
+                               polygon_name = polygon_feat_type)
     # No point in checking feat_info right now. Subcellular gobj creation requires both poly and points
     # if(is.null(sub_obj)) {
     #   sub_obj = get_feature_info(gobject = gobject,
     #                              feat_type = feat_type)
     # }
-    cell_locations = data.table::data.table()
-    cell_locations$sdimx = as.vector(terra::ext(sub_obj)[1:2])
-    cell_locations$sdimy = as.vector(terra::ext(sub_obj)[3:4])
+    sub_ext = terra::ext(sub_obj)[1:4]
+    cell_locations = data.table::data.table(sdimx = c(sub_ext[['xmin']], sub_ext[['xmax']]),
+                                            sdimy = c(sub_ext[['ymin']], sub_ext[['ymax']]))
   }
 
   if(is.null(cell_locations)) stop('No spatial locations or polygons discovered.\n Cannot determine largeImage resample extent\n')
@@ -2379,21 +2379,24 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 #' @title plot_spat_image_layer_ggplot
 #' @name plot_spat_image_layer_ggplot
 #' @description create background image in ggplot
+#' @param gg_obj ggplot2 object
 #' @param gobject giotto object
 #' @param gimage a giotto image or a list/vector of giotto images
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name for spatial locations
+#' @param polygon_feat_type name for feature type associated with polygon information
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @return ggplot
 #' @keywords internal
-plot_spat_image_layer_ggplot = function(ggplot,
+plot_spat_image_layer_ggplot = function(gg_obj,
                                         gobject,
                                         gimage,
                                         feat_type = NULL,
                                         spat_unit = NULL,
                                         spat_loc_name = NULL,
+                                        polygon_feat_type = NULL,
                                         sdimx = NULL,
                                         sdimy = NULL) {
 
@@ -2421,13 +2424,34 @@ plot_spat_image_layer_ggplot = function(ggplot,
                                    spat_unit = spat_unit,
                                    spat_loc_name = spat_loc_name)
 
-  ggplot = ggplot + geom_blank(data = spatlocs, aes_string(sdimx, sdimy))
+  # Get spatial extent for positioning purposes
+  spat_ext = spatlocs[, c('sdimx', 'sdimy'), with = FALSE]
+
+  # When spatial locations are missing but subcellular info is present
+  # Pull plot extent info from polygon info if present
+
+  if(is.null(spat_ext)) {
+    gpoly = get_polygon_info(gobject = gobject,
+                             polygon_name = polygon_feat_type)
+
+    poly_ext = terra::ext(gpoly)[1:4]
+    spat_ext = data.table::data.table(sdimx = c(poly_ext[['xmin']], poly_ext[['xmax']]),
+                                      sdimy = c(poly_ext[['ymin']], poly_ext[['ymax']]))
+  }
+
+  # If still missing, send warning
+  if(is.null(spat_ext)) {
+    warning('No spatial locations or polygon info found.\n Plot spatial extent may be incorrect\n')
+  }
+
+  # Assign region to plot
+  gg_obj = gg_obj + geom_blank(data = spat_ext, aes_string(sdimx, sdimy))
 
   if((is.list(gimage) | is.vector(gimage)) & length(gimage) > 1) {
 
     for(i in 1:length(gimage)) {
 
-      if(methods::is(gimage[[i]], 'giottoImage')) {
+      if(inherits(gimage[[i]], 'giottoImage')) {
         # extract min and max from object
         my_xmax = gimage[[i]]@minmax[1]
         my_xmin = gimage[[i]]@minmax[2]
@@ -2443,11 +2467,13 @@ plot_spat_image_layer_ggplot = function(ggplot,
         ymax_b = gimage[[i]]@boundaries[3]
         ymin_b = gimage[[i]]@boundaries[4]
 
-        ggplot = ggplot + annotation_raster(img_array,
+        gg_obj = gg_obj + annotation_raster(img_array,
                                             xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                             ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
 
-      } else if(methods::is(gimage[[i]], 'giottoLargeImage')) {
+        # TODO geom_raster to accommodate single-channel
+
+      } else if(inherits(gimage[[i]], 'giottoLargeImage')) {
         # get plotting minmax
         extent = terra::ext(gimage[[i]]@raster_object)[1:4]
         xmin = extent[['xmin']]
@@ -2465,9 +2491,11 @@ plot_spat_image_layer_ggplot = function(ggplot,
           img_array_RGB = img_array
         }
 
-        ggplot = ggplot + annotation_raster(img_array_RGB,
+        gg_obj = gg_obj + annotation_raster(img_array_RGB,
                                             xmin = xmin, xmax = xmax,
                                             ymin = ymin, ymax = ymax)
+
+        # TODO geom_raster to accommodate single-channel
       }
 
     }
@@ -2490,7 +2518,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
       ymax_b = gimage@boundaries[3]
       ymin_b = gimage@boundaries[4]
 
-      ggplot = ggplot + annotation_raster(img_array,
+      gg_obj = gg_obj + annotation_raster(img_array,
                                           xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                           ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
 
@@ -2512,17 +2540,16 @@ plot_spat_image_layer_ggplot = function(ggplot,
         img_array_RGB = img_array
       }
 
-      ggplot = ggplot + annotation_raster(img_array_RGB,
+      gg_obj = gg_obj + annotation_raster(img_array_RGB,
                                           xmin = xmin, xmax = xmax,
                                           ymin = ymin, ymax = ymax)
     }
 
   }
 
+  if(!is.null(spatlocs))  gg_obj = gg_obj + geom_point(data = spatlocs, aes_string(sdimx, sdimy), alpha = 0.5, size = 0.4)
 
-  ggplot = ggplot + geom_point(data = spatlocs, aes_string(sdimx, sdimy), alpha = 0.5, size = 0.4)
-
-  return(ggplot)
+  return(gg_obj)
 
 }
 
@@ -2887,7 +2914,7 @@ spatPlot2D_single = function(gobject,
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
-    pl = plot_spat_image_layer_ggplot(ggplot = pl,
+    pl = plot_spat_image_layer_ggplot(gg_obj = pl,
                                       gobject = gobject,
                                       feat_type = feat_type,
                                       spat_unit = spat_unit,
@@ -3604,7 +3631,7 @@ spatDeconvPlot = function(gobject,
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
-    pl = plot_spat_image_layer_ggplot(ggplot = pl,
+    pl = plot_spat_image_layer_ggplot(gg_obj = pl,
                                       gobject = gobject,
                                       feat_type = feat_type,
                                       spat_unit = spat_unit,
@@ -4276,7 +4303,7 @@ spatFeatPlot2D_single <- function(gobject,
     ## plot image ## TODO
     ## plot image ##
     if(show_image == TRUE & !is.null(gimage)) {
-      pl = plot_spat_image_layer_ggplot(ggplot = pl,
+      pl = plot_spat_image_layer_ggplot(gg_obj = pl,
                                         gobject = gobject,
                                         feat_type = feat_type,
                                         spat_unit = spat_unit,

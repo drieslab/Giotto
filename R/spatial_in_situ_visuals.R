@@ -342,11 +342,12 @@ spatInSituPlotPoints = function(gobject,
 
   ## 0. plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
-    plot = plot_spat_image_layer_ggplot(ggplot = plot,
+    plot = plot_spat_image_layer_ggplot(gg_obj = plot,
                                         gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         spat_loc_name = spat_loc_name,
+                                        polygon_feat_type = polygon_feat_type,
                                         gimage = gimage,
                                         sdimx = 'sdimx',
                                         sdimy = 'sdimy')
