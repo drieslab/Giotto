@@ -685,6 +685,7 @@ runPCA <- function(gobject,
 
     gobject = set_dimReduction(gobject = gobject,
                                spat_unit = spat_unit,
+                               feat_type = feat_type,
                                reduction = reduction,
                                reduction_method = 'pca',
                                name = name,
