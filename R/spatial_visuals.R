@@ -95,7 +95,7 @@ plot_auto_largeImage_resample = function(gobject,
     sampleSize = ifelse(nrow(sub_obj) > 100, ceiling(0.3*nrow(sub_obj)), nrow(sub_obj))
 
     centroid_sample_DT = slot(sub_obj, 'spatVectorCentroids') %>%
-      sample() %>%
+      sample(., size = sampleSize) %>%
       terra::geom() %>%
       as.data.table()
 
