@@ -114,15 +114,17 @@ plot_auto_largeImage_resample = function(gobject,
   # Determine crop
   if(isTRUE(include_image_in_border)) {
     # with crop padding
-    x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
-    y_halfPaddedRange = diff(range(cell_locations$sdimy))*0.625
-    x_mean = mean(cell_locations$sdimx)
-    y_mean = mean(cell_locations$sdimy)
+    x_range = range(cell_locations$sdimx)
+    y_range = range(cell_locations$sdimy)
+    x_halfPaddedRange = diff(x_range)*0.625
+    y_halfPaddedRange = diff(y_range)*0.625
+    x_midpt = mean(x_range)
+    y_midpt = mean(y_range)
 
-    xmax_crop = x_mean + x_halfPaddedRange
-    xmin_crop = x_mean - x_halfPaddedRange
-    ymax_crop = y_mean + y_halfPaddedRange
-    ymin_crop = y_mean - y_halfPaddedRange
+    xmax_crop = x_midpt + x_halfPaddedRange
+    xmin_crop = x_midpt - x_halfPaddedRange
+    ymax_crop = y_midpt + y_halfPaddedRange
+    ymin_crop = y_midpt - y_halfPaddedRange
 
     if(xmin_crop < im_minmax[['xmin']]) xmin_crop = im_minmax[['xmin']]
     if(xmax_crop > im_minmax[['xmax']]) xmax_crop = im_minmax[['xmax']]
