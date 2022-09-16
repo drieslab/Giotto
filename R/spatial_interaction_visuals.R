@@ -329,7 +329,11 @@ cellProximityNetwork = function(gobject,
   ## create plot
   gpl = ggraph::ggraph(graph = igd, layout = coords)
   gpl = gpl + ggraph::geom_edge_link(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
-  gpl = gpl + ggraph::geom_edge_loop(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+
+  if(remove_self_edges == FALSE) {
+    gpl = gpl + ggraph::geom_edge_loop(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+  }
+
   gpl = gpl + ggraph::scale_edge_color_manual(values = c('enriched' = color_enrichment, 'depleted' = color_depletion))
   gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
   gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
