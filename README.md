@@ -22,7 +22,7 @@ Giotto. It aggregates information from both the original Giotto package
 and our extended Giotto Suite, which is our extended work-in-development
 version.  
 - www.spatialgiotto.com links to the original [master
-version](https://giottosuite.readthedocs.io/en/stable/). The old master
+version](https://giottosuite.readthedocs.io/en/master/). The old master
 pkgdown documentation can still be found at
 <https://rubd.github.io/Giotto_site/>  
 - www.giottosuite.com links to the extended [suite
