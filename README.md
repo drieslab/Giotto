@@ -14,6 +14,22 @@ Commit](https://img.shields.io/github/last-commit/RubD/Giotto/master)
 Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/master)
 <!-- badges: end -->
 
+**Website change!**  
+We have created a new [readthedocs
+website](https://giottosuite.readthedocs.io/en/latest/#) to further
+improve and simplify Giotto documentation and to make it easier to use
+Giotto. It aggregates information from both the original Giotto package
+and our extended Giotto Suite, which is our extended work-in-development
+version.  
+- www.spatialgiotto.com links to the original [master
+version](https://giottosuite.readthedocs.io/en/stable/). The old master
+pkgdown documentation can still be found at
+<https://rubd.github.io/Giotto_site/>  
+- www.giottosuite.com links to the extended [suite
+version](https://giottosuite.readthedocs.io/en/latest/). The old suite
+pkgdown documentation can still be found at
+<https://drieslab.github.io/Giotto_site_suite/>
+
 The Giotto package consists of two modules, Giotto Analyzer and Viewer
 (see [www.spatialgiotto.com](http://www.spatialgiotto.com)), which
 provide tools to process, analyze and visualize **single-cell spatial
@@ -25,10 +41,7 @@ situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq,
 Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI,
 CODEX). These technologies differ in terms of resolution (single cell vs
 multiple cells), spatial dimension (2D vs 3D), molecular modality
-(protein vs RNA), and throughput (number of cells and genes). More
-information and documentation about the latest version of Giotto
-Analyzer can be found at <https://rubd.github.io/Giotto_site/> (**URL
-change !!**).
+(protein vs RNA), and throughput (number of cells and genes).
 
 <img src="inst/images/general_figs/overview_datasets.png" />
 
