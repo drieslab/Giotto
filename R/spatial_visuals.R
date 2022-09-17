@@ -855,7 +855,7 @@ dimPlot2D_single <- function(gobject,
   # add % variance information if reduction is PCA
   if(dim_reduction_to_use == "pca"){
 
-    eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]]$misc$eigenvalues
+    eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]]@misc$eigenvalues
 
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
