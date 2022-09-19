@@ -110,7 +110,8 @@ select_gimage = function(gobject,
                          largeImage_name = NULL,
                          spat_unit = NULL,
                          spat_loc_name = NULL,
-                         feat_type = NULL) {
+                         feat_type = NULL,
+                         polygon_feat_type = NULL) {
 
 
   if(!is.null(gimage)) gimage = gimage
@@ -137,6 +138,7 @@ select_gimage = function(gobject,
                                              largeImage_name = largeImage_name,
                                              spat_unit = spat_unit,
                                              spat_loc_name = spat_loc_name,
+                                             polygon_feat_type = polygon_feat_type,
                                              include_image_in_border = TRUE)
     } else {
       gimage = list()
@@ -145,6 +147,7 @@ select_gimage = function(gobject,
                                                       largeImage_name = largeImage_name[[gim]],
                                                       spat_unit = spat_unit,
                                                       spat_loc_name = spat_loc_name,
+                                                      polygon_feat_type = polygon_feat_type,
                                                       include_image_in_border = TRUE)
       }
     }
@@ -199,7 +202,8 @@ plot_feature_points_layer = function(ggobject,
                                              y = sdimy,
                                              color = color,
                                              shape = shape),
-                         size = point_size, show.legend = show_legend)
+                         size = point_size,
+                         show.legend = show_legend)
 
 
 
@@ -323,7 +327,8 @@ spatInSituPlotPoints = function(gobject,
                            largeImage_name = largeImage_name,
                            spat_unit = spat_unit,
                            spat_loc_name = spat_loc_name,
-                           feat_type = feat_type)
+                           feat_type = feat_type,
+                           polygon_feat_type = polygon_feat_type)
 
   }
 
@@ -337,11 +342,12 @@ spatInSituPlotPoints = function(gobject,
 
   ## 0. plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
-    plot = plot_spat_image_layer_ggplot(ggplot = plot,
+    plot = plot_spat_image_layer_ggplot(gg_obj = plot,
                                         gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         spat_loc_name = spat_loc_name,
+                                        polygon_feat_type = polygon_feat_type,
                                         gimage = gimage,
                                         sdimx = 'sdimx',
                                         sdimy = 'sdimy')
@@ -749,7 +755,7 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
 
   # data.table variable
   feat_ID = NULL
-  
+
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(sel_feat)]
 
   if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {

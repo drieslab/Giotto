@@ -11,8 +11,24 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 ![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
 ![Commits Since
 Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
-[![R-CMD-check](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=ci-unittest)](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
+**Website change!**  
+We have created a new [readthedocs
+website](https://giottosuite.readthedocs.io/en/latest/#) to further
+improve and simplify Giotto documentation and to make it easier to use
+Giotto. It aggregates information from both the original Giotto package
+and our extended Giotto Suite, which is our extended work-in-development
+version.  
+- www.spatialgiotto.com links to the original [master
+version](https://giottosuite.readthedocs.io/en/master/). The old master
+pkgdown documentation can still be found at
+<https://rubd.github.io/Giotto_site/>  
+- www.giottosuite.com links to the extended [suite
+version](https://giottosuite.readthedocs.io/en/latest/). The old suite
+pkgdown documentation can still be found at
+<https://drieslab.github.io/Giotto_site_suite/>
 
 Giotto Suite is a major upgrade to the Giotto package that provides
 tools to process, analyze and visualize **spatial multi-omics data at
@@ -23,12 +39,10 @@ applicable on various different datasets, such as those created by
 state-of-the-art spatial technologies, including *in situ* hybridization
 (seqFISH+, merFISH, osmFISH, CosMx), sequencing (Slide-seq, Visium,
 STARmap, Seq-Scope, Stereo-Seq) and imaging-based
-multiplexing/proteomics (CyCIF, MIBI, CODEX).  
-These technologies differ in terms of resolution (subcellular, single
-cell or multiple cells), spatial dimension (2D vs 3D), molecular
-modality (protein, RNA, DNA, …), and throughput (number of cells and
-analytes). More information and documentation about Giotto Suite can be
-found at <http://giottosuite.com/index.html>.
+multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ
+in terms of resolution (subcellular, single cell or multiple cells),
+spatial dimension (2D vs 3D), molecular modality (protein, RNA, DNA, …),
+and throughput (number of cells and analytes).
 
 The package is in heavy development. Please check back often!
 
