@@ -10,6 +10,7 @@ plot_auto_largeImage_resample(
   largeImage_name = NULL,
   spat_unit = NULL,
   spat_loc_name = NULL,
+  polygon_feat_type = NULL,
   include_image_in_border = TRUE,
   flex_resample = TRUE,
   max_crop = 1e+08,
@@ -27,6 +28,8 @@ plot_auto_largeImage_resample(
 \item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name of spatial locations to plot}
+
+\item{polygon_feat_type}{name of polygon/spatial_info to plot}
 
 \item{include_image_in_border}{[boolean] expand the extent sampled to also show image in
 border regions not included in spatlocs. This prevents images in plots from

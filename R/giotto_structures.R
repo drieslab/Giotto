@@ -1556,9 +1556,11 @@ addSpatialCentroidLocationsLayer = function(gobject,
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = poly_info,
-                                    feat_type = feat_type)
+  # feat_type = set_default_feat_type(gobject = gobject,
+  #                                   spat_unit = poly_info,
+  #                                   feat_type = feat_type)
+  feat_type = slot(gobject, 'expression_feat')[[1]] # Specifically preferable over set_default function
+  #There may be no existing data in expression slot to find feat_type nesting from
 
   extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
                                                      name = 'centroids',
