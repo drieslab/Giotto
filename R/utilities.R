@@ -414,7 +414,7 @@ box_chars <- function() {
 #' @title Wrap message
 #' @name wrap_msg
 #' @keywords internal
-#' @inheritDotParams string elements to pass to cat
+#' @param ... additional strings and/or elements to pass to cat
 #' @param collapse how to join elements of string (default is no space)
 wrap_msg = function(..., collapse = '') {
   cat(...) %>%
