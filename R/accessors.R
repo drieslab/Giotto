@@ -791,14 +791,29 @@ set_spatialGrid <- function(gobject,
 #' @param gobject giotto object
 #' @param polygon_name name of polygons. Default "cell"
 #' @param polygon_overlap include polygon overlap information
+#' @param return_giottoPolygon (Defaults to FALSE) Return as giottoPolygon S4 object
 #' @family polygon info data accessor functions
 #' @family functions to get data from giotto object
 #' @export
 get_polygon_info = function(gobject,
-                            polygon_name = 'cell',
-                            polygon_overlap = NULL) {
+                            polygon_name = NULL,
+                            polygon_overlap = NULL,
+                            return_giottoPolygon = FALSE) {
 
-  potential_names = names(gobject@spatial_info)
+  potential_names = names(slot(gobject, 'spatial_info'))
+  if(is.null(potential_names)) stop('Giotto object contains no polygon information')
+
+  # If polygon_name is not given...
+  if(is.null(polygon_name)) {
+    if('cell' %in% potential_names) {
+      polygon_name = 'cell' # Default to 'cell' as polygon_name if available
+    } else {
+      polygon_name = potential_names[1] # Select 1st available name if 'cell' is missing
+      message('No polygon information named "cell" discovered.\n selecting first available ("',polygon_name,'")')
+    }
+  }
+
+  if(isTRUE(return_giottoPolygon)) return(slot(gobject, 'spatial_info')[[polygon_name]])
 
   if(!polygon_name %in% potential_names) {
     stop('There is no polygon information with name ', polygon_name, '\n')
