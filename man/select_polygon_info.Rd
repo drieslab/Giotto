@@ -13,6 +13,7 @@ select_polygon_info(...)
     \item{\code{gobject}}{giotto object}
     \item{\code{polygon_name}}{name of polygons. Default "cell"}
     \item{\code{polygon_overlap}}{include polygon overlap information}
+    \item{\code{return_giottoPolygon}}{(Defaults to FALSE) Return as giottoPolygon S4 object}
   }}
 }
 \description{

@@ -136,6 +136,10 @@ get_spatial_locations <- function(gobject,
                                   spat_unit = NULL,
                                   spat_loc_name = NULL) {
 
+  if(!is.null(spat_unit)) {
+    potential_spat_unit = names(slot(gobject, 'spatial_locs'))
+    if(!spat_unit %in% potential_spat_unit) stop('No spatial locations for spatial unit "', spat_unit, '" exist in spatial_locs slot.')
+  }
 
   # spatial locations
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -144,8 +148,8 @@ get_spatial_locations <- function(gobject,
   # if NULL (not given) and spatial locations have been added, then use first one
   # if NULL (not given) and spatial locations have NOT been added, then keep NULL
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = names(slot(gobject, 'spatial_locs')[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL
@@ -154,10 +158,10 @@ get_spatial_locations <- function(gobject,
     }
   }
 
-  potential_names = names(gobject@spatial_locs[[spat_unit]])
+  potential_names = names(slot(gobject, 'spatial_locs')[[spat_unit]])
 
   if(spat_loc_name %in% potential_names) {
-    spatloc = data.table::copy(gobject@spatial_locs[[spat_unit]][[spat_loc_name]])
+    spatloc = data.table::copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]])
     return(spatloc)
   } else {
     stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
