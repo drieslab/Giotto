@@ -3411,10 +3411,16 @@ joinGiottoObjects = function(gobject_list,
   sdimy = NULL
 
   ## determine join method
+  if(is.null(join_method)) message('No join_method given. Using defaults')
   join_method = match.arg(arg = join_method, choices = c('shift', 'z_stack', 'no_change'))
 
   # print out join method
-  if(isTRUE(verbose)) cat('Join method:', join_method,'\n')
+  if(isTRUE(verbose)) message('Join method:', join_method)
+  if(join_method == 'shift' & is.null(x_shift) & is.null(y_shift)) {
+    message('No x_shift or y_shift value given. Using defaults')
+    x_shift = 1000
+  }
+
 
   ## check params
   if(!is.vector(gobject_names) | !is.character(gobject_names)) {
