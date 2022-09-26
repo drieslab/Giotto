@@ -3400,8 +3400,8 @@ joinGiottoObjects = function(gobject_list,
                              z_vals = 1000,
                              x_shift = NULL,
                              y_shift = NULL,
-                             x_padding = 0,
-                             y_padding = 0,
+                             x_padding = NULL,
+                             y_padding = NULL,
                              verbose = TRUE) {
 
   # define for data.table := and .()
@@ -3416,9 +3416,17 @@ joinGiottoObjects = function(gobject_list,
 
   # print out join method
   if(isTRUE(verbose)) message('Join method:', join_method)
-  if(join_method == 'shift' & is.null(x_shift) & is.null(y_shift)) {
-    message('No x_shift or y_shift value given. Using defaults')
-    x_shift = 1000
+
+
+  if(join_method == 'shift') {
+    # Set defaults for shift if no shift params are given
+    if(is.null(x_shift) & is.null(y_shift) & is.null(x_padding) & is.null(y_padding)) {
+      message('No xy shift or specific padding values given. Using defaults')
+      x_padding = 1000
+    }
+    # Assign default padding values if NULL
+    if(is.null(x_padding)) x_padding = 0
+    if(is.null(y_padding)) y_padding = 0
   }
 
 
@@ -3576,7 +3584,7 @@ joinGiottoObjects = function(gobject_list,
 
           } else {
             x_shift_i = x_shift[[gobj_i]]
-            add_to_x = x_shift_i + x_padding
+            add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
           }
 
           if(verbose) cat('Image: for ',imname, ' add_to_x = ', add_to_x, '\n')
@@ -3588,7 +3596,7 @@ joinGiottoObjects = function(gobject_list,
           ## shift in y-direction
           if(!is.null(y_shift)) {
             y_shift_i = y_shift[[gobj_i]]
-            add_to_y = y_shift_i + y_padding
+            add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
             if(verbose) cat('Image: for ',imname, ' add_to_y = ', add_to_y, '\n')
 
@@ -3638,7 +3646,7 @@ joinGiottoObjects = function(gobject_list,
 
             } else {
               x_shift_i = x_shift[[gobj_i]]
-              add_to_x = x_shift_i + x_padding
+              add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
             }
 
             # record xshift (if not already done)
@@ -3658,7 +3666,7 @@ joinGiottoObjects = function(gobject_list,
           if(!is.null(y_shift)) {
             if(!list_element_exists(yshift_list, gobj_i)) {
               y_shift_i = y_shift[[gobj_i]]
-              add_to_y = y_shift_i + y_padding
+              add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
               yshift_list[[gobj_i]] = add_to_y
             }
@@ -3689,6 +3697,10 @@ joinGiottoObjects = function(gobject_list,
     ## 3. update spatial location
     # add padding to x-axis
     # update cell ID
+
+    # If no images were present
+    if(length(xshift_list) == 0) xshift_list = ((seq_along(gobject_list) - 1) * x_padding)
+
     for(spat_unit in names(gobj@spatial_locs)) {
 
       for(locs in names(gobj@spatial_locs[[spat_unit]])) {
@@ -3707,7 +3719,7 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = xshift_list[[gobj_i]]
           } else {
             x_shift_i = x_shift[[gobj_i]]
-            add_to_x = x_shift_i + x_padding
+            add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
           }
 
           if(verbose) cat('Spatial locations: for ',locs, ' add_to_x = ', add_to_x, '\n')
@@ -3720,7 +3732,7 @@ joinGiottoObjects = function(gobject_list,
         # shift for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
           if(verbose) cat('Spatial locations: for ',locs, ' add_to_y = ', add_to_y, '\n')
 
@@ -3774,13 +3786,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = x_shift_i + x_padding
+          add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
         } else {
           add_to_y = 0
         }
@@ -3819,13 +3831,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = x_shift_i + x_padding
+          add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
         } else {
           add_to_y = 0
         }
