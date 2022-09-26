@@ -5,17 +5,20 @@
 \title{plot_spat_image_layer_ggplot}
 \usage{
 plot_spat_image_layer_ggplot(
-  ggplot,
+  gg_obj,
   gobject,
   gimage,
   feat_type = NULL,
   spat_unit = NULL,
   spat_loc_name = NULL,
+  polygon_feat_type = NULL,
   sdimx = NULL,
   sdimy = NULL
 )
 }
 \arguments{
+\item{gg_obj}{ggplot2 object}
+
 \item{gobject}{giotto object}
 
 \item{gimage}{a giotto image or a list/vector of giotto images}
@@ -25,6 +28,8 @@ plot_spat_image_layer_ggplot(
 \item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name for spatial locations}
+
+\item{polygon_feat_type}{name for feature type associated with polygon information}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

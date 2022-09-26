@@ -4,7 +4,12 @@
 \alias{get_polygon_info}
 \title{Get polygon info}
 \usage{
-get_polygon_info(gobject, polygon_name = "cell", polygon_overlap = NULL)
+get_polygon_info(
+  gobject,
+  polygon_name = NULL,
+  polygon_overlap = NULL,
+  return_giottoPolygon = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +17,8 @@ get_polygon_info(gobject, polygon_name = "cell", polygon_overlap = NULL)
 \item{polygon_name}{name of polygons. Default "cell"}
 
 \item{polygon_overlap}{include polygon overlap information}
+
+\item{return_giottoPolygon}{(Defaults to FALSE) Return as giottoPolygon S4 object}
 }
 \description{
 Get giotto polygon spatVector
