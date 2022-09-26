@@ -138,6 +138,7 @@ Collate:
     'utilities.R'
     'utils-pipe.R'
     'variable_genes.R'
+    'wnn.R'
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
