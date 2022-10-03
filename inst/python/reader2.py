@@ -117,6 +117,9 @@ def DFS(p, adjacent, visited, new_chain):
 	return visited, new_chain
 
 if __name__=="__main__":
+	java_error_message = "Error: java not found. This function uses a java functionality. Please ensure java is installed: https://www.java.com/en/download/"
+	java_exists = bool(os.system('java -version')) # Returns 0 if it runs without error, 1 otherwise
+	if java_exists: raise(KeyError(java_error_message))
 	parser = argparse.ArgumentParser(description="HMRF.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument("-l", "--location", dest="location", type=str, required=True)
 	parser.add_argument("-g", "--genes", dest="genes", type=str, required=True)
