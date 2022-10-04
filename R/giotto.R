@@ -1802,6 +1802,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
+#' @param largeImages list of large images
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
@@ -1860,6 +1861,7 @@ createGiottoObject <- function(expression,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                images = NULL,
+                               largeImages = NULL,
                                offset_file = NULL,
                                instructions = NULL,
                                cores = NA,
@@ -2441,6 +2443,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
+#' @param largeImages list of large images
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose when building Giotto object
@@ -2462,6 +2465,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                          dimension_reduction = NULL,
                                          nn_network = NULL,
                                          images = NULL,
+                                         largeImages = NULL,
                                          instructions = NULL,
                                          cores = NA,
                                          verbose = TRUE) {
