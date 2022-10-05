@@ -36,8 +36,6 @@ show method for giottoImage class
 
 show method for giottoLargeImage class
 
-show method for giotto class
-
 show method for aggregateExprObj class
 
 show method for spatialNetworkObj class
