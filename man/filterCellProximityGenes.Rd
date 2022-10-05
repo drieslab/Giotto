@@ -10,7 +10,7 @@ filterCellProximityGenes(...)
 \item{...}{
   Arguments passed on to \code{\link[=filterInteractionChangedFeats]{filterInteractionChangedFeats}}
   \describe{
-    \item{\code{cpgObject}}{ICF (interaction changed feature) score object}
+    \item{\code{icfObject}}{ICF (interaction changed feature) score object}
     \item{\code{min_cells}}{minimum number of source cell type}
     \item{\code{min_cells_expr}}{minimum expression level for source cell type}
     \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}
@@ -24,7 +24,7 @@ filterCellProximityGenes(...)
   }}
 }
 \description{
-Filter Interaction Changed Gene scores.
+Filter Interaction Changed Feature scores.
 }
 \seealso{
 \code{\link{filterInteractionChangedFeats}}

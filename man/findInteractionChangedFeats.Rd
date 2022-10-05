@@ -64,16 +64,16 @@ findInteractionChangedFeats(
 \item{seed_number}{seed number}
 }
 \value{
-cpgObject that contains the Interaction Changed differential gene scores
+icfObject that contains the Interaction Changed differential feature scores
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
 i.e. features that are differentially expressed due to proximity to other cell types.#'
 }
 \details{
-Function to calculate if genes are differentially expressed in cell types
+Function to calculate if features are differentially expressed in cell types
  when they interact (approximated by physical proximity) with other cell types.
- The results data.table in the cpgObject contains - at least - the following columns:
+ The results data.table in the icfObject contains - at least - the following columns:
 \itemize{
  \item{features:}{ All or selected list of tested features}
  \item{sel:}{ average feature expression in the interacting cells from the target cell type }

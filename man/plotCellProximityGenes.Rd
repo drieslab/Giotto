@@ -4,70 +4,33 @@
 \alias{plotCellProximityGenes}
 \title{plotCellProximityGenes}
 \usage{
-plotCellProximityGenes(
-  gobject,
-  cpgObject,
-  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap", "dotplot"),
-  min_cells = 4,
-  min_cells_expr = 1,
-  min_int_cells = 4,
-  min_int_cells_expr = 1,
-  min_fdr = 0.1,
-  min_spat_diff = 0.2,
-  min_log2_fc = 0.2,
-  min_zscore = 2,
-  zscores_column = c("cell_type", "feats"),
-  direction = c("both", "up", "down"),
-  cell_color_code = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "plotCellProximityGenes"
-)
+plotCellProximityGenes(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{cpgObject}{ICG (interaction changed gene) score object}
-
-\item{method}{plotting method to use}
-
-\item{min_cells}{minimum number of source cell type}
-
-\item{min_cells_expr}{minimum expression level for source cell type}
-
-\item{min_int_cells}{minimum number of interacting neighbor cell type}
-
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
-
-\item{min_fdr}{minimum adjusted p-value}
-
-\item{min_spat_diff}{minimum absolute spatial expression difference}
-
-\item{min_log2_fc}{minimum log2 fold-change}
-
-\item{min_zscore}{minimum z-score change}
-
-\item{zscores_column}{calculate z-scores over cell types or genes}
-
-\item{direction}{differential expression directions to keep}
-
-\item{cell_color_code}{vector of colors with cell types as names}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return plotting object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-}
-\value{
-plot
+\item{...}{
+  Arguments passed on to \code{\link[=plotCellProximityFeats]{plotCellProximityFeats}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{icfObject}}{ICF (interaction changed feature) score object}
+    \item{\code{method}}{plotting method to use}
+    \item{\code{min_cells}}{minimum number of source cell type}
+    \item{\code{min_cells_expr}}{minimum expression level for source cell type}
+    \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}
+    \item{\code{min_int_cells_expr}}{minimum expression level for interacting neighbor cell type}
+    \item{\code{min_fdr}}{minimum adjusted p-value}
+    \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
+    \item{\code{min_log2_fc}}{minimum log2 fold-change}
+    \item{\code{min_zscore}}{minimum z-score change}
+    \item{\code{zscores_column}}{calculate z-scores over cell types or featuress}
+    \item{\code{direction}}{differential expression directions to keep}
+    \item{\code{cell_color_code}}{vector of colors with cell types as names}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return plotting object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters from \code{\link{all_plots_save_function}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \description{
-Create visualization for cell proximity gene scores
+Create visualization for cell proximity feature scores
 }

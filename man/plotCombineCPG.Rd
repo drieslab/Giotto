@@ -8,15 +8,15 @@ plotCombineCPG(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=plotCombineICG]{plotCombineICG}}
+  Arguments passed on to \code{\link[=plotCombineICF]{plotCombineICF}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{combCpgObject}}{ICGscores, output from combineInteractionChangedGenes()}
+    \item{\code{combIcfObject}}{ICFscores, output from combineInteractionChangedFeats()}
     \item{\code{selected_interactions}}{interactions to show}
-    \item{\code{selected_gene_to_gene}}{pairwise gene combinations to show}
+    \item{\code{selected_feat_to_feat}}{pairwise feature combinations to show}
     \item{\code{detail_plot}}{show detailed info in both interacting cell types}
     \item{\code{simple_plot}}{show a simplified plot}
-    \item{\code{simple_plot_facet}}{facet on interactions or genes with simple plot}
+    \item{\code{simple_plot_facet}}{facet on interactions or feats with simple plot}
     \item{\code{facet_scales}}{ggplot facet scales paramter}
     \item{\code{facet_ncol}}{ggplot facet ncol parameter}
     \item{\code{facet_nrow}}{ggplot facet nrow parameter}
@@ -29,8 +29,8 @@ plotCombineCPG(...)
   }}
 }
 \description{
-Create visualization for combined (pairwise) ICG scores
+Create visualization for combined (pairwise) ICF scores
 }
 \seealso{
-\code{\link{plotCombineICG}}
+\code{\link{plotCombineICF}}
 }
