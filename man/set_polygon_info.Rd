@@ -4,7 +4,7 @@
 \alias{set_polygon_info}
 \title{Set polygon info}
 \usage{
-set_polygon_info(gobject, polygon_name = "cell", gpolygon)
+set_polygon_info(gobject, polygon_name = "cell", gpolygon, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +12,8 @@ set_polygon_info(gobject, polygon_name = "cell", gpolygon)
 \item{polygon_name}{name of polygons. Default "cell"}
 
 \item{gpolygon}{giotto polygon}
+
+\item{verbose}{verbosity}
 }
 \value{
 giotto object

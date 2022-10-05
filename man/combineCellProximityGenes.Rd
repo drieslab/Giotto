@@ -8,13 +8,13 @@ combineCellProximityGenes(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=combineInteractionChangedGenes]{combineInteractionChangedGenes}}
+  Arguments passed on to \code{\link[=combineInteractionChangedFeats]{combineInteractionChangedFeats}}
   \describe{
-    \item{\code{cpgObject}}{ICG (interaction changed gene) score object}
+    \item{\code{icfObject}}{ICF (interaction changed feat) score object}
     \item{\code{selected_ints}}{subset of selected cell-cell interactions (optional)}
-    \item{\code{selected_genes}}{subset of selected genes (optional)}
-    \item{\code{specific_genes_1}}{specific geneset combo (need to position match specific_genes_2)}
-    \item{\code{specific_genes_2}}{specific geneset combo (need to position match specific_genes_1)}
+    \item{\code{selected_feats}}{subset of selected Features (optional)}
+    \item{\code{specific_feats_1}}{specific Featureset combo (need to position match specific_feats_2)}
+    \item{\code{specific_feats_2}}{specific Featureset combo (need to position match specific_feats_1)}
     \item{\code{min_cells}}{minimum number of target cell type}
     \item{\code{min_int_cells}}{minimum number of interacting cell type}
     \item{\code{min_fdr}}{minimum adjusted p-value}
@@ -25,8 +25,8 @@ combineCellProximityGenes(...)
   }}
 }
 \description{
-Combine ICG scores in a pairwise manner.
+Combine ICF scores in a pairwise manner.
 }
 \seealso{
-\code{\link{combineInteractionChangedGenes}}
+\code{\link{combineInteractionChangedFeats}}
 }

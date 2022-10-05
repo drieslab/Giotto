@@ -1126,9 +1126,24 @@ cellProximityVisPlot <- function(gobject,
 
 #' @title plotCellProximityGenes
 #' @name plotCellProximityGenes
-#' @description Create visualization for cell proximity gene scores
+#' @description Create visualization for cell proximity feature scores
+#' @inheritDotParams plotCellProximityFeats
+#' @export
+plotCellProximityGenes <- function(...){
+
+  .Deprecated(new="plotCellProximityFeats")
+
+  plotCellProximityFeats(...)
+
+}
+
+
+
+#' @title plotCellProximityFeats
+#' @name plotCellProximityFeats
+#' @description Create visualization for cell proximity feature scores
 #' @param gobject giotto object
-#' @param cpgObject ICG (interaction changed gene) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
@@ -1138,7 +1153,7 @@ cellProximityVisPlot <- function(gobject,
 #' @param min_spat_diff minimum absolute spatial expression difference
 #' @param min_log2_fc minimum log2 fold-change
 #' @param min_zscore minimum z-score change
-#' @param zscores_column calculate z-scores over cell types or genes
+#' @param zscores_column calculate z-scores over cell types or featuress
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
 #' @param show_plot show plots
@@ -1146,10 +1161,10 @@ cellProximityVisPlot <- function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return plot
+#' @return plot 
 #' @export
-plotCellProximityGenes = function(gobject,
-                                  cpgObject,
+plotCellProximityFeats = function(gobject,
+                                  icfObject,
                                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                                   min_cells = 4,
                                   min_cells_expr = 1,
@@ -1166,11 +1181,11 @@ plotCellProximityGenes = function(gobject,
                                   return_plot = NA,
                                   save_plot = NA,
                                   save_param =  list(),
-                                  default_save_name = 'plotCellProximityGenes') {
+                                  default_save_name = 'plotCellProximityFeats') {
 
 
-  if(!'cpgObject' %in% class(cpgObject)) {
-    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  if(!'icfObject' %in% class(icfObject)) {
+    stop('\n icfObject needs to be the output from findInteractionChangedFeats() or findICF() \n')
   }
 
   # print, return and save parameters
@@ -1180,7 +1195,7 @@ plotCellProximityGenes = function(gobject,
 
 
   ## first filter
-  filter_cpg = filterInteractionChangedFeats(cpgObject = cpgObject,
+  filter_icf = filterInteractionChangedFeats(icfObject = icfObject,
                                              min_cells = min_cells,
                                              min_cells_expr = min_cells_expr,
                                              min_int_cells = min_int_cells,
@@ -1192,7 +1207,7 @@ plotCellProximityGenes = function(gobject,
                                              zscores_column = zscores_column,
                                              direction = direction)
 
-  complete_part = filter_cpg[['CPGscores']]
+  complete_part = filter_icf[['ICFscores']]
 
   ## other parameters
   method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
@@ -1271,7 +1286,7 @@ plotCellProximityGenes = function(gobject,
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-    pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+    pl <- pl + ggplot2::labs(x = '', y = '# of features influenced by cell neighborhood')
 
 
     ## print plot
@@ -1291,16 +1306,9 @@ plotCellProximityGenes = function(gobject,
 
   } else if(method == 'cell_sankey') {
 
-
-    # package check for ggalluvial
-    package_check(pkg_name = 'ggalluvial', repository = 'CRAN')
-
-
     testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
 
-    # library(ggalluvial) # this is needed for it to work, why??
-    # maybe use requireNamespace() instead?
-
+    # package check for ggalluvial
     # verify if optional package is installed
     package_check(pkg_name = "ggalluvial", repository = "CRAN")
 
@@ -1310,7 +1318,7 @@ plotCellProximityGenes = function(gobject,
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
       ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
       ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
-      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# of features influenced by cell neighborhood')
 
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
@@ -1335,15 +1343,15 @@ plotCellProximityGenes = function(gobject,
 
   } else if(method == 'dotplot') {
 
-    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
+    changed_feats = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
 
-    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
-    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
+    changed_feats[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_feats[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
 
     pl = ggplot2::ggplot()
     pl = pl + ggplot2::theme_classic()
-    pl = pl + ggplot2::geom_point(data = changed_genes, ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
-    pl = pl + ggplot2::scale_size_continuous(guide=guide_legend(title = '# of ICGs'))
+    pl = pl + ggplot2::geom_point(data = changed_feats, ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
+    pl = pl + ggplot2::scale_size_continuous(guide=guide_legend(title = '# of ICFs'))
     pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
     pl = pl + ggplot2::labs(x = 'source cell type', y = 'neighbor cell type')
 
@@ -1364,18 +1372,18 @@ plotCellProximityGenes = function(gobject,
 
   } else if(method == 'heatmap') {
 
-    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
+    changed_feats = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
 
-    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
-    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
+    changed_feats[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_feats[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
 
-    changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
-    changed_genes_m = dt_to_matrix(changed_genes_d)
+    changed_feats_d = data.table::dcast.data.table(changed_feats, cell_type~int_cell_type, value.var = 'N', fill = 0)
+    changed_feats_m = dt_to_matrix(changed_feats_d)
 
-    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_genes_m+1)),
+    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_feats_m+1)),
                                    colors =  c("white", 'white', "blue", "yellow", "red"))
 
-    heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,
+    heatm = ComplexHeatmap::Heatmap(log2(changed_feats_m+1), col = col_fun,
                                     row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
 
     ## print plot
@@ -1401,9 +1409,23 @@ plotCellProximityGenes = function(gobject,
 
 #' @title plotCPG
 #' @name plotCPG
-#' @description Create visualization for cell proximity gene scores
+#' @description Create visualization for cell proximity feature scores
+#' @inheritDotParams plotCellProximityFeats
+#' @export
+plotCPG <- function(...){
+
+  .Deprecated(new="plotCPF")
+
+  plotCellProximityFeats(...)
+
+}
+
+
+#' @title plotCPF
+#' @name plotCPF
+#' @description Create visualization for cell proximity feature scores
 #' @param gobject giotto object
-#' @param cpgObject ICG (interaction changed gene) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
@@ -1413,7 +1435,7 @@ plotCellProximityGenes = function(gobject,
 #' @param min_spat_diff minimum absolute spatial expression difference
 #' @param min_log2_fc minimum log2 fold-change
 #' @param min_zscore minimum z-score change
-#' @param zscores_column calculate z-scores over cell types or genes
+#' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
 #' @param show_plot show plots
@@ -1423,8 +1445,8 @@ plotCellProximityGenes = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-plotCPG = function(gobject,
-                   cpgObject,
+plotCPF = function(gobject,
+                   icfObject,
                    method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                    min_cells = 5,
                    min_cells_expr = 1,
@@ -1434,7 +1456,7 @@ plotCPG = function(gobject,
                    min_spat_diff = 0.2,
                    min_log2_fc = 0.2,
                    min_zscore = 2,
-                   zscores_column = c('cell_type', 'genes'),
+                   zscores_column = c('cell_type', 'feats'),
                    direction = c('both', 'up', 'down'),
                    cell_color_code = NULL,
                    show_plot = NA,
@@ -1444,8 +1466,8 @@ plotCPG = function(gobject,
                    default_save_name = 'plotCPG') {
 
 
-  plotCellProximityGenes(gobject = gobject,
-                         cpgObject = cpgObject,
+  plotCellProximityFeats(gobject = gobject,
+                         icfObject = icfObject,
                          method = method,
                          min_cells = min_cells,
                          min_cells_expr = min_cells_expr,
@@ -1473,7 +1495,7 @@ plotCPG = function(gobject,
 #' @name plotInteractionChangedFeats
 #' @description Create barplot to visualize interaction changed features
 #' @param gobject giotto object
-#' @param cpgObject ICF (interaction changed feature) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
@@ -1486,7 +1508,7 @@ plotCPG = function(gobject,
 #' @return plot
 #' @export
 plotInteractionChangedFeats = function(gobject,
-                                       cpgObject,
+                                       icfObject,
                                        source_type,
                                        source_markers,
                                        ICF_feats,
@@ -1502,11 +1524,11 @@ plotInteractionChangedFeats = function(gobject,
   cell_type = int_cell_type = log2fc = NULL
 
 
-  if(!'cpgObject' %in% class(cpgObject)) {
-    stop('\n cpgObject needs to be the output from findCellProximityFeats() or findCPF() \n')
+  if(!'icfObject' %in% class(icfObject)) {
+    stop('\n icfObject needs to be the output from findInteractionChangedFeats() or findICF() \n')
   }
 
-  CPGscores = cpgObject[['CPGscores']]
+  ICFscores = icfObject[['ICFscores']]
 
   # combine feats
   names(source_markers) = rep('marker', length(source_markers))
@@ -1514,17 +1536,17 @@ plotInteractionChangedFeats = function(gobject,
   all_feats = c(source_markers, ICF_feats)
 
   # warning if there are feats selected that are not detected
-  detected_feats = unique(CPGscores[['feats']])
+  detected_feats = unique(ICFscores[['feats']])
   not_detected_feats = all_feats[!all_feats %in% detected_feats]
   if(length(not_detected_feats) > 0) {
-    cat('These selected feats are not in the cpgObject: \n',
+    cat('These selected features are not in the icfObject: \n',
         not_detected_feats, '\n')
   }
 
   # data.table set column names
   feats = group = NULL
 
-  tempDT = CPGscores[feats %in% all_feats][cell_type == source_type][int_cell_type %in% neighbor_types]
+  tempDT = ICFscores[feats %in% all_feats][cell_type == source_type][int_cell_type %in% neighbor_types]
   tempDT[, feats := factor(feats, levels = all_feats)]
   tempDT[, group := names(all_feats[all_feats == feats]), by = 1:nrow(tempDT)]
 
@@ -1576,45 +1598,15 @@ plotInteractionChangedFeats = function(gobject,
 
 #' @title Plot interaction changed genes
 #' @name plotInteractionChangedGenes
-#' @description Create barplot to visualize interaction changed genes
-#' @param gobject giotto object
-#' @param cpgObject ICG (interaction changed gene) score object
-#' @param source_type cell type of the source cell
-#' @param source_markers markers for the source cell type
-#' @param ICG_genes named character vector of ICG genes
-#' @param cell_color_code cell color code for the interacting cell types
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return plot
+#' @description Create barplot to visualize interaction changed features
+#' @inheritDotParams plotInteractionChangedFeats
+#' @seealso \code{\link{plotInteractionChangedFeats}}
 #' @export
-plotInteractionChangedGenes = function(gobject,
-                                       cpgObject,
-                                       source_type,
-                                       source_markers,
-                                       ICG_genes,
-                                       cell_color_code = NULL,
-                                       show_plot = NA,
-                                       return_plot = NA,
-                                       save_plot = NA,
-                                       save_param =  list(),
-                                       default_save_name = 'plotInteractionChangedGenes') {
+plotInteractionChangedGenes = function(...) {
 
-  warning("Deprecated and replaced by plotInteractionChangedFeats")
+  .Deprecated(new="plotInteractionChangedFeats")
 
-  plotInteractionChangedFeats(gobject = gobject,
-                              cpgObject = cpgObject,
-                              source_type = source_type,
-                              source_markers = source_markers,
-                              ICF_feats = ICG_genes,
-                              cell_color_code = cell_color_code,
-                              show_plot = show_plot,
-                              return_plot = return_plot,
-                              save_plot = save_plot,
-                              save_param =  save_param,
-                              default_save_name = default_save_name)
+  plotInteractionChangedFeats(...)
 
 }
 
@@ -1623,7 +1615,7 @@ plotInteractionChangedGenes = function(gobject,
 #' @name plotICF
 #' @description Create barplot to visualize interaction changed features
 #' @param gobject giotto object
-#' @param cpgObject ICF (interaction changed feature) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
@@ -1636,7 +1628,7 @@ plotInteractionChangedGenes = function(gobject,
 #' @return plot
 #' @export
 plotICF = function(gobject,
-                   cpgObject,
+                   icfObject,
                    source_type,
                    source_markers,
                    ICF_feats,
@@ -1649,7 +1641,7 @@ plotICF = function(gobject,
 
 
   plotInteractionChangedFeats(gobject = gobject,
-                              cpgObject = cpgObject,
+                              icfObject = icfObject,
                               source_type = source_type,
                               source_markers = source_markers,
                               ICF_feats = ICF_feats,
@@ -1667,64 +1659,30 @@ plotICF = function(gobject,
 
 #' @title plotICG
 #' @name plotICG
-#' @description Create barplot to visualize interaction changed genes
-#' @param gobject giotto object
-#' @param cpgObject ICG (interaction changed gene) score object
-#' @param source_type cell type of the source cell
-#' @param source_markers markers for the source cell type
-#' @param ICG_genes named character vector of ICG genes
-#' @param cell_color_code cell color code for the interacting cell types
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return plot
+#' @description Create barplot to visualize interaction changed features
+#' @inheritDotParams plotICF
+#' @seealso \code{\link{plotICF}}
 #' @export
-plotICG = function(gobject,
-                   cpgObject,
-                   source_type,
-                   source_markers,
-                   ICG_genes,
-                   cell_color_code = NULL,
-                   show_plot = NA,
-                   return_plot = NA,
-                   save_plot = NA,
-                   save_param =  list(),
-                   default_save_name = 'plotICG') {
+plotICG = function(...) {
 
+  .Deprecated(new="plotICF")
 
-  warning("Deprecated and replaced by plotInteractionChangedFeats or plotICF")
-
-  plotInteractionChangedFeats(gobject = gobject,
-                              cpgObject = cpgObject,
-                              source_type = source_type,
-                              source_markers = source_markers,
-                              ICF_feats = ICG_genes,
-                              cell_color_code = cell_color_code,
-                              show_plot = show_plot,
-                              return_plot = return_plot,
-                              save_plot = save_plot,
-                              save_param =  save_param,
-                              default_save_name = default_save_name)
+  plotInteractionChangedFeats(...)
 
 }
 
 
 
-
-
-
-#' @title plotCombineInteractionChangedGenes
-#' @name plotCombineInteractionChangedGenes
-#' @description Create visualization for combined (pairwise) ICG scores
+#' @title plotCombineInteractionChangedFeats
+#' @name plotCombineInteractionChangedFeats
+#' @description Create visualization for combined (pairwise) ICF scores
 #' @param gobject giotto object
-#' @param combCpgObject ICGscores, output from combineInteractionChangedGenes()
+#' @param combIcfObject ICFscores, output from combineInteractionChangedFeats()
 #' @param selected_interactions interactions to show
-#' @param selected_gene_to_gene pairwise gene combinations to show
+#' @param selected_feat_to_feat pairwise feature combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
-#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param simple_plot_facet facet on interactions or feats with simple plot
 #' @param facet_scales ggplot facet scales paramter
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
@@ -1736,44 +1694,44 @@ plotICG = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-plotCombineInteractionChangedGenes <- function(gobject,
-                                               combCpgObject,
+plotCombineInteractionChangedFeats <- function(gobject,
+                                               combIcfObject,
                                                selected_interactions = NULL,
-                                               selected_gene_to_gene = NULL,
+                                               selected_feat_to_feat = NULL,
                                                detail_plot = T,
                                                simple_plot = F,
-                                               simple_plot_facet = c('interaction', 'genes'),
+                                               simple_plot_facet = c('interaction', 'feats'),
                                                facet_scales = 'fixed',
-                                               facet_ncol = length(selected_gene_to_gene),
+                                               facet_ncol = length(selected_feat_to_feat),
                                                facet_nrow = length(selected_interactions),
                                                colors = c('#9932CC', '#FF8C00'),
                                                show_plot = NA,
                                                return_plot = NA,
                                                save_plot = NA,
                                                save_param =  list(),
-                                               default_save_name = 'plotCombineICG') {
+                                               default_save_name = 'plotCombineICF') {
 
 
 
   ## check validity
-  if(!'combCpgObject' %in% class(combCpgObject)) {
-    stop('\n combCpgObject needs to be the output from combineCellProximityGenes() or combineCPG() \n')
+  if(!'combIcfObject' %in% class(combIcfObject)) {
+    stop('\n combIcfObject needs to be the output from combineInteractionChangedFeats() or combineICF() \n')
   }
-  combCPGscore = copy(combCpgObject[['combCPGscores']])
+  combIcfscore = copy(combIcfObject[['combIcfscores']])
 
-  if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
-    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
+  if(is.null(selected_interactions) | is.null(selected_feat_to_feat)) {
+    stop('\n You need to provide a selection of cell-cell interactions and features-features to plot \n')
   }
 
 
   # data.table variables
-  unif_gene_gene = unif_int = other_2 = sel_2 = other_1 = sel_1 = cols = NULL
+  unif_feat_feat = unif_int = other_2 = sel_2 = other_1 = sel_1 = cols = NULL
 
 
-  subDT = combCPGscore[unif_gene_gene %in% selected_gene_to_gene & unif_int %in% selected_interactions]
+  subDT = combIcfscore[unif_feat_feat %in% selected_feat_to_feat & unif_int %in% selected_interactions]
 
-  # order interactions and gene-to-gene according to input
-  subDT[, unif_gene_gene := factor(unif_gene_gene, levels = selected_gene_to_gene)]
+  # order interactions and feat-to-feat according to input
+  subDT[, unif_feat_feat := factor(unif_feat_feat, levels = selected_feat_to_feat)]
   subDT[, unif_int := factor(unif_int, levels = selected_interactions)]
 
   if(simple_plot == F) {
@@ -1792,27 +1750,27 @@ plotCombineInteractionChangedGenes <- function(gobject,
     pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = sel_2, colour ="selected cell expression"), size = 2)
     pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = other_1, xend = sel_1,
                                                        y = other_2, yend = sel_2), linetype = 2)
-    #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
-    pl <- pl + ggplot2::labs(x = paste(subDT$genes_1, subDT$cell_type_1, sep = " in ")
-                             , y = paste(subDT$genes_2, subDT$cell_type_2, sep = " in "))
+    #pl <- pl + ggplot2::labs(x = 'feat 1 in celltype 1', y = 'feat 2 in celltype 2')
+    pl <- pl + ggplot2::labs(x = paste(subDT$feats_1, subDT$cell_type_1, sep = " in ")
+                             , y = paste(subDT$feats_2, subDT$cell_type_2, sep = " in "))
     pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
-    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unif_int, nrow = facet_nrow, ncol = facet_ncol,
+    pl <- pl + ggplot2::facet_wrap(~unif_feat_feat+unif_int, nrow = facet_nrow, ncol = facet_ncol,
                                    scales = facet_scales)
 
   }else {
 
-    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
+    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'feats'))
 
     if(simple_plot_facet == 'interaction') {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
       pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
-                                                         y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_gene_gene,colour = "other cell expression"))
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_gene_gene,colour ="selected cell expression"))
+                                                         y = unif_feat_feat, yend = unif_feat_feat), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_feat_feat,colour = "other cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_feat_feat,colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unif_int, scales = facet_scales)
-      pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'feat-feat')
     } else {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
@@ -1821,8 +1779,8 @@ plotCombineInteractionChangedGenes <- function(gobject,
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_int, colour = "other cell expression"))
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_int, colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
-      pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
-      pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
+      pl <- pl + ggplot2::facet_wrap(~unif_feat_feat, scales = facet_scales)
+      pl <- pl + ggplot2::labs(x = 'feat-feat', y = 'interactions')
     }
   }
 
@@ -1850,32 +1808,47 @@ plotCombineInteractionChangedGenes <- function(gobject,
 
 
 
+
+#' @title plotCombineInteractionChangedGenes
+#' @name plotCombineInteractionChangedGenes
+#' @description Create visualization for combined (pairwise) ICF scores
+#' @inheritDotParams plotCombineInteractionChangedFeats
+#' @seealso \code{\link{plotCombineInteractionChangedFeats}}
+#' @export
+plotCombineInteractionChangedGenes <- function(...) {
+
+  .Deprecated(new="plotCombineInteractionChangedFeats")
+
+  plotCombineInteractionChangedFeats(...)
+
+}
+
+
+
 #' @title plotCombineCellProximityGenes
 #' @description Create visualization for combined (pairwise) ICG scores
-#' @inheritDotParams plotCombineInteractionChangedGenes
-#' @seealso \code{\link{plotCombineInteractionChangedGenes}}
+#' @inheritDotParams plotCombineInteractionChangedFeats
+#' @seealso \code{\link{plotCombineInteractionChangedFeats}}
 #' @export
 plotCombineCellProximityGenes <- function(...) {
 
-  .Deprecated(new = "plotCombineInteractionChangedGenes")
+  .Deprecated(new = "plotCombineInteractionChangedFeats")
 
   plotCombineInteractionChangedGenes(...)
 
 }
 
 
-
-
-#' @title plotCombineICG
-#' @name plotCombineICG
-#' @description Create visualization for combined (pairwise) ICG scores
+#' @title plotCombineICF
+#' @name plotCombineICF
+#' @description Create visualization for combined (pairwise) ICF scores
 #' @param gobject giotto object
-#' @param combCpgObject ICGscores, output from combineInteractionChangedGenes()
+#' @param combIcfObject ICFscores, output from combineInteractionChangedFeats()
 #' @param selected_interactions interactions to show
-#' @param selected_gene_to_gene pairwise gene combinations to show
+#' @param selected_feat_to_feat pairwise feature combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
-#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param simple_plot_facet facet on interactions or feats with simple plot
 #' @param facet_scales ggplot facet scales paramter
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
@@ -1887,56 +1860,67 @@ plotCombineCellProximityGenes <- function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-plotCombineICG <- function(gobject,
-                           combCpgObject,
+plotCombineICF <- function(gobject,
+                           combIcfObject,
                            selected_interactions = NULL,
-                           selected_gene_to_gene = NULL,
+                           selected_feat_to_feat = NULL,
                            detail_plot = T,
                            simple_plot = F,
-                           simple_plot_facet = c('interaction', 'genes'),
+                           simple_plot_facet = c('interaction', 'feats'),
                            facet_scales = 'fixed',
-                           facet_ncol = length(selected_gene_to_gene),
+                           facet_ncol = length(selected_feat_to_feat),
                            facet_nrow = length(selected_interactions),
                            colors = c('#9932CC', '#FF8C00'),
                            show_plot = NA,
                            return_plot = NA,
                            save_plot = NA,
                            save_param =  list(),
-                           default_save_name = 'plotCombineICG') {
+                           default_save_name = 'plotCombineICF') {
+
+  plotCombineInteractionChangedFeats(combIcfObject = combIcfObject,
+                                     selected_interactions = selected_interactions,
+                                     selected_feat_to_feat = selected_feat_to_feat,
+                                     detail_plot = detail_plot,
+                                     simple_plot = simple_plot,
+                                     simple_plot_facet = simple_plot_facet,
+                                     facet_scales = facet_scales,
+                                     facet_ncol = facet_ncol,
+                                     facet_nrow = facet_nrow,
+                                     colors = colors,
+                                     show_plot = show_plot,
+                                     return_plot = return_plot,
+                                     save_plot = save_plot,
+                                     save_param = save_param,
+                                     default_save_name = default_save_name)
+}
 
 
-  plotCombineCellProximityGenes(gobject = gobject,
-                                combCpgObject = combCpgObject,
-                                selected_interactions = selected_interactions,
-                                selected_gene_to_gene = selected_gene_to_gene,
-                                detail_plot = detail_plot,
-                                simple_plot = simple_plot,
-                                simple_plot_facet = simple_plot_facet,
-                                facet_scales = facet_scales,
-                                facet_ncol = facet_ncol,
-                                facet_nrow = facet_nrow,
-                                colors = colors,
-                                show_plot = show_plot,
-                                return_plot = return_plot,
-                                save_plot = save_plot,
-                                save_param =  save_param,
-                                default_save_name = default_save_name)
 
+#' @title plotCombineICG
+#' @name plotCombineICG
+#' @description Create visualization for combined (pairwise) ICF scores
+#' @inheritDotParams plotCombineICF
+#' @seealso \code{\link{plotCombineICF}}
+plotCombineICG <- function(...) {
+
+  .Deprecated(new = "plotCombineICF")
+
+  plotCombineICF(...)
 
 }
 
 
 
 #' @title plotCombineCPG
-#' @description Create visualization for combined (pairwise) ICG scores
-#' @inheritDotParams plotCombineICG
-#' @seealso \code{\link{plotCombineICG}}
+#' @description Create visualization for combined (pairwise) ICF scores
+#' @inheritDotParams plotCombineICF
+#' @seealso \code{\link{plotCombineICF}}
 #' @export
 plotCombineCPG <- function(...) {
 
-  .Deprecated(new = "plotCombineICG")
+  .Deprecated(new = "plotCombineICF")
 
-  plotCombineICG(...)
+  plotCombineICF(...)
 
 }
 

@@ -10,7 +10,7 @@ filterICG(...)
 \item{...}{
   Arguments passed on to \code{\link[=filterICF]{filterICF}}
   \describe{
-    \item{\code{cpgObject}}{ICF (interaction changed feature) score object}
+    \item{\code{icfObject}}{ICF (interaction changed feature) score object}
     \item{\code{min_cells}}{minimum number of source cell type}
     \item{\code{min_cells_expr}}{minimum expression level for source cell type}
     \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}

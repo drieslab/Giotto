@@ -20,6 +20,7 @@ createGiottoObject(
   dimension_reduction = NULL,
   nn_network = NULL,
   images = NULL,
+  largeImages = NULL,
   offset_file = NULL,
   instructions = NULL,
   cores = NA,
@@ -58,6 +59,8 @@ see \code{\link{createGiottoPoints}}}
 \item{nn_network}{list of nearest neighbor network(s)}
 
 \item{images}{list of images}
+
+\item{largeImages}{list of large images}
 
 \item{offset_file}{file used to stitch fields together (optional)}
 

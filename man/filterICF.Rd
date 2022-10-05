@@ -5,7 +5,7 @@
 \title{filterICF}
 \usage{
 filterICF(
-  cpgObject,
+  icfObject,
   min_cells = 4,
   min_cells_expr = 1,
   min_int_cells = 4,
@@ -19,7 +19,7 @@ filterICF(
 )
 }
 \arguments{
-\item{cpgObject}{ICF (interaction changed feature) score object}
+\item{icfObject}{ICF (interaction changed feature) score object}
 
 \item{min_cells}{minimum number of source cell type}
 
@@ -42,7 +42,7 @@ filterICF(
 \item{direction}{differential expression directions to keep}
 }
 \value{
-cpgObject that contains the filtered differential feature scores
+icfObject that contains the filtered differential feature scores
 }
 \description{
 Filter Interaction Changed Feature scores.
