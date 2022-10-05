@@ -1436,6 +1436,146 @@ check_spatial_location_data = function(gobject) {
 }
 
 
+#  TODO Following 3 functions need wrapper function for working with spatlocs and spat_info
+#  Additionally add way to refer to subsets of spatial locations by list_ID
+
+
+#' @title Scale spatial locations
+#' @name scale_spatial_locations
+#' @description Simple scaling of spatial locations by given \code{scale_factor}.
+#' Values will be scaled from the coordinate origin or coordinates provided through
+#' \code{scenter} param.
+#' @param spatlocs spatial locations information to scale
+#' @param scale_factor scaling factor to apply to coordinates.
+#' @param scenter center from which to scale spatial coordinates. Given as vector
+#' of xy(z) coordinates.
+#' @details \code{scale_factor} either given as a single value where it will be applied to
+#' x, y, and z (if available) dimensions or as a vector of named values for 'x',
+#' 'y', (and 'z').
+#' @keywords internal
+scale_spatial_locations = function(spatlocs,
+                                   scale_factor = c(x=1,y=1,z=1),
+                                   scenter = c(x=0,y=0,z=0)) {
+
+  hasZ = 'sdimz' %in% names(spatlocs)
+
+  if(length(scale_factor) == 1) scale_factor = c(x = scale_factor, y = scale_factor, z = scale_factor)
+  if(!all(names(scenter) %in% c('x','y','z'))) stop('scenter value names not recognized')
+  if(!all(names(scale_factor) %in% c('x','y','z'))) stop('scale_factor value names not recognized')
+
+  # Adjust for scaling center
+  spatlocs$sdimx = spatlocs$sdimx - scenter[['x']]
+  spatlocs$sdimy = spatlocs$sdimy - scenter[['y']]
+
+  # Perform scale
+  spatlocs$sdimx = spatlocs$sdimx*scale_factor[['x']]
+  spatlocs$sdimy = spatlocs$sdimy*scale_factor[['y']]
+
+  if(isTRUE(hasZ)) {
+    # Adjust for scaling z center
+    spatlocs$sdimz = spatlocs$sdimz - scenter[['z']]
+
+    # Perform z scale
+    spatlocs$sdimz = spatlocs$sdimx*scale_factor[['z']]
+
+    # Revert z scaling center adjustments
+    spatlocs$sdimz = spatlocs$sdimz + scenter[['z']]
+  }
+
+  # Revert scaling center adjustments
+  spatlocs$sdimx = spatlocs$sdimx + scenter[['x']]
+  spatlocs$sdimy = spatlocs$sdimy + scenter[['y']]
+
+  return(spatlocs)
+}
+
+
+# TODO deprecate in favor of name change since z axis can be involved$
+#' @title xy_translate_spatial_locations
+#' @name xy_translate_spatial_locations
+#' @description Translate given X Y coordinates by given x and y translation values
+#' @param spatlocs spatial locations to use
+#' @param xtranslate value to translate coordinates in the positive x direction
+#' @param ytranslate value to translate coordinates in the positive y direction
+#' @param ztranslate value to translate coordinates in the positive z direction
+#' @keywords internal
+xy_translate_spatial_locations = function(spatlocs,
+                                          xtranslate = 0,
+                                          ytranslate = 0,
+                                          ztranslate = 0) {
+
+  spatlocs$sdimx = spatlocs$sdimx + xtranslate
+  spatlocs$sdimy = spatlocs$sdimy + ytranslate
+  if('sdimz' %in% names(spatlocs)) spatlocs$sdimz = spatlocs$sdimz + ztranslate
+
+  return(spatlocs)
+}
+
+
+
+#' @title Rotate spatial locations
+#' @name rotate_spatial_locations
+#' @description Rotate given spatlocs by given radians
+#' @param spatlocs spatial locations to use
+#' @param rotateradians Named vector of radians for rotation along each of the 3 coordinate
+#' axes. If only a single value is provided, it will be treated as xy rotation.
+#' @param rcenter center of rotation given as vector xy(z) coordinates (defaults to coordinate center)
+#' @details Radians are provided through \code{rotateradians} param as a named vector
+#' with values for \code{xy} (yaw), \code{zy} (pitch), \code{xz} (roll)
+#' @keywords internal
+rotate_spatial_locations = function(spatlocs,
+                                    rotateradians = c(xy=0,zy=0,xz=0),
+                                    rcenter = c(x=0,y=0,z=0)) {
+
+  if(length(rotateradians) == 1) rotateradians = c(xy=rotateradians,zy=0,xz=0)
+  if(!all(names(rotateradians) %in% c('xy','zy','xz'))) stop('rotateradians value names not recognized')
+  if(!all(names(rcenter) %in% c('x','y','z'))) stop('rcenter value names not recognized')
+  hasZ = 'sdimz' %in% names(spatlocs)
+
+  # xy center of rotation adjustment
+  spatlocs$sdimx = spatlocs$sdimx - rcenter[['x']]
+  spatlocs$sdimy = spatlocs$sdimy - rcenter[['y']]
+
+  xvals = spatlocs$sdimx
+  yvals = spatlocs$sdimy
+
+  # Perform rotation XY
+  if(rotateradians[['xy']] != 0) {
+    spatlocs$sdimx = xvals*cos(rotateradians[['xy']]) + yvals*sin(rotateradians[['xy']])
+    spatlocs$sdimy = -xvals*sin(rotateradians[['xy']]) + yvals*cos(rotateradians[['xy']])
+  }
+
+  # if z values are available
+  if(isTRUE(hasZ)) {
+    # z center of rotation adjustment
+    spatlocs$sdimz = spatlocs$sdimz - rcenter[['z']]
+
+    zvals = spatlocs$sdimz
+
+    # Perform rotations
+    if(rotateradians[['zy']] != 0) {
+      spatlocs$sdimz = zvals*cos(rotateradians[['zy']]) + yvals*sin(rotateradians[['zy']])
+      spatlocs$sdimy = -zvals*sin(rotateradians[['zy']]) + yvals*cos(rotateradians[['zy']])
+    }
+
+    if(rotateradians[['xz']] != 0) {
+      spatlocs$sdimx = xvals*cos(rotateradians[['xz']]) + zvals*sin(rotateradians[['xz']])
+      spatlocs$sdimz = -xvals*sin(rotateradians[['xz']]) + zvals*cos(rotateradians[['xz']])
+    }
+
+    # Revert z center of rotation adjustment
+    spatlocs$sdimz = spatlocs$sdimz + rcenter[['z']]
+  }
+
+  # Revert xy center of rotation adjustment
+  spatlocs$sdimx = spatlocs$sdimx + rcenter[['x']]
+  spatlocs$sdimy = spatlocs$sdimy + rcenter[['y']]
+
+  return(spatlocs)
+}
+
+
+
 
 #### Giotto spatial network ####
 
@@ -3451,27 +3591,40 @@ join_cell_meta = function(dt_list) {
 #' multiple giotto objects into a single one. Giotto supports multiple ways of
 #' joining spatial information as selected through param \code{join_method}:
 #'
-#' [\strong{"shift"}] Spatial locations of different datasets are shifted by numeric
-#' vectors of values supplied through \code{x_shift} and \code{y_shift}. If these
-#' shift values are given then one is needed for each giotto object to be joined
-#' in \code{gobject_list}. Order matters.
-#' If a regular step value is desired instead of a specific list of values, use
-#' \code{x_padding} and \code{y_padding}. Both shift and padding values can be used
-#' at the same time.
-#' Leaving \code{x_shift} and \code{y_shift} values as \code{NULL} will have Giotto
-#' estimate an appropriate \code{x_shift} value based on the x dimension of
-#' available image objects.
+#' \itemize{
+#'   \item{\strong{\code{"shift"}}} {
+#'     (default) Spatial locations of different datasets are shifted
+#'     by numeric vectors of values supplied through \code{x_shift}, \code{y_shift},
+#'     \code{x_padding}, and \code{y_padding}. This is particularly useful for data
+#'     that is provided as tiles or ROIs or when analyzing multiple spatial datasets
+#'     together and keeping their spatial data separate.
 #'
-#' [\strong{"z_stack"}] Datasets are spatially combined with no change to x and y
-#' spatial locations, but a z value is incorporated for each dataset based on input
-#' supplied through param \code{z_vals}. To specify a z value for each dataset to
-#' join, a numeric vector must be given with a value for each element in \code{gobject_list}.
-#' Order matters.
-#' Alternatively, a single numeric value can be supplied to \code{z_vals} in which
-#' case this input will be treated as a z step value.
+#'     \strong{If shift values are given then a value is needed for each giotto object
+#'     to be joined in \code{gobject_list}. Order matters.}
 #'
-#' [\strong{"no_change"}] No changes are applied to the spatial locations of the
-#' datasets when joining.
+#'     If a regular step value is desired instead of a specific list of values, use
+#'     \code{x_padding} and \code{y_padding}. Both shift and padding values can be used
+#'     at the same time.
+#'
+#'     Leaving \code{x_shift} and \code{y_shift} values as \code{NULL} will have Giotto
+#'     estimate an appropriate \code{x_shift} value based on the x dimension of
+#'     available image objects. If no image objects are available, a default behavior of
+#'     \code{x_padding = 1000} will be applied.
+#'   }
+#'   \item{\strong{\code{"z_stack"}}} {
+#'     Datasets are spatially combined with no change to x and y
+#'     spatial locations, but a z value is incorporated for each dataset based on input
+#'     supplied through param \code{z_vals}. To specify a z value for each dataset to
+#'     join, a numeric vector must be given with a value for each element in \code{gobject_list}.
+#'     Order matters.
+#'
+#'     Alternatively, a single numeric value can be supplied to \code{z_vals} in which
+#'     case this input will be treated as a z step value.
+#'   }
+#'   \item{\strong{\code{"no_change"}}} {
+#'     No changes are applied to the spatial locations of the datasets when joining.
+#'   }
+#' }
 #'
 #' @concept giotto
 #' @export
@@ -3481,8 +3634,8 @@ joinGiottoObjects = function(gobject_list,
                              z_vals = 1000,
                              x_shift = NULL,
                              y_shift = NULL,
-                             x_padding = 0,
-                             y_padding = 0,
+                             x_padding = NULL,
+                             y_padding = NULL,
                              verbose = TRUE) {
 
   # define for data.table := and .()
@@ -3491,55 +3644,67 @@ joinGiottoObjects = function(gobject_list,
   sdimx = NULL
   sdimy = NULL
 
+  n_gobjects = length(gobject_list)
+
+  ## check general input params
+  if(n_gobjects == 0) stop('A list of Giotto objects to be joined must be provided.')
+  if(n_gobjects == 1) stop('Only one gobject provided in gobject_list.')
+  if(!is.vector(gobject_names) | !is.character(gobject_names)) stop('gobject_names need to be a vector with unique names for the giotto objects')
+  if(n_gobjects != length(gobject_names)) stop('each giotto object in the list needs to have a unique (short) name')
+  if(is.null(join_method)) message('No join_method given. Defaulting to "shift"')
+
+
   ## determine join method
   join_method = match.arg(arg = join_method, choices = c('shift', 'z_stack', 'no_change'))
+  if(isTRUE(verbose)) message('Join method:', join_method)
 
-  # print out join method
-  if(isTRUE(verbose)) cat('Join method:', join_method,'\n')
 
-  ## check params
-  if(!is.vector(gobject_names) | !is.character(gobject_names)) {
-    stop('gobject_names need to be a vector with unique names for the giotto objects')
-  }
 
-  if(length(gobject_list) != length(gobject_names)) {
-    stop('each giotto object in the list needs to have a unique (short) name')
-  }
-  # For z_stack workflow
-  if(join_method == 'z_stack') {
-    if(!(is.atomic(z_vals) && is.numeric(z_vals))) {
-      stop('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object). \n')
-    }
-    if((length(z_vals) != length(gobject_list)) && (length(z_vals) != 1)) {
-      stop('If more than one z_value is given, there must be one for each Giotto object to be joined. \n')
-    }
-  }
-  # For shift workflow
+  # **** For shift workflow ****
   if(join_method == 'shift') {
-    if(!is.null(x_shift)) {
-      if(length(x_shift) != length(gobject_list)) stop('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n')
+    # Make sure enough x_shift and y_shift values are given to cover all gobjects
+    if(!is.null(x_shift)) if(length(x_shift) != n_gobjects) stop('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n')
+    if(!is.null(y_shift)) if(length(y_shift) != n_gobjects) stop('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n')
+
+    # Set defaults if no shift params are given
+    if(is.null(x_shift) & is.null(y_shift) & is.null(x_padding) & is.null(y_padding)) {
+      message('No xy shift or specific padding values given. Using defaults')
+      x_padding = 1000
     }
-    if(!is.null(y_shift)) {
-      if(length(y_shift) != length(gobject_list)) stop('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n')
-    }
+    # Assign default padding values if NULL
+    if(is.null(x_padding)) x_padding = 0
+    if(is.null(y_padding)) y_padding = 0
   }
 
-  # If no changes to spatlocs are desired when joining
+
+
+  # **** For no_change workflow ****
   if(join_method == 'no_change') {
     join_method = 'shift'
-    x_shift = rep(0,length(gobject_list))
-    y_shift = rep(0,length(gobject_list))
+    x_shift = rep(0,n_gobjects)
+    y_shift = rep(0,n_gobjects)
     x_padding = 0
     y_padding = 0
   }
 
-  # expand z_vals if given as a step value
+
+
+  # **** For z_stack workflow ****
   if(join_method == 'z_stack') {
+    if(!(is.atomic(z_vals) && is.numeric(z_vals))) {
+      stop('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object). \n')
+    }
+    if((length(z_vals) != n_gobjects) && (length(z_vals) != 1)) {
+      stop('If more than one z_value is given, there must be one for each Giotto object to be joined. \n')
+    }
+
+    # expand z_vals if given as a step value
     if(length(z_vals) == 1) {
       if(isTRUE(verbose)) message('Only one value given through z_vals param\n Treating this value as a z step')
-      z_vals = ((1:length(gobject_list)) - 1) * z_vals # Find z vals stepwise
+      z_vals = ((1:n_gobjects) - 1) * z_vals # Find z vals stepwise
     }
   }
+
 
 
   # keep instructions from first giotto object
@@ -3547,7 +3712,7 @@ joinGiottoObjects = function(gobject_list,
 
   # keep features from all giotto objects
   vect = vector()
-  for(obj_i in 1:length(gobject_list)) {
+  for(obj_i in 1:n_gobjects) {
     obj_i_features = gobject_list[[obj_i]]@expression_feat
     vect = c(vect, obj_i_features)
   }
@@ -3580,7 +3745,7 @@ joinGiottoObjects = function(gobject_list,
   all_spatinfo_list = list()
 
 
-  for(gobj_i in 1:length(gobject_list)) {
+  for(gobj_i in 1:n_gobjects) {
 
     gobj = gobject_list[[gobj_i]]
     gname = gobject_names[[gobj_i]]
@@ -3651,7 +3816,7 @@ joinGiottoObjects = function(gobject_list,
 
           } else {
             x_shift_i = x_shift[[gobj_i]]
-            add_to_x = x_shift_i + x_padding
+            add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
           }
 
           if(verbose) cat('Image: for ',imname, ' add_to_x = ', add_to_x, '\n')
@@ -3663,7 +3828,7 @@ joinGiottoObjects = function(gobject_list,
           ## shift in y-direction
           if(!is.null(y_shift)) {
             y_shift_i = y_shift[[gobj_i]]
-            add_to_y = y_shift_i + y_padding
+            add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
             if(verbose) cat('Image: for ',imname, ' add_to_y = ', add_to_y, '\n')
 
@@ -3713,7 +3878,7 @@ joinGiottoObjects = function(gobject_list,
 
             } else {
               x_shift_i = x_shift[[gobj_i]]
-              add_to_x = x_shift_i + x_padding
+              add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
             }
 
             # record xshift (if not already done)
@@ -3733,7 +3898,7 @@ joinGiottoObjects = function(gobject_list,
           if(!is.null(y_shift)) {
             if(!list_element_exists(yshift_list, gobj_i)) {
               y_shift_i = y_shift[[gobj_i]]
-              add_to_y = y_shift_i + y_padding
+              add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
               yshift_list[[gobj_i]] = add_to_y
             }
@@ -3764,6 +3929,10 @@ joinGiottoObjects = function(gobject_list,
     ## 3. update spatial location
     # add padding to x-axis
     # update cell ID
+
+    # If no images were present
+    if(length(xshift_list) == 0) xshift_list = ((seq_along(gobject_list) - 1) * x_padding)
+
     for(spat_unit in names(gobj@spatial_locs)) {
 
       for(locs in names(gobj@spatial_locs[[spat_unit]])) {
@@ -3782,7 +3951,7 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = xshift_list[[gobj_i]]
           } else {
             x_shift_i = x_shift[[gobj_i]]
-            add_to_x = x_shift_i + x_padding
+            add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
           }
 
           if(verbose) cat('Spatial locations: for ',locs, ' add_to_x = ', add_to_x, '\n')
@@ -3795,7 +3964,7 @@ joinGiottoObjects = function(gobject_list,
         # shift for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
           if(verbose) cat('Spatial locations: for ',locs, ' add_to_y = ', add_to_y, '\n')
 
@@ -3849,13 +4018,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = x_shift_i + x_padding
+          add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
         } else {
           add_to_y = 0
         }
@@ -3894,13 +4063,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = x_shift_i + x_padding
+          add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = y_shift_i + y_padding
+          add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
         } else {
           add_to_y = 0
         }
