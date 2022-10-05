@@ -860,20 +860,22 @@ select_polygon_info = function(...) {
 #' @param gobject giotto object
 #' @param polygon_name name of polygons. Default "cell"
 #' @param gpolygon giotto polygon
+#' @param verbose verbosity
 #' @return giotto object
 #' @family polygon info data accessor functions
 #' @family functions to set data in giotto object
 #' @export
 set_polygon_info = function(gobject,
                             polygon_name = 'cell',
-                            gpolygon) {
+                            gpolygon,
+                            verbose = TRUE) {
 
 
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_info)
   if(polygon_name %in% potential_names) {
-    cat(polygon_name, ' already exist and will be replaced with new giotto polygon \n')
+     if(verbose) cat(polygon_name, ' already exist and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
@@ -1310,6 +1312,10 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
       for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
 
         cat('----> Name: ', mat_i, 'matrix: \n')
+
+        dimensions = dim(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
+        nrows = min(nrows, dimensions[1])
+        ncols = min(ncols, dimensions[2])
 
         print(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]][1:nrows, 1:ncols])
         cat('\n')
