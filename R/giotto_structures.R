@@ -1870,6 +1870,100 @@ overlap_points_single_polygon = function(spatvec,
 
 
 
+
+#' @title calculateOverlapPolygonImages
+#' @name calculateOverlapPolygonImages
+#' @description calculate overlap between cellular structures (polygons) and images (intensities)
+#' @param gobject giotto object
+#' @param name_overlap name for the overlap results (default to feat_info parameter)
+#' @param spatial_info polygon information
+#' @param poly_ID_names (optional) list of poly_IDs to use
+#' @param image_names names of the images with raw data
+#' @param return_gobject return giotto object (default: TRUE)
+#' @param verbose be verbose
+#' @return giotto object or data.table with overlapping information
+#' @concept overlap
+#' @export
+calculateOverlapPolygonImages = function(gobject,
+                                         name_overlap = 'images',
+                                         spatial_info = 'cell',
+                                         poly_ID_names = NULL,
+                                         image_names = NULL,
+                                         return_gobject = TRUE,
+                                         verbose = TRUE) {
+
+  if(is.null(image_names)) {
+    stop('image_names = NULL, you need to provide the names of the images you want to use,
+          see showGiottoImageNames() for attached images')
+  }
+
+  ## get polygon information
+  poly_info = get_polygon_info(gobject = gobject,
+                               polygon_name = spatial_info,
+                               return_giottoPolygon = T)
+
+
+  # calculate centroids for poly_info if not present
+  if(is.null(poly_info@spatVectorCentroids)) {
+    poly_info = calculate_centroids_polygons(gpolygon = poly_info,
+                                             name = 'centroids',
+                                             append_gpolygon = T)
+  }
+
+
+  potential_large_image_names = list_images_names(gobject, img_type = 'largeImage')
+
+  for(img_name in image_names) {
+
+    if(verbose) cat('Start process for image: ', img_name, '\n')
+
+    if(!img_name %in% potential_large_image_names) {
+      warning('image with the name ', img_name, ' was not found and will be skipped \n')
+    } else {
+
+      intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
+
+      extract_intensity = data.table::as.data.table(extract(x = intensity_image@raster_object,
+                                                            y = poly_info@spatVector))
+
+      poly_ID_vector = poly_info@spatVector$poly_ID
+      names(poly_ID_vector) = 1:length(poly_ID_vector)
+      extract_intensity[, ID := poly_ID_vector[ID]]
+      colnames(extract_intensity)[2] = img_name
+
+      poly_info@overlaps[[name_overlap]][[img_name]] = extract_intensity
+
+      return_list = list()
+
+      if(return_gobject) {
+
+        gobject = set_polygon_info(gobject = gobject,
+                                   polygon_name = spatial_info,
+                                   gpolygon = poly_info)
+      } else {
+
+        return_list[[img_name]] = pol_infoy
+
+      }
+
+    }
+  }
+
+  if(return_gobject) {
+    return(gobject)
+  } else {
+    return(return_list)
+  }
+}
+
+
+
+
+
+
+
+
+
 ## ** polygon way ####
 
 
@@ -2319,6 +2413,82 @@ overlapToMatrixMultiPoly = function(gobject,
 
 
 
+
+
+#' @title overlapImagesToMatrix
+#' @name overlapImagesToMatrix
+#' @description create a count matrix based on overlap results from \code{\link{calculateOverlapPolygonImages}}
+#' @param gobject giotto object
+#' @param name name for the overlap count matrix
+#' @param poly_info polygon information
+#' @param feat_info feature information
+#' @param image_names names of images you used
+#' @param return_gobject return giotto object (default: TRUE)
+#' @return giotto object or data.table with aggregated information
+#' @concept overlap
+#' @export
+overlapImagesToMatrix = function(gobject,
+                                 name = 'raw',
+                                 poly_info = 'cell',
+                                 feat_info = 'protein',
+                                 image_names = NULL,
+                                 return_gobject = TRUE) {
+
+  ## get polygon information
+  polygon_info = get_polygon_info(gobject = gobject,
+                                  polygon_name = poly_info,
+                                  return_giottoPolygon = T)
+
+
+  poly_info_image_overlap_names = names(polygon_info@overlaps$images)
+
+  overlap_aggr_list = list()
+
+  for(img_overlap in poly_info_image_overlap_names) {
+    overlap_DT = polygon_info@overlaps[['images']][[img_overlap]]
+    aggr_overlap_DT = overlap_DT[, mean(get(img_overlap)), by = 'ID']
+    aggr_overlap_DT[, feat := img_overlap]
+    colnames(aggr_overlap_DT) = c('poly_ID', 'mean_intensity', 'feat_ID')
+    overlap_aggr_list[[img_overlap]] = aggr_overlap_DT
+  }
+
+  aggr_comb = do.call('rbind', overlap_aggr_list)
+
+
+
+  if(return_gobject) {
+
+    cell_IDs = unique(aggr_comb$poly_ID)
+    feat_IDs = unique(aggr_comb$feat_ID)
+
+    # create cell and feature metadata
+    gobject@cell_metadata[[poly_info]][[feat_info]] = data.table::data.table(cell_ID = cell_IDs)
+    gobject@feat_metadata[[poly_info]][[feat_info]] = data.table::data.table(feat_ID = feat_IDs)
+
+    # add feat_ID and cell_ID
+    gobject@feat_ID[[feat_info]] = feat_IDs
+    gobject@cell_ID[[poly_info]] = cell_IDs
+
+    # create matrix
+    overlapmatrixDT = data.table::dcast(data = aggr_comb,
+                                        formula = feat_ID~poly_ID,
+                                        value.var = 'mean_intensity', fill = 0)
+    overlapmatrix = dt_to_matrix(overlapmatrixDT)
+
+    overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
+                                  match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
+
+    gobject = set_expression_values(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    feat_type = feat_info,
+                                    name = name,
+                                    values = overlapmatrix)
+
+  } else {
+    return(aggr_comb)
+  }
+
+}
 
 
 # * combine metadata ####

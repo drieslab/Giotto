@@ -1802,6 +1802,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
+#' @param largeImages list of large images
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
@@ -1860,6 +1861,7 @@ createGiottoObject <- function(expression,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                images = NULL,
+                               largeImages = NULL,
                                offset_file = NULL,
                                instructions = NULL,
                                cores = NA,
@@ -2426,10 +2428,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @title Create a giotto object from subcellular data
 #' @name createGiottoObjectSubcellular
 #' @description Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
-#' @param gpoints giotto points
 #' @param gpolygons giotto polygons
 #' @param polygon_mask_list_params list parameters for \code{\link{createGiottoPolygonsFromMask}}
 #' @param polygon_dfr_list_params list parameters for \code{\link{createGiottoPolygonsFromDfr}}
+#' @param gpoints giotto points
 #' @param cell_metadata cell annotation metadata
 #' @param feat_metadata feature annotation metadata for each unique feature
 #' @param spatial_network list of spatial network(s)
@@ -2441,16 +2443,20 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
+#' @param largeImages list of large images
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose when building Giotto object
 #' @return giotto object
+#' @details There are two different ways to create a Giotto Object with subcellular information:
+#' - Starting from polygons (spatial units e.g. cell) represented by a mask or dataframe file and giotto points (analyte coordinates e.g. transcripts)
+#' - Starting from polygons (spatial units e.g. cell) represented by a mask or dataframe file and raw intensity images (e.g. protein stains)
 #' @concept giotto
 #' @export
-createGiottoObjectSubcellular = function(gpoints = NULL,
-                                         gpolygons = NULL,
+createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          polygon_mask_list_params = NULL,
                                          polygon_dfr_list_params = NULL,
+                                         gpoints = NULL,
                                          cell_metadata = NULL,
                                          feat_metadata = NULL,
                                          spatial_network = NULL,
@@ -2462,6 +2468,8 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                          dimension_reduction = NULL,
                                          nn_network = NULL,
                                          images = NULL,
+                                         largeImages = NULL,
+                                         largeImages_list_params = NULL,
                                          instructions = NULL,
                                          cores = NA,
                                          verbose = TRUE) {
@@ -2501,11 +2509,12 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
   # gpolygons and gpoints need to be provided
   if(is.null(gpolygons)) {
-    stop('gpolygons = NULL, cell polygon information needs to be given (e.g. cell boundary, nucleus, ...)')
+    stop('gpolygons = NULL, spatial polygon information needs to be given (e.g. cell boundary, nucleus, ...)')
   }
 
-  if(is.null(gpoints)) {
-    stop('gpoints = NULL, feature information needs to be given (e.g. transcript or protein location)')
+  if(is.null(gpoints) & is.null(largeImages)) {
+    stop('both gpoints = NULL and largeImages = NULL: \n
+         Some kind of feature information needs to be provided (e.g. transcript location or protein intensities)')
   }
 
 
@@ -2552,24 +2561,34 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
   ## extract points information ##
   ## -------------------------- ##
 
-  if(verbose) cat("3. Start extracting spatial feature information \n")
 
-  points_res = extract_points_list(pointslist = gpoints)
-  gobject@feat_info = points_res
+  if(!is.null(gpoints)) {
+    if(verbose) cat("3. Start extracting spatial feature information \n")
 
-  if(verbose) cat("4. Finished extracting spatial feature information \n")
+    points_res = extract_points_list(pointslist = gpoints)
+    gobject@feat_info = points_res
 
-  ## expression features ##
-  ## ------------------- ##
-  gobject@expression_feat = names(points_res)
-  expression_feat = gobject@expression_feat
+    if(verbose) cat("4. Finished extracting spatial feature information \n")
 
-  ## feat ID ##
-  ## ------- ##
-  for(feat in gobject@expression_feat) {
-    unique_feats = unique(gobject@feat_info[[feat]]@spatVector$feat_ID)
-    gobject@feat_ID[[feat]] = unique_feats
+    ## expression features ##
+    ## ------------------- ##
+    gobject@expression_feat = names(points_res)
+    expression_feat = gobject@expression_feat
+
+    ## feat ID ##
+    ## ------- ##
+    for(feat in gobject@expression_feat) {
+      unique_feats = unique(gobject@feat_info[[feat]]@spatVector$feat_ID)
+      gobject@feat_ID[[feat]] = unique_feats
+    }
   }
+
+
+
+
+
+
+
 
 
   ## parameters ##
@@ -2585,62 +2604,67 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
 
 
-  ## cell metadata ##
-  ## ------------- ##
-  if(is.null(cell_metadata)) {
+  if(!is.null(gpoints)) {
+
+    ## cell metadata ##
+    ## ------------- ##
+    if(is.null(cell_metadata)) {
+
+      for(feat_type in expression_feat) {
+        for(poly in names(gobject@spatial_info)) {
+          gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+        }
+      }
 
 
-    for(feat_type in expression_feat) {
-      for(poly in names(gobject@spatial_info)) {
-        gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+    } else {
+
+      if(length(cell_metadata) != length(expression_feat)) {
+        stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
+      }
+
+      for(feat_type in expression_feat) {
+        for(poly in names(gobject@spatial_info)) {
+
+          gobject@cell_metadata[[poly]][[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[poly]][[feat_type]])
+          gobject@cell_metadata[[poly]][[feat_type]][, cell_ID := gobject@cell_ID[[poly]]]
+
+          # put cell_ID first
+          all_colnames = colnames(gobject@cell_metadata[[poly]][[feat_type]])
+          other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+          gobject@cell_metadata[[poly]][[feat_type]] = gobject@cell_metadata[[poly]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+        }
+
       }
     }
 
 
-  } else {
+    ## feat metadata ##
+    ## ------------- ##
+    if(is.null(feat_metadata)) {
 
-    if(length(cell_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
-    }
+      for(feat_type in expression_feat) {
+        for(poly in names(gobject@spatial_info)) {
+          gobject@feat_metadata[[poly]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+        }
+      }
 
-    for(feat_type in expression_feat) {
-      for(poly in names(gobject@spatial_info)) {
+    } else {
 
-        gobject@cell_metadata[[poly]][[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[poly]][[feat_type]])
-        gobject@cell_metadata[[poly]][[feat_type]][, cell_ID := gobject@cell_ID[[poly]]]
+      if(length(feat_metadata) != length(expression_feat)) {
+        stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
+      }
 
-        # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[poly]][[feat_type]])
-        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[poly]][[feat_type]] = gobject@cell_metadata[[poly]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+      for(feat_type in expression_feat) {
+        gobject@feat_metadata[[feat_type]] = data.table::as.data.table(gobject@feat_metadata[[feat_type]])
+        gobject@feat_metadata[[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
       }
 
     }
+
   }
 
 
-  ## feat metadata ##
-  ## ------------- ##
-  if(is.null(feat_metadata)) {
-
-    for(feat_type in expression_feat) {
-      for(poly in names(gobject@spatial_info)) {
-        gobject@feat_metadata[[poly]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
-      }
-    }
-
-  } else {
-
-    if(length(feat_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
-    }
-
-    for(feat_type in expression_feat) {
-      gobject@feat_metadata[[feat_type]] = data.table::as.data.table(gobject@feat_metadata[[feat_type]])
-      gobject@feat_metadata[[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
-    }
-
-  }
 
   ### OPTIONAL:
   ## spatial network
@@ -2810,10 +2834,67 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
   }
 
+  ## largeImages ##
+  # expect a list of giotto largeImages or file paths to such images
+  if(!is.null(largeImages)) {
+
+    if(verbose) cat("3. Start loading large images \n")
+
+
+
+    if(is.null(names(largeImages))) {
+      names(largeImages) = paste0('largeImage.', 1:length(largeImages))
+    }
+
+
+    for(largeImage_i in 1:length(largeImages)) {
+
+      im = largeImages[[largeImage_i]]
+      im_name = names(largeImages)[[largeImage_i]]
+
+      if(inherits(im, 'giottoLargeImage')) { # giotto largeImage
+        gobject@largeImages[[im_name]] = im
+      } else if(inherits(im, 'character') & file.exists(im)) { # file path
+
+
+        if(is.null(largeImages_list_params)) {
+          largeImages_list_params = list(negative_y = TRUE,
+                                         extent = NULL,
+                                         use_rast_ext = FALSE,
+                                         image_transformations = NULL,
+                                         xmax_bound = NULL,
+                                         xmin_bound = NULL,
+                                         ymax_bound = NULL,
+                                         ymin_bound = NULL,
+                                         scale_factor = 1,
+                                         verbose = TRUE)
+        }
+
+        glargeImage = do.call('createGiottoLargeImage', c(raster_object = im,
+                                                          name = im_name,
+                                                          largeImages_list_params))
+
+        glargeImage = createGiottoLargeImage(raster_object = im,
+                                             negative_y = FALSE,
+                                             name = im_name)
+
+        gobject = addGiottoImage(gobject = gobject,
+                                 largeImages = list(glargeImage))
+
+      } else {
+        warning('large image: ', im, ' is not an existing file path or a giotto largeImage object')
+      }
+
+    }
+
+    if(verbose) cat("4. Finished loading large images \n")
+
+  }
+
   return(gobject)
 
-
 }
+
 
 
 
