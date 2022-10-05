@@ -16,7 +16,9 @@
 #' of the tile: sx (start x), ex (end x), sy, and ey.
 #'
 #' @export
-doCellSegmentation <- function(raster_img, folder_path, reduce_resolution = 4,
+doCellSegmentation <- function(raster_img,
+                               folder_path,
+                               reduce_resolution = 4,
                                overlapping_pixels = 50,
                                python_path = NULL){
 
@@ -24,7 +26,7 @@ doCellSegmentation <- function(raster_img, folder_path, reduce_resolution = 4,
   # if(is.null(python_path)) {
   #   python_path = readGiottoInstructions(gobject, param = "python_path")
   # }
-  
+
   # prepare python path and segmentation script
   reticulate::use_python(required = T, python = python_path)
   python_segmentation_function = system.file("python",
