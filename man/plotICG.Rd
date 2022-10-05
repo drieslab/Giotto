@@ -4,46 +4,28 @@
 \alias{plotICG}
 \title{plotICG}
 \usage{
-plotICG(
-  gobject,
-  cpgObject,
-  source_type,
-  source_markers,
-  ICG_genes,
-  cell_color_code = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "plotICG"
-)
+plotICG(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{cpgObject}{ICG (interaction changed gene) score object}
-
-\item{source_type}{cell type of the source cell}
-
-\item{source_markers}{markers for the source cell type}
-
-\item{ICG_genes}{named character vector of ICG genes}
-
-\item{cell_color_code}{cell color code for the interacting cell types}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return plotting object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-}
-\value{
-plot
+\item{...}{
+  Arguments passed on to \code{\link[=plotICF]{plotICF}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{icfObject}}{ICF (interaction changed feature) score object}
+    \item{\code{source_type}}{cell type of the source cell}
+    \item{\code{source_markers}}{markers for the source cell type}
+    \item{\code{ICF_feats}}{named character vector of ICF features}
+    \item{\code{cell_color_code}}{cell color code for the interacting cell types}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return plotting object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters from \code{\link{all_plots_save_function}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \description{
-Create barplot to visualize interaction changed genes
+Create barplot to visualize interaction changed features
+}
+\seealso{
+\code{\link{plotICF}}
 }

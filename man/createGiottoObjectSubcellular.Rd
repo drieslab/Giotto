@@ -5,10 +5,10 @@
 \title{Create a giotto object from subcellular data}
 \usage{
 createGiottoObjectSubcellular(
-  gpoints = NULL,
   gpolygons = NULL,
   polygon_mask_list_params = NULL,
   polygon_dfr_list_params = NULL,
+  gpoints = NULL,
   cell_metadata = NULL,
   feat_metadata = NULL,
   spatial_network = NULL,
@@ -20,19 +20,21 @@ createGiottoObjectSubcellular(
   dimension_reduction = NULL,
   nn_network = NULL,
   images = NULL,
+  largeImages = NULL,
+  largeImages_list_params = NULL,
   instructions = NULL,
   cores = NA,
   verbose = TRUE
 )
 }
 \arguments{
-\item{gpoints}{giotto points}
-
 \item{gpolygons}{giotto polygons}
 
 \item{polygon_mask_list_params}{list parameters for \code{\link{createGiottoPolygonsFromMask}}}
 
 \item{polygon_dfr_list_params}{list parameters for \code{\link{createGiottoPolygonsFromDfr}}}
+
+\item{gpoints}{giotto points}
 
 \item{cell_metadata}{cell annotation metadata}
 
@@ -56,6 +58,8 @@ createGiottoObjectSubcellular(
 
 \item{images}{list of images}
 
+\item{largeImages}{list of large images}
+
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
@@ -67,5 +71,10 @@ giotto object
 }
 \description{
 Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
+}
+\details{
+There are two different ways to create a Giotto Object with subcellular information:
+- Starting from polygons (spatial units e.g. cell) represented by a mask or dataframe file and giotto points (analyte coordinates e.g. transcripts)
+- Starting from polygons (spatial units e.g. cell) represented by a mask or dataframe file and raw intensity images (e.g. protein stains)
 }
 \concept{giotto}

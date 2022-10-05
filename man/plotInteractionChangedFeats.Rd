@@ -6,7 +6,7 @@
 \usage{
 plotInteractionChangedFeats(
   gobject,
-  cpgObject,
+  icfObject,
   source_type,
   source_markers,
   ICF_feats,
@@ -21,7 +21,7 @@ plotInteractionChangedFeats(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cpgObject}{ICF (interaction changed feature) score object}
+\item{icfObject}{ICF (interaction changed feature) score object}
 
 \item{source_type}{cell type of the source cell}
 
