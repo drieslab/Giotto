@@ -1921,20 +1921,16 @@ calculateOverlapPolygonImages = function(gobject,
       warning('image with the name ', img_name, ' was not found and will be skipped \n')
     } else {
 
-      if(verbose) cat('step 1: get image')
       intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
 
-
-      if(verbose) cat('step 2: extract image intensities within polygons')
       extract_intensity = data.table::as.data.table(terra::extract(x = intensity_image@raster_object,
-                                                                   y = poly_info@spatVector))
+                                                            y = poly_info@spatVector))
 
-
-      if(verbose) cat('step 3: update overlap info')
       poly_ID_vector = poly_info@spatVector$poly_ID
       names(poly_ID_vector) = 1:length(poly_ID_vector)
       extract_intensity[, ID := poly_ID_vector[ID]]
       colnames(extract_intensity)[2] = img_name
+
       poly_info@overlaps[[name_overlap]][[img_name]] = extract_intensity
 
       return_list = list()
@@ -1943,8 +1939,7 @@ calculateOverlapPolygonImages = function(gobject,
 
         gobject = set_polygon_info(gobject = gobject,
                                    polygon_name = spatial_info,
-                                   gpolygon = poly_info,
-                                   verbose = FALSE)
+                                   gpolygon = poly_info)
       } else {
 
         return_list[[img_name]] = pol_infoy
@@ -2426,7 +2421,6 @@ overlapToMatrixMultiPoly = function(gobject,
 #' @param gobject giotto object
 #' @param name name for the overlap count matrix
 #' @param poly_info polygon information
-#' @param poly_info_centroids_name name of the polygon centroids
 #' @param feat_info feature information
 #' @param image_names names of images you used
 #' @param return_gobject return giotto object (default: TRUE)
@@ -2436,7 +2430,6 @@ overlapToMatrixMultiPoly = function(gobject,
 overlapImagesToMatrix = function(gobject,
                                  name = 'raw',
                                  poly_info = 'cell',
-                                 poly_info_centroids_name = 'raw',
                                  feat_info = 'protein',
                                  image_names = NULL,
                                  return_gobject = TRUE) {
@@ -2476,11 +2469,7 @@ overlapImagesToMatrix = function(gobject,
     gobject@feat_ID[[feat_info]] = feat_IDs
     gobject@cell_ID[[poly_info]] = cell_IDs
 
-    # create spatial locations from centroids
-    centroidsDT = spatVector_to_dt(gobject@spatial_info[[poly_info]]@spatVectorCentroids)
-    centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
-    colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
-    gobject@spatial_locs[[poly_info]][[poly_info_centroids_name]] = centroidsDT_loc
+    # add spatial locations
 
     # create matrix
     overlapmatrixDT = data.table::dcast(data = aggr_comb,
@@ -2496,8 +2485,6 @@ overlapImagesToMatrix = function(gobject,
                                     feat_type = feat_info,
                                     name = name,
                                     values = overlapmatrix)
-
-    return(gobject)
 
   } else {
     return(aggr_comb)
