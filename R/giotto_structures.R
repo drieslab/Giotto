@@ -472,7 +472,7 @@ createGiottoPolygonsFromMask = function(maskfile,
     if(length(poly_IDs) != nrow(terra::values(terra_polygon))) {
       stop('length cell_IDs does not equal number of found polyongs \n')
     }
-    terra_polygon$poly_ID = poly_IDs
+    terra_polygon$poly_ID = as.character(poly_IDs)
   } else {
     terra_polygon$poly_ID = paste0(name, '_', 1:nrow(terra::values(terra_polygon)))
   }
@@ -520,6 +520,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   segmdt = data.table::as.data.table(segmdfr)
   input_dt = segmdt[,c(1:3), with = F]
   colnames(input_dt) = c('x', 'y', 'poly_ID')
+  input_dt[, poly_ID := as.character(poly_ID)]
 
   #pl = ggplot()
   #pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = poly_ID))
@@ -2423,6 +2424,7 @@ overlapToMatrixMultiPoly = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_info feature information
 #' @param image_names names of images you used
+#' @param spat_locs_name name for spatial centroids / locations associated with matrix
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or data.table with aggregated information
 #' @concept overlap
@@ -2432,6 +2434,7 @@ overlapImagesToMatrix = function(gobject,
                                  poly_info = 'cell',
                                  feat_info = 'protein',
                                  image_names = NULL,
+                                 spat_locs_name = 'raw',
                                  return_gobject = TRUE) {
 
   ## get polygon information
@@ -2470,6 +2473,16 @@ overlapImagesToMatrix = function(gobject,
     gobject@cell_ID[[poly_info]] = cell_IDs
 
     # add spatial locations
+    centroidsDT = gobject@spatial_info[[poly_info]]@spatVectorCentroids
+    centroidsDT = spatVector_to_dt(centroidsDT)
+    centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
+    colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
+
+    gobject = set_spatial_locations(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    spat_loc_name = ,
+                                    spatlocs = centroidsDT_loc,
+                                    verbose = FALSE)
 
     # create matrix
     overlapmatrixDT = data.table::dcast(data = aggr_comb,
