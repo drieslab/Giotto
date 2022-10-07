@@ -1284,9 +1284,11 @@ subsetGiottoLocsMulti = function(gobject,
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param expression_values expression values to use
+#' @param method method to create distribution (see details)
 #' @param expression_threshold threshold to consider a gene expressed
 #' @param detection consider features (e.g. genes) or cells
 #' @param plot_type type of plot
+#' @param scale_y scale y-axis (e.g. "log"), NULL = no scaling
 #' @param nr_bins number of bins for histogram plot
 #' @param fill_color fill color for plots
 #' @param scale_axis ggplot transformation for axis (e.g. log2)
@@ -1296,15 +1298,24 @@ subsetGiottoLocsMulti = function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param details
+#' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
+#' \itemize{
+#'   \item{1. threshold: calculate features that cross a thresold (default)}
+#'   \item{2. sum: summarize the features, i.e. total of a feature}
+#'   \item{3. mean: calculate mean of the features, i.e. average expression}
+#' }
 #' @return ggplot object
 #' @export
 filterDistributions <- function(gobject,
                                 feat_type = NULL,
                                 spat_unit = NULL,
                                 expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                                method = c('threshold', 'sum', 'mean'),
                                 expression_threshold = 1,
                                 detection = c('feats', 'cells'),
                                 plot_type = c('histogram', 'violin'),
+                                scale_y = NULL,
                                 nr_bins = 30,
                                 fill_color = 'lightblue',
                                 scale_axis = 'identity',
@@ -1330,8 +1341,11 @@ filterDistributions <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
-  # plot distribution for genes or cells
+  # plot distribution for feats or cells
   detection = match.arg(detection, c('feats', 'cells'))
+
+  # method to calculate distribution
+  method = match.arg(method, c('threshold', 'sum', 'mean'))
 
   # plot type
   plot_type = match.arg(plot_type, c('histogram', 'violin'))
@@ -1342,7 +1356,24 @@ filterDistributions <- function(gobject,
   # for genes
   if(detection == 'feats') {
 
-    feat_detection_levels = data.table::as.data.table(rowSums_flex(expr_values >= expression_threshold))
+    if(method == 'threshold') {
+      feat_detection_levels = data.table::as.data.table(rowSums_flex(expr_values >= expression_threshold))
+      mytitle = 'feat detected in # of cells'
+    } else if(method == 'sum') {
+      feat_detection_levels = data.table::as.data.table(rowSums_flex(expr_values))
+      mytitle = 'total sum of feature detected in all cells'
+    } else if(method == 'mean') {
+      feat_detection_levels = data.table::as.data.table(rowMeans_flex(expr_values))
+      mytitle = 'average of feature detected in all cells'
+    }
+
+    y_title = 'count'
+    if(!is.null(scale_y)) {
+      feat_detection_levels[, V1 := do.call(what = scale_y, list(V1))]
+      y_title = paste(scale_y, y_title)
+    }
+
+
 
     if(plot_type == 'violin') {
 
@@ -1351,7 +1382,7 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_violin(data = feat_detection_levels, ggplot2::aes(x = 'feats', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(y = 'feat detected in # of cells', x = '')
+      pl <- pl + ggplot2::labs(y = mytitle, x = '')
 
     } else if(plot_type == 'histogram') {
 
@@ -1360,14 +1391,32 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_histogram(data = feat_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(x = 'feat detected in # of cells')
+      pl <- pl + ggplot2::labs(x = mytitle, y = y_title)
 
     }
 
     # for cells
   } else if(detection == 'cells') {
 
-    cell_detection_levels = data.table::as.data.table(colSums_flex(expr_values >= expression_threshold))
+
+    if(method == 'threshold') {
+      cell_detection_levels = data.table::as.data.table(colSums_flex(expr_values >= expression_threshold))
+      mytitle = 'feats detected per cell'
+    } else if(method == 'sum') {
+      cell_detection_levels = data.table::as.data.table(colSums_flex(expr_values))
+      mytitle = 'total features per cell'
+    } else if(method == 'mean') {
+      cell_detection_levels = data.table::as.data.table(colMeans_flex(expr_values))
+      mytitle = 'average number of features per cell'
+    }
+
+    y_title = 'count'
+    if(!is.null(scale_y)) {
+      cell_detection_levels[, V1 := do.call(what = scale_y, list(V1))]
+      y_title = paste(scale_y, y_title)
+    }
+
+
 
     if(plot_type == 'violin') {
 
@@ -1376,7 +1425,7 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, ggplot2::aes(x = 'cells', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(y = 'feats detected per cell', x = '')
+      pl <- pl + ggplot2::labs(y = mytitle, x = '')
 
     } else if(plot_type == 'histogram') {
 
@@ -1385,7 +1434,7 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(x = 'feats detected per cell')
+      pl <- pl + ggplot2::labs(x = mytitle, y = y_title)
 
     }
   }

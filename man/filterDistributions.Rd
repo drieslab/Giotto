@@ -9,9 +9,11 @@ filterDistributions(
   feat_type = NULL,
   spat_unit = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
+  method = c("threshold", "sum", "mean"),
   expression_threshold = 1,
   detection = c("feats", "cells"),
   plot_type = c("histogram", "violin"),
+  scale_y = NULL,
   nr_bins = 30,
   fill_color = "lightblue",
   scale_axis = "identity",
@@ -32,11 +34,15 @@ filterDistributions(
 
 \item{expression_values}{expression values to use}
 
+\item{method}{method to create distribution (see details)}
+
 \item{expression_threshold}{threshold to consider a gene expressed}
 
 \item{detection}{consider features (e.g. genes) or cells}
 
 \item{plot_type}{type of plot}
+
+\item{scale_y}{scale y-axis (e.g. "log"), NULL = no scaling}
 
 \item{nr_bins}{number of bins for histogram plot}
 
@@ -55,6 +61,13 @@ filterDistributions(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{details}{There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
+\itemize{
+  \item{1. threshold: calculate features that cross a thresold (default)}
+  \item{2. sum: summarize the features, i.e. total of a feature}
+  \item{3. mean: calculate mean of the features, i.e. average expression}
+}}
 }
 \value{
 ggplot object
