@@ -14,6 +14,11 @@ Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
 [![R-CMD-check](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+**Github Repository changes!**  
+The Giotto github repository has moved to
+<https://github.com/drieslab/Giotto> and the associated spatial datasets
+have been moved to <https://github.com/drieslab/spatial-datasets>.
+
 **Website change!**  
 We have created a new [readthedocs
 website](https://giottosuite.readthedocs.io/en/latest/#) to further
