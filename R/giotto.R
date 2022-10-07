@@ -3437,7 +3437,7 @@ createGiottoXeniumObject = function(xenium_dir,
   if(is.null(xenium_dir) | !dir.exists(xenium_dir)) stop('The full path to a xenium directory must be given.\n')
   if(isTRUE(verbose)) message('A structured Xenium directory will be used\n')
 
-  # find directories (length = 1 if present, length = 0 if missing)
+  # find items (length = 1 if present, length = 0 if missing)
   dir_items = list(`analysis info` = 'analysis*',
                    `boundary info` = '*bound*',
                    `cell feature matrix` = 'cell_feature_matrix*',
@@ -3471,23 +3471,24 @@ createGiottoXeniumObject = function(xenium_dir,
   cell_meta_path = dir_items$cells[grepl(pattern = load_format, dir_items$cells)]
 
   # **** boundary info ****
+  # Select bound load format
   if(load_format != 'zarr') { # No zarr available for boundary info
     dir_items$`boundary info` = dir_items$`boundary info`[grepl(pattern = load_format, dir_items$`boundary info`)]
   } else dir_items$`boundary info` = dir_items$`boundary info`[grepl(pattern = 'csv', dir_items$`boundary info`)]
 
+  # Organize bound paths by type of bound (bounds_to_load param)
   bound_names = bounds_to_load
   bounds_to_load = as.list(bounds_to_load)
   bound_paths = lapply(bounds_to_load, function(x) dir_items$`boundary info`[grepl(pattern = x, dir_items$`boundary info`)])
   names(bound_paths) = bound_names
-  bound_paths = lapply(bound_paths, function(x) x[grepl(pattern = (load_format), x)])
 
   # **** aggregated expression info ****
-  if(isTRUE(h5_expression)) { # No parquet for aggregated expression
+  if(isTRUE(h5_expression)) { # h5 expression matrix loading is default
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'h5', dir_items$`cell feature matrix`)]
     h5_gene_ids = match.arg(arg = h5_gene_ids, choices = c('symbols', 'ensembl'))
   } else if(load_format == 'zarr') {
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'zarr', dir_items$`cell feature matrix`)]
-  } else {
+  } else { # No parquet for aggregated expression - default to normal 10x loading
     agg_expr_path = dir_items$`cell feature matrix`[sapply(dir_items$`cell feature matrix`, function(x) file_test(op = '-d', x))]
   }
 
@@ -3495,41 +3496,50 @@ createGiottoXeniumObject = function(xenium_dir,
   if(isTRUE(verbose)) message('Directory check done')
 
   # 2. read in data
+  if(isTRUE(verbose)) message('Loading feature metadata...')
   feat_meta = data.table::fread(dir_items$`panel metadata`[[1]])
 
   if(load_format == 'csv') {
-    # general info
-    cell_meta = data.table::fread(cell_meta_path[[1]])
-    # subcellular info
+    # ---------------------------------------------------------------------------- #
+    # **** subcellular info ****
     if(data_to_use == 'subcellular' | data_to_use == 'all') {
-      tx_dt = data.table::fread(tx_path)
+      if(isTRUE(verbose)) message('Loading transcript level info...')
+      tx_dt = data.table::fread(tx_path[[1]])
+      if(isTRUE(verbose)) message('Loading boundary info...')
+      bound_dt_list = lapply(bound_paths, function(x) data.table::fread(x[[1]]))
     }
+    # **** aggregate info ****
+    if(isTRUE(verbose)) message('Loading cell metadata...')
+    cell_meta = data.table::fread(cell_meta_path[[1]])
 
-    # aggregate info
     if(data_to_use == 'aggregate' | data_to_use == 'all') {
+      if(isTRUE(verbose)) message('Loading aggregated expression...')
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
       if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = agg_expr_path, gene_ids = h5_gene_ids)
       else agg_expr = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
     }
+    # ---------------------------------------------------------------------------- #
   } else if(load_format == 'parquet') { # TODO
-    # general info
-    # subcellular info
+    # ---------------------------------------------------------------------------- #
+    # **** subcellular info ****
     if(data_to_use == 'subcellular' | data_to_use == 'all') {}
-    # aggregate info
+    # **** aggregate info ****
     if(data_to_use == 'aggregate' | data_to_use == 'all') {
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
       # NOTE: no parquet for agg_expr.
     }
+    # ---------------------------------------------------------------------------- #
   } else if(load_format == 'zarr') { # TODO
-    # general info
-    # subcellular info
+    # ---------------------------------------------------------------------------- #
+    # **** subcellular info ****
     if(data_to_use == 'subcellular' | data_to_use == 'all') {
       # NOTE: no zarr for boundaries
     }
-    # aggregate info
+    # **** aggregate info ****
     if(data_to_use == 'aggregate' | data_to_use == 'all') {
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
     }
+    # ---------------------------------------------------------------------------- #
   }
 
   # TODO load images
