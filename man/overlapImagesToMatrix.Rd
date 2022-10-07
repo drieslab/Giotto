@@ -10,6 +10,7 @@ overlapImagesToMatrix(
   poly_info = "cell",
   feat_info = "protein",
   image_names = NULL,
+  spat_locs_name = "raw",
   return_gobject = TRUE
 )
 }
@@ -23,6 +24,8 @@ overlapImagesToMatrix(
 \item{feat_info}{feature information}
 
 \item{image_names}{names of images you used}
+
+\item{spat_locs_name}{name for spatial centroids / locations associated with matrix}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 }

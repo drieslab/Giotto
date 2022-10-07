@@ -2688,6 +2688,29 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
 
   if(verbose) cat("2. Finished extracting polygon information \n")
 
+
+  if(verbose) cat("3. Add centroid / spatial locations if available \n")
+  for(polygon_info in list_spatial_info_names(gobject)) {
+
+    centroidsDT = gobject@spatial_info[[polygon_info]]@spatVectorCentroids
+    if(!is.null(centroidsDT)) {
+
+      if(verbose) cat(" - Add centroid / spatial locations for ", polygon_info, " \n")
+
+      centroidsDT = spatVector_to_dt(centroidsDT)
+      centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
+      colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
+
+      gobject = set_spatial_locations(gobject = gobject,
+                                      spat_unit = polygon_info,
+                                      spat_loc_name = 'raw',
+                                      spatlocs = centroidsDT_loc,
+                                      verbose = FALSE)
+    }
+
+  }
+  if(verbose) cat("3. Finish adding centroid / spatial locations \n")
+
   ## cell ID ##
   ## ------- ##
   for(poly in names(gobject@spatial_info)) {

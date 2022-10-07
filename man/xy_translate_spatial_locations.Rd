@@ -4,7 +4,12 @@
 \alias{xy_translate_spatial_locations}
 \title{xy_translate_spatial_locations}
 \usage{
-xy_translate_spatial_locations(spatlocs, xtranslate, ytranslate, ztranslate)
+xy_translate_spatial_locations(
+  spatlocs,
+  xtranslate = 0,
+  ytranslate = 0,
+  ztranslate = 0
+)
 }
 \arguments{
 \item{spatlocs}{spatial locations to use}
