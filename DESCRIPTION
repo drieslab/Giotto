@@ -71,10 +71,12 @@ Imports:
     terra (>= 1.5-12),
     uwot (>= 0.0.0.9010)
 Suggests:
+    arrow,
     Biobase,
     biomaRt,
     circlize,
     dendextend (>= 1.13.0),
+    dplyr,
     FactoMineR,
     factoextra,
     geometry,
