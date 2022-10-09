@@ -3436,6 +3436,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' or c('cell', 'nucleus'))
 #' @inheritParams get10Xmatrix
 #' @inheritParams createGiottoObjectSubcellular
+#' @export
 createGiottoXeniumObject = function(xenium_dir,
                                     data_to_use = c('subcellular','aggregate','all'),
                                     # load_format = 'csv',
