@@ -505,22 +505,60 @@ createGiottoPolygonsFromMask = function(maskfile,
 #' @param segmdfr data.frame-like object with polygon coordinate information (x, y, ID)
 #' @param name name for polygons
 #' @param calc_centroids calculate centroids for polygons
+#' @param verbose be verbose
 #' @return giotto polygon object
 #' @concept polygon
 #' @export
 createGiottoPolygonsFromDfr = function(segmdfr,
                                        name = 'cell',
-                                       calc_centroids = FALSE) {
+                                       calc_centroids = FALSE,
+                                       verbose = TRUE) {
 
   # define for data.table
   geom = NULL
 
-  # input data.frame-like object
-  # columns: x y cell_ID
-  segmdt = data.table::as.data.table(segmdfr)
-  input_dt = segmdt[,c(1:3), with = F]
-  colnames(input_dt) = c('x', 'y', 'poly_ID')
-  input_dt[, poly_ID := as.character(poly_ID)]
+  input_dt = data.table::as.data.table(segmdfr)
+
+  # data.frame like object needs to have 2 coordinate columns and
+  # at least one other column as the feat_ID
+  col_classes = sapply(input_dt, class)
+  ## find poly_ID as either first character col or named column
+  ## if neither exist, pick the 3rd column
+  if('poly_ID' %in%  colnames(input_dt)) {
+    poly_ID_col = which(colnames(input_dt) == 'poly_ID')
+  } else {
+    poly_ID_col = which(col_classes == 'character')[[1]]
+  }
+  if(length(poly_ID_col) == 0) {
+    poly_ID_col = 3
+  }
+  if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(input_dt[, poly_ID_col, with = FALSE]),'" as poly_ID column'))
+  colnames(input_dt)[poly_ID_col] = 'poly_ID'
+  if(!inherits(input_dt$poly_ID, 'character')) {
+    input_dt$poly_ID = as.character(input_dt$poly_ID) # ensure char
+  }
+
+  ## find first two numeric cols as x and y respectively or named column
+  ## if neither exist, pick the 1st and 2nd cols respectively for x and y
+  if(all(c('x','y') %in% colnames(input_dt))) {
+    x_col = which(colnames(input_dt) == 'x')
+    y_col = which(colnames(input_dt) == 'y')
+  } else {
+    x_col = which(col_classes == 'numeric')[1]
+    y_col = which(col_classes == 'numeric')[2]
+  }
+  if(length(x_col) == 0) x_col = 1
+  if(length(y_col) == 0) y_col = 2
+
+  if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(input_dt[, x_col, with = FALSE]),'" and "', colnames(input_dt[, y_col, with = FALSE]),'" as x and y respectively'))
+  colnames(input_dt)[x_col] = 'x'
+  colnames(input_dt)[y_col] = 'y'
+  if(!inherits(input_dt$x, 'numeric')) {
+    input_dt$x = as.numeric(input_dt$x) # ensure numeric
+  }
+  if(!inherits(input_dt$y, 'numeric')) {
+    input_dt$y = as.numeric(input_dt$y) # ensure numeric
+  }
 
   #pl = ggplot()
   #pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = poly_ID))
@@ -1018,10 +1056,12 @@ create_giotto_points_object = function(feat_type = 'rna',
 #' @name create_spatvector_object_from_dfr
 #' @description create terra spatvector from a data.frame where cols 1 and 2 must
 #' be x and y coordinates respectively. Additional columns are set as attributes
-#' to the points where the first additional should be the feat_ID.
+#' to the points where the first additional (col 3) should be the feat_ID.
 #' @param x data.frame object
+#' @param verbose be verbose
 #' @keywords internal
-create_spatvector_object_from_dfr = function(x) {
+create_spatvector_object_from_dfr = function(x,
+                                             verbose = TRUE) {
 
 
   x = data.table::as.data.table(x)
@@ -1030,15 +1070,23 @@ create_spatvector_object_from_dfr = function(x) {
   # at least one other column as the feat_ID
   col_classes = sapply(x, class)
   ## find feat_ID as either first character col or named column
+  ## if not detected, select 3rd column
   if('feat_ID' %in% colnames(x)) {
     feat_ID_col = which(colnames(x) == 'feat_ID')
   } else {
     feat_ID_col = which(col_classes == 'character')[[1]]
   }
-  cat(paste0('Selecting "',colnames(x[, feat_ID_col, with = FALSE]),'" as feat_ID column\n'))
+  if(length(feat_ID_col) == 0) {
+    feat_ID_col = 3
+  }
+  if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(x[, feat_ID_col, with = FALSE]),'" as feat_ID column'))
   colnames(x)[feat_ID_col] = 'feat_ID'
+  if(!inherits(x$feat_ID, 'character')) {
+    x$feat_ID = as.character(x$feat_ID) # ensure char
+  }
 
   ## find first two numeric cols as x and y respectively or named column
+  ## if not detected select 1st and 2nd cols for x and y respectively
   if(all(c('x','y') %in% colnames(x))) {
     x_col = which(colnames(x) == 'x')
     y_col = which(colnames(x) == 'y')
@@ -1046,9 +1094,15 @@ create_spatvector_object_from_dfr = function(x) {
     x_col = which(col_classes == 'numeric')[1]
     y_col = which(col_classes == 'numeric')[2]
   }
-  cat(paste0('Selecting "',colnames(x[, x_col, with = FALSE]),'" and "', colnames(x[, y_col, with = FALSE]),'" as x and y respectively\n'))
+  if(length(x_col) == 0) x_col = 1
+  if(length(y_col) == 0) y_col = 2
+
+  if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(x[, x_col, with = FALSE]),'" and "', colnames(x[, y_col, with = FALSE]),'" as x and y respectively'))
   colnames(x)[x_col] = 'x'
   colnames(x)[y_col] = 'y'
+  if(!inherits(x$x, 'numeric')) x$x = as.numeric(x$x) # ensure numeric
+  if(!inherits(x$y, 'numeric')) x$y = as.numeric(x$y) # ensure numeric
+
 
   ## select location and attribute dataframes
   # Use unique() to set column order
@@ -1074,15 +1128,18 @@ create_spatvector_object_from_dfr = function(x) {
 #' @description Creates Giotto point object from a structured dataframe-like object
 #' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat ID)
 #' @param feat_type feature type
+#' @param verbose be verbose
 #' @return giottoPoints
 #' @concept polygon
 #' @export
 createGiottoPoints = function(x,
-                              feat_type = 'rna') {
+                              feat_type = 'rna',
+                              verbose = TRUE) {
 
   if(inherits(x, 'data.frame')) {
 
-    spatvec = create_spatvector_object_from_dfr(x = x)
+    spatvec = create_spatvector_object_from_dfr(x = x,
+                                                verbose = verbose)
     g_points = create_giotto_points_object(feat_type = feat_type,
                                            spatVector = spatvec)
 

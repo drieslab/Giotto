@@ -4,12 +4,14 @@
 \alias{createGiottoPoints}
 \title{Create giotto points object}
 \usage{
-createGiottoPoints(x, feat_type = "rna")
+createGiottoPoints(x, feat_type = "rna", verbose = TRUE)
 }
 \arguments{
 \item{x}{spatVector or data.frame-like object with points coordinate information (x, y, feat ID)}
 
 \item{feat_type}{feature type}
+
+\item{verbose}{be verbose}
 }
 \value{
 giottoPoints

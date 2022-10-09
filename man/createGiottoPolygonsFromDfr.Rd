@@ -4,7 +4,12 @@
 \alias{createGiottoPolygonsFromDfr}
 \title{Create giotto polygons from dataframe}
 \usage{
-createGiottoPolygonsFromDfr(segmdfr, name = "cell", calc_centroids = FALSE)
+createGiottoPolygonsFromDfr(
+  segmdfr,
+  name = "cell",
+  calc_centroids = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{segmdfr}{data.frame-like object with polygon coordinate information (x, y, ID)}
@@ -12,6 +17,8 @@ createGiottoPolygonsFromDfr(segmdfr, name = "cell", calc_centroids = FALSE)
 \item{name}{name for polygons}
 
 \item{calc_centroids}{calculate centroids for polygons}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto polygon object
