@@ -19,17 +19,20 @@ createGiottoXeniumObject(
 \arguments{
 \item{xenium_dir}{full path to the exported xenium directory}
 
-\item{data_to_use}{which type(s) of expression data to build the gobject with}
+\item{data_to_use}{which type(s) of expression data to build the gobject with
+(e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')}
 
-\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 file}
+\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 file.
+Default is \code{TRUE}}
 
 \item{h5_gene_ids}{use gene symbols (default) or ensembl ids for the .h5 gene
 expression matrix}
 
 \item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
 
-\item{bounds_to_load}{vector of boundary information to load (e.g. 'cell', 'nucleus',
-or c('cell', 'nucleus'))}
+\item{bounds_to_load}{vector of boundary information to load (e.g. \code{'cell'}
+or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
+at the same time.)}
 
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 

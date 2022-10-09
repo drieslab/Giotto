@@ -3429,11 +3429,14 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' object
 #' @param xenium_dir full path to the exported xenium directory
 #' @param data_to_use which type(s) of expression data to build the gobject with
-#' @param h5_expression (boolean) whether to load cell_feature_matrix from .h5 file
+#' (e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')
+#' @param h5_expression (boolean) whether to load cell_feature_matrix from .h5 file.
+#' Default is \code{TRUE}
 #' @param h5_gene_ids use gene symbols (default) or ensembl ids for the .h5 gene
 #' expression matrix
-#' @param bounds_to_load vector of boundary information to load (e.g. 'cell', 'nucleus',
-#' or c('cell', 'nucleus'))
+#' @param bounds_to_load vector of boundary information to load (e.g. \code{'cell'}
+#' or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
+#' at the same time.)
 #' @inheritParams get10Xmatrix
 #' @inheritParams createGiottoObjectSubcellular
 #' @export
