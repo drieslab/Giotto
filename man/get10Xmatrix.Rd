@@ -4,7 +4,12 @@
 \alias{get10Xmatrix}
 \title{get10Xmatrix}
 \usage{
-get10Xmatrix(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE)
+get10Xmatrix(
+  path_to_data,
+  gene_column_index = 1,
+  remove_zero_rows = TRUE,
+  split_by_type = TRUE
+)
 }
 \arguments{
 \item{path_to_data}{path to the 10X folder}
@@ -12,6 +17,8 @@ get10Xmatrix(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE)
 \item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
 
 \item{remove_zero_rows}{removes rows with sum equal to zero}
+
+\item{split_by_type}{split into multiple matrices based on 3rd column of features.tsv(.gz)}
 }
 \value{
 sparse expression matrix from 10X
