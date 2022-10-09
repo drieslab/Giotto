@@ -10,9 +10,9 @@ output: github_document
 
 <!-- badges: start -->
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
-![Commits Since Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
-[![R-CMD-check](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/RubD/Giotto/actions/workflows/R-CMD-check.yaml)
+![Last Commit](https://badgen.net/github/last-commit/drieslab/Giotto/suite)
+![Commits Since Latest](https://img.shields.io/github/commits-since/drieslab/Giotto/latest/suite)
+[![R-CMD-check](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **Github Repository changes!**  
