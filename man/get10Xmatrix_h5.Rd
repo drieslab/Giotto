@@ -4,12 +4,21 @@
 \alias{get10Xmatrix_h5}
 \title{get10Xmatrix_h5}
 \usage{
-get10Xmatrix_h5(path_to_data, gene_ids = c("symbols", "ensembl"))
+get10Xmatrix_h5(
+  path_to_data,
+  gene_ids = c("symbols", "ensembl"),
+  remove_zero_rows = TRUE,
+  split_by_type = TRUE
+)
 }
 \arguments{
 \item{path_to_data}{path to the 10X .h5 file}
 
 \item{gene_ids}{use gene symbols (default) or ensembl ids for the gene expression matrix}
+
+\item{remove_zero_rows}{removes rows with sum equal to zero}
+
+\item{split_by_type}{split into multiple matrices based on 3rd column of features.tsv(.gz)}
 }
 \value{
 (list of) sparse expression matrix from 10X
@@ -18,6 +27,7 @@ get10Xmatrix_h5(path_to_data, gene_ids = c("symbols", "ensembl"))
 This function creates an expression matrix from a 10X h5 file path
 }
 \details{
-If the .h5 10x file has multiple modalities (e.g. RNA and protein),
- multiple matrices will be returned
+If the .h5 10x file has multiple classes of features (e.g. expression vs QC
+probes) or modalities (e.g. RNA and protein), and \code{split_by_type} param is \code{TRUE},
+multiple matrices will be returned
 }

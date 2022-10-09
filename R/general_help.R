@@ -29,9 +29,9 @@ determine_cores = function(cores, min_cores = 1, max_cores = 10) {
 #' @return number of distinct colors
 #' @export
 getDistinctColors <- function(n) {
-  
+
   if(n < 1) stop('Error in getDistinctColors: number of colors wanted must be at least 1')
-  
+
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
   col_vector <- unique(unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))));
 
@@ -751,6 +751,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
 #' @param remove_zero_rows removes rows with sum equal to zero
+#' @param split_by_type split into multiple matrices based on 3rd column of features.tsv(.gz)
 #' @return sparse expression matrix from 10X
 #' @details A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
 #' \itemize{
@@ -761,7 +762,10 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' By default the first column of the features or genes .tsv file will be used, however if multiple
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
-get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE) {
+get10Xmatrix = function(path_to_data,
+                        gene_column_index = 1,
+                        remove_zero_rows = TRUE,
+                        split_by_type = TRUE) {
 
   # data.table variables
   total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
@@ -794,13 +798,36 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = 
   rownames(MMmatrix) = features_vec
   colnames(MMmatrix) = barcodes_vec
 
-  if(remove_zero_rows == TRUE) {
-    rowsums_result = rowSums_flex(MMmatrix)
-    rowsums_bool = rowsums_result != 0
-    MMmatrix = MMmatrix[rowsums_bool, ]
-  }
 
-  return(MMmatrix)
+  # Split by type of feature (features.tzv 3rd col)
+  feat_classes = unique(featuresDT$V3)
+  if(length(feat_classes) > 1) {
+    result_list = list()
+
+    for(fclass in feat_classes) {
+      result_list[[fclass]] = MMmatrix[featuresDT$V3 == fclass, ]
+    }
+
+    if(isTRUE(remove_zero_rows)) {
+      result_list = lapply(result_list, function(MMmatrix) {
+        rowsums_result = rowSums_flex(MMmatrix)
+        rowsums_bool = rowsums_result != 0
+        MMmatrix = MMmatrix[rowsums_bool, ]
+      })
+    }
+
+    return(result_list)
+  } else {
+
+    if(remove_zero_rows == TRUE) {
+      rowsums_result = rowSums_flex(MMmatrix)
+      rowsums_bool = rowsums_result != 0
+      MMmatrix = MMmatrix[rowsums_bool, ]
+    }
+
+    return(MMmatrix)
+
+  }
 
 }
 
@@ -891,11 +918,16 @@ get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
 #' @description This function creates an expression matrix from a 10X h5 file path
 #' @param path_to_data path to the 10X .h5 file
 #' @param gene_ids use gene symbols (default) or ensembl ids for the gene expression matrix
+#' @inheritParams get10Xmatrix
 #' @return (list of) sparse expression matrix from 10X
-#' @details If the .h5 10x file has multiple modalities (e.g. RNA and protein),
-#'  multiple matrices will be returned
+#' @details If the .h5 10x file has multiple classes of features (e.g. expression vs QC
+#' probes) or modalities (e.g. RNA and protein), and \code{split_by_type} param is \code{TRUE},
+#' multiple matrices will be returned
 #' @export
-get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
+get10Xmatrix_h5 = function(path_to_data,
+                           gene_ids = c('symbols', 'ensembl'),
+                           remove_zero_rows = TRUE,
+                           split_by_type = TRUE) {
 
   ## function inspired by and modified from the VISION package
   ## see read_10x_h5_v3 in https://github.com/YosefLab/VISION/blob/master/R/Utilities.R
@@ -921,15 +953,15 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
     data <- h5[[paste0(root, "/data")]][]
     data <- as.numeric(data)
 
-    genome = unique(h5[[paste0(root, "/features/genome")]][])
     barcodes = h5[[paste0(root, "/barcodes")]][]
-    feature_id = h5[[paste0(root, "/features/id")]][]
-    data_shape = h5[[paste0(root, "/shape")]][]
-    feature_names = h5[[paste0(root, "/features/name")]][]
     feature_tag_keys = h5[[paste0(root, "/features/_all_tag_keys")]][]
-    feature_types = unique(h5[[paste0(root, "/features/feature_type")]][])
+    feature_types = h5[[paste0(root, "/features/feature_type")]][]
+    genome = unique(h5[[paste0(root, "/features/genome")]][])
+    feature_id = h5[[paste0(root, "/features/id")]][]
+    feature_names = h5[[paste0(root, "/features/name")]][]
     indices = h5[[paste0(root, "/indices")]][]
     indptr = h5[[paste0(root, "/indptr")]][]
+    data_shape = h5[[paste0(root, "/shape")]][]
 
     # create a feature data.table
     features_dt = data.table::data.table(
@@ -939,51 +971,70 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
       'genome' = genome
     )
 
-    # create uniq name symbols
-    # duplicate gene symbols will be given a suffix '_1', '_2', ...
-
-    # data.table variables
-    nr_name = name = uniq_name = NULL
-
-    features_dt[, nr_name := 1:.N, by = name]
-    features_dt[, uniq_name := ifelse(nr_name == 1, name, paste0(name, '_', (nr_name-1)))]
-
-
-    # dimension names
-    dimnames = list(feature_id, barcodes)
-
-    sparsemat = Matrix::sparseMatrix(i = indices + 1,
-                                     p = indptr,
-                                     x = data,
-                                     dims = data_shape,
-                                     dimnames = dimnames)
-
-    # multiple modalities? add for future improvement
-    result_list = list()
-
-    for(modality in unique(feature_types)) {
-
-      result_list[[modality]] = sparsemat[features_dt$feature_type == modality, ]
-
-      # change names to gene symbols if it's expression
-      if(modality == 'Gene Expression' & gene_ids == 'symbols') {
-
-        conv_vector = features_dt$uniq_name
-        names(conv_vector) = features_dt$id
-
-        current_names = rownames(result_list[[modality]])
-        new_names = conv_vector[current_names]
-        rownames(result_list[[modality]]) = new_names
-      }
-    }
-
   },
   finally = {
     h5$close_all()
   })
 
-  return(result_list)
+  # create uniq name symbols
+  # duplicate gene symbols will be given a suffix '_1', '_2', ...
 
+  # data.table variables
+  nr_name = name = uniq_name = NULL
+
+  features_dt[, nr_name := 1:.N, by = name]
+  features_dt[, uniq_name := ifelse(nr_name == 1, name, paste0(name, '_', (nr_name-1)))]
+
+
+  # dimension names
+  dimnames = list(feature_id, barcodes)
+
+  sparsemat = Matrix::sparseMatrix(i = indices + 1,
+                                   p = indptr,
+                                   x = data,
+                                   dims = data_shape,
+                                   dimnames = dimnames)
+
+  # multiple feature classes (e.g. gene vs diagnostic or even modalities?)
+  if(isTRUE(split_by_type)) {
+    result_list = list()
+
+    for(fclass in unique(feature_types)) {
+
+      result_list[[fclass]] = sparsemat[features_dt$feature_type == fclass, ]
+
+      # change names to gene symbols if it's expression
+      if(fclass == 'Gene Expression' & gene_ids == 'symbols') {
+
+        conv_vector = features_dt$uniq_name
+        names(conv_vector) = features_dt$id
+
+        current_names = rownames(result_list[[fclass]])
+        new_names = conv_vector[current_names]
+        rownames(result_list[[fclass]]) = new_names
+      }
+    }
+
+    if(isTRUE(remove_zero_rows)) {
+      result_list = lapply(result_list, function(sparsemat) {
+        rowsums_result = rowSums_flex(sparsemat)
+        rowsums_bool = rowsums_result != 0
+        sparsemat = sparsemat[rowsums_bool, ]
+      })
+    }
+
+    return(result_list)
+
+  } else {
+
+    if(isTRUE(remove_zero_rows)) {
+      rowsums_result = rowSums_flex(sparsemat)
+      rowsums_bool = rowsums_result != 0
+      sparsemat = sparsemat[rowsums_bool, ]
+    }
+
+    return(list('Gene Expression' = sparsemat))
+  }
 }
 
 
