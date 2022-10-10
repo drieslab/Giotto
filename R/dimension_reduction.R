@@ -1439,49 +1439,21 @@ runUMAP <- function(gobject,
       # expression values to be used
       values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
-      if(is.null(feats_to_use)) {
-
-        ### calculate PCA using original matrix
-        gobject <- runPCA(gobject = gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type,
-                          expression_values = expression_values,
-                          reduction = reduction,
-                          feats_to_use = "hvf")
-
-      } else {
-        ### calculate PCA using subseted original matrix
-        gobject <- runPCA(gobject = gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type,
-                          expression_values = expression_values,
-                          reduction = reduction,
-                          feats_to_use = feats_to_use)
+      expr_values = get_expression_values(gobject = gobject,
+                                          spat_unit = spat_unit,
+                                          feat_type = feat_type,
+                                          values = values)
+      ## subset matrix
+      if(!is.null(feats_to_use)) {
+        expr_values = create_feats_to_use_matrix(gobject = gobject,
+                                                 spat_unit = spat_unit,
+                                                 feat_type = feat_type,
+                                                 sel_matrix = expr_values,
+                                                 feats_to_use = feats_to_use,
+                                                 verbose = verbose)
       }
 
-      ### get PCA
-      matrix_to_use = get_dimReduction(gobject = gobject,
-                                       spat_unit = spat_unit,
-                                       feat_type = feat_type,
-                                       reduction = reduction,
-                                       reduction_method = "pca",
-                                       name = "pca",
-                                       return_dimObj = FALSE)
-
-      if(is.null(dimensions_to_use)) {
-        dimensions_to_use = 1:10
-      }
-
-      matrix_to_use = matrix_to_use[, dimensions_to_use]
-
-      print(matrix_to_use[1:2,1:2])
-
-    }
-
-
-    ## run umap ##
-    if(set_seed == TRUE) {
-      set.seed(seed = seed_number)
+      matrix_to_use = t_flex(expr_values)
     }
 
     uwot_clus <- uwot::umap(X = as.matrix(matrix_to_use), n_neighbors = n_neighbors, n_components = n_components,
