@@ -521,17 +521,18 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
   # data.frame like object needs to have 2 coordinate columns and
   # at least one other column as the feat_ID
+  if(ncol(input_dt) < 3) stop('At minimum, columns for xy coordinates and poly ID are needed.\n')
   col_classes = sapply(input_dt, class)
   ## find poly_ID as either first character col or named column
   ## if neither exist, pick the 3rd column
   if('poly_ID' %in%  colnames(input_dt)) {
     poly_ID_col = which(colnames(input_dt) == 'poly_ID')
   } else {
-    poly_ID_col = which(col_classes == 'character')[[1]]
+    poly_ID_col = which(col_classes == 'character')
+    if(length(poly_ID_col) < 1) poly_ID_col = 3 # case if no char found: default to 3rd
+    else poly_ID_col = poly_ID_col[[1]] # case if char is found
   }
-  if(length(poly_ID_col) == 0) {
-    poly_ID_col = 3
-  }
+
   if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(input_dt[, poly_ID_col, with = FALSE]),'" as poly_ID column'))
   colnames(input_dt)[poly_ID_col] = 'poly_ID'
   if(!inherits(input_dt$poly_ID, 'character')) {
@@ -544,11 +545,13 @@ createGiottoPolygonsFromDfr = function(segmdfr,
     x_col = which(colnames(input_dt) == 'x')
     y_col = which(colnames(input_dt) == 'y')
   } else {
-    x_col = which(col_classes == 'numeric')[1]
-    y_col = which(col_classes == 'numeric')[2]
+    x_col = which(col_classes == 'numeric')
+    if(length(x_col) < 2) x_col = 1 # case if no/too few num found: default to 1st
+    else x_col = x_col[[1]] # case if num found
+    y_col = which(col_classes == 'numeric')
+    if(length(y_col) < 2) y_col = 2 # case if no/too few num found: default to 2nd
+    else y_col = y_col[[2]] # case if num found
   }
-  if(length(x_col) == 0) x_col = 1
-  if(length(y_col) == 0) y_col = 2
 
   if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(input_dt[, x_col, with = FALSE]),'" and "', colnames(input_dt[, y_col, with = FALSE]),'" as x and y respectively'))
   colnames(input_dt)[x_col] = 'x'
@@ -1068,17 +1071,18 @@ create_spatvector_object_from_dfr = function(x,
 
   # data.frame like object needs to have 2 coordinate columns and
   # at least one other column as the feat_ID
+  if(ncol(x) < 3) stop('At minimum, columns for xy coordinates and feature ID are needed.\n')
   col_classes = sapply(x, class)
   ## find feat_ID as either first character col or named column
   ## if not detected, select 3rd column
   if('feat_ID' %in% colnames(x)) {
     feat_ID_col = which(colnames(x) == 'feat_ID')
   } else {
-    feat_ID_col = which(col_classes == 'character')[[1]]
+    feat_ID_col = which(col_classes == 'character')
+    if(length(feat_ID_col) < 1) feat_ID_col = 3 # case if no char found: default to 3rd
+    else feat_ID_col = feat_ID_col[[1]] # case if char is found
   }
-  if(length(feat_ID_col) == 0) {
-    feat_ID_col = 3
-  }
+
   if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(x[, feat_ID_col, with = FALSE]),'" as feat_ID column'))
   colnames(x)[feat_ID_col] = 'feat_ID'
   if(!inherits(x$feat_ID, 'character')) {
@@ -1091,11 +1095,14 @@ create_spatvector_object_from_dfr = function(x,
     x_col = which(colnames(x) == 'x')
     y_col = which(colnames(x) == 'y')
   } else {
-    x_col = which(col_classes == 'numeric')[1]
-    y_col = which(col_classes == 'numeric')[2]
+    x_col = which(col_classes == 'numeric')
+    if(length(x_col) < 2) x_col = 1 # case if no/too few num found: default to 1st
+    else x_col = x_col[[1]] # case if num found
+    y_col = which(col_classes == 'numeric')
+    if(length(y_col) < 2) y_col = 2 # case if no/too few num found: default to 2nd
+    else y_col = y_col[[2]] # case if num found
   }
-  if(length(x_col) == 0) x_col = 1
-  if(length(y_col) == 0) y_col = 2
+
 
   if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(x[, x_col, with = FALSE]),'" and "', colnames(x[, y_col, with = FALSE]),'" as x and y respectively'))
   colnames(x)[x_col] = 'x'
