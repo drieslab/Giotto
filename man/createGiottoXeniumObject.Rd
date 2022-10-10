@@ -6,7 +6,7 @@
 \usage{
 createGiottoXeniumObject(
   xenium_dir,
-  data_to_use = c("subcellular", "aggregate", "all"),
+  data_to_use = c("subcellular", "aggregate"),
   h5_expression = TRUE,
   h5_gene_ids = c("symbols", "ensembl"),
   gene_column_index = 1,
