@@ -1257,7 +1257,7 @@ evaluate_spatial_locations = function(spatial_locs,
 
     non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
 
-    warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+    message('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
             '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
             '\n Other non numeric columns will be removed')
 
@@ -3441,7 +3441,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @inheritParams createGiottoObjectSubcellular
 #' @export
 createGiottoXeniumObject = function(xenium_dir,
-                                    data_to_use = c('subcellular','aggregate','all'),
+                                    data_to_use = c('subcellular','aggregate'),
                                     # load_format = 'csv',
                                     h5_expression = TRUE,
                                     h5_gene_ids = c('symbols', 'ensembl'),
@@ -3453,7 +3453,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                     verbose = TRUE) {
 
   # Determine data to load
-  data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate','all'))
+  data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate'))
 
   # Determine load formats
   load_format = 'csv' # TODO Remove this and add as param once other options are available
@@ -3553,7 +3553,7 @@ createGiottoXeniumObject = function(xenium_dir,
   if(load_format == 'csv') {
     # ---------------------------------------------------------------------------- #
     # **** subcellular info ****
-    if(data_to_use == 'subcellular' | data_to_use == 'all') {
+    if(data_to_use == 'subcellular') {
       # append missing QC probe info to feat_meta
       if(isTRUE(h5_expression)) {
         h5 = hdf5r::H5File$new(agg_expr_path)
@@ -3585,7 +3585,7 @@ createGiottoXeniumObject = function(xenium_dir,
     if(isTRUE(verbose)) message('Loading cell metadata...')
     cell_meta = data.table::fread(cell_meta_path[[1]], nThread = cores)
 
-    if(data_to_use == 'aggregate' | data_to_use == 'all') {
+    if(data_to_use == 'aggregate') {
       if(isTRUE(verbose)) message('Loading aggregated expression...')
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
       if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = agg_expr_path,
@@ -3601,7 +3601,7 @@ createGiottoXeniumObject = function(xenium_dir,
   } else if(load_format == 'parquet') {
     # ---------------------------------------------------------------------------- #
     # **** subcellular info ****
-    if(data_to_use == 'subcellular' | data_to_use == 'all') {
+    if(data_to_use == 'subcellular') {
       if(isTRUE(verbose)) message('Loading transcript level info...')
       tx_dt = arrow::read_parquet(file = pq_dir, as_data_frame = F) %>%
         dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
@@ -3611,7 +3611,7 @@ createGiottoXeniumObject = function(xenium_dir,
       bound_dt_list = lapply(bound_paths, function(x) arrow::read_parquet(x[[1]]))
     }
     # **** aggregate info ****
-    if(data_to_use == 'aggregate' | data_to_use == 'all') {
+    if(data_to_use == 'aggregate') {
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
       # NOTE: no parquet for agg_expr.
     }
@@ -3619,11 +3619,11 @@ createGiottoXeniumObject = function(xenium_dir,
   } else if(load_format == 'zarr') { # TODO
     # ---------------------------------------------------------------------------- #
     # **** subcellular info ****
-    if(data_to_use == 'subcellular' | data_to_use == 'all') {
+    if(data_to_use == 'subcellular') {
       # NOTE: no zarr for boundaries
     }
     # **** aggregate info ****
-    if(data_to_use == 'aggregate' | data_to_use == 'all') {
+    if(data_to_use == 'aggregate') {
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
     }
     # ---------------------------------------------------------------------------- #
@@ -3635,9 +3635,9 @@ createGiottoXeniumObject = function(xenium_dir,
   # 3. Create giotto objects
 
   # define for data.table
-  cell_id = NULL
+  cell_id = cell_ID = x_centroid = y_centroid = .SD = NULL
 
-  if(data_to_use == 'subcellular' | data_to_use == 'all') {
+  if(data_to_use == 'subcellular') {
     if(isTRUE(verbose)) message('Building subcellular giotto object...')
     # Giotto points object
     if(isTRUE(verbose)) message('> points data...')
@@ -3655,18 +3655,54 @@ createGiottoXeniumObject = function(xenium_dir,
     xenium_gobject = createGiottoObjectSubcellular(gpoints = list(rna = gpoints),
                                                    gpolygons = gpolys,
                                                    instructions = instructions,
-                                                   cores = cores)
+                                                   cores = cores,
+                                                   verbose = verbose)
 
-    # Generate centroids
+    # generate centroids
     if(isTRUE(verbose)) message('Calculating polygon centroids...')
     xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
                                                  poly_info = c(names(bound_dt_list)))
+
+    # add in feature metadata
+    xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
+                                     new_metadata = feat_meta,
+                                     by_column = TRUE,
+                                     column_feat_ID = 'feat_ID')
   }
 
-  if(data_to_use == 'aggregate' | data_to_use == 'all') {
+  if(data_to_use == 'aggregate') {
     # clean up names for aggregate matrices
     names(agg_expr) = gsub(pattern = ' ', replacement = '_' ,names(agg_expr))
-    names(agg_expr)[[1]] = 'raw'
+    geneExpMat = which(names(agg_expr) == 'Gene_Expression')
+    names(agg_expr)[[geneExpMat]] = 'raw'
+
+    # set cell_id as character
+    cell_meta = cell_meta[, data.table::setnames(.SD, 'cell_id', 'cell_ID')]
+    cell_meta = cell_meta[, cell_ID := as.character(cell_ID)]
+
+    # set up spatial locations
+    agg_spatlocs = cell_meta[, .(x_centroid, y_centroid, cell_ID)]
+
+    # set up metadata
+    agg_meta = cell_meta[, !c('x_centroid','y_centroid')]
+
+    if(isTRUE(verbose)) message('Building aggregate giotto object...')
+    xenium_gobject = createGiottoObject(expression = agg_expr,
+                                        spatial_locs = agg_spatlocs,
+                                        instructions = instructions,
+                                        cores = cores,
+                                        verbose = verbose)
+
+    # append aggregate metadata
+    xenium_gobject = addCellMetadata(gobject = xenium_gobject,
+                                     new_metadata = agg_meta,
+                                     by_column = TRUE,
+                                     column_cell_ID = 'cell_ID')
+    xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
+                                     new_metadata = feat_meta,
+                                     by_column = TRUE,
+                                     column_feat_ID = 'feat_ID')
+
   }
 
   return(xenium_gobject)
