@@ -3478,13 +3478,13 @@ createGiottoXeniumObject = function(xenium_dir,
   if(isTRUE(verbose)) message('A structured Xenium directory will be used\n')
 
   # find items (length = 1 if present, length = 0 if missing)
-  dir_items = list(`analysis info` = 'analysis*',
+  dir_items = list(`analysis info` = '*analysis*',
                    `boundary info` = '*bound*',
-                   `cell feature matrix` = 'cell_feature_matrix*',
-                   `cell metadata` = 'cells*',
+                   `cell feature matrix` = '*cell_feature_matrix*',
+                   `cell metadata` = '*cells*',
                    `image info` = '*tif',
-                   `panel metadata` = 'panel*',
-                   `raw transcript info` = 'transcripts*',
+                   `panel metadata` = '*panel*',
+                   `raw transcript info` = '*transcripts*',
                    `experiment info` = '*.xenium')
 
   dir_items = lapply(dir_items, function(x) Sys.glob(paths = file.path(xenium_dir, x)))
