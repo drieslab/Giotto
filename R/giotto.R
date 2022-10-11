@@ -3481,10 +3481,11 @@ createGiottoXeniumObject = function(xenium_dir,
   dir_items = list(`analysis info` = 'analysis*',
                    `boundary info` = '*bound*',
                    `cell feature matrix` = 'cell_feature_matrix*',
-                   `cells` = 'cells*',
-                   `image info` = '*.ome.tif',
+                   `cell metadata` = 'cells*',
+                   `image info` = '*tif',
                    `panel metadata` = 'panel*',
-                   `raw transcript info` = 'transcripts*')
+                   `raw transcript info` = 'transcripts*',
+                   `experiment info` = '*.xenium')
 
   dir_items = lapply(dir_items, function(x) Sys.glob(paths = file.path(xenium_dir, x)))
   dir_items_lengths = lengths(dir_items)
@@ -3494,12 +3495,24 @@ createGiottoXeniumObject = function(xenium_dir,
     for(item in names(dir_items)) {
       if(dir_items_lengths[[item]] > 0) {
         message(ch$s, '> ' ,item, ' found')
-        for(item_i in seq_along(dir_items[[item]])) {
+        for(item_i in seq_along(dir_items[[item]])) { # print found item names
           subItem = gsub(pattern = '.*/', replacement = '', x = dir_items[[item]][[item_i]])
           message(ch$s, ch$s, ch$l,ch$h,ch$h, subItem)
         }
       } else {
-        warning(item, ' is missing\n')
+        if(data_to_use == 'subcellular') {
+          # necessary items
+          if(item %in% c('boundary info', 'raw transcript info')) stop(item, ' is missing\n')
+          # optional items
+          if(item %in% c('image info', 'experiment info', 'panel metadata')) warning(item, ' is missing (optional)\n')
+          # items to ignore: analysis info, cell feature matrix, cell metadata
+        } else if(data_to_use == 'aggregate') {
+          # necessary items
+          if(item %in% c('cell feature matrix', 'cell metadata')) stop(item, ' is missing\n')
+          # optional items
+          if(item %in% c('image info', 'experiment info', 'panel metadata', 'analysis info')) warning(item, ' is missing (optional)\n')
+          # items to ignore: boundary info, raw transcript info
+        }
       }
     }
   }
@@ -3511,7 +3524,7 @@ createGiottoXeniumObject = function(xenium_dir,
   # **** transcript info ****
   tx_path = dir_items$`raw transcript info`[grepl(pattern = load_format, dir_items$`raw transcript info`)]
   # **** cell metadata ****
-  cell_meta_path = dir_items$cells[grepl(pattern = load_format, dir_items$cells)]
+  cell_meta_path = dir_items$`cell metadata`[grepl(pattern = load_format, dir_items$`cell metadata`)]
 
   # **** boundary info ****
   # Select bound load format
@@ -3533,6 +3546,7 @@ createGiottoXeniumObject = function(xenium_dir,
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'zarr', dir_items$`cell feature matrix`)]
   } else { # No parquet for aggregated expression - default to normal 10x loading
     agg_expr_path = dir_items$`cell feature matrix`[sapply(dir_items$`cell feature matrix`, function(x) file_test(op = '-d', x))]
+    if(length(agg_expr_path) == 0) stop('Expression matrix cannot be loaded.\nHas cell_feature_matrix(.tar.gz) been unpacked into a directory?')
   }
 
 
