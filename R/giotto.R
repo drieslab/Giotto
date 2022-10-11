@@ -3585,7 +3585,7 @@ createGiottoXeniumObject = function(xenium_dir,
           h5$close_all()
         })
       } else {
-        features_dt = data.table::fread(agg_expr_path, header = F)
+        features_dt = data.table::fread(paste0(agg_expr_path, '/features.tsv.gz'), header = F)
       }
       colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
       feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
