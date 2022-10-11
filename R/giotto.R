@@ -3606,7 +3606,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                                            gene_ids = h5_gene_ids,
                                                            remove_zero_rows = TRUE,
                                                            split_by_type = TRUE)
-      else agg_expr = get10Xmatrix(path_to_data = data_path,
+      else agg_expr = get10Xmatrix(path_to_data = agg_expr_path,
                                    gene_column_index = gene_column_index,
                                    remove_zero_rows = TRUE,
                                    split_by_type = TRUE)
