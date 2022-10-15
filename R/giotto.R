@@ -3430,6 +3430,8 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @param xenium_dir full path to the exported xenium directory
 #' @param data_to_use which type(s) of expression data to build the gobject with
 #' (e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')
+#' @param load_format files formats from which to load the data. Either `csv` or
+#' `parquet` currently supported.
 #' @param h5_expression (boolean) whether to load cell_feature_matrix from .h5 file.
 #' Default is \code{TRUE}
 #' @param h5_gene_ids use gene symbols (default) or ensembl ids for the .h5 gene
@@ -3442,7 +3444,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @export
 createGiottoXeniumObject = function(xenium_dir,
                                     data_to_use = c('subcellular','aggregate'),
-                                    # load_format = 'csv',
+                                    load_format = 'csv',
                                     h5_expression = TRUE,
                                     h5_gene_ids = c('symbols', 'ensembl'),
                                     gene_column_index = 1,
@@ -3485,7 +3487,7 @@ createGiottoXeniumObject = function(xenium_dir,
                    `image info` = '*tif',
                    `panel metadata` = '*panel*',
                    `raw transcript info` = '*transcripts*',
-                   `experiment info` = '*.xenium')
+                   `experiment info (.xenium)` = '*.xenium')
 
   dir_items = lapply(dir_items, function(x) Sys.glob(paths = file.path(xenium_dir, x)))
   dir_items_lengths = lengths(dir_items)
@@ -3504,13 +3506,13 @@ createGiottoXeniumObject = function(xenium_dir,
           # necessary items
           if(item %in% c('boundary info', 'raw transcript info')) stop(item, ' is missing\n')
           # optional items
-          if(item %in% c('image info', 'experiment info', 'panel metadata')) warning(item, ' is missing (optional)\n')
+          if(item %in% c('image info', 'experiment info (.xenium)', 'panel metadata')) warning(item, ' is missing (optional)\n')
           # items to ignore: analysis info, cell feature matrix, cell metadata
         } else if(data_to_use == 'aggregate') {
           # necessary items
           if(item %in% c('cell feature matrix', 'cell metadata')) stop(item, ' is missing\n')
           # optional items
-          if(item %in% c('image info', 'experiment info', 'panel metadata', 'analysis info')) warning(item, ' is missing (optional)\n')
+          if(item %in% c('image info', 'experiment info (.xenium)', 'panel metadata', 'analysis info')) warning(item, ' is missing (optional)\n')
           # items to ignore: boundary info, raw transcript info
         }
       }
@@ -3606,7 +3608,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                                            gene_ids = h5_gene_ids,
                                                            remove_zero_rows = TRUE,
                                                            split_by_type = TRUE)
-      else agg_expr = get10Xmatrix(path_to_data = data_path,
+      else agg_expr = get10Xmatrix(path_to_data = agg_expr_path,
                                    gene_column_index = gene_column_index,
                                    remove_zero_rows = TRUE,
                                    split_by_type = TRUE)
@@ -3616,18 +3618,62 @@ createGiottoXeniumObject = function(xenium_dir,
     # ---------------------------------------------------------------------------- #
     # **** subcellular info ****
     if(data_to_use == 'subcellular') {
+      # append missing QC probe info to feat_meta
+      if(isTRUE(h5_expression)) {
+        h5 = hdf5r::H5File$new(agg_expr_path)
+        tryCatch({
+          root = names(h5)
+          feature_id = h5[[paste0(root, "/features/id")]][]
+          feature_info = h5[[paste0(root,"/features/feature_type")]][]
+          feature_names = h5[[paste0(root, "/features/name")]][]
+          features_dt = data.table::data.table(
+            'id' = feature_id,
+            'name' = feature_names,
+            'feature_type' = feature_info
+          )
+        }, finally = {
+          h5$close_all()
+        })
+      } else {
+        features_dt = arrow::read_tsv_arrow(paste0(agg_expr_path, '/features.tsv.gz'),
+                                            col_names = FALSE) %>%
+          data.table::setDT()
+      }
+      colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
+      feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
+
       if(isTRUE(verbose)) message('Loading transcript level info...')
-      tx_dt = arrow::read_parquet(file = pq_dir, as_data_frame = F) %>%
-        dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
+      tx_dt = arrow::read_parquet(file = tx_path[[1]], as_data_frame = FALSE) %>%
         dplyr::mutate(transcript_id = cast(transcript_id, arrow::string())) %>%
-        as.data.frame()
+        dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+        dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
+        as.data.frame() %>%
+        data.table::setDT()
       if(isTRUE(verbose)) message('Loading boundary info...')
-      bound_dt_list = lapply(bound_paths, function(x) arrow::read_parquet(x[[1]]))
+      bound_dt_list = lapply(bound_paths, function(x) {
+        arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
+          dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+          as.data.frame() %>%
+          data.table::setDT()})
     }
     # **** aggregate info ****
     if(data_to_use == 'aggregate') {
+      if(isTRUE(verbose)) message('Loading cell metadata...')
+      cell_meta = arrow::read_parquet(file = cell_meta_path[[1]], as_data_frame = FALSE) %>%
+        dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+        as.data.frame() %>%
+        data.table::setDT()
+
       if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
       # NOTE: no parquet for agg_expr.
+      if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = agg_expr_path,
+                                                           gene_ids = h5_gene_ids,
+                                                           remove_zero_rows = TRUE,
+                                                           split_by_type = TRUE)
+      else agg_expr = get10Xmatrix(path_to_data = agg_expr_path,
+                                   gene_column_index = gene_column_index,
+                                   remove_zero_rows = TRUE,
+                                   split_by_type = TRUE)
     }
     # ---------------------------------------------------------------------------- #
   } else if(load_format == 'zarr') { # TODO

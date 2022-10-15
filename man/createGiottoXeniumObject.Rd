@@ -7,6 +7,7 @@
 createGiottoXeniumObject(
   xenium_dir,
   data_to_use = c("subcellular", "aggregate"),
+  load_format = "csv",
   h5_expression = TRUE,
   h5_gene_ids = c("symbols", "ensembl"),
   gene_column_index = 1,
@@ -21,6 +22,9 @@ createGiottoXeniumObject(
 
 \item{data_to_use}{which type(s) of expression data to build the gobject with
 (e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')}
+
+\item{load_format}{files formats from which to load the data. Either `csv` or
+`parquet` currently supported.}
 
 \item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 file.
 Default is \code{TRUE}}
