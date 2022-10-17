@@ -10182,41 +10182,41 @@ getCellsFromPolygon <- function(gobject,
 #' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
 #'                                       gpolygons = list(my_giotto_polygons))
 #'
-#' ## Get cells located within polygons area
-#' my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
-#'
-#' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+#' ## Add polygon IDs to cell metadata
+#' my_giotto_object <- addPolygonCells(my_giotto_object)
 #' }
 #'
+addPolygonCells <- function(gobject, spat_unit = "cell", feat_type = "rna", na.label = "no_polygon") {
 
-addCellsFromPolygon <- function(gobject,
-                                cellsFromPolygon,
-                                feat_type = "rna") {
-
-  ## verify Giotto object
+  ## verify gobject
   if (!inherits(gobject, "giotto")) {
     stop("gobject needs to be a giotto object")
   }
 
-  ## get original metadas
-  cell_metadata <- methods::slot(gobject, "cell_metadata")$cell[[feat_type]]
+  ## get cells within each polygon
+  polygon_cells <- as.data.frame(getCellsFromPolygon(gobject))
 
-  ## convert cellsFromPolygon to data frame
-  cellsFromPolygondata <- as.data.frame(cellsFromPolygon)
+  ## get original cell metadata
+  cell_metadata <- pDataDT(visium_brain, spat_unit = spat_unit, feat_type = feat_type )
 
-  ## merge metadata as data.table
-  new_cell_metadata <- merge(cell_metadata, cellsFromPolygondata[,c("cell_ID", "poly_ID")],
+  ## add polygon ID to cell metadata
+  new_cell_metadata <- merge(cell_metadata,
+                             polygon_cells[,c("cell_ID", "poly_ID")],
                              by = "cell_ID", all.x = TRUE)
 
-  ## replace NA's with a defult name
-  new_cell_metadata[is.na(new_cell_metadata$poly_ID),"poly_ID"] <- "no_polygon"
+  ## assign a default ID to cells outside of polygons
+  new_cell_metadata[is.na(new_cell_metadata$poly_ID), "poly_ID"] <- na.label
 
-  ## set rows order
-  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID, new_cell_metadata$cell_ID),]
+  ## keep original order of cells
+  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID,
+                                               new_cell_metadata$cell_ID), ]
 
-  ## add cell metadata to Giotto object
-  addCellMetadata(gobject = gobject, new_metadata = new_cell_metadata[,-1])
+  gobject <- addCellMetadata(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             new_metadata = new_cell_metadata[,-1])
 
+  return(gobject)
 }
 
 
