@@ -10105,11 +10105,10 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' Get cells located within the polygons area
 #'
 #' @param gobject A Giotto object
-#' @param polygon_slot Slot name where polygon coordinates are stored in Giotto object
-#' @param cells_loc_slot Slot name where cell coordinates are stored in Giotto object
+#' @param spat_unit spatial unit, default = "cell
+#' @param polygons character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved
 #'
-#' @return A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
-#'  each cell is located in.
+#' @return A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
 #'
 #' @export
 #'
@@ -10130,43 +10129,47 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #'
 #' ## Get cells located within polygons area
 #' getCellsFromPolygon(my_giotto_object)
+#'
+#' ## Get onyl cells from polygon 1
+#' getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
 #' }
 #'
+getCellsFromPolygon <- function(gobject, spat_unit = "cell", polygons = NULL) {
 
-getCellsFromPolygon <- function(gobject,
-                                polygon_slot = "spatial_info",
-                                cells_loc_slot = "spatial_locs") {
-  ## verify Giotto object
   if (!inherits(gobject, "giotto")) {
     stop("gobject needs to be a giotto object")
   }
 
-  ## get polygon spatvector
-  my_polygon_spatplot <- methods::slot(methods::slot(gobject, polygon_slot)$cell,"spatVector")
+  ## get polygons spatial info
+  polygon_spatVector <- methods::slot(methods::slot(gobject, "spatial_info")[[spat_unit]], "spatVector")
 
-  ## get spatial locs from cells
-  my_spatial_locs <- methods::slot(gobject, cells_loc_slot)$cell$raw
+  ## get cell spatial locations
+  spatial_locs <- get_spatial_locations(gobject, spat_unit = spat_unit)
 
-  ## create spatvector from spatial locs
-  my_cells_spatplot <- terra::vect(as.matrix(my_spatial_locs[,1:2]),
-                                   type = "points",
-                                   atts = my_spatial_locs)
+  ## convert cell spatial locations to spatVector
+  cells_spatVector <- terra::vect(as.matrix(spatial_locs[,1:2]),
+                                  type = "points",
+                                  atts = spatial_locs)
 
-  ## get the insersect of polygons and cells
-  my_intersect <- terra::intersect(my_cells_spatplot, my_polygon_spatplot)
+  polygonCells <- terra::intersect(cells_spatVector, polygon_spatVector)
 
-  return(my_intersect)
+  if(!is.null(polygons)) {
+    polygonCells <- terra::subset(polygonCells, polygonCells$poly_ID %in% polygons)
+  }
+
+  return(polygonCells)
 }
 
 
 #' Add corresponding polygon IDs to cell metadata
 #'
 #' @param gobject A Giotto object
-#' @param cellsFromPolygon A `SpatVector` with cell IDs located inside each polygon
 #' @param feat_type feature name where metadata will be added
+#' @param spat_unit spatial unit
+#' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
 #'
 #' @return A Giotto object with a modified cell_metadata slot that includes the
-#' polygon name where each cell is located or NA if the cell is not located
+#' polygon name where each cell is located or no_polygon label if the cell is not located
 #' within a polygon area
 #'
 #' @export
@@ -10182,41 +10185,41 @@ getCellsFromPolygon <- function(gobject,
 #' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
 #'                                       gpolygons = list(my_giotto_polygons))
 #'
-#' ## Get cells located within polygons area
-#' my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
-#'
-#' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+#' ## Add polygon IDs to cell metadata
+#' my_giotto_object <- addPolygonCells(my_giotto_object)
 #' }
 #'
+addPolygonCells <- function(gobject, spat_unit = "cell", feat_type = "rna", na.label = "no_polygon") {
 
-addCellsFromPolygon <- function(gobject,
-                                cellsFromPolygon,
-                                feat_type = "rna") {
-
-  ## verify Giotto object
+  ## verify gobject
   if (!inherits(gobject, "giotto")) {
     stop("gobject needs to be a giotto object")
   }
 
-  ## get original metadas
-  cell_metadata <- methods::slot(gobject, "cell_metadata")$cell[[feat_type]]
+  ## get cells within each polygon
+  polygon_cells <- as.data.frame(getCellsFromPolygon(gobject))
 
-  ## convert cellsFromPolygon to data frame
-  cellsFromPolygondata <- as.data.frame(cellsFromPolygon)
+  ## get original cell metadata
+  cell_metadata <- pDataDT(visium_brain, spat_unit = spat_unit, feat_type = feat_type )
 
-  ## merge metadata as data.table
-  new_cell_metadata <- merge(cell_metadata, cellsFromPolygondata[,c("cell_ID", "poly_ID")],
+  ## add polygon ID to cell metadata
+  new_cell_metadata <- merge(cell_metadata,
+                             polygon_cells[,c("cell_ID", "poly_ID")],
                              by = "cell_ID", all.x = TRUE)
 
-  ## replace NA's with a defult name
-  new_cell_metadata[is.na(new_cell_metadata$poly_ID),"poly_ID"] <- "no_polygon"
+  ## assign a default ID to cells outside of polygons
+  new_cell_metadata[is.na(new_cell_metadata$poly_ID), "poly_ID"] <- na.label
 
-  ## set rows order
-  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID, new_cell_metadata$cell_ID),]
+  ## keep original order of cells
+  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID,
+                                               new_cell_metadata$cell_ID), ]
 
-  ## add cell metadata to Giotto object
-  addCellMetadata(gobject = gobject, new_metadata = new_cell_metadata[,-1])
+  gobject <- addCellMetadata(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             new_metadata = new_cell_metadata[,-1])
 
+  return(gobject)
 }
 
 
@@ -10307,3 +10310,50 @@ comparePolygonExpression <- function(gobject,
   return(my_heatmap)
 }
 
+#' Compare cell types percent per polygon
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit. Default = "cell"
+#' @param feat_type feature type. Default =  "rna"
+#' @param cell_type_column column name within the cell metadata table to use
+#' @param ... Additional parameters passed to ComplexHeatmap::Heatmap
+#'
+#' @return A ComplexHeatmap::Heatmap
+#' @export
+compareCellAbundance <- function(gobject,
+                                 spat_unit = "cell",
+                                 feat_type = "rna",
+                                 cell_type_column = "leiden_clus",
+                                 ...) {
+
+  # verify gobject
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  # get poly_ID and cell_type from metadata
+  my_metadata <- pDataDT(gobject = gobject,
+                         spat_unit = spat_unit,
+                         feat_type = feat_type)
+  columns_to_select = c("poly_ID", cell_type_column)
+  my_metadata <- my_metadata[, ..columns_to_select]
+
+  # count cell_type per polygon
+  my_cell_counts <- table(my_metadata)
+
+  my_cell_percent <- 100*my_cell_counts/rowSums(my_cell_counts)
+
+  # convert to matrix
+  my_matrix <- Matrix::as.matrix(my_cell_percent)
+
+  rownames(my_matrix) <- rownames(my_cell_percent)
+  colnames(my_matrix) <- colnames(my_cell_percent)
+
+  # plot heatmap
+  my_heatmap <- ComplexHeatmap::Heatmap(t(my_matrix),
+                                        heatmap_legend_param = list(title = "Cell type percent\nper polygon"),
+                                        cluster_rows = FALSE,
+                                        cluster_columns = FALSE,
+                                        ...)
+  return(my_heatmap)
+}
