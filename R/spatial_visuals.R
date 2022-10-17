@@ -10105,11 +10105,10 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' Get cells located within the polygons area
 #'
 #' @param gobject A Giotto object
-#' @param polygon_slot Slot name where polygon coordinates are stored in Giotto object
-#' @param cells_loc_slot Slot name where cell coordinates are stored in Giotto object
+#' @param spat_unit spatial unit, default = "cell
+#' @param polygons character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved
 #'
-#' @return A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
-#'  each cell is located in.
+#' @return A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
 #'
 #' @export
 #'
@@ -10130,32 +10129,35 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #'
 #' ## Get cells located within polygons area
 #' getCellsFromPolygon(my_giotto_object)
+#'
+#' ## Get onyl cells from polygon 1
+#' getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
 #' }
 #'
+getCellsFromPolygon <- function(gobject, spat_unit = "cell", polygons = NULL) {
 
-getCellsFromPolygon <- function(gobject,
-                                polygon_slot = "spatial_info",
-                                cells_loc_slot = "spatial_locs") {
-  ## verify Giotto object
   if (!inherits(gobject, "giotto")) {
     stop("gobject needs to be a giotto object")
   }
 
-  ## get polygon spatvector
-  my_polygon_spatplot <- methods::slot(methods::slot(gobject, polygon_slot)$cell,"spatVector")
+  ## get polygons spatial info
+  polygon_spatVector <- methods::slot(methods::slot(gobject, "spatial_info")[[spat_unit]], "spatVector")
 
-  ## get spatial locs from cells
-  my_spatial_locs <- methods::slot(gobject, cells_loc_slot)$cell$raw
+  ## get cell spatial locations
+  spatial_locs <- get_spatial_locations(gobject, spat_unit = spat_unit)
 
-  ## create spatvector from spatial locs
-  my_cells_spatplot <- terra::vect(as.matrix(my_spatial_locs[,1:2]),
-                                   type = "points",
-                                   atts = my_spatial_locs)
+  ## convert cell spatial locations to spatVector
+  cells_spatVector <- terra::vect(as.matrix(spatial_locs[,1:2]),
+                                  type = "points",
+                                  atts = spatial_locs)
 
-  ## get the insersect of polygons and cells
-  my_intersect <- terra::intersect(my_cells_spatplot, my_polygon_spatplot)
+  polygonCells <- terra::intersect(cells_spatVector, polygon_spatVector)
 
-  return(my_intersect)
+  if(!is.null(polygons)) {
+    polygonCells <- terra::subset(polygonCells, polygonCells$poly_ID %in% polygons)
+  }
+
+  return(polygonCells)
 }
 
 
