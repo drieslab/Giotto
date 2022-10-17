@@ -10046,23 +10046,45 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 
   if(is.null(x)) stop('plot object is empty')
 
-  ui <- miniPage(
-    gadgetTitleBar("Plot Interactive Polygons"),
-    miniContentPanel(
-      textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-      sliderInput("xrange", label = "x coordinates",
-                  min = min(x[["layers"]][[1]]$data$sdimx),
-                  max = max(x[["layers"]][[1]]$data$sdimx),
-                  value = c(min(x[["layers"]][[1]]$data$sdimx),
-                            max(x[["layers"]][[1]]$data$sdimx))) ,
-      sliderInput("yrange", label = "y coordinates",
-                  min = min(x[["layers"]][[1]]$data$sdimy),
-                  max = max(x[["layers"]][[1]]$data$sdimy),
-                  value = c(min(x[["layers"]][[1]]$data$sdimy),
-                            max(x[["layers"]][[1]]$data$sdimy))) ,
-      plotOutput("plot", click = "plot_click")
+  ## find min and max values for spatRaster image
+  if("SpatRaster" %in% class(x)) {
+    ui <- miniPage(
+      gadgetTitleBar("Plot Interactive Polygons"),
+      miniContentPanel(
+        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+        sliderInput("xrange", label = "x coordinates",
+                    min = min(terra::ext(r))[1],
+                    max = max(terra::ext(r))[1],
+                    value = c(min(terra::ext(r))[1],
+                              max(terra::ext(r))[1])) ,
+        sliderInput("yrange", label = "y coordinates",
+                    min = min(terra::ext(r))[2],
+                    max = max(terra::ext(r))[2],
+                    value = c(min(terra::ext(r))[2],
+                              max(terra::ext(r))[2])) ,
+        plotOutput("plot", click = "plot_click")
+      )
     )
-  )
+
+  } else { ## find min and max values for non-spatRaster image
+    ui <- miniPage(
+      gadgetTitleBar("Plot Interactive Polygons"),
+      miniContentPanel(
+        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+        sliderInput("xrange", label = "x coordinates",
+                    min = min(x[["layers"]][[1]]$data$sdimx),
+                    max = max(x[["layers"]][[1]]$data$sdimx),
+                    value = c(min(x[["layers"]][[1]]$data$sdimx),
+                              max(x[["layers"]][[1]]$data$sdimx))) ,
+        sliderInput("yrange", label = "y coordinates",
+                    min = min(x[["layers"]][[1]]$data$sdimy),
+                    max = max(x[["layers"]][[1]]$data$sdimy),
+                    value = c(min(x[["layers"]][[1]]$data$sdimy),
+                              max(x[["layers"]][[1]]$data$sdimy))) ,
+        plotOutput("plot", click = "plot_click")
+      )
+    )
+  }
 
   server <- function(input, output,session) {
     output$plot <- renderPlot({
@@ -10080,13 +10102,13 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
       }
     }, res = 96, width = width, height = height)
 
-    clicklist <- reactiveVal(data.table(x = numeric(), y = numeric(), name = character())) # empty table
+    clicklist <- reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
     observeEvent(input$plot_click, {
       click_x <- input$plot_click$x
       click_y <- input$plot_click$y
       polygon_name <- input$polygon_name
       temp <- clicklist() # get the table of past clicks
-      temp <- rbind(temp,data.table(x = click_x, y = click_y, name = polygon_name))
+      temp <- rbind(temp,data.table::data.table(x = click_x, y = click_y, name = polygon_name))
       clicklist(temp)
     })
 
