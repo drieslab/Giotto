@@ -10162,11 +10162,12 @@ getCellsFromPolygon <- function(gobject,
 #' Add corresponding polygon IDs to cell metadata
 #'
 #' @param gobject A Giotto object
-#' @param cellsFromPolygon A `SpatVector` with cell IDs located inside each polygon
 #' @param feat_type feature name where metadata will be added
+#' @param spat_unit spatial unit
+#' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
 #'
 #' @return A Giotto object with a modified cell_metadata slot that includes the
-#' polygon name where each cell is located or NA if the cell is not located
+#' polygon name where each cell is located or no_polygon label if the cell is not located
 #' within a polygon area
 #'
 #' @export
