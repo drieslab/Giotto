@@ -10310,3 +10310,50 @@ comparePolygonExpression <- function(gobject,
   return(my_heatmap)
 }
 
+#' Compare cell types percent per polygon
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit. Default = "cell"
+#' @param feat_type feature type. Default =  "rna"
+#' @param cell_type_column column name within the cell metadata table to use
+#' @param ... Additional parameters passed to ComplexHeatmap::Heatmap
+#'
+#' @return A ComplexHeatmap::Heatmap
+#' @export
+compareCellAbundance <- function(gobject,
+                                 spat_unit = "cell",
+                                 feat_type = "rna",
+                                 cell_type_column = "leiden_clus",
+                                 ...) {
+
+  # verify gobject
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  # get poly_ID and cell_type from metadata
+  my_metadata <- pDataDT(gobject = gobject,
+                         spat_unit = spat_unit,
+                         feat_type = feat_type)
+  columns_to_select = c("poly_ID", cell_type_column)
+  my_metadata <- my_metadata[, ..columns_to_select]
+
+  # count cell_type per polygon
+  my_cell_counts <- table(my_metadata)
+
+  my_cell_percent <- 100*my_cell_counts/rowSums(my_cell_counts)
+
+  # convert to matrix
+  my_matrix <- Matrix::as.matrix(my_cell_percent)
+
+  rownames(my_matrix) <- rownames(my_cell_percent)
+  colnames(my_matrix) <- colnames(my_cell_percent)
+
+  # plot heatmap
+  my_heatmap <- ComplexHeatmap::Heatmap(t(my_matrix),
+                                        heatmap_legend_param = list(title = "Cell type percent\nper polygon"),
+                                        cluster_rows = FALSE,
+                                        cluster_columns = FALSE,
+                                        ...)
+  return(my_heatmap)
+}
