@@ -6,3 +6,4 @@ inst/doc
 *.Rproj
 .git_old
 merfish_preoptic/
+.vscode/launch.json

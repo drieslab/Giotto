@@ -156,6 +156,67 @@ pDataDT <- function(gobject,
 
 }
 
+#' @rdname pDataDT
+get_CellMetadata <- pDataDT
+
+
+#' @title set_CellMetadata
+#' @name set_CellMetadata
+#' @description set specific slots of cell metadata, overwriting all other slots
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feautre type
+#' @param meta_dt data.table object containing cell metadata
+#' @return giotto object
+#' @family functions to set data in giotto object
+set_CellMetadata <- function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             meta_dt = NULL) {
+
+  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+
+  if(is.null(meta_dt) & !inherits(meta_dt, 'data.table')) {
+    stop("Please provide a data.table containing metadata.")
+  }
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
+
+  new_cols = NULL
+  if(!is.null(old_meta) & inherits(old_meta, "data.table")){
+    old_cols = colnames(old_meta)
+    new_cols = colnames(meta_dt)
+    cat("\nWarning: The following columns will be overwritten:",
+    old_cols, "\nThey will be replaced with:", new_cols,"\n")
+
+    old_meta[, (old_cols) := NULL]
+
+  } else {
+    new_cols = colnames(meta_dt)
+    cat("\nWriting data within columns:", new_cols, 
+    "\nto cell metadata\n")
+  }
+
+  suppressWarnings({
+    gobject <- removeCellAnnotation(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    columns = old_cols,
+                                    return_gobject = TRUE)
+    gobject@cell_metadata[[spat_unit]][[feat_type]] <- meta_dt
+  })
+
+  cat("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
+  return(gobject)
+
+  }
+
+
 #' @title fDataDT
 #' @name fDataDT
 #' @description show gene metadata
@@ -184,6 +245,9 @@ fDataDT <- function(gobject,
   return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
+
+#' @rdname fDataDT
+get_FeatMetadata <- fDataDT
 
 
 #' @title create_average_DT
