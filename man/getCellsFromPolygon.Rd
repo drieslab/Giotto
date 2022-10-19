@@ -4,22 +4,17 @@
 \alias{getCellsFromPolygon}
 \title{Get cells located within the polygons area}
 \usage{
-getCellsFromPolygon(
-  gobject,
-  polygon_slot = "spatial_info",
-  cells_loc_slot = "spatial_locs"
-)
+getCellsFromPolygon(gobject, spat_unit = "cell", polygons = NULL)
 }
 \arguments{
 \item{gobject}{A Giotto object}
 
-\item{polygon_slot}{Slot name where polygon coordinates are stored in Giotto object}
+\item{spat_unit}{spatial unit, default = "cell}
 
-\item{cells_loc_slot}{Slot name where cell coordinates are stored in Giotto object}
+\item{polygons}{character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved}
 }
 \value{
-A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
- each cell is located in.
+A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
 }
 \description{
 Get cells located within the polygons area
@@ -41,6 +36,9 @@ my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
 
 ## Get cells located within polygons area
 getCellsFromPolygon(my_giotto_object)
+
+## Get onyl cells from polygon 1
+getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
 }
 
 }

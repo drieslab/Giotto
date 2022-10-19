@@ -501,12 +501,23 @@ createGiottoPolygonsFromMask = function(maskfile,
 
 #' @title Create giotto polygons from dataframe
 #' @name createGiottoPolygonsFromDfr
-#' @description Creates Giotto polygon object from a structured dataframe-like object
-#' @param segmdfr data.frame-like object with polygon coordinate information (x, y, ID)
-#' @param name name for polygons
-#' @param calc_centroids calculate centroids for polygons
+#' @description Creates Giotto polygon object from a structured dataframe-like object.
+#' Three of the columns should correspond to x/y vertices and the polygon ID.
+#' Additional columns are set as attributes
+#' @param segmdfr data.frame-like object with polygon coordinate information (x, y, poly_ID)
+#' with x and y being vertex information for the polygon referenced by poly_ID. See details
+#' for how columns are selected for coordinate and ID information.
+#' @param name name for the \code{giottoPolygon} object
+#' @param calc_centroids (default FALSE) calculate centroids for polygons
 #' @param verbose be verbose
 #' @return giotto polygon object
+#' @details When determining which column within the tabular data is intended to
+#' provide polygon information, Giotto first checks the column names for 'x', 'y',
+#' and 'poly_ID'. If any of these are discovered, they are directly selected. If
+#' this is not discovered then Giotto checks the data type of the columns and selects
+#' the first `'character'` type column to be 'poly_ID' and the first two `'numeric'`
+#' columns as 'x' and 'y' respectively. If this is also unsuccessful then poly_ID
+#' defaults to the 3rd column. 'x' and 'y' then default to the 1st and 2nd columns.
 #' @concept polygon
 #' @export
 createGiottoPolygonsFromDfr = function(segmdfr,
@@ -1141,7 +1152,7 @@ create_spatvector_object_from_dfr = function(x,
 #' @title Create giotto points object
 #' @name createGiottoPoints
 #' @description Creates Giotto point object from a structured dataframe-like object
-#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat ID)
+#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat_ID)
 #' @param feat_type feature type
 #' @param verbose be verbose
 #' @return giottoPoints
