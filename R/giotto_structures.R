@@ -926,6 +926,79 @@ smoothGiottoPolygons = function(gpolygon,
 
 
 
+### * simple polygon generation ####
+
+
+#' @title Spatial polygons stamp
+#' @name polyStamp
+#' @description Takes a given stamp polygon and places it at each spatial location
+#' provided.
+#' @param stamp_dt data.table with x and y vertices for a polygon to be stamped.
+#' Column names are expected to be 'x' and 'y' respectively
+#' @param spatlocs spatial locations with x and y coordinates where polygons should
+#' be stamped. Column names are expected to be 'sdimx' and 'sdimy' respectively.
+#' @return returns a data.table of polygon vertices
+#' @export
+polyStamp = function(stamp_dt,
+                     spatlocs) {
+
+  # define polys relative to centroid
+  stamp_centroid = c(x = mean(stamp_dt[['x']]),
+                     y = mean(stamp_dt[['y']]))
+  rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
+                                        y = stamp_dt$y - stamp_centroid[['y']])
+
+  # generate poly vertices around given spatlocs
+  poly_dt = apply(X = spatlocs,
+                  MARGIN = 1,
+                  function(r) {
+                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[['sdimx']]),
+                                                  y = rel_vertices[['y']] + as.numeric(r[['sdimy']]),
+                                                  poly_ID = as.character(r[['cell_ID']])))
+                  })
+
+  return(do.call(rbind, poly_dt))
+
+}
+
+
+#' @title Generate circle polygon vertices
+#' @name circleVertices
+#' @description Generates vertex coordinates for a circle around (0,0) with the
+#' given radius. Modified from \pkg{packcircles}.
+#' @param radius radius of circle to be drawn
+#' @param npoints number of vertices to generate
+#' @seealso polyStamp rectVertices
+#' @return a data.table of circle vertices
+#' @export
+circleVertices = function(radius,
+                          npoints = 25) {
+  a = seq(0, 2*pi, length.out = npoints + 1)
+  x = radius * cos(a)
+  y = radius * sin(a)
+  m = data.table::data.table(x = x, y = y)
+  return(m)
+}
+
+
+#' @title Generate rectangular polygon vertices
+#' @name rectVertices
+#' @description Generates vertex coordinates for a rectangle with dimensions given
+#' through \code{dims} param.
+#' @param dims named vector in the style of c(x = \code{numeric}, y = \code{numeric})
+#' that defines the width (x) and height (y) of the generated rectangle polygon.
+#' @seealso polyStamp circleVertices
+#' @return a data.table of rectangle vertices
+#' @export
+rectVertices = function(dims) {
+  if(length(dims) == 1) xdim = ydim = dims
+  else xdim = dims[['x']] ; ydim = dims[['y']]
+
+  m = data.table::data.table(x = c(0,0,xdim,xdim),
+                             y = c(0,ydim,ydim,0))
+  return(m)
+}
+
 
 
 ## ** feature points ####
