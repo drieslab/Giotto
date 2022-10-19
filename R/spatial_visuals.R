@@ -10222,7 +10222,9 @@ addPolygonCells <- function(gobject, spat_unit = "cell", feat_type = "rna", na.l
   polygon_cells <- as.data.frame(getCellsFromPolygon(gobject))
 
   ## get original cell metadata
-  cell_metadata <- pDataDT(visium_brain, spat_unit = spat_unit, feat_type = feat_type )
+  cell_metadata <- pDataDT(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type )
 
   ## add polygon ID to cell metadata
   new_cell_metadata <- merge(cell_metadata,
