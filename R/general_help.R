@@ -659,17 +659,17 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
   if(dataset == 'vizgen') {
 
 
-    rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp"))
+    rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp", package = 'Giotto'))
     mini_gobject@feat_info$rna@spatVector = rna_spatVector
 
-    z0_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVector.shp"))
+    z0_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVector.shp", package = 'Giotto'))
     mini_gobject@spatial_info$z0@spatVector = z0_spatVector
-    z0_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVectorCentroids.shp"))
+    z0_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVectorCentroids.shp", package = 'Giotto'))
     mini_gobject@spatial_info$z0@spatVectorCentroids = z0_spatVectorCentroids
 
-    z1_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVector.shp"))
+    z1_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVector.shp", package = 'Giotto'))
     mini_gobject@spatial_info$z1@spatVector = z1_spatVector
-    z1_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVectorCentroids.shp"))
+    z1_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVectorCentroids.shp", package = 'Giotto'))
     mini_gobject@spatial_info$z1@spatVectorCentroids = z1_spatVectorCentroids
 
 
