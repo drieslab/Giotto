@@ -20,7 +20,7 @@ getSpatialDataset(
 \item{\dots}{additional parameters to \code{\link[utils]{download.file}}}
 }
 \description{
-This package will automatically download the spatial locations and
+This function will automatically download the spatial locations and
 expression matrix for the chosen dataset. These files are already in the right format
 to create a Giotto object. If wget is installed on your machine, you can add
 'method = wget' to the parameters to download files faster.

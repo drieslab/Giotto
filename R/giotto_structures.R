@@ -603,6 +603,9 @@ extract_polygon_list = function(polygonlist,
   # if polygonlist is not a names list
   # try to make list and give default names
   if(!is.list(polygonlist)) {
+
+    wrap_msg('polygonlist is not a list')
+
     polygonlist = as.list(polygonlist)
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
@@ -615,6 +618,8 @@ extract_polygon_list = function(polygonlist,
   # if it is list
   # test if it has names
   if(is.null(names(polygonlist))) {
+
+    wrap_msg('polygonlist is a list without names')
 
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
@@ -638,6 +643,8 @@ extract_polygon_list = function(polygonlist,
 
     name_polyinfo = names(polygonlist)[[poly_i]]
     polyinfo = polygonlist[[poly_i]]
+
+    wrap_msg('Process polygon information for: ', name_polyinfo)
 
     if(is.character(polyinfo)) {
       poly_results = do.call('createGiottoPolygonsFromMask', c(name = name_polyinfo,
@@ -665,6 +672,7 @@ extract_polygon_list = function(polygonlist,
 
   }
 
+  print(final_list)
   return(final_list)
 
 }

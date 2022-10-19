@@ -622,12 +622,63 @@ package_check = function(pkg_name,
 
 ## dataset helpers ####
 
+
+#' @title loadGiottoMini
+#' @name loadGiottoMini
+#' @param dataset mini dataset giotto object to load
+#' @param python_path pythan path to use
+#' @description This function will automatically load one of the existing mini
+#' giotto objects. These giotto objects can be used to test Giotto functions
+#' and run examples. If no python path is provided it will try to find and use
+#' the Giotto python environment. Images associated with the giotto mini objects
+#' will be reconnected if possible.
+#'
+#' Instructions, such as for saving plots, can be changed
+#' using the \code{\link{changeGiottoInstructions}}
+#' @export
+loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
+                          python_path = NULL) {
+
+
+  dataset = match.arg(dataset, choices = c('visium', 'seqfish', 'starmap', 'vizgen'))
+
+
+  if(dataset == 'vizgen') {
+    mini_gobject_path = system.file('/Mini_datasets/Vizgen/gobject_mini_vizgen.RDS', package = 'Giotto')
+  }
+
+  if(dataset != 'vizgen') {
+    wrap_msg('To be implemented \n')
+  }
+
+
+  # 1. load data
+  mini_gobject = readRDS(mini_gobject_path)
+
+  # 2. if vizgen reconnect images
+  # location
+  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_dapi_z0.jpg"
+  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_dapi_z1.jpg"
+  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_polyT_z0.jpg"
+  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_polyT_z1.jpg"
+
+  # 3. change default instructions
+  identified_python_path = set_giotto_python_path(python_path = python_path)
+  mini_gobject = changeGiottoInstructions(gobject = mini_gobject,
+                                          params = c('python_path', 'show_plot', 'return_plot', 'save_plot', 'save_dir'),
+                                          new_values = c(identified_python_path, TRUE, FALSE, FALSE, NA))
+
+  return(mini_gobject)
+
+}
+
+
 #' @title getSpatialDataset
 #' @name getSpatialDataset
 #' @param dataset dataset to download
 #' @param directory directory to save the data to
 #' @param \dots additional parameters to \code{\link[utils]{download.file}}
-#' @description This package will automatically download the spatial locations and
+#' @description This function will automatically download the spatial locations and
 #' expression matrix for the chosen dataset. These files are already in the right format
 #' to create a Giotto object. If wget is installed on your machine, you can add
 #' 'method = wget' to the parameters to download files faster.
