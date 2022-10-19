@@ -26,6 +26,8 @@ Other polygon info data accessor functions:
 \code{\link{get_polygon_info}()}
 
 Other functions to set data in giotto object: 
+\code{\link{set_CellMetadata}()},
+\code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
