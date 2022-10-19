@@ -1,37 +1,6 @@
 
 
-
 ## ** cell shape polygons ####
-
-## Giotto polygon class
-
-#' @title S4 giotto polygon Class
-#' @description Giotto class to store and operate on polygon-like data
-#' @concept giotto polygon class
-#' @slot name name of polygon shapes
-#' @slot spatVector terra spatVector to store polygon shapes
-#' @slot spatVectorCentroids centroids of polygon shapes
-#' @slot overlaps information about overlapping points and polygons
-#' @details holds polygon data
-#'
-#' @export
-giottoPolygon <- setClass(
-  Class = "giottoPolygon",
-
-  slots = c(
-    name = "ANY",
-    spatVector = "ANY",
-    spatVectorCentroids = "ANY",
-    overlaps = "ANY"
-  ),
-
-  prototype = list(
-    name = NULL,
-    spatVector = NULL,
-    spatVectorCentroids = NULL,
-    overlaps = NULL
-  )
-)
 
 
 
@@ -1003,62 +972,6 @@ rectVertices = function(dims) {
 
 ## ** feature points ####
 
-# giotto class for points
-
-
-#' @title S4 giotto points Class
-#' @description Giotto class to store and operate on points data
-#' @concept giotto points class
-#' @slot feat_type name of feature type
-#' @slot spatVector terra spatVector to store point shapes
-#' @slot networks feature networks
-#' @details Contains vector-type feature data
-#'
-#' @export
-giottoPoints <- setClass(
-  Class = "giottoPoints",
-
-  slots = c(
-    feat_type = "ANY",
-    spatVector = "ANY",
-    networks = "ANY"
-  ),
-
-  prototype = list(
-    feat_type = NULL,
-    spatVector = NULL,
-    networks = NULL
-  )
-)
-
-
-#' @title S4 giotto feature network Class
-#' @description Giotto class to store and operate on feature network
-#' @concept giotto points network class
-#' @slot name name of feature network
-#' @slot network_datatable feature network in data.table format
-#' @slot network_lookup_id table mapping numeric network ID to unique feature numerical IDs
-#' @slot full fully connected network
-#' @details contains feature network information
-#'
-#' @export
-featureNetwork <- setClass(
-  Class = "featureNetwork",
-
-  slots = c(
-    name = "ANY",
-    network_datatable = "ANY",
-    network_lookup_id = "ANY",
-    full = "ANY"
-  ),
-
-  prototype = list(
-    name = NULL,
-    network_datatable = NULL,
-    network_lookup_id = NULL,
-    full = NULL
-  )
-)
 
 
 #' @title Create feature network object

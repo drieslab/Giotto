@@ -40,6 +40,8 @@ Other dimensional reduction data accessor functions:
 \code{\link{get_dimReduction}()}
 
 Other functions to set data in giotto object: 
+\code{\link{set_CellMetadata}()},
+\code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feature_info}()},

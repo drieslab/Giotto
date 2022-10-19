@@ -26,6 +26,8 @@ Other spatial network data accessor functions:
 \code{\link{get_spatialNetwork}()}
 
 Other functions to set data in giotto object: 
+\code{\link{set_CellMetadata}()},
+\code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},

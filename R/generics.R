@@ -9,7 +9,7 @@
 #' @title Dimensions of giotto points and polygon objects
 #' @name nrow-generic
 #' @description Get the number of rows (nrow)
-#' @include giotto_structures.R
+#' @include classes.R
 #' @param x giottoPoints or giottoPolygon object
 #' @aliases nrow
 #' @exportMethod nrow
@@ -42,7 +42,7 @@ setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVect
 #' @title Preview a Giotto spatial object
 #' @name plot-generic
 #' @description S4 generic for previewing Giotto's image and subcellular objects.
-#' @include giotto_structures.R images.R
+#' @include classes.R
 #' @param x giotto image, giottoPolygon, or giottoPoints object
 #' @param y Not used.
 #' @param \dots additional parameters to pass

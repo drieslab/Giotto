@@ -1,108 +1,6 @@
-# dimObj Class and methods####
 
 
-#' @title Check dimOjb
-#' @name checkDimObj
-#' @description check function for S4 dimObj
-#' @param object S4 dimObj to check
-#' @keywords internal
-checkDimObj = function(object) {
-  errors = character()
-  length_reduction_method = length(object@reduction_method)
-  if(length_reduction_method > 1) {
-    msg = paste0('reduction_method is length ', length_reduction_method, '. Should be 1')
-    errors = c(errors, msg)
-  }
-
-  if(length_reduction_method == 0) {
-    msg = 'A reduction_method must be given'
-    errors = c(errors, msg)
-  }
-
-  lastCols = tail(colnames(object@coordinates),2)
-  col_dims = all(grepl(pattern = 'Dim.', x = lastCols))
-  if(!isTRUE(col_dims)) {
-    msg = 'Dim reduction coordinates should be provided with dimensions ("Dim.#") as columns and samples as rows\n'
-    errors = c(errors, msg)
-  }
-
-  if(length(errors) == 0) TRUE else errors
-}
-
-
-
-#' @title S4 dimObj Class
-#' @description Framework to store dimension reduction information
-#' @slot name name of dimObject
-#' @slot feat_type feature type of data
-#' @slot spat_unit spatial unit of data
-#' @slot reduction_method method used to generate dimension reduction
-#' @slot coordinates embedding coordinates
-#' @slot misc method-specific additional outputs
-#' @export
-setClass('dimObj',
-         slots = c(name = 'character',
-                   feat_type = 'character',
-                   spat_unit = 'character',
-                   reduction_method = 'character',
-                   coordinates = 'ANY',
-                   misc = 'ANY'),
-         prototype = list(name = NULL,
-                          feat_type = NULL,
-                          spat_unit = NULL,
-                          reduction_method = NULL,
-                          coordinates = NULL,
-                          misc = NULL),
-         validity = checkDimObj)
-
-
-
-#' show method for dimObj class
-#' @param object dimension reduction object
-#' @aliases show,dimObj-method
-#' @docType methods
-#' @rdname show-methods
-setMethod(
-  f = "show", signature('dimObj'), function(object) {
-
-    cat("An object of class",  class(object), "\n")
-    if(!is.null(object@reduction_method)) cat('--| Contains dimension reduction generated with:', object@reduction_method, '\n')
-    if(!is.null(object@feat_type) & !is.null(object@spat_unit)) {
-      cat('----| for feat_type:', object@feat_type, '\n')
-      cat('----|     spat_unit:', object@spat_unit, '\n\n')
-    }
-
-    if(!is.null(object@coordinates)) cat('  ', ncol(object@coordinates), 'dimensions for', nrow(object@coordinates),'data points\n\n')
-
-    if(!is.null(object@misc)) {
-      cat('Additional included info:\n')
-      print(names(object@misc))
-      cat('\n')
-    }
-
-  })
-
-
-
-#' @title Dimension reductions
-#' @name S3toS4dimObj
-#' @description Convert S3 dimObj to S4
-#' @param object S3 dimObj
-#' @keywords internal
-S3toS4dimObj = function(object) {
-  if(!isS4(object)) {
-    object = new('dimObj',
-                 name = object$name,
-                 feat_type = object$feat_type,
-                 spat_unit = object$spat_unit,
-                 reduction_method = object$reduction_method,
-                 coordinates = object$coordinates,
-                 misc = object$misc)
-  }
-  object
-}
-
-
+# * Dimension Reduction Object Creation ####
 
 #' @title create_dimObject
 #' @name create_dimObject
@@ -143,9 +41,6 @@ create_dimObject = function(name = 'test',
   return(dimObj)
 
 }
-
-
-
 
 ## * PCA  ####
 # ---------- #
