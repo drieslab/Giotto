@@ -655,12 +655,49 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
   # 1. load data
   mini_gobject = readRDS(mini_gobject_path)
 
-  # 2. if vizgen reconnect images
-  # location
-  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_dapi_z0.jpg"
-  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_dapi_z1.jpg"
-  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_polyT_z0.jpg"
-  # "/Users/rubendries/Packages/R_Packages/Giotto/inst/Mini_datasets/Vizgen/images/mini_dataset_polyT_z1.jpg"
+  # 2. if vizgen reconnect images and spatVectors
+  if(dataset == 'vizgen') {
+
+
+    rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp"))
+    mini_gobject@feat_info$rna@spatVector = rna_spatVector
+
+    z0_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVector.shp"))
+    mini_gobject@spatial_info$z0@spatVector = z0_spatVector
+    z0_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVectorCentroids.shp"))
+    mini_gobject@spatial_info$z0@spatVectorCentroids = z0_spatVectorCentroids
+
+    z1_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVector.shp"))
+    mini_gobject@spatial_info$z1@spatVector = z1_spatVector
+    z1_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVectorCentroids.shp"))
+    mini_gobject@spatial_info$z1@spatVectorCentroids = z1_spatVectorCentroids
+
+
+    # x and y information from original script
+    ultra_mini_extent = terra::ext(c(6400.029, 6900.037, -5150.007, -4699.967 ))
+
+    # location
+    DAPI_z0_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_dapi_z0.jpg", package = 'Giotto')
+    DAPI_z1_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_dapi_z1.jpg", package = 'Giotto')
+    polyT_z0_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_polyT_z0.jpg", package = 'Giotto')
+    polyT_z1_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_polyT_z1.jpg", package = 'Giotto')
+
+    # create image list
+    image_paths = c(DAPI_z0_image_path, DAPI_z1_image_path,
+                    polyT_z0_image_path, polyT_z1_image_path)
+    image_names = c('dapi_z0', 'dapi_z1',
+                    'polyT_z0', 'polyT_z1')
+
+    imagelist = createGiottoLargeImageList(raster_objects = image_paths,
+                                           names = image_names,
+                                           negative_y = TRUE,
+                                           extent = ultra_mini_extent)
+
+    mini_gobject = addGiottoImage(gobject = mini_gobject,
+                                  largeImages = imagelist)
+  }
+
+
 
   # 3. change default instructions
   identified_python_path = set_giotto_python_path(python_path = python_path)
