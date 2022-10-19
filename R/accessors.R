@@ -12,7 +12,136 @@ NULL
 
 ## Get and set functions to get and set values in one of the giotto class slots ##
 
-#%%%%% NOTE: python, instructions, metadata accessors are currently in giotto.R %%%%%#
+#%%%%% NOTE: python and instructions accessors are currently in giotto.R %%%%%#
+
+## cell metadata slot ##
+
+#' @include auxiliary_giotto.R
+#' @rdname pDataDT
+get_CellMetadata <- pDataDT
+
+#' @title set_CellMetadata
+#' @name set_CellMetadata
+#' @include auxiliary_giotto.R
+#' @description set specific slots of cell metadata, overwriting all other slots
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feautre type
+#' @param meta_dt data.table object containing cell metadata
+#' @return giotto object
+#' @family functions to set data in giotto object
+set_CellMetadata <- function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             meta_dt = NULL) {
+
+  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+
+  if(is.null(meta_dt) || !inherits(meta_dt, 'data.table')) {
+    stop("Please provide a data.table containing metadata.")
+  }
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
+
+  new_cols = NULL
+  if(!is.null(old_meta) && inherits(old_meta, "data.table")){
+    old_cols = colnames(old_meta)
+    new_cols = colnames(meta_dt)
+    cat("\nWarning: The following columns will be overwritten:",
+    old_cols, "\nThey will be replaced with:", new_cols,"\n")
+
+    old_meta[, (old_cols) := NULL]
+
+  } else {
+    new_cols = colnames(meta_dt)
+    cat("\nWriting data within columns:", new_cols, 
+    "\nto cell metadata\n")
+  }
+
+  suppressWarnings({
+    gobject <- removeCellAnnotation(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    columns = old_cols,
+                                    return_gobject = TRUE)
+    gobject@cell_metadata[[spat_unit]][[feat_type]] <- meta_dt
+  })
+
+  cat("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
+  return(gobject)
+
+}
+
+
+## feature metadata slot ##
+
+#' @rdname fDataDT
+#' @include auxiliary_giotto.R
+get_FeatMetadata <- fDataDT
+
+#' @title set_FeatMetadata
+#' @name set_FeatMetadata
+#' @include auxiliary_giotto.R
+#' @description set specific slots of feature metadata, overwriting all other slots
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param meta_dt data.table object containing feature metadata
+#' @return giotto object
+#' @family functions to set data in giotto object
+set_FeatMetadata <- function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             meta_dt = NULL){
+  if (!inherits(gobject,'giotto')) stop("Only Giotto Objects are supported for this function.")
+
+  if(is.null(meta_dt) || !inherits(meta_dt, "data.table")){
+    stop("Please provide a data.table containing metadata.")
+  }
+
+  spat_unit <- set_default_spat_unit(gobject = gobject,
+                                     spat_unit = spat_unit)
+
+  feat_type <- set_default_feat_type(gobject = gobject,
+                                     feat_type = feat_type,
+                                     spat_unit = spat_unit)
+
+  old_meta <- data.table::copy(gobject@feat_metadata[[spat_unit]][[feat_type]])
+
+  new_cols <- NULL
+  if(!is.null(old_meta) && inherits(old_meta, "data.table")){
+    old_cols <- colnames(old_meta)
+    new_cols <- colnames(meta_dt)
+    cat("\nWarning: The following columns will be overwritten:",
+    old_cols, "\nThey will be replaced with:", new_cols,"\n")
+
+    old_meta[, (old_cols) := NULL]
+
+  } else {
+    new_cols <- colnames(meta_dt)
+    cat("\nWriting data within columns:", new_cols, 
+    "\nto feature metadata\n")
+  }
+
+  suppressWarnings({
+    gobject <- removeFeatAnnotation(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    columns = old_cols,
+                                    return_gobject = TRUE)
+    gobject@feat_metadata[[spat_unit]][[feat_type]] <- meta_dt
+  })
+
+  cat("\nFeature Metadata slot '",spat_unit, feat_type, "' set.\n")
+  return(gobject)
+
+}
+
 
 ## expression values slot ####
 

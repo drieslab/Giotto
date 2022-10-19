@@ -110,8 +110,8 @@ Suggests:
     testthat (>= 3.0.0)
 Collate:
     'NN_network.R'
-    'accessors.R'
     'auxiliary_giotto.R'
+    'accessors.R'
     'auxiliary_visuals.R'
     'cell_segmentation.R'
     'clustering.R'
