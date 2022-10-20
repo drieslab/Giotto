@@ -3,7 +3,7 @@
 \docType{data}
 \name{gobject_mini_vizgen}
 \alias{gobject_mini_vizgen}
-\title{mini Giotto object for MERFISH data (Vizgen) at subcellular resolution}
+\title{gobject_mini_vizgen}
 \format{
 An object of class \code{"giotto"};
 see \code{\link[Giotto]{createGiottoObject}} or
