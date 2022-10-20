@@ -1,7 +1,6 @@
 
 #' gobject_mini_vizgen
 #'
-#' Mini Giotto object created from the Mouse Brain Vizgen data.
 #'
 #' @docType data
 #'
@@ -28,4 +27,4 @@
 #'              cell_color = 'leiden_clus',
 #'              spat_point_size = 2,
 #'              dim_point_size = 2)}
-"gobject_mini_vizgen"
+NULL
