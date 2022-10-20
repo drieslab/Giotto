@@ -294,7 +294,8 @@ format(object.size(vizsubc), units = 'Mb')
 
 #saveRDS(vizsubc, file = paste0(data_path, '/', 'gobject_mini_vizgen.RDS'))
 
-save(vizsubc, file = paste0(data_path, '/', 'gobject_mini_vizgen.rda'))
+gobject_mini_vizgen = vizsubc
+save(gobject_mini_vizgen, file = paste0(data_path, '/', 'gobject_mini_vizgen.rda'))
 
 
 # write terra files (spatvectors)

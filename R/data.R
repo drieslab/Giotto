@@ -1,8 +1,7 @@
 
-#' mini Giotto object for MERFISH data (Vizgen) at subcellular resolution
+#' gobject_mini_vizgen
 #'
 #' Mini Giotto object created from the Mouse Brain Vizgen data.
-#' @name gobject_mini_vizgen
 #'
 #' @docType data
 #'
@@ -29,4 +28,4 @@
 #'              cell_color = 'leiden_clus',
 #'              spat_point_size = 2,
 #'              dim_point_size = 2)}
-NULL
+"gobject_mini_vizgen"
