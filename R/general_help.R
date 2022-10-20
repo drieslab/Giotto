@@ -643,22 +643,14 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
   dataset = match.arg(dataset, choices = c('visium', 'seqfish', 'starmap', 'vizgen'))
 
 
-  if(dataset == 'vizgen') {
-    mini_gobject_path = system.file('/Mini_datasets/Vizgen/gobject_mini_vizgen.RDS', package = 'Giotto')
-  }
-
-  if(dataset != 'vizgen') {
-    wrap_msg('To be implemented \n')
-  }
-
-
   # 1. load data
-  mini_gobject = readRDS(mini_gobject_path)
-
-  # 2. if vizgen reconnect images and spatVectors
   if(dataset == 'vizgen') {
 
+    # 1. load giotto object
+    data(gobject_mini_vizgen, package = 'Giotto') # load vizsubc
+    mini_gobject = vizsubc
 
+    # 2. add spatvectors back in place (giottoPoints and giottoPolygons)
     rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp", package = 'Giotto'))
     mini_gobject@feat_info$rna@spatVector = rna_spatVector
 
@@ -672,6 +664,9 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
     z1_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVectorCentroids.shp", package = 'Giotto'))
     mini_gobject@spatial_info$z1@spatVectorCentroids = z1_spatVectorCentroids
 
+
+
+    # 3. add spatRaster back in place (largeGiottoImages)
 
     # x and y information from original script
     ultra_mini_extent = terra::ext(c(6400.029, 6900.037, -5150.007, -4699.967 ))
@@ -695,11 +690,23 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
 
     mini_gobject = addGiottoImage(gobject = mini_gobject,
                                   largeImages = imagelist)
+
+    }
+
+  if(dataset == 'visium') {
+    wrap_msg('To be implemented \n')
+  }
+
+  if(dataset == 'seqfish') {
+    wrap_msg('To be implemented \n')
+  }
+
+  if(dataset == 'starmap') {
+    wrap_msg('To be implemented \n')
   }
 
 
-
-  # 3. change default instructions
+  # 1. change default instructions
   identified_python_path = set_giotto_python_path(python_path = python_path)
   mini_gobject = changeGiottoInstructions(gobject = mini_gobject,
                                           params = c('python_path', 'show_plot', 'return_plot', 'save_plot', 'save_dir'),
