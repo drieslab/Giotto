@@ -294,9 +294,6 @@ format(object.size(vizsubc), units = 'Mb')
 
 #saveRDS(vizsubc, file = paste0(data_path, '/', 'gobject_mini_vizgen.RDS'))
 
-gobject_mini_vizgen = vizsubc
-save(gobject_mini_vizgen, file = paste0(data_path, '/', 'gobject_mini_vizgen.rda'))
-
 
 # write terra files (spatvectors)
 # these need to be read in again when loading the vizgen giotto object
@@ -307,6 +304,27 @@ terra::writeVector(vizsubc@spatial_info$z0@spatVectorCentroids, filename = paste
 
 terra::writeVector(vizsubc@spatial_info$z1@spatVector, filename = paste0(data_path, '/', 'processed_data/z1_spatVector.shp'))
 terra::writeVector(vizsubc@spatial_info$z1@spatVectorCentroids, filename = paste0(data_path, '/', 'processed_data/z1_spatVectorCentroids.shp'))
+
+
+# change name to fix error
+
+
+# set pointers to NULL to fix potential error
+vizsubc@feat_info$rna@spatVector = 1
+
+vizsubc@spatial_info$z0@spatVector = 1
+vizsubc@spatial_info$z0@spatVectorCentroids = 1
+
+vizsubc@spatial_info$z1@spatVector = 1
+vizsubc@spatial_info$z1@spatVectorCentroids = 1
+
+vizsubc@largeImages = NULL
+
+# save object and copy object to Giotto/data folder
+gobject_mini_vizgen = vizsubc
+save(gobject_mini_vizgen, file = paste0(data_path, '/', 'gobject_mini_vizgen.rda'))
+
+
 
 
 
