@@ -307,18 +307,19 @@ terra::writeVector(vizsubc@spatial_info$z1@spatVectorCentroids, filename = paste
 
 
 # change name to fix error
-gobject_mini_vizgen = vizsubc
+
 
 # set pointers to NULL to fix potential error
-gobject_mini_vizgen@feat_info$rna@spatVector = NULL
+vizsubc@feat_info$rna@spatVector = 1
 
-gobject_mini_vizgen@spatial_info$z0@spatVector = NULL
-gobject_mini_vizgen@spatial_info$z0@spatVectorCentroids = NULL
+vizsubc@spatial_info$z0@spatVector = 1
+vizsubc@spatial_info$z0@spatVectorCentroids = 1
 
-gobject_mini_vizgen@spatial_info$z1@spatVector = NULL
-gobject_mini_vizgen@spatial_info$z1@spatVectorCentroids = NULL
+vizsubc@spatial_info$z1@spatVector = 1
+vizsubc@spatial_info$z1@spatVectorCentroids = 1
 
 # save object and copy object to Giotto/data folder
+gobject_mini_vizgen = vizsubc
 save(gobject_mini_vizgen, file = paste0(data_path, '/', 'gobject_mini_vizgen.rda'))
 
 
