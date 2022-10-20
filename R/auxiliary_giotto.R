@@ -111,7 +111,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @alias get_CellMetadata
+#' @aliases get_CellMetadata
 #' @return data.table with cell metadata
 #' @export
 pDataDT <- function(gobject,
@@ -184,7 +184,7 @@ pDataDT <- function(gobject,
 
 #   } else {
 #     new_cols = colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols, 
+#     cat("\nWriting data within columns:", new_cols,
 #     "\nto cell metadata\n")
 #   }
 
@@ -209,7 +209,7 @@ pDataDT <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @alias get_FeatMetadata
+#' @aliases get_FeatMetadata
 #' @return data.table with gene metadata
 #' @export
 fDataDT <- function(gobject,
@@ -275,7 +275,7 @@ fDataDT <- function(gobject,
 
 #   } else {
 #     new_cols <- colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols, 
+#     cat("\nWriting data within columns:", new_cols,
 #     "\nto feature metadata\n")
 #   }
 
