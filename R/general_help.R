@@ -647,8 +647,8 @@ loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
   if(dataset == 'vizgen') {
 
     # 1. load giotto object
-    data(gobject_mini_vizgen, package = 'Giotto') # load vizsubc
-    mini_gobject = vizsubc
+    data(gobject_mini_vizgen, package = 'Giotto') # load gobject_mini_vizgen
+    mini_gobject = gobject_mini_vizgen
 
     # 2. add spatvectors back in place (giottoPoints and giottoPolygons)
     rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp", package = 'Giotto'))
