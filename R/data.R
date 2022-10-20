@@ -1,7 +1,6 @@
 
 #' gobject_mini_vizgen
 #'
-#'
 #' @docType data
 #'
 #' @usage loadGiottoMini(dataset = 'vizgen')
@@ -14,4 +13,4 @@
 #'
 #' @references www.vizgen.com
 #'
-NULL
+"gobject_mini_vizgen"
