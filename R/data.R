@@ -14,17 +14,4 @@
 #'
 #' @references www.vizgen.com
 #'
-#' @examples
-#'
-#' \dontrun{
-#'
-#' gvizg = loadGiottoMini(dataset = 'vizgen')
-#'
-#' spatDimPlot2D(gobject = gvizg,
-#'              spat_unit = 'z1',
-#'              show_image = F,
-#'              largeImage_name = 'polyT_z1',
-#'              cell_color = 'leiden_clus',
-#'              spat_point_size = 2,
-#'              dim_point_size = 2)}
 NULL
