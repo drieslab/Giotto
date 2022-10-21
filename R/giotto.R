@@ -3294,6 +3294,10 @@ createGiottoXeniumObject = function(xenium_dir,
     # ---------------------------------------------------------------------------- #
     # **** subcellular info ****
     if(data_to_use == 'subcellular') {
+
+      # define for data.table
+      transcript_id = feature_name = NULL
+
       # append missing QC probe info to feat_meta
       if(isTRUE(h5_expression)) {
         h5 = hdf5r::H5File$new(agg_expr_path)
@@ -3371,7 +3375,7 @@ createGiottoXeniumObject = function(xenium_dir,
   # 3. Create giotto objects
 
   # define for data.table
-  cell_id = cell_ID = x_centroid = y_centroid = .SD = NULL
+  cell_id = cell_ID = x_centroid = y_centroid = NULL
 
   if(data_to_use == 'subcellular') {
     if(isTRUE(verbose)) message('Building subcellular giotto object...')
