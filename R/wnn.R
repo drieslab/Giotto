@@ -20,7 +20,9 @@ runWNN <- function(gobject,
   }
 
   # validate modalities
-  if(is.null())
+  if(!modality_1 %in% names(gobject@dimension_reduction$cells[[spat_unit]]) || !modality_2 %in% names(gobject@dimension_reduction$cells[[spat_unit]]) ) {
+    stop(paste(modality_1, "and", modality_2, " pca must exist"))
+  }
 
     # extract PCA
 
@@ -362,8 +364,8 @@ runWNN <- function(gobject,
     w_modality2[[cell_a]] <- exp(ratio_modality2[[cell_a]])/(exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
   }
 
-  gobject@dimension_reduction$cells$cell[['WNN']][[paste0("weight_",modality_1)]] <- w_modality1
-  gobject@dimension_reduction$cells$cell[['WNN']][[paste0("weight_",modality_2)]] <- w_modality2
+  gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_1)]] <- w_modality1
+  gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_2)]] <- w_modality2
 
   ######################### Calculating a WNN graph ##############################
 
