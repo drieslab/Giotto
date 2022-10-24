@@ -10,8 +10,8 @@
 #' @export
 runWNN <- function(gobject,
                    spat_unit = "cell",
-                   modality_1 = "modality1",
-                   modality_2 = "modality2",
+                   modality_1 = "rna",
+                   modality_2 = "protein",
                    k = 20) {
 
   # validate Giotto object
