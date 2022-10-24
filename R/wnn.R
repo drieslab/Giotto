@@ -370,8 +370,8 @@ runWNN <- function(gobject,
     w_modality2[[cell_a]] <- exp(ratio_modality2[[cell_a]])/(exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
   }
 
-  gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_1)]] <- w_modality1
-  gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_2)]] <- w_modality2
+  #gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_1)]] <- w_modality1
+  #gobject@dimension_reduction$cells[[spat_unit]][['WNN']][[paste0("weight_",modality_2)]] <- w_modality2
 
   ######################### Calculating a WNN graph ##############################
 
@@ -399,7 +399,48 @@ runWNN <- function(gobject,
     }
   }
 
-  gobject@dimension_reduction$cells$cell[['WNN']][['theta_weighted']] <- theta_weighted
+  # save theta_weighted
+  dimObject <- Giotto:::create_dimObject(name = "theta_weighted",
+                                         spat_unit = "cell",
+                                         feat_type = "WNN",
+                                         reduction_method = "umap",
+                                         coordinates = theta_weighted)
+  set_dimReduction(gobject = gobject,
+                   spat_unit = spat_unit,
+                   feat_type = "WNN",
+                   reduction_method = "umap",
+                   name = "theta_weighted",
+                   dimObject = dimObject)
+
+  # save modalities weight
+
+  ## modality 1
+  dimObject <- Giotto:::create_dimObject(name = paste0("weight_",modality_1),
+                                         spat_unit = "cell",
+                                         feat_type = "WNN",
+                                         reduction_method = "umap",
+                                         coordinates = w_modality1)
+  set_dimReduction(gobject = gobject,
+                   spat_unit = spat_unit,
+                   feat_type = "WNN",
+                   reduction_method = "umap",
+                   name = paste0("weight_",modality_1),
+                   dimObject = dimObject)
+
+  ## modality 2
+  dimObject <- Giotto:::create_dimObject(name = paste0("weight_",modality_2),
+                                         spat_unit = "cell",
+                                         feat_type = "WNN",
+                                         reduction_method = "umap",
+                                         coordinates = w_modality2)
+  set_dimReduction(gobject = gobject,
+                   spat_unit = spat_unit,
+                   feat_type = "WNN",
+                   reduction_method = "umap",
+                   name = paste0("weight_",modality_2),
+                   dimObject = dimObject)
+
+  #gobject@dimension_reduction$cells$cell[['WNN']][['theta_weighted']] <- theta_weighted
 
   return(gobject)
 }
@@ -432,7 +473,9 @@ runIntegratedUMAP <- function(gobject,
   theta_weighted <- get_dimReduction(gobject = gobject,
                                      spat_unit = spat_unit,
                                      feat_type = "WNN",
-                                     name = "theta_weighted")
+                                     reduction_method = "umap",
+                                     name = "theta_weighted",
+                                     )
 
   #theta_weighted <- gobject@dimension_reduction$cells$cell$WNN$theta_weighted
   theta_weighted[is.na(theta_weighted)] <- 0
