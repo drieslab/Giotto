@@ -6,20 +6,20 @@
 \usage{
 set_spatial_locations(
   gobject,
+  spatlocs,
   spat_unit = NULL,
   spat_loc_name = "raw",
-  spatlocs,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{spatlocs}{spatial locations (accepts either data.table or spatialLocationsObj)}
+
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{spat_loc_name}{name of spatial locations, default "raw"}
-
-\item{spatlocs}{spatial locations}
 
 \item{verbose}{be verbose}
 }
@@ -29,16 +29,25 @@ giotto object
 \description{
 Function to set a spatial location slot
 }
+\details{
+If spatialLocationsObj is provided to \code{spatlocs} param then any
+attached name and spat_unit info will be prioritized for input to this function's
+\code{spat_loc_name} and \code{spat_unit}params.
+}
 \seealso{
 Other spatial location data accessor functions: 
 \code{\link{get_spatial_locations}()}
 
 Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_CellMetadata}()},
 \code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},

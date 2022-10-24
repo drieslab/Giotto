@@ -28,6 +28,8 @@ Framework to store spatial network information
 
 \item{\code{spat_unit}}{spatial unit tag}
 
+\item{\code{provenance}}{origin of aggregated information (if applicable)}
+
 \item{\code{misc}}{misc}
 }}
 

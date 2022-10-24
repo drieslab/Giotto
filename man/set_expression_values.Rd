@@ -15,7 +15,7 @@ set_expression_values(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit  (e.g. "cell")}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
@@ -34,10 +34,14 @@ Other expression accessor functions:
 \code{\link{get_expression_values}()}
 
 Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_CellMetadata}()},
 \code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
 \code{\link{set_dimReduction}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},

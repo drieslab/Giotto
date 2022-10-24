@@ -14,7 +14,7 @@ get_spatial_enrichment(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit (e.g."cell")}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 

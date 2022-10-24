@@ -87,3 +87,43 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
 })
 
 
+# copy() S4 generic ####
+#' @title Copy an entire object
+#' @name copy-generic
+#' @description S4 generic for Giotto's S4 subobjects to return with full copies of
+#' certain subobjects that usually return referenced information.
+#' @param x a Giotto S4 class subobject
+#' @include classes.R
+#' @seealso \code{\link[data.table]{copy}} \code{\link[terra]{deepcopy}}
+#' @aliases copy
+#' @exportMethod copy
+setGeneric('copy', function(x) {
+  standardGeneric('copy')
+})
+
+#' @describeIn copy-generic Copy \emph{data.table}-based spatial locations object.
+#' @export
+setMethod('copy', signature(x = 'spatialLocationsObj'), function(x) {
+  out = new('spatialLocationsObj',
+            name = slot(x, 'name'),
+            spat_unit = slot(x, 'spat_unit'),
+            provenance = slot(x, 'provenance'),
+            coordinates = data.table::copy(slot(x, 'coordinates')))
+  return(out)
+})
+
+
+#' data.table S4 class for method dispatch
+#' @name data.table-class
+#' @aliases data.table
+#' @family data.table
+#'
+#' @exportClass data.table
+setOldClass('data.table')
+
+#' @describeIn copy-generic See \code{\link[data.table]{copy}}
+#' @export
+setMethod('copy', signature(x = 'data.table'), function(x) data.table::copy(x))
+
+
+

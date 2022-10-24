@@ -914,7 +914,7 @@ evaluate_spatial_locations = function(spatial_locs,
   if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
     stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
   }
-  if(methods::is(spatial_locs, 'character')) {
+  if(inherits(spatial_locs, 'character')) {
     if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
     spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
   } else {
@@ -929,6 +929,7 @@ evaluate_spatial_locations = function(spatial_locs,
 
   potential_cell_IDs = NULL
 
+  # find non-numeric cols (possible cell_ID col)
   if(length(non_numeric_classes) > 0) {
 
     non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
@@ -959,6 +960,7 @@ evaluate_spatial_locations = function(spatial_locs,
   spatial_dimensions = c('x', 'y', 'z')
   colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
+  # Assign first non-numeric as cell_ID
   if(!is.null(potential_cell_IDs)) {
     spatial_locs[, cell_ID := potential_cell_IDs]
   }
@@ -1014,11 +1016,13 @@ read_spatial_location_data = function(gobject,
          1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n')
   }
 
-
+  # 2. Based on depth of nesting expect related info then eval, check, and assemble return list
+  ### 2.1 evaluate spatlocs - (read) and find col classes and accordingly assign DT and colnames
+  ### 2.2 check spatlocs - compare guessed cell_ID col vs gobject cell_ID slot (from expr)
+  ### 2.3 create spatloc objects
   return_list = list()
 
-
-  # 2. for list with 1 depth
+  # for list with 1 depth, expect name info
   if(list_depth == 1) {
 
     cat('list depth of 1 \n')
@@ -1028,12 +1032,20 @@ read_spatial_location_data = function(gobject,
       res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[coord]],
                                                 cores = cores)
 
+      # set cell_ID col if missing to conform to spatialLocationsObj validity
+      if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
+
       # add default region == 'cell'
-      return_list[['cell']][[coord]] = res_spatlocs
+      return_list = append(return_list, new('spatialLocationsObj',
+                                            name = coord,
+                                            coordinates = res_spatlocs,
+                                            spat_unit = 'cell'))
+
+      # return_list[['cell']][[coord]] = res_spatlocs
 
     }
 
-
+    # for list with 2 depth, expect name info and spat_unit info
   } else if(list_depth == 2) {
 
     cat('list depth of 2 \n')
@@ -1045,8 +1057,16 @@ read_spatial_location_data = function(gobject,
         res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[spat_unit]][[coord]],
                                                      cores = cores)
 
+        # set cell_ID col if missing to conform to spatialLocationsObj validity
+        if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
+
         # add default region == 'cell'
-        return_list[[spat_unit]][[coord]] = res_spatlocs
+        return_list = append(return_list, new('spatialLocationsObj',
+                                              name = coord,
+                                              coordinates = res_spatlocs,
+                                              spat_unit = spat_unit))
+
+        # return_list[[spat_unit]][[coord]] = res_spatlocs
 
       }
     }
@@ -1066,20 +1086,31 @@ read_spatial_location_data = function(gobject,
 #' @keywords internal
 check_spatial_location_data = function(gobject) {
 
+  # define for data.table
+  cell_ID = spat_unit = NULL
 
-  for(spat_unit in names(gobject@spatial_locs)) {
+  # find available spatial locations
+  available = list_spatial_locations(gobject)
 
-    expected_cell_ID_names = gobject@cell_ID[[spat_unit]]
+  for(spat_unit_i in available[['spat_unit']]) {
 
-    for(coord in names(gobject@spatial_locs[[spat_unit]])) {
+    expected_cell_ID_names = get_cell_id(gobject = gobject,
+                                         spat_unit = spat_unit_i)
+
+    for(coord_i in available[spat_unit == spat_unit_i, name]) {
 
       # 1. get colnames
-      spatial_colnames = colnames(gobject@spatial_locs[[spat_unit]][[coord]])
+      spatlocsDT = get_spatial_locations(gobject,
+                                         spat_unit = spat_unit_i,
+                                         spat_loc_name = coord_i,
+                                         return_spatlocs_Obj = FALSE,
+                                         copy_obj = FALSE)
+      missing_cell_IDs = spatlocsDT[, all(is.na(cell_ID))]
 
       # if cell_ID column is provided then compare with expected cell_IDs
-      if('cell_ID' %in% spatial_colnames) {
+      if(!isTRUE(missing_cell_IDs)) {
 
-        spatial_cell_id_names = gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']]
+        spatial_cell_id_names = spatlocsDT[['cell_ID']]
 
         if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
           message('spatloc cell_IDs: ')
@@ -1088,26 +1119,28 @@ check_spatial_location_data = function(gobject) {
           cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
 
           stop('cell_IDs between spatial and expression information are not the same for: \n
-                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
+                 spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
         }
 
       } else {
 
         # if cell_ID column is not provided then add expected cell_IDs
 
-        if(nrow(gobject@spatial_locs[[spat_unit]][[coord]]) != length(expected_cell_ID_names)) {
+        ## error if spatlocs and cell_ID do not match in length
+        if(nrow(spatlocsDT) != length(expected_cell_ID_names)) {
           stop('Number of rows of spatial locations do not match with cell IDs for: \n
-                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
+                 spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
         }
 
-        gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']] = expected_cell_ID_names
+        ## ! modify coords within gobject by reference
+        spatlocsDT = spatlocsDT[, cell_ID := expected_cell_ID_names]
 
       }
 
     }
   }
 
-  return(gobject)
+  return(invisible())
 
 }
 
@@ -1684,27 +1717,34 @@ createGiottoObject <- function(expression,
                                verbose = TRUE) {
 
   # create minimum giotto
-  gobject = giotto(expression = list(),
-                   expression_feat = expression_feat,
-                   spatial_locs = spatial_locs,
-                   spatial_info = NULL,
-                   cell_metadata = cell_metadata,
-                   feat_metadata = feat_metadata,
-                   feat_info = feat_info,
-                   cell_ID = NULL,
-                   feat_ID = NULL,
-                   spatial_network = NULL,
-                   spatial_grid = NULL,
-                   spatial_enrichment = NULL,
-                   dimension_reduction = NULL,
-                   nn_network = NULL,
-                   images = NULL,
-                   largeImages = NULL,
-                   parameters = NULL,
-                   offset_file = offset_file,
-                   instructions = instructions,
-                   OS_platform = .Platform[['OS.type']],
-                   join_info = NULL)
+  gobject = new('giotto',
+                expression = list(),
+                expression_feat = expression_feat,
+                offset_file = offset_file,
+                instructions = instructions,
+                OS_platform = .Platform[['OS.type']])
+
+  # gobject = giotto(expression = list(),
+  #                  expression_feat = expression_feat,
+  #                  spatial_locs = spatial_locs,
+  #                  spatial_info = NULL,
+  #                  cell_metadata = cell_metadata,
+  #                  feat_metadata = feat_metadata,
+  #                  feat_info = feat_info,
+  #                  cell_ID = NULL,
+  #                  feat_ID = NULL,
+  #                  spatial_network = NULL,
+  #                  spatial_grid = NULL,
+  #                  spatial_enrichment = NULL,
+  #                  dimension_reduction = NULL,
+  #                  nn_network = NULL,
+  #                  images = NULL,
+  #                  largeImages = NULL,
+  #                  parameters = NULL,
+  #                  offset_file = offset_file,
+  #                  instructions = instructions,
+  #                  OS_platform = .Platform[['OS.type']],
+  #                  join_info = NULL)
 
 
   ## data.table: set global variable
@@ -1749,6 +1789,7 @@ createGiottoObject <- function(expression,
                                            verbose = verbose)
     gobject@expression = expression_data
 
+    # Set up gobject cell_ID and feat_ID slots based on expression matrices
     gobject = set_cell_and_feat_IDs(gobject)
 
   }
@@ -1798,15 +1839,21 @@ createGiottoObject <- function(expression,
 
   if(!is.null(spatial_locs)) {
 
+    # parse spatial_loc param input for any spat_unit/name info
     spatial_location_data = read_spatial_location_data(spat_loc_list = spatial_locs,
                                                        cores = cores,
                                                        verbose = verbose)
-    gobject@spatial_locs = spatial_location_data
 
-    # TODO: ensure spatial locations and expression matrices have the same cell IDs
-    # TODO: give cell IDs if not provided
+    # set spatial location data
+    for(spatloc_i in seq_along(spatial_location_data)) {
+      gobject = set_spatial_locations(gobject, spatlocs = spatial_location_data[[spatloc_i]])
+    }
 
-    gobject =  check_spatial_location_data(gobject)
+    # slot(gobject, 'spatial_locs') = spatial_location_data
+
+    # 1. ensure spatial locations and expression matrices have the same cell IDs
+    # 2. give cell IDs if not provided
+    check_spatial_location_data(gobject) # modifies by reference
 
   } else {
 
@@ -1826,7 +1873,13 @@ createGiottoObject <- function(expression,
                                             sdimx = first_col,
                                             sdimy = second_col)
 
-      gobject@spatial_locs[[spat_unit]][['raw']] = spatial_locs
+      dummySpatLocObj = new('spatialLocationObj',
+                            name = 'raw',
+                            coordinates = spatial_locs,
+                            spat_unit = spat_unit)
+      set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
+
+      # gobject@spatial_locs[[spat_unit]][['raw']] = spatial_locs
 
     }
   }
@@ -1838,9 +1891,7 @@ createGiottoObject <- function(expression,
   ## ------------ ##
   ## place to store segmentation info in polygon format style
 
-  if(is.null(spatial_info)) {
-    gobject@spatial_info = NULL
-  } else {
+  if(!is.null(spatial_info)) {
     gobject = addGiottoPolygons(gobject = gobject,
                                 gpolygons = spatial_info)
   }
@@ -1864,9 +1915,7 @@ createGiottoObject <- function(expression,
   ## feature info ##
   ## ------------ ##
   ## place to store individual feature info
-  if(is.null(feat_info)) {
-    gobject@feat_info = NULL
-  } else {
+  if(!is.null(feat_info)) {
     gobject = addGiottoPoints(gobject = gobject,
                               gpoints = feat_info)
   }

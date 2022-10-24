@@ -5,6 +5,7 @@
 \alias{show,giotto-method}
 \alias{show,aggregateExprObj-method}
 \alias{show,dimObj-method}
+\alias{show,spatialLocationsObj-method}
 \alias{show,spatialNetworkObj-method}
 \alias{show,spatialGridObj-method}
 \alias{show,giottoImage-method}
@@ -16,6 +17,8 @@
 \S4method{show}{aggregateExprObj}(object)
 
 \S4method{show}{dimObj}(object)
+
+\S4method{show}{spatialLocationsObj}(object)
 
 \S4method{show}{spatialNetworkObj}(object)
 
@@ -34,6 +37,8 @@ show method for giotto class
 show method for aggregateExprObj class
 
 show method for dimObj class
+
+show method for spatialLocationsObj class
 
 show method for spatialNetworkObj class
 

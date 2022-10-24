@@ -9,7 +9,7 @@ get_feature_info(gobject, feat_type = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{name of feature (e.g. "rna", "dna", "protein")}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 }
 \description{
 Get giotto points spatVector

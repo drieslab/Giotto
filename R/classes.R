@@ -412,6 +412,7 @@ checkDimObj = function(object) {
 #' @slot name name of dimObject
 #' @slot feat_type feature type of data
 #' @slot spat_unit spatial unit of data
+#' @slot provenance origin of aggregated information (if applicable)
 #' @slot reduction_method method used to generate dimension reduction
 #' @slot coordinates embedding coordinates
 #' @slot misc method-specific additional outputs
@@ -420,12 +421,14 @@ setClass('dimObj',
          slots = c(name = 'character',
                    feat_type = 'character',
                    spat_unit = 'character',
+                   provenance = 'ANY',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
          prototype = list(name = NULL,
                           feat_type = NULL,
                           spat_unit = NULL,
+                          provenance = NULL,
                           reduction_method = NULL,
                           coordinates = NULL,
                           misc = NULL),
@@ -488,6 +491,97 @@ S3toS4dimObj = function(object) {
 
 # SPATIAL ####
 
+
+
+## spatialLocationsObj Class ####
+
+## * check ####
+# spatialLocationsObj Class
+
+#' @title Check spatialLocationsObj
+#' @name checkSpatLocsObj
+#' @description Check function for S4 spatialLocationsObj
+#' @param object S4 spatialLocationsObj to check
+#' @keywords internal
+checkSpatLocsObj = function(object) {
+  errors = character()
+
+  if(!'sdimx' %in% colnames(slot(object, 'coordinates'))) {
+    msg = 'Column "sdimx" for x spatial location was not found'
+    errors = c(errors, msg)
+  }
+
+  if(!'sdimy' %in% colnames(slot(object, 'coordinates'))) {
+    msg = 'Column "sdimy" for y spatial location was not found'
+    errors = c(errors, msg)
+  }
+
+  if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
+    msg = 'Column "cell_ID" for cell ID was not found'
+    errors = c(errors, msg)
+  }
+
+  if(length(errors) == 0) TRUE else errors
+}
+
+
+## * definition ####
+# spatialLocationsObj Class
+
+#' @title S4 spatialLocationsObj Class
+#' @description Framework to store spatial location information
+#' @slot name name of spatialLocationsObj
+#' @slot coordinates data.table of spatial coordinates/locations
+#' @slot spat_unit spatial unit tag
+#' @slot provenance origin of aggregated information (if applicable)
+#' @export
+setClass('spatialLocationsObj',
+         slots = c(name = 'nullOrChar',
+                   coordinates = 'nullOrDatatable',
+                   spat_unit = 'nullOrChar',
+                   provenance = 'nullOrChar'),
+         prototype = list(name = NULL,
+                          coordinates = NULL,
+                          spat_unit = NULL,
+                          provenance = NULL),
+         validity = checkSpatLocsObj)
+
+
+
+
+# * show ####
+# spatialLocations Class
+
+#' show method for spatialLocationsObj class
+#' @param object spatial locations object
+#' @aliases show,spatialLocationsObj-method
+#' @docType methods
+#' @importFrom methods show
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('spatialLocationsObj'), function(object) {
+
+    sdimx = sdimy = NULL
+
+    cat("An object of class",  class(object), "\n")
+    if(!is.null(slot(object, 'spat_unit'))) cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '"\n'))
+    if(!is.null(slot(object, 'provenance'))) cat(paste0('provenance: ', slot(object, 'provenance'), '\n'))
+
+    cat('   ------------------------\n\npreview:\n')
+    if(!is.null(slot(object, 'coordinates'))) show(slot(object, 'coordinates'))
+
+    cat('\nranges:\n')
+    try(expr = print(sapply(slot(object, 'coordinates')[,.(sdimx,sdimy)], range)),
+        silent = TRUE)
+
+    cat('\n\n')
+
+  })
+
+
+
+
+
 ## spatialNetworkObj Class ####
 
 ### * check ####
@@ -536,6 +630,7 @@ checkSpatNetObj = function(object) {
 #' @slot cellShapeObj network cell shape information
 #' @slot crossSectionObjects crossSectionObjects (see \code{\link{create_crossSection_object}})
 #' @slot spat_unit spatial unit tag
+#' @slot provenance origin of aggregated information (if applicable)
 #' @slot misc misc
 #' @export
 setClass('spatialNetworkObj',
@@ -548,6 +643,7 @@ setClass('spatialNetworkObj',
                    cellShapeObj = 'ANY',
                    crossSectionObjects = 'ANY',
                    spat_unit = 'nullOrChar',
+                   provenance = 'ANY',
                    misc = 'ANY'),
          prototype = list(name = NULL,
                           method = NULL,
@@ -558,6 +654,7 @@ setClass('spatialNetworkObj',
                           cellShapeObj = NULL,
                           crossSectionObjects = NULL,
                           spat_unit = NULL,
+                          provenance = NULL,
                           misc = NULL),
          validity = checkSpatNetObj)
 
@@ -672,6 +769,7 @@ checkSpatGridObj = function(object) {
 #' @slot gridDT data.table holding the spatial grid information
 #' @slot spat_unit spatial unit
 #' @slot feat_type feature type
+#' @slot provenance origin of aggregated information (if applicable)
 #' @slot misc misc
 #' @details
 #' This is an S4 object that defines a spatial grid. The structure of the grid is stored as a
@@ -687,6 +785,7 @@ setClass('spatialGridObj',
                    gridDT = 'data.table',
                    spat_unit = 'nullOrChar',
                    feat_type = 'nullOrChar',
+                   provenance = 'ANY',
                    misc = 'ANY'),
          prototype = list(name = NULL,
                           method = NULL,
@@ -694,6 +793,7 @@ setClass('spatialGridObj',
                           gridDT = NULL,
                           spat_unit = NULL,
                           feat_type = NULL,
+                          provenance = NULL,
                           misc = NULL),
          validity = checkSpatGridObj)
 

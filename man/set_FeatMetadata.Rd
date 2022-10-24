@@ -9,9 +9,9 @@ set_FeatMetadata(gobject, spat_unit = NULL, feat_type = NULL, meta_dt = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{meta_dt}{data.table object containing feature metadata}
 }
@@ -23,10 +23,14 @@ set specific slots of feature metadata, overwriting all other slots
 }
 \seealso{
 Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_CellMetadata}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},
