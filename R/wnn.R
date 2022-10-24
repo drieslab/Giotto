@@ -408,6 +408,7 @@ runWNN <- function(gobject,
   gobject <- set_dimReduction(gobject = gobject,
                               spat_unit = spat_unit,
                               feat_type = "WNN",
+                              reduction = "cell",
                               reduction_method = "umap",
                               name = "theta_weighted",
                               dimObject = dimObject)
