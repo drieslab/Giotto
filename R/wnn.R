@@ -12,6 +12,8 @@ runWNN <- function(gobject,
                    spat_unit = "cell",
                    modality_1 = "rna",
                    modality_2 = "protein",
+                   pca_name_modality_1 = "rna.pca",
+                   pca_name_modality_2 = "protein.pca",
                    k = 20) {
 
   # validate Giotto object
@@ -39,10 +41,11 @@ runWNN <- function(gobject,
   #                             reduction_method = "pca",
   #                             name = "pca")
   pca_1 <- get_dimReduction(gobject,
-                            spat_unit = "cell",
+                            spat_unit = spat_unit,
                             feat_type = modality_1,
                             reduction = "cells",
-                            reduction_method = "pca")
+                            reduction_method = "pca",
+                            name = pca_name_modality_1)
 
   ## modality 2
   kNN_2 <- get_NearestNetwork(gobject,
@@ -60,7 +63,8 @@ runWNN <- function(gobject,
                             spat_unit = "cell",
                             feat_type = modality_2,
                             reduction = "cells",
-                            reduction_method = "pca")
+                            reduction_method = "pca",
+                            name = pca_name_modality_2)
 
   ## get cell names
   cell_names <- unique(igraph::get.edgelist(kNN_1)[,1])

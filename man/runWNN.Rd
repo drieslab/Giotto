@@ -7,8 +7,10 @@
 runWNN(
   gobject,
   spat_unit = "cell",
-  modality_1 = "modality1",
-  modality_2 = "modality2",
+  modality_1 = "rna",
+  modality_2 = "protein",
+  pca_name_modality_1 = "rna.pca",
+  pca_name_modality_2 = "protein.pca",
   k = 20
 )
 }
