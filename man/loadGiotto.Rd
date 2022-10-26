@@ -4,10 +4,12 @@
 \alias{loadGiotto}
 \title{loadGiotto}
 \usage{
-loadGiotto(path_to_folder, verbose = TRUE)
+loadGiotto(path_to_folder, python_path = NULL, verbose = TRUE)
 }
 \arguments{
 \item{path_to_folder}{path to folder where Giotto object was stored with \code{\link{saveGiotto}}}
+
+\item{python_path}{(optional) manually set your python path}
 
 \item{verbose}{be verbose}
 }
@@ -20,4 +22,6 @@ Saves a Giotto object to a specific folder structure
 \details{
 Works together with \code{\link{saveGiotto}} to save and re-load
 Giotto objects.
+You can set the python path, alternatively it will look for an existing
+Giotto python environment.
 }
