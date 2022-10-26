@@ -620,7 +620,199 @@ package_check = function(pkg_name,
 
 
 
-## dataset helpers ####
+## I/O helpers ####
+
+#' @title saveGiotto
+#' @name saveGiotto
+#' @description Saves a Giotto object to a specific folder structure
+#' @param gobject Giotto object
+#' @param foldername Folder name
+#' @param dir Directory where to create the folder
+#' @param overwrite Overwrite existing folders
+#' @param image_filetype the image filetype to use, see \code{\link[terra]{writeRaster}}
+#' @param verbose be verbose
+#' @param ... additional parameters for \code{\link[terra]{writeRaster}}
+#' @return Creates a directory with Giotto object information
+#' @details Works together with \code{\link{loadGiotto}} to save and re-load
+#' Giotto objects.
+#' @export
+saveGiotto = function(gobject,
+                      foldername = 'saveGiottoDir',
+                      dir = getwd(),
+                      overwrite = FALSE,
+                      image_filetype = 'PNG',
+                      verbose = TRUE,
+                      ...) {
+
+
+  final_dir = paste0(dir,'/', foldername)
+
+  if(dir.exists(final_dir)) {
+    if(overwrite == FALSE) {
+      stop('Folder already exist and overwrite = FALSE, abort saving \n')
+    } else {
+      wrap_msg('Folder already exist and overwrite = TRUE, overwrite folder \n')
+      unlink(x = final_dir, recursive = TRUE)
+      dir.create(final_dir)
+    }
+  } else {
+    dir.create(final_dir)
+  }
+
+  ## save spatVector objects related to feature information
+  if(verbose) wrap_msg('1. Start writing feature information \n')
+  feat_info_names = list_feature_info_names(gobject)
+
+  if(!is.null(feat_info_names)) {
+    for(feat in feat_info_names) {
+      if(verbose) wrap_msg('For feature: ', feat, '\n')
+      feat_dir = paste0(final_dir,'/','Features')
+      dir.create(feat_dir)
+      filename = paste0(feat_dir, '/', feat, '_feature_spatVector.shp')
+      terra::writeVector(gobject@feat_info[[feat]]@spatVector, filename = filename)
+    }
+  }
+
+
+  ## save spatVector objects related to spatial information
+  if(verbose) wrap_msg('2. Start writing spatial information \n')
+  spat_info_names = list_spatial_info_names(gobject)
+
+  if(!is.null(spat_info_names)) {
+    for(spatinfo in spat_info_names) {
+
+      if(verbose) wrap_msg('For spatial information: ', spatinfo, '\n')
+
+      spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
+      dir.create(spatinfo_dir)
+
+      if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
+        filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVector.shp')
+        terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVector, filename = filename)
+      }
+
+      if(!is.null(gobject@spatial_info[[spatinfo]]@spatVectorCentroids)) {
+        filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVectorCentroids.shp')
+        terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVectorCentroids, filename = filename)
+      }
+    }
+  }
+
+
+
+  ## save spatVector objects related to spatial information
+  if(verbose) wrap_msg('3. Start writing image information \n')
+  image_names = list_images_names(gobject, img_type = 'largeImage')
+
+  if(!is.null(image_names)) {
+    for(image in image_names) {
+      if(verbose) wrap_msg('For image information: ', image, '\n')
+
+      image_dir = paste0(final_dir,'/','Images')
+      dir.create(image_dir)
+
+      if(!is.null(gobject@largeImages[[image]]@raster_object)) {
+        filename = paste0(image_dir, '/', image, '_spatRaster')
+        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
+      }
+    }
+  }
+
+
+  ## save whole Giotto object
+  saveRDS(gobject, file = paste0(final_dir, '/', 'gobject.RDS'))
+
+}
+
+
+#' @title loadGiotto
+#' @name loadGiotto
+#' @description Saves a Giotto object to a specific folder structure
+#' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
+#' @param verbose be verbose
+#' @return Giotto object
+#' @details Works together with \code{\link{saveGiotto}} to save and re-load
+#' Giotto objects.
+#' @export
+loadGiotto = function(path_to_folder,
+                      verbose = TRUE) {
+
+  if(!file.exists(path_to_folder)) {
+    stop('path_to_folder does not exist \n')
+  }
+
+  ## 1. load giotto object
+  if(verbose) wrap_msg('1. read Giotto object .RDS \n')
+  gobject = readRDS(file = paste0(path_to_folder,'/','gobject.RDS'))
+
+  ## 2. read in features
+  if(verbose) wrap_msg('2. read Giotto feature information \n')
+  feat_files = list.files(path = paste0(path_to_folder, '/Features'), pattern = '.shp')
+  if(length(feat_files) != 0) {
+    feat_names = gsub(feat_files, pattern = '_feature_spatVector.shp', replacement = '')
+    feat_paths = list.files(path = paste0(path_to_folder, '/Features'), pattern = '.shp', full.names = TRUE)
+    for(feat_i in 1:length(feat_names)) {
+      if(verbose) print(feat_paths[feat_i])
+      spatVector = terra::vect(x = feat_paths[feat_i])
+      feat_name = feat_names[feat_i]
+      if(verbose) print(feat_name)
+      gobject@feat_info[[feat_name]]@spatVector = spatVector
+    }
+  }
+
+  ## 3. read in spatial polygons
+  if(verbose) wrap_msg('3. read Giotto spatial information \n')
+  ## 3.1. shapes
+  if(verbose) wrap_msg('3.1 read Giotto spatial shape information \n')
+  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp')
+  print(spat_files)
+  if(length(spat_files) != 0) {
+    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '')
+    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
+    for(spat_i in 1:length(spat_names)) {
+      spatVector = terra::vect(x = spat_paths[spat_i])
+      spat_name = spat_names[spat_i]
+      if(verbose) spat_name
+      gobject@spatial_info[[spat_name]]@spatVector = spatVector
+    }
+  }
+
+  ## 3.2. centroids
+  if(verbose) wrap_msg('3.2 read Giotto spatial centroid information \n')
+  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp')
+  print(spat_files)
+
+  if(length(spat_paths) != 0) {
+    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp', full.names = TRUE)
+    for(spat_i in 1:length(spat_names)) {
+      spatVector = terra::vect(x = spat_paths[spat_i])
+      spat_name = spat_names[spat_i]
+      if(verbose) spat_name
+      gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+    }
+  }
+
+  ## 4. images
+  if(verbose) wrap_msg('3. read Giotto image information \n')
+  image_files = list.files(path = paste0(path_to_folder, '/Images'))
+  if(length(image_files) != 0) {
+    image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))
+    for(image_i in 1:length(image_names)) {
+      image_name = image_names[image_i]
+      if(verbose) image_name
+      new_path = paste0(path_to_folder, '/Images','/', image_name,'_spatRaster')
+      spatRaster = terra::rast(x = new_path)
+      gobject@largeImages[[image_name]]@raster_object = spatRaster
+    }
+  }
+
+
+  return(gobject)
+
+}
+
+
 
 #' @title get10Xmatrix
 #' @name get10Xmatrix
