@@ -729,12 +729,16 @@ saveGiotto = function(gobject,
 #' @name loadGiotto
 #' @description Saves a Giotto object to a specific folder structure
 #' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
+#' @param python_path (optional) manually set your python path
 #' @param verbose be verbose
 #' @return Giotto object
 #' @details Works together with \code{\link{saveGiotto}} to save and re-load
 #' Giotto objects.
+#' You can set the python path, alternatively it will look for an existing
+#' Giotto python environment.
 #' @export
 loadGiotto = function(path_to_folder,
+                      python_path = NULL,
                       verbose = TRUE) {
 
   if(!file.exists(path_to_folder)) {
@@ -807,6 +811,11 @@ loadGiotto = function(path_to_folder,
     }
   }
 
+
+  identified_python_path = set_giotto_python_path(python_path = python_path)
+  gobject = changeGiottoInstructions(gobject = gobject,
+                                     params = c('python_path'),
+                                     new_values = c(identified_python_path))
 
   return(gobject)
 
