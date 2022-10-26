@@ -1,10 +1,11 @@
-python_path = NULL 
+python_path = NULL
 if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
 ### TESTS FOR DATA IMPORT FUNCTIONS
 # ------------------------------------
+library(GiottoData)
 
 # getSpatialDataset
 getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata/"))
@@ -20,7 +21,7 @@ expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix
 test_that("Expression matrix is read correctly", {
   expect_s4_class(expr_mat, "dgCMatrix")
   expect_equal(expr_mat@Dim, c(27998, 8039))
-  
+
   # check a few genes
   expect_equal(expr_mat@Dimnames[[1]][20], "Sgcz")
   expect_equal(expr_mat@Dimnames[[1]][50], 'Zfp804a')
