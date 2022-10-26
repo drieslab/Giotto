@@ -10013,7 +10013,7 @@ spatDimGenePlot3D <- function(gobject,
 #'
 #' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import shiny miniUI data.table magrittr ggplot2
+#' @import data.table magrittr ggplot2
 #'
 #' @examples
 #' \dontrun{
