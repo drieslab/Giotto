@@ -620,237 +620,207 @@ package_check = function(pkg_name,
 
 
 
-## dataset helpers ####
+## I/O helpers ####
 
-
-#' @title loadGiottoMini
-#' @name loadGiottoMini
-#' @param dataset mini dataset giotto object to load
-#' @param python_path pythan path to use
-#' @description This function will automatically load one of the existing mini
-#' giotto objects. These giotto objects can be used to test Giotto functions
-#' and run examples. If no python path is provided it will try to find and use
-#' the Giotto python environment. Images associated with the giotto mini objects
-#' will be reconnected if possible.
-#'
-#' Instructions, such as for saving plots, can be changed
-#' using the \code{\link{changeGiottoInstructions}}
+#' @title saveGiotto
+#' @name saveGiotto
+#' @description Saves a Giotto object to a specific folder structure
+#' @param gobject Giotto object
+#' @param foldername Folder name
+#' @param dir Directory where to create the folder
+#' @param overwrite Overwrite existing folders
+#' @param image_filetype the image filetype to use, see \code{\link[terra]{writeRaster}}
+#' @param verbose be verbose
+#' @param ... additional parameters for \code{\link[terra]{writeRaster}}
+#' @return Creates a directory with Giotto object information
+#' @details Works together with \code{\link{loadGiotto}} to save and re-load
+#' Giotto objects.
 #' @export
-loadGiottoMini = function(dataset = c('visium', 'seqfish', 'starmap', 'vizgen'),
-                          python_path = NULL) {
+saveGiotto = function(gobject,
+                      foldername = 'saveGiottoDir',
+                      dir = getwd(),
+                      overwrite = FALSE,
+                      image_filetype = 'PNG',
+                      verbose = TRUE,
+                      ...) {
 
 
-  dataset = match.arg(dataset, choices = c('visium', 'seqfish', 'starmap', 'vizgen'))
+  final_dir = paste0(dir,'/', foldername)
 
-
-  if(dataset == 'visium') {
-
-    # 1. load giotto object
-    mini_gobject = readRDS(system.file("/Mini_datasets/Visium/gobject_mini_visium.RDS", package = 'Giotto'))
-
-    # 2. add image back
-    image_path = system.file("/Mini_datasets/Visium/images/deg_image.png", package = 'Giotto')
-    spatlocsDT = get_spatial_locations(mini_gobject)
-    mini_extent = terra::ext(c(range(spatlocsDT$sdimx), range(spatlocsDT$sdimy)))
-    imagelist = createGiottoLargeImageList(raster_objects = image_path,
-                                           names = 'image',
-                                           extent = mini_extent)
-    mini_gobject = addGiottoImage(gobject = mini_gobject,
-                                 largeImages = imagelist)
-
-  }
-
-
-  if(dataset == 'vizgen') {
-
-    # 1. load giotto object
-    mini_gobject = readRDS(system.file("/Mini_datasets/Vizgen/gobject_mini_vizgen.RDS", package = 'Giotto'))
-
-    # 2. add spatvectors back in place (giottoPoints and giottoPolygons)
-    rna_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/rna_spatVector.shp", package = 'Giotto'))
-    mini_gobject@feat_info$rna@spatVector = rna_spatVector
-
-    z0_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVector.shp", package = 'Giotto'))
-    mini_gobject@spatial_info$z0@spatVector = z0_spatVector
-    z0_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z0_spatVectorCentroids.shp", package = 'Giotto'))
-    mini_gobject@spatial_info$z0@spatVectorCentroids = z0_spatVectorCentroids
-
-    z1_spatVector = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVector.shp", package = 'Giotto'))
-    mini_gobject@spatial_info$z1@spatVector = z1_spatVector
-    z1_spatVectorCentroids = terra::vect(system.file("/Mini_datasets/Vizgen/processed_data/z1_spatVectorCentroids.shp", package = 'Giotto'))
-    mini_gobject@spatial_info$z1@spatVectorCentroids = z1_spatVectorCentroids
-
-
-
-    # 3. add spatRaster back in place (largeGiottoImages)
-
-    # x and y information from original script
-    ultra_mini_extent = terra::ext(c(6400.029, 6900.037, -5150.007, -4699.967 ))
-
-    # location
-    DAPI_z0_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_dapi_z0.jpg", package = 'Giotto')
-    DAPI_z1_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_dapi_z1.jpg", package = 'Giotto')
-    polyT_z0_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_polyT_z0.jpg", package = 'Giotto')
-    polyT_z1_image_path = system.file("/Mini_datasets/Vizgen/images/mini_dataset_polyT_z1.jpg", package = 'Giotto')
-
-    # create image list
-    image_paths = c(DAPI_z0_image_path, DAPI_z1_image_path,
-                    polyT_z0_image_path, polyT_z1_image_path)
-    image_names = c('dapi_z0', 'dapi_z1',
-                    'polyT_z0', 'polyT_z1')
-
-    imagelist = createGiottoLargeImageList(raster_objects = image_paths,
-                                           names = image_names,
-                                           negative_y = TRUE,
-                                           extent = ultra_mini_extent)
-
-    mini_gobject = addGiottoImage(gobject = mini_gobject,
-                                  largeImages = imagelist)
-
+  if(dir.exists(final_dir)) {
+    if(overwrite == FALSE) {
+      stop('Folder already exist and overwrite = FALSE, abort saving \n')
+    } else {
+      wrap_msg('Folder already exist and overwrite = TRUE, overwrite folder \n')
+      unlink(x = final_dir, recursive = TRUE)
+      dir.create(final_dir)
     }
-
-
-  if(dataset == 'seqfish') {
-    wrap_msg('To be implemented \n')
-  }
-
-  if(dataset == 'starmap') {
-    wrap_msg('To be implemented \n')
-  }
-
-
-  # 1. change default instructions
-  identified_python_path = set_giotto_python_path(python_path = python_path)
-  mini_gobject = changeGiottoInstructions(gobject = mini_gobject,
-                                          params = c('python_path', 'show_plot', 'return_plot', 'save_plot', 'save_dir'),
-                                          new_values = c(identified_python_path, TRUE, FALSE, FALSE, NA))
-
-  return(mini_gobject)
-
-}
-
-
-#' @title getSpatialDataset
-#' @name getSpatialDataset
-#' @param dataset dataset to download
-#' @param directory directory to save the data to
-#' @param \dots additional parameters to \code{\link[utils]{download.file}}
-#' @description This function will automatically download the spatial locations and
-#' expression matrix for the chosen dataset. These files are already in the right format
-#' to create a Giotto object. If wget is installed on your machine, you can add
-#' 'method = wget' to the parameters to download files faster.
-#' @export
-getSpatialDataset = function(dataset = c('ST_OB1',
-                                         'ST_OB2',
-                                         'codex_spleen',
-                                         'cycif_PDAC',
-                                         'starmap_3D_cortex',
-                                         'osmfish_SS_cortex',
-                                         'merfish_preoptic',
-                                         'mini_seqFISH',
-                                         'seqfish_SS_cortex',
-                                         'seqfish_OB',
-                                         'slideseq_cerebellum',
-                                         'Human_PCa_scRNAseq',
-                                         'Mouse_brain_scRNAseq'),
-                             directory = getwd(),
-                             ...) {
-
-  sel_dataset = match.arg(dataset, choices = c('ST_OB1',
-                                               'ST_OB2',
-                                               'codex_spleen',
-                                               'cycif_PDAC',
-                                               'starmap_3D_cortex',
-                                               'osmfish_SS_cortex',
-                                               'merfish_preoptic',
-                                               'mini_seqFISH',
-                                               'seqfish_SS_cortex',
-                                               'seqfish_OB',
-                                               'slideseq_cerebellum',
-                                               'Human_PCa_scRNAseq',
-                                               'Mouse_brain_scRNAseq'))
-
-  # check operating system first
-  os_specific_system = get_os()
-
-  #if(os_specific_system == 'windows') {
-  #  stop('This function is currently not supported on windows systems,
-  #       please visit https://github.com/RubD/spatial-datasets and manually download your files')
-  #}
-
-
-  # check directory
-  if(!file.exists(directory)) {
-    warning('The output directory does not exist and will be created \n')
-    dir.create(directory, recursive = T)
-  }
-
-  datasets_file = system.file("extdata", "datasets.txt", package = 'Giotto')
-  datasets_file = data.table::fread(datasets_file)
-
-
-
-  ## check if wget is installed
-  #message = system("if ! command -v wget &> /dev/null
-  #                  then
-  #                  echo 'wget could not be found, please install wget first'
-  #                  exit
-  #                  fi", intern = TRUE)
-
-  #if(identical(message, character(0))) {
-  #  print('wget was found, start downloading datasets: ')
-  #} else {
-  #  stop(message)
-  #}
-
-  ## alternative
-  #wget_works = try(system('command -v wget', intern = T))
-
-  #if(class(wget_works) == 'try-error' | is.na(wget_works[1])) {
-  #  stop('wget was not found, please install wget first \n')
-  #} else {
-  #  print('wget was found, start downloading datasets: \n')
-  #}
-
-
-
-  # get url to spatial locations and download
-  spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
-  myfilename = basename(spatial_locs_url)
-  mydestfile = paste0(directory,'/', myfilename)
-
-  print(spatial_locs_url)
-  print(mydestfile)
-
-  utils::download.file(url = spatial_locs_url, destfile = mydestfile, ...)
-
-  #system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
-
-
-  # get url to expression matrix and download
-  expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
-  myfilename = basename(expr_matrix_url)
-  mydestfile = paste0(directory,'/', myfilename)
-  utils::download.file(url = expr_matrix_url, destfile = mydestfile, ...)
-
-  #system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
-
-  # get url(s) to additional metadata files and download
-  metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
-  metadata_url = unlist(strsplit(metadata_url, split = '\\|'))
-
-  if(identical(metadata_url, character(0))) {
-    NULL
   } else {
-    for(url in metadata_url) {
-      myfilename = basename(url)
-      mydestfile = paste0(directory,'/', myfilename)
-      utils::download.file(url = url, destfile = mydestfile, ...)
-      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    dir.create(final_dir)
+  }
+
+  ## save spatVector objects related to feature information
+  if(verbose) wrap_msg('1. Start writing feature information \n')
+  feat_info_names = list_feature_info_names(gobject)
+
+  if(!is.null(feat_info_names)) {
+    for(feat in feat_info_names) {
+      if(verbose) wrap_msg('For feature: ', feat, '\n')
+      feat_dir = paste0(final_dir,'/','Features')
+      dir.create(feat_dir)
+      filename = paste0(feat_dir, '/', feat, '_feature_spatVector.shp')
+      terra::writeVector(gobject@feat_info[[feat]]@spatVector, filename = filename)
     }
   }
 
+
+  ## save spatVector objects related to spatial information
+  if(verbose) wrap_msg('2. Start writing spatial information \n')
+  spat_info_names = list_spatial_info_names(gobject)
+
+  if(!is.null(spat_info_names)) {
+    for(spatinfo in spat_info_names) {
+
+      if(verbose) wrap_msg('For spatial information: ', spatinfo, '\n')
+
+      spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
+      dir.create(spatinfo_dir)
+
+      if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
+        filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVector.shp')
+        terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVector, filename = filename)
+      }
+
+      if(!is.null(gobject@spatial_info[[spatinfo]]@spatVectorCentroids)) {
+        filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVectorCentroids.shp')
+        terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVectorCentroids, filename = filename)
+      }
+    }
+  }
+
+
+
+  ## save spatVector objects related to spatial information
+  if(verbose) wrap_msg('3. Start writing image information \n')
+  image_names = list_images_names(gobject, img_type = 'largeImage')
+
+  if(!is.null(image_names)) {
+    for(image in image_names) {
+      if(verbose) wrap_msg('For image information: ', image, '\n')
+
+      image_dir = paste0(final_dir,'/','Images')
+      dir.create(image_dir)
+
+      if(!is.null(gobject@largeImages[[image]]@raster_object)) {
+        filename = paste0(image_dir, '/', image, '_spatRaster')
+        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
+      }
+    }
+  }
+
+
+  ## save whole Giotto object
+  saveRDS(gobject, file = paste0(final_dir, '/', 'gobject.RDS'))
+
 }
+
+
+#' @title loadGiotto
+#' @name loadGiotto
+#' @description Saves a Giotto object to a specific folder structure
+#' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
+#' @param python_path (optional) manually set your python path
+#' @param verbose be verbose
+#' @return Giotto object
+#' @details Works together with \code{\link{saveGiotto}} to save and re-load
+#' Giotto objects.
+#' You can set the python path, alternatively it will look for an existing
+#' Giotto python environment.
+#' @export
+loadGiotto = function(path_to_folder,
+                      python_path = NULL,
+                      verbose = TRUE) {
+
+  if(!file.exists(path_to_folder)) {
+    stop('path_to_folder does not exist \n')
+  }
+
+  ## 1. load giotto object
+  if(verbose) wrap_msg('1. read Giotto object .RDS \n')
+  gobject = readRDS(file = paste0(path_to_folder,'/','gobject.RDS'))
+
+  ## 2. read in features
+  if(verbose) wrap_msg('2. read Giotto feature information \n')
+  feat_files = list.files(path = paste0(path_to_folder, '/Features'), pattern = '.shp')
+  if(length(feat_files) != 0) {
+    feat_names = gsub(feat_files, pattern = '_feature_spatVector.shp', replacement = '')
+    feat_paths = list.files(path = paste0(path_to_folder, '/Features'), pattern = '.shp', full.names = TRUE)
+    for(feat_i in 1:length(feat_names)) {
+      if(verbose) print(feat_paths[feat_i])
+      spatVector = terra::vect(x = feat_paths[feat_i])
+      feat_name = feat_names[feat_i]
+      if(verbose) print(feat_name)
+      gobject@feat_info[[feat_name]]@spatVector = spatVector
+    }
+  }
+
+  ## 3. read in spatial polygons
+  if(verbose) wrap_msg('3. read Giotto spatial information \n')
+  ## 3.1. shapes
+  if(verbose) wrap_msg('3.1 read Giotto spatial shape information \n')
+  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp')
+  print(spat_files)
+  if(length(spat_files) != 0) {
+    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '')
+    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
+    for(spat_i in 1:length(spat_names)) {
+      spatVector = terra::vect(x = spat_paths[spat_i])
+      spat_name = spat_names[spat_i]
+      if(verbose) spat_name
+      gobject@spatial_info[[spat_name]]@spatVector = spatVector
+    }
+  }
+
+  ## 3.2. centroids
+  if(verbose) wrap_msg('3.2 read Giotto spatial centroid information \n')
+  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp')
+  print(spat_files)
+
+  if(length(spat_paths) != 0) {
+    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp', full.names = TRUE)
+    for(spat_i in 1:length(spat_names)) {
+      spatVector = terra::vect(x = spat_paths[spat_i])
+      spat_name = spat_names[spat_i]
+      if(verbose) spat_name
+      gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+    }
+  }
+
+  ## 4. images
+  if(verbose) wrap_msg('3. read Giotto image information \n')
+  image_files = list.files(path = paste0(path_to_folder, '/Images'))
+  if(length(image_files) != 0) {
+    image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))
+    for(image_i in 1:length(image_names)) {
+      image_name = image_names[image_i]
+      if(verbose) image_name
+      new_path = paste0(path_to_folder, '/Images','/', image_name,'_spatRaster')
+      spatRaster = terra::rast(x = new_path)
+      gobject@largeImages[[image_name]]@raster_object = spatRaster
+    }
+  }
+
+
+  identified_python_path = set_giotto_python_path(python_path = python_path)
+  gobject = changeGiottoInstructions(gobject = gobject,
+                                     params = c('python_path'),
+                                     new_values = c(identified_python_path))
+
+  return(gobject)
+
+}
+
 
 
 #' @title get10Xmatrix
