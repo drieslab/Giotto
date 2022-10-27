@@ -22,9 +22,10 @@ Get the number of rows (nrow)
 }
 \section{Functions}{
 \itemize{
-\item \code{nrow,giottoPoints-method}: Find rows of giottoPoints object
+\item \code{nrow(giottoPoints)}: Find rows of giottoPoints object
+
+\item \code{nrow(giottoPolygon)}: Find rows of giottoPolygon object
 
 \item \code{nrow(coordDataDT)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
 }}
-
