@@ -485,14 +485,30 @@ set_spatial_locations <- function(gobject,
                                   spat_loc_name = 'raw',
                                   verbose = TRUE) {
 
+  # determine if input was supplied to spat_unit and spat_loc_name
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(match.call()$spat_loc_name)) nospec_name = TRUE
+
   # spatial locations
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
 
-  # if is spatialLocationsObj, use tagged spat_unit and name info
+  ## 1. import data
+  # if is spatialLocationsObj, decide if to use tagged spat_unit and name info
   if(inherits(spatlocs, 'spatialLocationsObj')) {
-    if(!is.null(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
-    if(!is.null(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
+    if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
+      if(!is.null(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
+      else slot(spatlocs, 'spat_unit') = spat_unit
+    } else { # case if input given - use input
+      slot(spatlocs, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_name)) { # case if no input - prioritize tagged info
+      if(!is.null(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
+      else slot(spatlocs, 'name') = spat_loc_name
+    } else { # case if input given - use input
+      slot(spatlocs, 'name') = spat_loc_name
+    }
+
   } else {
     spatlocs = new('spatialLocationsObj',
                    name = spat_loc_name,
@@ -500,7 +516,7 @@ set_spatial_locations <- function(gobject,
                    coordinates = spatlocs)
   }
 
-  ## 1. check if specified name has already been used
+  ## 2. check if specified name has already been used
   potential_names = names(gobject@spatial_locs[[spat_unit]][[spat_loc_name]])
   if(spat_loc_name %in% potential_names) {
     if(verbose == TRUE) {
@@ -508,10 +524,10 @@ set_spatial_locations <- function(gobject,
     }
   }
 
-  ## TODO: 2. check input for spatial locations
+  ## TODO: 3. check input for spatial locations
 
 
-  ## 3. update and return giotto object
+  ## 4. update and return giotto object
   gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
   return(gobject)
 
