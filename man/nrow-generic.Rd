@@ -5,11 +5,14 @@
 \alias{nrow}
 \alias{nrow,giottoPoints-method}
 \alias{nrow,giottoPolygon-method}
+\alias{nrow,coordDataDT-method}
 \title{Dimensions of giotto points and polygon objects}
 \usage{
 \S4method{nrow}{giottoPoints}(x)
 
 \S4method{nrow}{giottoPolygon}(x)
+
+\S4method{nrow}{coordDataDT}(x)
 }
 \arguments{
 \item{x}{giottoPoints or giottoPolygon object}
@@ -22,5 +25,7 @@ Get the number of rows (nrow)
 \item \code{nrow(giottoPoints)}: Find rows of giottoPoints object
 
 \item \code{nrow(giottoPolygon)}: Find rows of giottoPolygon object
+
+\item \code{nrow(coordDataDT)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
 }}

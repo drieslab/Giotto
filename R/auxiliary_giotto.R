@@ -184,7 +184,7 @@ pDataDT <- function(gobject,
 
 #   } else {
 #     new_cols = colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols, 
+#     cat("\nWriting data within columns:", new_cols,
 #     "\nto cell metadata\n")
 #   }
 
@@ -275,7 +275,7 @@ fDataDT <- function(gobject,
 
 #   } else {
 #     new_cols <- colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols, 
+#     cat("\nWriting data within columns:", new_cols,
 #     "\nto feature metadata\n")
 #   }
 
@@ -497,17 +497,26 @@ subset_spatial_locations = function(gobject,
                                     filter_bool_cells,
                                     spat_unit) {
 
+  available_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
+
   # only subset cell_ID if the spatial unit is the same (e.g. cell)
 
-  for(spat_unit_name in names(gobject@spatial_locs)) {
-    if(spat_unit_name == spat_unit) {
-      #print(spat_unit)
-      #print(spat_unit_name)
-      for(spatlocname in names(gobject@spatial_locs[[spat_unit_name]])) {
-        gobject@spatial_locs[[spat_unit_name]][[spatlocname]] = gobject@spatial_locs[[spat_unit_name]][[spatlocname]][filter_bool_cells]
-      }
-    }
+  for(spatlocname in available_names) {
+
+    Obj = get_spatial_locations(gobject,
+                                spat_unit = spat_unit,
+                                spat_loc_name = spatlocname,
+                                return_spatlocs_Obj = T,
+                                copy_obj = F)
+    oldDT = slot(Obj, 'coordinates')
+    newDT = oldDT[filter_bool_cells]
+    slot(Obj, 'coordinates') = newDT
+
+    gobject = set_spatial_locations(gobject, spatlocs = Obj)
+    # not yet possible to row subset data.table by reference
+
   }
+
   return(gobject)
 }
 

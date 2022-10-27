@@ -1087,7 +1087,7 @@ read_spatial_location_data = function(gobject,
 check_spatial_location_data = function(gobject) {
 
   # define for data.table
-  cell_ID = spat_unit = NULL
+  cell_ID = spat_unit = name = NULL
 
   # find available spatial locations
   available = list_spatial_locations(gobject)
@@ -1127,7 +1127,7 @@ check_spatial_location_data = function(gobject) {
         # if cell_ID column is not provided then add expected cell_IDs
 
         ## error if spatlocs and cell_ID do not match in length
-        if(nrow(spatlocsDT) != length(expected_cell_ID_names)) {
+        if(spatlocsDT[,.N] != length(expected_cell_ID_names)) {
           stop('Number of rows of spatial locations do not match with cell IDs for: \n
                  spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
         }
@@ -3665,7 +3665,7 @@ join_expression_matrices = function(matrix_list) {
 #' @keywords internal
 join_spatlocs = function(dt_list) {
 
-  final_list = do.call('rbind', dt_list)
+  final_list = do.call('rbind', dt_list) # breaks DT reference
   return(final_list)
 }
 
@@ -3744,11 +3744,8 @@ joinGiottoObjects = function(gobject_list,
                              y_padding = NULL,
                              verbose = TRUE) {
 
-  # define for data.table := and .()
-  sdimz = NULL
-  cell_ID = NULL
-  sdimx = NULL
-  sdimy = NULL
+  # define for data.table
+  sdimz = cell_ID = sdimx = sdimy = name = NULL
 
   n_gobjects = length(gobject_list)
 
@@ -4039,14 +4036,21 @@ joinGiottoObjects = function(gobject_list,
     # If no images were present
     if(length(xshift_list) == 0) xshift_list = ((seq_along(gobject_list) - 1) * x_padding)
 
-    for(spat_unit in names(gobj@spatial_locs)) {
+    available_locs = list_spatial_locations(gobj)
 
-      for(locs in names(gobj@spatial_locs[[spat_unit]])) {
-        myspatlocs = gobj@spatial_locs[[spat_unit]][[locs]]
+    for(spat_unit_i in available_locs[['spat_unit']]) {
+
+      for(locs_i in available_locs[spat_unit == spat_unit_i, name]) {
+        spat_obj = get_spatial_locations(gobj,
+                                         spat_unit = spat_unit_i,
+                                         spat_loc_name = locs_i,
+                                         return_spatlocs_Obj = TRUE,
+                                         copy_obj = TRUE)
+        myspatlocs = slot(spat_obj, 'coordinates')
 
         if(join_method == 'z_stack') {
           myspatlocs[, sdimz := z_vals[gobj_i]]
-          myspatlocs[, cell_ID := gobj@cell_ID[[spat_unit]] ]
+          myspatlocs[, cell_ID := get_cell_id(gobj, spat_unit = spat_unit_i) ]
           myspatlocs = myspatlocs[,.(sdimx, sdimy, sdimz, cell_ID)]
 
         } else if(join_method == 'shift') {
@@ -4060,11 +4064,11 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = x_shift_i + (x_padding * (gobj_i - 1))
           }
 
-          if(verbose) cat('Spatial locations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+          if(verbose) cat('Spatial locations: for ',locs_i, ' add_to_x = ', add_to_x, '\n')
 
 
           myspatlocs[, sdimx := sdimx + add_to_x]
-          myspatlocs[, cell_ID := gobj@cell_ID[[spat_unit]] ]
+          myspatlocs[, cell_ID := get_cell_id(gobj, spat_unit = spat_unit_i) ]
         }
 
         # shift for y-axis
@@ -4072,13 +4076,15 @@ joinGiottoObjects = function(gobject_list,
           y_shift_i = y_shift[[gobj_i]]
           add_to_y = y_shift_i + (y_padding * (gobj_i - 1))
 
-          if(verbose) cat('Spatial locations: for ',locs, ' add_to_y = ', add_to_y, '\n')
+          if(verbose) cat('Spatial locations: for ',locs_i, ' add_to_y = ', add_to_y, '\n')
 
           myspatlocs[, sdimy := sdimy + add_to_y]
         }
 
+        slot(spat_obj, 'coordinates') = myspatlocs
 
-        gobj@spatial_locs[[spat_unit]][[locs]] = myspatlocs
+        gobj = set_spatial_locations(gobj, spatlocs = spat_obj)
+
       }
     }
 
@@ -4225,26 +4231,6 @@ joinGiottoObjects = function(gobject_list,
                      OS_platform = .Platform[['OS.type']],
                      join_info = NULL)
 
-  # comb_gobject = Giotto:::giotto(expression = list(),
-  #                                expression_feat = first_features,
-  #                                spatial_locs = NULL,
-  #                                spatial_info = NULL,
-  #                                cell_metadata = NULL,
-  #                                feat_metadata = NULL,
-  #                                feat_info = NULL,
-  #                                cell_ID = NULL,
-  #                                feat_ID = NULL,
-  #                                spatial_network = NULL,
-  #                                spatial_grid = NULL,
-  #                                spatial_enrichment = NULL,
-  #                                dimension_reduction = NULL,
-  #                                nn_network = NULL,
-  #                                images = NULL,
-  #                                parameters = NULL,
-  #                                offset_file = NULL,
-  #                                instructions = first_instructions,
-  #                                OS_platform = .Platform[['OS.type']],
-  #                                join_info = NULL)
 
 
 
@@ -4297,7 +4283,7 @@ joinGiottoObjects = function(gobject_list,
         for(mode in names(first_obj@expression[[spat_unit]][[feat_type]])) {
 
           savelist = list()
-          for(gobj_i in 1:length(updated_object_list)) {
+          for(gobj_i in seq_along(updated_object_list)) {
 
             mat = updated_object_list[[gobj_i]]@expression[[spat_unit]][[feat_type]][[mode]]
             savelist[[gobj_i]] = mat
@@ -4325,19 +4311,30 @@ joinGiottoObjects = function(gobject_list,
   ## spatial locations
   if(verbose == TRUE) cat('start spatial location combination \n')
 
+  available_locs = list_spatial_locations(first_obj)
 
-  for(spat_unit in names(first_obj@spatial_locs)) {
+  for(spat_unit_i in available_locs[['spat_unit']]) {
 
-    for(name in names(first_obj@spatial_locs[[spat_unit]])) {
+    for(name_i in available_locs[spat_unit == spat_unit_i, name]) {
 
       savelist = list()
-      for(gobj_i in 1:length(updated_object_list)) {
-        spatlocs = updated_object_list[[gobj_i]]@spatial_locs[[spat_unit]][[name]]
+      for(gobj_i in seq_along(updated_object_list)) {
+        spatlocs = get_spatial_locations(gobject = updated_object_list[[gobj_i]],
+                                         spat_unit = spat_unit_i,
+                                         spat_loc_name = name_i,
+                                         return_spatlocs_Obj = FALSE,
+                                         copy_obj = FALSE)
+        # spatlocs = updated_object_list[[gobj_i]]@spatial_locs[[spat_unit]][[name]]
         savelist[[gobj_i]] = spatlocs
       }
 
       combspatlocs = join_spatlocs(dt_list = savelist)
-      comb_gobject@spatial_locs[[spat_unit]][[name]] = combspatlocs
+      combspat_obj = new('spatialLocationsObj',
+                         name = name_i,
+                         spat_unit = spat_unit_i,
+                         coordinates = combspatlocs,
+                         provenance = NULL)
+      comb_gobject = set_spatial_locations(comb_gobject, spatlocs = combspat_obj)
     }
 
   }
@@ -4354,7 +4351,7 @@ joinGiottoObjects = function(gobject_list,
      for(feat_type in names(first_obj@cell_metadata[[spat_unit]])) {
 
       savelist = list()
-      for(gobj_i in 1:length(updated_object_list)) {
+      for(gobj_i in seq_along(updated_object_list)) {
         cellmeta = updated_object_list[[gobj_i]]@cell_metadata[[spat_unit]][[feat_type]]
         savelist[[gobj_i]] = cellmeta
       }
@@ -4381,7 +4378,7 @@ joinGiottoObjects = function(gobject_list,
 
     savelist_vector = list()
     savelist_centroids = list()
-    for(gobj_i in 1:length(updated_object_list)) {
+    for(gobj_i in seq_along(updated_object_list)) {
 
       print(gobj_i)
       print(updated_object_list[[gobj_i]]@spatial_info[[spat_info]])
@@ -4417,7 +4414,7 @@ joinGiottoObjects = function(gobject_list,
 
     savelist_vector = list()
 
-    for(gobj_i in 1:length(updated_object_list)) {
+    for(gobj_i in seq_along(updated_object_list)) {
 
       print(updated_object_list[[gobj_i]]@feat_info[[feat]])
       print(gobj_i)

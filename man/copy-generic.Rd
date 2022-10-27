@@ -3,15 +3,12 @@
 \name{copy-generic}
 \alias{copy-generic}
 \alias{copy}
-\alias{copy,spatialLocationsObj-method}
-\alias{copy,data.table-method}
+\alias{copy,coordDataDT-method}
 \title{Copy an entire object}
 \usage{
 copy(x)
 
-\S4method{copy}{spatialLocationsObj}(x)
-
-\S4method{copy}{data.table}(x)
+\S4method{copy}{coordDataDT}(x)
 }
 \arguments{
 \item{x}{a Giotto S4 class subobject}
@@ -22,9 +19,7 @@ certain subobjects that usually return referenced information.
 }
 \section{Functions}{
 \itemize{
-\item \code{copy(spatialLocationsObj)}: Copy \emph{data.table}-based spatial locations object.
-
-\item \code{copy(data.table)}: See \code{\link[data.table]{copy}}
+\item \code{copy(coordDataDT)}: Copy \emph{data.table}-based spatial locations object.
 
 }}
 \seealso{

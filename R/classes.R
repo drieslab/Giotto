@@ -16,8 +16,15 @@ setClassUnion('nullOrList', c('NULL', 'list'))
 #' @keywords internal
 setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
+## * Define external classes ####
 
-
+#' data.table S4 class for method dispatch
+#' @name data.table-class
+#' @aliases data.table
+#' @family data.table
+#'
+#' @exportClass data.table
+setOldClass('data.table')
 
 
 
@@ -63,7 +70,7 @@ setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 #     avail_expr = list_expression(object)
 #     for(expr in seq(nrow(avail_expr)))
 #     if(!inherits(slot(object, 'expression')[[avail_expr[[expr]]]][[avail_expr[[expr]]]][[avail_expr[[expr]]]], 'data.table')) {
-#       print('uh oh')
+#       TODO
 #     }
 #   }
 #
@@ -260,6 +267,14 @@ setMethod(
 )
 
 
+# coordData ####
+setClass('coordDataDT',
+         representation = list(coordinates = 'data.table'),
+         prototype = prototype(coordinates = data.table::data.table()))
+
+# setClass('coordDataMT',
+#          representation = list(coordinates = 'matrix'),
+#          prototype = prototype(coordinates = matrix()))
 
 
 # EXPRESSION ####
@@ -536,12 +551,11 @@ checkSpatLocsObj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatialLocationsObj',
+         contains = c('coordDataDT'),
          slots = c(name = 'nullOrChar',
-                   coordinates = 'nullOrDatatable',
                    spat_unit = 'nullOrChar',
                    provenance = 'nullOrChar'),
          prototype = list(name = NULL,
-                          coordinates = NULL,
                           spat_unit = NULL,
                           provenance = NULL),
          validity = checkSpatLocsObj)

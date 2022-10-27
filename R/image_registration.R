@@ -575,6 +575,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   for(gobj_i in 1:length(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     #Rename original spatial locations to 'unregistered'
+
     gobj@spatial_locs$unregistered <- gobj@spatial_locs$spat_loc_values
 
     #Assign registered spatial locations from spatloc_list to gobject_list

@@ -15,7 +15,8 @@ set_spatial_locations(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatlocs}{spatial locations (accepts either data.table or spatialLocationsObj)}
+\item{spatlocs}{spatial locations (accepts either \code{data.table} or
+\code{spatialLocationsObj})}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -30,9 +31,15 @@ giotto object
 Function to set a spatial location slot
 }
 \details{
-If spatialLocationsObj is provided to \code{spatlocs} param then any
-attached name and spat_unit info will be prioritized for input to this function's
-\code{spat_loc_name} and \code{spat_unit}params.
+If a \code{spatialLocationsObj} is provided to \code{spatlocs} param then any
+attached name and spat_unit info will be used for input to this function's
+\code{spat_loc_name} and \code{spat_unit}params, BUT will be overridden by any
+alternative specific inputs to those params. \cr
+ie: a \code{spatialLocationsObj} with spat_unit slot == 'cell' will be automatically
+nested by spat_unit 'cell' when using \code{set_spatial_locations} as long as
+param \code{spat_unit = NULL}. BUT if param \code{spat_unit = 'nucleus'} then
+the \code{spatialLocationsObj} will be nested by spat_unit 'nucleus' instead and
+its spat_unit slot will be changed to 'nucleus'
 }
 \seealso{
 Other spatial location data accessor functions: 

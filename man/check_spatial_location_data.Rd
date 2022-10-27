@@ -4,28 +4,9 @@
 \alias{check_spatial_location_data}
 \title{Check spatial location data}
 \usage{
-check_spatial_location_data(gobject, DT, spat_unit)
-}
-\arguments{
-\item{gobject}{giotto object}
-
-\item{DT}{(optional) data.table containing spatial location information (expected colnames when
-available are the usual 'sdimx', 'sdimy', 'cell_ID', etc)}
-
-\item{spat_unit}{(optional) spatial unit (e.g. 'cell'). Only needed when \code{DT} is provided.}
+check_spatial_location_data(gobject)
 }
 \description{
-Check cell ID (spatial unit) names between spatial location and expression data.
-If ONLY \code{gobject} param is provided, this function will test the entire gobject's
-\code{spatial_loc} and \code{cell_ID} slots for concordance. If \code{DT} and
-\code{spat_unit} params are additionally supplied then ONLY the provided data.table in \code{DT} will be
-checked against the respective \code{cell_ID} slot item in the gobject.
-}
-\details{
-If the spatlocs provided through \code{DT} param do not include a 'cell_ID'
-column then if the respective \code{cell_ID} slot info within the gobject is the same length,
-it will be assigned as the 'cell_ID' column of the \code{DT} data.table. This behavior is
-specific to the \code{DT} workflow as gobjects are expected to contain \code{spatialLocationObj}s that
-require the presence of a 'cell_ID' column within the \code{coordinates} slot to be valid.
+check cell ID (spatial unit) names between spatial location and expression data
 }
 \keyword{internal}
