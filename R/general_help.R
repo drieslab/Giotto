@@ -668,8 +668,16 @@ saveGiotto = function(gobject,
       if(verbose) wrap_msg('For feature: ', feat, '\n')
       feat_dir = paste0(final_dir,'/','Features')
       dir.create(feat_dir)
-      filename = paste0(feat_dir, '/', feat, '_feature_spatVector.shp')
-      terra::writeVector(gobject@feat_info[[feat]]@spatVector, filename = filename)
+
+      # original spatvector
+      if(!is.null(gobject@feat_info[[feat]]@spatVector)) {
+        filename = paste0(feat_dir, '/', feat, '_feature_spatVector.shp')
+        terra::writeVector(gobject@feat_info[[feat]]@spatVector, filename = filename)
+      }
+
+      # network
+      # ? data.table object
+
     }
   }
 
@@ -686,15 +694,25 @@ saveGiotto = function(gobject,
       spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
       dir.create(spatinfo_dir)
 
+      # original spatVectors
       if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
         filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVector.shp')
         terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVector, filename = filename)
       }
 
+      # spatVectorCentroids
       if(!is.null(gobject@spatial_info[[spatinfo]]@spatVectorCentroids)) {
         filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVectorCentroids.shp')
         terra::writeVector(gobject@spatial_info[[spatinfo]]@spatVectorCentroids, filename = filename)
       }
+
+      # overlap information
+      if(!is.null(gobject@spatial_info[[spatinfo]]@overlaps)) {
+        filename = paste0(spatinfo_dir, '/', spatinfo, '_spatInfo_spatVectorOverlaps.shp')
+        terra::writeVector(gobject@spatial_info[[spatinfo]]@overlaps, filename = filename)
+      }
+
+
     }
   }
 
@@ -786,7 +804,7 @@ loadGiotto = function(path_to_folder,
   spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp')
   print(spat_files)
 
-  if(length(spat_paths) != 0) {
+  if(length(spat_files) != 0) {
     spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
     spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp', full.names = TRUE)
     for(spat_i in 1:length(spat_names)) {
@@ -796,6 +814,25 @@ loadGiotto = function(path_to_folder,
       gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
     }
   }
+
+  ## 3.3. overlaps
+  if(verbose) wrap_msg('3.3 read Giotto spatial overlap information \n')
+  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
+  print(spat_files)
+
+  if(length(spat_files) != 0) {
+    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorOverlaps.shp', replacement = '')
+    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp', full.names = TRUE)
+    for(spat_i in 1:length(spat_names)) {
+      spatVector = terra::vect(x = spat_paths[spat_i])
+      spat_name = spat_names[spat_i]
+      if(verbose) spat_name
+      gobject@spatial_info[[spat_name]]@overlaps = spatVector
+    }
+  }
+
+
+
 
   ## 4. images
   if(verbose) wrap_msg('3. read Giotto image information \n')
