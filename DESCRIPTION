@@ -108,7 +108,8 @@ Suggests:
     SummarizedExperiment,
     tiff,
     trendsceek,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    qs
 Collate:
     'NN_network.R'
     'auxiliary_giotto.R'
