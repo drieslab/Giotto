@@ -628,17 +628,22 @@ package_check = function(pkg_name,
 #' @param gobject Giotto object
 #' @param foldername Folder name
 #' @param dir Directory where to create the folder
+#' @param method method to save main object
+#' @param method_params additional method parameters for RDS or qs
 #' @param overwrite Overwrite existing folders
 #' @param image_filetype the image filetype to use, see \code{\link[terra]{writeRaster}}
 #' @param verbose be verbose
 #' @param ... additional parameters for \code{\link[terra]{writeRaster}}
 #' @return Creates a directory with Giotto object information
 #' @details Works together with \code{\link{loadGiotto}} to save and re-load
-#' Giotto objects.
+#' Giotto objects. Additional method_params need to be provided as a list and will
+#' go to \code{\link[base]{saveRDS}} or \code{\link[qs]{qsave}}
 #' @export
 saveGiotto = function(gobject,
                       foldername = 'saveGiottoDir',
                       dir = getwd(),
+                      method = c('RDS', 'qs'),
+                      method_params = list(),
                       overwrite = FALSE,
                       image_filetype = 'PNG',
                       verbose = TRUE,
@@ -740,7 +745,15 @@ saveGiotto = function(gobject,
 
 
   ## save whole Giotto object
-  saveRDS(gobject, file = paste0(final_dir, '/', 'gobject.RDS'))
+  method = match.arg(arg = method, choices = c('RDS', 'qs'))
+
+  if(method == 'RDS') {
+    do.call('saveRDS', c(object = gobject, file = paste0(final_dir, '/', 'gobject.RDS'), method_params))
+  } else if(method == 'qs') {
+    package_check(pkg_name = 'qs', repository = 'CRAN')
+    qsave_fun = get("qsave", asNamespace("qs"))
+    do.call(qsave_fun, c(x = gobject, file = paste0(final_dir, '/', 'gobject.qs'), method_params))
+  }
 
 }
 
@@ -749,15 +762,19 @@ saveGiotto = function(gobject,
 #' @name loadGiotto
 #' @description Saves a Giotto object to a specific folder structure
 #' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
+#' @param load_params additional parameters for loading or reading giotto object
 #' @param python_path (optional) manually set your python path
 #' @param verbose be verbose
 #' @return Giotto object
 #' @details Works together with \code{\link{saveGiotto}} to save and re-load
 #' Giotto objects.
+#' Additional load_params need to be provided as a list and will
+#' go to \code{\link[base]{readRDS}} or \code{\link[qs]{qread}}
 #' You can set the python path, alternatively it will look for an existing
 #' Giotto python environment.
 #' @export
 loadGiotto = function(path_to_folder,
+                      load_params = list(),
                       python_path = NULL,
                       verbose = TRUE) {
 
@@ -766,8 +783,22 @@ loadGiotto = function(path_to_folder,
   }
 
   ## 1. load giotto object
-  if(verbose) wrap_msg('1. read Giotto object .RDS \n')
-  gobject = readRDS(file = paste0(path_to_folder,'/','gobject.RDS'))
+  if(verbose) wrap_msg('1. read Giotto object \n')
+
+  gobject_file = list.files(path_to_folder, pattern = 'gobject')
+
+  if(grepl('.RDS', x = gobject_file)) {
+    gobject = do.call('readRDS', c(file = paste0(path_to_folder,'/','gobject.RDS'), load_params))
+  }
+
+  if(grepl('.qs', x = gobject_file)) {
+    package_check(pkg_name = 'qs', repository = 'CRAN')
+    qread_fun = get("qread", asNamespace("qs"))
+    gobject = do.call(qread_fun, c(file = paste0(path_to_folder,'/','gobject.qs'), load_params))
+  }
+
+
+
 
   ## 2. read in features
   if(verbose) wrap_msg('2. read Giotto feature information \n')
