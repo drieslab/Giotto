@@ -829,8 +829,8 @@ loadGiotto = function(path_to_folder,
     for(spat_i in 1:length(spat_names)) {
       spatVector = terra::vect(x = spat_paths[spat_i])
 
-      feat_name = strsplit(spat_names, split = '_')[[1]][1]
-      spat_name =  strsplit(spat_names, split = '_')[[1]][2]
+      feat_name = strsplit(spat_names[spat_i], split = '_')[[1]][1]
+      spat_name =  strsplit(spat_names[spat_i], split = '_')[[1]][2]
 
       if(verbose) wrap_msg(spat_name, ' and ', feat_name)
       gobject@spatial_info[[spat_name]]@overlaps[[feat_name]] = spatVector
