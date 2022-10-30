@@ -2,7 +2,7 @@
 #' @import ggplot2
 #' @import data.table
 #' @import utils
-utils::globalVariables(names = c(":=", ".N", ".SD", ".",
+utils::globalVariables(names = c(":=", ".N", ".SD", ".", "cast",
                                  "python_leiden", "python_louvain", "python_spatial_genes",
                                  "Spatial_DE_AEH", "Spatial_DE", "silhouette_rank",
                                  "python_scrublet", "python_create_mesmer_app",

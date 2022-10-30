@@ -228,6 +228,7 @@ giotto <- setClass(
 #' @param object giotto object
 #' @aliases show,giotto-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 
 setMethod(
@@ -338,6 +339,7 @@ setClass('aggregateExprObj',
 #' @param object aggregated expression object
 #' @aliases show,aggregateExprObj-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 setMethod(
   f = "show", signature('aggregateExprObj'), function(object) {
@@ -438,6 +440,7 @@ setClass('dimObj',
 #' @param object dimension reduction object
 #' @aliases show,dimObj-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 setMethod(
   f = "show", signature('dimObj'), function(object) {
@@ -566,6 +569,7 @@ setClass('spatialNetworkObj',
 #' @param object spatial network object
 #' @aliases show,spatialNetworkObj-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 setMethod(
   f = "show", signature('spatialNetworkObj'), function(object) {
@@ -702,6 +706,7 @@ setClass('spatialGridObj',
 #' @param object spatial grid object
 #' @aliases show,spatialGridObj-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 setMethod(
   f = "show", signature('spatialGridObj'), function(object) {
@@ -944,6 +949,7 @@ giottoImage <- setClass(
 #' @param object giottoImage object
 #' @aliases show,giottoImage-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 
 setMethod(
@@ -1050,6 +1056,7 @@ giottoLargeImage <- setClass(
 #' @param object giottoLargeImage object
 #' @aliases show,giottoLargeImage-method
 #' @docType methods
+#' @importFrom methods show
 #' @rdname show-methods
 
 setMethod(
