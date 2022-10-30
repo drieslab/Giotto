@@ -4,10 +4,24 @@
 \alias{runWNN}
 \title{Multi omics integration with WNN}
 \usage{
-runWNN(gobject, k = 20)
+runWNN(
+  gobject,
+  spat_unit = "cell",
+  modality_1 = "rna",
+  modality_2 = "protein",
+  pca_name_modality_1 = "rna.pca",
+  pca_name_modality_2 = "protein.pca",
+  k = 20
+)
 }
 \arguments{
 \item{gobject}{A Giotto object with individual PCA modalities pre-calculated}
+
+\item{spat_unit}{spatial unit}
+
+\item{modality_1}{modality 1 name. Default = "rna"}
+
+\item{modality_2}{modality 2 name. Default = "protein"}
 
 \item{k}{k number, default = 20}
 }
