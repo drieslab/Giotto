@@ -11,7 +11,7 @@ select_spatial_locations(...)
   Arguments passed on to \code{\link[=get_spatial_locations]{get_spatial_locations}}
   \describe{
     \item{\code{spat_loc_name}}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
-    \item{\code{return_spatlocs_Obj}}{return spatialLocationsObj (default = FALSE)}
+    \item{\code{return_spatlocs_Obj}}{return spatLocsObj (default = FALSE)}
     \item{\code{copy_obj}}{whether to copy/duplicate when getting the object (default = TRUE)}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}

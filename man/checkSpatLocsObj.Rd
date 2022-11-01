@@ -2,14 +2,14 @@
 % Please edit documentation in R/classes.R
 \name{checkSpatLocsObj}
 \alias{checkSpatLocsObj}
-\title{Check spatialLocationsObj}
+\title{Check spatLocsObj}
 \usage{
 checkSpatLocsObj(object)
 }
 \arguments{
-\item{object}{S4 spatialLocationsObj to check}
+\item{object}{S4 spatLocsObj to check}
 }
 \description{
-Check function for S4 spatialLocationsObj
+Check function for S4 spatLocsObj
 }
 \keyword{internal}

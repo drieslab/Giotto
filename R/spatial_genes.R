@@ -1615,7 +1615,13 @@ silhouetteRank <- function(gobject,
   sdimx = sdimy = NULL
 
   # spatial locations
-  spatlocs = as.matrix(gobject@spatial_locs[['cell']][['raw']][,.(sdimx, sdimy)])
+  # spatlocs = as.matrix(gobject@spatial_locs[['cell']][['raw']][,.(sdimx, sdimy)])
+  spatlocs = get_spatial_locations(gobject,
+                                   spat_unit = 'cell',
+                                   spat_loc_name = 'raw',
+                                   return_spatlocs_Obj = FALSE,
+                                   copy_obj = TRUE)
+  spatlocs = as.matrix(spatlocs[,.(sdimx, sdimy)])
 
   # python path
   if(is.null(python_path)) {
@@ -1734,7 +1740,11 @@ silhouetteRankTest = function(gobject,
   }
 
   # spatial locations
-  spatlocs = gobject@spatial_locs[['raw']]
+  # spatlocs = gobject@spatial_locs[['raw']]
+  spatlocs = get_spatial_locations(gobject,
+                                   spat_loc_name = 'raw',
+                                   return_spatlocs_Obj = FALSE,
+                                   copy_obj = TRUE)
 
   ## save dir and log
   if(is.null(output)) {
@@ -2414,7 +2424,11 @@ detectSpatialPatterns <- function(gobject,
   spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
 
   # annotate spatial locations with spatial grid information
-  spatial_locs = copy(gobject@spatial_locs[['raw']])
+  # spatial_locs = copy(gobject@spatial_locs[['raw']])
+  spatial_locs = get_spatial_locations(gobject,
+                                       spat_loc_name = 'raw',
+                                       return_spatlocs_Obj = FALSE,
+                                       copy_obj = TRUE)
 
   if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
     spatial_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
@@ -3962,7 +3976,11 @@ simulateOneGenePatternGiottoObject = function(gobject,
 
   ## merge cell metadata and cell coordinate data
   cell_meta = pDataDT(newgobject)
-  cell_coord = newgobject@spatial_locs[['raw']]
+  # cell_coord = newgobject@spatial_locs[['raw']]
+  cell_coord = get_spatial_locations(newgobject,
+                                     spat_loc_name = 'raw',
+                                     return_spatlocs_Obj = FALSE,
+                                     copy_obj = TRUE)
   cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
 
   ## get number of cells within pattern

@@ -4,7 +4,7 @@
 \alias{set_feat_id}
 \title{Set feat IDs for a given feature type}
 \usage{
-set_feat_id(gobject, feat_type = NULL, feat_IDs = NULL)
+set_feat_id(gobject, feat_type = NULL, feat_IDs)
 }
 \arguments{
 \item{gobject}{giotto object}

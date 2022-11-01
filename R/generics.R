@@ -109,6 +109,7 @@ setGeneric('copy', function(x) {
 #' @export
 setMethod('copy', signature(x = 'coordDataDT'), function(x) {
   x@coordinates = data.table::copy(x@coordinates)
+  x
 })
 
 
@@ -140,7 +141,7 @@ NULL
 
 # $ S4 access generic ####
 
-## coordDataDT ####
+## * coordDataDT ####
 
 #' @rdname extract-generic
 #' @section \code{`$`} methods:
@@ -166,7 +167,7 @@ setMethod('$<-', signature(x = 'coordDataDT'),
 
 # [ S4 access generic ####
 
-## coordDataDT ####
+## * coordDataDT ####
 
 #' @rdname extract-generic
 #' @section \code{`[`} methods:
@@ -203,7 +204,47 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
             x@coordinates
           })
 
-## dimObj (temp) ####
+# setMethod("[[")
+
+## * metaDT ####
+
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Select rows (i) and cols (j) from giotto S4 metaDT slot
+#' @export
+setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@coordinates = x@metaDT[, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@coordinates = x@metaDT[i = i,]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@coordinates = x@metaDT[i = i, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{coordinates} slot data.table from giotto S4
+#' @export
+setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@metaDT
+          })
+
+
+## * dimObj (temp) ####
 
 #' @rdname extract-generic
 #' @export

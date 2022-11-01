@@ -504,10 +504,12 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
 
   ## 1. get spatial coordinates and put in list ##
   spatloc_list = list()
-  for(gobj_i in 1:length(gobject_list)) {
+  for(gobj_i in seq_along(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
-    spatloc = get_spatial_locations(gobject = gobj, ###Tag for editing later
-                                    spat_loc_name = spatloc_unreg)
+    spatloc = get_spatial_locations(gobject = gobj,
+                                    spat_loc_name = spatloc_unreg,
+                                    return_spatlocs_Obj = FALSE,
+                                    copy_obj = TRUE)
     # Put all spatial location data together
     spatloc_list[[gobj_i]] = spatloc
   }
@@ -576,10 +578,19 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     gobj = gobject_list[[gobj_i]]
     #Rename original spatial locations to 'unregistered'
 
-    gobj@spatial_locs$unregistered <- gobj@spatial_locs$spat_loc_values
+    unreg_locs = get_spatial_locations(gobj,
+                                       spat_loc_name = spatloc_unreg,
+                                       copy_obj = FALSE,
+                                       return_spatlocs_Obj = T)
+    gobj = set_spatial_locations(gobj,
+                                 spatlocs = unreg_locs,
+                                 spat_loc_name = 'unregistered')
 
     #Assign registered spatial locations from spatloc_list to gobject_list
-    gobj@spatial_locs$spat_loc_values <- spatloc_list[[gobj_i]]
+    gobj = set_spatial_locations(gobj,
+                                 spatlocs = spatloc_list[[gobj_i]],
+                                 spat_loc_name = spatloc_reg_name)
+
 
     gobject_list[[gobj_i]] <- gobj
   }

@@ -4,7 +4,7 @@
 \alias{set_cell_id}
 \title{Set cell IDs for a given spatial unit}
 \usage{
-set_cell_id(gobject, spat_unit = NULL, cell_IDs = NULL)
+set_cell_id(gobject, spat_unit = NULL, cell_IDs)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -20,7 +20,8 @@ giotto object with set cell_ID slot
 Data for each spatial unit is expected to agree on a single set of cell_IDs
 that are shared across any feature types. These cell_IDs are stored within the
 giotto object's \code{cell_ID} slot. Getters and setters for this slot directly
-retrieve (get) or replace (set) this slot.
+retrieve (get) or replace (set) this slot. Set \code{cell_IDs} \code{NULL} in order
+to delete the entry.
 }
 \seealso{
 get_cell_id

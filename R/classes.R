@@ -28,6 +28,141 @@ setOldClass('data.table')
 
 
 
+
+
+
+# BASIC CLASSES ####
+
+# ** exprData Class ####
+#' Basic class for classes with expression information
+#'
+setClass('exprData',
+         representation = list(exprMat = 'ANY',
+                               sparse = 'logical'),
+         prototype = prototype(exprMat = NULL,
+                               sparse = NA))
+
+
+
+# ** coordData Class ####
+#' Basic class for classes with coordinate information
+#'
+#' coordDataDT is the specific flavor that deals with objects where the coordinate
+#' information is stored within data.table objects and should work similarly to
+#' data.table when interacting with some basic generic operators for data
+#' retreival and setting.
+setClass('coordDataDT',
+         representation = list(coordinates = 'data.table'),
+         prototype = prototype(coordinates = data.table::data.table()))
+
+# setClass('coordDataMT',
+#          representation = list(coordinates = 'matrix'),
+#          prototype = prototype(coordinates = matrix()))
+
+
+# ** metaData Class ####
+#' Basic class for classes with metadata information
+#'
+#' Classes that inherit from this class will contain a metadata slot that stores
+#' information in a data.table and should work similarly to data.table when interacting
+#' with some basic generic operators for data retrieval and setting
+setClass('metaData',
+         representation = list(metaDT = 'data.table',
+                               col_desc = 'character'),
+         prototype = prototype(metaDT = data.table::data.table(),
+                               col_desc = NA_character_))
+
+
+# ** nnData ####
+setClass('nnData',
+         representation = list(nn_type = 'character',
+                               igraph = 'ANY'),
+         prototype = prototype(nn_type = NA_character_,
+                               igraph = NULL))
+
+
+
+
+# ** provData Class ####
+#' Basic class for classes with provenance information.
+#'
+#' This kind of information is necesssary when generating data that is aggregated
+#' from multiple original sources of raw information. This could refer to situations
+#' such as when producing cellxfeature expression matrices from subcellular transcript
+#' information and polygons that are provided as multiple z layers. Provenance
+#' is Giotto's method of mapping this aggregated information back to the original
+#' z layers that were used in its generation.
+setClass('provData',
+         representation = list(provenance = 'ANY'),
+         prototype = prototype(provenance = NULL))
+
+
+
+# ** spatData Class ####
+#' Basic class for classes with spatial information
+#'
+#' Classes that inherit from this class will contain a spat_unit slot that describes
+#' which spatial unit the data belongs to. This is most relevant to aggregated information.
+#' Subcellular information such as poly data in \code{spatial_info} slot essentially define their
+#' own spatial units. Within slots that deal with classes that contain spatData,
+#' there is a nesting structure that first nests by spatial unit.
+#'
+setClass('spatData',
+         representation = list(spat_unit = 'character'), # not allowed to be NULL
+         prototype = prototype(spat_unit = NA_character_))
+
+
+
+# ** featData Class ####
+#' @title Basic class for classes with feature information
+#'
+#' @description
+#' Features in Giotto are a blanket term for any features that are detected, covering
+#' modalities such as, but not limited to rna, protein, ATAC, and even QC probes.
+#' Classes that inherit from this class will contain a feat_type slot that describes
+#' which feature type the data is. Within slots that deal with classes that contain
+#' featData, there is a nesting structure that usually first nests by spatial unit
+#' and then by feature type
+#'
+setClass('featData',
+         representation = list(feat_type = 'character'), # not allowed to be NULL
+         prototype = prototype(feat_type = NA_character_))
+
+
+
+# ** miscData Class ####
+#' @title Basic class for additional miscellaneous information
+#'
+#' @description
+#' Classes (such as dimObj) that can hold information from multiple types of methods
+#' use the misc slot to hold additional information specific to each method.
+#' Information may be stored within as S3 structures.
+setClass('miscData',
+         representation = list(misc = 'ANY'),
+         prototype = prototype(misc = NULL))
+
+
+
+
+
+
+
+
+# SUPER CLASSES ####
+
+# ** spatFeatData ####
+#' Superclass for classes that contain both spatial and feature data
+setClass('spatFeatData',
+         contains = c('spatData', 'featData'))
+
+
+
+
+
+
+
+
+
 # CORE ####
 
 ## Giotto class ####
@@ -267,49 +402,61 @@ setMethod(
 )
 
 
-# coordData ####
-setClass('coordDataDT',
-         representation = list(coordinates = 'data.table'),
-         prototype = prototype(coordinates = data.table::data.table()))
 
-# setClass('coordDataMT',
-#          representation = list(coordinates = 'matrix'),
-#          prototype = prototype(coordinates = matrix()))
+
+
+
+
+
+
+
 
 
 # EXPRESSION ####
 
-## aggregateExprObj Class ####
+## exprObj Class ####
 
 ## * Check ####
-# aggregateExprObj Class
+# exprObj Class
 
-#' @title Check aggregateExprObj
-#' @name checkAggExprObj
-#' @description Check function for S4 aggregateExprObj
-#' @param object S4 aggregateExprObj to check
+#' @title Check exprObj
+#' @name checkExprObj
+#' @description Check function for S4 exprObj
+#' @param object S4 exprObj to check
 #' @keywords internal
-checkAggExprObj = function(object) {
+checkExprObj = function(object) {
   errors = character()
 
   # Check for expr info
-  if(is.null(slot(object, 'expressionMat'))) {
-    msg = paste0('No expression matrix found in expressionMat slot.\nThis object contains no expression information.\n')
+  if(is.null(slot(object, 'expression'))) {
+    obj_info = paste0('exprObj ',
+                      'spat_unit "', slot(object, 'spat_unit'), '", ',
+                      'feat_type "', slot(object, 'feat_type'), '", ',
+                      'name "', slot(object, 'name'), '": \n')
+
+    msg = paste0(obj_info, 'No expression information found.\n')
     errors = c(errors, msg)
   }
 
   # Check expr matrix class
-  if(!inherits(slot(object, 'expressionMat'), c('dgeMatrix', 'dgCMatrix'))) {
-    msg = paste0('Expression matrix should be provided as either dgCmatrix (sparse) or dgeMatrix (dense) from the Matrix package.\n')
+  if(!inherits(slot(object, 'exprMat'), c('dgeMatrix', 'dgCMatrix'))) {
+    msg = paste0(obj_info, 'Expression matrix should be provided as either dgCmatrix (sparse)',
+                 ' or dgeMatrix (dense) from the Matrix package.\n')
     errors = c(errors, msg)
   }
-  if(inherits(slot(object, 'expressionMat'), 'dgCMatrix') & !isTRUE(slot(object, 'sparse'))) {
-    msg = paste0('expressionMat slot contains "dgCMatrix".\nsparse slot should be "TRUE"\n')
-    errors = c(errors, msg)
+
+  if(inherits(slot(object, 'exprMat'), 'dgCMatrix')) {
+    if(!isTRUE(slot(object, 'sparse'))) {
+      msg = paste0(obj_info, 'Contains a dgCmatrix. Slot sparse should be TRUE')
+      errors = c(errors, msg)
+    }
   }
-  if(inherits(slot(object, 'expressionMat'), 'dgeMatrix') & isTRUE(slot(object, 'sparse'))) {
-    msg = paste0('expressionMat slot contains "dgeMatrix".\nsparse slot should be "FALSE"\n')
-    errors = c(errors, msg)
+
+  if(inherits(slot(object, 'exprMat'), 'dgeMatrix')) {
+    if(isTRUE(slot(object, 'sparse'))) {
+      msg = paste0(obj_info, 'Contains a dgematrix. Slot sparse should be FALSE')
+      errors = c(errors, msg)
+    }
   }
 
   if(length(errors) == 0) TRUE else errors
@@ -318,66 +465,109 @@ checkAggExprObj = function(object) {
 
 
 ## * Definition ####
-# aggregateExprObj Class
+# exprObj Class
 
-#' @title S4 aggregateExprObj
+#' @title S4 exprObj
 #' @description Framework to store aggregated expression information
-#' @slot name name of aggregateExprObj
-#' @slot sparse (boolean) if matrix is sparse
-#' @slot expressionMat matrix of expression information
-#' @slot provenance origin data of aggregated expression information (if applicable)
-#' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
-#' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @slot name name of exprObj
+#' @slot expression matrix of expression information
+#' @slot spat_unit spatial unit of expression (e.g. 'cell')
+#' @slot feat_type feature type of expression (e.g. 'rna', 'protein')
+#' @slot provenance origin data of expression information (if applicable)
 #' @slot misc misc
 #' @export
-setClass('aggregateExprObj',
-         slots = c(name = 'nullOrChar',
-                   sparse = 'logical',
-                   expressionMat = 'ANY',
-                   provenance = 'ANY',
-                   spat_unit = 'character',
-                   feat_type = 'character',
-                   misc = 'ANY'),
-         prototype = list(name = NULL,
-                          sparse = NULL,
-                          expressionMat = NULL,
-                          provenance = NULL,
-                          spat_unit = NULL,
-                          feat_type = NULL,
-                          misc = NULL),
-         validity = checkAggExprObj)
+setClass('exprObj',
+         contains = c('exprData', 'spatFeatData', 'provData', 'miscData'),
+         slots = c(name = 'nullOrChar'),
+         prototype = list(name = NULL),
+         validity = checkExprObj)
 
 ## * Show ####
-# aggregateExprObj Class
+# exprObj Class
 
-#' show method for aggregateExprObj class
-#' @param object aggregated expression object
-#' @aliases show,aggregateExprObj-method
+#' show method for exprObj class
+#' @param object expression object
+#' @aliases show,exprObj-method
 #' @docType methods
 #' @importFrom methods show
 #' @rdname show-methods
 setMethod(
-  f = "show", signature('aggregateExprObj'), function(object) {
+  f = "show", signature('exprObj'), function(object) {
 
+    # Print if data is sparse
     cat("An object of class",  class(object), "\n\n")
     if(!is.null(slot(object, 'sparse'))) {
       if(isTRUE(slot(object, 'sparse'))) {
         cat('Contains sparse matrix with aggregated expression information\n')
-      } else if(!isTRUE(slot(object, 'sparse'))) {
+      } else if(isFALSE(slot(object, 'sparse'))) {
         cat('Contains dense matrix with aggregated expression information\n')
       }
     }
 
+    # print spat/feat and provenance info
     cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "', slot(object, 'feat_type'),'" \n'))
     if(!is.null(slot(object, 'provenance'))) cat('  Provenance: ', unlist(slot(object, 'provenance')),'\n')
 
-    print(slot(object, 'expressionMat'))
+    # preview matrix
+    print(slot(object, 'exprMat'))
 
     cat('\n')
 
   })
 
 
+
+
+
+# METADATA ####
+
+
+## cellMetaObj class ####
+
+#' @title S4 cellMetaObj
+#' @description Framework to store cell metadata
+#' @slot metadata metadata info
+#' @slot col_desc (optional) character vector describing columns of the metadata
+#' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @slot provenance origin data of aggregated expression information (if applicable)
+#' @slot misc misc
+#' @export
+setClass('cellMetaObj',
+         contains = c('metaData', 'spatFeatData', 'provData'))
+
+
+setMethod('show', signature('cellMetaObj'), function(object) {
+
+  cat('An object of class', class(object), '\n')
+  # TODO print spat/feat/prov
+  if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
+
+})
+
+
+## featMetaObj class ####
+
+#' @title S4 featMetaObj
+#' @description Framework to store feature metadata
+#' @slot metadata metadata info
+#' @slot col_desc (optional) character vector describing columns of the metadata
+#' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @slot provenance origin data of aggregated expression information (if applicable)
+#' @slot misc misc
+#' @export
+setClass('featMetaObj',
+         contains = c('metaData', 'spatFeatData', 'provData'))
+
+
+setMethod('show', signature('featMetaObj'), function(object) {
+
+  cat('An object of class', class(object), '\n')
+  # TODO print spat/feat/prov
+  if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
+
+})
 
 
 # DIMENSION REDUCTION ####
@@ -433,18 +623,13 @@ checkDimObj = function(object) {
 #' @slot misc method-specific additional outputs
 #' @export
 setClass('dimObj',
+         contains = c('spatFeatData'),
          slots = c(name = 'character',
-                   feat_type = 'character',
-                   spat_unit = 'character',
-                   provenance = 'ANY',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
-         prototype = list(name = NULL,
-                          feat_type = NULL,
-                          spat_unit = NULL,
-                          provenance = NULL,
-                          reduction_method = NULL,
+         prototype = list(name = NA_character_,
+                          reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
          validity = checkDimObj)
@@ -504,19 +689,35 @@ S3toS4dimObj = function(object) {
 
 
 
+
+
+## nnNetObj ####
+
+setClass('nnNetObj',
+         contains = c('nnData', 'spatFeatData', 'miscData'),
+         representation = list(name = 'character'),
+         prototype = prototype(name = NA_character_))
+
+
+
+
+
+
+
+
 # SPATIAL ####
 
 
 
-## spatialLocationsObj Class ####
+## spatLocsObj Class ####
 
 ## * check ####
-# spatialLocationsObj Class
+# spatLocsObj Class
 
-#' @title Check spatialLocationsObj
+#' @title Check spatLocsObj
 #' @name checkSpatLocsObj
-#' @description Check function for S4 spatialLocationsObj
-#' @param object S4 spatialLocationsObj to check
+#' @description Check function for S4 spatLocsObj
+#' @param object S4 spatLocsObj to check
 #' @keywords internal
 checkSpatLocsObj = function(object) {
   errors = character()
@@ -541,23 +742,21 @@ checkSpatLocsObj = function(object) {
 
 
 ## * definition ####
-# spatialLocationsObj Class
+# spatLocsObj Class
 
-#' @title S4 spatialLocationsObj Class
+#' @title S4 spatLocsObj Class
 #' @description Framework to store spatial location information
-#' @slot name name of spatialLocationsObj
+#' @slot name name of spatLocsObj
 #' @slot coordinates data.table of spatial coordinates/locations
 #' @slot spat_unit spatial unit tag
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
-setClass('spatialLocationsObj',
-         contains = c('coordDataDT'),
+setClass('spatLocsObj',
+         contains = c('coordDataDT', 'spatData', 'provData'),
          slots = c(name = 'nullOrChar',
-                   spat_unit = 'nullOrChar',
-                   provenance = 'nullOrChar'),
+                   misc = 'ANY'),
          prototype = list(name = NULL,
-                          spat_unit = NULL,
-                          provenance = NULL),
+                          misc = NULL),
          validity = checkSpatLocsObj)
 
 
@@ -566,14 +765,14 @@ setClass('spatialLocationsObj',
 # * show ####
 # spatialLocations Class
 
-#' show method for spatialLocationsObj class
+#' show method for spatLocsObj class
 #' @param object spatial locations object
-#' @aliases show,spatialLocationsObj-method
+#' @aliases show,spatLocsObj-method
 #' @docType methods
 #' @importFrom methods show
 #' @rdname show-methods
 setMethod(
-  f = "show", signature('spatialLocationsObj'), function(object) {
+  f = "show", signature('spatLocsObj'), function(object) {
 
     sdimx = sdimy = NULL
 
@@ -646,8 +845,11 @@ checkSpatNetObj = function(object) {
 #' @slot spat_unit spatial unit tag
 #' @slot provenance origin of aggregated information (if applicable)
 #' @slot misc misc
+#' @details The generic access operators work with the data within the \code{networkDT}
+#' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
+         contains = c('spatData', 'provData', 'miscData'),
          slots = c(name = 'nullOrChar',
                    method = 'nullOrChar',
                    parameters = 'nullOrList',
@@ -655,10 +857,7 @@ setClass('spatialNetworkObj',
                    networkDT = 'nullOrDatatable',
                    networkDT_before_filter = 'nullOrDatatable',
                    cellShapeObj = 'ANY',
-                   crossSectionObjects = 'ANY',
-                   spat_unit = 'nullOrChar',
-                   provenance = 'ANY',
-                   misc = 'ANY'),
+                   crossSectionObjects = 'ANY'),
          prototype = list(name = NULL,
                           method = NULL,
                           parameters = NULL,
@@ -666,10 +865,7 @@ setClass('spatialNetworkObj',
                           networkDT = NULL,
                           networkDT_before_filter = NULL,
                           cellShapeObj = NULL,
-                          crossSectionObjects = NULL,
-                          spat_unit = NULL,
-                          provenance = NULL,
-                          misc = NULL),
+                          crossSectionObjects = NULL),
          validity = checkSpatNetObj)
 
 
@@ -687,7 +883,8 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
     if(!is.null(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
-    if(!is.null(object@spat_unit) & !is.null(object@feat_type)) cat(paste0('for spatial unit: "', object@spat_unit, '" and feature type: "', object@feat_type, '"\n'))
+    if(!is.na(object@spat_unit)) cat(paste0('for spatial unit: "', object@spat_unit, '"\n'))
+    if(!is.na(object@provenance)) cat(paste0('provenance: "', object@provenance, '"\n'))
 
     if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
     if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')

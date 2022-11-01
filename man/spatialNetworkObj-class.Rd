@@ -7,6 +7,10 @@
 \description{
 Framework to store spatial network information
 }
+\details{
+The generic access operators work with the data within the \code{networkDT}
+slot (filtered).
+}
 \section{Slots}{
 
 \describe{

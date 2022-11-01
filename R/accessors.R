@@ -54,19 +54,22 @@ get_cell_id = function(gobject,
 #' @description Data for each spatial unit is expected to agree on a single set of cell_IDs
 #' that are shared across any feature types. These cell_IDs are stored within the
 #' giotto object's \code{cell_ID} slot. Getters and setters for this slot directly
-#' retrieve (get) or replace (set) this slot.
+#' retrieve (get) or replace (set) this slot. Set \code{cell_IDs} \code{NULL} in order
+#' to delete the entry.
 #' @seealso get_cell_id
 #' @return giotto object with set cell_ID slot
 #' @family functions to set data in giotto object
 #' @keywords internal
 set_cell_id = function(gobject,
                        spat_unit = NULL,
-                       cell_IDs = NULL) {
+                       cell_IDs) {
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
 
-  if(!inherits(cell_IDs, 'character')) stop('cell_IDs must be given as a character vector.')
+  if(!is.null(cell_IDs)) {
+    if(!inherits(cell_IDs, 'character')) stop('cell_IDs must be a character vector.')
+  }
 
   slot(gobject, 'cell_ID')[[spat_unit]] = cell_IDs
 
@@ -114,7 +117,7 @@ get_feat_id = function(gobject,
 #' @keywords internal
 set_feat_id = function(gobject,
                        feat_type = NULL,
-                       feat_IDs = NULL) {
+                       feat_IDs) {
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = NULL)
@@ -122,7 +125,9 @@ set_feat_id = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  if(!inherits(feat_IDs, 'character')) stop('feat_IDs must be given as a character vector.')
+  if(!is.null(feat_IDs)) {
+    if(!inherits(feat_IDs, 'character')) stop('feat_IDs must be a character vector.')
+  }
 
   slot(gobject, 'feat_ID')[[feat_type]] = feat_IDs
 
@@ -368,9 +373,9 @@ set_expression_values <- function(gobject,
 #' @description Function to get a spatial location data.table
 #' @inheritParams data_access
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
-#' @param return_spatlocs_Obj return spatialLocationsObj (default = FALSE)
+#' @param return_spatlocs_Obj return spatLocsObj (default = FALSE)
 #' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
-#' @return data.table with coordinates or spatialLocationsObj depending on \code{return_spatlocs_Obj}
+#' @return data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}
 #' @family spatial location data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -407,26 +412,26 @@ get_spatial_locations <- function(gobject,
   # get object to return in desired format
   if(spat_loc_name %in% potential_names) { # case if found
     if(!isTRUE(return_spatlocs_Obj)) { # case if return as data.table
-      if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatialLocationsObj')) { # if is spatialLocationsObj
+      if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatLocsObj')) { # if is spatLocsObj
         if(isTRUE(copy_obj)) spatloc = data.table::copy(slot(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'coordinates')) # copy
         else spatloc = slot(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'coordinates') # no copy
       } else { # to be deprecated | if is data.table
         if(isTRUE(copy_obj)) spatloc = data.table::copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]) # copy
         else spatloc = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]] # no copy
       }
-    } else { # case if return as spatialLocationsObj
-      if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatialLocationsObj')) { # if is spatialLocationsObj
+    } else { # case if return as spatLocsObj
+      if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatLocsObj')) { # if is spatLocsObj
         if(isTRUE(copy_obj)) spatloc = copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]) # copy
         else spatloc = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]] # no copy
       } else { # to be deprecated | if is data.table
         if(isTRUE(copy_obj)) { # copy
-          spatloc = new('spatialLocationsObj',
+          spatloc = new('spatLocsObj',
                         name = spat_loc_name,
                         spat_unit = spat_unit,
                         coordinates = data.table::copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]),
                         provenance = NULL)
         } else { # no copy
-          spatloc = new('spatialLocationsObj',
+          spatloc = new('spatLocsObj',
                         name = spat_loc_name,
                         spat_unit = spat_unit,
                         coordinates = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]],
@@ -463,17 +468,17 @@ select_spatial_locations = function(...) {
 #' @description Function to set a spatial location slot
 #' @inheritParams data_access
 #' @param spatlocs spatial locations (accepts either \code{data.table} or
-#' \code{spatialLocationsObj})
+#' \code{spatLocsObj})
 #' @param spat_loc_name name of spatial locations, default "raw"
 #' @param verbose be verbose
-#' @details If a \code{spatialLocationsObj} is provided to \code{spatlocs} param then any
+#' @details If a \code{spatLocsObj} is provided to \code{spatlocs} param then any
 #' attached name and spat_unit info will be used for input to this function's
 #' \code{spat_loc_name} and \code{spat_unit}params, BUT will be overridden by any
 #' alternative specific inputs to those params. \cr
-#' ie: a \code{spatialLocationsObj} with spat_unit slot == 'cell' will be automatically
+#' ie: a \code{spatLocsObj} with spat_unit slot == 'cell' will be automatically
 #' nested by spat_unit 'cell' when using \code{set_spatial_locations} as long as
 #' param \code{spat_unit = NULL}. BUT if param \code{spat_unit = 'nucleus'} then
-#' the \code{spatialLocationsObj} will be nested by spat_unit 'nucleus' instead and
+#' the \code{spatLocsObj} will be nested by spat_unit 'nucleus' instead and
 #' its spat_unit slot will be changed to 'nucleus'
 #' @return giotto object
 #' @family spatial location data accessor functions
@@ -494,8 +499,8 @@ set_spatial_locations <- function(gobject,
                                     spat_unit = spat_unit)
 
   ## 1. import data
-  # if is spatialLocationsObj, decide if to use tagged spat_unit and name info
-  if(inherits(spatlocs, 'spatialLocationsObj')) {
+  # if is spatLocsObj, decide if to use tagged spat_unit and name info
+  if(inherits(spatlocs, 'spatLocsObj')) {
     if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
       if(!is.null(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
       else slot(spatlocs, 'spat_unit') = spat_unit
@@ -510,7 +515,7 @@ set_spatial_locations <- function(gobject,
     }
 
   } else {
-    spatlocs = new('spatialLocationsObj',
+    spatlocs = new('spatLocsObj',
                    name = spat_loc_name,
                    spat_unit = spat_unit,
                    coordinates = spatlocs)
@@ -863,6 +868,10 @@ get_spatialNetwork <- function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
 
+  # set name to get if missing
+  if(is.null(name)) name = names(slot(gobject, 'spatial_network')[[spat_unit]])[[1]]
+
+  # check if given name is present
   if (!is.element(name, names(slot(gobject, 'spatial_network')[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
                       check which spatial networks exist with showGiottoSpatNetworks()\n", name)
@@ -1638,7 +1647,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
         print(gobject@spatial_locs[[spatial_unit]][[spatlocname]][1:nrows,])
         cat('\n')
       }
-      if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatialLocationsObj')) {
+      if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatLocsObj')) {
         cat('--> Name: ', spatlocname, ' \n\n')
         print(slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'coordinates')[1:nrows,])
         cat('\n')
@@ -2280,7 +2289,7 @@ list_spatial_locations = function(gobject,
     uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
     for(spatloc_name in names(gobject@spatial_locs[[spatial_unit]])) {
       uniques$name = c(uniques$name, spatloc_name)
-      if(inherits(slot(gobject, 'spatial_locs')[[spatial_unit]][[spatloc_name]], c('data.table', 'spatialLocationsObj'))) {
+      if(inherits(slot(gobject, 'spatial_locs')[[spatial_unit]][[spatloc_name]], c('data.table', 'spatLocsObj'))) {
         availableSpatLocs = rbind(availableSpatLocs,
                                   list(spat_unit = spatial_unit,
                                        name = spatloc_name))

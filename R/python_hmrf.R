@@ -206,7 +206,6 @@ doHMRF <- function(gobject,
   spatial_location = get_spatial_locations(gobject = gobject,
                                            spat_unit = spat_unit,
                                            spat_loc_name = spat_loc_name)
-  #spatial_location = gobject@spatial_locs
 
   # select spatial dimensions that are available #
   spatial_dimensions = spatial_dimensions[spatial_dimensions %in% colnames(spatial_location)]
