@@ -138,6 +138,104 @@ set_feat_id = function(gobject,
 
 
 
+## Giotto metadata ####
+
+#' @title Set cell metadata
+#' @name set_cell_metadata
+#' @description Set cell metadata
+#' @param gobject giotto object
+#' @param cell_metadata cell_metadata supplied as a nested list with spat_unit$feat_type$name
+#' @keywords internal
+set_cell_metadata = function(gobject,
+                             cell_metadata) {
+
+  # if metadata is not provided, then:
+  # create metadata for each spatial unit and feature type combination
+
+  # define for data.table :=
+  cell_ID = NULL
+
+  if(is.null(cell_metadata)) {
+
+    for(spat_unit in names(gobject@expression)) {
+
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+
+        if(is.null(gobject@spatial_info)) {
+          gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
+        } else {
+          for(poly in names(gobject@spatial_info)) {
+            gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+          }
+        }
+      }
+    }
+
+  } else {
+
+    # extract all metadata information
+    # need to be nested list (feature type and spatial unit)
+    for(spat_unit in names(cell_metadata)) {
+
+      for(feat_type in names(cell_metadata[[spat_unit]])) {
+
+
+        gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
+        gobject@cell_metadata[[spat_unit]][[feat_type]][, cell_ID := gobject@cell_ID[[spat_unit]]]
+
+        # put cell_ID first
+        all_colnames = colnames(gobject@cell_metadata[[spat_unit]][[feat_type]])
+        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+        gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+
+      }
+    }
+  }
+
+  return(gobject)
+
+}
+
+
+#' @title Set feature metadata
+#' @name set_feature_metadata
+#' @description Set feature metadata
+#' @keywords internal
+set_feature_metadata = function(gobject,
+                                feat_metadata) {
+
+  # define for data.table :=
+  feat_ID = NULL
+
+  if(is.null(feat_metadata)) {
+
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+      }
+    }
+
+  } else {
+
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
+        gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+
+        # put feat_ID first
+        all_colnames = colnames(gobject@feat_metadata[[spat_unit]][[feat_type]])
+        other_colnames = grep('feat_ID', all_colnames, invert = T, value = T)
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][, c('feat_ID', other_colnames), with = FALSE]
+
+      }
+    }
+  }
+
+  return(gobject)
+
+}
+
+
 ## cell metadata slot ####
 
 #' @title Get cell metadata
