@@ -428,7 +428,7 @@ checkExprObj = function(object) {
   errors = character()
 
   # Check for expr info
-  if(is.null(slot(object, 'expression'))) {
+  if(is.null(slot(object, 'exprMat'))) {
     obj_info = paste0('exprObj ',
                       'spat_unit "', slot(object, 'spat_unit'), '", ',
                       'feat_type "', slot(object, 'feat_type'), '", ',
@@ -438,26 +438,26 @@ checkExprObj = function(object) {
     errors = c(errors, msg)
   }
 
-  # Check expr matrix class
-  if(!inherits(slot(object, 'exprMat'), c('dgeMatrix', 'dgCMatrix'))) {
-    msg = paste0(obj_info, 'Expression matrix should be provided as either dgCmatrix (sparse)',
-                 ' or dgeMatrix (dense) from the Matrix package.\n')
-    errors = c(errors, msg)
-  }
-
-  if(inherits(slot(object, 'exprMat'), 'dgCMatrix')) {
-    if(!isTRUE(slot(object, 'sparse'))) {
-      msg = paste0(obj_info, 'Contains a dgCmatrix. Slot sparse should be TRUE')
-      errors = c(errors, msg)
-    }
-  }
-
-  if(inherits(slot(object, 'exprMat'), 'dgeMatrix')) {
-    if(isTRUE(slot(object, 'sparse'))) {
-      msg = paste0(obj_info, 'Contains a dgematrix. Slot sparse should be FALSE')
-      errors = c(errors, msg)
-    }
-  }
+  # TODO Check expr matrix class
+  # if(!inherits(slot(object, 'exprMat'), c('dgeMatrix', 'dgCMatrix'))) {
+  #   msg = paste0(obj_info, 'Expression matrix should be provided as either dgCmatrix (sparse)',
+  #                ' or dgeMatrix (dense) from the Matrix package.\n')
+  #   errors = c(errors, msg)
+  # }
+  #
+  # if(inherits(slot(object, 'exprMat'), 'dgCMatrix')) {
+  #   if(!isTRUE(slot(object, 'sparse'))) {
+  #     msg = paste0(obj_info, 'Contains a dgCmatrix. Slot sparse should be TRUE')
+  #     errors = c(errors, msg)
+  #   }
+  # }
+  #
+  # if(inherits(slot(object, 'exprMat'), 'dgeMatrix')) {
+  #   if(isTRUE(slot(object, 'sparse'))) {
+  #     msg = paste0(obj_info, 'Contains a dgematrix. Slot sparse should be FALSE')
+  #     errors = c(errors, msg)
+  #   }
+  # }
 
   if(length(errors) == 0) TRUE else errors
 }
@@ -694,7 +694,7 @@ S3toS4dimObj = function(object) {
 ## nnNetObj ####
 
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'miscData'),
+         contains = c('nnData', 'spatFeatData', 'provData', 'miscData'),
          representation = list(name = 'character'),
          prototype = prototype(name = NA_character_))
 
@@ -752,11 +752,9 @@ checkSpatLocsObj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'provData'),
-         slots = c(name = 'nullOrChar',
-                   misc = 'ANY'),
-         prototype = list(name = NULL,
-                          misc = NULL),
+         contains = c('coordDataDT', 'spatData', 'provData', 'miscData'),
+         slots = c(name = 'nullOrChar'),
+         prototype = list(name = NULL),
          validity = checkSpatLocsObj)
 
 

@@ -8,6 +8,7 @@
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
+#' @param output what format in which to get information (e.g. "data.table")
 #' @keywords internal
 NULL
 
@@ -139,61 +140,159 @@ set_feat_id = function(gobject,
 
 ## cell metadata slot ####
 
-#' @include auxiliary_giotto.R
-#' @rdname pDataDT
-get_CellMetadata <- pDataDT
-
-#' @title set_CellMetadata
-#' @name set_CellMetadata
-#' @include auxiliary_giotto.R
-#' @description set specific slots of cell metadata, overwriting all other slots
+#' @title Get cell metadata
+#' @name get_CellMetadata
 #' @inheritParams data_access
-#' @param meta_dt data.table object containing cell metadata
-#' @return giotto object
-#' @family functions to set data in giotto object
-set_CellMetadata <- function(gobject,
-                             spat_unit = NULL,
-                             feat_type = NULL,
-                             meta_dt = NULL) {
+#' @param output return as either 'data.table' or 'cellMetaObj'
+#' @description Get cell metadata from giotto object
+get_CellMetadata = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            output = c('data.table', 'cellMetaObj')) {
 
-  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+  output = match.arg(output, choices = c('data.table', 'cellMetaObj'))
 
-  if(is.null(meta_dt) || !inherits(meta_dt, 'data.table')) {
-    stop("Please provide a data.table containing metadata.")
-  }
+  # 1. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
+  # 2. Find object - note that metadata objects do not have names
+  cellMeta = gobject@cell_metadata[[spat_unit]][[feat_type]]
 
-  new_cols = NULL
-  if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-    old_cols = colnames(old_meta)
-    new_cols = colnames(meta_dt)
-    cat("\nWarning: The following columns will be overwritten:",
-    old_cols, "\nThey will be replaced with:", new_cols,"\n")
+  # 3. Return as desired object type
+  if(output == 'cellMetaObj') {
+    if(inherits(cellMeta, 'data.table')) { # ** TO BE DEPRECATED **
+      cellMeta = new('cellMetaObj',
+                     metaDT = cellMeta,
+                     col_desc = NA_character_, # no info
+                     spat_unit = spat_unit,
+                     feat_type = feat_type,
+                     provenance = spat_unit) # assumed
+    }
 
-    old_meta[, (old_cols) := NULL]
+    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
+    if(!inherits(cellMeta, 'cellMetaObj')) stop('metadata referenced is not data.table or cellMetaObj')
 
-  } else {
-    new_cols = colnames(meta_dt)
-    cat("\nWriting data within columns:", new_cols,
-    "\nto cell metadata\n")
+    # return cellMetaObj
+    return(cellMeta)
+  } else if(output == 'data.table') {
+    if(inherits(cellMeta, 'cellMetaObj')) {
+      cellMeta = slot(cellMeta, 'metaDT')
+    }
+
+    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
+    if(!inherits(cellMeta, 'data.table')) stop('metadata referenced is not data.table or cellMetaObj')
+
+    # return data.table
+    return(cellMeta)
   }
 
-  suppressWarnings({
-    gobject <- removeCellAnnotation(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    columns = old_cols,
-                                    return_gobject = TRUE)
-    gobject@cell_metadata[[spat_unit]][[feat_type]] <- meta_dt
-  })
+}
 
-  cat("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
+
+
+
+
+#' @title Set cell metadata
+#' @name set_CellMetadata
+#' @description Function to set cell metadata information into giotto object
+#' @inheritParams data_access
+#' @param metadata cellMetaObj or data.table containing cell metadata. Setting NULL will remove
+#' the object
+#' @param verbose be verbose
+#' @return giotto object
+#' @family functions to set data in giotto object
+set_CellMetadata = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            metadata,
+                            verbose = TRUE) {
+
+  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+
+
+  # 1. determine if user input was supplied
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_feat = TRUE
+
+  # 2. set spat unit/ feat type if needed
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # 3. If input is NULL, remove object
+  if(is.null(metadata)) {
+    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
+    gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
+    return(gobject)
+  }
+
+  # 4. import info if S4 object, else generate S4
+  if(inherits(metadata, 'cellMetaObj')) {
+
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(metadata, 'spat_unit'))) spat_unit = slot(metadata, 'spat_unit')
+    } else {
+      slot(metadata, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_feat)) {
+      if(!is.na(slot(metadata, 'feat_type'))) feat_type = slot(metadata, 'feat_type')
+    } else {
+      slot(metadata, 'feat_type') = feat_type
+    }
+
+  } else {
+    if(!inherits(metadata, 'data.table')) metadata = data.table::as.data.table(metadata)
+
+    metadata = new('cellMetaObj',
+                   metaDT = metadata,
+                   col_desc = NA_character_, # unknown
+                   spat_unit = spat_unit,
+                   feat_type = feat_type,
+                   provenance = spat_unit) # assumed
+  }
+
+  # 5. check if nesting address is already used - just feat_type for metadata
+  potential_names = list_cell_metadata(gobject, spat_unit = spat_unit)[, feat_type]
+  if(feat_type %in% potential_names) {
+    if(isTRUE(verbose)) message('Cell metadata for spat_unit "', spat_unit, '" and feat_type "',
+                                feat_type, '" already exists and will be replaced with new metadata.')
+  }
+
+
+  # old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
+  #
+  # new_cols = NULL
+  # if(!is.null(old_meta) && inherits(old_meta, "data.table")){
+  #   old_cols = colnames(old_meta)
+  #   new_cols = colnames(meta_dt)
+  #   cat("\nWarning: The following columns will be overwritten:",
+  #   old_cols, "\nThey will be replaced with:", new_cols,"\n")
+  #
+  #   old_meta[, (old_cols) := NULL]
+  #
+  # } else {
+  #   new_cols = colnames(meta_dt)
+  #   cat("\nWriting data within columns:", new_cols,
+  #   "\nto cell metadata\n")
+  # }
+
+  # suppressWarnings({
+  #   gobject <- removeCellAnnotation(gobject = gobject,
+  #                                   spat_unit = spat_unit,
+  #                                   feat_type = feat_type,
+  #                                   columns = old_cols,
+  #                                   return_gobject = TRUE)
+  #   gobject@cell_metadata[[spat_unit]][[feat_type]] = meta_dt
+  # })
+  # message("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
+  #
+  gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
   return(gobject)
 
 }
@@ -201,63 +300,132 @@ set_CellMetadata <- function(gobject,
 
 ## feature metadata slot ####
 
-#' @rdname fDataDT
-#' @include auxiliary_giotto.R
-get_FeatMetadata <- fDataDT
-
-#' @title set_FeatMetadata
-#' @name set_FeatMetadata
-#' @include auxiliary_giotto.R
-#' @description set specific slots of feature metadata, overwriting all other slots
+#' @title Get feature metadata
+#' @name get_FeatMetadata
 #' @inheritParams data_access
-#' @param meta_dt data.table object containing feature metadata
+#' @param output return as either 'data.table' or 'cellMetaObj'
+#' @description Get feature metadata from giotto object
+get_FeatMetadata = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            output = c('data.table', 'featMetaObj')) {
+
+  output = match.arg(output, choices = c('data.table', 'featMetaObj'))
+
+  # 1. Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # 2. Find object - note that metadata objects do not have names
+  featMeta = gobject@feat_metadata[[spat_unit]][[feat_type]]
+
+  # 3. Return as desired object type
+  if(output == 'featMetaObj') {
+    if(inherits(featMeta, 'data.table')) { # ** TO BE DEPRECATED **
+      featMeta = new('featMetaObj',
+                     metaDT = featMeta,
+                     col_desc = NA_character_, # no info
+                     spat_unit = spat_unit,
+                     feat_type = feat_type,
+                     provenance = spat_unit) # assumed
+    }
+
+    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
+    if(!inherits(featMeta, 'featMetaObj')) stop('metadata referenced is not data.table or featMetaObj')
+
+    # return featMetaObj
+    return(featMeta)
+  } else if(output == 'data.table') {
+    if(inherits(featMeta, 'featMetaObj')) {
+      featMeta = slot(featMeta, 'metaDT')
+    }
+
+    if(inherits(featMeta, 'list') | is.null(featMeta)) stop('metadata referenced does not exist.')
+    if(!inherits(featMeta, 'data.table')) stop('metadata referenced is not data.table or featMetaObj')
+
+    # return data.table
+    return(featMeta)
+  }
+
+}
+
+
+
+
+#' @title Set feature metadata
+#' @name set_FeatMetadata
+#' @description Function to set feature metadata into giotto object
+#' @inheritParams data_access
+#' @param metadata featMetaObj or data.table object containing feature metadata.
+#' Setting NULL will remove the object.
+#' @param verbose be verbose
 #' @return giotto object
 #' @family functions to set data in giotto object
-set_FeatMetadata <- function(gobject,
-                             spat_unit = NULL,
-                             feat_type = NULL,
-                             meta_dt = NULL){
-  if (!inherits(gobject,'giotto')) stop("Only Giotto Objects are supported for this function.")
+set_FeatMetadata = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            metadata,
+                            verbose = TRUE) {
 
-  if(is.null(meta_dt) || !inherits(meta_dt, "data.table")){
-    stop("Please provide a data.table containing metadata.")
+  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+
+
+  # 1. determine if user input was supplied
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_feat = TRUE
+
+  # 2. set spat unit/ feat type if needed
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # 3. If input is NULL, remove object
+  if(is.null(metadata)) {
+    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata')
+    gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
+    return(gobject)
   }
 
-  spat_unit <- set_default_spat_unit(gobject = gobject,
-                                     spat_unit = spat_unit)
+  # 4. import info if S4 object, else generate S4
+  if(inherits(metadata, 'featMetaObj')) {
 
-  feat_type <- set_default_feat_type(gobject = gobject,
-                                     feat_type = feat_type,
-                                     spat_unit = spat_unit)
-
-  old_meta <- data.table::copy(gobject@feat_metadata[[spat_unit]][[feat_type]])
-
-  new_cols <- NULL
-  if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-    old_cols <- colnames(old_meta)
-    new_cols <- colnames(meta_dt)
-    cat("\nWarning: The following columns will be overwritten:",
-    old_cols, "\nThey will be replaced with:", new_cols,"\n")
-
-    old_meta[, (old_cols) := NULL]
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(metadata, 'spat_unit'))) spat_unit = slot(metadata, 'spat_unit')
+    } else {
+      slot(metadata, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_feat)) {
+      if(!is.na(slot(metadata, 'feat_type'))) feat_type = slot(metadata, 'feat_type')
+    } else {
+      slot(metadata, 'feat_type') = feat_type
+    }
 
   } else {
-    new_cols <- colnames(meta_dt)
-    cat("\nWriting data within columns:", new_cols,
-    "\nto feature metadata\n")
+    if(!inherits(metadata, 'data.table')) metadata = data.table::as.data.table(metadata)
+
+    metadata = new('featMetaObj',
+                   metaDT = metadata,
+                   col_desc = NA_character_, # unknown
+                   spat_unit = spat_unit,
+                   feat_type = feat_type,
+                   provenance = spat_unit) # assumed
   }
 
-  suppressWarnings({
-    gobject <- removeFeatAnnotation(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    columns = old_cols,
-                                    return_gobject = TRUE)
-    gobject@feat_metadata[[spat_unit]][[feat_type]] <- meta_dt
-  })
+  # 5. check if nesting address is already used - just feat_type for metadata
+  potential_names = list_feat_metadata(gobject, spat_unit = spat_unit)[, feat_type]
+  if(feat_type %in% potential_names) {
+    if(isTRUE(verbose)) message('Feat metadata for spat_unit "', spat_unit, '" and feat_type "',
+                                feat_type, '" already exists and will be replaced with new metadata.')
+  }
 
-  cat("\nFeature Metadata slot '",spat_unit, feat_type, "' set.\n")
+  gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
   return(gobject)
+
 
 }
 
@@ -269,22 +437,30 @@ set_FeatMetadata <- function(gobject,
 #' @description Function to get expression values from giotto object
 #' @inheritParams data_access
 #' @param values expression values to extract (e.g. "raw", "normalized", "scaled")
+#' @param output what object type to retrieve the expression as. Currently either
+#' 'Matrix' for dgeMatrix or dgCMatrix or 'exprObj' are allowed.
 #' @return expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
 #' @export
-get_expression_values <- function(gobject,
-                                  spat_unit = NULL,
-                                  feat_type = NULL,
-                                  values) {
+get_expression_values = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 values,
+                                 output = c('Matrix', 'exprObj')) {
 
 
-  # Set feat_type and spat_unit
+  output = match.arg(output, choices = c('Matrix', 'exprObj'))
+
+  # 1. Set feat_type and spat_unit
+
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+
+  # 2. Find object
 
   potential_values = names(gobject@expression[[spat_unit]][[feat_type]])
 
@@ -297,13 +473,62 @@ get_expression_values <- function(gobject,
     stop('first add custom expression matrix')
   }
 
+  if(!values %in% potential_values) stop("The spatial unit ", spat_unit ," for expression matrix ", feat_type, " and with name ","'", values, "'"," can not be found \n")
 
-  if(values %in% potential_values) {
-    expr_values = gobject@expression[[spat_unit]][[feat_type]][[values]]
+  # 3. Get object in desired format
+
+  expr_values = gobject@expression[[spat_unit]][[feat_type]][[values]]
+
+  if(output == 'exprObj') {
+    if(inherits(expr_values, c('dgeMatrix'))) { # ** TO BE DEPRECATED **
+      expr_values = new('exprObj',
+                        name = values,
+                        exprMat = expr_values,
+                        sparse = FALSE,
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        provenance = spat_unit, # assumed
+                        misc = NULL)
+    } else if(inherits(expr_values, c('dgCMatrix'))) { # ** TO BE DEPRECATED **
+      expr_values = new('exprObj',
+                        name = values,
+                        exprMat = expr_values,
+                        sparse = TRUE,
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        provenance = spat_unit, # assumed
+                        misc = NULL)
+    } else {
+      expr_values = new('exprObj', # general catch
+                        name = values,
+                        exprMat = expr_values,
+                        sparse = NA,            # unknown
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        provenance = spat_unit, # assumed
+                        misc = NULL)
+    }
+
+    if(!inherits(expr_values, 'exprObj')) stop('Cannot convert to exprObj')
+
+    # return exprObj
     return(expr_values)
-  } else {
-    stop("The spatial unit ", spat_unit ," for expression matrix ", feat_type, " and with name ","'", values, "'"," can not be found \n")
+
+  } else if(output == 'Matrix') {
+
+    if(inherits(expr_values, 'exprObj')) expr_values = slot(expr_values, 'exprMat')
+
+    # return 'Matrix'
+    if(inherits(expr_values, c('dgeMatrix', 'dgCMatrix'))) {
+      return(expr_values)
+    } else {
+      warning('matrix type conversions not yet implemented. Returning the current expression matrix')
+      return(expr_values)
+    }
+
   }
+
+
 
 }
 
@@ -327,36 +552,76 @@ select_expression_values = function(...) {
 #' @description Function to set expression values for giotto object
 #' @inheritParams data_access
 #' @param name name for the expression slot
-#' @param values matrix of expression values
+#' @param values exprObj or matrix of expression values. If NULL, then the object
+#' will be removed.
+#' @param verbose be verbose
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_expression_values <- function(gobject,
-                                  spat_unit = NULL,
-                                  feat_type = NULL,
-                                  name = 'test',
-                                  values) {
+set_expression_values = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 name = 'test',
+                                 values,
+                                 verbose = TRUE) {
 
+  # 1. Determine user inputs
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_feat = TRUE
+  if(is.null(match.call()$name)) nospec_name = TRUE
 
-  # Set feat_type and spat_unit
+  # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-
-  ## 1. check if specified name has already been used
-  potential_names = names(gobject@expression[[spat_unit]][[feat_type]])
-  if(name %in% potential_names) {
-    cat(name, ' already exist and will be replaced with new values \n')
+  # 3. if input is NULL, remove object
+  if(is.null(values)) {
+    if(isTRUE(verbose)) message('NULL passed to values param.\n Removing specified expression')
+    gobject@expression[[spat_unit]][[feat_type]][[name]] = values
+    return(gobject)
   }
 
-  ## TODO: 2. check input for values matrix
+  # 4. import data from S4 if available
+  if(inherits(values, 'exprObj')) {
 
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(values, 'spat_unit'))) spat_unit = slot(values, 'spat_unit')
+    } else {
+      slot(values, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_feat)) {
+      if(!is.na(slot(values, 'feat_type'))) feat_type = slot(values, 'feat_type')
+    } else {
+      slot(values, 'feat_type') = feat_type
+    }
+    if(isTRUE(nospec_name)) {
+      if(!is.na(slot(values, 'name'))) name = slot(values, 'name')
+    } else {
+      slot(values, 'name') = name
+    }
 
-  ## 3. update and return giotto object
+  } else {
+    values = new('exprObj',
+                 name = name,
+                 exprMat = values,
+                 sparse = NA,          # unknown
+                 spat_unit = spat_unit,
+                 feat_type = feat_type,
+                 provenance = spat_unit, # assumed
+                 misc = NULL)
+  }
+
+  ## 5. check if specified name has already been used
+  potential_names = list_expression_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
+  if(name %in% potential_names) {
+    if(isTRUE(verbose)) message(name, ' already exist and will be replaced with new values \n')
+  }
+
+  ## 6. update and return giotto object
   gobject@expression[[spat_unit]][[feat_type]][[name]] = values
   return(gobject)
 
@@ -379,11 +644,11 @@ set_expression_values <- function(gobject,
 #' @family spatial location data accessor functions
 #' @family functions to get data from giotto object
 #' @export
-get_spatial_locations <- function(gobject,
-                                  spat_unit = NULL,
-                                  spat_loc_name = NULL,
-                                  return_spatlocs_Obj = FALSE,
-                                  copy_obj = TRUE) {
+get_spatial_locations = function(gobject,
+                                 spat_unit = NULL,
+                                 spat_loc_name = NULL,
+                                 return_spatlocs_Obj = FALSE,
+                                 copy_obj = TRUE) {
 
   if(!is.null(spat_unit)) {
     potential_spat_unit = names(slot(gobject, 'spatial_locs'))
@@ -429,13 +694,13 @@ get_spatial_locations <- function(gobject,
                         name = spat_loc_name,
                         spat_unit = spat_unit,
                         coordinates = data.table::copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]),
-                        provenance = NULL)
+                        provenance = spat_unit) # assume
         } else { # no copy
           spatloc = new('spatLocsObj',
                         name = spat_loc_name,
                         spat_unit = spat_unit,
                         coordinates = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]],
-                        provenance = NULL)
+                        provenance = spat_unit) # assume
         }
       }
     }
@@ -484,31 +749,38 @@ select_spatial_locations = function(...) {
 #' @family spatial location data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_spatial_locations <- function(gobject,
-                                  spatlocs,
-                                  spat_unit = NULL,
-                                  spat_loc_name = 'raw',
-                                  verbose = TRUE) {
+set_spatial_locations = function(gobject,
+                                 spatlocs,
+                                 spat_unit = NULL,
+                                 spat_loc_name = 'raw',
+                                 verbose = TRUE) {
 
-  # determine if input was supplied to spat_unit and spat_loc_name
+  # 1. determine if input was supplied to spat_unit and spat_loc_name
   if(is.null(spat_unit)) nospec_unit = TRUE
   if(is.null(match.call()$spat_loc_name)) nospec_name = TRUE
 
-  # spatial locations
+  # 2. spatial locations
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
 
-  ## 1. import data
+  # 3. remove if input is NULL
+  if(is.null(spatlocs)) {
+    if(isTRUE(verbose)) message('NULL passed to spatlocs.\n Removing specified spatial locations.')
+    gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
+    return(gobject)
+  }
+
+  # 4. import data
   # if is spatLocsObj, decide if to use tagged spat_unit and name info
   if(inherits(spatlocs, 'spatLocsObj')) {
     if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
-      if(!is.null(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
+      if(!is.na(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
       else slot(spatlocs, 'spat_unit') = spat_unit
     } else { # case if input given - use input
       slot(spatlocs, 'spat_unit') = spat_unit
     }
     if(isTRUE(nospec_name)) { # case if no input - prioritize tagged info
-      if(!is.null(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
+      if(!is.na(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
       else slot(spatlocs, 'name') = spat_loc_name
     } else { # case if input given - use input
       slot(spatlocs, 'name') = spat_loc_name
@@ -518,21 +790,19 @@ set_spatial_locations <- function(gobject,
     spatlocs = new('spatLocsObj',
                    name = spat_loc_name,
                    spat_unit = spat_unit,
-                   coordinates = spatlocs)
+                   coordinates = spatlocs,
+                   provenance = spat_unit) # assume
   }
 
-  ## 2. check if specified name has already been used
-  potential_names = names(gobject@spatial_locs[[spat_unit]][[spat_loc_name]])
+  # 5. check if specified name has already been used
+  potential_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
   if(spat_loc_name %in% potential_names) {
-    if(verbose == TRUE) {
-    cat(spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
+    if(isTRUE(verbose)) {
+    message(spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
     }
   }
 
-  ## TODO: 3. check input for spatial locations
-
-
-  ## 4. update and return giotto object
+  # 6. update and return giotto object
   gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
   return(gobject)
 
@@ -692,39 +962,48 @@ get_NearestNetwork = function(gobject,
                               feat_type = NULL,
                               nn_network_to_use = NULL,
                               network_name = NULL,
-                              output = c('igraph', 'data.table')) {
+                              output = c('igraph', 'data.table', 'nnNetObj')) {
 
-  output = match.arg(arg = output, choices = c('igraph', 'data.table'))
+  output = match.arg(arg = output, choices = c('igraph', 'data.table', 'nnNetObj'))
 
-  # Set feat_type and spat_unit
+  # 1.  Set feat_type and spat_unit
+
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+  # 2 Find the object
+
   # **to be deprecated - check for old nesting**
   if(is.null(names(gobject@nn_network[[spat_unit]][[feat_type]])[[1]])) { # If gobject has nothing for this feat_type
-  available = list_nearest_networks(gobject,
-                                    spat_unit = spat_unit,
-                                    nn_type = nn_network_to_use)
-    if(nrow(available) > 0 & is.null(available$feat_type)) { # If ANY old nesting objects are discovered (only reports old nestings if detected)
-      if(is.null(network_name)) igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[available$name[[1]]]]
-      else igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[network_name]]
-      if(inherits(igraph_object, 'igraph')) {
-        if(is.null(nn_network_to_use)) message('The NN network type was not specified, default to the first: "', available$nn_type[[1]],'"')
-        if(is.null(network_name)) message('The NN network name was not specified, default to the first: "', available$name[[1]],'"')
-        ## convert igraph to data.table
-        if(output == 'data.table') {
-          igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
+    available = list_nearest_networks(gobject,
+                                      spat_unit = spat_unit,
+                                      nn_type = nn_network_to_use)
+    if(!is.null(available)) {
+      if(nrow(available) > 0 & is.null(available$feat_type)) { # If ANY old nesting objects are discovered (only reports old nestings if detected)
+        if(is.null(network_name)) igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[available$name[[1]]]]
+        else igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[network_name]]
+        if(inherits(igraph_object, 'igraph')) {
+          if(is.null(nn_network_to_use)) message('The NN network type was not specified, default to the first: "', available$nn_type[[1]],'"')
+          if(is.null(network_name)) message('The NN network name was not specified, default to the first: "', available$name[[1]],'"')
+          ## convert igraph to data.table
+          if(output == 'data.table') {
+            igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
+            return(igraph_object)
+          }
           return(igraph_object)
-        }
-        return(igraph_object)
-      } else {
-        stop('There is currently no nearest-neighbor network created for
+        } else {
+          stop('There is currently no nearest-neighbor network created for
            spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
            First run createNearestNetwork()\n')
+        }
       }
+    } else {
+      stop('There is currently no nearest-neighbor network created for
+           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
+           First run createNearestNetwork()\n')
     }
   } # **deprecation end**
 
@@ -752,21 +1031,43 @@ get_NearestNetwork = function(gobject,
     }
   }
 
-  # get igraph object
-  igraph_object = gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]]
-  if(is.null(igraph_object)) {
+  # 3. get object in desired format
+
+  nnNet = gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]]
+  if(is.null(nnNet)) {
     stop('nn_network_to_use: "', nn_network_to_use, '" or network_name: "', network_name, '" does not exist.
           Create a nearest-neighbor network first')
   }
 
+  if(output == 'nnNetObj') {
+    if(inherits(nnNet, 'igraph')) { # ** TO BE DEPRECATED **
+      nnNet = new('nnNetObj',
+                  name = network_name,
+                  nn_type = nn_network_to_use,
+                  igraph = nnNet,
+                  spat_unit = spat_unit,
+                  feat_type = feat_type,
+                  provenance = spat_unit, # assumed if nnNet is igraph
+                  misc = NULL)
+    }
 
-  ## convert igraph to data.table
-  if(output == 'data.table') {
-    igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
-    return(igraph_object)
+    if(!inherits(nnNet, 'nnNetObj')) stop('Specified nnNet is neither igraph nor nnNetObj')
+
+    # return nnNetObj
+    return(nnNet)
+
+  } else if(output == 'igraph' | output == 'data.table') {
+    if(inherits(nnNet, 'nnNetObj')) { # ** TO BE DEPRECATED ** Will always be assumed to be the case moving forward
+      nnNet = slot(nnNet, 'igraph')
+    }
+
+    if(output == 'igraph') return(nnNet) # return igraph
+
+    if(output == 'data.table') {
+      nnNet = data.table::as.data.table(igraph::get.data.frame(x = nnNet))
+      return(nnNet) # return data.table
+    }
   }
-
-  return(igraph_object)
 
 }
 
@@ -805,7 +1106,9 @@ select_NearestNetwork = function(...) {
 #' @inheritParams data_access
 #' @param nn_network_to_use "kNN" or "sNN"
 #' @param network_name name of NN network to be used
-#' @param nn_network nearest network
+#' @param nn_network nnNetObj or igraph nearest network object. Data.table not
+#' yet supported.
+#' @param verbose be verbose
 #' @return giotto object
 #' @family expression space nearest network accessor functions
 #' @family functions to set data in giotto object
@@ -815,28 +1118,78 @@ set_NearestNetwork = function(gobject,
                               feat_type = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
-                              nn_network) {
+                              nn_network,
+                              verbose = TRUE) {
 
-  # Set feat_type and spat_unit
+  # 1. determine user input
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_feat = TRUE
+  if(is.null(match.call()$nn_network_to_use)) nospec_net = TRUE
+  if(is.null(match.call()$network_name)) nospec_name = TRUE
+
+  # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## 1. check if specified name has already been used
-  potential_names = names(gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]])
-  if(network_name %in% potential_names) {
-    message('"',network_name, '" already exists and will be replaced with new nearest neighbor network')
+  # 3. If input is null, remove object
+  if(is.null(nn_network)) {
+    if(isTRUE(verbose)) message('NULL passed to nn_network.\n Removing specified nearest neighbor network.')
+    gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]] = nn_network
+    return(gobject)
   }
 
-  ## TODO: 2. check input for nearest neighbor network
-  # convert to igraph if data.table class
+  # 4. import data from S4 if available
+  if(inherits(nn_network, 'nnNetObj')) {
+
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(nn_network, 'spat_unit'))) spat_unit = slot(nn_network, 'spat_unit')
+    } else {
+      slot(nn_network, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_feat)) {
+      if(!is.na(slot(nn_network, 'feat_type'))) feat_type = slot(nn_network, 'feat_type')
+    } else {
+      slot(nn_network, 'feat_type') = feat_type
+    }
+    if(isTRUE(nospec_net)) {
+      if(!is.na(slot(nn_network, 'nn_type'))) nn_network_to_use = slot(nn_network, 'nn_type')
+    } else {
+      slot(nn_network, 'nn_type') = nn_network_to_use
+    }
+    if(isTRUE(nospec_name)) {
+      if(!is.na(slot(nn_network, 'name'))) network_name = slot(nn_network, 'name')
+    } else {
+      slot(nn_network, 'name') = network_name
+    }
+
+  } else {
+    # TODO convert to igraph if data.table class
+
+    nn_network = new('nnNetObj',
+                     name = network_name,
+                     nn_type = nn_network_to_use,
+                     igraph = nn_network,
+                     spat_unit = spat_unit,
+                     feat_type = feat_type,
+                     provenance = spat_unit, # assumed
+                     misc = NULL)
+  }
 
 
-  ## 3. update and return giotto object
+  ## 5. check if specified name has already been used
+  potential_names = list_nearest_networks_names(gobject,
+                                                spat_unit = spat_unit,
+                                                feat_type = feat_type,
+                                                nn_type = nn_network_to_use)
+  if(network_name %in% potential_names) {
+    if(isTRUE(verbose)) message('"',network_name, '" already exists and will be replaced with new nearest neighbor network')
+  }
+
+  ## 6. update and return giotto object
   gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]] = nn_network
-
   return(gobject)
 
 }

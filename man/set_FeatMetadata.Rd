@@ -2,9 +2,15 @@
 % Please edit documentation in R/accessors.R
 \name{set_FeatMetadata}
 \alias{set_FeatMetadata}
-\title{set_FeatMetadata}
+\title{Set feature metadata}
 \usage{
-set_FeatMetadata(gobject, spat_unit = NULL, feat_type = NULL, meta_dt = NULL)
+set_FeatMetadata(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  metadata,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -13,13 +19,16 @@ set_FeatMetadata(gobject, spat_unit = NULL, feat_type = NULL, meta_dt = NULL)
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{meta_dt}{data.table object containing feature metadata}
+\item{metadata}{featMetaObj or data.table object containing feature metadata.
+Setting NULL will remove the object.}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
 }
 \description{
-set specific slots of feature metadata, overwriting all other slots
+Function to set feature metadata into giotto object
 }
 \seealso{
 Other functions to set data in giotto object: 

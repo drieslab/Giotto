@@ -10,7 +10,8 @@ set_NearestNetwork(
   feat_type = NULL,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  nn_network
+  nn_network,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,10 @@ set_NearestNetwork(
 
 \item{network_name}{name of NN network to be used}
 
-\item{nn_network}{nearest network}
+\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
+yet supported.}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

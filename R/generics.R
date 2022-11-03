@@ -146,10 +146,9 @@ NULL
 #' @rdname extract-generic
 #' @section \code{`$`} methods:
 #'   Select by colname from giotto S4 data.table coordinates slot.
-#'   Works via data.table methods
 #' @export
 setMethod('$', signature(x = 'coordDataDT'),
-          function(x, name) x@coordinates[, name, with = FALSE])
+          function(x, name) x@coordinates[[name]])
 
 
 #' @rdname extract-generic
@@ -161,6 +160,28 @@ setMethod('$<-', signature(x = 'coordDataDT'),
           function(x, name, value) {
             if(x@coordinates[,.N] == 0) x@coordinates = data.table::data.table()
             x@coordinates[, (name) := value]
+            x
+          })
+
+## * metaData ####
+
+#' @rdname extract-generic
+#' @section \code{`$`} methods:
+#'   Select by colname from giotto S4 data.table metaDT slot.
+#' @export
+setMethod('$', signature(x = 'metaData'),
+          function(x, name) x@metaDT[[name]])
+
+
+#' @rdname extract-generic
+#' @section \code{`$<-`} methods:
+#'   Set values by colname into giotto S4 data.table metaDT slot.
+#'   Works via data.table methods
+#' @export
+setMethod('$<-', signature(x = 'metaData'),
+          function(x, name, value) {
+            if(x@metaDT[,.N] == 0) x@metaDT = data.table::data.table()
+            x@metaDT[, (name) := value]
             x
           })
 
@@ -206,7 +227,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
 
 # setMethod("[[")
 
-## * metaDT ####
+## * metaData ####
 
 #' @rdname extract-generic
 #' @section \code{`[`} methods:

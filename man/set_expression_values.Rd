@@ -9,7 +9,8 @@ set_expression_values(
   spat_unit = NULL,
   feat_type = NULL,
   name = "test",
-  values
+  values,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -21,7 +22,10 @@ set_expression_values(
 
 \item{name}{name for the expression slot}
 
-\item{values}{matrix of expression values}
+\item{values}{exprObj or matrix of expression values. If NULL, then the object
+will be removed.}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

@@ -2426,11 +2426,21 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
       centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
       colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
 
-      gobject = set_spatial_locations(gobject = gobject,
-                                      spat_unit = polygon_info,
-                                      spat_loc_name = 'raw',
-                                      spatlocs = centroidsDT_loc,
-                                      verbose = FALSE)
+      # gobject = set_spatial_locations(gobject = gobject,
+      #                                 spat_unit = polygon_info,
+      #                                 spat_loc_name = 'raw',
+      #                                 spatlocs = centroidsDT_loc,
+      #                                 verbose = FALSE)
+
+      locsObj = new('spatLocsObj',
+                    name = 'raw',
+                    coordinates = centroidsDT_loc,
+                    spat_unit = polygon_info,
+                    provenance = polygon_info,
+                    misc = NULL)
+
+      gobject = set_spatial_locations(gobject, spatlocs = locsObj)
+
     }
 
   }
@@ -3109,14 +3119,30 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     # Add spatial locations
     if(isTRUE(verbose)) message('Appending metadata provided spatial locations data as...\n --> spat_unit: "cell_agg" name: "raw"\n --> spat_unit: "cell" name: "raw_fov"')
     if(isTRUE(verbose)) message('Polygon centroid derived spatial locations assigned as...\n --> spat_unit: "cell" name: "raw" (default)')
-    cosmx_gobject = set_spatial_locations(cosmx_gobject,
-                                          spat_unit = 'cell_agg',
-                                          spat_loc_name = 'raw',
-                                          spatlocs = spatlocs)
-    cosmx_gobject = set_spatial_locations(cosmx_gobject,
-                                          spat_unit = 'cell_agg',
-                                          spat_loc_name = 'raw_fov',
-                                          spatlocs = spatlocs_fov)
+    locsObj = new('spatLocsObj',
+                  name = 'raw',
+                  coordinates = spatlocs,
+                  spat_unit = 'cell_agg',
+                  provenance = 'cell_agg',
+                  misc = NULL)
+    locsObj_fov = new('spatLocsObj',
+                      name = 'raw_fov',
+                      coordinates = spatlocs_fov,
+                      spat_unit = 'cell_agg',
+                      provenance = 'cell_agg',
+                      misc = NULL)
+
+    cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj)
+    cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj_fov)
+
+    # cosmx_gobject = set_spatial_locations(cosmx_gobject,
+    #                                       spat_unit = 'cell_agg',
+    #                                       spat_loc_name = 'raw',
+    #                                       spatlocs = spatlocs)
+    # cosmx_gobject = set_spatial_locations(cosmx_gobject,
+    #                                       spat_unit = 'cell_agg',
+    #                                       spat_loc_name = 'raw_fov',
+    #                                       spatlocs = spatlocs_fov)
 
     # initialize cell and feat IDs and metadata slots for 'cell_agg' spat_unit
     cosmx_gobject@cell_ID[['cell_agg']] = colnames(cosmx_gobject@expression[['cell_agg']][[1]][[1]])
@@ -4324,12 +4350,12 @@ joinGiottoObjects = function(gobject_list,
                                          spat_loc_name = name_i,
                                          return_spatlocs_Obj = FALSE,
                                          copy_obj = FALSE)
-        # spatlocs = updated_object_list[[gobj_i]]@spatial_locs[[spat_unit]][[name]]
+
         savelist[[gobj_i]] = spatlocs
       }
 
       combspatlocs = join_spatlocs(dt_list = savelist)
-      combspat_obj = new('spatialLocationsObj',
+      combspat_obj = new('spatLocsObj',
                          name = name_i,
                          spat_unit = spat_unit_i,
                          coordinates = combspatlocs,

@@ -4,6 +4,8 @@
 \alias{extract-generic}
 \alias{$,coordDataDT-method}
 \alias{$<-,coordDataDT-method}
+\alias{$,metaData-method}
+\alias{$<-,metaData-method}
 \alias{[,coordDataDT,missing,ANY,missing-method}
 \alias{[,coordDataDT,ANY,ANY,missing-method}
 \alias{[,coordDataDT,missing,missing,missing-method}
@@ -16,6 +18,10 @@
 \S4method{$}{coordDataDT}(x, name)
 
 \S4method{$}{coordDataDT}(x, name) <- value
+
+\S4method{$}{metaData}(x, name)
+
+\S4method{$}{metaData}(x, name) <- value
 
 \S4method{[}{coordDataDT,missing,ANY,missing}(x, i, j)
 
@@ -55,7 +61,9 @@ or replace parts.
 
 
   Select by colname from giotto S4 data.table coordinates slot.
-  Works via data.table methods
+
+
+  Select by colname from giotto S4 data.table metaDT slot.
 }
 
 \section{\code{`$<-`} methods}{
@@ -63,6 +71,10 @@ or replace parts.
 
 
   Set values by colname into giotto S4 data.table coordinates slot.
+  Works via data.table methods
+
+
+  Set values by colname into giotto S4 data.table metaDT slot.
   Works via data.table methods
 }
 

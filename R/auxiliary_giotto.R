@@ -111,12 +111,13 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @alias get_CellMetadata
+#' @param ... additional params to pass
 #' @return data.table with cell metadata
 #' @export
-pDataDT <- function(gobject,
-                    spat_unit = NULL,
-                    feat_type = NULL) {
+pDataDT = function(gobject,
+                   spat_unit = NULL,
+                   feat_type = NULL,
+                   ...) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -134,7 +135,10 @@ pDataDT <- function(gobject,
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(inherits(gobject, 'giotto')) {
-    return(gobject@cell_metadata[[spat_unit]][[feat_type]])
+    return(get_CellMetadata(gobject = gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            output = ...))
   }
   else if(inherits(gobject, 'seurat')) {
     return(data.table::as.data.table(gobject@meta.data))
@@ -142,79 +146,20 @@ pDataDT <- function(gobject,
 
 }
 
-# #' @rdname pDataDT
-# get_CellMetadata <- pDataDT
-
-
-# #' @title set_CellMetadata
-# #' @name set_CellMetadata
-# #' @description set specific slots of cell metadata, overwriting all other slots
-# #' @param gobject giotto object
-# #' @param spat_unit spatial unit
-# #' @param feat_type feautre type
-# #' @param meta_dt data.table object containing cell metadata
-# #' @return giotto object
-# #' @family functions to set data in giotto object
-# set_CellMetadata <- function(gobject,
-#                              spat_unit = NULL,
-#                              feat_type = NULL,
-#                              meta_dt = NULL) {
-
-#   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
-
-#   if(is.null(meta_dt) || !inherits(meta_dt, 'data.table')) {
-#     stop("Please provide a data.table containing metadata.")
-#   }
-#   spat_unit = set_default_spat_unit(gobject = gobject,
-#                                     spat_unit = spat_unit)
-#   feat_type = set_default_feat_type(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type)
-
-#   old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
-
-#   new_cols = NULL
-#   if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-#     old_cols = colnames(old_meta)
-#     new_cols = colnames(meta_dt)
-#     cat("\nWarning: The following columns will be overwritten:",
-#     old_cols, "\nThey will be replaced with:", new_cols,"\n")
-
-#     old_meta[, (old_cols) := NULL]
-
-#   } else {
-#     new_cols = colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols,
-#     "\nto cell metadata\n")
-#   }
-
-#   suppressWarnings({
-#     gobject <- removeCellAnnotation(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type,
-#                                     columns = old_cols,
-#                                     return_gobject = TRUE)
-#     gobject@cell_metadata[[spat_unit]][[feat_type]] <- meta_dt
-#   })
-
-#   cat("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
-#   return(gobject)
-
-# }
-
 
 #' @title fDataDT
 #' @name fDataDT
-#' @description show gene metadata
+#' @description show feature metadata
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @alias get_FeatMetadata
-#' @return data.table with gene metadata
+#' @param ... additional params to pass
+#' @return data.table with feature metadata
 #' @export
-fDataDT <- function(gobject,
-                    spat_unit = NULL,
-                    feat_type = NULL) {
+fDataDT = function(gobject,
+                   spat_unit = NULL,
+                   feat_type = NULL,
+                   ...) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -227,71 +172,17 @@ fDataDT <- function(gobject,
     stop('only works with ExpressionSet (-like) objects')
   }
   else if(inherits(gobject, 'giotto')) {
-    return(gobject@feat_metadata[[spat_unit]][[feat_type]])
+    return(get_FeatMetadata(gobject = gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            output = ...))
+
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
 
-# #' @rdname fDataDT
-# get_FeatMetadata <- fDataDT
 
-# #' @title set_FeatMetadata
-# #' @name set_FeatMetadata
-# #' @description set specific slots of feature metadata, overwriting all other slots
-# #' @param gobject giotto object
-# #' @param spat_unit spatial unit
-# #' @param feat_type feature type
-# #' @param meta_dt data.table object containing feature metadata
-# #' @return giotto object
-# #' @family functions to set data in giotto object
-# set_FeatMetadata <- function(gobject,
-#                              spat_unit = NULL,
-#                              feat_type = NULL,
-#                              meta_dt = NULL){
-#   if (!inherits(gobject,'giotto')) stop("Only Giotto Objects are supported for this function.")
-
-#   if(is.null(meta_dt) || !inherits(meta_dt, "data.table")){
-#     stop("Please provide a data.table containing metadata.")
-#   }
-
-#   spat_unit <- set_default_spat_unit(gobject = gobject,
-#                                      spat_unit = spat_unit)
-
-#   feat_type <- set_default_feat_type(gobject = gobject,
-#                                      feat_type = feat_type,
-#                                      spat_unit = spat_unit)
-
-#   old_meta <- data.table::copy(gobject@feat_metadata[[spat_unit]][[feat_type]])
-
-#   new_cols <- NULL
-#   if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-#     old_cols <- colnames(old_meta)
-#     new_cols <- colnames(meta_dt)
-#     cat("\nWarning: The following columns will be overwritten:",
-#     old_cols, "\nThey will be replaced with:", new_cols,"\n")
-
-#     old_meta[, (old_cols) := NULL]
-
-#   } else {
-#     new_cols <- colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols,
-#     "\nto feature metadata\n")
-#   }
-
-#   suppressWarnings({
-#     gobject <- removeFeatAnnotation(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type,
-#                                     columns = old_cols,
-#                                     return_gobject = TRUE)
-#     gobject@feat_metadata[[spat_unit]][[feat_type]] <- meta_dt
-#   })
-
-#   cat("\nFeature Metadata slot '",spat_unit, feat_type, "' set.\n")
-#   return(gobject)
-
-# }
 
 
 #' @title create_average_DT
@@ -506,14 +397,14 @@ subset_spatial_locations = function(gobject,
     Obj = get_spatial_locations(gobject,
                                 spat_unit = spat_unit,
                                 spat_loc_name = spatlocname,
-                                return_spatlocs_Obj = T,
+                                return_spatlocs_Obj = TRUE,
                                 copy_obj = F)
     oldDT = slot(Obj, 'coordinates')
     newDT = oldDT[filter_bool_cells]
     slot(Obj, 'coordinates') = newDT
 
     gobject = set_spatial_locations(gobject, spatlocs = Obj)
-    # not yet possible to row subset data.table by reference
+    # not yet possible to row subset data.tables by reference. Must be set back in.
 
   }
 
