@@ -4,10 +4,25 @@
 \alias{runIntegratedUMAP}
 \title{Run integrated UMAP}
 \usage{
-runIntegratedUMAP(gobject, k = 20, spread = 5, min_dist = 0.01, ...)
+runIntegratedUMAP(
+  gobject,
+  spat_unit = "cell",
+  modality1 = "rna",
+  modality2 = "protein",
+  k = 20,
+  spread = 5,
+  min_dist = 0.01,
+  ...
+)
 }
 \arguments{
 \item{gobject}{A giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{modality1}{modality 1 name. Default = "rna"}
+
+\item{modality2}{modality 2 name. Default = "protein"}
 
 \item{k}{k number}
 

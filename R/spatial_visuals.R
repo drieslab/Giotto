@@ -10383,3 +10383,59 @@ compareCellAbundance <- function(gobject,
                                         ...)
   return(my_heatmap)
 }
+
+
+#' Plot stored polygons
+#'
+#' @param gobject A Giotto object with polygon coordinates
+#' @param x A ggplot2, spatPlot or terra::rast object
+#' @param spat_unit spatial unit
+#' @param polygons character. Vector of polygon names to plot. If NULL, all polygons are plotted
+#' @param ... Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon
+#'
+#' @return A ggplot2 image
+#' @export
+#'
+plotPolygons <- function(gobject, x, spat_unit = "cell", polygons = NULL, ...) {
+
+  ## verify gobject
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject must be a Giotto object")
+  }
+
+  ## verify plot exists
+  if(is.null(x)) stop('A plot object must be provided')
+
+  ## get polygons spatial info
+  polygon_spatVector <- get_polygon_info(gobject = gobject,
+                                         polygon_name = spat_unit)
+
+  coordinates <- terra::geom(polygon_spatVector, df = TRUE)
+
+  if(!is.null(polygons)) {
+    ## replace polygon names
+    for (i in 1:length(unlist(polygon_spatVector[["poly_ID"]])) ) {
+      coordinates$geom <- replace(coordinates$geom,
+                                  coordinates$geom == i,
+                                  unlist(polygon_spatVector[["poly_ID"]])[i])
+    }
+
+    coordinates <- coordinates[coordinates$geom %in% polygons,]
+  }
+
+  ## plot over ggplot or spatPlot
+  if(inherits(x, "ggplot")) {
+    x +
+      geom_polygon(data = coordinates,
+                   aes(x, y, colour = factor(geom), group = geom),
+                   alpha = 0, show.legend = FALSE, ...) +
+      theme(legend.position = 'none')
+  } else {
+    terra::plot(x)
+    lapply(split(coordinates, by = "name"),
+           function (x) graphics::polygon(x$x, x$y, ...) )
+  }
+
+}
+
+

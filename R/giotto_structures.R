@@ -631,10 +631,10 @@ extract_polygon_list = function(polygonlist,
   }
 
   # make sure cell is one of the names
-  all_names = names(polygonlist)
-  if(!any('cell' %in% all_names)) {
-    stop(" Information about 'cell' needs to be provided")
-  }
+  #all_names = names(polygonlist)
+  #if(!any('cell' %in% all_names)) {
+  #  stop(" Information about 'cell' needs to be provided")
+  #}
 
 
   final_list = list()

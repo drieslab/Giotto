@@ -8,6 +8,8 @@ saveGiotto(
   gobject,
   foldername = "saveGiottoDir",
   dir = getwd(),
+  method = c("RDS", "qs"),
+  method_params = list(),
   overwrite = FALSE,
   image_filetype = "PNG",
   verbose = TRUE,
@@ -20,6 +22,10 @@ saveGiotto(
 \item{foldername}{Folder name}
 
 \item{dir}{Directory where to create the folder}
+
+\item{method}{method to save main object}
+
+\item{method_params}{additional method parameters for RDS or qs}
 
 \item{overwrite}{Overwrite existing folders}
 
@@ -37,5 +43,6 @@ Saves a Giotto object to a specific folder structure
 }
 \details{
 Works together with \code{\link{loadGiotto}} to save and re-load
-Giotto objects.
+Giotto objects. Additional method_params need to be provided as a list and will
+go to \code{\link[base]{saveRDS}} or \code{\link[qs]{qsave}}
 }
