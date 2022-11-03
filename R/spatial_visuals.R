@@ -2852,8 +2852,9 @@ spatPlot2D_single = function(gobject,
   ## get cell metadata
 
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = list_spatial_locations_names(gobject, spat_unit = spat_unit)[[1]]
+      # spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL
@@ -4252,8 +4253,9 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract cell locations
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = list_spatial_locations_names(gobject, spat_unit = spat_unit)[[1]]
+      # spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL

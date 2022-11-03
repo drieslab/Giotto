@@ -11,6 +11,8 @@
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
+
+\item{output}{what format in which to get information (e.g. "data.table")}
 }
 \description{
 Access or examine slots within the giotto object

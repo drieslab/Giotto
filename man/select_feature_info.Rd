@@ -11,7 +11,7 @@ select_feature_info(...)
   Arguments passed on to \code{\link[=get_feature_info]{get_feature_info}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{feat_type}}{name of feature (e.g. "rna", "dna", "protein")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
   }}
 }
 \description{

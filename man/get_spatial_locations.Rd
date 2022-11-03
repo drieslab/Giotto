@@ -4,7 +4,13 @@
 \alias{get_spatial_locations}
 \title{Get spatial locations}
 \usage{
-get_spatial_locations(gobject, spat_unit = NULL, spat_loc_name = NULL)
+get_spatial_locations(
+  gobject,
+  spat_unit = NULL,
+  spat_loc_name = NULL,
+  return_spatlocs_Obj = FALSE,
+  copy_obj = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,9 +18,13 @@ get_spatial_locations(gobject, spat_unit = NULL, spat_loc_name = NULL)
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
+
+\item{return_spatlocs_Obj}{return spatLocsObj (default = FALSE)}
+
+\item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
 }
 \value{
-data.table with coordinates
+data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}
 }
 \description{
 Function to get a spatial location data.table

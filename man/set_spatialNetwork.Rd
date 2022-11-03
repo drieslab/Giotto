@@ -9,7 +9,7 @@ set_spatialNetwork(gobject, spat_unit = NULL, name = NULL, spatial_network)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit  (e.g. "cell")}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{name}{name of spatial network}
 
@@ -26,11 +26,15 @@ Other spatial network data accessor functions:
 \code{\link{get_spatialNetwork}()}
 
 Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_CellMetadata}()},
 \code{\link{set_FeatMetadata}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},

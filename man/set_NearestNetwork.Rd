@@ -10,7 +10,8 @@ set_NearestNetwork(
   feat_type = NULL,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  nn_network
+  nn_network,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,10 @@ set_NearestNetwork(
 
 \item{network_name}{name of NN network to be used}
 
-\item{nn_network}{nearest network}
+\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
+yet supported.}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -37,10 +41,14 @@ Other expression space nearest network accessor functions:
 \code{\link{get_NearestNetwork}()}
 
 Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_CellMetadata}()},
 \code{\link{set_FeatMetadata}()},
+\code{\link{set_cell_id}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},

@@ -306,7 +306,7 @@ list_element_exists = function(x, index) {
 
 
 
-# methods imports ####
+# methods/operator imports ####
 
 
 # Additional methods functions that might also be imported later...
@@ -341,7 +341,6 @@ NULL
 #' @importFrom methods validObject
 #' @usage validObject(object, test = FALSE, complete = FALSE)
 NULL
-
 
 
 

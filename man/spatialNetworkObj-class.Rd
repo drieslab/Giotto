@@ -7,6 +7,10 @@
 \description{
 Framework to store spatial network information
 }
+\details{
+The generic access operators work with the data within the \code{networkDT}
+slot (filtered).
+}
 \section{Slots}{
 
 \describe{
@@ -27,6 +31,8 @@ Framework to store spatial network information
 \item{\code{crossSectionObjects}}{crossSectionObjects (see \code{\link{create_crossSection_object}})}
 
 \item{\code{spat_unit}}{spatial unit tag}
+
+\item{\code{provenance}}{origin of aggregated information (if applicable)}
 
 \item{\code{misc}}{misc}
 }}

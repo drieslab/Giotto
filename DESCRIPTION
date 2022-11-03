@@ -112,8 +112,8 @@ Suggests:
     qs
 Collate:
     'NN_network.R'
-    'auxiliary_giotto.R'
     'accessors.R'
+    'auxiliary_giotto.R'
     'auxiliary_visuals.R'
     'cell_segmentation.R'
     'classes.R'
