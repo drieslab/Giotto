@@ -311,6 +311,9 @@ set_CellMetadata = function(gobject,
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
+  # 0. if metadata is not provided, then:
+  # initialize metadata for each spatial unit and feature type combination
+
 
   # 1. determine if user input was supplied
   if(is.null(spat_unit)) nospec_unit = TRUE
