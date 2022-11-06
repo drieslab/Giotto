@@ -572,7 +572,8 @@ setClass('cellMetaObj',
 setMethod('show', signature('cellMetaObj'), function(object) {
 
   cat('An object of class', class(object), '\n')
-  # TODO print spat/feat/prov
+  cat('Provenance:', slot(object, 'provenance'), '\n')
+  # TODO print spat/feat
   if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
 
 })
@@ -627,7 +628,8 @@ setClass('featMetaObj',
 setMethod('show', signature('featMetaObj'), function(object) {
 
   cat('An object of class', class(object), '\n')
-  # TODO print spat/feat/prov
+  cat('Provenance:', slot(object, 'provenance'), '\n')
+  # TODO print spat/feat
   if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
 
 })
