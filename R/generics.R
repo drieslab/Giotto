@@ -208,7 +208,7 @@ setMethod('$<-', signature(x = 'metaData'),
 #' @export
 setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
-            x@coordinates = x@coordinates[, j = j]
+            x@coordinates = x@coordinates[, j = j, with = FALSE]
             x
           })
 
@@ -224,7 +224,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'missing', drop = 'mi
 #' @export
 setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
-            x@coordinates = x@coordinates[i = i, j = j]
+            x@coordinates = x@coordinates[i = i, j = j, with = FALSE]
             x
           })
 
@@ -247,7 +247,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
-            x@coordinates = x@metaDT[, j = j]
+            x@metaDT = x@metaDT[, j = j, with = FALSE]
             x
           })
 
@@ -255,7 +255,7 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missi
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
-            x@coordinates = x@metaDT[i = i,]
+            x@metaDT = x@metaDT[i = i,]
             x
           })
 
@@ -263,7 +263,7 @@ setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'missing', drop = 'missi
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
-            x@coordinates = x@metaDT[i = i, j = j]
+            x@metaDT = x@metaDT[i = i, j = j, with = FALSE]
             x
           })
 

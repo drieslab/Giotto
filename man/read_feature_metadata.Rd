@@ -4,12 +4,16 @@
 \alias{read_feature_metadata}
 \title{Read feature metadata}
 \usage{
-read_feature_metadata(gobject, metadata)
+read_feature_metadata(gobject, metadata, provenance = NULL, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{metadata}{nested list of feature metadata information}
+
+\item{provenance}{provenance information (optional)}
+
+\item{verbose}{be verbose}
 }
 \description{
 read feature metadata from list

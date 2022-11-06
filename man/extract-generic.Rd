@@ -7,13 +7,16 @@
 \alias{$,metaData-method}
 \alias{$<-,metaData-method}
 \alias{[,coordDataDT,missing,ANY,missing-method}
+\alias{[,coordDataDT,ANY,missing,missing-method}
 \alias{[,coordDataDT,ANY,ANY,missing-method}
 \alias{[,coordDataDT,missing,missing,missing-method}
 \alias{[,metaData,missing,ANY,missing-method}
+\alias{[,metaData,ANY,missing,missing-method}
 \alias{[,metaData,ANY,ANY,missing-method}
 \alias{[,metaData,missing,missing,missing-method}
 \alias{[,dimObj,ANY,ANY,missing-method}
 \alias{[,exprData,missing,ANY,missing-method}
+\alias{[,exprData,ANY,missing,missing-method}
 \alias{[,exprData,ANY,ANY,missing-method}
 \alias{[,exprData,missing,missing,missing-method}
 \title{Extract or replace parts of an object}
@@ -28,7 +31,7 @@
 
 \S4method{[}{coordDataDT,missing,ANY,missing}(x, i, j)
 
-\S4method{[}{coordDataDT,missing,ANY,missing}(x, i, j)
+\S4method{[}{coordDataDT,ANY,missing,missing}(x, i, j)
 
 \S4method{[}{coordDataDT,ANY,ANY,missing}(x, i, j)
 
@@ -36,7 +39,7 @@
 
 \S4method{[}{metaData,missing,ANY,missing}(x, i, j)
 
-\S4method{[}{metaData,missing,ANY,missing}(x, i, j)
+\S4method{[}{metaData,ANY,missing,missing}(x, i, j)
 
 \S4method{[}{metaData,ANY,ANY,missing}(x, i, j)
 
@@ -46,7 +49,7 @@
 
 \S4method{[}{exprData,missing,ANY,missing}(x, i, j)
 
-\S4method{[}{exprData,missing,ANY,missing}(x, i, j)
+\S4method{[}{exprData,ANY,missing,missing}(x, i, j)
 
 \S4method{[}{exprData,ANY,ANY,missing}(x, i, j)
 
