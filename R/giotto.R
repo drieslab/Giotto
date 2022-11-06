@@ -612,6 +612,14 @@ read_expression_data = function(expr_list = NULL,
                                      cores = cores)
       # add default feat == 'rna'
       # add default region == 'cell'
+      exprObj = new('exprObj',
+                    name = data,
+                    exprMat = res_mat,
+                    sparse = sparse,
+                    spat_unit = 'cell',
+                    provenance = if(is.null(provenance)) 'cell' else provenance,
+                    feat_type = default_feat_type,
+                    misc = NULL)
       return_list[['cell']][[default_feat_type]][[data]] = res_mat
 
     }

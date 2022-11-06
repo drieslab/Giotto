@@ -379,7 +379,7 @@ set_cell_metadata = function(gobject,
       return(gobject)
     }
 
-    # 4.3 otherwise...
+    # 4.3 otherwise assume data.frame type object
     metadata = data.table::as.data.table(metadata)
 
     # if cell ID col is missing, try to automatically set
@@ -591,7 +591,7 @@ set_feature_metadata = function(gobject,
       return(gobject)
     }
 
-    # 4.3 otherwise...
+    # 4.3 otherwise assume data.frame type object
     metadata = data.table::as.data.table(metadata)
 
     # if feat ID col is missing, try to automatically set
@@ -642,7 +642,8 @@ set_feature_metadata = function(gobject,
 #' @inheritParams data_access
 #' @param values expression values to extract (e.g. "raw", "normalized", "scaled")
 #' @param output what object type to retrieve the expression as. Currently either
-#' 'Matrix' for dgeMatrix or dgCMatrix or 'exprObj' are allowed.
+#' 'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
+#' the exprObj itself are allowed.
 #' @return expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
@@ -651,10 +652,10 @@ get_expression_values = function(gobject,
                                  spat_unit = NULL,
                                  feat_type = NULL,
                                  values,
-                                 output = c('Matrix', 'exprObj')) {
+                                 output = c('exprObj', 'matrix')) {
 
 
-  output = match.arg(output, choices = c('Matrix', 'exprObj'))
+  output = match.arg(output, choices = c('exprObj', 'matrix'))
 
   # 1. Set feat_type and spat_unit
 
@@ -684,26 +685,8 @@ get_expression_values = function(gobject,
   expr_values = gobject@expression[[spat_unit]][[feat_type]][[values]]
 
   if(output == 'exprObj') {
-    if(inherits(expr_values, c('dgeMatrix'))) { # ** TO BE DEPRECATED **
+    if(!inherits(expr_values, 'exprObj')) {
       expr_values = new('exprObj',
-                        name = values,
-                        exprMat = expr_values,
-                        sparse = FALSE,
-                        spat_unit = spat_unit,
-                        feat_type = feat_type,
-                        provenance = spat_unit, # assumed
-                        misc = NULL)
-    } else if(inherits(expr_values, c('dgCMatrix'))) { # ** TO BE DEPRECATED **
-      expr_values = new('exprObj',
-                        name = values,
-                        exprMat = expr_values,
-                        sparse = TRUE,
-                        spat_unit = spat_unit,
-                        feat_type = feat_type,
-                        provenance = spat_unit, # assumed
-                        misc = NULL)
-    } else {
-      expr_values = new('exprObj', # general catch
                         name = values,
                         exprMat = expr_values,
                         sparse = NA,            # unknown
@@ -718,21 +701,20 @@ get_expression_values = function(gobject,
     # return exprObj
     return(expr_values)
 
-  } else if(output == 'Matrix') {
+  } else if(output == 'matrix') {
 
     if(inherits(expr_values, 'exprObj')) expr_values = slot(expr_values, 'exprMat')
 
-    # return 'Matrix'
-    if(inherits(expr_values, c('dgeMatrix', 'dgCMatrix'))) {
-      return(expr_values)
-    } else {
-      warning('matrix type conversions not yet implemented. Returning the current expression matrix')
-      return(expr_values)
-    }
+    # return 'matrix'
+    return(expr_values)
+    # if(inherits(expr_values, c('dgeMatrix', 'dgCMatrix'))) {
+    #   return(expr_values)
+    # } else {
+    #   warning('matrix type conversions not yet implemented. Returning the current expression matrix')
+    #   return(expr_values)
+    # }
 
   }
-
-
 
 }
 
@@ -756,9 +738,11 @@ select_expression_values = function(...) {
 #' @description Function to set expression values for giotto object
 #' @inheritParams data_access
 #' @param name name for the expression slot
+#' @param provenance provenance information (optional)
 #' @param values exprObj or matrix of expression values. If NULL, then the object
 #' will be removed.
 #' @param verbose be verbose
+#' @param ... additional params to pass (possibly to read_expression_values)
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
@@ -767,8 +751,12 @@ set_expression_values = function(gobject,
                                  spat_unit = NULL,
                                  feat_type = NULL,
                                  name = 'test',
+                                 provenance = NULL,
                                  values,
-                                 verbose = TRUE) {
+                                 verbose = TRUE,
+                                 ...) {
+
+  if(!inherits(gobject, 'giotto')) stop('Only Giotto objects are supported for this function.')
 
   # 1. Determine user inputs
   if(is.null(spat_unit)) nospec_unit = TRUE
@@ -782,14 +770,14 @@ set_expression_values = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  # 3. if input is NULL, remove object
+  # 3. if input is NULL, remove object (no initialize option)
   if(is.null(values)) {
     if(isTRUE(verbose)) message('NULL passed to values param.\n Removing specified expression')
     gobject@expression[[spat_unit]][[feat_type]][[name]] = values
     return(gobject)
   }
 
-  # 4. import data from S4 if available
+  # 4.1 import data from S4 if available, else generate S4
   if(inherits(values, 'exprObj')) {
 
     if(isTRUE(nospec_unit)) {
@@ -809,13 +797,34 @@ set_expression_values = function(gobject,
     }
 
   } else {
+
+    # 4.2 if nested list structure, extract spat_unit/feat_type
+    if(inherits(values, 'list')) {
+      cores = determine_cores(cores)
+
+      exprObj_list = read_expression_data(expr_list = values,
+                                          sparse = TRUE,
+                                          cores = cores,
+                                          default_feat_type = feat_type,
+                                          provenance = if(is.null(provenance)) spat_unit else provenance)
+      # recursively run
+      for(obj_i in seq_along(exprObj_list)) {
+        # provenance info set during prev. step
+        gobject = set_expression_values(gobject,
+                                        values = exprObj_list[[obj_i]])
+      }
+      return(gobject)
+    }
+
+    # 4.3 otherwise assume matrix type object and create S4
+    # TODO run this through read_expression_values as well to determine appropriate data type?
     values = new('exprObj',
                  name = name,
                  exprMat = values,
                  sparse = NA,          # unknown
                  spat_unit = spat_unit,
                  feat_type = feat_type,
-                 provenance = spat_unit, # assumed
+                 provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
                  misc = NULL)
   }
 
@@ -2212,6 +2221,44 @@ showGiottoCellMetadata = function(gobject,
       ncols = min(ncols, dimensions[2])
 
       print(gobject@cell_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
+      cat('\n')
+    }
+  }
+}
+
+
+#' @title showGiottoFeatMetadata
+#' @name showGiottoFeatMetadata
+#' @description shows the available feature metadata
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each metadata
+#' @param ncols number of columns to print for each metadata
+#' @return prints the name and small subset of available metadata
+#' @family functions to show data in giotto object
+#' @keywords show
+#' @export
+showGiottoFeatMetadata = function(gobject,
+                                  nrows = 4,
+                                  ncols = 4) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+
+  available_data = list_feat_metadata(gobject = gobject)
+  if(is.null(available_data)) cat('No feature metadata available \n')
+
+  for(spatial_unit in unique(available_data$spat_unit)) {
+
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
+
+    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+
+      cat('--> Feature: ', feature_type, ' \n\n')
+
+      dimensions = dim(gobject@feat_metadata[[spatial_unit]][[feature_type]])
+      nrows = min(nrows, dimensions[1])
+      ncols = min(ncols, dimensions[2])
+
+      print(gobject@feat_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
       cat('\n')
     }
   }
