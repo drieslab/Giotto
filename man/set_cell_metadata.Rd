@@ -4,14 +4,51 @@
 \alias{set_cell_metadata}
 \title{Set cell metadata}
 \usage{
-set_cell_metadata(gobject, cell_metadata)
+set_cell_metadata(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  provenance = NULL,
+  metadata,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cell_metadata}{cell_metadata supplied as a nested list with spat_unit$feat_type$name}
+\item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{provenance}{provenance information to set}
+
+\item{metadata}{cellMetaObj or data.table containing cell metadata. Setting NULL will remove
+the object. Passing 'initialize' will reset the object.}
+
+\item{verbose}{be verbose}
+}
+\value{
+giotto object
 }
 \description{
-Set cell metadata
+Function to set cell metadata information into giotto object
 }
-\keyword{internal}
+\seealso{
+Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_feature_metadata}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
+}
+\concept{functions to set data in giotto object}

@@ -4,7 +4,13 @@
 \alias{read_spatial_location_data}
 \title{Read spatial location data}
 \usage{
-read_spatial_location_data(gobject, spat_loc_list, cores = 1, verbose = TRUE)
+read_spatial_location_data(
+  gobject,
+  spat_loc_list,
+  cores = 1,
+  provenance = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +18,8 @@ read_spatial_location_data(gobject, spat_loc_list, cores = 1, verbose = TRUE)
 \item{spat_loc_list}{list of spatial locations}
 
 \item{cores}{how many cores to use}
+
+\item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 }

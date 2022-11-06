@@ -138,115 +138,117 @@ set_feat_id = function(gobject,
 
 
 
-## Giotto metadata ####
+## old metadata setters (originally from Giotto.R)
 
-#' @title Set cell metadata
-#' @name set_cell_metadata
-#' @description Set cell metadata
-#' @param gobject giotto object
-#' @param cell_metadata cell_metadata supplied as a nested list with spat_unit$feat_type$name
-#' @keywords internal
-set_cell_metadata = function(gobject,
-                             cell_metadata) {
+# #' @title Set cell metadata
+# #' @name set_cell_metadata
+# #' @description Set cell metadata
+# #' @param gobject giotto object
+# #' @param cell_metadata cell_metadata supplied as a nested list with spat_unit$feat_type$name
+# #' @keywords internal
+# set_cell_metadata = function(gobject,
+#                              cell_metadata) {
+#
+#   # if metadata is not provided, then:
+#   # create metadata for each spatial unit and feature type combination
+#
+#   # define for data.table :=
+#   cell_ID = NULL
+#
+#   if(is.null(cell_metadata)) {
+#
+#     for(spat_unit in names(gobject@expression)) {
+#
+#       for(feat_type in names(gobject@expression[[spat_unit]])) {
+#
+#         if(is.null(gobject@spatial_info)) {
+#           gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
+#         } else {
+#           for(poly in names(gobject@spatial_info)) {
+#             gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+#           }
+#         }
+#       }
+#     }
+#
+#   } else {
+#
+#     # extract all metadata information
+#     # need to be nested list (feature type and spatial unit)
+#     for(spat_unit in names(cell_metadata)) {
+#
+#       for(feat_type in names(cell_metadata[[spat_unit]])) {
+#
+#
+#         gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
+#         gobject@cell_metadata[[spat_unit]][[feat_type]][, cell_ID := gobject@cell_ID[[spat_unit]]]
+#
+#         # put cell_ID first
+#         all_colnames = colnames(gobject@cell_metadata[[spat_unit]][[feat_type]])
+#         other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+#         gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+#
+#       }
+#     }
+#   }
+#
+#   return(gobject)
+#
+# }
 
-  # if metadata is not provided, then:
-  # create metadata for each spatial unit and feature type combination
 
-  # define for data.table :=
-  cell_ID = NULL
-
-  if(is.null(cell_metadata)) {
-
-    for(spat_unit in names(gobject@expression)) {
-
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-
-        if(is.null(gobject@spatial_info)) {
-          gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
-        } else {
-          for(poly in names(gobject@spatial_info)) {
-            gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
-          }
-        }
-      }
-    }
-
-  } else {
-
-    # extract all metadata information
-    # need to be nested list (feature type and spatial unit)
-    for(spat_unit in names(cell_metadata)) {
-
-      for(feat_type in names(cell_metadata[[spat_unit]])) {
-
-
-        gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
-        gobject@cell_metadata[[spat_unit]][[feat_type]][, cell_ID := gobject@cell_ID[[spat_unit]]]
-
-        # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[spat_unit]][[feat_type]])
-        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
-
-      }
-    }
-  }
-
-  return(gobject)
-
-}
-
-
-#' @title Set feature metadata
-#' @name set_feature_metadata
-#' @description Set feature metadata
-#' @keywords internal
-set_feature_metadata = function(gobject,
-                                feat_metadata) {
-
-  # define for data.table :=
-  feat_ID = NULL
-
-  if(is.null(feat_metadata)) {
-
-    for(spat_unit in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
-      }
-    }
-
-  } else {
-
-    for(spat_unit in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
-        gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
-
-        # put feat_ID first
-        all_colnames = colnames(gobject@feat_metadata[[spat_unit]][[feat_type]])
-        other_colnames = grep('feat_ID', all_colnames, invert = T, value = T)
-        gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][, c('feat_ID', other_colnames), with = FALSE]
-
-      }
-    }
-  }
-
-  return(gobject)
-
-}
+# #' @title Set feature metadata
+# #' @name set_feature_metadata
+# #' @description Set feature metadata
+# #' @keywords internal
+# set_feature_metadata = function(gobject,
+#                                 feat_metadata) {
+#
+#   # define for data.table :=
+#   feat_ID = NULL
+#
+#   if(is.null(feat_metadata)) {
+#
+#     for(spat_unit in names(gobject@expression)) {
+#       for(feat_type in names(gobject@expression[[spat_unit]])) {
+#         gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+#       }
+#     }
+#
+#   } else {
+#
+#     for(spat_unit in names(gobject@expression)) {
+#       for(feat_type in names(gobject@expression[[spat_unit]])) {
+#         gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
+#         gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+#
+#         # put feat_ID first
+#         all_colnames = colnames(gobject@feat_metadata[[spat_unit]][[feat_type]])
+#         other_colnames = grep('feat_ID', all_colnames, invert = T, value = T)
+#         gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][, c('feat_ID', other_colnames), with = FALSE]
+#
+#       }
+#     }
+#   }
+#
+#   return(gobject)
+#
+# }
 
 
 ## cell metadata slot ####
 
 #' @title Get cell metadata
-#' @name get_CellMetadata
+#' @name get_cell_metadata
 #' @inheritParams data_access
 #' @param output return as either 'data.table' or 'cellMetaObj'
 #' @description Get cell metadata from giotto object
-get_CellMetadata = function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            output = c('data.table', 'cellMetaObj')) {
+#' @seealso pDataDT
+#' @keywords internal
+get_cell_metadata = function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             output = c('data.table', 'cellMetaObj')) {
 
   output = match.arg(output, choices = c('data.table', 'cellMetaObj'))
 
@@ -295,25 +297,23 @@ get_CellMetadata = function(gobject,
 
 
 #' @title Set cell metadata
-#' @name set_CellMetadata
+#' @name set_cell_metadata
 #' @description Function to set cell metadata information into giotto object
 #' @inheritParams data_access
+#' @param provenance provenance information to set
 #' @param metadata cellMetaObj or data.table containing cell metadata. Setting NULL will remove
-#' the object
+#' the object. Passing 'initialize' will reset the object.
 #' @param verbose be verbose
 #' @return giotto object
 #' @family functions to set data in giotto object
-set_CellMetadata = function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            metadata,
-                            verbose = TRUE) {
+set_cell_metadata = function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             provenance = NULL,
+                             metadata,
+                             verbose = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
-
-  # 0. if metadata is not provided, then:
-  # initialize metadata for each spatial unit and feature type combination
-
 
   # 1. determine if user input was supplied
   if(is.null(spat_unit)) nospec_unit = TRUE
@@ -326,14 +326,30 @@ set_CellMetadata = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  # 3. If input is NULL, remove object
+  # 3.1 if input is NULL, remove object
   if(is.null(metadata)) {
     if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
-    gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
+    gobject@cell_metadata[[spat_unit]][[feat_type]] = NULL
     return(gobject)
   }
 
-  # 4. import info if S4 object, else generate S4
+  # 3.2 if input is 'initialize', RESET/reinitialize object
+  if(inherits(metadata, 'character')) {
+    if(metadata == 'initialize') {
+      if(isTRUE(verbose)) message('Initializing specified metadata.')
+      gobject@cell_metadata[[spat_unit]][[feat_type]] = new('cellMetaObj',
+                                                            metaDT = data.table::data.table(cell_ID = get_cell_id(gobject,
+                                                                                                                  spat_unit = spat_unit)),
+                                                            col_desc = c(cell_ID = 'cell-specific unique ID value'),
+                                                            spat_unit = spat_unit,
+                                                            feat_type = feat_type,
+                                                            provenance = if(is.null(provenance)) spat_unit else provenance)
+      return(gobject)
+    }
+  }
+
+
+  # 4.1 import info if S4 object, else generate S4
   if(inherits(metadata, 'cellMetaObj')) {
 
     if(isTRUE(nospec_unit)) {
@@ -348,14 +364,48 @@ set_CellMetadata = function(gobject,
     }
 
   } else {
-    if(!inherits(metadata, 'data.table')) metadata = data.table::as.data.table(metadata)
+
+    # 4.2 if nested list structure, extract spat_unit/feat_type
+    if(inherits(metadata, 'list')) {
+      cellMetaObj_list = read_cell_metadata(gobject,
+                                            metadata = metadata,
+                                            provenance = if(is.null(provenance)) spat_unit else provenance)
+      # recursively run
+      for(obj_i in seq_along(cellMetaObj_list)) {
+        # (provenance info set during prev. step)
+        gobject = set_cell_metadata(gobject,
+                                    metadata = cellMetaObj_list[[obj_i]])
+      }
+      return(gobject)
+    }
+
+    # 4.3 otherwise...
+    metadata = data.table::as.data.table(metadata)
+
+    # if cell ID col is missing, try to automatically set
+    if(is.null(metadata[['cell_ID']])) {
+      id_error = try(metadata[, cell_ID := get_cell_id(gobject, spat_unit = spat_unit)], silent = TRUE)
+      if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata cell_ID based on gobject cell_ID slot.')
+    } else if(spat_unit %in% list_cell_id_names(gobject)) {
+
+      # if cell ID col is present in both, try to match
+      if(!identical(metadata[, cell_ID], get_cell_id(gobject, spat_unit = spat_unit))) {
+        stop('metadata cell_ID does not match that in gobject cell_ID slot for spat_unit "', spat_unit, '".\n')
+      }
+
+    }
+
+    # put cell_ID first
+    all_colnames = colnames(metadata)
+    other_colnames = grep('cell_ID', all_colnames, invert = TRUE, value = TRUE)
+    metadata = metadata[, c('cell_ID', other_colnames), with = FALSE]
 
     metadata = new('cellMetaObj',
                    metaDT = metadata,
                    col_desc = NA_character_, # unknown
                    spat_unit = spat_unit,
                    feat_type = feat_type,
-                   provenance = spat_unit) # assumed
+                   provenance = if(is.null(provenance)) spat_unit else provenance)
   }
 
   # 5. check if nesting address is already used - just feat_type for metadata
@@ -402,14 +452,16 @@ set_CellMetadata = function(gobject,
 ## feature metadata slot ####
 
 #' @title Get feature metadata
-#' @name get_FeatMetadata
+#' @name get_feature_metadata
 #' @inheritParams data_access
-#' @param output return as either 'data.table' or 'cellMetaObj'
+#' @param output return as either 'data.table' or 'featMetaObj'
 #' @description Get feature metadata from giotto object
-get_FeatMetadata = function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            output = c('data.table', 'featMetaObj')) {
+#' @seealso fDataDT
+#' @keywords internal
+get_feature_metadata = function(gobject,
+                                spat_unit = NULL,
+                                feat_type = NULL,
+                                output = c('data.table', 'featMetaObj')) {
 
   output = match.arg(output, choices = c('data.table', 'featMetaObj'))
 
@@ -434,7 +486,7 @@ get_FeatMetadata = function(gobject,
                      provenance = spat_unit) # assumed
     }
 
-    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
+    if(inherits(featMeta, 'list') | is.null(featMeta)) stop('metadata referenced does not exist.')
     if(!inherits(featMeta, 'featMetaObj')) stop('metadata referenced is not data.table or featMetaObj')
 
     # return featMetaObj
@@ -457,19 +509,21 @@ get_FeatMetadata = function(gobject,
 
 
 #' @title Set feature metadata
-#' @name set_FeatMetadata
+#' @name set_feature_metadata
 #' @description Function to set feature metadata into giotto object
 #' @inheritParams data_access
 #' @param metadata featMetaObj or data.table object containing feature metadata.
 #' Setting NULL will remove the object.
+#' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return giotto object
 #' @family functions to set data in giotto object
-set_FeatMetadata = function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            metadata,
-                            verbose = TRUE) {
+set_feature_metadata = function(gobject,
+                                spat_unit = NULL,
+                                feat_type = NULL,
+                                provenance = NULL,
+                                metadata,
+                                verbose = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
@@ -485,12 +539,27 @@ set_FeatMetadata = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  # 3. If input is NULL, remove object
+  # 3.1 if input is NULL, remove object
   if(is.null(metadata)) {
-    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata')
-    gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
+    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
+    gobject@feat_metadata[[spat_unit]][[feat_type]] = NULL
     return(gobject)
   }
+
+  # 3.2 if input is 'initialize', RESET/reinitialize object
+  if(inherits(metadata, 'character')) {
+    if(metadata == 'initialize') {
+      if(isTRUE(verbose)) message('Initializing specified metadata.')
+      gobject@feat_metadata[[spat_unit]][[feat_type]] = new('featMetaObj',
+                                                            metaDT = data.table::data.table(feat_ID = get_feat_id(gobject, feat_type = feat_type)),
+                                                            col_desc = c(feat_ID = 'feature-specific unique ID value'),
+                                                            spat_unit = spat_unit,
+                                                            feat_type = feat_type,
+                                                            provenance = spat_unit) # assumed)
+      return(gobject)
+    }
+  }
+
 
   # 4. import info if S4 object, else generate S4
   if(inherits(metadata, 'featMetaObj')) {
@@ -507,7 +576,27 @@ set_FeatMetadata = function(gobject,
     }
 
   } else {
-    if(!inherits(metadata, 'data.table')) metadata = data.table::as.data.table(metadata)
+
+    # 4.2 if nested list structure, extract spat_unit/feat_type
+    if(inherits(metadata, 'list')) {
+      featMetaObj_list = read_feature_metadata(metadata)
+      # recursively run
+      for(obj_i in seq_along(featMetaObj_list)) {
+        gobject = set_feature_metadata(gobject,
+                                       metadata = featMetaObj_list[[obj_i]])
+      }
+      return(gobject)
+    }
+
+    # 4.3 otherwise...
+    metadata = data.table::as.data.table(metadata)
+
+    metadata[, feat_ID := get_feat_id(gobject, feat_type = feat_type)]
+
+    # put feat_ID first
+    all_colnames = colnames(metadata)
+    other_colnames = grep('feat_ID', all_colnames, invert = TRUE, value = TRUE)
+    metadata = metadata[, c('feat_ID', other_colnames), with = FALSE]
 
     metadata = new('featMetaObj',
                    metaDT = metadata,
@@ -2075,6 +2164,52 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
   }
 }
 
+
+
+#' @title showGiottoCellMetadata
+#' @name showGiottoCellMetadata
+#' @description shows the available cell metadata
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each metadata
+#' @param ncols number of columns to print for each metadata
+#' @return prints the name and small subset of available metadata
+#' @family functions to show data in giotto object
+#' @keywords show
+#' @export
+showGiottoCellMetadata = function(gobject,
+                                  nrows = 4,
+                                  ncols = 4) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+
+  available_data = list_cell_metadata(gobject = gobject)
+  if(is.null(available_data)) cat('No expression data available \n')
+
+  for(spatial_unit in unique(available_data$spat_unit)) {
+
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
+
+    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+
+      cat('--> Feature: ', feature_type, ' \n\n')
+
+      for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
+
+        cat('----> Name: ', mat_i, 'matrix: \n')
+
+        dimensions = dim(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
+        nrows = min(nrows, dimensions[1])
+        ncols = min(ncols, dimensions[2])
+
+        print(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]][1:nrows, 1:ncols])
+        cat('\n')
+      }
+    }
+  }
+}
+
+
+
 #' @title showGiottoSpatLocs
 #' @name showGiottoSpatLocs
 #' @description shows the available spatial locations
@@ -2084,7 +2219,8 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @family functions to show data in giotto object
 #' @keywords show
 #' @export
-showGiottoSpatLocs = function(gobject, nrows = 4) {
+showGiottoSpatLocs = function(gobject,
+                              nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
@@ -2652,9 +2788,31 @@ list_expression_names = function(gobject,
 
 
 
+#' @title List cell ID names
+#' @name list_cell_id_names
+#' @description lists the available cell id names. In effect, these names are the
+#' spat_units and poly info in the gobject
+#' @inheritParams data_access
+#' @return vector with names of available sets of cell_IDs
+list_cell_id_names = function(gobject) {
+  return(names(gobject@cell_ID))
+}
+
+
+#' @title List feat ID names
+#' @name list_feat_id_names
+#' @description lists the available feat id names In effect, these names are the
+#' feat_types and feature info in the gobject
+#' @inheritParams data_access
+#' @return vector with names of available sets of feat_IDs
+list_feat_id_names = function(gobject) {
+  return(names(gobject@feat_ID))
+}
+
+
 #' @title list_cell_metadata
 #' @name list_cell_metadata
-#' @description lists the available cell metadata
+#' @description lists the available cell metadata.
 #' @inheritParams data_access
 #' @return names and locations of available cell metadata as data.table
 list_cell_metadata = function(gobject,

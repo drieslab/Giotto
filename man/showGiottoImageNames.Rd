@@ -17,6 +17,7 @@ Prints the available giotto images that are attached to the Giotto object
 }
 \seealso{
 Other functions to show data in giotto object: 
+\code{\link{showGiottoCellMetadata}()},
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoExpression}()},
 \code{\link{showGiottoFeatInfo}()},

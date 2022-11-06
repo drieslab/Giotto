@@ -108,6 +108,7 @@ setClass('provData',
 #' there is a nesting structure that first nests by spatial unit.
 #'
 setClass('spatData',
+         contains = c('provData'),
          representation = list(spat_unit = 'character'), # not allowed to be NULL
          prototype = prototype(spat_unit = NA_character_))
 
@@ -477,7 +478,7 @@ check_expr_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('exprObj',
-         contains = c('exprData', 'spatFeatData', 'provData', 'miscData'),
+         contains = c('exprData', 'spatFeatData', 'miscData'),
          slots = c(name = 'nullOrChar'),
          prototype = list(name = NULL),
          validity = check_expr_obj)
@@ -541,6 +542,12 @@ check_cell_meta_obj = function(object) {
 
     if(!is.character(object@metaDT[['cell_ID']])) {
       msg = '"cell_ID" column must be of class character.'
+      errors = c(errors, msg)
+    }
+
+    if(colnames(object@metaDT)[[1]] != 'cell_ID') {
+      msg = '"cell_ID" column should be the first column.'
+      errors = c(errors, msg)
     }
 
   }
@@ -558,7 +565,7 @@ check_cell_meta_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('cellMetaObj',
-         contains = c('metaData', 'spatFeatData', 'provData'),
+         contains = c('metaData', 'spatFeatData'),
          validity = check_cell_meta_obj)
 
 
@@ -590,6 +597,12 @@ check_feat_meta_obj = function(object) {
 
     if(!is.character(object@metaDT[['feat_ID']])) {
       msg = '"feat_ID" column must be of class character.'
+      errors = c(errors, msg)
+    }
+
+    if(colnames(object@metaDT)[[1]] != 'feat_ID') {
+      msg = '"feat_ID" column should be the first column.'
+      errors = c(errors, msg)
     }
 
   }
@@ -607,7 +620,7 @@ check_feat_meta_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('featMetaObj',
-         contains = c('metaData', 'spatFeatData', 'provData'),
+         contains = c('metaData', 'spatFeatData'),
          validity = check_feat_meta_obj)
 
 
@@ -744,7 +757,7 @@ S3toS4dimObj = function(object) {
 ## nnNetObj ####
 
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'provData', 'miscData'),
+         contains = c('nnData', 'spatFeatData', 'miscData'),
          representation = list(name = 'character'),
          prototype = prototype(name = NA_character_))
 
@@ -802,7 +815,7 @@ check_spat_locs_obj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'provData', 'miscData'),
+         contains = c('coordDataDT', 'spatData', 'miscData'),
          slots = c(name = 'nullOrChar'),
          prototype = list(name = NULL),
          validity = check_spat_locs_obj)
@@ -897,7 +910,7 @@ check_spat_net_obj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatData', 'provData', 'miscData'),
+         contains = c('spatData', 'miscData'),
          slots = c(name = 'nullOrChar',
                    method = 'nullOrChar',
                    parameters = 'nullOrList',

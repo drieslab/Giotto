@@ -13,6 +13,9 @@
 \alias{[,metaData,ANY,ANY,missing-method}
 \alias{[,metaData,missing,missing,missing-method}
 \alias{[,dimObj,ANY,ANY,missing-method}
+\alias{[,exprData,missing,ANY,missing-method}
+\alias{[,exprData,ANY,ANY,missing-method}
+\alias{[,exprData,missing,missing,missing-method}
 \title{Extract or replace parts of an object}
 \usage{
 \S4method{$}{coordDataDT}(x, name)
@@ -40,6 +43,14 @@
 \S4method{[}{metaData,missing,missing,missing}(x, i, j)
 
 \S4method{[}{dimObj,ANY,ANY,missing}(x, i, j)
+
+\S4method{[}{exprData,missing,ANY,missing}(x, i, j)
+
+\S4method{[}{exprData,missing,ANY,missing}(x, i, j)
+
+\S4method{[}{exprData,ANY,ANY,missing}(x, i, j)
+
+\S4method{[}{exprData,missing,missing,missing}(x, i, j)
 }
 \arguments{
 \item{x}{Giotto S4 object to extract columns from}
@@ -92,6 +103,12 @@ or replace parts.
 
 
   Return \code{coordinates} slot data.table from giotto S4
+
+
+  Select rows (i) and cols (j) from giotto S4 exprMat slot
+
+
+  Return \code{exprMat} slot Matrix object from giotto S4
 }
 
 \section{\code{`[<-`} methods}{

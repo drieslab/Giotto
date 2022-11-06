@@ -528,6 +528,7 @@ depth <- function(this,
 #' @param cores number of cores to use
 #' @param default_feat_type default feature type if nothing is provided
 #' @param verbose be verbose
+#' @param provenance provenance information
 #' @details
 #'
 #' mylistA = list('a' = matrix(1:5), 'b' = matrix(1:5))
@@ -549,7 +550,8 @@ read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
                                 cores = NA,
                                 default_feat_type = NULL,
-                                verbose = TRUE) {
+                                verbose = TRUE,
+                                provenance = NULL) {
 
   # Check
   if(is.null(expr_list)) return(NULL)
@@ -703,6 +705,118 @@ set_cell_and_feat_IDs = function(gobject) {
 
   return(gobject)
 
+}
+
+
+#### Giotto metadata ####
+
+#' @title Read cell metadata
+#' @name read_cell_metadata
+#' @description read cell metadata from list
+#' @param gobject giotto object
+#' @param metadata nested list of cell metadata information
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @keywords internal
+read_cell_metadata = function(gobject,
+                              metadata,
+                              provenance = NULL,
+                              verbose = TRUE) {
+
+  cellMetaObj_list = list()
+
+  # extract all metadata information
+  # need to be nested list (feature type and spatial unit)
+  for(spat_unit in names(metadata)) {
+
+    if(!spat_unit %in% list_cell_id_names(gobject)) {
+      if(isTRUE(verbose)) warning('spat_unit "', spat_unit, '" not found in gobject cell_ID slot.\nPlease check metadata list nesting.\n')
+    }
+
+    for(feat_type in names(metadata[[spat_unit]])) {
+
+      if(!feat_type %in% list_feat_id_names(gobject)) {
+        if(isTRUE(verbose)) warning('feat_type "', feat_type, '" not found in gobject feat_ID slot.\nPlease check metadata list nesting.\n')
+      }
+
+      # TODO load with fread if path given as character
+
+      metaDT = data.table::as.data.table(metadata[[spat_unit]][[feat_type]])
+
+      # if cell ID col is missing, try to automatically set
+      if(is.null(metaDT[['cell_ID']])) {
+        id_error = try(metaDT[, cell_ID := get_cell_id(gobject, spat_unit = spat_unit)], silent = TRUE)
+        if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata cell_ID based on gobject cell_ID slot.')
+      } else if(spat_unit %in% list_cell_id_names(gobject)) {
+
+        # if cell ID col is present in both, try to match
+        if(!identical(metaDT[, cell_ID], get_cell_id(gobject, spat_unit = spat_unit))) {
+          stop('metadata cell_ID does not match that in gobject cell_ID slot for spat_unit "', spat_unit, '".\n')
+        }
+
+      }
+
+      # put cell_ID first
+      all_colnames = colnames(metaDT)
+      other_colnames = grep('cell_ID', all_colnames, invert = TRUE, value = TRUE)
+      metaDT = metaDT[, c('cell_ID', other_colnames), with = FALSE]
+
+      metaObj = new('cellMetaObj',
+                    metaDT = metaDT,
+                    col_desc = NA_character_, # unknown
+                    spat_unit = spat_unit,
+                    provenance = if(is.null(provenance)) spat_unit else provenance,
+                    feat_type = feat_type)
+
+      cellMetaObj_list = append(cellMetaObj_list, metaObj)
+
+    }
+  }
+
+  return(cellMetaObj_list)
+}
+
+
+
+#' @title Read feature metadata
+#' @name read_feature_metadata
+#' @description read feature metadata from list
+#' @param gobject giotto object
+#' @param metadata nested list of feature metadata information
+#' @keywords internal
+read_feature_metadata = function(gobject,
+                                 metadata) {
+
+  featMetaObj_list = list()
+
+  # extract all metadata information
+  # need to be nested list (feature type and spatial unit)
+  for(spat_unit in names(metadata)) {
+    for(feat_type in names(metadata[[spat_unit]])) {
+
+      # TODO load with fread if path given as character
+
+      metaDT = data.table::as.data.table(metadata[[spat_unit]][[feat_type]])
+      metaDT[, feat_ID := get_feat_id(gobject, feat_type = feat_type)]
+
+      # put feat_ID first
+      all_colnames = colnames(metaDT)
+      other_colnames = grep('feat_ID', all_colnames, invert = TRUE, value = TRUE)
+      metaDT = metaDT[, c('feat_ID', other_colnames), with = FALSE]
+
+      metaObj = new('featMetaObj',
+                    metaDT = metaDT,
+                    col_desc = NA_character_, # unknown
+                    spat_unit = spat_unit,
+                    provenance = spat_unit, # assumed
+                    feat_type = feat_type)
+
+      featMetaObj_list = append(featMetaObj_list, metaObj)
+
+    }
+  }
+
+  return(featMetaObj_list)
 }
 
 
@@ -874,12 +988,14 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @param gobject giotto object
 #' @param spat_loc_list list of spatial locations
 #' @param cores how many cores to use
+#' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return updated giotto object
 #' @keywords internal
 read_spatial_location_data = function(gobject,
                                       spat_loc_list,
                                       cores = 1,
+                                      provenance = NULL,
                                       verbose = TRUE) {
 
   if(is.null(spat_loc_list)) return(NULL)
@@ -937,7 +1053,8 @@ read_spatial_location_data = function(gobject,
       return_list = append(return_list, new('spatialLocationsObj',
                                             name = coord,
                                             coordinates = res_spatlocs,
-                                            spat_unit = 'cell'))
+                                            spat_unit = 'cell',
+                                            provenance = if(is.null(provenance)) 'cell' else provenance))
 
       # return_list[['cell']][[coord]] = res_spatlocs
 
@@ -959,10 +1076,11 @@ read_spatial_location_data = function(gobject,
         if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
         # add default region == 'cell'
-        return_list = append(return_list, new('spatialLocationsObj',
+        return_list = append(return_list, new('spatLocsObj',
                                               name = coord,
                                               coordinates = res_spatlocs,
-                                              spat_unit = spat_unit))
+                                              spat_unit = spat_unit,
+                                              provenance = if(is.null(provenance)) spat_unit else provenance))
 
         # return_list[[spat_unit]][[coord]] = res_spatlocs
 

@@ -14,6 +14,7 @@ show the available giotto spatial polygon information
 }
 \seealso{
 Other functions to show data in giotto object: 
+\code{\link{showGiottoCellMetadata}()},
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoExpression}()},
 \code{\link{showGiottoFeatInfo}()},

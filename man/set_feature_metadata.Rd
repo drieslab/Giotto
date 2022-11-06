@@ -4,9 +4,51 @@
 \alias{set_feature_metadata}
 \title{Set feature metadata}
 \usage{
-set_feature_metadata(gobject, feat_metadata)
+set_feature_metadata(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  provenance = NULL,
+  metadata,
+  verbose = TRUE
+)
+}
+\arguments{
+\item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{provenance}{provenance information (optional)}
+
+\item{metadata}{featMetaObj or data.table object containing feature metadata.
+Setting NULL will remove the object.}
+
+\item{verbose}{be verbose}
+}
+\value{
+giotto object
 }
 \description{
-Set feature metadata
+Function to set feature metadata into giotto object
 }
-\keyword{internal}
+\seealso{
+Other functions to set data in giotto object: 
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_cell_metadata}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
+}
+\concept{functions to set data in giotto object}

@@ -2,18 +2,17 @@
 
 
 
+
+
+#' @title Dimensions of giotto objects
+#' @name dims-generic
+#' @description Find the dimensions of an object
+#' @include classes.R
+#' @param x object to check dimensions of
+NULL
+
 # nrow() S4 generic ####
 
-# Define base::nrow() for giottoPoints and giottoPolygon objects
-
-#' @title Dimensions of giotto points and polygon objects
-#' @name nrow-generic
-#' @description Get the number of rows (nrow)
-#' @include classes.R
-#' @param x giottoPoints or giottoPolygon object
-#' @aliases nrow
-#' @exportMethod nrow
-NULL
 
 # setMethod('nrow', signature = 'giotto', function(x) {
 #   avail_exp = list_expression(x)
@@ -24,20 +23,33 @@ NULL
 #     nrow()
 # })
 
-#' @describeIn nrow-generic Find rows of giottoPoints object
+#' @describeIn dims-generic Find rows of giottoPoints object
 #' @export
 setMethod('nrow', signature('giottoPoints'), function(x) terra::nrow(x@spatVector))
 
-#' @describeIn nrow-generic Find rows of giottoPolygon object
+#' @describeIn dims-generic Find rows of giottoPolygon object
 #' @export
 setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVector))
 
-#' @describeIn nrow-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
+#' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
 #' @export
 setMethod('nrow', signature('coordDataDT'), function(x) x@coordinates[,.N])
 
 # TODO
-# setMethod('nrow', signature('coordDataMT'), function(x) nrow(x@coordinates))
+# setMethod('dims', signature('coordDataMT'), function(x) nrow(x@coordinates))
+
+#' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
+#' @export
+setMethod('nrow', signature('exprData'), function(x) nrow(x@exprMat))
+
+#' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
+#' @export
+setMethod('ncol', signature('exprData'), function(x) ncol(x@exprMat))
+
+#' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
+#' @export
+setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
+
 
 
 
@@ -275,7 +287,42 @@ setMethod('[', signature(x = 'dimObj', i = 'ANY', j = 'ANY', drop = 'missing'),
             x
           })
 
+## * exprData ####
 
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Select rows (i) and cols (j) from giotto S4 exprMat slot
+#' @export
+setMethod('[', signature(x = 'exprData', i = 'missing', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@exprMat = x@exprMat[, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'exprData', i = 'missing', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@exprMat = x@exprMat[i = i,]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'ANY', drop = 'missing'),
+          function(x, i, j) {
+            x@exprMat = x@exprMat[i = i, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[', signature(x = 'exprData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@exprMat
+          })
 
 
 

@@ -135,10 +135,10 @@ pDataDT = function(gobject,
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(inherits(gobject, 'giotto')) {
-    return(get_CellMetadata(gobject = gobject,
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            output = ...))
+    return(get_cell_metadata(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             output = ...))
   }
   else if(inherits(gobject, 'seurat')) {
     return(data.table::as.data.table(gobject@meta.data))
@@ -172,10 +172,10 @@ fDataDT = function(gobject,
     stop('only works with ExpressionSet (-like) objects')
   }
   else if(inherits(gobject, 'giotto')) {
-    return(get_FeatMetadata(gobject = gobject,
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            output = ...))
+    return(get_feature_metadata(gobject = gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                output = ...))
 
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))

@@ -9,7 +9,8 @@ read_expression_data(
   sparse = TRUE,
   cores = NA,
   default_feat_type = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  provenance = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ read_expression_data(
 \item{default_feat_type}{default feature type if nothing is provided}
 
 \item{verbose}{be verbose}
+
+\item{provenance}{provenance information}
 }
 \description{
 Read expression data
