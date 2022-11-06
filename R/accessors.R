@@ -2218,6 +2218,44 @@ showGiottoCellMetadata = function(gobject,
 }
 
 
+#' @title showGiottoFeatMetadata
+#' @name showGiottoFeatMetadata
+#' @description shows the available feature metadata
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each metadata
+#' @param ncols number of columns to print for each metadata
+#' @return prints the name and small subset of available metadata
+#' @family functions to show data in giotto object
+#' @keywords show
+#' @export
+showGiottoFeatMetadata = function(gobject,
+                                  nrows = 4,
+                                  ncols = 4) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+
+  available_data = list_feat_metadata(gobject = gobject)
+  if(is.null(available_data)) cat('No feature metadata available \n')
+
+  for(spatial_unit in unique(available_data$spat_unit)) {
+
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
+
+    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+
+      cat('--> Feature: ', feature_type, ' \n\n')
+
+      dimensions = dim(gobject@feat_metadata[[spatial_unit]][[feature_type]])
+      nrows = min(nrows, dimensions[1])
+      ncols = min(ncols, dimensions[2])
+
+      print(gobject@feat_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
+      cat('\n')
+    }
+  }
+}
+
+
 
 #' @title showGiottoSpatLocs
 #' @name showGiottoSpatLocs
