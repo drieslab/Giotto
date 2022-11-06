@@ -108,6 +108,7 @@ setClass('provData',
 #' there is a nesting structure that first nests by spatial unit.
 #'
 setClass('spatData',
+         contains = c('provData'),
          representation = list(spat_unit = 'character'), # not allowed to be NULL
          prototype = prototype(spat_unit = NA_character_))
 
@@ -173,7 +174,7 @@ setClass('spatFeatData',
 
 #TODO
 # @title Check Giotto Object
-# @name checkGiottoObj
+# @name check_giottoObj
 # @description check function for S4 giotto object
 # @param object giotto object to check
 # @keywords internal
@@ -420,11 +421,11 @@ setMethod(
 # exprObj Class
 
 #' @title Check exprObj
-#' @name checkExprObj
+#' @name check_expr_obj
 #' @description Check function for S4 exprObj
 #' @param object S4 exprObj to check
 #' @keywords internal
-checkExprObj = function(object) {
+check_expr_obj = function(object) {
   errors = character()
 
   # Check for expr info
@@ -477,10 +478,10 @@ checkExprObj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('exprObj',
-         contains = c('exprData', 'spatFeatData', 'provData', 'miscData'),
+         contains = c('exprData', 'spatFeatData', 'miscData'),
          slots = c(name = 'nullOrChar'),
          prototype = list(name = NULL),
-         validity = checkExprObj)
+         validity = check_expr_obj)
 
 ## * Show ####
 # exprObj Class
@@ -524,6 +525,36 @@ setMethod(
 
 ## cellMetaObj class ####
 
+# * Check ####
+#' @title Check cell metadata object
+#' @name check_cell_meta_obj
+#' @description Function to check S4 cellMetaObj
+#' @param object S4 cellMetaObj to check
+#' @keywords internal
+check_cell_meta_obj = function(object) {
+
+  errors = character()
+
+  if(!'cell_ID' %in% colnames(object@metaDT)) {
+    msg = 'No "cell_ID" column found.'
+    errors = c(errors, msg)
+  } else {
+
+    if(!is.character(object@metaDT[['cell_ID']])) {
+      msg = '"cell_ID" column must be of class character.'
+      errors = c(errors, msg)
+    }
+
+    if(colnames(object@metaDT)[[1]] != 'cell_ID') {
+      msg = '"cell_ID" column should be the first column.'
+      errors = c(errors, msg)
+    }
+
+  }
+  if(length(errors) == 0) TRUE else errors
+}
+
+# * Definition ####
 #' @title S4 cellMetaObj
 #' @description Framework to store cell metadata
 #' @slot metadata metadata info
@@ -534,7 +565,8 @@ setMethod(
 #' @slot misc misc
 #' @export
 setClass('cellMetaObj',
-         contains = c('metaData', 'spatFeatData', 'provData'))
+         contains = c('metaData', 'spatFeatData'),
+         validity = check_cell_meta_obj)
 
 
 setMethod('show', signature('cellMetaObj'), function(object) {
@@ -548,6 +580,36 @@ setMethod('show', signature('cellMetaObj'), function(object) {
 
 ## featMetaObj class ####
 
+# * Check ####
+#' @title Check feature metadata object
+#' @name check_feat_meta_obj
+#' @description Function to check S4 featMetaObj
+#' @param object S4 featMetaObj to check
+#' @keywords internal
+check_feat_meta_obj = function(object) {
+
+  errors = character()
+
+  if(!'feat_ID' %in% colnames(object@metaDT)) {
+    msg = 'No "feat_ID" column found.'
+    errors = c(errors, msg)
+  } else {
+
+    if(!is.character(object@metaDT[['feat_ID']])) {
+      msg = '"feat_ID" column must be of class character.'
+      errors = c(errors, msg)
+    }
+
+    if(colnames(object@metaDT)[[1]] != 'feat_ID') {
+      msg = '"feat_ID" column should be the first column.'
+      errors = c(errors, msg)
+    }
+
+  }
+  if(length(errors) == 0) TRUE else errors
+}
+
+# * Definition ####
 #' @title S4 featMetaObj
 #' @description Framework to store feature metadata
 #' @slot metadata metadata info
@@ -558,7 +620,8 @@ setMethod('show', signature('cellMetaObj'), function(object) {
 #' @slot misc misc
 #' @export
 setClass('featMetaObj',
-         contains = c('metaData', 'spatFeatData', 'provData'))
+         contains = c('metaData', 'spatFeatData'),
+         validity = check_feat_meta_obj)
 
 
 setMethod('show', signature('featMetaObj'), function(object) {
@@ -580,11 +643,11 @@ setMethod('show', signature('featMetaObj'), function(object) {
 # dimObj Class
 
 #' @title Check dimOjb
-#' @name checkDimObj
+#' @name check_dim_obj
 #' @description check function for S4 dimObj
 #' @param object S4 dimObj to check
 #' @keywords internal
-checkDimObj = function(object) {
+check_dim_obj = function(object) {
   errors = character()
   length_reduction_method = length(object@reduction_method)
   if(length_reduction_method > 1) {
@@ -632,7 +695,7 @@ setClass('dimObj',
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
-         validity = checkDimObj)
+         validity = check_dim_obj)
 
 
 
@@ -694,7 +757,7 @@ S3toS4dimObj = function(object) {
 ## nnNetObj ####
 
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'provData', 'miscData'),
+         contains = c('nnData', 'spatFeatData', 'miscData'),
          representation = list(name = 'character'),
          prototype = prototype(name = NA_character_))
 
@@ -715,11 +778,11 @@ setClass('nnNetObj',
 # spatLocsObj Class
 
 #' @title Check spatLocsObj
-#' @name checkSpatLocsObj
+#' @name check_spat_locs_obj
 #' @description Check function for S4 spatLocsObj
 #' @param object S4 spatLocsObj to check
 #' @keywords internal
-checkSpatLocsObj = function(object) {
+check_spat_locs_obj = function(object) {
   errors = character()
 
   if(!'sdimx' %in% colnames(slot(object, 'coordinates'))) {
@@ -752,16 +815,16 @@ checkSpatLocsObj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'provData', 'miscData'),
+         contains = c('coordDataDT', 'spatData', 'miscData'),
          slots = c(name = 'nullOrChar'),
          prototype = list(name = NULL),
-         validity = checkSpatLocsObj)
+         validity = check_spat_locs_obj)
 
 
 
 
 # * show ####
-# spatialLocations Class
+# spatLocsObj Class
 
 #' show method for spatLocsObj class
 #' @param object spatial locations object
@@ -799,11 +862,11 @@ setMethod(
 # spatialNetworkObj Class
 
 #' @title Check spatialNetworkObj
-#' @name checkSpatNetObj
+#' @name check_spat_net_obj
 #' @description Check function for S4 spatialNetworkObj
 #' @param object S4 spatialNetworkObj to check
 #' @keywords internal
-checkSpatNetObj = function(object) {
+check_spat_net_obj = function(object) {
   errors = character()
   method_slot = slot(object, 'method')
   length_method = length(method_slot)
@@ -847,7 +910,7 @@ checkSpatNetObj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatData', 'provData', 'miscData'),
+         contains = c('spatData', 'miscData'),
          slots = c(name = 'nullOrChar',
                    method = 'nullOrChar',
                    parameters = 'nullOrList',
@@ -864,7 +927,7 @@ setClass('spatialNetworkObj',
                           networkDT_before_filter = NULL,
                           cellShapeObj = NULL,
                           crossSectionObjects = NULL),
-         validity = checkSpatNetObj)
+         validity = check_spat_net_obj)
 
 
 ### * show ####
@@ -939,11 +1002,11 @@ S3toS4spatNetObj = function(object,
 # spatialGridObj Class
 
 #' @title Check spatialGridObj
-#' @name checkSpatGridObj
+#' @name check_spat_grid_obj
 #' @description Check function for S4 spatialGridObj
 #' @param object S4 spatialGridObj to check
 #' @keywords internal
-checkSpatGridObj = function(object) {
+check_spat_grid_obj = function(object) {
   errors = character()
   method_slot = slot(object, 'method')
   length_method = length(method_slot)
@@ -1004,7 +1067,7 @@ setClass('spatialGridObj',
                           feat_type = NULL,
                           provenance = NULL,
                           misc = NULL),
-         validity = checkSpatGridObj)
+         validity = check_spat_grid_obj)
 
 
 
