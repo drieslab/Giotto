@@ -44,11 +44,27 @@ setMethod('nrow', signature('exprData'), function(x) nrow(x@exprMat))
 
 #' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
 #' @export
+setMethod('nrow', signature('metaData'), function(x) nrow(x@metaDT))
+
+# ncol() generic ####
+
+#' @describeIn dims-generic Find cols of giotto S4s with Matrix based \code{exprMat} slots
+#' @export
 setMethod('ncol', signature('exprData'), function(x) ncol(x@exprMat))
 
-#' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
+#' @describeIn dims-generic Find cols of giotto S4s with data.table based \code{metaDT} slots
+#' @export
+setMethod('ncol', signature('metaData'), function(x) ncol(x@metaDT))
+
+# dim() generic ####
+
+#' @describeIn dims-generic Find dimensions of giotto S4s with Matrix based \code{exprMat} slots
 #' @export
 setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
+
+#' @describeIn dims-generic Find dimensions of giotto S4s with data.table based \code{metaDT} slots
+#' @export
+setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
 
 
