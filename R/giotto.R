@@ -783,21 +783,46 @@ read_cell_metadata = function(gobject,
 #' @description read feature metadata from list
 #' @param gobject giotto object
 #' @param metadata nested list of feature metadata information
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
 #' @keywords internal
 read_feature_metadata = function(gobject,
-                                 metadata) {
+                                 metadata,
+                                 provenance = NULL,
+                                 verbose = TRUE) {
 
   featMetaObj_list = list()
 
   # extract all metadata information
   # need to be nested list (feature type and spatial unit)
   for(spat_unit in names(metadata)) {
+
+    if(!spat_unit %in% list_cell_id_names(gobject)) {
+      if(isTRUE(verbose)) warning('spat_unit "', spat_unit, '" not found in gobject cell_ID slot.\nPlease check metadata list nesting.\n')
+    }
+
     for(feat_type in names(metadata[[spat_unit]])) {
+
+      if(!feat_type %in% list_feat_id_names(gobject)) {
+        if(isTRUE(verbose)) warning('feat_type "', feat_type, '" not found in gobject feat_ID slot.\nPlease check metadata list nesting.\n')
+      }
 
       # TODO load with fread if path given as character
 
       metaDT = data.table::as.data.table(metadata[[spat_unit]][[feat_type]])
-      metaDT[, feat_ID := get_feat_id(gobject, feat_type = feat_type)]
+
+      # if feat ID col is missing, try to automatically set
+      if(is.null(metaDT[['feat_ID']])) {
+        id_error = try(metaDT[, feat_ID := get_feat_id(gobject, feat_type = feat_type)], silent = TRUE)
+        if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata feat_ID based on gobject feat_ID slot.')
+      } else if(spat_unit %in% list_feat_id_names(gobject)) {
+
+        # if feat ID col is present in both, try to match
+        if(!identical(metaDT[, feat_ID], get_feat_id(gobject, feat_type = feat_type))) {
+          stop('metadata feat_ID does not match that in gobject feat_ID slot for feat_type "', feat_type, '".\n')
+        }
+
+      }
 
       # put feat_ID first
       all_colnames = colnames(metaDT)
@@ -808,7 +833,7 @@ read_feature_metadata = function(gobject,
                     metaDT = metaDT,
                     col_desc = NA_character_, # unknown
                     spat_unit = spat_unit,
-                    provenance = spat_unit, # assumed
+                    provenance = if(is.null(provenance)) spat_unit else provenance,
                     feat_type = feat_type)
 
       featMetaObj_list = append(featMetaObj_list, metaObj)

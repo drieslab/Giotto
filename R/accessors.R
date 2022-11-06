@@ -527,7 +527,6 @@ set_feature_metadata = function(gobject,
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
-
   # 1. determine if user input was supplied
   if(is.null(spat_unit)) nospec_unit = TRUE
   if(is.null(feat_type)) nospec_feat = TRUE
@@ -551,17 +550,18 @@ set_feature_metadata = function(gobject,
     if(metadata == 'initialize') {
       if(isTRUE(verbose)) message('Initializing specified metadata.')
       gobject@feat_metadata[[spat_unit]][[feat_type]] = new('featMetaObj',
-                                                            metaDT = data.table::data.table(feat_ID = get_feat_id(gobject, feat_type = feat_type)),
+                                                            metaDT = data.table::data.table(feat_ID = get_feat_id(gobject,
+                                                                                                                  feat_type = feat_type)),
                                                             col_desc = c(feat_ID = 'feature-specific unique ID value'),
                                                             spat_unit = spat_unit,
                                                             feat_type = feat_type,
-                                                            provenance = spat_unit) # assumed)
+                                                            provenance = if(is.null(provenance)) spat_unit else provenance)
       return(gobject)
     }
   }
 
 
-  # 4. import info if S4 object, else generate S4
+  # 4.1 import info if S4 object, else generate S4
   if(inherits(metadata, 'featMetaObj')) {
 
     if(isTRUE(nospec_unit)) {
@@ -579,9 +579,12 @@ set_feature_metadata = function(gobject,
 
     # 4.2 if nested list structure, extract spat_unit/feat_type
     if(inherits(metadata, 'list')) {
-      featMetaObj_list = read_feature_metadata(metadata)
+      featMetaObj_list = read_feature_metadata(gobject,
+                                               metadata = metadata,
+                                               provenance = if(is.null(provenance)) spat_unit else provenance)
       # recursively run
       for(obj_i in seq_along(featMetaObj_list)) {
+        # (provenance info set during prev. step)
         gobject = set_feature_metadata(gobject,
                                        metadata = featMetaObj_list[[obj_i]])
       }
@@ -591,7 +594,18 @@ set_feature_metadata = function(gobject,
     # 4.3 otherwise...
     metadata = data.table::as.data.table(metadata)
 
-    metadata[, feat_ID := get_feat_id(gobject, feat_type = feat_type)]
+    # if feat ID col is missing, try to automatically set
+    if(is.null(metadata[['feat_ID']])) {
+      id_error = try(metadata[, feat_ID := get_feat_id(gobject, feat_type = feat_type)], silent = TRUE)
+      if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata feat_ID based on gobject feat_ID slot.')
+    } else if(feat_type %in% list_feat_id_names(gobject)) {
+
+      # if feat ID col is present in both, try to match
+      if(!identical(metadata[, feat_ID], get_feat_id(gobject, feat_type = feat_type))) {
+        stop('metadata feat_ID does not match that in gobject feat_ID slot for feat_type "', feat_type, '".\n')
+      }
+
+    }
 
     # put feat_ID first
     all_colnames = colnames(metadata)
@@ -603,7 +617,7 @@ set_feature_metadata = function(gobject,
                    col_desc = NA_character_, # unknown
                    spat_unit = spat_unit,
                    feat_type = feat_type,
-                   provenance = spat_unit) # assumed
+                   provenance = if(is.null(provenance)) spat_unit else provenance)
   }
 
   # 5. check if nesting address is already used - just feat_type for metadata
@@ -2183,7 +2197,7 @@ showGiottoCellMetadata = function(gobject,
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_cell_metadata(gobject = gobject)
-  if(is.null(available_data)) cat('No expression data available \n')
+  if(is.null(available_data)) cat('No cell metadata available \n')
 
   for(spatial_unit in unique(available_data$spat_unit)) {
 
@@ -2193,17 +2207,12 @@ showGiottoCellMetadata = function(gobject,
 
       cat('--> Feature: ', feature_type, ' \n\n')
 
-      for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
+      dimensions = dim(gobject@cell_metadata[[spatial_unit]][[feature_type]])
+      nrows = min(nrows, dimensions[1])
+      ncols = min(ncols, dimensions[2])
 
-        cat('----> Name: ', mat_i, 'matrix: \n')
-
-        dimensions = dim(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
-        nrows = min(nrows, dimensions[1])
-        ncols = min(ncols, dimensions[2])
-
-        print(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]][1:nrows, 1:ncols])
-        cat('\n')
-      }
+      print(gobject@cell_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
+      cat('\n')
     }
   }
 }

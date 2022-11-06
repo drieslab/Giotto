@@ -214,7 +214,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'mi
 
 #' @rdname extract-generic
 #' @export
-setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'missing'),
+setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@coordinates = x@coordinates[i = i,]
             x
@@ -253,7 +253,7 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missi
 
 #' @rdname extract-generic
 #' @export
-setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missing'),
+setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@coordinates = x@metaDT[i = i,]
             x
@@ -301,7 +301,7 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'ANY', drop = 'missi
 
 #' @rdname extract-generic
 #' @export
-setMethod('[', signature(x = 'exprData', i = 'missing', j = 'ANY', drop = 'missing'),
+setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@exprMat = x@exprMat[i = i,]
             x
