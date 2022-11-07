@@ -8,7 +8,7 @@ get_cell_metadata(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  output = c("data.table", "cellMetaObj")
+  output = c("cellMetaObj", "data.table")
 )
 }
 \arguments{

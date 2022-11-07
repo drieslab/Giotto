@@ -6,16 +6,20 @@
 \usage{
 set_NearestNetwork(
   gobject,
+  nn_network,
   spat_unit = NULL,
   feat_type = NULL,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  nn_network,
+  provenance = NULL,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
+yet supported.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -25,8 +29,7 @@ set_NearestNetwork(
 
 \item{network_name}{name of NN network to be used}
 
-\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
-yet supported.}
+\item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 }

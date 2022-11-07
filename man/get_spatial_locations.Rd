@@ -8,8 +8,9 @@ get_spatial_locations(
   gobject,
   spat_unit = NULL,
   spat_loc_name = NULL,
-  return_spatlocs_Obj = FALSE,
-  copy_obj = TRUE
+  output = c("spatLocsObj", "data.table"),
+  copy_obj = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -19,9 +20,14 @@ get_spatial_locations(
 
 \item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
 
-\item{return_spatlocs_Obj}{return spatLocsObj (default = FALSE)}
+\item{output}{what object type to get the spatial locations as. Default is as
+a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 
 \item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
+
+\item{verbose}{be verbose}
+
+\item{return_spatlocs_Obj}{return spatLocsObj (default = FALSE)}
 }
 \value{
 data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}

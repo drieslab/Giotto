@@ -121,9 +121,7 @@ createNearestNetwork <- function(gobject,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
                                  name = dim_reduction_name,
-                                 return_dimObj = FALSE)
-
-    #dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+                                 output = 'data.table')
 
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]

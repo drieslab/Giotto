@@ -302,6 +302,88 @@ create_average_detection_DT <- function(gobject,
 
 
 
+#' @title Initialize cell metadata slot
+#' @name init_cell_metadata
+#' @description Generate cellMetaObjs to hold cell metadata for each spatial unit
+#' @param gobject giotto object
+#' @param provenance provenance information (optional)
+#' and feature type in the giotto object.
+#' @keywords internal
+init_cell_metadata = function(gobject,
+                              provenance = NULL) {
+
+  avail_expr = list_expression(gobject)
+  avail_spat_info = list_spatial_info_names(gobject)
+
+  # If no spatial_info then initialize for all expression matrices
+  if(is.null(avail_spat_info)) {
+    for(expr_i in seq(avail_expr[, .N])) {
+      # initialize relevant metadata
+      gobject = set_cell_metadata(gobject = gobject,
+                                  spat_unit = avail_expr[expr_i, spat_unit],
+                                  feat_type = avail_expr[expr_i, feat_type],
+                                  provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
+                                  metadata = 'initialize',
+                                  verbose = FALSE)
+    }
+  } else {
+    # if spatial_info present then initialize for all spat_info and feat_type combos
+    for(poly in avail_spat_info) {
+      for(feature_type in unique(avail_expr[, feat_type])) {
+        gobject = set_cell_metadata(gobject = gobject,
+                                    spat_unit = poly,
+                                    feat_type = feature_type,
+                                    provenance = if(is.null(provenance)) poly else provenance,
+                                    metadata = 'initialize',
+                                    verbose = FALSE)
+      }
+    }
+  }
+  return(gobject)
+}
+
+
+#' @title Initialize feature metadata slot
+#' @name init_feat_metadata
+#' @description Generate featMetaObjs to hold all feature metadata for each spatial unit
+#' and feature type in the giotto object.
+#' @param gobject giotto object
+#' @param provenance provenance information (optional)
+#' @keywords internal
+init_feat_metadata = function(gobject,
+                              provenance = NULL) {
+
+  avail_expr = list_expression(gobject)
+  avail_feat_info = list_feature_info_names(gobject)
+
+  # If no feature_info then initialize for all expression matrices
+  # if(is.null(avail_feat_info)) {
+    for(expr_i in seq(avail_expr[, .N])) {
+      # initialize relevant metadata
+      gobject = set_feature_metadata(gobject = gobject,
+                                     spat_unit = avail_expr[expr_i, spat_unit],
+                                     feat_type = avail_expr[expr_i, feat_type],
+                                     provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
+                                     metadata = 'initialize',
+                                     verbose = FALSE)
+    }
+  # } else {
+  #   # if spatial_info present then initialize for all spat_info and feat_type combos
+  #   for(poly in avail_spat_info) {
+  #     for(feature_type in unique(avail_expr[, feat_type])) {
+  #       gobject = set_feature_metadata_metadata(gobject = gobject,
+  #                                               spat_unit = poly,
+  #                                               feat_type = feature_type,
+  #                                               provenance = if(is.null(provenance)) poly else provenance,
+  #                                               metadata = 'initialize',
+  #                                               verbose = FALSE)
+  #     }
+  #   }
+  # }
+  return(gobject)
+}
+
+
 
 #' @title Subset expression data
 #' @name subset_expression_data
@@ -530,18 +612,13 @@ subset_dimension_reduction = function(gobject,
                                         reduction = 'cells',
                                         reduction_method = dim_method,
                                         name = selected_name,
-                                        return_dimObj = TRUE)
+                                        output = 'dimObj')
 
               old_coord = slot(dimObj, 'coordinates')
               new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
               slot(dimObj, 'coordinates') = new_coord
 
               gobject = set_dimReduction(gobject = gobject,
-                                         reduction = 'cells',
-                                         spat_unit = spat_unit_name,
-                                         feat_type = feat_type_name,
-                                         reduction_method = dim_method,
-                                         name = selected_name,
                                          dimObject = dimObj)
 
             }
@@ -2332,7 +2409,7 @@ processGiotto = function(gobject,
 
 
 ## * ####
-## Gene & Cell metadata functions ####
+## Feature & Cell metadata functions ####
 
 
 #' @title Annotate giotto clustering

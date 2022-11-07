@@ -10,7 +10,7 @@ get_NearestNetwork(
   feat_type = NULL,
   nn_network_to_use = NULL,
   network_name = NULL,
-  output = c("igraph", "data.table", "nnNetObj")
+  output = c("nnNetObj", "igraph", "data.table")
 )
 }
 \arguments{

@@ -6,24 +6,24 @@
 \usage{
 set_feature_metadata(
   gobject,
+  metadata,
   spat_unit = NULL,
   feat_type = NULL,
   provenance = NULL,
-  metadata,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{metadata}{featMetaObj or data.table object containing feature metadata.
+Setting NULL will remove the object.}
+
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{provenance}{provenance information (optional)}
-
-\item{metadata}{featMetaObj or data.table object containing feature metadata.
-Setting NULL will remove the object.}
 
 \item{verbose}{be verbose}
 }
