@@ -390,10 +390,13 @@ init_feat_metadata = function(gobject,
 #' @description Subset expression data from giotto object
 #' @keywords internal
 subset_expression_data = function(gobject,
-                                  filter_bool_feats,
-                                  filter_bool_cells,
+                                  cell_ids,
+                                  feat_ids,
                                   feat_type,
                                   spat_unit) {
+
+
+
 
 
   for(spat_unit_name in names(gobject@expression)) {
@@ -407,12 +410,26 @@ subset_expression_data = function(gobject,
 
         for(expr_name in expression_names) {
 
+
+          ## filter index
+          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+
+          if(!is.null(cell_ids)) {
+            filter_bool_cells = g_cell_IDs %in% cell_ids
+          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+          if(!is.null(feat_ids)) {
+            filter_bool_feats = g_feat_IDs %in% feat_ids
+          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
+
+
           # for HDF5Array
           if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
             gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
+          } else {
+            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells]
           }
 
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells]
         }
 
       } else if(feat_type_name == feat_type & spat_unit_name != spat_unit){
@@ -421,6 +438,20 @@ subset_expression_data = function(gobject,
         expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
         for(expr_name in expression_names) {
+
+
+          ## filter index
+          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+
+          if(!is.null(cell_ids)) {
+            filter_bool_cells = g_cell_IDs %in% cell_ids
+          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+          if(!is.null(feat_ids)) {
+            filter_bool_feats = g_feat_IDs %in% feat_ids
+          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
+
+
 
           # for HDF5Array
           if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
@@ -436,6 +467,18 @@ subset_expression_data = function(gobject,
         expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
         for(expr_name in expression_names) {
+
+
+          ## filter index
+          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+
+          if(!is.null(cell_ids)) {
+            filter_bool_cells = g_cell_IDs %in% cell_ids
+          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+          if(!is.null(feat_ids)) {
+            filter_bool_feats = g_feat_IDs %in% feat_ids
+          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
           # for HDF5Array
           if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
