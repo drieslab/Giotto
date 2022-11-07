@@ -620,7 +620,8 @@ read_expression_data = function(expr_list = NULL,
                     provenance = if(is.null(provenance)) 'cell' else provenance,
                     feat_type = default_feat_type,
                     misc = NULL)
-      return_list[['cell']][[default_feat_type]][[data]] = res_mat
+      # return_list[['cell']][[default_feat_type]][[data]] = res_mat
+      return_list = append(return_list, exprObj)
 
     }
 
@@ -637,7 +638,16 @@ read_expression_data = function(expr_list = NULL,
                                        sparse = sparse,
                                        cores = cores)
         # add default region == 'cell'
-        return_list[['cell']][[feat]][[data]] = res_mat
+        exprObj = new('exprObj',
+                      name = data,
+                      exprMat = res_mat,
+                      sparse = sparse,
+                      spat_unit = 'cell',
+                      provenance = if(is.null(provenance)) 'cell' else provenance,
+                      feat_type = feat,
+                      misc = NULL)
+        # return_list[['cell']][[feat]][[data]] = res_mat
+        return_list = append(return_list, exprObj)
 
       }
     }
@@ -654,7 +664,16 @@ read_expression_data = function(expr_list = NULL,
                                          sparse = sparse,
                                          cores = cores)
           # add default region == 'cell'
-          return_list[[region]][[feat]][[data]] = res_mat
+          exprObj = new('exprObj',
+                        name = data,
+                        exprMat = res_mat,
+                        sparse = sparse,
+                        spat_unit = region,
+                        provenance = if(is.null(provenance)) region else provenance,
+                        feat_type = feat,
+                        misc = NULL)
+          # return_list[[region]][[feat]][[data]] = res_mat
+          return_list = append(return_list, exprObj)
 
         }
       }
@@ -1949,17 +1968,27 @@ createGiottoObject <- function(expression,
 
   ## cell metadata ##
   ## ------------- ##
-  gobject = set_cell_metadata(gobject = gobject,
-                              cell_metadata = cell_metadata)
+  if(is.null(cell_metadata)) {
+    # initialize metadata
+    gobject = init_cell_metadata(gobject)
+  } else {
+    gobject = set_cell_metadata(gobject = gobject,
+                                metadata = cell_metadata)
+  }
 
   if(verbose) message('finished cell metadata')
 
   ## feat metadata ##
   ## ------------- ##
-  gobject = set_feature_metadata(gobject = gobject,
-                                 feat_metadata = feat_metadata)
+  if(is.null(feat_metadata)) {
+    # initialize metadata
+    gobject = init_feat_metadata(gobject)
+  } else {
+    gobject = set_feature_metadata(gobject = gobject,
+                                   metadata = feat_metadata)
+  }
 
-
+  if(verbose) message('finished feature metadata')
 
   ## feature info ##
   ## ------------ ##

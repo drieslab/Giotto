@@ -12,7 +12,9 @@ Framework to store aggregated expression information
 \describe{
 \item{\code{name}}{name of exprObj}
 
-\item{\code{expression}}{matrix of expression information}
+\item{\code{exprMat}}{matrix of expression information}
+
+\item{\code{sparse}}{boolean whether exprMat is sparse}
 
 \item{\code{spat_unit}}{spatial unit of expression (e.g. 'cell')}
 

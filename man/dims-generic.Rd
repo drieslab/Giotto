@@ -6,8 +6,11 @@
 \alias{nrow,giottoPolygon-method}
 \alias{nrow,coordDataDT-method}
 \alias{nrow,exprData-method}
+\alias{nrow,metaData-method}
 \alias{ncol,exprData-method}
+\alias{ncol,metaData-method}
 \alias{dim,exprData-method}
+\alias{dim,metaData-method}
 \title{Dimensions of giotto objects}
 \usage{
 \S4method{nrow}{giottoPoints}(x)
@@ -18,9 +21,15 @@
 
 \S4method{nrow}{exprData}(x)
 
+\S4method{nrow}{metaData}(x)
+
 \S4method{ncol}{exprData}(x)
 
+\S4method{ncol}{metaData}(x)
+
 \S4method{dim}{exprData}(x)
+
+\S4method{dim}{metaData}(x)
 }
 \arguments{
 \item{x}{object to check dimensions of}
@@ -38,8 +47,14 @@ Find the dimensions of an object
 
 \item \code{nrow(exprData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
-\item \code{ncol(exprData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{nrow(metaData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
-\item \code{dim(exprData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{ncol(exprData)}: Find cols of giotto S4s with Matrix based \code{exprMat} slots
+
+\item \code{ncol(metaData)}: Find cols of giotto S4s with data.table based \code{metaDT} slots
+
+\item \code{dim(exprData)}: Find dimensions of giotto S4s with Matrix based \code{exprMat} slots
+
+\item \code{dim(metaData)}: Find dimensions of giotto S4s with data.table based \code{metaDT} slots
 
 }}

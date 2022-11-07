@@ -471,7 +471,8 @@ check_expr_obj = function(object) {
 #' @title S4 exprObj
 #' @description Framework to store aggregated expression information
 #' @slot name name of exprObj
-#' @slot expression matrix of expression information
+#' @slot exprMat matrix of expression information
+#' @slot sparse boolean whether exprMat is sparse
 #' @slot spat_unit spatial unit of expression (e.g. 'cell')
 #' @slot feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of expression information (if applicable)
@@ -644,7 +645,7 @@ setMethod('show', signature('featMetaObj'), function(object) {
 ##### * Check #####
 # dimObj Class
 
-#' @title Check dimOjb
+#' @title Check dimObj
 #' @name check_dim_obj
 #' @description check function for S4 dimObj
 #' @param object S4 dimObj to check
@@ -690,10 +691,12 @@ check_dim_obj = function(object) {
 setClass('dimObj',
          contains = c('spatFeatData'),
          slots = c(name = 'character',
+                   reduction = 'character',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
          prototype = list(name = NA_character_,
+                          reduction = NA_character_,
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
@@ -841,7 +844,7 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
     if(!is.null(slot(object, 'spat_unit'))) cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '"\n'))
-    if(!is.null(slot(object, 'provenance'))) cat(paste0('provenance: ', slot(object, 'provenance'), '\n'))
+    if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
 
     cat('   ------------------------\n\npreview:\n')
     if(!is.null(slot(object, 'coordinates'))) show(slot(object, 'coordinates'))
@@ -1464,6 +1467,161 @@ setMethod(
 )
 
 
+
+# Internal constructor functions for S4 subobjects ####
+
+#' @title Create S4 exprObj
+#' @name create_expr_obj
+#' @description Create an S4 exprObj
+#' @param name name of exprObj
+#' @param exprMat matrix of expression information
+#' @param sparse boolean whether exprMat is sparse
+#' @param spat_unit spatial unit of expression (e.g. 'cell')
+#' @param feat_type feature type of expression (e.g. 'rna', 'protein')
+#' @param provenance origin data of expression information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_expr_obj = function(name = 'test',
+                           exprMat = NULL,
+                           sparse = NA,
+                           spat_unit = 'cell',
+                           feat_type = 'rna',
+                           provenance = NULL,
+                           misc = NULL) {
+
+  if(is.null(exprMat)) exprMat = matrix()
+
+  return(new('exprObj',
+             name = name,
+             exprMat = exprMat,
+             sparse = sparse,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+}
+
+
+#' @title Create S4 cellMetaObj
+#' @name create_cell_meta_obj
+#' @description Create an S4 cellMetaObj
+#' @param metadata metadata info
+#' @param col_desc (optional) character vector describing columns of the metadata
+#' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @param provenance origin data of aggregated expression information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_cell_meta_obj = function(metaDT = NULL,
+                                col_desc = NA_character_,
+                                spat_unit = 'cell',
+                                feat_type = 'rna',
+                                provenance = NULL) {
+
+  if(is.null(metaDT)) metaDT = data.table::data.table(cell_ID = NA_character_)
+
+  return(new('cellMetaObj',
+             metaDT = metaDT,
+             col_desc = col_desc,
+             spat_unit = spat_unit,
+             provenance = provenance,
+             feat_type = feat_type))
+}
+
+
+#' @title Create S4 featMetaObj
+#' @name create_feat_meta_obj
+#' @description Create an S4 featMetaObj
+#' @param metadata metadata info
+#' @param col_desc (optional) character vector describing columns of the metadata
+#' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @param provenance origin data of aggregated expression information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_feat_meta_obj = function(metaDT = NULL,
+                                col_desc = NA_character_,
+                                spat_unit = 'cell',
+                                feat_type = 'rna',
+                                provenance = NULL) {
+
+  if(is.null(metaDT)) metaDT = data.table::data.table(feat_ID = NA_character_)
+
+  return(new('featMetaObj',
+             metaDT = metaDT,
+             col_desc = col_desc,
+             spat_unit = spat_unit,
+             provenance = provenance,
+             feat_type = feat_type))
+}
+
+
+#' @title Create S4 dimObj
+#' @name create_dim_obj
+#' @description Create an S4 dimObj
+#' @param name name of dimObj
+#' @param reduction_method method used to generate dimension reduction
+#' @param coordinates embedding coordinates
+#' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @param provenance origin data of aggregated expression information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_dim_obj = function(name = 'test',
+                          reduction = NA_character_,
+                          reduction_method = NA_character_,
+                          coordinates = NULL,
+                          spat_unit = 'cell',
+                          feat_type = 'rna',
+                          provenance = NULL,
+                          misc = NULL,
+                          my_rownames = NULL) {
+
+  number_of_dimensions = ncol(coordinates)
+  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
+
+  if(!is.null(my_rownames)) {
+    rownames(coordinates) = my_rownames
+  }
+
+  return(new('dimObj',
+             name = name,
+             reduction = reduction,
+             reduction_method = reduction_method,
+             coordinates = coordinates,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+}
+
+
+#' @title Create S4 spatLocsObj
+#' @name create_spatlocs_obj
+#' @description Create an S4 spatLocsObj
+#' @param name name of spatLocsObj
+#' @param coordinates spatial coordinates
+#' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @param provenance origin data of aggregated expression information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_spatlocs_obj = function(name = 'test',
+                               coordinates = NULL,
+                               spat_unit = 'cell',
+                               provenance = NULL,
+                               misc = NULL) {
+
+  if(is.null(coordinates)) coordinates = data.table::data.table(sdimx = NA_real_,
+                                                                sdimy = NA_real_,
+                                                                cell_ID = NA_character_)
+
+  return(new('spatLocsObj',
+             name = name,
+             coordinates = coordinates,
+             spat_unit = spat_unit,
+             provenance = provenance,
+             misc = misc))
+}
 
 
 

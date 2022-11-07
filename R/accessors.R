@@ -248,9 +248,9 @@ set_feat_id = function(gobject,
 get_cell_metadata = function(gobject,
                              spat_unit = NULL,
                              feat_type = NULL,
-                             output = c('data.table', 'cellMetaObj')) {
+                             output = c('cellMetaObj', 'data.table')) {
 
-  output = match.arg(output, choices = c('data.table', 'cellMetaObj'))
+  output = match.arg(output, choices = c('cellMetaObj', 'data.table'))
 
   # 1. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -307,10 +307,10 @@ get_cell_metadata = function(gobject,
 #' @return giotto object
 #' @family functions to set data in giotto object
 set_cell_metadata = function(gobject,
+                             metadata,
                              spat_unit = NULL,
                              feat_type = NULL,
                              provenance = NULL,
-                             metadata,
                              verbose = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
@@ -361,6 +361,9 @@ set_cell_metadata = function(gobject,
       if(!is.na(slot(metadata, 'feat_type'))) feat_type = slot(metadata, 'feat_type')
     } else {
       slot(metadata, 'feat_type') = feat_type
+    }
+    if(!is.null(provenance)) {
+      slot(metadata, 'provenance') = provenance
     }
 
   } else {
@@ -461,9 +464,9 @@ set_cell_metadata = function(gobject,
 get_feature_metadata = function(gobject,
                                 spat_unit = NULL,
                                 feat_type = NULL,
-                                output = c('data.table', 'featMetaObj')) {
+                                output = c('featMetaObj', 'data.table')) {
 
-  output = match.arg(output, choices = c('data.table', 'featMetaObj'))
+  output = match.arg(output, choices = c('featMetaObj', 'data.table'))
 
   # 1. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -519,10 +522,10 @@ get_feature_metadata = function(gobject,
 #' @return giotto object
 #' @family functions to set data in giotto object
 set_feature_metadata = function(gobject,
+                                metadata,
                                 spat_unit = NULL,
                                 feat_type = NULL,
                                 provenance = NULL,
-                                metadata,
                                 verbose = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
@@ -573,6 +576,9 @@ set_feature_metadata = function(gobject,
       if(!is.na(slot(metadata, 'feat_type'))) feat_type = slot(metadata, 'feat_type')
     } else {
       slot(metadata, 'feat_type') = feat_type
+    }
+    if(!is.null(provenance)) {
+      slot(metadata, 'provenance') = provenance
     }
 
   } else {
@@ -649,9 +655,9 @@ set_feature_metadata = function(gobject,
 #' @family functions to get data from giotto object
 #' @export
 get_expression_values = function(gobject,
+                                 values,
                                  spat_unit = NULL,
                                  feat_type = NULL,
-                                 values,
                                  output = c('exprObj', 'matrix')) {
 
 
@@ -748,11 +754,11 @@ select_expression_values = function(...) {
 #' @family functions to set data in giotto object
 #' @export
 set_expression_values = function(gobject,
+                                 values,
                                  spat_unit = NULL,
                                  feat_type = NULL,
                                  name = 'test',
                                  provenance = NULL,
-                                 values,
                                  verbose = TRUE,
                                  ...) {
 
@@ -795,12 +801,15 @@ set_expression_values = function(gobject,
     } else {
       slot(values, 'name') = name
     }
+    if(!is.null(provenance)) {
+      slot(values, 'provenance') = provenance
+    }
 
   } else {
 
     # 4.2 if nested list structure, extract spat_unit/feat_type
     if(inherits(values, 'list')) {
-      cores = determine_cores(cores)
+      cores = determine_cores(NA)
 
       exprObj_list = read_expression_data(expr_list = values,
                                           sparse = TRUE,
@@ -851,8 +860,11 @@ set_expression_values = function(gobject,
 #' @description Function to get a spatial location data.table
 #' @inheritParams data_access
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
+#' @param output what object type to get the spatial locations as. Default is as
+#' a 'spatLocsObj'. Returning as 'data.table' is also possible.
 #' @param return_spatlocs_Obj return spatLocsObj (default = FALSE)
 #' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
+#' @param verbose be verbose
 #' @return data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}
 #' @family spatial location data accessor functions
 #' @family functions to get data from giotto object
@@ -860,8 +872,11 @@ set_expression_values = function(gobject,
 get_spatial_locations = function(gobject,
                                  spat_unit = NULL,
                                  spat_loc_name = NULL,
-                                 return_spatlocs_Obj = FALSE,
-                                 copy_obj = TRUE) {
+                                 output = c('spatLocsObj', 'data.table'),
+                                 copy_obj = TRUE,
+                                 verbose = TRUE) {
+
+  output = match.arg(output, choices = c('spatLocsObj', 'data.table'))
 
   if(!is.null(spat_unit)) {
     potential_spat_unit = names(slot(gobject, 'spatial_locs'))
@@ -889,7 +904,7 @@ get_spatial_locations = function(gobject,
 
   # get object to return in desired format
   if(spat_loc_name %in% potential_names) { # case if found
-    if(!isTRUE(return_spatlocs_Obj)) { # case if return as data.table
+    if(output == 'data.table') { # case if return as data.table
       if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatLocsObj')) { # if is spatLocsObj
         if(isTRUE(copy_obj)) spatloc = data.table::copy(slot(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'coordinates')) # copy
         else spatloc = slot(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'coordinates') # no copy
@@ -897,7 +912,7 @@ get_spatial_locations = function(gobject,
         if(isTRUE(copy_obj)) spatloc = data.table::copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]) # copy
         else spatloc = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]] # no copy
       }
-    } else { # case if return as spatLocsObj
+    } else if(output == 'spatLocsObj') { # case if return as spatLocsObj
       if(inherits(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]], 'spatLocsObj')) { # if is spatLocsObj
         if(isTRUE(copy_obj)) spatloc = copy(slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]]) # copy
         else spatloc = slot(gobject, 'spatial_locs')[[spat_unit]][[spat_loc_name]] # no copy
@@ -916,6 +931,8 @@ get_spatial_locations = function(gobject,
                         provenance = spat_unit) # assume
         }
       }
+    } else {
+      if(isTRUE(verbose)) message('Other spatial locations outputs not yet supported')
     }
     return(spatloc)
   } else { # case if not found
@@ -948,6 +965,7 @@ select_spatial_locations = function(...) {
 #' @param spatlocs spatial locations (accepts either \code{data.table} or
 #' \code{spatLocsObj})
 #' @param spat_loc_name name of spatial locations, default "raw"
+#' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @details If a \code{spatLocsObj} is provided to \code{spatlocs} param then any
 #' attached name and spat_unit info will be used for input to this function's
@@ -966,6 +984,7 @@ set_spatial_locations = function(gobject,
                                  spatlocs,
                                  spat_unit = NULL,
                                  spat_loc_name = 'raw',
+                                 provenance = NULL,
                                  verbose = TRUE) {
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
@@ -986,6 +1005,7 @@ set_spatial_locations = function(gobject,
   # 4. import data
   # if is spatLocsObj, decide if to use tagged spat_unit and name info
   if(inherits(spatlocs, 'spatLocsObj')) {
+
     if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
       if(!is.na(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
       else slot(spatlocs, 'spat_unit') = spat_unit
@@ -998,13 +1018,16 @@ set_spatial_locations = function(gobject,
     } else { # case if input given - use input
       slot(spatlocs, 'name') = spat_loc_name
     }
+    if(!is.null(provenance)) {
+      slot(spatlocs, 'provenance') = provenance
+    }
 
   } else {
     spatlocs = new('spatLocsObj',
                    name = spat_loc_name,
                    spat_unit = spat_unit,
                    coordinates = spatlocs,
-                   provenance = spat_unit) # assume
+                   provenance = if(is.null(provenance)) spat_unit else provenance)
   }
 
   # 5. check if specified name has already been used
@@ -1034,9 +1057,10 @@ set_spatial_locations = function(gobject,
 #' @param reduction reduction on cells or features (e.g. "cells", "feats")
 #' @param reduction_method reduction method (e.g. "pca", "umap", "tsne")
 #' @param name name of reduction results
-#' @param return_dimObj return full dimension object result. Default = FALSE
+#' @param output object type to return as. Either 'dimObj' (default) or 'data.table
+#' of the embedding coordinates.
 #' @description Function to get a dimension reduction object
-#' @return dim reduction coordinates (default) or dim reduction object
+#' @return dim reduction object (default) or dim reduction coordinates
 #' @family dimensional reduction data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -1046,8 +1070,9 @@ get_dimReduction = function(gobject,
                             reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
-                            return_dimObj = FALSE) {
+                            output = c('dimObj', 'data.table')) {
 
+  output = match.arg(output, choices = c('dimObj', 'data.table'))
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1083,10 +1108,12 @@ get_dimReduction = function(gobject,
   silent = validObject(reduction_res) # variable hides TRUE print
 
   ## return object or coordinates
-  if(return_dimObj == TRUE) {
+  if(output == 'dimObj') {
     return(reduction_res)
-  } else {
+  } else if(output == 'data.table') {
     return(slot(reduction_res, 'coordinates'))
+  } else {
+    stop('other outputs not supported')
   }
 
 }
@@ -1114,35 +1141,52 @@ select_dimReduction = function(...) {
 #' @param reduction_method reduction method (e.g. "pca")
 #' @param name name of reduction results
 #' @param dimObject dimension object result to set
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
 #' @return giotto object
 #' @family dimensional reduction data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_dimReduction <- function(gobject,
-                             spat_unit = NULL,
-                             feat_type = NULL,
-                             reduction = c('cells', 'genes'),
-                             reduction_method = c('pca', 'umap', 'tsne'),
-                             name = 'pca',
-                             dimObject) {
+set_dimReduction = function(gobject,
+                            dimObject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            reduction = c('cells', 'genes'),
+                            reduction_method = c('pca', 'umap', 'tsne'),
+                            name = 'pca',
+                            provenance = NULL,
+                            verbose = TRUE) {
 
 
   # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  # spat_unit = set_default_spat_unit(gobject = gobject,
+  #                                   spat_unit = spat_unit)
+  # feat_type = set_default_feat_type(gobject = gobject,
+  #                                   spat_unit = spat_unit,
+  #                                   feat_type = feat_type)
+
+  # get set location from S4
+  name = slot(dimObject, 'name')
+  reduction = slot(dimObject, 'reduction')
+  spat_unit = slot(dimObject, 'spat_unit')
+  feat_type = slot(dimObject, 'feat_type')
+  reduction_method = slot(dimObject, 'reduction_method')
+
 
   ## 1. check if specified name has already been used
   potential_names = names(slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
   if(name %in% potential_names) {
-    cat(name, ' already exist and will be replaced with new dimension reduction object \n')
+    if(isTRUE(verbose)) message(name, ' already exists and will be replaced with new dimension reduction object \n')
   }
 
   ## TODO: 2. check input for dimension reduction object
   if(!inherits(dimObject, 'dimObj')) stop('Object to set must be a giotto S4 "dimObj"\n')
   silent = validObject(dimObject) # variable hides TRUE print
+
+  # set provenance information if given
+  if(is.null(provenance)) {
+    slot(dimObject, 'provenance') = provenance
+  }
 
   ## 3. update and return giotto object
   slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
@@ -1175,9 +1219,9 @@ get_NearestNetwork = function(gobject,
                               feat_type = NULL,
                               nn_network_to_use = NULL,
                               network_name = NULL,
-                              output = c('igraph', 'data.table', 'nnNetObj')) {
+                              output = c('nnNetObj', 'igraph', 'data.table')) {
 
-  output = match.arg(arg = output, choices = c('igraph', 'data.table', 'nnNetObj'))
+  output = match.arg(arg = output, choices = c('nnNetObj', 'igraph', 'data.table'))
 
   # 1.  Set feat_type and spat_unit
 
@@ -1321,17 +1365,19 @@ select_NearestNetwork = function(...) {
 #' @param network_name name of NN network to be used
 #' @param nn_network nnNetObj or igraph nearest network object. Data.table not
 #' yet supported.
+#' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return giotto object
 #' @family expression space nearest network accessor functions
 #' @family functions to set data in giotto object
 #' @export
 set_NearestNetwork = function(gobject,
+                              nn_network,
                               spat_unit = NULL,
                               feat_type = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
-                              nn_network,
+                              provenance = NULL,
                               verbose = TRUE) {
 
   # 1. determine user input
@@ -1377,6 +1423,9 @@ set_NearestNetwork = function(gobject,
     } else {
       slot(nn_network, 'name') = network_name
     }
+    if(!is.null(provenance)) {
+      slot(nn_network, 'provenance') = provenance
+    }
 
   } else {
     # TODO convert to igraph if data.table class
@@ -1387,7 +1436,7 @@ set_NearestNetwork = function(gobject,
                      igraph = nn_network,
                      spat_unit = spat_unit,
                      feat_type = feat_type,
-                     provenance = spat_unit, # assumed
+                     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
                      misc = NULL)
   }
 
@@ -1419,15 +1468,21 @@ set_NearestNetwork = function(gobject,
 #' @description Function to get a spatial network
 #' @inheritParams data_access
 #' @param name name of spatial network
-#' @param return_network_Obj return network object (default = FALSE)
+#' @param output object type to return as. Options: 'spatialNetworkObj' (default),
+#' 'networkDT' and 'networkDT_before_filter' for data.table outputs.
 #' @family spatial network data accessor functions
 #' @family functions to get data from giotto object
 #' @export
 get_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
                                name = NULL,
-                               return_network_Obj = FALSE) {
+                               output = c('spatialNetworkObj',
+                                          'networkDT',
+                                          'networkDT_before_filter')) {
 
+  output = match.arg(output, choices = c('spatialNetworkObj',
+                                         'networkDT',
+                                         'networkDT_before_filter'))
 
 
   # Set spat_unit
@@ -1450,13 +1505,14 @@ get_spatialNetwork <- function(gobject,
     if(!isS4(networkObj)) networkObj = S3toS4spatNetObj(networkObj)
     silent = validObject(networkObj) # Variable used to hide TRUE print
 
-    networkDT = slot(networkObj, 'networkDT')
   }
 
-  if (return_network_Obj == TRUE){
+  if (output == 'spatialNetworkObj'){
     return(networkObj)
-  }else{
-    return(networkDT)
+  } else if(output == 'networkDT'){
+    return(slot(networkObj, 'networkDT'))
+  } else if(output == 'networkDT_before_filter') {
+    return(slot(networkObj, 'networkDT_before_filter'))
   }
 }
 
@@ -2200,8 +2256,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @keywords show
 #' @export
 showGiottoCellMetadata = function(gobject,
-                                  nrows = 4,
-                                  ncols = 4) {
+                                  nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
@@ -2218,9 +2273,8 @@ showGiottoCellMetadata = function(gobject,
 
       dimensions = dim(gobject@cell_metadata[[spatial_unit]][[feature_type]])
       nrows = min(nrows, dimensions[1])
-      ncols = min(ncols, dimensions[2])
 
-      print(gobject@cell_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
+      print(gobject@cell_metadata[[spatial_unit]][[feature_type]][1:nrows])
       cat('\n')
     }
   }
@@ -2238,8 +2292,7 @@ showGiottoCellMetadata = function(gobject,
 #' @keywords show
 #' @export
 showGiottoFeatMetadata = function(gobject,
-                                  nrows = 4,
-                                  ncols = 4) {
+                                  nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
@@ -2256,9 +2309,8 @@ showGiottoFeatMetadata = function(gobject,
 
       dimensions = dim(gobject@feat_metadata[[spatial_unit]][[feature_type]])
       nrows = min(nrows, dimensions[1])
-      ncols = min(ncols, dimensions[2])
 
-      print(gobject@feat_metadata[[spatial_unit]][[feature_type]][1:nrows, 1:ncols])
+      print(gobject@feat_metadata[[spatial_unit]][[feature_type]][1:nrows])
       cat('\n')
     }
   }
@@ -2294,7 +2346,8 @@ showGiottoSpatLocs = function(gobject,
         cat('\n')
       }
       if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatLocsObj')) {
-        cat('--> Name: ', spatlocname, ' \n\n')
+        cat('--> Name: ', spatlocname, ' \n')
+        cat('--> Provenance: ', slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'provenance'), ' \n\n')
         print(slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'coordinates')[1:nrows,])
         cat('\n')
       }
@@ -2388,7 +2441,7 @@ showGiottoDimRed = function(gobject,
                                feat_type = available_data$feat_type[[obj_i]],
                                reduction_method = available_data$dim_type[[obj_i]],
                                name = available_data$name[[obj_i]],
-                               return_dimObj = FALSE)
+                               output = 'data.table')
 
     # Collect object prints
     objRows[[obj_i]] = nrow(dataObj)
