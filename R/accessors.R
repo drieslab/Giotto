@@ -655,7 +655,7 @@ set_feature_metadata = function(gobject,
 #' @family functions to get data from giotto object
 #' @export
 get_expression_values = function(gobject,
-                                 values,
+                                 values = NULL,
                                  spat_unit = NULL,
                                  feat_type = NULL,
                                  output = c('exprObj', 'matrix')) {
@@ -673,7 +673,11 @@ get_expression_values = function(gobject,
 
   # 2. Find object
 
-  potential_values = names(gobject@expression[[spat_unit]][[feat_type]])
+  potential_values = list_expression_names(gobject = gobject,
+                                           spat_unit = spat_unit,
+                                           feat_type = feat_type)
+
+  if(is.null(values)) values = potential_values[[1]]
 
   ## special cases for giotto standard pipeline
   if(values == 'scaled' & is.null(gobject@expression[[spat_unit]][[feat_type]][[values]])) {
@@ -2346,8 +2350,9 @@ showGiottoSpatLocs = function(gobject,
         cat('\n')
       }
       if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatLocsObj')) {
-        cat('--> Name: ', spatlocname, ' \n')
-        cat('--> Provenance: ', slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'provenance'), ' \n\n')
+        cat('--> Name: ', spatlocname, ' \n\n')
+        cat('An object of class spatLocsObj\n')
+        cat('Provenance: ', slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'provenance'), ' \n')
         print(slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'coordinates')[1:nrows,])
         cat('\n')
       }

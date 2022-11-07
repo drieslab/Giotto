@@ -6,7 +6,7 @@
 \usage{
 get_expression_values(
   gobject,
-  values,
+  values = NULL,
   spat_unit = NULL,
   feat_type = NULL,
   output = c("exprObj", "matrix")
