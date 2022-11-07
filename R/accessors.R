@@ -752,7 +752,6 @@ select_expression_values = function(...) {
 #' @param values exprObj or matrix of expression values. If NULL, then the object
 #' will be removed.
 #' @param verbose be verbose
-#' @param ... additional params to pass (possibly to read_expression_values)
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
@@ -763,8 +762,7 @@ set_expression_values = function(gobject,
                                  feat_type = NULL,
                                  name = 'test',
                                  provenance = NULL,
-                                 verbose = TRUE,
-                                 ...) {
+                                 verbose = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop('Only Giotto objects are supported for this function.')
 
@@ -774,11 +772,14 @@ set_expression_values = function(gobject,
   if(is.null(match.call()$name)) nospec_name = TRUE
 
   # 2. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(depth(slot(gobject, 'expression')) > 0) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
+
 
   # 3. if input is NULL, remove object (no initialize option)
   if(is.null(values)) {
