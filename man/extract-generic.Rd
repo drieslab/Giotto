@@ -10,15 +10,20 @@
 \alias{[,coordDataDT,ANY,missing,missing-method}
 \alias{[,coordDataDT,ANY,ANY,missing-method}
 \alias{[,coordDataDT,missing,missing,missing-method}
+\alias{[<-,coordDataDT,missing,missing,ANY-method}
 \alias{[,metaData,missing,ANY,missing-method}
 \alias{[,metaData,ANY,missing,missing-method}
 \alias{[,metaData,ANY,ANY,missing-method}
 \alias{[,metaData,missing,missing,missing-method}
+\alias{[<-,metaData,missing,missing,ANY-method}
 \alias{[,dimObj,ANY,ANY,missing-method}
+\alias{[,dimObj,missing,missing,missing-method}
+\alias{[<-,dimObj,missing,missing,ANY-method}
 \alias{[,exprData,missing,ANY,missing-method}
 \alias{[,exprData,ANY,missing,missing-method}
 \alias{[,exprData,ANY,ANY,missing-method}
 \alias{[,exprData,missing,missing,missing-method}
+\alias{[<-,exprData,missing,missing,ANY-method}
 \title{Extract or replace parts of an object}
 \usage{
 \S4method{$}{coordDataDT}(x, name)
@@ -37,6 +42,8 @@
 
 \S4method{[}{coordDataDT,missing,missing,missing}(x, i, j)
 
+\S4method{[}{coordDataDT,missing,missing,ANY}(x, i, j) <- value
+
 \S4method{[}{metaData,missing,ANY,missing}(x, i, j)
 
 \S4method{[}{metaData,ANY,missing,missing}(x, i, j)
@@ -45,7 +52,13 @@
 
 \S4method{[}{metaData,missing,missing,missing}(x, i, j)
 
+\S4method{[}{metaData,missing,missing,ANY}(x, i, j) <- value
+
 \S4method{[}{dimObj,ANY,ANY,missing}(x, i, j)
+
+\S4method{[}{dimObj,missing,missing,missing}(x, i, j)
+
+\S4method{[}{dimObj,missing,missing,ANY}(x, i, j) <- value
 
 \S4method{[}{exprData,missing,ANY,missing}(x, i, j)
 
@@ -54,6 +67,8 @@
 \S4method{[}{exprData,ANY,ANY,missing}(x, i, j)
 
 \S4method{[}{exprData,missing,missing,missing}(x, i, j)
+
+\S4method{[}{exprData,missing,missing,ANY}(x, i, j) <- value
 }
 \arguments{
 \item{x}{Giotto S4 object to extract columns from}
@@ -117,5 +132,14 @@ or replace parts.
 \section{\code{`[<-`} methods}{
 
   TODO
+
+
+  Return \code{coordinates} slot data.table from giotto S4
+
+
+  Return \code{coordinates} slot data.table from giotto S4
+
+
+  Return \code{exprMat} slot Matrix object from giotto S4
 }
 
