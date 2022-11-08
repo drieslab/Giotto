@@ -18,6 +18,9 @@ do_cell_proximity_test(
   seed_number = 1234
 )
 }
+\arguments{
+\item{expr_values}{Matrix object}
+}
 \description{
 Performs a selected differential test on subsets of a matrix
 }

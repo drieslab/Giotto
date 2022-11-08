@@ -8,7 +8,7 @@ get_spatialNetwork(
   gobject,
   spat_unit = NULL,
   name = NULL,
-  output = c("spatialNetworkObj", "networkDT", "networkDT_before_filter")
+  output = c("spatialNetworkObj", "networkDT", "networkDT_before_filter", "outputObj")
 )
 }
 \arguments{
