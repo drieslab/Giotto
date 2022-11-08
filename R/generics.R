@@ -385,6 +385,24 @@ setMethod('[<-', signature(x = 'exprData', i = 'missing', j = 'missing', value =
             x
           })
 
+# * spatNetData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[', signature(x = 'spatNetData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@networkDT
+          })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'spatNetData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@networkDT = value
+            x
+          })
 
 

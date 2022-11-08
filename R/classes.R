@@ -81,6 +81,21 @@ setClass('nnData',
                                igraph = NULL))
 
 
+# ** spatNetData ####
+setClass('spatNetData',
+         representation = list(method = 'character',
+                               parameters = 'ANY',
+                               outputObj = 'ANY',
+                               networkDT = 'nullOrDatatable',
+                               networkDT_before_filter = 'nullOrDatatable',
+                               cellShapeObj = 'ANY'),
+         prototype = prototype(method = NA_character_,
+                               parameters = NULL,
+                               outputObj = NULL,
+                               networkDT = NULL,
+                               networkDT_before_filter = NULL,
+                               cellShapeObj = NULL))
+
 
 
 # ** provData Class ####
@@ -915,22 +930,10 @@ check_spat_net_obj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatData', 'miscData'),
-         slots = c(name = 'nullOrChar',
-                   method = 'nullOrChar',
-                   parameters = 'nullOrList',
-                   outputObj = 'ANY',
-                   networkDT = 'nullOrDatatable',
-                   networkDT_before_filter = 'nullOrDatatable',
-                   cellShapeObj = 'ANY',
+         contains = c('spatNetData' ,'spatData', 'miscData'),
+         slots = c(name = 'character',
                    crossSectionObjects = 'ANY'),
-         prototype = list(name = NULL,
-                          method = NULL,
-                          parameters = NULL,
-                          outputObj = NULL,
-                          networkDT = NULL,
-                          networkDT_before_filter = NULL,
-                          cellShapeObj = NULL,
+         prototype = list(name = NA_character_,
                           crossSectionObjects = NULL),
          validity = check_spat_net_obj)
 
@@ -948,9 +951,9 @@ setMethod(
   f = "show", signature('spatialNetworkObj'), function(object) {
 
     cat("An object of class",  class(object), "\n")
-    if(!is.null(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
+    if(!is.na(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
     if(!is.na(object@spat_unit)) cat(paste0('for spatial unit: "', object@spat_unit, '"\n'))
-    if(!is.na(object@provenance)) cat(paste0('provenance: "', object@provenance, '"\n'))
+    if(!is.null(object@provenance)) cat(paste0('provenance: "', object@provenance, '"\n'))
 
     if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
     if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')
@@ -1597,7 +1600,7 @@ create_dim_obj = function(name = 'test',
 
 
 #' @title Create S4 spatLocsObj
-#' @name create_spatlocs_obj
+#' @name create_spat_locs_obj
 #' @description Create an S4 spatLocsObj
 #' @param name name of spatLocsObj
 #' @param coordinates spatial coordinates
@@ -1605,11 +1608,11 @@ create_dim_obj = function(name = 'test',
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
 #' @keywords internal
-create_spatlocs_obj = function(name = 'test',
-                               coordinates = NULL,
-                               spat_unit = 'cell',
-                               provenance = NULL,
-                               misc = NULL) {
+create_spat_locs_obj = function(name = 'test',
+                                coordinates = NULL,
+                                spat_unit = 'cell',
+                                provenance = NULL,
+                                misc = NULL) {
 
   if(is.null(coordinates)) coordinates = data.table::data.table(sdimx = NA_real_,
                                                                 sdimy = NA_real_,
@@ -1623,5 +1626,59 @@ create_spatlocs_obj = function(name = 'test',
              misc = misc))
 }
 
+
+
+#' @title Create S4 spatialNetworkObj
+#' @name create_spat_net_obj
+#' @param name name of spatialNetworkObj
+#' @param method method used to generate spatial network
+#' @param parameters additional method-specific parameters used during spatial network generation
+#' @param outputObj network geometry object
+#' @param networkDT data.table of network connections, distances, and weightings
+#' @param networkDT_before_filter unfiltered data.table  of network connections, distances, and weightings
+#' @param cellShapeObj network cell shape information
+#' @param crossSectionObjects crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @param spat_unit spatial unit tag
+#' @param provenance origin of aggregated information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_spat_net_obj = function(name = 'test',
+                               method = NA_character_,
+                               parameters = NULL,
+                               outputObj = NULL,
+                               networkDT = NULL,
+                               networkDT_before_filter = NULL,
+                               cellShapeObj = NULL,
+                               crossSectionObjects = NULL,
+                               spat_unit = 'cell',
+                               provenance = NULL,
+                               misc = NULL ) {
+
+  return(new('spatialNetworkObj',
+             name = name,
+             method = method,
+             parameters = parameters,
+             outputObj, outputObj,
+             networkDT = networkDT,
+             networkDT_before_filter = networkDT_before_filter,
+             cellShapeObj = cellShapeObj,
+             crossSectionObjects = crossSectionObjects,
+             spat_unit = spat_unit,
+             provenance = provenance,
+             misc = misc))
+}
+
+
+
+
+
+
+
+
+
+
+
+# Possibly to be implemented ####
+# icfObject
 
 

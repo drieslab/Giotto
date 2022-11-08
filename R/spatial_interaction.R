@@ -295,15 +295,13 @@ addCellIntMetadata = function(gobject,
                               name = 'select_int',
                               return_gobject = TRUE) {
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression)[[1]]
-  }
+  # set spatial unit and feature type
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = names(gobject@expression[[spat_unit]])[[1]]
-  }
 
   if(is.null(spatial_network)) {
     stop('spatial_network must be provided, this must be an existing spatial network \n')
@@ -696,6 +694,7 @@ do_permuttest = function(expr_values,
 #' @title Do cell proximity test
 #' @name do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
+#' @param expr_values Matrix object
 #' @keywords internal
 do_cell_proximity_test = function(expr_values,
                                   select_ind, other_ind,
@@ -755,6 +754,7 @@ do_cell_proximity_test = function(expr_values,
 #' @title findCellProximityFeats_per_interaction
 #' @name findCellProximityFeats_per_interaction
 #' @description Identifies features that are differentially expressed due to proximity to other cell types.
+#' @param expr_values Matrix object
 #' @keywords internal
 findCellProximityFeats_per_interaction = function(sel_int,
                                                   expr_values,
@@ -1012,7 +1012,8 @@ findInteractionChangedFeats = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix') # as matrix (never set back)
 
   ## test selected feats ##
   if(!is.null(selected_feats)) {
@@ -1131,7 +1132,7 @@ findInteractionChangedFeats = function(gobject,
                                     'min interacting cells' = minimum_unique_int_cells,
                                     'exclude selected cells' = exclude_selected_cells_from_test,
                                     'perm' = permutation_test))
-  class(icfObject) = append(class(icfObject), 'icfObject')
+  class(icfObject) = append('icfObject' ,class(icfObject))
   return(icfObject)
 
 }
@@ -1145,7 +1146,7 @@ findInteractionChangedFeats = function(gobject,
 #' @seealso \code{\link{findInteractionChangedFeats}}
 #' @export
 findInteractionChangedGenes = function(...) {
-  
+
   .Deprecated(new = "findInteractionChangedFeats")
 
   findInteractionChangedFeats(...)
@@ -1165,7 +1166,7 @@ findCellProximityGenes <- function(...) {
 
   .Deprecated(new = "findInteractionChangedFeats")
 
-  findInteractionChangedFeats(...) 
+  findInteractionChangedFeats(...)
 
 }
 
@@ -1272,7 +1273,7 @@ findICF = function(gobject,
 #' @export
 findICG = function(...) {
 
-  .Deprecated(new = "findICF") 
+  .Deprecated(new = "findICF")
 
   findICF(...)
 
@@ -1291,7 +1292,7 @@ findCPG <- function(...) {
 
   .Deprecated(new = "findICF")
 
-  findICF(...) 
+  findICF(...)
 
 }
 
@@ -2668,7 +2669,8 @@ spatCellCellcom = function(gobject,
                                     feat_type = feat_type)
 
   ## check if spatial network exists ##
-  spat_networks = names(gobject@spatial_network[[spat_unit]])
+  spat_networks = list_spatial_networks_names(gobject,
+                                              spat_unit = spat_unit)
 
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',
