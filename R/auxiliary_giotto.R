@@ -579,8 +579,7 @@ subset_spatial_network = function(gobject,
                                       output = 'spatialNetworkObj')
 
       # Within each spatialNetworkObj, subset only the cells_to_keep
-      spatNetObj[] = spatNetObj[]
-      slot(spatNetObj, 'networkDT') = slot(spatNetObj, 'networkDT')[to %in% cells_to_keep & from %in% cells_to_keep]
+      spatNetObj[] = spatNetObj[][to %in% cells_to_keep & from %in% cells_to_keep]
 
       # Set the spatialNetworkObj back into the gobject
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###

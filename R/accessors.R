@@ -1548,14 +1548,46 @@ select_spatialNetwork = function(...) {
 #' @family spatial network data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_spatialNetwork <- function(gobject,
-                               spat_unit = NULL,
-                               name = NULL,
-                               spatial_network) {
+set_spatialNetwork = function(gobject,
+                              spat_unit = NULL,
+                              name = NULL,
+                              spatial_network) {
 
-  # Set feat_type and spat_unit
+  # 1. determmine if input was supplied to spat_unit and name
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(name)) nospec_name = TRUE
+
+  # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+
+  # 3. If input is NULL, remove object
+  if(is.null(spatial_network)) {
+    gobject@spatial_network[[spat_unit]][[name]] = NULL
+    return(gobject)
+  }
+
+  # 4. import data from S4 if available
+  if(inherits(spatial_network, 'spatialNetworkObj')) {
+
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(spatial_network, 'spat_unit'))) spat_unit = slot(spatial_network, 'spat_unit')
+      else slot(spatial_network, 'spat_unit') = spat_unit
+    }
+    else {
+      slot(spatial_network, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_name)) {
+      if(!is.na(slot(spatial_network, 'name'))) name = slot(spatial_network, 'name')
+      else slot(spatial_network, 'name') = name
+    }
+    else {
+      slot(spatial_network, 'name') = name
+    }
+
+  } else {
+    stop('Object to set must be a spatialNetworkObj')
+  }
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_network[[spat_unit]])
