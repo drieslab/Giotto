@@ -1739,17 +1739,17 @@ filterCombinations <- function(gobject,
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
-filterGiotto <- function(gobject,
-                         spat_unit = NULL,
-                         feat_type = NULL,
-                         expression_values = c('raw', 'normalized', 'scaled', 'custom'),
-                         expression_threshold = 1,
-                         feat_det_in_min_cells = 100,
-                         gene_det_in_min_cells = NULL,
-                         min_det_feats_per_cell = 100,
-                         min_det_genes_per_cell = NULL,
-                         poly_info = 'cell',
-                         verbose = TRUE) {
+filterGiotto = function(gobject,
+                        spat_unit = NULL,
+                        feat_type = NULL,
+                        expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                        expression_threshold = 1,
+                        feat_det_in_min_cells = 100,
+                        gene_det_in_min_cells = NULL,
+                        min_det_feats_per_cell = 100,
+                        min_det_genes_per_cell = NULL,
+                        poly_info = 'cell',
+                        verbose = TRUE) {
 
   ## deprecated arguments
   if(!is.null(gene_det_in_min_cells)) {
@@ -1772,11 +1772,12 @@ filterGiotto <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values)
-
+  expr_obj = get_expression_values(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   values = values,
+                                   output = 'exprObj')
+  expr_values = slot(expr_obj, 'exprMat')
 
   # approach:
   # 1. first remove genes that are not frequently detected
