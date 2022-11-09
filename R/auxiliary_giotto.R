@@ -529,26 +529,27 @@ subset_spatial_locations = function(gobject,
                                     filter_bool_cells,
                                     spat_unit) {
 
-  available_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
+  avail_locs = list_spatial_locations_names(gobject, spat_unit = spat_unit)
 
   # only subset cell_ID if the spatial unit is the same (e.g. cell)
 
-  for(spatlocname in available_names) {
+  if(!is.null(avail_locs)) {
+    for(spatlocname in avail_locs) {
 
-    Obj = get_spatial_locations(gobject,
-                                spat_unit = spat_unit,
-                                spat_loc_name = spatlocname,
-                                return_spatlocs_Obj = TRUE,
-                                copy_obj = F)
-    oldDT = slot(Obj, 'coordinates')
-    newDT = oldDT[filter_bool_cells]
-    slot(Obj, 'coordinates') = newDT
+      spatObj = get_spatial_locations(gobject,
+                                      spat_unit = spat_unit,
+                                      spat_loc_name = spatlocname,
+                                      output = 'spatLocsObj',
+                                      copy_obj = FALSE)
 
-    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject = set_spatial_locations(gobject, spatlocs = Obj)
-    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    # not yet possible to row subset data.tables by reference. Must be set back in.
+      spatObj[] = spatObj[][filter_bool_cells]
 
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_spatial_locations(gobject, spatlocs = spatObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      # not yet possible to row subset data.tables by reference. Must be set back in.
+
+    }
   }
 
   return(gobject)
@@ -558,18 +559,53 @@ subset_spatial_locations = function(gobject,
 #' @title Subset cell metadata
 #' @name subset_cell_metadata
 #' @description Subset cell metadata from giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type (e.g. 'rna', 'protein')
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param filter_bool_cells boolean filter to subset cell metadata
+#' @param all_feat_types (boolean) applies subset operation across the whole gobject
+#' (ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.
 #' @keywords internal
 subset_cell_metadata = function(gobject,
-                                feat_type,
+                                feat_type = NULL,
                                 filter_bool_cells,
-                                spat_unit) {
+                                spat_unit,
+                                all_feat_types = TRUE) {
 
-  if(!is.null(gobject@cell_metadata)) {
-    # only subset cell_ID for selected spatial unit
-    for(feat_type in names(gobject@cell_metadata[[spat_unit]])) {
-      gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][filter_bool_cells,]
-    }
+  if(isTRUE(all_feat_types)) {
+    avail_cm = list_cell_metadata(gobject,
+                                  spat_unit = spat_unit)
+  } else {
+    avail_cm = list_cell_metadata(gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
   }
+
+  if(!is.null(avail_cm)) {
+
+    for(cm_i in seq(nrow(avail_cm))) {
+
+      cm = get_cell_metadata(gobject,
+                             spat_unit = avail_cm$spat_unit[[cm_i]],
+                             feat_type = avail_cm$feat_type[[cm_i]],
+                             output = 'cellMetaObj')
+
+      cm[] = cm[][filter_bool_cells]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject, metadata = cm)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+
+  }
+
+  # if(!is.null(gobject@cell_metadata)) {
+  #   # only subset cell_ID for selected spatial unit
+  #   for(feat_type in names(gobject@cell_metadata[[spat_unit]])) {
+  #     gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][filter_bool_cells,]
+  #   }
+  # }
 
   return(gobject)
 }
@@ -578,19 +614,50 @@ subset_cell_metadata = function(gobject,
 #' @title Subset feature metadata
 #' @name subset_feature_metadata
 #' @description Subset feature metadata from giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type (e.g. 'rna', 'protein')
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param filter_bool_feats boolean filter to subset feat metadata
+#' @param all_spat_units (boolean) applies subset operation across the whole gobject
+#' (ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.
 #' @keywords internal
 subset_feature_metadata = function(gobject,
                                    feat_type,
-                                   spat_unit,
-                                   filter_bool_feats) {
+                                   spat_unit = NULL,
+                                   filter_bool_feats,
+                                   all_spat_units = TRUE) {
+
+  if(isTRUE(all_spat_units)) {
+    avail_fm = list_feat_metadata(gobject,
+                                  feat_type = feat_type)
+  } else {
+    avail_fm = list_feat_metadata(gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
+  }
 
 
-  if(!is.null(gobject@feat_metadata)) {
+  if(!is.null(avail_fm)) {
 
-    for(spat_unit in names(gobject@feat_metadata)) {
-      # only subset features of the feat type, but do it for all spaital regions
-      gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][filter_bool_feats,]
+    for(fm_i in seq(nrow(avail_fm))) {
+
+      fm = get_feature_metadata(gobject,
+                                spat_unit = avail_fm$spat_unit[[fm_i]],
+                                feat_type = avail_fm$feat_type[[fm_i]],
+                                output = 'featMetaObj')
+
+      fm[] = fm[][filter_bool_feats]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feat_metadata(gobject, metadata = fm)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     }
+
+    # for(spat_unit in names(gobject@feat_metadata)) {
+    #   # only subset features of the feat type, but do it for all spatial regions
+    #   gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][filter_bool_feats,]
+    # }
 
   }
 
@@ -624,15 +691,11 @@ subset_spatial_network = function(gobject,
                                       output = 'spatialNetworkObj')
 
       # Within each spatialNetworkObj, subset only the cells_to_keep
-      spatNetObj[] = spatNetObj[]
-      slot(spatNetObj, 'networkDT') = slot(spatNetObj, 'networkDT')[to %in% cells_to_keep & from %in% cells_to_keep]
+      spatNetObj[] = spatNetObj[][to %in% cells_to_keep & from %in% cells_to_keep]
 
       # Set the spatialNetworkObj back into the gobject
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatialNetwork(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   name = network,
-                                   spatial_network = spatNetObj)
+      gobject = set_spatialNetwork(gobject = gobject, spatial_network = spatNetObj)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
@@ -651,49 +714,27 @@ subset_dimension_reduction = function(gobject,
                                       feat_type,
                                       cells_to_keep) {
 
+  # find available dim reductions
+  avail_dim = list_dim_reductions(data_type = 'cells',
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
 
-  if(!is.null(gobject@dimension_reduction$cells)) {
+  if(!is.null(avail_dim)) {
 
-    for(spat_unit_name in names(gobject@dimension_reduction[['cells']])) {
+    for(data_i in seq(avail_dim[, .N])) {
+      dimObj = get_dimReduction(gobject = gobject,
+                                spat_unit = avail_dim$spat_unit[[data_i]],
+                                feat_type = avail_dim$feat_type[[data_i]],
+                                reduction = 'cells',
+                                reduction_method = avail_dim$dim_type[[data_i]],
+                                name = avail_dim$name[[data_i]],
+                                output = 'dimObj')
 
+      dimObj[] = dimObj[][rownames(dimObj[]) %in% cells_to_keep,]
 
-      for(feat_type_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]])) {
-
-
-        for(dim_method in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]])) {
-
-          if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
-
-            dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
-                                                      spat_unit = spat_unit_name, feat_type = feat_type_name,
-                                                      dim_type = dim_method)
-
-            for(selected_name in dim_red_names) {
-
-              dimObj = get_dimReduction(gobject = gobject,
-                                        spat_unit = spat_unit_name,
-                                        feat_type = feat_type_name,
-                                        reduction = 'cells',
-                                        reduction_method = dim_method,
-                                        name = selected_name,
-                                        output = 'dimObj')
-
-              old_coord = slot(dimObj, 'coordinates')
-              new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-              slot(dimObj, 'coordinates') = new_coord
-
-              ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-              gobject = set_dimReduction(gobject = gobject,
-                                         dimObject = dimObj)
-              ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-            }
-
-          }
-
-        }
-
-      }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
 
@@ -713,52 +754,97 @@ subset_nearest_network = function(gobject,
                                   spat_unit,
                                   filter_bool_cells) {
 
+  avail_kNN = list_nearest_networks(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    nn_type = 'kNN')
+  avail_sNN = list_nearest_networks(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    nn_type = 'sNN')
 
-  ## nn network ##
-  if(!is.null(gobject@nn_network[['cells']])) {
+  if(!is.null(avail_kNN)) {
 
-    for(spat_unit_name in names(gobject@nn_network[['cells']])) {
+    for(nn_i in seq(avail_kNN[, .N])) {
+      nnObj = get_NearestNetwork(gobject,
+                                 spat_unit = avail_kNN$spat_unit[[nn_i]],
+                                 feat_type = avail_kNN$feat_type[[nn_i]],
+                                 nn_network_to_use = 'kNN',
+                                 network_name = avail_kNN$name[[nn_i]],
+                                 output = 'nnNetObj')
+      vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
+      nnObj[] = igraph::subgraph(graph = nnObj[], vids = vertices_to_keep)
 
-      if(spat_unit_name == spat_unit) {
-
-        for(knn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['kNN']])) {
-
-          # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['layout']]
-
-          if(!is.null(old_layout)) {
-            new_layout = old_layout[filter_bool_cells,]
-            gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['layout']] = new_layout
-          }
-
-          # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
-          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
-          new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
-        }
-
-        for(snn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['sNN']])) {
-
-          # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']]
-
-          if(!is.null(old_layout)) {
-            new_layout = old_layout[filter_bool_cells,]
-            gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']] = new_layout
-          }
-
-          # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
-          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
-          new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
-        }
-
-      }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
   }
+  if(!is.null(avail_sNN)) {
+
+    for(nn_i in seq(avail_sNN[, .N])) {
+      nnObj = get_NearestNetwork(gobject,
+                                 spat_unit = avail_sNN$spat_unit[[nn_i]],
+                                 feat_type = avail_sNN$feat_type[[nn_i]],
+                                 nn_network_to_use = 'sNN',
+                                 network_name = avail_sNN$name[[nn_i]],
+                                 output = 'nnNetObj')
+      vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
+      nnObj[] = igraph::subgraph(graph = nnObj[], vids = vertices_to_keep)
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    }
+
+  }
+
+  # ## nn network ##
+  # if(!is.null(gobject@nn_network[['cells']])) {
+  #
+  #   for(spat_unit_name in names(gobject@nn_network[['cells']])) {
+  #
+  #     if(spat_unit_name == spat_unit) {
+  #
+  #       for(knn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['kNN']])) {
+  #
+  #         # # layout
+  #         # old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['layout']]
+  #         #
+  #         # if(!is.null(old_layout)) {
+  #         #   new_layout = old_layout[filter_bool_cells,]
+  #         #   gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['layout']] = new_layout
+  #         # }
+  #
+  #         # igraph object
+  #         old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
+  #         vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
+  #         new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
+  #         gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
+  #       }
+  #
+  #       for(snn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['sNN']])) {
+  #
+  #         # # layout
+  #         # old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']]
+  #         #
+  #         # if(!is.null(old_layout)) {
+  #         #   new_layout = old_layout[filter_bool_cells,]
+  #         #   gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']] = new_layout
+  #         # }
+  #
+  #         # igraph object
+  #         old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
+  #         vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
+  #         new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
+  #         gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
+  #       }
+  #
+  #     }
+  #   }
+  #
+  # }
 
   return(gobject)
 }
@@ -774,24 +860,46 @@ subset_spatial_enrichment = function(gobject,
                                      feat_type,
                                      filter_bool_cells) {
 
-  if(!is.null(gobject@spatial_enrichment)) {
-    for(spat_unit_name in names(gobject@spatial_enrichment)) {
+  avail_enr = list_spatial_enrichments(gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type)
 
-      for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+  if(!is.null(avail_enr)) {
+    for(enr_i in seq(avail_enr[, .N])) {
 
-        if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
-          for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+      spatEnrObj = get_spatial_enrichment(gobject,
+                                          spat_unit = avail_enr$spat_unit[[enr_i]],
+                                          feat_type = avail_enr$feat_type[[enr_i]],
+                                          enrichm_name = avail_enr$name[[enr_i]],
+                                          output = 'spatEnrObj')
 
-            gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+      spatEnrObj[] = spatEnrObj[][filter_bool_cells]
 
-          }
-        }
-
-      }
-
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
   }
+
+  # if(!is.null(gobject@spatial_enrichment)) {
+  #   for(spat_unit_name in names(gobject@spatial_enrichment)) {
+  #
+  #     for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+  #
+  #       if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+  #         for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+  #
+  #           gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+  #
+  #         }
+  #       }
+  #
+  #     }
+  #
+  #
+  #   }
+  # }
 
   return(gobject)
 }

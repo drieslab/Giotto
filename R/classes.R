@@ -73,6 +73,14 @@ setClass('metaData',
                                col_desc = NA_character_))
 
 
+# ** enrData ####
+setClass('enrData',
+         representation = list(method = 'character',
+                               enrichDT = 'nullOrDatatable'),
+         prototype = prototype(method = NA_character_,
+                               enrichDT = NULL))
+
+
 # ** nnData ####
 setClass('nnData',
          representation = list(nn_type = 'character',
@@ -1163,6 +1171,29 @@ S3toS4spatialGridObj = function(object) {
 
 
 
+# * spatEnrObj class ####
+
+# * definition ####
+# spatEnrObj class
+
+#' @title S4 spatEnrObj Class
+#' @description Framework to store spatial enrichment results
+#' @slot name name of enrichment object
+#' @slot method method used to perform spatial enrichment
+#' @slot enrichDT spatial enrichment data.table
+#' @slot spat_unit spatial unit
+#' @slot feat_type feature type
+#' @slot provenance provenance information
+#' @slot misc misc
+#' @export
+setClass('spatEnrObj',
+         contains = c('enrData', 'spatFeatData', 'miscData'),
+         slots = c(name = 'character'),
+         prototype = list(name = NA_character_))
+
+
+
+
 # SUBCELLULAR ####
 
 ## giottoPolygon class ####
@@ -1180,7 +1211,7 @@ S3toS4spatialGridObj = function(object) {
 #' @details holds polygon data
 #'
 #' @export
-giottoPolygon <- setClass(
+giottoPolygon = setClass(
   Class = "giottoPolygon",
 
   slots = c(
@@ -1670,6 +1701,35 @@ create_spat_net_obj = function(name = 'test',
 
 
 
+#' @title Create S4 spatEnrObj
+#' @name create_spat_enr_obj
+#' @param name name of S4 spatEnrObj
+#' @param method method used to generate spatial enrichment information
+#' @param enrichDT spatial enrichment results, provided as a data.table
+#' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @param provenance origin data of aggregated expression information (if applicable)
+#' @param misc misc additional information about he spatial enrichment or how it
+#' was generated
+#' @keywords internal
+create_spat_enr_obj = function(name = 'test',
+                               method = NA_character_,
+                               enrichDT = NULL,
+                               spat_unit = 'cell',
+                               feat_type = 'rna',
+                               provenance = NULL,
+                               misc = NULL) {
+
+  return(new('spatEnrObj',
+             name = name,
+             method = method,
+             enrichDT = enrichDT,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+
+}
 
 
 

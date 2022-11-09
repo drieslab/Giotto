@@ -40,7 +40,7 @@ runHyperGeometricEnrich(
 
 \item{p_value}{calculate p-values (boolean, default = FALSE)}
 
-\item{name}{to give to spatial enrichment results, default = rank}
+\item{name}{to give to spatial enrichment results, default = hypergeometric}
 
 \item{return_gobject}{return giotto object}
 }

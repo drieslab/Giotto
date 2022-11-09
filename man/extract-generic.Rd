@@ -26,6 +26,10 @@
 \alias{[<-,exprData,missing,missing,ANY-method}
 \alias{[,spatNetData,missing,missing,missing-method}
 \alias{[<-,spatNetData,missing,missing,ANY-method}
+\alias{[,nnData,missing,missing,missing-method}
+\alias{[<-,nnData,missing,missing,ANY-method}
+\alias{[,enrData,missing,missing,missing-method}
+\alias{[<-,enrData,missing,missing,ANY-method}
 \title{Extract or replace parts of an object}
 \usage{
 \S4method{$}{coordDataDT}(x, name)
@@ -75,6 +79,14 @@
 \S4method{[}{spatNetData,missing,missing,missing}(x, i, j)
 
 \S4method{[}{spatNetData,missing,missing,ANY}(x, i, j) <- value
+
+\S4method{[}{nnData,missing,missing,missing}(x, i, j)
+
+\S4method{[}{nnData,missing,missing,ANY}(x, i, j) <- value
+
+\S4method{[}{enrData,missing,missing,missing}(x, i, j)
+
+\S4method{[}{enrData,missing,missing,ANY}(x, i, j) <- value
 }
 \arguments{
 \item{x}{Giotto S4 object to extract columns from}
@@ -135,7 +147,13 @@ or replace parts.
   Return \code{exprMat} slot Matrix object from giotto S4
 
 
-  Return \code{exprMat} slot Matrix object from giotto S4
+  Return \code{spatNetData} slot network data.table object from giotto S4
+
+
+  Return \code{nnData} slot igraph object from giotto S4
+
+
+  Return \code{enrData} slot enrichment data.table object from giotto S4
 }
 
 \section{\code{`[<-`} methods}{
@@ -152,6 +170,12 @@ or replace parts.
   Return \code{exprMat} slot Matrix object from giotto S4
 
 
-  Return \code{exprMat} slot Matrix object from giotto S4
+  Return \code{spatNetData} slot network data.table object from giotto S4
+
+
+  Return \code{nnData} slot igraph object from giotto S4
+
+
+  Return \code{enrData} slot enrichment data.table object from giotto S4
 }
 
