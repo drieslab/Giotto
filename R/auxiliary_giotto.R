@@ -3663,9 +3663,10 @@ combineMetadata = function(gobject,
                                     feat_type = feat_type)
 
   # cell metadata
-  metadata = pDataDT(gobject,
-                     spat_unit = spat_unit,
-                     feat_type = feat_type)
+  metadata = get_cell_metadata(gobject,
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               output = 'data.table')
 
   # spatial locations
   if(!is.null(spat_loc_name)) {
@@ -3678,7 +3679,6 @@ combineMetadata = function(gobject,
   } else {
     spatial_locs = NULL
   }
-
 
   # data.table variables
   cell_ID = NULL
