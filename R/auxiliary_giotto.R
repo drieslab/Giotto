@@ -399,6 +399,8 @@ subset_expression_data = function(gobject,
 
 
 
+
+
   for(spat_unit_name in names(gobject@expression)) {
 
     for(feat_type_name in names(gobject@expression[[spat_unit_name]])) {
