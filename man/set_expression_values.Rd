@@ -11,8 +11,7 @@ set_expression_values(
   feat_type = NULL,
   name = "test",
   provenance = NULL,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
 )
 }
 \arguments{
@@ -30,8 +29,6 @@ will be removed.}
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
-
-\item{...}{additional params to pass (possibly to read_expression_values)}
 }
 \value{
 giotto object

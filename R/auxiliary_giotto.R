@@ -76,9 +76,11 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   }))
 }
 
-#' @title libNorm_giotto
+#' @title Normalize for library size
+#' @param mymatrix matrix object
+#' @param scalefactor scalefactor
 #' @keywords internal
-libNorm_giotto <- function(mymatrix, scalefactor){
+libNorm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
@@ -194,11 +196,11 @@ fDataDT = function(gobject,
 #' @param expression_values which expression values to use
 #' @return data.table with average gene epression values for each factor
 #' @keywords internal
-create_average_DT <- function(gobject,
-                              spat_unit = NULL,
-                              feat_type = NULL,
-                              meta_data_name,
-                              expression_values = c('normalized', 'scaled', 'custom')) {
+create_average_DT = function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             meta_data_name,
+                             expression_values = c('normalized', 'scaled', 'custom')) {
 
 
   # Set feat_type and spat_unit
@@ -222,7 +224,7 @@ create_average_DT <- function(gobject,
                           spat_unit = spat_unit)
   myrownames = rownames(expr_data)
 
-  savelist <- list()
+  savelist = list()
   for(group in unique(cell_metadata[[meta_data_name]])) {
 
     name = paste0('cluster_', group)
@@ -230,7 +232,7 @@ create_average_DT <- function(gobject,
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
     temp_DT = rowMeans_flex(temp)
 
-    savelist[[name]] <- temp_DT
+    savelist[[name]] = temp_DT
   }
 
   finalDF = do.call('cbind', savelist)
@@ -319,23 +321,31 @@ init_cell_metadata = function(gobject,
   if(is.null(avail_spat_info)) {
     for(expr_i in seq(avail_expr[, .N])) {
       # initialize relevant metadata
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_cell_metadata(gobject = gobject,
                                   spat_unit = avail_expr[expr_i, spat_unit],
                                   feat_type = avail_expr[expr_i, feat_type],
                                   provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
                                   metadata = 'initialize',
                                   verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     }
   } else {
     # if spatial_info present then initialize for all spat_info and feat_type combos
     for(poly in avail_spat_info) {
       for(feature_type in unique(avail_expr[, feat_type])) {
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         gobject = set_cell_metadata(gobject = gobject,
                                     spat_unit = poly,
                                     feat_type = feature_type,
                                     provenance = if(is.null(provenance)) poly else provenance,
                                     metadata = 'initialize',
                                     verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
       }
     }
   }
@@ -360,12 +370,16 @@ init_feat_metadata = function(gobject,
   # if(is.null(avail_feat_info)) {
     for(expr_i in seq(avail_expr[, .N])) {
       # initialize relevant metadata
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_feature_metadata(gobject = gobject,
                                      spat_unit = avail_expr[expr_i, spat_unit],
                                      feat_type = avail_expr[expr_i, feat_type],
                                      provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
                                      metadata = 'initialize',
                                      verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     }
   # } else {
   #   # if spatial_info present then initialize for all spat_info and feat_type combos
@@ -530,7 +544,9 @@ subset_spatial_locations = function(gobject,
     newDT = oldDT[filter_bool_cells]
     slot(Obj, 'coordinates') = newDT
 
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_locations(gobject, spatlocs = Obj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     # not yet possible to row subset data.tables by reference. Must be set back in.
 
   }
@@ -592,7 +608,7 @@ subset_spatial_network = function(gobject,
                                   spat_unit,
                                   cells_to_keep) {
 
-  # define for data.table [] subset
+  # define for data.table
   to = from = NULL
 
   # cell spatial network
@@ -605,16 +621,19 @@ subset_spatial_network = function(gobject,
       spatNetObj = get_spatialNetwork(gobject = gobject,
                                       spat_unit = spat_unit,
                                       name = network,
-                                      return_network_Obj = TRUE)
+                                      output = 'spatialNetworkObj')
 
       # Within each spatialNetworkObj, subset only the cells_to_keep
+      spatNetObj[] = spatNetObj[]
       slot(spatNetObj, 'networkDT') = slot(spatNetObj, 'networkDT')[to %in% cells_to_keep & from %in% cells_to_keep]
 
       # Set the spatialNetworkObj back into the gobject
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_spatialNetwork(gobject = gobject,
                                    spat_unit = spat_unit,
                                    name = network,
                                    spatial_network = spatNetObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
 
@@ -663,8 +682,10 @@ subset_dimension_reduction = function(gobject,
               new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
               slot(dimObj, 'coordinates') = new_coord
 
+              ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
               gobject = set_dimReduction(gobject = gobject,
                                          dimObject = dimObj)
+              ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             }
 
@@ -1784,17 +1805,17 @@ filterCombinations <- function(gobject,
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
-filterGiotto <- function(gobject,
-                         spat_unit = NULL,
-                         feat_type = NULL,
-                         expression_values = c('raw', 'normalized', 'scaled', 'custom'),
-                         expression_threshold = 1,
-                         feat_det_in_min_cells = 100,
-                         gene_det_in_min_cells = NULL,
-                         min_det_feats_per_cell = 100,
-                         min_det_genes_per_cell = NULL,
-                         poly_info = 'cell',
-                         verbose = TRUE) {
+filterGiotto = function(gobject,
+                        spat_unit = NULL,
+                        feat_type = NULL,
+                        expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                        expression_threshold = 1,
+                        feat_det_in_min_cells = 100,
+                        gene_det_in_min_cells = NULL,
+                        min_det_feats_per_cell = 100,
+                        min_det_genes_per_cell = NULL,
+                        poly_info = 'cell',
+                        verbose = TRUE) {
 
   ## deprecated arguments
   if(!is.null(gene_det_in_min_cells)) {
@@ -1817,11 +1838,12 @@ filterGiotto <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values)
-
+  expr_obj = get_expression_values(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   values = values,
+                                   output = 'exprObj')
+  expr_values = slot(expr_obj, 'exprMat')
 
   # approach:
   # 1. first remove genes that are not frequently detected
@@ -1908,21 +1930,22 @@ rna_standard_normalization = function(gobject,
     warning('Caution: Standard normalization was developed for RNA data \n')
   }
 
-  feat_names = rownames(raw_expr)
-  col_names = colnames(raw_expr)
+  feat_names = rownames(raw_expr[])
+  col_names = colnames(raw_expr[])
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
+    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+                               scalefactor = scalefactor)
   } else {
-    norm_expr = raw_expr
+    norm_expr = raw_expr[]
   }
 
   ## 2. lognormalize
   if(log_norm == TRUE) {
-    norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
-  } else {
-    norm_expr = norm_expr
+    norm_expr = logNorm_giotto(mymatrix = norm_expr,
+                               base = logbase,
+                               offset = log_offset)
   }
 
   ## 3. scale
@@ -1983,23 +2006,31 @@ rna_standard_normalization = function(gobject,
     colnames(norm_scaled_expr) = col_names
   }
 
-  # return Giotto object
+  ## 5. create and set exprObj
 
+  norm_expr = create_expr_obj(name = 'normalized',
+                              exprMat = norm_expr,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              provenance = raw_expr@provenance,
+                              misc = NULL)
+
+  norm_scaled_expr = create_expr_obj(name = 'scaled',
+                                     exprMat = norm_scaled_expr,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     provenance = raw_expr@provenance,
+                                     misc = NULL)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = 'normalized',
                                   values = norm_expr)
 
   gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = 'scaled',
                                   values = norm_scaled_expr)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-  #gobject@expression[[spat_unit]][[feat_type]][['normalized']] = norm_expr
-  #gobject@expression[[spat_unit]][[feat_type]][['scaled']] = norm_scaled_expr
-
+  ## 6. return Giotto object
   return(gobject)
 }
 
@@ -2022,20 +2053,24 @@ rna_osmfish_normalization = function(gobject,
   }
 
   # 1. normalize per gene with scale-factor equal to number of genes
-  norm_feats = (raw_expr/rowSums_flex(raw_expr)) * nrow(raw_expr)
+  norm_feats = (raw_expr[]/rowSums_flex(raw_expr[])) * nrow(raw_expr[])
   # 2. normalize per cells with scale-factor equal to number of cells
-  norm_feats_cells = t_flex((t_flex(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
+  norm_feats_cells = t_flex((t_flex(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr[]))
 
   # return results to Giotto object
   if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the', name, 'Giotto slot \n')
 
-  gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = name,
-                                  values = norm_feats_cells)
+  norm_feats_cells = create_expr_obj(name = name,
+                                     exprMat = norm_feats_cells,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     provenance = raw_expr@provenance)
 
-  #gobject@expression[[spat_unit]][[feat_type]][[name]] = norm_feats_cells
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_expression_values(gobject = gobject,
+                                  values = norm_feats_cells)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
   return(gobject)
 }
@@ -2066,34 +2101,34 @@ rna_pears_resid_normalization = function(gobject,
     warning('Caution: pearson residual normalization was developed for RNA count normalization \n')
   }
 
-  if(methods::is(raw_expr, 'HDF5Matrix')) {
+  if(methods::is(raw_expr[], 'HDF5Matrix')) {
 
-    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
-    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
-    counts_sum  = sum(raw_expr)
+    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr[]),nrow=1),"HDF5Matrix")
+    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr[]),ncol=1),"HDF5Matrix")
+    counts_sum  = sum(raw_expr[])
 
     #get residuals
     mu = (counts_sum1 %*% counts_sum0) / counts_sum
-    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+    z  = (raw_expr[] - mu) / sqrt(mu + mu^2/theta)
 
     #clip to sqrt(n)
-    n = ncol(raw_expr)
+    n = ncol(raw_expr[])
     z[z > sqrt(n)]  = sqrt(n)
     z[z < -sqrt(n)] = -sqrt(n)
 
   } else {
 
 
-    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
-    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
-    counts_sum  = sum(raw_expr)
+    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr[]),nrow=1),"dgCMatrix")
+    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr[]),ncol=1),"dgCMatrix")
+    counts_sum  = sum(raw_expr[])
 
     #get residuals
     mu = (counts_sum1 %*% counts_sum0) / counts_sum
-    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+    z  = (raw_expr[] - mu) / sqrt(mu + mu^2/theta)
 
     #clip to sqrt(n)
-    n = ncol(raw_expr)
+    n = ncol(raw_expr[])
     z[z > sqrt(n)]  = sqrt(n)
     z[z < -sqrt(n)] = -sqrt(n)
 
@@ -2102,13 +2137,16 @@ rna_pears_resid_normalization = function(gobject,
   # return results to Giotto object
   if(verbose == TRUE) message('\n Pearson residual normalized data will be returned to the ', name, ' Giotto slot \n')
 
-  gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = name,
-                                  values = z)
+  z = create_expr_obj(name = name,
+                      exprMat = z,
+                      spat_unit = spat_unit,
+                      feat_type = feat_type,
+                      provenance = raw_expr@provenance)
 
-  #gobject@expression[[spat_unit]][[feat_type]][[name]] = z
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_expression_values(gobject = gobject,
+                                  values = z)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
@@ -2162,23 +2200,23 @@ rna_pears_resid_normalization = function(gobject,
 #' By default the latter two results will be saved in the Giotto slot for scaled expression,
 #'  this can be changed by changing the update_slot parameters
 #' @export
-normalizeGiotto <- function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            expression_values = 'raw',
-                            norm_methods = c('standard', 'pearson_resid', 'osmFISH'),
-                            library_size_norm = TRUE,
-                            scalefactor = 6e3,
-                            log_norm = TRUE,
-                            log_offset = 1,
-                            logbase = 2,
-                            scale_feats = TRUE,
-                            scale_genes = NULL,
-                            scale_cells = TRUE,
-                            scale_order = c('first_feats', 'first_cells'),
-                            theta = 100,
-                            update_slot = 'scaled',
-                            verbose = TRUE) {
+normalizeGiotto = function(gobject,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           expression_values = 'raw',
+                           norm_methods = c('standard', 'pearson_resid', 'osmFISH'),
+                           library_size_norm = TRUE,
+                           scalefactor = 6e3,
+                           log_norm = TRUE,
+                           log_offset = 1,
+                           logbase = 2,
+                           scale_feats = TRUE,
+                           scale_genes = NULL,
+                           scale_cells = TRUE,
+                           scale_order = c('first_feats', 'first_cells'),
+                           theta = 100,
+                           update_slot = 'scaled',
+                           verbose = TRUE) {
 
 
 
@@ -2200,7 +2238,8 @@ normalizeGiotto <- function(gobject,
   raw_expr = get_expression_values(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
-                                   values = values)
+                                   values = values,
+                                   output = 'exprObj')
 
   norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'pearson_resid', 'osmFISH'))
 
@@ -2279,7 +2318,7 @@ normalizeGiotto <- function(gobject,
 #' @param covariate_columns metadata columns that represent covariates to regress out
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
-#' @return giotto object
+#' @return giotto object or exprObj
 #' @details This function implements the \code{\link[limma]{removeBatchEffect}} function to
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
@@ -2329,7 +2368,8 @@ adjustGiottoMatrix <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
+                                    values = values,
+                                    output = 'exprObj')
 
 
   # batch columns
@@ -2355,18 +2395,23 @@ adjustGiottoMatrix <- function(gobject,
 
 
   # TODO: implement ResidualMatrix to work with a delayed matrix
-  adjusted_matrix = limma::removeBatchEffect(x = expr_data,
+  adjusted_matrix = limma::removeBatchEffect(x = expr_data[],
                                              batch = batch_column_1,
                                              batch2 =  batch_column_2,
                                              covariates = covariates)
 
   if(return_gobject == TRUE) {
 
+    adjusted_matrix = create_expr_obj(name = update_slot,
+                                      exprMat = adjusted_matrix,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = expr_data@provenance)
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    name = update_slot,
                                     values = adjusted_matrix)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
 
@@ -3654,12 +3699,13 @@ createMetafeats = function(gobject,
       cat('\n ', name, ' has already been used, will be overwritten \n')
     }
 
-
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_enrichment(gobject = gobject,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type,
                                      enrichm_name = name,
                                      spatenrichment = res_final)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_create_metafeat')

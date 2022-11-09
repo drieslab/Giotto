@@ -253,6 +253,16 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
             x@coordinates
           })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{coordinates} slot data.table from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'coordDataDT', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@coordinates = value
+            x
+          })
+
 # setMethod("[[")
 
 ## * metaData ####
@@ -292,6 +302,16 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'm
             x@metaDT
           })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{coordinates} slot data.table from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'metaData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@metaDT = value
+            x
+          })
+
 
 ## * dimObj (temp) ####
 
@@ -300,6 +320,21 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'm
 setMethod('[', signature(x = 'dimObj', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
             x@coordinates = x@coordinates[i = i, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'dimObj', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@coordinates
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[<-', signature(x = 'dimObj', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@coordinates = value
             x
           })
 
@@ -340,8 +375,34 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'missing', drop = 'm
             x@exprMat
           })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'exprData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@exprMat = value
+            x
+          })
 
+# * spatNetData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[', signature(x = 'spatNetData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@networkDT
+          })
 
-
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'spatNetData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@networkDT = value
+            x
+          })
 
 
