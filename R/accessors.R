@@ -1943,11 +1943,14 @@ set_feature_info = function(gobject,
 #' @family spatial enrichment data accessor functions
 #' @family functions to get data from giotto object
 #' @export
-get_spatial_enrichment <- function(gobject,
-                                   spat_unit = NULL,
-                                   feat_type = NULL,
-                                   enrichm_name = 'DWLS') {
+get_spatial_enrichment = function(gobject,
+                                  spat_unit = NULL,
+                                  feat_type = NULL,
+                                  enrichm_name = 'DWLS',
+                                  output = c('spatEnrObj', 'data.table'),
+                                  copy_obj = TRUE) {
 
+  output = match.arg(output, choices = c('spatEnrObj', 'data.table'))
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1958,10 +1961,12 @@ get_spatial_enrichment <- function(gobject,
 
   # spatial locations
   # if NULL (not given) and spatial locations have been added, then use first one
-  # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
+  # if NULL (not given) and spatial locations have NOT been added, then keep NULL
   if(is.null(enrichm_name)) {
     if(!is.null(gobject@spatial_enrichment)) {
-      enrichm_name = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])[[1]]
+      enrichm_name = list_spatial_enrichments_names(gobject,
+                                                    spat_unit = spat_unit,
+                                                    feat_type = feat_type)[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       enrichm_name = NULL
@@ -1971,12 +1976,21 @@ get_spatial_enrichment <- function(gobject,
   }
 
 
-
-  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])
+  potential_names = list_spatial_enrichments_names(gobject,
+                                                   spat_unit = spat_unit,
+                                                   feat_type = feat_type)
 
   if(enrichm_name %in% potential_names) {
-    enr_res = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]])
-    return(enr_res)
+    enr_res = gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]]
+
+    if(isTRUE(copy_obj)) enr_res[] = data.table::copy(enr_res[])
+
+    if(output == 'spatEnrObj') {
+      return(enr_res)
+    } else if(output == 'data.table') {
+      return(enr_res[])
+    }
+
   } else {
     stop("The spatial enrichment result with name ","'", enrichm_name, "'"," can not be found \n")
   }
@@ -1993,30 +2007,64 @@ get_spatial_enrichment <- function(gobject,
 #' @family spatial enrichment data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_spatial_enrichment <- function(gobject,
-                                   spat_unit = NULL,
-                                   feat_type = NULL,
-                                   enrichm_name = 'enrichment',
-                                   spatenrichment) {
+set_spatial_enrichment = function(gobject,
+                                  spatenrichment,
+                                  spat_unit = NULL,
+                                  feat_type = NULL,
+                                  enrichm_name = 'enrichment') {
 
+  # 1. Check user input
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_feat = TRUE
+  if(is.null(match.call()$enrichm_name)) nospec_name = TRUE
 
-  # Set feat_type and spat_unit
+  # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]])
+  # 3. Remove object if input is NULL
+  if(is.null(spatenrichment)) {
+    if(isTRUE(verbose)) message('NULL passed to spatenrichment.\n Removing specified spatial enrichment.')
+    gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]] = NULL
+    return(gobject)
+  }
+
+  # 4. Import info from S4 if given
+  if(inherits(spatenrichment, 'spatEnrObj')) {
+
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(spatenrichment, 'spat_unit'))) spat_unit = slot(spatenrichment, 'spat_unit')
+      else slot(spatenrichment, 'spat_unit') = spat_unit
+    } else {
+      slot(spatenrichment, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_feat)) {
+      if(!is.na(slot(spatenrichment, 'feat_type'))) feat_type = slot(spatenrichment, 'feat_type')
+      else slot(spatenrichment, 'feat_type') = feat_type
+    } else {
+      slot(spatenrichment, 'feat_type') = feat_type
+    }
+    if(isTRUE(nospec_name)) {
+      if(!is.na(slot(spatenrichment, 'name'))) enrichm_name = slot(spatenrichment, 'name')
+      else slot(spatenrichment, 'name') = enrichm_name
+    } else {
+      slot(spatenrichment, 'name') = enrichm_name
+    }
+
+  } else {
+    stop('spatenrichment to set must be a spatEnrObj')
+  }
+
+  # 5. check if specified name has already been used
+  potential_names = list_spatial_enrichments_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
   if(enrichm_name %in% potential_names) {
     cat(enrichm_name, ' already exist and will be replaced with new spatial enrichment results \n')
   }
 
-  ## TODO: 2. check input for spatial locations
-
-
-  ## 3. update and return giotto object
+  # 6. update and return giotto object
   gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]] = spatenrichment
   return(gobject)
 
@@ -2598,7 +2646,7 @@ showGiottoNearestNetworks = function(gobject,
       available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')  # Check to be deprecated
     } else warning('Only networks from the deprecated nesting will be shown')
     available_data$nn_type = paste0('NN network type "', available_data$nn_type, '"')
-    available_data$name = paste0('S3 igraph "', available_data$name, '"')
+    available_data$name = paste0('S4 nnNetObj "', available_data$name, '"')
     for(obj_i in seq(nrow(available_data))) {
       available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
                                             ch$s ,'(', objRows[[obj_i]], ' rows)')
