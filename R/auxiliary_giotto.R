@@ -3645,13 +3645,15 @@ calculateMetaTableCells = function(gobject,
 #' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations to include
 #' @param spat_enr_names names of spatial enrichment results to include
+#' @param verbose verbosity
 #' @return Extended cell metadata in data.table format.
 #' @export
 combineMetadata = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL,
                            spat_loc_name = 'raw',
-                           spat_enr_names = NULL) {
+                           spat_enr_names = NULL,
+                           verbose = TRUE) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -3669,7 +3671,10 @@ combineMetadata = function(gobject,
   if(!is.null(spat_loc_name)) {
     spatial_locs = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE,
+                                         verbose = verbose)
   } else {
     spatial_locs = NULL
   }
@@ -3684,7 +3689,9 @@ combineMetadata = function(gobject,
 
 
   # cell/spot enrichment data
-  available_enr = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
+  available_enr = list_spatial_enrichments_names(gobject = gobject,
+                                                 spat_unit = spat_unit,
+                                                 feat_type = feat_type)
 
   # output warning if not found
   not_available = spat_enr_names[!spat_enr_names %in% available_enr]
@@ -3705,7 +3712,9 @@ combineMetadata = function(gobject,
       temp_spat = get_spatial_enrichment(gobject = gobject,
                                          spat_unit = spat_unit,
                                          feat_type = feat_type,
-                                         enrichm_name = spatenr_name)
+                                         enrichm_name = spatenr_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
 
       temp_spat[, 'cell_ID' := NULL]
 
