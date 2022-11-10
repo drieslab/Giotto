@@ -9,7 +9,8 @@ combineMetadata(
   spat_unit = NULL,
   feat_type = NULL,
   spat_loc_name = "raw",
-  spat_enr_names = NULL
+  spat_enr_names = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ combineMetadata(
 \item{spat_loc_name}{name of spatial locations to include}
 
 \item{spat_enr_names}{names of spatial enrichment results to include}
+
+\item{verbose}{verbosity}
 }
 \value{
 Extended cell metadata in data.table format.

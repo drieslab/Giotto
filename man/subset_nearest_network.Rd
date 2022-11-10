@@ -4,7 +4,7 @@
 \alias{subset_nearest_network}
 \title{Subset nearest network}
 \usage{
-subset_nearest_network(gobject, spat_unit, filter_bool_cells)
+subset_nearest_network(gobject, spat_unit, feat_type, cell_ids)
 }
 \description{
 Subset nearest network results from giotto object

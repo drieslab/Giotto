@@ -82,7 +82,9 @@ plot_auto_largeImage_resample = function(gobject,
   # Get spatial locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
 
   # If no spatial locations are available, rely on first existing polygon extent
   if(is.null(cell_locations)) {
@@ -2435,7 +2437,10 @@ plot_spat_image_layer_ggplot = function(gg_obj,
   # spatial locations
   spatlocs = get_spatial_locations(gobject = gobject,
                                    spat_unit = spat_unit,
-                                   spat_loc_name = spat_loc_name)
+                                   spat_loc_name = spat_loc_name,
+                                   output = 'data.table',
+                                   copy_obj = TRUE,
+                                   verbose = FALSE)
 
   # Get spatial extent for positioning purposes
   spat_ext = spatlocs[, c('sdimx', 'sdimy'), with = FALSE]
@@ -2445,7 +2450,8 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 
   if(is.null(spat_ext)) {
     gpoly = get_polygon_info(gobject = gobject,
-                             polygon_name = polygon_feat_type)
+                             polygon_name = polygon_feat_type,
+                             return_giottoPolygon = FALSE)
 
     poly_ext = terra::ext(gpoly)[1:4]
     spat_ext = data.table::data.table(sdimx = c(poly_ext[['xmin']], poly_ext[['xmax']]),
@@ -2825,7 +2831,10 @@ spatPlot2D_single = function(gobject,
   ## get spatial cell locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE,
+                                         verbose = verbose)
 
 
   ## extract spatial network
@@ -2833,7 +2842,7 @@ spatPlot2D_single = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -2843,11 +2852,14 @@ spatPlot2D_single = function(gobject,
     spatial_grid = get_spatialGrid(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
-                                   name = spatial_grid_name)
+                                   name = spatial_grid_name,
+                                   return_grid_Obj = FALSE)
   } else {
     spatial_grid = NULL
   }
 
+
+  print('ok1')
 
   ## get cell metadata
 
@@ -2867,13 +2879,17 @@ spatPlot2D_single = function(gobject,
                                   feat_type = feat_type,
                                   spat_unit = spat_unit,
                                   spat_loc_name = spat_loc_name,
-                                  spat_enr_names = spat_enr_names)
+                                  spat_enr_names = spat_enr_names,
+                                  verbose = verbose)
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- cell_metadata
   }
+
+
+  print('ok2')
 
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
@@ -2899,6 +2915,9 @@ spatPlot2D_single = function(gobject,
 
   }
 
+
+  print('ok3')
+
   # update cell_color_code
   # only keep names from selected groups
   if(!is.null(select_cell_groups) & !is.null(cell_color_code)) {
@@ -2921,6 +2940,7 @@ spatPlot2D_single = function(gobject,
   }
 
 
+  print('ok4')
 
 
   pl = ggplot2::ggplot()

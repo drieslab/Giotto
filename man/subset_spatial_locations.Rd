@@ -4,7 +4,7 @@
 \alias{subset_spatial_locations}
 \title{Subset spatial locations}
 \usage{
-subset_spatial_locations(gobject, filter_bool_cells, spat_unit)
+subset_spatial_locations(gobject, cell_ids, spat_unit)
 }
 \description{
 Subset location data from giotto object

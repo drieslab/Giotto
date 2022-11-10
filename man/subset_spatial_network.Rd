@@ -4,7 +4,7 @@
 \alias{subset_spatial_network}
 \title{Subset spatial network}
 \usage{
-subset_spatial_network(gobject, spat_unit, cells_to_keep)
+subset_spatial_network(gobject, spat_unit, cell_ids)
 }
 \description{
 subset ALL spatial networks from giotto object of the given
