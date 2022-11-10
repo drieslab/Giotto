@@ -2796,6 +2796,25 @@ aggregateStacksExpression = function(gobject,
 
   gobject = set_expression_values(gobject = gobject, values = new_expr_obj)
 
+  # set new cell IDs
+  gobject = set_cell_id(gobject = gobject,
+                        spat_unit = new_spat_unit,
+                        cell_IDs = colnames(combined_matrix))
+
+  # set new cell metadata
+  cell_meta_S4 = create_cell_meta_obj(metaDT = data.table::data.table('cell_ID' = colnames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+  gobject = set_cell_metadata(gobject = gobject, cell_meta_S4)
+
+  # set new feat metadata
+  feat_meta_S4 = create_cell_meta_obj(metaDT = data.table::data.table('feat_ID' = rownames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+  gobject = set_feature_metadata(gobject = gobject, feat_meta_S4)
+
   return(gobject)
 
 }
