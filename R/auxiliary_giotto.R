@@ -415,117 +415,123 @@ subset_expression_data = function(gobject,
                                   cell_ids,
                                   feat_ids,
                                   feat_type,
-                                  spat_unit) {
+                                  spat_unit,
+                                  all_spat_units,
+                                  all_feat_types) {
 
 
 
+  # get cell/spatial ids and feature ids
+  g_cell_IDs = get_cell_id(gobject = gobject, spat_unit = spat_unit)
+  g_feat_IDs = get_feat_id(gobject = gobject, feat_type = feat_type)
 
+  # get expression information from giotto object
+  output_table = list_expression(gobject)
 
+  if(!is.null(output_table)) {
 
+    # loop through expression objects and update accordingly
+    for(row in 1:nrow(output_table)) {
 
-  for(spat_unit_name in names(gobject@expression)) {
+      spat_unit_name = output_table[row][['spat_unit']]
+      feat_type_name = output_table[row][['feat_type']]
+      expression_name = output_table[row][['name']]
 
-    for(feat_type_name in names(gobject@expression[[spat_unit_name]])) {
 
       if(feat_type_name == feat_type & spat_unit_name == spat_unit) {
 
-        # filter features and cells
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
+        S4_expr = get_expression_values(gobject = gobject,
+                                        spat_unit = spat_unit_name,
+                                        feat_type = feat_type_nam,
+                                        values = expression_name,
+                                        output = 'exprObj')
 
-        for(expr_name in expression_names) {
+        ## filter index
+        g_cell_IDs = colnames(S4_expr@exprMat)
+        g_feat_IDs = rownames(S4_expr@exprMat)
+        if(!is.null(cell_ids)) {
+          filter_bool_cells = g_cell_IDs %in% cell_ids
+        } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+        if(!is.null(feat_ids)) {
+          filter_bool_feats = g_feat_IDs %in% feat_ids
+        } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
 
+        # for HDF5Array
+        if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+          S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[filter_bool_feats, filter_bool_cells], "HDF5Array")
+        } else {
+          S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, filter_bool_cells]
+        }
+
+        gobject = set_expression_values(gobject = gobject, values = S4_expr)
+
+
+      } else if(feat_type_name == feat_type & spat_unit_name != spat_unit) {
+
+        if(all_spat_units == TRUE) {
+
+          # filter only features, but NOT cells
+          S4_expr = get_expression_values(gobject = gobject,
+                                          spat_unit = spat_unit_name,
+                                          feat_type = feat_type_nam,
+                                          values = expression_name,
+                                          output = 'exprObj')
           ## filter index
-          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
-          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
-
-          if(!is.null(cell_ids)) {
-            filter_bool_cells = g_cell_IDs %in% cell_ids
-          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+          g_feat_IDs = rownames(S4_expr@exprMat)
           if(!is.null(feat_ids)) {
             filter_bool_feats = g_feat_IDs %in% feat_ids
           } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
-
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
+          if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+            S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[filter_bool_feats, ], "HDF5Array")
           } else {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells]
+            S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, ]
           }
+
+          gobject = set_expression_values(gobject = gobject, values = S4_expr)
 
         }
 
-      } else if(feat_type_name == feat_type & spat_unit_name != spat_unit){
-
-        # filter only features, but NOT cells
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
-
-        for(expr_name in expression_names) {
 
 
-          ## filter index
-          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
-          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
-
-          if(!is.null(cell_ids)) {
-            filter_bool_cells = g_cell_IDs %in% cell_ids
-          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
-          if(!is.null(feat_ids)) {
-            filter_bool_feats = g_feat_IDs %in% feat_ids
-          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
-
-
-
-          # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ], "HDF5Array")
-          }
-
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ]
-        }
 
       } else if(feat_type_name != feat_type & spat_unit_name == spat_unit) {
 
-        # filter only cells, but NOT features
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
+        if(all_feat_types == TRUE) {
 
-        for(expr_name in expression_names) {
-
-
+          # filter only cells, but NOT features
+          S4_expr = get_expression_values(gobject = gobject,
+                                          spat_unit = spat_unit_name,
+                                          feat_type = feat_type_nam,
+                                          values = expression_name,
+                                          output = 'exprObj')
           ## filter index
-          g_cell_IDs = colnames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
-          g_feat_IDs = rownames(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]])
+          g_cell_IDs = colnames(S4_expr@exprMat)
 
           if(!is.null(cell_ids)) {
             filter_bool_cells = g_cell_IDs %in% cell_ids
           } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
-          if(!is.null(feat_ids)) {
-            filter_bool_feats = g_feat_IDs %in% feat_ids
-          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells], "HDF5Array")
+          if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+            S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[, filter_bool_cells], "HDF5Array")
+          } else {
+            S4_expr@exprMat = S4_expr@exprMat[, filter_bool_cells]
           }
 
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells]
+          gobject = set_expression_values(gobject = gobject, values = S4_expr)
+
         }
-
-      } else {
-
-        # don't filter
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
       }
 
     }
 
-
   }
 
   return(gobject)
-
 
 }
 
@@ -534,7 +540,7 @@ subset_expression_data = function(gobject,
 #' @description Subset location data from giotto object
 #' @keywords internal
 subset_spatial_locations = function(gobject,
-                                    filter_bool_cells,
+                                    cell_ids,
                                     spat_unit) {
 
   avail_locs = list_spatial_locations_names(gobject, spat_unit = spat_unit)
@@ -549,6 +555,13 @@ subset_spatial_locations = function(gobject,
                                       spat_loc_name = spatlocname,
                                       output = 'spatLocsObj',
                                       copy_obj = FALSE)
+
+      ## filter index
+      g_cell_IDs = spatObj@coordinates[['cell_ID']]
+
+      if(!is.null(cell_ids)) {
+        filter_bool_cells = g_cell_IDs %in% cell_ids
+      } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
 
       spatObj[] = spatObj[][filter_bool_cells]
 
@@ -570,13 +583,13 @@ subset_spatial_locations = function(gobject,
 #' @param gobject giotto object
 #' @param feat_type feature type (e.g. 'rna', 'protein')
 #' @param spat_unit spatial unit (e.g. 'cell')
-#' @param filter_bool_cells boolean filter to subset cell metadata
+#' @param cell_ids cell ids to keep
 #' @param all_feat_types (boolean) applies subset operation across the whole gobject
 #' (ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.
 #' @keywords internal
 subset_cell_metadata = function(gobject,
                                 feat_type = NULL,
-                                filter_bool_cells,
+                                cell_ids,
                                 spat_unit,
                                 all_feat_types = TRUE) {
 
@@ -597,6 +610,13 @@ subset_cell_metadata = function(gobject,
                              spat_unit = avail_cm$spat_unit[[cm_i]],
                              feat_type = avail_cm$feat_type[[cm_i]],
                              output = 'cellMetaObj')
+
+      ## filter index
+      g_cell_IDs = cm@metaDT[['cell_ID']]
+
+      if(!is.null(cell_ids)) {
+        filter_bool_cells = g_cell_IDs %in% cell_ids
+      } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
 
       cm[] = cm[][filter_bool_cells]
 
@@ -625,14 +645,14 @@ subset_cell_metadata = function(gobject,
 #' @param gobject giotto object
 #' @param feat_type feature type (e.g. 'rna', 'protein')
 #' @param spat_unit spatial unit (e.g. 'cell')
-#' @param filter_bool_feats boolean filter to subset feat metadata
+#' @param feat_ids feature ids to keep
 #' @param all_spat_units (boolean) applies subset operation across the whole gobject
 #' (ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.
 #' @keywords internal
 subset_feature_metadata = function(gobject,
                                    feat_type,
                                    spat_unit = NULL,
-                                   filter_bool_feats,
+                                   feat_ids,
                                    all_spat_units = TRUE) {
 
   if(isTRUE(all_spat_units)) {
@@ -654,10 +674,17 @@ subset_feature_metadata = function(gobject,
                                 feat_type = avail_fm$feat_type[[fm_i]],
                                 output = 'featMetaObj')
 
+      ## filter index
+      g_feat_IDs = fm@metaDT[['feat_ID']]
+
+      if(!is.null(feat_ids)) {
+        filter_bool_feats = g_feat_IDs %in% feat_ids
+      } else filter_bool_feats = g_feat_IDs %in% feat_ids
+
       fm[] = fm[][filter_bool_feats]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_feat_metadata(gobject, metadata = fm)
+      gobject = set_feature_metadata(gobject, metadata = fm)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -681,7 +708,7 @@ subset_feature_metadata = function(gobject,
 #' @keywords internal
 subset_spatial_network = function(gobject,
                                   spat_unit,
-                                  cells_to_keep) {
+                                  cell_ids) {
 
   # define for data.table
   to = from = NULL
@@ -697,6 +724,17 @@ subset_spatial_network = function(gobject,
                                       spat_unit = spat_unit,
                                       name = network,
                                       output = 'spatialNetworkObj')
+
+      # filter cell_ID and gene_ID
+      g_cell_IDs = unique(c(spatNetObj@networkDT[['to']], spatNetObj@networkDT[['from']]))
+
+      ## filter index
+      if(!is.null(cell_ids)) {
+        filter_bool_cells = g_cell_IDs %in% cell_ids
+      } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+
+      cells_to_keep = g_cell_IDs[filter_bool_cells]
+
 
       # Within each spatialNetworkObj, subset only the cells_to_keep
       spatNetObj[] = spatNetObj[][to %in% cells_to_keep & from %in% cells_to_keep]
@@ -723,7 +761,8 @@ subset_dimension_reduction = function(gobject,
                                       cells_to_keep) {
 
   # find available dim reductions
-  avail_dim = list_dim_reductions(data_type = 'cells',
+  avail_dim = list_dim_reductions(gobject = gobject,
+                                  data_type = 'cells',
                                   spat_unit = spat_unit,
                                   feat_type = feat_type)
 
@@ -760,6 +799,7 @@ subset_dimension_reduction = function(gobject,
 #' @keywords internal
 subset_nearest_network = function(gobject,
                                   spat_unit,
+                                  feat_type,
                                   filter_bool_cells) {
 
   avail_kNN = list_nearest_networks(gobject,
@@ -1110,8 +1150,9 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_type feature type to use
 #' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
-#' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
+#' @param all_spat_units subset all spatial units with selected feature ids
+#' @param all_feat_types subset all feature type data with selected cell ids
 #' @param x_max,x_min,y_max,y_min minimum and maximum x and y coordinates to keep for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
@@ -1125,6 +1166,8 @@ subsetGiotto <- function(gobject,
                          feat_ids = NULL,
                          gene_ids = NULL,
                          poly_info = NULL,
+                         all_spat_units = TRUE,
+                         all_feat_types = TRUE,
                          x_max = NULL,
                          x_min = NULL,
                          y_max = NULL,
@@ -1150,11 +1193,35 @@ subsetGiotto <- function(gobject,
     warning('gene_ids argument is deprecated, use feat_ids argument in the future \n')
   }
 
+
+  if(verbose) cat('completed 1: preparation \n')
+
+
+  ## FILTER ##
+  # filter expression data
+  gobject = subset_expression_data(gobject = gobject,
+                                   cell_ids = cell_ids,
+                                   feat_ids = feat_ids,
+                                   feat_type = feat_type,
+                                   spat_unit = spat_unit,
+                                   all_spat_units = all_spat_units,
+                                   all_feat_types = all_feat_types)
+
+  if(verbose) cat('completed 2: subset expression data \n')
+
+
+  # filter spatial locations
+  #print(spat_unit)
+  gobject = subset_spatial_locations(gobject = gobject,
+                                     cell_ids = cell_ids,
+                                     spat_unit = spat_unit)
+
+  if(verbose) cat('completed 3: subset spatial locations \n')
+
+
+  # filter cell_ID and gene_ID
   g_cell_IDs = gobject@cell_ID[[spat_unit]]
   g_feat_IDs = gobject@feat_ID[[feat_type]]
-
-  #print(g_cell_IDs[1:5])
-  #print(g_feat_IDs[1:5])
 
   ## filter index
   if(!is.null(cell_ids)) {
@@ -1167,38 +1234,6 @@ subsetGiotto <- function(gobject,
   cells_to_keep = g_cell_IDs[filter_bool_cells]
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
-  #print(cells_to_keep[1:5])
-  #print(length(filter_bool_cells))
-  #print(feats_to_keep[1:5])
-  #print(length(filter_bool_feats))
-
-  if(verbose) cat('completed 1: preparation \n')
-
-
-  #print(gobject@spatial_locs[[spat_unit]][['raw']])
-
-  ## FILTER ##
-  # filter expression data
-  gobject = subset_expression_data(gobject = gobject,
-                                   filter_bool_feats = filter_bool_feats,
-                                   filter_bool_cells = filter_bool_cells,
-                                   feat_type = feat_type,
-                                   spat_unit = spat_unit)
-
-  if(verbose) cat('completed 2: subset expression data \n')
-
-  #print(gobject@spatial_locs[[spat_unit]][['raw']])
-
-  # filter spatial locations
-  #print(spat_unit)
-  gobject = subset_spatial_locations(gobject = gobject,
-                                     filter_bool_cells = filter_bool_cells,
-                                     spat_unit = spat_unit)
-
-  if(verbose) cat('completed 3: subset spatial locations \n')
-
-
-  # filter cell_ID and gene_ID
   gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
   gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
 
@@ -1209,9 +1244,10 @@ subsetGiotto <- function(gobject,
   ## cell & feature metadata ##
   # cell metadata
   gobject = subset_cell_metadata(gobject = gobject,
-                                  feat_type = feat_type,
-                                  filter_bool_cells = filter_bool_cells,
-                                  spat_unit = spat_unit)
+                                 feat_type = feat_type,
+                                 cell_ids = cell_ids,
+                                 spat_unit = spat_unit,
+                                 all_feat_types = all_feat_types)
 
   if(verbose) cat('completed 5: subset cell metadata \n')
 
@@ -1219,7 +1255,8 @@ subsetGiotto <- function(gobject,
   gobject = subset_feature_metadata(gobject = gobject,
                                     feat_type = feat_type,
                                     spat_unit = spat_unit,
-                                    filter_bool_feats = filter_bool_feats)
+                                    feat_ids = feat_ids,
+                                    all_spat_units = all_spat_units)
 
   if(verbose) cat('completed 6: subset feature metadata \n')
 
@@ -1230,7 +1267,7 @@ subsetGiotto <- function(gobject,
   # cell spatial network
   gobject = subset_spatial_network(gobject = gobject,
                                    spat_unit = spat_unit,
-                                   cells_to_keep = cells_to_keep)
+                                   cell_ids = cell_ids)
 
 
   if(verbose) cat('completed 7: subset spatial network(s) \n')
@@ -1252,6 +1289,7 @@ subsetGiotto <- function(gobject,
   ## nn network ##
   gobject = subset_nearest_network(gobject = gobject,
                                    spat_unit = spat_unit,
+                                   feat_type = feat_type,
                                    filter_bool_cells = filter_bool_cells)
 
   if(verbose == TRUE) cat('completed 9: subsetted nearest network(s) \n')
@@ -1372,9 +1410,11 @@ subsetGiottoLocs = function(gobject,
 
   # function requires spat_loc_name
   if(is.null(spat_loc_name)) {
+
     if(!is.null(slot(gobject, 'spatial_locs'))) {
       spat_loc_name = names(slot(gobject, 'spatial_locs')[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+
     } else if(!is.null(slot(gobject, 'spatial_info'))) {
       # EXCEPTION: if no spatlocs found but polys exist, find cell_IDs from polys
       polys_list = slot(gobject, 'spatial_info')
