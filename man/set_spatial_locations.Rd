@@ -9,6 +9,7 @@ set_spatial_locations(
   spatlocs,
   spat_unit = NULL,
   spat_loc_name = "raw",
+  provenance = NULL,
   verbose = TRUE
 )
 }
@@ -21,6 +22,8 @@ set_spatial_locations(
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{spat_loc_name}{name of spatial locations, default "raw"}
+
+\item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 }

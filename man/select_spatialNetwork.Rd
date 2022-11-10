@@ -11,7 +11,8 @@ select_spatialNetwork(...)
   Arguments passed on to \code{\link[=get_spatialNetwork]{get_spatialNetwork}}
   \describe{
     \item{\code{name}}{name of spatial network}
-    \item{\code{return_network_Obj}}{return network object (default = FALSE)}
+    \item{\code{output}}{object type to return as. Options: 'spatialNetworkObj' (default),
+'networkDT' and 'networkDT_before_filter' for data.table outputs.}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
   }}

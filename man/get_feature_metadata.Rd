@@ -8,7 +8,7 @@ get_feature_metadata(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  output = c("data.table", "featMetaObj")
+  output = c("featMetaObj", "data.table")
 )
 }
 \arguments{

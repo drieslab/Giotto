@@ -20,7 +20,7 @@ hyperGeometricEnrich(...)
     \item{\code{top_percentage}}{percentage of cells that will be considered to have gene expression with matrix binarization}
     \item{\code{output_enrichment}}{how to return enrichment output}
     \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
-    \item{\code{name}}{to give to spatial enrichment results, default = rank}
+    \item{\code{name}}{to give to spatial enrichment results, default = hypergeometric}
     \item{\code{return_gobject}}{return giotto object}
   }}
 }

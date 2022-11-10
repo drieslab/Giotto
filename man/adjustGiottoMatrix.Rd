@@ -33,7 +33,7 @@ adjustGiottoMatrix(
 \item{update_slot}{expression slot that will be updated (default = custom)}
 }
 \value{
-giotto object
+giotto object or exprObj
 }
 \description{
 Adjust expression values to account for known batch effects or technological covariates.

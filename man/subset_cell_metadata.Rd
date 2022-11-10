@@ -4,7 +4,25 @@
 \alias{subset_cell_metadata}
 \title{Subset cell metadata}
 \usage{
-subset_cell_metadata(gobject, feat_type, filter_bool_cells, spat_unit)
+subset_cell_metadata(
+  gobject,
+  feat_type = NULL,
+  filter_bool_cells,
+  spat_unit,
+  all_feat_types = TRUE
+)
+}
+\arguments{
+\item{gobject}{giotto object}
+
+\item{feat_type}{feature type (e.g. 'rna', 'protein')}
+
+\item{filter_bool_cells}{boolean filter to subset cell metadata}
+
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{all_feat_types}{(boolean) applies subset operation across the whole gobject
+(ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.}
 }
 \description{
 Subset cell metadata from giotto object

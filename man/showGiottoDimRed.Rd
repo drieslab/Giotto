@@ -24,6 +24,7 @@ Other functions to show data in giotto object:
 \code{\link{showGiottoCellMetadata}()},
 \code{\link{showGiottoExpression}()},
 \code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoFeatMetadata}()},
 \code{\link{showGiottoImageNames}()},
 \code{\link{showGiottoNearestNetworks}()},
 \code{\link{showGiottoSpatEnrichments}()},

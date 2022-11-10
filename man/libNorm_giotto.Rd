@@ -2,11 +2,16 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{libNorm_giotto}
 \alias{libNorm_giotto}
-\title{libNorm_giotto}
+\title{Normalize for library size}
 \usage{
 libNorm_giotto(mymatrix, scalefactor)
 }
+\arguments{
+\item{mymatrix}{matrix object}
+
+\item{scalefactor}{scalefactor}
+}
 \description{
-libNorm_giotto
+Normalize for library size
 }
 \keyword{internal}

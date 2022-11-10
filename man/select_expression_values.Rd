@@ -12,7 +12,8 @@ select_expression_values(...)
   \describe{
     \item{\code{values}}{expression values to extract (e.g. "raw", "normalized", "scaled")}
     \item{\code{output}}{what object type to retrieve the expression as. Currently either
-'Matrix' for dgeMatrix or dgCMatrix or 'exprObj' are allowed.}
+'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
+the exprObj itself are allowed.}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
     \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}

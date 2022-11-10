@@ -253,6 +253,16 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
             x@coordinates
           })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{coordinates} slot data.table from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'coordDataDT', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@coordinates = value
+            x
+          })
+
 # setMethod("[[")
 
 ## * metaData ####
@@ -292,6 +302,16 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'm
             x@metaDT
           })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{coordinates} slot data.table from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'metaData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@metaDT = value
+            x
+          })
+
 
 ## * dimObj (temp) ####
 
@@ -300,6 +320,21 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'm
 setMethod('[', signature(x = 'dimObj', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
             x@coordinates = x@coordinates[i = i, j = j]
+            x
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[', signature(x = 'dimObj', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@coordinates
+          })
+
+#' @rdname extract-generic
+#' @export
+setMethod('[<-', signature(x = 'dimObj', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@coordinates = value
             x
           })
 
@@ -339,6 +374,79 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'missing', drop = 'm
           function(x, i, j) {
             x@exprMat
           })
+
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{exprMat} slot Matrix object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'exprData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@exprMat = value
+            x
+          })
+
+# * spatNetData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{spatNetData} slot network data.table object from giotto S4
+#' @export
+setMethod('[', signature(x = 'spatNetData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@networkDT
+          })
+
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{spatNetData} slot network data.table object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'spatNetData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@networkDT = value
+            x
+          })
+
+
+# * nnData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{nnData} slot igraph object from giotto S4
+#' @export
+setMethod('[', signature(x = 'nnData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@igraph
+          })
+
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{nnData} slot igraph object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'nnData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@igraph = value
+            x
+          })
+
+
+# * enrData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{enrData} slot enrichment data.table object from giotto S4
+#' @export
+setMethod('[', signature(x = 'enrData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@enrichDT
+          })
+
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{enrData} slot enrichment data.table object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'enrData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@enrichDT = value
+            x
+          })
+
 
 
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/classes.R
 \name{check_dim_obj}
 \alias{check_dim_obj}
-\title{Check dimOjb}
+\title{Check dimObj}
 \usage{
 check_dim_obj(object)
 }

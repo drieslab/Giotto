@@ -8,7 +8,7 @@ get_spatialNetwork(
   gobject,
   spat_unit = NULL,
   name = NULL,
-  return_network_Obj = FALSE
+  output = c("spatialNetworkObj", "networkDT", "networkDT_before_filter", "outputObj")
 )
 }
 \arguments{
@@ -18,7 +18,8 @@ get_spatialNetwork(
 
 \item{name}{name of spatial network}
 
-\item{return_network_Obj}{return network object (default = FALSE)}
+\item{output}{object type to return as. Options: 'spatialNetworkObj' (default),
+'networkDT' and 'networkDT_before_filter' for data.table outputs.}
 }
 \description{
 Function to get a spatial network

@@ -4,7 +4,7 @@
 \alias{showGiottoCellMetadata}
 \title{showGiottoCellMetadata}
 \usage{
-showGiottoCellMetadata(gobject, nrows = 4, ncols = 4)
+showGiottoCellMetadata(gobject, nrows = 4)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -24,6 +24,7 @@ Other functions to show data in giotto object:
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoExpression}()},
 \code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoFeatMetadata}()},
 \code{\link{showGiottoImageNames}()},
 \code{\link{showGiottoNearestNetworks}()},
 \code{\link{showGiottoSpatEnrichments}()},

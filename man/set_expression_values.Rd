@@ -6,15 +6,19 @@
 \usage{
 set_expression_values(
   gobject,
+  values,
   spat_unit = NULL,
   feat_type = NULL,
   name = "test",
-  values,
+  provenance = NULL,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{values}{exprObj or matrix of expression values. If NULL, then the object
+will be removed.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -22,8 +26,7 @@ set_expression_values(
 
 \item{name}{name for the expression slot}
 
-\item{values}{exprObj or matrix of expression values. If NULL, then the object
-will be removed.}
+\item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 }

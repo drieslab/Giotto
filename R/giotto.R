@@ -620,7 +620,8 @@ read_expression_data = function(expr_list = NULL,
                     provenance = if(is.null(provenance)) 'cell' else provenance,
                     feat_type = default_feat_type,
                     misc = NULL)
-      return_list[['cell']][[default_feat_type]][[data]] = res_mat
+      # return_list[['cell']][[default_feat_type]][[data]] = res_mat
+      return_list = append(return_list, exprObj)
 
     }
 
@@ -637,7 +638,16 @@ read_expression_data = function(expr_list = NULL,
                                        sparse = sparse,
                                        cores = cores)
         # add default region == 'cell'
-        return_list[['cell']][[feat]][[data]] = res_mat
+        exprObj = new('exprObj',
+                      name = data,
+                      exprMat = res_mat,
+                      sparse = sparse,
+                      spat_unit = 'cell',
+                      provenance = if(is.null(provenance)) 'cell' else provenance,
+                      feat_type = feat,
+                      misc = NULL)
+        # return_list[['cell']][[feat]][[data]] = res_mat
+        return_list = append(return_list, exprObj)
 
       }
     }
@@ -654,7 +664,16 @@ read_expression_data = function(expr_list = NULL,
                                          sparse = sparse,
                                          cores = cores)
           # add default region == 'cell'
-          return_list[[region]][[feat]][[data]] = res_mat
+          exprObj = new('exprObj',
+                        name = data,
+                        exprMat = res_mat,
+                        sparse = sparse,
+                        spat_unit = region,
+                        provenance = if(is.null(provenance)) region else provenance,
+                        feat_type = feat,
+                        misc = NULL)
+          # return_list[[region]][[feat]][[data]] = res_mat
+          return_list = append(return_list, exprObj)
 
         }
       }
@@ -678,38 +697,60 @@ read_expression_data = function(expr_list = NULL,
 #' @keywords internal
 set_cell_and_feat_IDs = function(gobject) {
 
+  spat_unit = feat_type = name = NULL
 
+  # find available expr
+  avail_expr = list_expression(gobject)
 
   # 1. set cell_ID for each region
   # each regions can have multiple features, but the cell_IDs (spatial units) should be the same
-  for(spat_unit in names(gobject@expression)) {
-    gobject@cell_ID[[spat_unit]] =  colnames(gobject@expression[[spat_unit]][[1]][[1]])
+  for(spatial_unit in avail_expr[, unique(spat_unit)]) {
+    expr_cell_ID = colnames(get_expression_values(gobject,
+                                                  spat_unit = spatial_unit,
+                                                  output = 'matrix'))
+    gobject = set_cell_id(gobject,
+                          spat_unit = spatial_unit,
+                          cell_IDs = expr_cell_ID)
   }
 
   # 2. ensure cell_ID and colnames for each matrix are the same
-  for(spat_unit in names(gobject@expression)) {
+  for(expr_i in seq(avail_expr[, .N])) {
+    spatial_unit = avail_expr[expr_i, spat_unit]
+    feature_type = avail_expr[expr_i, feat_type]
+    data = avail_expr[expr_i, name]
 
-    for(feat in names(gobject@expression[[spat_unit]])) {
-      for(data in names(gobject@expression[[spat_unit]][[feat]])) {
-        colnames_matrix = colnames(gobject@expression[[spat_unit]][[feat]][[data]])
-        if(!identical(colnames_matrix, gobject@cell_ID[[spat_unit]])) {
-          stop('Colnames are not the same for feat: ', feat,', spatial unit: ', spat_unit ,', and data: ', data)
-        }
-      }
+    colnames_matrix = colnames(get_expression_values(gobject,
+                                                     spat_unit = spatial_unit,
+                                                     feat_type = feature_type,
+                                                     values = data,
+                                                     output = 'matrix'))
+    gobj_cell_ID = get_cell_id(gobject,
+                               spat_unit = spatial_unit)
+    if(!identical(colnames_matrix, gobj_cell_ID)) {
+      stop('Colnames are not the same for feat: ', feature_type,', spatial unit: ', spatial_unit ,', and data: ', data)
     }
   }
 
 
   # 3. set feat_ID for each feature
-  for(spat_unit in names(gobject@expression)) {
-    feat_types_covered = list()
-    for(feat_type in names(gobject@expression[[spat_unit]])) {
-      if(!feat_type %in% feat_types_covered) {
-        gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
-        feat_types_covered[[feat_type]] = feat_type
-      }
-    }
+  for(feature_type in avail_expr[, unique(feat_type)]) {
+    expr_feat_ID = colnames(get_expression_values(gobject,
+                                                  feat_type = feature_type,
+                                                  output = 'matrix'))
+    gobject = set_feat_id(gobject,
+                          feat_type = feature_type,
+                          feat_IDs = expr_feat_ID)
   }
+
+  # for(spatial_unit in avail_expr[, spat_unit]) {
+  #   feat_types_covered = list()
+  #   for(feat_type in names(gobject@expression[[spat_unit]])) {
+  #     if(!feat_type %in% feat_types_covered) {
+  #       gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
+  #       feat_types_covered[[feat_type]] = feat_type
+  #     }
+  #   }
+  # }
 
   return(gobject)
 
@@ -1083,7 +1124,7 @@ read_spatial_location_data = function(gobject,
       if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
       # add default region == 'cell'
-      return_list = append(return_list, new('spatialLocationsObj',
+      return_list = append(return_list, new('spatLocsObj',
                                             name = coord,
                                             coordinates = res_spatlocs,
                                             spat_unit = 'cell',
@@ -1152,7 +1193,7 @@ check_spatial_location_data = function(gobject) {
       spatlocsDT = get_spatial_locations(gobject,
                                          spat_unit = spat_unit_i,
                                          spat_loc_name = coord_i,
-                                         return_spatlocs_Obj = FALSE,
+                                         output = 'data.table',
                                          copy_obj = FALSE)
       missing_cell_IDs = spatlocsDT[, all(is.na(cell_ID))]
 
@@ -1836,7 +1877,11 @@ createGiottoObject <- function(expression,
                                            cores = cores,
                                            default_feat_type = expression_feat,
                                            verbose = verbose)
-    gobject@expression = expression_data
+    for(expr_i in seq_along(expression_data)) {
+      gobject = set_expression_values(gobject = gobject,
+                                      values = expression_data[[expr_i]])
+    }
+
 
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
     gobject = set_cell_and_feat_IDs(gobject)
@@ -1949,17 +1994,27 @@ createGiottoObject <- function(expression,
 
   ## cell metadata ##
   ## ------------- ##
-  gobject = set_cell_metadata(gobject = gobject,
-                              cell_metadata = cell_metadata)
+  if(is.null(cell_metadata)) {
+    # initialize metadata
+    gobject = init_cell_metadata(gobject)
+  } else {
+    gobject = set_cell_metadata(gobject = gobject,
+                                metadata = cell_metadata)
+  }
 
   if(verbose) message('finished cell metadata')
 
   ## feat metadata ##
   ## ------------- ##
-  gobject = set_feature_metadata(gobject = gobject,
-                                 feat_metadata = feat_metadata)
+  if(is.null(feat_metadata)) {
+    # initialize metadata
+    gobject = init_feat_metadata(gobject)
+  } else {
+    gobject = set_feature_metadata(gobject = gobject,
+                                   metadata = feat_metadata)
+  }
 
-
+  if(verbose) message('finished feature metadata')
 
   ## feature info ##
   ## ------------ ##
@@ -4119,7 +4174,7 @@ joinGiottoObjects = function(gobject_list,
         spat_obj = get_spatial_locations(gobj,
                                          spat_unit = spat_unit_i,
                                          spat_loc_name = locs_i,
-                                         return_spatlocs_Obj = TRUE,
+                                         output = 'spatLocsObj',
                                          copy_obj = TRUE)
         myspatlocs = slot(spat_obj, 'coordinates')
 
@@ -4397,7 +4452,7 @@ joinGiottoObjects = function(gobject_list,
         spatlocs = get_spatial_locations(gobject = updated_object_list[[gobj_i]],
                                          spat_unit = spat_unit_i,
                                          spat_loc_name = name_i,
-                                         return_spatlocs_Obj = FALSE,
+                                         output = 'data.table',
                                          copy_obj = FALSE)
 
         savelist[[gobj_i]] = spatlocs
