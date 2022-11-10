@@ -1698,7 +1698,8 @@ filterGiotto <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = output)
 
 
   # approach:
