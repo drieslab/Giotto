@@ -8,7 +8,7 @@ subset_feature_metadata(
   gobject,
   feat_type,
   spat_unit = NULL,
-  filter_bool_feats,
+  feat_ids,
   all_spat_units = TRUE
 )
 }
@@ -19,7 +19,7 @@ subset_feature_metadata(
 
 \item{spat_unit}{spatial unit (e.g. 'cell')}
 
-\item{filter_bool_feats}{boolean filter to subset feat metadata}
+\item{feat_ids}{feature ids to keep}
 
 \item{all_spat_units}{(boolean) applies subset operation across the whole gobject
 (ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.}

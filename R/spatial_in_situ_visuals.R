@@ -408,12 +408,15 @@ spatInSituPlotPoints = function(gobject,
     # use_overlap = TRUE will use the overlap results
     # use_overlap = FALSE will use the raw tx coordinate results
     if(use_overlap == TRUE) {
+
       # TODO: check if overlap exists, if not print warning message and default to non-overlap results
       spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
                                                     feat_type = feat_type,
                                                     sel_feats = feats,
                                                     poly_info = polygon_feat_type)
     } else {
+
+      print('start')
       spatial_feat_info = combineFeatureData(gobject = gobject,
                                              spat_unit =  polygon_feat_type,
                                              feat_type = feat_type,

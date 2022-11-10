@@ -7,7 +7,7 @@
 subset_cell_metadata(
   gobject,
   feat_type = NULL,
-  filter_bool_cells,
+  cell_ids,
   spat_unit,
   all_feat_types = TRUE
 )
@@ -17,7 +17,7 @@ subset_cell_metadata(
 
 \item{feat_type}{feature type (e.g. 'rna', 'protein')}
 
-\item{filter_bool_cells}{boolean filter to subset cell metadata}
+\item{cell_ids}{cell ids to keep}
 
 \item{spat_unit}{spatial unit (e.g. 'cell')}
 

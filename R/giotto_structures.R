@@ -2613,7 +2613,9 @@ combineCellData = function(gobject,
   if(include_spat_locs == TRUE) {
     spat_locs_dt = get_spatial_locations(gobject = gobject,
                                          spat_unit = poly_info,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
   } else {
     spat_locs_dt = NULL
   }
@@ -2623,7 +2625,8 @@ combineCellData = function(gobject,
   if(include_poly_info == TRUE) {
     # get spatial cell information
     spatial_cell_info_spatvec = get_polygon_info(gobject = gobject,
-                                                 polygon_name = poly_info)
+                                                 polygon_name = poly_info,
+                                                 return_giottoPolygon = FALSE)
     spatial_cell_info_dt = spatVector_to_dt(spatial_cell_info_spatvec,
                                             include_values = TRUE)
     data.table::setnames(spatial_cell_info_dt, old = 'poly_ID', new = 'cell_ID')
@@ -2653,9 +2656,10 @@ combineCellData = function(gobject,
 
 
     # get spatial cell metadata
-    cell_meta = pDataDT(gobject = gobject,
-                        feat_type = feat,
-                        spat_unit = poly_info)
+    cell_meta = get_cell_metadata(gobject = gobject,
+                                  spat_unit = poly_info,
+                                  feat_type = feat,
+                                  output = 'data.table')
 
     # merge
     if(!is.null(comb_dt)) {
@@ -2708,9 +2712,10 @@ combineFeatureData = function(gobject,
       # feature meta
       # feat_meta = gobject@feat_metadata[[spat_unit]][[feat]]
 
-      feat_meta = fDataDT(gobject = gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat)
+      feat_meta = get_feature_metadata(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat,
+                                       output = 'data.table')
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2778,9 +2783,12 @@ combineFeatureOverlapData = function(gobject,
       # feature meta
       # feat_meta = gobject@feat_metadata[[feat]][[spat]]
 
-      feat_meta = fDataDT(gobject = gobject,
-                          spat_unit = spat,
-                          feat_type = feat)
+      feat_meta = get_feature_metadata(gobject = gobject,
+                                       spat_unit = spat,
+                                       feat_type = feat,
+                                       output = 'data.table')
+
+      print(feat_meta)
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2811,6 +2819,8 @@ combineFeatureOverlapData = function(gobject,
                                              by = 'feat_ID')
 
     }
+
+    print(comb_dt)
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt
