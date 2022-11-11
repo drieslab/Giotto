@@ -481,8 +481,11 @@ subset_expression_data = function(gobject,
           S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, filter_bool_cells]
         }
 
-        gobject = set_expression_values(gobject = gobject, values = S4_expr)
-
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_expression_values(gobject = gobject,
+                                        values = S4_expr,
+                                        verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
       } else if(feat_type_name == feat_type & spat_unit_name != spat_unit) {
 
@@ -507,7 +510,11 @@ subset_expression_data = function(gobject,
             S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, ]
           }
 
-          gobject = set_expression_values(gobject = gobject, values = S4_expr)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_expression_values(gobject = gobject,
+                                          values = S4_expr,
+                                          verbose = FALSE)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         }
 
@@ -538,7 +545,11 @@ subset_expression_data = function(gobject,
             S4_expr@exprMat = S4_expr@exprMat[, filter_bool_cells]
           }
 
-          gobject = set_expression_values(gobject = gobject, values = S4_expr)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_expression_values(gobject = gobject,
+                                          values = S4_expr,
+                                          verbose = FALSE)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         }
 
@@ -583,7 +594,7 @@ subset_spatial_locations = function(gobject,
       spatObj[] = spatObj[][filter_bool_cells]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatial_locations(gobject, spatlocs = spatObj)
+      gobject = set_spatial_locations(gobject, spatlocs = spatObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       # not yet possible to row subset data.tables by reference. Must be set back in.
 
@@ -638,7 +649,7 @@ subset_cell_metadata = function(gobject,
       cm[] = cm[][filter_bool_cells]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject, metadata = cm)
+      gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -701,7 +712,7 @@ subset_feature_metadata = function(gobject,
       fm[] = fm[][filter_bool_feats]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_feature_metadata(gobject, metadata = fm)
+      gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -2795,7 +2806,11 @@ aggregateStacksExpression = function(gobject,
   # aggregate matrices
   matrix_list = list()
   for(spat_unit in spat_units) {
-    mat = get_expression_values(gobject, spat_unit = spat_unit, feat_type = feat_type, values = values, output = 'matrix')
+    mat = get_expression_values(gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                values = values,
+                                output = 'matrix')
     matrix_list[[spat_unit]] = mat
   }
   combined_matrix = combine_matrices(matrix_list,
@@ -3219,7 +3234,9 @@ addCellMetadata <- function(gobject,
 
 
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-  gobject = set_cell_metadata(gobject, metadata = cell_metadata)
+  gobject = set_cell_metadata(gobject,
+                              metadata = cell_metadata,
+                              verbose = FALSE)
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
@@ -3281,7 +3298,9 @@ addFeatMetadata <- function(gobject,
   feat_metadata[] = feat_metadata[][match(ordered_feat_IDs, feat_ID)]
 
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-  gobject = set_feature_metadata(gobject, metadata = feat_metadata)
+  gobject = set_feature_metadata(gobject,
+                                 metadata = feat_metadata,
+                                 verbose = FALSE)
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
@@ -3396,7 +3415,9 @@ addFeatStatistics <- function(gobject,
       cat('\n feat statistics has already been applied once, will be overwritten \n')
       feat_metadata[][, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_feature_metadata(gobject, metadata = feat_metadata)
+      gobject = set_feature_metadata(gobject,
+                                     metadata = feat_metadata,
+                                     verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -3546,10 +3567,12 @@ addCellStatistics <- function(gobject,
 
     metadata_names = colnames(cell_metadata[])
     if('nr_feats' %in% metadata_names) {
-      cat('\n cells statistics has already been applied once, will be overwritten \n')
+      message('\n cells statistics has already been applied once, will be overwritten \n')
       cell_metadata[][, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject, metadata = cell_metadata)
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 

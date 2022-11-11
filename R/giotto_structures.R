@@ -2398,12 +2398,20 @@ overlapToMatrix = function(gobject,
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
                                 match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
 
+  overlapExprObj = create_expr_obj(name = name,
+                                   exprMat = overlapmatrix,
+                                   spat_unit = poly_info,
+                                   feat_type = feat_info,
+                                   provenance = poly_info)
 
   if(return_gobject == TRUE) {
-    gobject@expression[[poly_info]][[feat_info]][[name]] = overlapmatrix
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_expression_values(gobject, values = overlapExprObj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     return(gobject)
   } else {
-    return(overlapmatrix)
+    return(overlapExprObj)
   }
 
 }
