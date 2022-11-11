@@ -2808,7 +2808,9 @@ aggregateStacksExpression = function(gobject,
                                  provenance = spat_units,
                                  misc = NULL)
 
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_expression_values(gobject = gobject, values = new_expr_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
