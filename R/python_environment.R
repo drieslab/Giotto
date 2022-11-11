@@ -244,7 +244,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   # this command will install r-miniconda
 #'   # and a giotto environment with all necessary python modules
 #'   installGiottoEnvironment()
-#'
+#'}
 #' By default, Python v3.10 will be used with the following python modules
 #' for Giotto Suite implementations:
 #'    - pandas==1.4.0
