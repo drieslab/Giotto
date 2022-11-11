@@ -2796,6 +2796,27 @@ aggregateStacksExpression = function(gobject,
 
   gobject = set_expression_values(gobject = gobject, values = new_expr_obj)
 
+  # set new cell IDs
+  gobject = set_cell_id(gobject = gobject,
+                        spat_unit = new_spat_unit,
+                        cell_IDs = colnames(combined_matrix))
+
+  # set new cell metadata
+  cell_meta_S4 = create_cell_meta_obj(metaDT = data.table::data.table('cell_ID' = colnames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+
+  gobject = set_cell_metadata(gobject = gobject, cell_meta_S4)
+
+  # set new feat metadata
+  feat_meta_S4 = create_feat_meta_obj(metaDT = data.table::data.table('feat_ID' = rownames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+
+  gobject = set_feature_metadata(gobject = gobject, feat_meta_S4)
+
   return(gobject)
 
 }
@@ -3307,7 +3328,8 @@ addFeatStatistics <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'matrix')
 
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data),
@@ -3326,9 +3348,10 @@ addFeatStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    feat_metadata = fDataDT(gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
+    feat_metadata = get_feature_metadata(gobject,
+                                         feat_type = feat_type,
+                                         spat_unit = spat_unit,
+                                         output = 'data.table')
     metadata_names = colnames(feat_metadata)
 
     if('nr_cells' %in% metadata_names) {
@@ -3458,7 +3481,8 @@ addCellStatistics <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'matrix')
 
   # calculate stats
   #print('ok 1')
@@ -3470,9 +3494,11 @@ addCellStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = pDataDT(gobject,
+    cell_metadata = get_cell_metadata(gobject,
                             feat_type = feat_type,
-                            spat_unit = spat_unit)
+                            spat_unit = spat_unit,
+                            output = 'data.table')
+
     metadata_names = colnames(cell_metadata)
     if('nr_feats' %in% metadata_names) {
       cat('\n cells statistics has already been applied once, will be overwritten \n')
