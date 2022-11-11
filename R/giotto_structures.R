@@ -1632,7 +1632,9 @@ addSpatialCentroidLocationsLayer = function(gobject,
   feat_type = slot(gobject, 'expression_feat')[[1]] # Specifically preferable over set_default function
   #There may be no existing data in expression slot to find feat_type nesting from
 
-  extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
+  gpoly = get_polygon_info(gobject, polygon_name = poly_info, return_giottoPolygon = TRUE)
+
+  extended_spatvector = calculate_centroids_polygons(gpolygon = gpoly,
                                                      name = 'centroids',
                                                      append_gpolygon = TRUE)
 
@@ -1648,30 +1650,62 @@ addSpatialCentroidLocationsLayer = function(gobject,
     spat_locs_names = list_spatial_locations_names(gobject,
                                                    spat_unit = poly_info)
     if(spat_loc_name %in% spat_locs_names) {
-      cat('spatial locations for polygon information layer ', poly_info,
-          ' and name ', spat_loc_name, ' already exists and will be replaced')
+      message('spatial locations for polygon information layer ', poly_info,
+          ' and name ', spat_loc_name, ' already exists and will be replaced\n')
     }
 
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_locations(gobject = gobject,
                                     spat_unit = poly_info,
                                     spat_loc_name = spat_loc_name,
                                     spatlocs = spatial_locs)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-    #gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
 
     # cell ID
-    gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
+    gpoly_IDs = gpoly@spatVector$poly_ID
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_cell_id(gobject,
+                          spat_unit = poly_info,
+                          cell_IDs = gpoly_IDs)
+    # gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
     # cell metadata
     # new spatial locations come with new cell and feature metadata
     for(type in feat_type) {
-      gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
-      gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
+      cm = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = gpoly_IDs),
+                                col_desc = c('unique IDs for each cell'),
+                                spat_unit = poly_info,
+                                feat_type = type,
+                                provenance = poly_info)
+
+      gfeat_IDs = get_feat_id(gobject, feat_type = type)
+      fm = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = gfeat_IDs),
+                                col_desc = c('unique IDs for each feature'),
+                                spat_unit = poly_info,
+                                feat_type = type,
+                                provenance = poly_info)
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
+      gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
+      # gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
+      # gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
 
     # add centroids information
-    gobject@spatial_info[[poly_info]] = extended_spatvector
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_polygon_info(gobject,
+                               polygon_name = poly_info,
+                               gpolygon = extended_spatvector,
+                               verbose = FALSE)
+    # gobject@spatial_info[[poly_info]] = extended_spatvector
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
     return(gobject)
 

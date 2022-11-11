@@ -867,17 +867,16 @@ dimPlot2D_single <- function(gobject,
                                              network_name = network_name,
                                              output = 'igraph')
 
-    #selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
     old_dim_names = dim_names
 
-    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    annotated_network_DT = merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
-    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    annotated_network_DT = merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
 
@@ -886,7 +885,15 @@ dimPlot2D_single <- function(gobject,
   # add % variance information if reduction is PCA
   if(dim_reduction_to_use == "pca"){
 
-    eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]]@misc$eigenvalues
+    pcaObj = get_dimReduction(gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              reduction = 'cells',
+                              reduction_method = dim_reduction_to_use,
+                              name = dim_reduction_name,
+                              output = 'dimObj')
+    eigenvalues = pcaObj@misc$eigenvalues
+    # eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]]@misc$eigenvalues
 
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
@@ -10295,11 +10302,18 @@ comparePolygonExpression <- function(gobject,
   }
 
   # get expression
-  my_expression <- gobject@expression[[spat_unit]][[feat_type]][[expression_values]]
+  my_expression = get_expression_values(gobject,
+                                        values = expression_values,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'matrix')
 
   # get cell_ID and poly_ID from metadata
-  my_metadata <- gobject@cell_metadata[[spat_unit]][[feat_type]]
-  my_metadata <- my_metadata[,c("cell_ID", "poly_ID")]
+  my_metadata = get_cell_metadata(gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  output = 'data.table')
+  my_metadata = my_metadata[,c("cell_ID", "poly_ID")]
 
   if (length(selected_feats) == 1 && selected_feats == "top_genes") {
     # find top features

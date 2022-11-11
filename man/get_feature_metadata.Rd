@@ -8,7 +8,8 @@ get_feature_metadata(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  output = c("featMetaObj", "data.table")
+  output = c("featMetaObj", "data.table"),
+  copy_obj = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ get_feature_metadata(
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{output}{return as either 'data.table' or 'featMetaObj'}
+
+\item{copy_obj}{whether to perform a deepcopy of the data.table information}
 }
 \description{
 Get feature metadata from giotto object

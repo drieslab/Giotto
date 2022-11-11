@@ -447,7 +447,25 @@ setMethod('[<-', signature(x = 'enrData', i = 'missing', j = 'missing', value = 
             x
           })
 
+# * spatGridData ####
+#' @rdname extract-generic
+#' @section \code{`[`} methods:
+#'   Return \code{spatGridData} slot enrichment data.table object from giotto S4
+#' @export
+setMethod('[', signature(x = 'spatGridData', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@gridDT
+          })
 
+#' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Return \code{spatGridData} slot enrichment data.table object from giotto S4
+#' @export
+setMethod('[<-', signature(x = 'spatGridData', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@gridDT = value
+            x
+          })
 
 
 
