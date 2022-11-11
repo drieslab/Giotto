@@ -4,7 +4,7 @@
 \alias{set_feature_info}
 \title{Set feature info}
 \usage{
-set_feature_info(gobject, feat_type = NULL, gpolygon)
+set_feature_info(gobject, feat_type = NULL, gpolygon, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +12,8 @@ set_feature_info(gobject, feat_type = NULL, gpolygon)
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{gpolygon}{giotto polygon}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

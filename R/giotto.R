@@ -2536,14 +2536,15 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
       #                                 spatlocs = centroidsDT_loc,
       #                                 verbose = FALSE)
 
-      locsObj = new('spatLocsObj',
-                    name = 'raw',
-                    coordinates = centroidsDT_loc,
-                    spat_unit = polygon_info,
-                    provenance = polygon_info,
-                    misc = NULL)
+      locsObj = create_spat_locs_obj(name = 'raw',
+                                     coordinates = centroidsDT_loc,
+                                     spat_unit = polygon_info,
+                                     provenance = polygon_info,
+                                     misc = NULL)
 
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_spatial_locations(gobject, spatlocs = locsObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
 
@@ -2611,14 +2612,8 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
     ## cell metadata ##
     ## ------------- ##
     if(is.null(cell_metadata)) {
-
-      for(feat_type in expression_feat) {
-        for(poly in names(gobject@spatial_info)) {
-          gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
-        }
-      }
-
-
+      # initialize metadata
+      gobject = init_cell_metadata(gobject)
     } else {
 
       if(length(cell_metadata) != length(expression_feat)) {
@@ -2644,13 +2639,8 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
     ## feat metadata ##
     ## ------------- ##
     if(is.null(feat_metadata)) {
-
-      for(feat_type in expression_feat) {
-        for(poly in names(gobject@spatial_info)) {
-          gobject@feat_metadata[[poly]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
-        }
-      }
-
+      # initialize metadata
+      gobject = init_feat_metadata(gobject)
     } else {
 
       if(length(feat_metadata) != length(expression_feat)) {
@@ -2669,7 +2659,7 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
 
 
   ### OPTIONAL:
-  ## spatial network
+  ## spatial network - external input
   if(!is.null(spatial_network)) {
     if(is.null(spatial_network_name) | length(spatial_network) != length(spatial_network_name)) {
       stop('\n each spatial network must be given a unique name \n')
@@ -2682,25 +2672,38 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
 
         if(any(c('data.frame', 'data.table') %in% class(network))) {
           if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            spatial_network_Obj = new('spatialNetworkObj',
-                                      name = networkname,
-                                      networkDT = network)
-            gobject = set_spatialNetwork(gobject = gobject,
-                                         spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
-                                         name = networkname,
-                                         spatial_network = spatial_network_Obj)
+
+            # create spatialNetworkObj from data.table
+            network = data.table::setDT(network)
+            # most info will be missing
+            warning('spatial_network ', network_i, ' provided as data.table/frame object. Provenance and spat_unit will be assumed: "', names(slot(gobject, 'spatial_info'))[[1]], '"\n')
+            spatial_network_Obj = create_spat_net_obj(name = networkname,
+                                                      networkDT = network,
+                                                      spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
+                                                      provenance = names(slot(gobject, 'spatial_info'))[[1]]) # assumed
+
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+            gobject = set_spatialNetwork(gobject, spatial_network = spatial_network_Obj)
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
           } else {
             stop('\n network ', networkname, ' does not have all necessary column names, see details\n')
           }
+        } else if(inherits(network, 'spatialNetworkObj')) {
+
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_spatialNetwork(gobject, spatial_network = network)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
         } else {
-          stop('\n network ', networkname, ' is not a data.frame or data.table\n')
+          stop('\n network ', networkname, ' is not a, spatialNetworkObj, data.frame, or data.table\n')
         }
       }
     }
   }
 
 
-  ## spatial grid
+  ## spatial grid - external input
   if(!is.null(spatial_grid)) {
     if(is.null(spatial_grid_name) | length(spatial_grid) != length(spatial_grid_name)) {
       stop('\n each spatial grid must be given a unique name \n')
@@ -2712,19 +2715,32 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
         grid     = spatial_grid[[grid_i]]
 
         if(inherits(grid, c('data.table', 'data.frame'))) {
-          if(!inherits(grid, 'data.table')) grid = as.data.table(grid)
           if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
-            # Assume first spat_info and first expression_feat as spat_unit and feat_type respectively
-            gobject = set_spatialGrid(gobject = gobject,
-                                      spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
-                                      feat_type = expression_feat[[1]],
-                                      name = gridname,
-                                      spatial_grid = grid)
+            if(!inherits(grid, 'data.table')) grid = data.table::setDT(grid)
+            # Assume first spat_info and first expression_feat as spat_unit/provenance and feat_type respectively
+            warning('spatial_grid ', grid_i, ' provided as data.table/frame object. Provenance and spat_unit will be assumed: "', names(slot(gobject, 'spatial_info'))[[1]], '"\n')
+            # most info will be missing
+            grid = create_spat_grid_obj(name = gridname,
+                                        gridDT = grid,
+                                        spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
+                                        provenance = names(slot(gobject, 'spatial_info'))[[1]],
+                                        feat_type = expression_feat[[1]])
+
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+            gobject = set_spatialGrid(gobject = gobject, spatial_grid = grid)
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
           } else {
             stop('\n grid ', gridname, ' does not have all necessary column names, see details \n')
           }
+        } else if(inherits(grid, 'spatialGridObj')) {
+
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_spatialGrid(gobject, spatial_grid = grid)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
         } else {
-          stop('\n grid ', gridname, ' is not a data.frame or data.table \n')
+          stop('\n grid ', gridname, ' is not a spatialGridObj, data.frame, or data.table \n')
         }
       }
     }

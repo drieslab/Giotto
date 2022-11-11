@@ -8,7 +8,8 @@ get_cell_metadata(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  output = c("cellMetaObj", "data.table")
+  output = c("cellMetaObj", "data.table"),
+  copy_obj = TRUE
 )
 }
 \arguments{

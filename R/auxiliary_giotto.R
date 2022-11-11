@@ -68,6 +68,8 @@ set_default_feat_type = function(gobject,
 
 
 #' @title mean_expr_det_test
+#' @param mymatrix matrix of expression info
+#' @param detection_threshold detection threshold. Defaults to 1 count.
 #' @keywords internal
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
@@ -324,6 +326,7 @@ init_cell_metadata = function(gobject,
 
   avail_expr = list_expression(gobject)
   avail_spat_info = list_spatial_info_names(gobject)
+  avail_feat_info = list_feature_info_names(gobject)
 
   # If no spatial_info then initialize for all expression matrices
   if(is.null(avail_spat_info)) {
@@ -341,9 +344,12 @@ init_cell_metadata = function(gobject,
 
     }
   } else {
-    # if spatial_info present then initialize for all spat_info and feat_type combos
+    # if spatial_info present then initialize by spat_unit from spat_info,
+    # but prefer feat_type from expression
+    if(is.null(avail_expr)) avail_to_use = unique(avail_feat_info)
+    else avail_to_use = unique(avail_expr[, feat_type])
     for(poly in avail_spat_info) {
-      for(feature_type in unique(avail_expr[, feat_type])) {
+      for(feature_type in unique(avail_to_use)) {
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         gobject = set_cell_metadata(gobject = gobject,
@@ -372,10 +378,11 @@ init_feat_metadata = function(gobject,
                               provenance = NULL) {
 
   avail_expr = list_expression(gobject)
+  avail_spat_info = list_spatial_info_names(gobject)
   avail_feat_info = list_feature_info_names(gobject)
 
-  # If no feature_info then initialize for all expression matrices
-  # if(is.null(avail_feat_info)) {
+  # If no spatial_info then initialize by expression mat
+  if(is.null(avail_spat_info)) {
     for(expr_i in seq(avail_expr[, .N])) {
       # initialize relevant metadata
 
@@ -389,19 +396,26 @@ init_feat_metadata = function(gobject,
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
-  # } else {
-  #   # if spatial_info present then initialize for all spat_info and feat_type combos
-  #   for(poly in avail_spat_info) {
-  #     for(feature_type in unique(avail_expr[, feat_type])) {
-  #       gobject = set_feature_metadata_metadata(gobject = gobject,
-  #                                               spat_unit = poly,
-  #                                               feat_type = feature_type,
-  #                                               provenance = if(is.null(provenance)) poly else provenance,
-  #                                               metadata = 'initialize',
-  #                                               verbose = FALSE)
-  #     }
-  #   }
-  # }
+  } else {
+    # if spatial_info present then initialize by spat_unit from spat_info,
+    # but prefer feat_type from expression
+    if(is.null(avail_expr)) avail_to_use = unique(avail_feat_info)
+    else avail_to_use = unique(avail_expr[, feat_type])
+    for(poly in avail_spat_info) {
+      for(feature_type in unique(avail_to_use)) {
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_feature_metadata(gobject = gobject,
+                                       spat_unit = poly,
+                                       feat_type = feature_type,
+                                       provenance = if(is.null(provenance)) poly else provenance,
+                                       metadata = 'initialize',
+                                       verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+      }
+    }
+  }
   return(gobject)
 }
 
@@ -2794,7 +2808,9 @@ aggregateStacksExpression = function(gobject,
                                  provenance = spat_units,
                                  misc = NULL)
 
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_expression_values(gobject = gobject, values = new_expr_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   # set new cell IDs
   gobject = set_cell_id(gobject = gobject,
@@ -3142,9 +3158,13 @@ addCellMetadata <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
 
-  cell_metadata = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
-  ordered_cell_IDs = gobject@cell_ID[[spat_unit]]
+  ordered_cell_IDs = get_cell_id(gobject, spat_unit = spat_unit)
 
   if(is.vector(new_metadata) | is.factor(new_metadata)) {
     original_name = deparse(substitute(new_metadata))
@@ -3167,7 +3187,7 @@ addCellMetadata <- function(gobject,
   # overwrite columns with same name
   new_col_names = colnames(new_metadata)
   new_col_names = new_col_names[new_col_names != column_cell_ID]
-  old_col_names = colnames(cell_metadata)
+  old_col_names = colnames(cell_metadata[])
   old_col_names = old_col_names[old_col_names != 'cell_ID']
   same_col_names = new_col_names[new_col_names %in% old_col_names]
 
@@ -3175,29 +3195,33 @@ addCellMetadata <- function(gobject,
   if(length(same_col_names) >= 1) {
     cat('\n these column names were already used: ', same_col_names, '\n',
         'and will be overwritten \n')
-    cell_metadata[, (same_col_names) := NULL]
+    cell_metadata[][, (same_col_names) := NULL]
   }
 
 
 
   if(by_column == FALSE) {
-    cell_metadata = cbind(cell_metadata, new_metadata)
+    cell_metadata[] = cbind(cell_metadata[], new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata = data.table::merge.data.table(cell_metadata,
-                                                 by.x = 'cell_ID',
-                                                 new_metadata,
-                                                 by.y = column_cell_ID,
-                                                 all.x = TRUE)
+    cell_metadata[] = data.table::merge.data.table(cell_metadata[],
+                                                   by.x = 'cell_ID',
+                                                   new_metadata,
+                                                   by.y = column_cell_ID,
+                                                   all.x = TRUE)
   }
 
   # data.table variables
   cell_ID = NULL
 
   # reorder
-  cell_metadata = cell_metadata[match(ordered_cell_IDs, cell_ID)]
+  cell_metadata[] = cell_metadata[][match(ordered_cell_IDs, cell_ID)]
 
-  gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_cell_metadata(gobject, metadata = cell_metadata)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
   return(gobject)
 }
 
@@ -3234,24 +3258,32 @@ addFeatMetadata <- function(gobject,
   # data.table variables
   feat_ID = NULL
 
-  feat_metadata = gobject@feat_metadata[[spat_unit]][[feat_type]]
-  ordered_feat_IDs = gobject@feat_ID[[feat_type]]
+  feat_metadata = get_feature_metadata(gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'featMetaObj',
+                                       copy_obj = TRUE)
+
+  ordered_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
 
   if(by_column == FALSE) {
-    feat_metadata = cbind(feat_metadata, new_metadata)
+    feat_metadata[] = cbind(feat_metadata[], new_metadata)
   } else {
     if(is.null(column_feat_ID)) stop('You need to provide feat ID column')
-    feat_metadata <- data.table::merge.data.table(feat_metadata,
-                                                  by.x = 'feat_ID',
-                                                  new_metadata,
-                                                  by.y = column_feat_ID,
-                                                  all.x = T)
+    feat_metadata[] = data.table::merge.data.table(feat_metadata[],
+                                                   by.x = 'feat_ID',
+                                                   new_metadata,
+                                                   by.y = column_feat_ID,
+                                                   all.x = T)
   }
 
   # reorder
-  feat_metadata = feat_metadata[match(ordered_feat_IDs, feat_ID)]
+  feat_metadata[] = feat_metadata[][match(ordered_feat_IDs, feat_ID)]
 
-  gobject@feat_metadata[[spat_unit]][[feat_type]] = feat_metadata
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_feature_metadata(gobject, metadata = feat_metadata)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
   return(gobject)
 }
 
@@ -3329,19 +3361,19 @@ addFeatStatistics <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     values = expression_values,
-                                    output = 'matrix')
+                                    output = 'exprObj')
 
   # calculate stats
-  feat_stats = data.table::data.table(feats = rownames(expr_data),
-                                      nr_cells = rowSums_flex(expr_data > detection_threshold),
-                                      perc_cells = (rowSums_flex(expr_data > detection_threshold)/ncol(expr_data))*100,
-                                      total_expr = rowSums_flex(expr_data),
-                                      mean_expr = rowMeans_flex(expr_data))
+  feat_stats = data.table::data.table(feats = rownames(expr_data[]),
+                                      nr_cells = rowSums_flex(expr_data[] > detection_threshold),
+                                      perc_cells = (rowSums_flex(expr_data[] > detection_threshold)/ncol(expr_data[]))*100,
+                                      total_expr = rowSums_flex(expr_data[]),
+                                      mean_expr = rowMeans_flex(expr_data[]))
 
   # data.table variables
   mean_expr_det = NULL
 
-  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
+  mean_expr_detected = mean_expr_det_test(expr_data[], detection_threshold = detection_threshold)
   feat_stats[, mean_expr_det := mean_expr_detected]
 
 
@@ -3349,15 +3381,23 @@ addFeatStatistics <- function(gobject,
 
     # remove previous statistics
     feat_metadata = get_feature_metadata(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
-                                         output = 'data.table')
-    metadata_names = colnames(feat_metadata)
+                                         feat_type = feat_type,
+                                         output = 'featMetaObj',
+                                         copy_obj = TRUE)
+
+    if(!identical(expr_data@provenance, feat_metadata@provenance)) {
+      warning('expression and feature metadata provenance mismatch')
+    }
+
+    metadata_names = colnames(feat_metadata[])
 
     if('nr_cells' %in% metadata_names) {
       cat('\n feat statistics has already been applied once, will be overwritten \n')
-      feat_metadata[, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
-      gobject@feat_metadata[[feat_type]][[spat_unit]] = feat_metadata
+      feat_metadata[][, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feature_metadata(gobject, metadata = feat_metadata)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     gobject = addFeatMetadata(gobject = gobject,
@@ -3482,28 +3522,35 @@ addCellStatistics <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     values = expression_values,
-                                    output = 'matrix')
+                                    output = 'exprObj')
 
   # calculate stats
   #print('ok 1')
-  cell_stats = data.table::data.table(cells = colnames(expr_data),
-                                      nr_feats = colSums_flex(expr_data > detection_threshold),
-                                      perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
-                                      total_expr = colSums_flex(expr_data))
+  cell_stats = data.table::data.table(cells = colnames(expr_data[]),
+                                      nr_feats = colSums_flex(expr_data[] > detection_threshold),
+                                      perc_feats = (colSums_flex(expr_data[] > detection_threshold)/nrow(expr_data[]))*100,
+                                      total_expr = colSums_flex(expr_data[]))
 
   if(return_gobject == TRUE) {
 
     # remove previous statistics
     cell_metadata = get_cell_metadata(gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit,
-                            output = 'data.table')
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      output = 'cellMetaObj',
+                                      copy_obj = TRUE)
 
-    metadata_names = colnames(cell_metadata)
+    if(!identical(expr_data@provenance, cell_metadata@provenance)) {
+      warning('expression and feature metadata provenance mismatch')
+    }
+
+    metadata_names = colnames(cell_metadata[])
     if('nr_feats' %in% metadata_names) {
       cat('\n cells statistics has already been applied once, will be overwritten \n')
-      cell_metadata[, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
-      gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+      cell_metadata[][, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject, metadata = cell_metadata)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
 
@@ -3658,7 +3705,8 @@ addFeatsPerc = function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'matrix')
 
 
   totalsum = colSums_flex(expr_data)
@@ -3881,7 +3929,8 @@ calculateMetaTable = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
   if(!is.null(selected_feats)) {
     expr_values = expr_values[rownames(expr_values) %in% selected_feats, ]
   }
@@ -4112,7 +4161,8 @@ createMetafeats = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'exprObj')
 
 
   ## calculate metafeat ##
@@ -4123,7 +4173,7 @@ createMetafeats = function(gobject,
     clus_id = id
 
     selected_feats = names(feat_clusters[feat_clusters == clus_id])
-    sub_mat = expr_values[rownames(expr_values) %in% selected_feats,]
+    sub_mat = expr_values[][rownames(expr_values[]) %in% selected_feats,]
 
     # calculate mean
     if(length(selected_feats) == 1) {
@@ -4141,8 +4191,16 @@ createMetafeats = function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  res_final[, cell_ID := colnames(expr_values)]
+  res_final[, cell_ID := colnames(expr_values[])]
 
+  # create spatial enrichment object
+  enrObj = create_spat_enr_obj(name = name,
+                               method = 'metafeat',
+                               enrichDT = res_final,
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               provenance = expr_values@provenance,
+                               misc = list(expr_values_used = expression_values))
 
   if(return_gobject == TRUE) {
 
@@ -4154,11 +4212,7 @@ createMetafeats = function(gobject,
     }
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject = set_spatial_enrichment(gobject = gobject,
-                                     spat_unit = spat_unit,
-                                     feat_type = feat_type,
-                                     enrichm_name = name,
-                                     spatenrichment = res_final)
+    gobject = set_spatial_enrichment(gobject = gobject, spatenrichment = enrObj)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
@@ -4166,7 +4220,7 @@ createMetafeats = function(gobject,
     return(gobject)
 
   } else {
-    return(res_final)
+    return(enrObj)
   }
 
 }

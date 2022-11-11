@@ -10,70 +10,178 @@
 #' @name anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 #' @param anndata_path path to the .h5ad file
-#' @param metadata_cols metadata columns to include
-#' @param instructions giotto instructions
-#' @param \dots additional parameters to \code{\link{createGiottoObject}}
+#' @param instructions giotto instructions (optional)
 #' @return Giotto object
 #' @details Function in beta. Converts a .h5ad file into a Giotto object.
 #' @export
-anndataToGiotto = function(anndata_path,
-                           metadata_cols = c("total_counts", "pct_counts_mt"),
+anndataToGiotto = function(anndata_path = NULL,
                            instructions = NULL,
                            ...) {
-
-
+  # Preliminary file checks
+  if (is.null(anndata_path)) stop("Please provide a path to an AnnData .h5ad file for conversion.\n")
+  if(!file.exists(anndata_path)) stop('The provided path to the AnnData .h5ad file does not exist.\n')
 
   # test if scanpy is found
   module_test = reticulate::py_module_available('scanpy')
-  if(module_test == FALSE) {
+  py_path = reticulate::py_config()$python
+  genv_in_use = grepl(pattern = "giotto_env", x = py_path)
+
+  if(module_test == FALSE && !genv_in_use) {
     warning("scanpy python module is not installed:
-            install in the right environment or python path with:
+            install in the environment or python path with:
 
-            'pip install scanpy'
+            'pip install scanpy==1.9.0'
+            
+            Alternatively, install in the active python 
+            environment with reticulate:
 
-            or try from within R in the Giotto environment with:
+            reticulate::py_install(packages = 'scanpy==1.9.0',
+                                   pip = TRUE)
+            \n
+            ")
+  } else if (module_test == FALSE && genv_in_use) {
+    cat ("Python module scanpy is required for conversion. 
+          Installing scanpy now in the Giotto Miniconda Environment.\n")
+    conda_path = reticulate::miniconda_path()
+    py_ver = reticulate::py_config()$version_string
+    py_ver = strsplit(py_ver,"|", fixed = T)[[1]][1]
+    py_ver = gsub(" ","",py_ver, fixed = T)
+    conda_full_path = paste0(conda_path,'/','bin/conda')
+    full_envname = paste0(conda_path,'/envs/giotto_env')
 
-            conda_path = reticulate::miniconda_path()
-            conda_full_path = paste0(conda_path,'/','bin/conda')
-            full_envname = paste0(conda_path,'/envs/giotto_env')
-            reticulate::py_install(packages = c('scanpy'),
-                                   envname = full_envname,
-                                   method = 'conda',
-                                   conda = conda_full_path,
-                                   pip = TRUE,
-                                   python_version = '3.6')")
+    reticulate::py_install(packages = "scanpy==1.9.0",
+                        envname = full_envname,
+                        method = 'conda',
+                        conda = conda_full_path,
+                        pip = TRUE,
+                        python_version = py_ver)
+  } else cat ("Required Python module scanpy has been previously installed. Proceeding with conversion.\n")
+
+  # Import ad2g, a python module for parsing anndata
+  ad2g <- reticulate::import_from_path("ad2g", ".")
+  adata <- ad2g$read_anndata_from_path(anndata_path)
+
+  spat_unit = NULL
+  feat_type = NULL
+
+  ### Set up expression matrix
+  X <- ad2g$extract_expression(adata)
+  cID = ad2g$extract_cell_IDs(adata)
+  fID = ad2g$extract_feat_IDs(adata)
+  X@Dimnames[[1]] = fID
+  X@Dimnames[[2]] = cID
+  # Expression matrix X ready
+
+  ### Set up spatial info
+  sp = ad2g$parse_obsm_for_spat_locs(adata)
+  #Spatial locations sp ready
+
+  ### Set up metadata
+  cm <- ad2g$extract_cell_metadata(adata)
+  cm <- as.data.table(cm)
+  if ('leiden' %in% names(cm)) {
+    cm$leiden = as.numeric(cm$leiden)
   }
 
-  # load python modules
-  sc <- reticulate::import("scanpy")
-  pd <- reticulate::import("pandas")
+  fm <- ad2g$extract_feat_metadata(adata)
+  fm <- as.data.table(fm)
+  # Metadata ready
 
-  if(!file.exists(anndata_path)) stop('path to anndata does not exist \n')
-  adata <- sc$read(anndata_path)
+  ### Create Minimal giottoObject
+  gobject <- createGiottoObject(expression = X, 
+                                spatial_locs = sp)
 
-  ## get count data
-  exprs <- t(adata$X)
-  colnames(exprs) <- adata$obs_names$to_list()
-  rownames(exprs) <- adata$var_names$to_list()
+  ### Add metadata
+  gobject <- set_CellMetadata(gobject, 
+                              meta_dt = cm)
+  gobject <- set_FeatMetadata(gobject,
+                              meta_dt = fm)
 
-  ## get spatial data
-  spatial <- as.data.frame(adata$obsm["spatial"])
-  spatial_names = c('X', 'Y', 'Z')
-  colnames(spatial) <- spatial_names[1:ncol(spatial)]
-  row.names(spatial) <- colnames(exprs)
+  spat_unit = set_default_spat_unit(gobject, 
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject, 
+                                    feat_type = feat_type, 
+                                    spat_unit = spat_unit)
 
-  ## get metadata
-  obs <- adata$obs
-  metadata <- obs[, metadata_cols]
+  ### Set up PCA
+  p = ad2g$extract_pca(adata)
+  pca = p$pca
+  evs = p$eigenvalues
+  loads = p$loadings
+  # Add PCA to giottoObject
+  dobj = Giotto:::create_dimObject(name = 'pca.ad',
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction_method = 'pca',
+                                  coordinates = pca,
+                                  misc = list(eigenvalues = evs,
+                                              loadings = loads),
+                                  my_rownames = colnames(X))
 
-  # create giotto object
-  giotto_object <- createGiottoObject(raw_exprs = exprs,
-                                      spatial_locs = spatial,
-                                      instructions = instructions,
-                                      cell_metadata = metadata,
-                                      ...)
+  gobject = set_dimReduction(gobject = gobject,
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        reduction = 'cells',
+                        reduction_method = 'pca',
+                        name = 'pca.ad',
+                        dimObject = dobj)
 
-  return(giotto_object)
+  ### Set up UMAP
+  u = ad2g$extract_umap(adata)
+  # Add UMAP to giottoObject
+  dobj = Giotto:::create_dimObject(name = 'umap.ad',
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction_method = 'umap',
+                                  coordinates = u,
+                                  misc = NULL,
+                                  my_rownames = colnames(X))
+
+  gobject = set_dimReduction(gobject = gobject,
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        reduction = 'cells',
+                        reduction_method = 'umap',
+                        name = 'umap.ad',
+                        dimObject = dobj)
+  ### Set up TSNE
+  t = ad2g$extract_tsne(adata)
+  # Add UMAP to giottoObject
+  dobj = Giotto:::create_dimObject(name = 'tsne.ad',
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction_method = 'tsne',
+                                  coordinates = t,
+                                  misc = NULL,
+                                  my_rownames = colnames(X))
+
+  gobject = set_dimReduction(gobject = gobject,
+                        spat_unit = spat_unit,
+                        feat_type = feat_type,
+                        reduction = 'cells',
+                        reduction_method = 'tsne',
+                        name = 'tsne.ad',
+                        dimObject = dobj)
+  ### Layers
+  lay_names = ad2g$extract_layer_names(adata)
+
+  for (l_n in lay_names){
+    lay = ad2g$extract_layered_data(adata, layer_name = l_n)
+    lay@Dimnames[[1]] = fID
+    lay@Dimnames[[2]] = cID
+    gobject = set_expression_values(gobject = gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                name = l_n,
+                                values = lay)
+  }
+
+
+  gobject <- update_giotto_params(gobject = gobject,
+                                  description = "_AnnData_Conversion")
+
+
+  return(gobject)
 
 }
 

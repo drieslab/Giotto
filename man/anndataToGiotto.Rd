@@ -4,21 +4,12 @@
 \alias{anndataToGiotto}
 \title{Convert anndata to Giotto}
 \usage{
-anndataToGiotto(
-  anndata_path,
-  metadata_cols = c("total_counts", "pct_counts_mt"),
-  instructions = NULL,
-  ...
-)
+anndataToGiotto(anndata_path = NULL, instructions = NULL, ...)
 }
 \arguments{
 \item{anndata_path}{path to the .h5ad file}
 
-\item{metadata_cols}{metadata columns to include}
-
-\item{instructions}{giotto instructions}
-
-\item{\dots}{additional parameters to \code{\link{createGiottoObject}}}
+\item{instructions}{giotto instructions (optional)}
 }
 \value{
 Giotto object

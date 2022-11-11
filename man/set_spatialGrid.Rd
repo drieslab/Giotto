@@ -6,14 +6,17 @@
 \usage{
 set_spatialGrid(
   gobject,
+  spatial_grid,
   spat_unit = NULL,
   feat_type = NULL,
   name = NULL,
-  spatial_grid
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spatial_grid}{spatial grid object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -21,7 +24,7 @@ set_spatialGrid(
 
 \item{name}{name of spatial grid}
 
-\item{spatial_grid}{spatial grid object}
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

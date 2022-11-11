@@ -104,6 +104,15 @@ setClass('spatNetData',
                                networkDT_before_filter = NULL,
                                cellShapeObj = NULL))
 
+# ** spatGridData ####
+setClass('spatGridData',
+         representation = list(method = 'character',
+                               parameters = 'ANY',
+                               gridDT = 'nullOrDatatable'),
+         prototype = prototype(method = NA_character_,
+                               parameters = NULL,
+                               gridDT = NULL))
+
 
 
 # ** provData Class ####
@@ -503,8 +512,8 @@ check_expr_obj = function(object) {
 #' @export
 setClass('exprObj',
          contains = c('exprData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'nullOrChar'),
-         prototype = list(name = NULL),
+         slots = c(name = 'character'),
+         prototype = list(name = NA_character_),
          validity = check_expr_obj)
 
 ## * Show ####
@@ -844,8 +853,8 @@ check_spat_locs_obj = function(object) {
 #' @export
 setClass('spatLocsObj',
          contains = c('coordDataDT', 'spatData', 'miscData'),
-         slots = c(name = 'nullOrChar'),
-         prototype = list(name = NULL),
+         slots = c(name = 'character'),
+         prototype = list(name = NA_character_),
          validity = check_spat_locs_obj)
 
 
@@ -1067,22 +1076,9 @@ check_spat_grid_obj = function(object) {
 #' Grids can be annotated with both spatial and feature information
 #' @export
 setClass('spatialGridObj',
-         slots = c(name = 'nullOrChar',
-                   method = 'nullOrChar',
-                   parameters = 'nullOrList',
-                   gridDT = 'data.table',
-                   spat_unit = 'nullOrChar',
-                   feat_type = 'nullOrChar',
-                   provenance = 'ANY',
-                   misc = 'ANY'),
-         prototype = list(name = NULL,
-                          method = NULL,
-                          parameters = NULL,
-                          gridDT = NULL,
-                          spat_unit = NULL,
-                          feat_type = NULL,
-                          provenance = NULL,
-                          misc = NULL),
+         contains = c('spatGridData', 'spatFeatData', 'miscData'),
+         slots = c(name = 'character'),
+         prototype = list(name = NA_character_),
          validity = check_spat_grid_obj)
 
 
@@ -1731,6 +1727,37 @@ create_spat_enr_obj = function(name = 'test',
 
 }
 
+
+#' @title Create S4 spatialGridObj
+#' @name create_spat_grid_obj
+#' @param name name of spatialGridObj
+#' @param method method used to generate spatial grid
+#' @param parameters additional method-specific parameters used during spatial grid generation
+#' @param gridDT data.table holding the spatial grid information
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param provenance origin of aggregated information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_spat_grid_obj = function(name = 'test',
+                                method = NA_character_,
+                                parameters = NULL,
+                                gridDT = NULL,
+                                spat_unit = 'cell',
+                                feat_type = 'rna',
+                                provenance = NULL,
+                                misc = NULL) {
+
+  return(new('spatGridObj',
+             name = name,
+             method = method,
+             parameters = parameters,
+             gridDT = gridDT,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+}
 
 
 

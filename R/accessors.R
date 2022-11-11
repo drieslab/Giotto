@@ -248,7 +248,8 @@ set_feat_id = function(gobject,
 get_cell_metadata = function(gobject,
                              spat_unit = NULL,
                              feat_type = NULL,
-                             output = c('cellMetaObj', 'data.table')) {
+                             output = c('cellMetaObj', 'data.table'),
+                             copy_obj = TRUE) {
 
   output = match.arg(output, choices = c('cellMetaObj', 'data.table'))
 
@@ -262,29 +263,19 @@ get_cell_metadata = function(gobject,
   # 2. Find object - note that metadata objects do not have names
   cellMeta = gobject@cell_metadata[[spat_unit]][[feat_type]]
 
+  if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
+  if(!inherits(cellMeta, 'cellMetaObj')) stop('metadata referenced is not cellMetaObj')
+
+  if(isTRUE(copy_obj)) cellMeta[] = data.table::copy(cellMeta[])
+
   # 3. Return as desired object type
   if(output == 'cellMetaObj') {
-    if(inherits(cellMeta, 'data.table')) { # ** TO BE DEPRECATED **
-      cellMeta = new('cellMetaObj',
-                     metaDT = cellMeta,
-                     col_desc = NA_character_, # no info
-                     spat_unit = spat_unit,
-                     feat_type = feat_type,
-                     provenance = spat_unit) # assumed
-    }
-
-    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
-    if(!inherits(cellMeta, 'cellMetaObj')) stop('metadata referenced is not data.table or cellMetaObj')
-
     # return cellMetaObj
     return(cellMeta)
-  } else if(output == 'data.table') {
-    if(inherits(cellMeta, 'cellMetaObj')) {
-      cellMeta = slot(cellMeta, 'metaDT')
-    }
 
-    if(inherits(cellMeta, 'list') | is.null(cellMeta)) stop('metadata referenced does not exist.')
-    if(!inherits(cellMeta, 'data.table')) stop('metadata referenced is not data.table or cellMetaObj')
+  } else if(output == 'data.table') {
+
+    cellMeta = slot(cellMeta, 'metaDT')
 
     # return data.table
     return(cellMeta)
@@ -458,13 +449,15 @@ set_cell_metadata = function(gobject,
 #' @name get_feature_metadata
 #' @inheritParams data_access
 #' @param output return as either 'data.table' or 'featMetaObj'
+#' @param copy_obj whether to perform a deepcopy of the data.table information
 #' @description Get feature metadata from giotto object
 #' @seealso fDataDT
 #' @keywords internal
 get_feature_metadata = function(gobject,
                                 spat_unit = NULL,
                                 feat_type = NULL,
-                                output = c('featMetaObj', 'data.table')) {
+                                output = c('featMetaObj', 'data.table'),
+                                copy_obj = TRUE) {
 
   output = match.arg(output, choices = c('featMetaObj', 'data.table'))
 
@@ -492,6 +485,8 @@ get_feature_metadata = function(gobject,
     if(inherits(featMeta, 'list') | is.null(featMeta)) stop('metadata referenced does not exist.')
     if(!inherits(featMeta, 'featMetaObj')) stop('metadata referenced is not data.table or featMetaObj')
 
+    if(isTRUE(copy_obj)) featMeta[] = data.table::copy(featMeta[])
+
     # return featMetaObj
     return(featMeta)
   } else if(output == 'data.table') {
@@ -501,6 +496,8 @@ get_feature_metadata = function(gobject,
 
     if(inherits(featMeta, 'list') | is.null(featMeta)) stop('metadata referenced does not exist.')
     if(!inherits(featMeta, 'data.table')) stop('metadata referenced is not data.table or featMetaObj')
+
+    if(isTRUE(copy_obj)) featMeta = data.table::copy(featMeta)
 
     # return data.table
     return(featMeta)
@@ -1707,27 +1704,65 @@ select_spatialGrid = function(...) {
 #' @name set_spatialGrid
 #' @description Function to set a spatial grid
 #' @inheritParams data_access
-#' @param name name of spatial grid
 #' @param spatial_grid spatial grid object
+#' @param name name of spatial grid
+#' @param verbose be verbose
 #' @return giotto object
 #' @family spatial grid data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-set_spatialGrid <- function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            name = NULL,
-                            spatial_grid) {
+set_spatialGrid = function(gobject,
+                           spatial_grid,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           name = NULL,
+                           verbose = TRUE) {
 
+  # 1. check input
+  if(is.null(spat_unit)) nospec_unit = TRUE
+  if(is.null(feat_type)) nospec_type = TRUE
+  if(is.null(name)) nospec_name = TRUE
 
-  # Set feat_type and spat_unit
+  # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## 1. check if specified name has already been used
+  # 3. if input is null, remove object
+  if(is.null(spatial_grid)) {
+    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
+    gobject@spatial_grid[[spat_unit]][[feat_type]][[name]] = NULL
+  }
+
+  # 4. import information from S4 if possible
+  if(inherits(spatial_grid, 'spatialGridObj')) {
+
+    if(isTRUE(nospec_unit)) {
+      if(!is.na(slot(spatial_grid, 'spat_unit'))) spat_unit = slot(spatial_grid, 'spat_unit')
+      else slot(spatial_grid, 'spat_unit') = spat_unit
+    } else {
+      slot(spatial_grid, 'spat_unit') = spat_unit
+    }
+    if(isTRUE(nospec_type)) {
+      if(!is.na(slot(spatial_grid, 'feat_type'))) feat_type = slot(spatial_grid, 'feat_type')
+      else slot(spatial_grid, 'feat_type') = feat_type
+    } else {
+      slot(spatial_grid, 'feat_type') = feat_type
+    }
+    if(isTRUE(nospec_name)) {
+      if(!is.na(slot(spatial_grid, 'name'))) name = slot(spatial_grid, 'name')
+      else slot(spatial_grid, 'name') = name
+    } else {
+      slot(spatial_grid, 'name') = name
+    }
+
+  } else {
+    stop('spatial_grid must be a spatialGridObj')
+  }
+
+  ## 5. check if specified name has already been used
   potential_names = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new spatial grid \n')
@@ -1737,7 +1772,7 @@ set_spatialGrid <- function(gobject,
   if(!inherits(spatial_grid, 'spatialGridObj')) stop('spatial_grid to set must be S4 "spatialGridObj"\n')
   silent = validObject(spatial_grid) # Variable only used to hide TRUE prints
 
-  ## 3. update and return giotto object
+  ## 6. update and return giotto object
   slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]][[name]] = spatial_grid
 
   return(gobject)
@@ -1839,7 +1874,7 @@ set_polygon_info = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_info)
   if(polygon_name %in% potential_names) {
-     if(verbose) cat(polygon_name, ' already exist and will be replaced with new giotto polygon \n')
+     if(verbose) message(polygon_name, ' already exists and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
@@ -1901,13 +1936,15 @@ select_feature_info = function(...) {
 #' @description Set giotto polygon spatVector for features
 #' @inheritParams data_access
 #' @param gpolygon giotto polygon
+#' @param verbose be verbose
 #' @return giotto object
 #' @family feature info data accessor functions
 #' @family functions to set data in giotto object
 #' @export
 set_feature_info = function(gobject,
                             feat_type = NULL,
-                            gpolygon) {
+                            gpolygon,
+                            verbose = TRUE) {
 
   # specify feat_type
   if(is.null(feat_type)) {
@@ -1917,7 +1954,7 @@ set_feature_info = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(gobject@feat_info)
   if(feat_type %in% potential_names) {
-    cat(feat_type, ' already exist and will be replaced with new giotto polygon \n')
+    if(isTRUE(verbose)) message(feat_type, ' already exists and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
