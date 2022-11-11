@@ -5,9 +5,9 @@
 \title{installGiottoEnvironment}
 \usage{
 installGiottoEnvironment(
-  packages_to_install = c("pandas==1.1.5", "networkx==2.6.3", "python-igraph==0.9.6",
-    "leidenalg==0.8.7", "python-louvain==0.15", "python.app==2", "scikit-learn==0.24.2"),
-  python_version = "3.6",
+  packages_to_install = c("pandas==1.5.1", "networkx==2.8.8", "python-igraph==0.10.2",
+    "leidenalg==0.9.0", "python-louvain==0.16", "python.app==1.4", "scikit-learn==1.1.3"),
+  python_version = "3.10.2",
   force_miniconda = FALSE,
   force_environment = FALSE,
   verbose = TRUE
@@ -43,8 +43,24 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   # this command will install r-miniconda
   # and a giotto environment with all necessary python modules
   installGiottoEnvironment()
+}
+By default, Python v3.10 will be used with the following python modules
+for Giotto Suite implementations:
+   - pandas==1.4.0
+   - networkx==2.7
+   - python-igraph==0.9.10
+   - leidenalg==0.8.9
+   - python-louvain==0.16
+   - python.app==2 [mac OSX only]
+   - scikit-learn==1.1.0
 
- By default python v3.6 will be  used with the following python modules:
+ The giotto environment can be custom installed by changing the
+ python_version parameter and module versions in the
+ packages_to_install parameter:
+
+ For example this giotto environment is known to work, and was the
+ default environment status for past releases of Giotto.
+ Python  v3.6
   - pandas==1.1.5
   - networkx==2.6.3
   - python-igraph==0.9.6
@@ -52,22 +68,4 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   - python-louvain==0.15
   - python.app==2 [mac OSX only]
   - scikit-learn==0.24.2
-
- A more recent giotto environment can be installed by changing the python_version parameter
- and module versions in the packages_to_install parameter:
-
- For example this giotto environment is know to work:
- python_version = '3.8.10'
-
- and modules:
-  - pandas==1.3.1
-  - networkx==2.6.2
-  - python-igraph==0.9.6
-  - leidenalg==0.8.7
-  - python-louvain==0.15
-  - python.app==2 [mac OSX only]
-  - scikit-learn==1.0.2
-
-}
-
 }
