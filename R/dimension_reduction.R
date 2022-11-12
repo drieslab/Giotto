@@ -490,7 +490,8 @@ runPCA <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       feat_type = feat_type,
                                       spat_unit = spat_unit,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -560,9 +561,11 @@ runPCA <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    pca_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
-                                           spat_unit = spat_unit, feat_type = feat_type,
-                                           dim_type = 'pca')
+    pca_names = list_dim_reductions_names(gobject = gobject,
+                                          data_type = reduction,
+                                          spat_unit = spat_unit,
+                                          feat_type = feat_type,
+                                          dim_type = 'pca')
 
     if(name %in% pca_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -738,10 +741,11 @@ screePlot = function(gobject,
   reduction = match.arg(reduction, c('cells', 'feats'))
   pca_obj = get_dimReduction(gobject = gobject,
                              spat_unit = spat_unit,
+                             feat_type = feat_type,
                              reduction = reduction,
                              reduction_method = 'pca',
                              name = name,
-                             return_dimObj = TRUE)
+                             output = 'data.table')
 
   #gobject@dimension_reduction[[reduction]][[spat_unit]]$pca[[name]]
 
@@ -766,7 +770,8 @@ screePlot = function(gobject,
     expr_values = get_expression_values(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
-                                        values = values)
+                                        values = values,
+                                        output = 'matrix')
 
     # PCA implementation
     method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
@@ -942,7 +947,8 @@ jackstrawPlot = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
 
   ## subset matrix
@@ -1088,7 +1094,8 @@ signPCA <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -1321,7 +1328,7 @@ runUMAP <- function(gobject,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       return_dimObj = FALSE)
+                                       output = 'data.table')
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
       print(matrix_to_use[1:2,1:2])
@@ -1337,7 +1344,8 @@ runUMAP <- function(gobject,
       expr_values = get_expression_values(gobject = gobject,
                                           spat_unit = spat_unit,
                                           feat_type = feat_type,
-                                          values = values)
+                                          values = values,
+                                          output = 'matrix')
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
@@ -1351,8 +1359,13 @@ runUMAP <- function(gobject,
       matrix_to_use = t_flex(expr_values)
     }
 
-    uwot_clus <- uwot::umap(X = as.matrix(matrix_to_use), n_neighbors = n_neighbors, n_components = n_components,
-                            n_epochs = n_epochs, min_dist = min_dist, n_threads = n_threads, spread = spread, ...)
+    uwot_clus <- uwot::umap(X = matrix_to_use, # as.matrix(matrix_to_use) neccesary?
+                            n_neighbors = n_neighbors,
+                            n_components = n_components,
+                            n_epochs = n_epochs,
+                            min_dist = min_dist,
+                            n_threads = n_threads,
+                            spread = spread, ...)
     uwot_clus_pos_DT = data.table::as.data.table(uwot_clus)
 
     # data.table variables
@@ -1367,8 +1380,10 @@ runUMAP <- function(gobject,
 
     if(return_gobject == TRUE) {
 
-      umap_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
-                                             spat_unit = spat_unit, feat_type = feat_type,
+      umap_names = list_dim_reductions_names(gobject = gobject,
+                                             data_type = reduction,
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
                                              dim_type = 'umap')
 
       if(name %in% umap_names) {
@@ -1529,10 +1544,11 @@ runtSNE <- function(gobject,
       ## TODO: check if reduction exists
       matrix_to_use = get_dimReduction(gobject = gobject,
                                        spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       return_dimObj = FALSE)
+                                       output = 'data.table')
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
 
@@ -1543,7 +1559,8 @@ runtSNE <- function(gobject,
       expr_values = get_expression_values(gobject = gobject,
                                           spat_unit = spat_unit,
                                           feat_type = feat_type,
-                                          values = values)
+                                          values = values,
+                                          output = 'matrix')
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
@@ -1737,10 +1754,11 @@ runGiottoHarmony = function(gobject,
     ## TODO: check if reduction exists
     matrix_to_use = get_dimReduction(gobject = gobject,
                                      spat_unit = spat_unit,
+                                     feat_type = feat_type,
                                      reduction = reduction, # set to spat_unit?
                                      reduction_method = dim_reduction_to_use,
                                      name = dim_reduction_name,
-                                     return_dimObj = FALSE)
+                                     output = 'data.table')
     matrix_to_use = matrix_to_use[, dimensions_to_use]
 
   } else {
@@ -1751,7 +1769,8 @@ runGiottoHarmony = function(gobject,
     expr_values = get_expression_values(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
-                                        values = values)
+                                        values = values,
+                                        output = 'matrix')
 
 
     ## subset matrix
