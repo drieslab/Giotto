@@ -14,7 +14,7 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
   cov = NULL
   selected = NULL
   mean_expr = NULL
-  
+
   steps = 1/nr_expression_groups
   prob_sequence = seq(0, 1, steps)
   prob_sequence[length(prob_sequence)] = 1
@@ -66,7 +66,7 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
   cov_diff = NULL
   pred_cov_feats = NULL
   selected = NULL
-  
+
   # create loess regression
   loess_formula = paste0('cov~log(mean_expr)')
   var_col = 'cov'
@@ -110,7 +110,7 @@ calc_var_HVF = function(scaled_matrix,
   # define for :=
   var = NULL
   selected = NULL
-  
+
   test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
   test = sort(test, decreasing = T)
 
@@ -223,7 +223,8 @@ calculateHVF <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # not advised
   if(reverse_log_scale == TRUE) {
