@@ -43,30 +43,22 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   # this command will install r-miniconda
   # and a giotto environment with all necessary python modules
   installGiottoEnvironment()
-<<<<<<< HEAD
-
-=======
 }
->>>>>>> upstream/S4_provenance
-By default, Python v3.10 will be used with the following python modules
+By default, Python v3.10.2 will be used with the following python modules
 for Giotto Suite implementations:
-   - pandas==1.4.0
-   - networkx==2.7
-   - python-igraph==0.9.10
-   - leidenalg==0.8.9
+   - pandas==1.5.1
+   - networkx==2.8.8
+   - python-igraph==0.10.2
+   - leidenalg==0.9.0
    - python-louvain==0.16
-<<<<<<< HEAD
-   - python.app==2 # macOS only
-=======
-   - python.app==2 [mac OSX only]
->>>>>>> upstream/S4_provenance
-   - scikit-learn==1.1.0
+   - python.app==1.4
+   - scikit-learn==1.1.3
 
  The giotto environment can be custom installed by changing the
  python_version parameter and module versions in the
- packages_to_install parameter:
+ packages_to_install parameter.
 
- For example this giotto environment is known to work, and was the
+ For example, this giotto environment works as well, and was the
  default environment status for past releases of Giotto.
  Python  v3.6
   - pandas==1.1.5
@@ -74,12 +66,7 @@ for Giotto Suite implementations:
   - python-igraph==0.9.6
   - leidenalg==0.8.7
   - python-louvain==0.15
-<<<<<<< HEAD
   - python.app==2 # macOS only
   - scikit-learn==0.24.2
-  }
-=======
-  - python.app==2 [mac OSX only]
-  - scikit-learn==0.24.2
->>>>>>> upstream/S4_provenance
+
 }

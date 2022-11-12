@@ -63,9 +63,9 @@ read_crossSection <- function(gobject,
   }else if (!is.element(spatial_network_name, names(slot(gobject, 'spatial_network')))){
     stop(paste0(spatial_network_name, " has not been created."))
   }else {
-    sp_network_obj = select_spatialNetwork(gobject,
-                                           name = spatial_network_name,
-                                           return_network_Obj = TRUE)
+    sp_network_obj = get_spatialNetwork(gobject,
+                                        name = spatial_network_name,
+                                        output = 'spatialNetworkObj')
     if (length(slot(sp_network_obj, 'crossSectionObjects'))==0){
       stop("No cross section object has been created.")
     }else if (is.null(name)){

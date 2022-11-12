@@ -4457,7 +4457,7 @@ findNetworkNeighbors = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     stop('You need to select a spatial network')
   }

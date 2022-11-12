@@ -7,7 +7,6 @@
 create_expr_obj(
   name = "test",
   exprMat = NULL,
-  sparse = NA,
   spat_unit = "cell",
   feat_type = "rna",
   provenance = NULL,
@@ -18,8 +17,6 @@ create_expr_obj(
 \item{name}{name of exprObj}
 
 \item{exprMat}{matrix of expression information}
-
-\item{sparse}{boolean whether exprMat is sparse}
 
 \item{spat_unit}{spatial unit of expression (e.g. 'cell')}
 
