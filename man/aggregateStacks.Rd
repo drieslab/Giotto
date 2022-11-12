@@ -42,6 +42,7 @@ Combines both \code{\link{aggregateStacksExpression}} and \code{\link{aggregateS
 Other aggregate stacks: 
 \code{\link{aggregateStacksExpression}()},
 \code{\link{aggregateStacksLocations}()},
+\code{\link{aggregateStacksPolygonOverlaps}()},
 \code{\link{aggregateStacksPolygons}()}
 }
 \concept{aggregate stacks}
