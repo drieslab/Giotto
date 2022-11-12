@@ -1844,8 +1844,10 @@ createGiottoObject <- function(expression,
   extra_not_installed_packages = extra_packages[!pack_index]
 
   if(any(pack_index == FALSE) == TRUE) {
-    wrap_msg("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ", extra_not_installed_packages)
-    wrap_msg(" Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
+    wrap_msg("Consider to install these (optional) packages to run all possible",
+             "Giotto commands for spatial analyses: ", extra_not_installed_packages)
+    wrap_msg("Giotto does not automatically install all these packages as they",
+             "are not absolutely required and this reduces the number of dependencies")
   }
 
 

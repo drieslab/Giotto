@@ -87,9 +87,9 @@ libNorm_giotto = function(mymatrix, scalefactor){
   libsizes = colSums_flex(mymatrix)
 
   if(any(libsizes == 0)) {
-    warning('Total library size or counts for individual spat units are 0 \n,
-            This will likely result in normalization problems \n,
-            filter (filterGiotto) or impute (imputeGiotto) spatial units \n')
+    warning(wrap_txt('Total library size or counts for individual spat units are 0.
+                     This will likely result in normalization problems.
+                     filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
 
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
