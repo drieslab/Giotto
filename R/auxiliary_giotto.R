@@ -86,8 +86,11 @@ libNorm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
-  # catch for libs with size of 0
-  if(any(libsizes == 0)) stop('0 total counts detected for some feature(s).\nNot allowed for library normalization and these features must first be filtered out')
+  if(any(libsizes == 0)) {
+    warning('Total library size or counts for individual spat units are 0 \n,
+            This will likely result in normalization problems \n,
+            filter (filterGiotto) or impute (imputeGiotto) spatial units \n')
+  }
 
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
 
@@ -2058,20 +2061,24 @@ filterGiotto = function(gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       values = values,
-                                      output = 'exprObj')
+                                      output = 'matrix')
 
   # approach:
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes
 
   ## filter features
-  filter_index_feats = rowSums_flex(expr_values[] >= expression_threshold) >= feat_det_in_min_cells
-  selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
+  filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
+  selected_feat_ids = names(filter_index_feats[filter_index_feats == TRUE])
+
+  #selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
 
   ## filter cells
-  filter_index_cells = colSums_flex(expr_values[][filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
-  selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
+  filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
+  selected_cell_ids = names(filter_index_cells[filter_index_cells == TRUE])
+
+  #selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
 
   print(selected_cell_ids[1:4])
@@ -2565,9 +2572,11 @@ adjustGiottoMatrix <- function(gobject,
                                     feat_type = feat_type)
 
   # metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
