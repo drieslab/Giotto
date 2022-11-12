@@ -2574,9 +2574,11 @@ adjustGiottoMatrix <- function(gobject,
                                     feat_type = feat_type)
 
   # metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
