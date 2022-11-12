@@ -86,6 +86,12 @@ libNorm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
+  if(any(libsizes == 0)) {
+    warning('Total library size or counts for individual spat units are 0 \n,
+            This will likely result in normalization problems \n,
+            filter (filterGiotto) or impute (imputeGiotto) spatial units \n')
+  }
+
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
 
 }
@@ -2065,12 +2071,16 @@ filterGiotto = function(gobject,
 
   ## filter features
   filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
-  selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
+  selected_feat_ids = names(filter_index_feats[filter_index_feats == TRUE])
+
+  #selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
 
   ## filter cells
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
-  selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
+  selected_cell_ids = names(filter_index_cells[filter_index_cells == TRUE])
+
+  #selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
 
   print(selected_cell_ids[1:4])
