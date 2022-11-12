@@ -929,7 +929,7 @@ binSpectSingle = function(gobject,
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
   if(is.null(spatial_network)) {
     stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
   }
@@ -1619,7 +1619,7 @@ silhouetteRank <- function(gobject,
   spatlocs = get_spatial_locations(gobject,
                                    spat_unit = 'cell',
                                    spat_loc_name = 'raw',
-                                   return_spatlocs_Obj = FALSE,
+                                   output = 'data.table',
                                    copy_obj = TRUE)
   spatlocs = as.matrix(spatlocs[,.(sdimx, sdimy)])
 
@@ -1743,7 +1743,7 @@ silhouetteRankTest = function(gobject,
   # spatlocs = gobject@spatial_locs[['raw']]
   spatlocs = get_spatial_locations(gobject,
                                    spat_loc_name = 'raw',
-                                   return_spatlocs_Obj = FALSE,
+                                   output = 'data.table',
                                    copy_obj = TRUE)
 
   ## save dir and log
@@ -2409,7 +2409,8 @@ detectSpatialPatterns <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
 
   # spatial grid and spatial locations
@@ -2427,7 +2428,7 @@ detectSpatialPatterns <- function(gobject,
   # spatial_locs = copy(gobject@spatial_locs[['raw']])
   spatial_locs = get_spatial_locations(gobject,
                                        spat_loc_name = 'raw',
-                                       return_spatlocs_Obj = FALSE,
+                                       output = 'data.table',
                                        copy_obj = TRUE)
 
   if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
@@ -3328,7 +3329,7 @@ detectSpatialCorFeats <- function(gobject,
     spatial_network = get_spatialNetwork(gobject = gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
 
     knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = as.matrix(expr_values),
                                                   spatial_network = spatial_network,
@@ -3979,7 +3980,7 @@ simulateOneGenePatternGiottoObject = function(gobject,
   # cell_coord = newgobject@spatial_locs[['raw']]
   cell_coord = get_spatial_locations(newgobject,
                                      spat_loc_name = 'raw',
-                                     return_spatlocs_Obj = FALSE,
+                                     output = 'data.table',
                                      copy_obj = TRUE)
   cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
 

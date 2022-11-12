@@ -42,11 +42,10 @@ spatNetwDistributionsDistance <- function(gobject,
   distance = rank_int = status = label = keep = NULL
 
   ## spatial network
-  #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
 
   ## convert to full network with rank_int column
   spatial_network = convert_to_full_spatial_network(spatial_network)
@@ -144,7 +143,7 @@ spatNetwDistributionsKneighbors = function(gobject,
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
 
   ## convert to full network with rank_int column
   spatial_network = convert_to_full_spatial_network(spatial_network)
@@ -229,11 +228,10 @@ spatNetwDistributions <- function(gobject,
   distribution = match.arg(distribution, choices = c('distance', 'k_neighbors'))
 
   ## spatial network
-  #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
@@ -1713,7 +1711,7 @@ annotateSpatialNetwork = function(gobject,
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
 
 
 

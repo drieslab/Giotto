@@ -330,18 +330,29 @@ addCellIntMetadata = function(gobject,
   selected_cells = unique(c(spatial_network_annot[unified_int == cell_interaction]$to,
                             spatial_network_annot[unified_int == cell_interaction]$from))
 
-  cell_metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
+  # cell_metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
+
   cell_type_1 = strsplit(cell_interaction, split = '--')[[1]][1]
   cell_type_2 = strsplit(cell_interaction, split = '--')[[1]][2]
 
-  cell_metadata[, c(name) := ifelse(!get(cluster_column) %in% c(cell_type_1, cell_type_2), 'other',
+  cell_metadata[][, c(name) := ifelse(!get(cluster_column) %in% c(cell_type_1, cell_type_2), 'other',
                                     ifelse(get(cluster_column) == cell_type_1 & cell_ID %in% selected_cells, paste0("select_", cell_type_1),
                                            ifelse(get(cluster_column) == cell_type_2 & cell_ID %in% selected_cells, paste0("select_", cell_type_2),
                                                   ifelse(get(cluster_column) == cell_type_1, paste0("other_", cell_type_1), paste0("other_", cell_type_2)))))]
 
   if(return_gobject == TRUE) {
 
-    gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    # gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+    gobject = set_cell_metadata(gobject,
+                                metadata = cell_metadata,
+                                verbose = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_add_cell_int_info')

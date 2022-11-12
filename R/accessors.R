@@ -307,8 +307,8 @@ set_cell_metadata = function(gobject,
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
   # 1. determine if user input was supplied
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_feat = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
 
   # 2. set spat unit/ feat type if needed
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -528,8 +528,8 @@ set_feature_metadata = function(gobject,
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
   # 1. determine if user input was supplied
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_feat = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
 
   # 2. set spat unit/ feat type if needed
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -764,9 +764,9 @@ set_expression_values = function(gobject,
   if(!inherits(gobject, 'giotto')) stop('Only Giotto objects are supported for this function.')
 
   # 1. Determine user inputs
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_feat = TRUE
-  if(is.null(match.call()$name)) nospec_name = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
   if(depth(slot(gobject, 'expression')) > 0) {
@@ -864,10 +864,9 @@ set_expression_values = function(gobject,
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
 #' @param output what object type to get the spatial locations as. Default is as
 #' a 'spatLocsObj'. Returning as 'data.table' is also possible.
-#' @param return_spatlocs_Obj return spatLocsObj (default = FALSE)
 #' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
 #' @param verbose be verbose
-#' @return data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}
+#' @return data.table with coordinates or spatLocsObj depending on \code{output}
 #' @family spatial location data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -990,8 +989,8 @@ set_spatial_locations = function(gobject,
                                  verbose = TRUE) {
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(match.call()$spat_loc_name)) nospec_name = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$spat_loc_name), yes = TRUE, no = FALSE)
 
   # 2. spatial locations
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1383,10 +1382,10 @@ set_NearestNetwork = function(gobject,
                               verbose = TRUE) {
 
   # 1. determine user input
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_feat = TRUE
-  if(is.null(match.call()$nn_network_to_use)) nospec_net = TRUE
-  if(is.null(match.call()$network_name)) nospec_name = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_net = ifelse(is.null(match.call()$nn_network_to_use), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$network_name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1723,9 +1722,9 @@ set_spatialGrid = function(gobject,
                            verbose = TRUE) {
 
   # 1. check input
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_type = TRUE
-  if(is.null(name)) nospec_name = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1749,7 +1748,7 @@ set_spatialGrid = function(gobject,
     } else {
       slot(spatial_grid, 'spat_unit') = spat_unit
     }
-    if(isTRUE(nospec_type)) {
+    if(isTRUE(nospec_feat)) {
       if(!is.na(slot(spatial_grid, 'feat_type'))) feat_type = slot(spatial_grid, 'feat_type')
       else slot(spatial_grid, 'feat_type') = feat_type
     } else {
@@ -2055,9 +2054,9 @@ set_spatial_enrichment = function(gobject,
                                   enrichm_name = 'enrichment') {
 
   # 1. Check user input
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(feat_type)) nospec_feat = TRUE
-  if(is.null(match.call()$enrichm_name)) nospec_name = TRUE
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$enrichm_name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,

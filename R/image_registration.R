@@ -508,7 +508,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     gobj = gobject_list[[gobj_i]]
     spatloc = get_spatial_locations(gobject = gobj,
                                     spat_loc_name = spatloc_unreg,
-                                    return_spatlocs_Obj = FALSE,
+                                    output = 'spatLocsObj',
                                     copy_obj = TRUE)
     # Put all spatial location data together
     spatloc_list[[gobj_i]] = spatloc
@@ -567,9 +567,9 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   reg_images <- c()
   for (i in 1:length(unreg_images)) {
     # Apply scaling
-    spatloc_list[[i]] <- scale_spatial_locations(spatloc_list[[i]], enddim/squmax)
+    spatloc_list[[i]][] <- scale_spatial_locations(spatloc_list[[i]][], enddim/squmax)
     # Apply transform to spatlocs
-    spatloc_list[[i]] <- rigid_transform_spatial_locations(spatloc_list[[i]], transfs[[i]], method = 'rvision')
+    spatloc_list[[i]][] <- rigid_transform_spatial_locations(spatloc_list[[i]][], transfs[[i]], method = 'rvision')
   }
   rm(squmax, enddim)
 
@@ -581,7 +581,9 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     unreg_locs = get_spatial_locations(gobj,
                                        spat_loc_name = spatloc_unreg,
                                        copy_obj = FALSE,
-                                       return_spatlocs_Obj = T)
+                                       output = 'spatLocsObj')
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobj = set_spatial_locations(gobj,
                                  spatlocs = unreg_locs,
                                  spat_loc_name = 'unregistered')
@@ -590,9 +592,10 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     gobj = set_spatial_locations(gobj,
                                  spatlocs = spatloc_list[[gobj_i]],
                                  spat_loc_name = spatloc_reg_name)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
-    gobject_list[[gobj_i]] <- gobj
+    gobject_list[[gobj_i]] = gobj
   }
 
   ## 7. Save transformed images
