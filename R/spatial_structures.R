@@ -910,7 +910,6 @@ create_delaunayNetwork2D <- function (gobject,
                                  spatial_network = delaunay_network_Obj)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-
     return(gobject)
   }
   else {

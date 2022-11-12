@@ -1551,8 +1551,12 @@ set_spatialNetwork = function(gobject,
                               spatial_network) {
 
   # 1. determmine if input was supplied to spat_unit and name
-  if(is.null(spat_unit)) nospec_unit = TRUE
-  if(is.null(name)) nospec_name = TRUE
+  if(is.null(spat_unit)) {
+    nospec_unit = TRUE
+  } else nospec_unit = FALSE
+  if(is.null(name)) {
+    nospec_name = TRUE
+  } else nospec_name = FALSE
 
   # 2. Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
