@@ -10,7 +10,8 @@ aggregateStacksExpression(
   feat_type,
   values = "raw",
   summarize = "sum",
-  new_spat_unit = "aggregate"
+  new_spat_unit = "aggregate",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ aggregateStacksExpression(
 \item{summarize}{method to summarize expression information}
 
 \item{new_spat_unit}{new name for aggregated spatial unit}
+
+\item{verbose}{verbosity}
 }
 \value{
 giotto object

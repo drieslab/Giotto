@@ -7,7 +7,6 @@
 create_expr_obj(
   name = "test",
   exprMat = NULL,
-  sparse = NA,
   spat_unit = "cell",
   feat_type = "rna",
   provenance = NULL,
@@ -19,8 +18,6 @@ create_expr_obj(
 
 \item{exprMat}{matrix of expression information}
 
-\item{sparse}{boolean whether exprMat is sparse}
-
 \item{spat_unit}{spatial unit of expression (e.g. 'cell')}
 
 \item{feat_type}{feature type of expression (e.g. 'rna', 'protein')}
@@ -28,6 +25,8 @@ create_expr_obj(
 \item{provenance}{origin data of expression information (if applicable)}
 
 \item{misc}{misc}
+
+\item{sparse}{boolean whether exprMat is sparse}
 }
 \description{
 Create an S4 exprObj
