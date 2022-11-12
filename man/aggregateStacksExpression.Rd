@@ -35,6 +35,7 @@ aggregate expression matrices from different z-stacks
 \seealso{
 Other aggregate stacks: 
 \code{\link{aggregateStacksLocations}()},
+\code{\link{aggregateStacksPolygons}()},
 \code{\link{aggregateStacks}()}
 }
 \concept{aggregate stacks}

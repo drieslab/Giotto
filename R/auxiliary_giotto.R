@@ -2930,6 +2930,86 @@ aggregateStacksLocations = function(gobject,
 }
 
 
+#' @title combine_polygons
+#' @keywords internal
+combine_polygons = function(polygon_list) {
+
+  polygon_DT = data.table::rbindlist(polygon_list)
+
+  polygon = dt_to_spatVector_polygon(polygon_DT)
+
+  # TODO: maybe replace step 1 and 2 with polygon_to_raster()
+  # TODO: how to define number of columns and rows?
+
+  # step 1: convert polygon into detailed raster
+  pol_xmax = terra::xmax(polygon)
+  pol_xmin = terra::xmin(polygon)
+  ncols = abs(pol_xmax-pol_xmin)
+  ncols = ncols * 2
+
+  pol_ymax = terra::ymax(polygon)
+  pol_ymin = terra::ymin(polygon)
+  nrows = abs(pol_ymax-pol_ymin)
+  nrows = nrows * 2
+
+  myraster = terra::rast(polygon, ncols = ncols, nrows = nrows)
+
+  # step 2: transfer vector data to a raster based on
+  poly_rast = terra::rasterize(x = polygon, y = myraster, field = 'poly_ID')
+
+  # create new combined polygon
+  aggr_polygon = terra::as.polygons(poly_rast)
+
+  return(aggr_polygon)
+
+}
+
+
+
+#' @title aggregateStacksPolygons
+#' @name aggregateStacksPolygons
+#' @description aggregate polygons from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygons = function(gobject,
+                                   spat_units,
+                                   new_spat_unit = 'aggregate') {
+
+
+  # aggregate spatvectors
+  polygon_list = list()
+
+  for(i in 1:length(spat_units)) {
+
+    spat_unit = spat_units[i]
+    vecDT = gobject@spatial_info[[spat_unit]]@spatVector
+    vecDT = spatVector_to_dt(vecDT)
+    vecDT = vecDT[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
+    vecDT[, 'stack' :=  i]
+    polygon_list[[spat_unit]] = vecDT
+  }
+
+  combined_polygons = combine_polygons(polygon_list = polygon_list)
+
+  gpolygon = create_giotto_polygon_object(name = new_spat_unit,
+                                          spatVector = combined_polygons,
+                                          spatVectorCentroids = NULL,
+                                          overlaps = NULL)
+
+  gobject = set_polygon_info(gobject = gobject,
+                             polygon_name = new_spat_unit,
+                             gpolygon = gpolygon,
+                             verbose = F)
+
+  return(gobject)
+
+}
+
 
 
 #' @title aggregateStacks
@@ -2970,6 +3050,10 @@ aggregateStacks = function(gobject,
                                      summarize = summarize_locations,
                                      new_spat_unit = new_spat_unit)
 
+
+  gobject = aggregateStacksPolygons(gobject = gobject,
+                                    spat_units = spat_units,
+                                    new_spat_unit = new_spat_unit)
 
   return(gobject)
 
