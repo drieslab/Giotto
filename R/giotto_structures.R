@@ -1650,15 +1650,16 @@ addSpatialCentroidLocationsLayer = function(gobject,
     spat_locs_names = list_spatial_locations_names(gobject,
                                                    spat_unit = poly_info)
     if(spat_loc_name %in% spat_locs_names) {
-      message('spatial locations for polygon information layer ', poly_info,
-          ' and name ', spat_loc_name, ' already exists and will be replaced\n')
+      wrap_msg('> spatial locations for polygon information layer "', poly_info,
+               '" and name "', spat_loc_name, '" already exists and will be replaced\n')
     }
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_locations(gobject = gobject,
                                     spat_unit = poly_info,
                                     spat_loc_name = spat_loc_name,
-                                    spatlocs = spatial_locs)
+                                    spatlocs = spatial_locs,
+                                    verbose = FALSE)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
