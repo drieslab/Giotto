@@ -8,6 +8,7 @@
 #' @param name arbitrary name for object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
 #' @param reduction_method method used to reduce dimensions
 #' @param coordinates accepts the coordinates after dimension reduction
 #' @param misc any additional information will be added to this slot
@@ -17,6 +18,7 @@
 create_dimObject = function(name = 'test',
                             spat_unit = 'cell',
                             feat_type = 'rna',
+                            reduction = 'cells',
                             reduction_method = NULL,
                             coordinates = NULL,
                             misc = NULL,
@@ -34,6 +36,7 @@ create_dimObject = function(name = 'test',
                name = name,
                feat_type = feat_type,
                spat_unit = spat_unit,
+               reduction = reduction,
                reduction_method = reduction_method,
                coordinates = coordinates,
                misc = misc)
@@ -574,6 +577,7 @@ runPCA <- function(gobject,
     dimObject = create_dimObject(name = name,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
+                                 reduction = reduction,
                                  reduction_method = 'pca',
                                  coordinates = pca_object$coords,
                                  misc = list(eigenvalues = pca_object$eigenvalues,
@@ -581,13 +585,14 @@ runPCA <- function(gobject,
                                  my_rownames = colnames(expr_values))
 
 
-    gobject = set_dimReduction(gobject = gobject,
-                               spat_unit = spat_unit,
-                               feat_type = feat_type,
-                               reduction = reduction,
-                               reduction_method = 'pca',
-                               name = name,
-                               dimObject = dimObject)
+    gobject = set_dimReduction(gobject = gobject, dimObject)
+
+                               # spat_unit = spat_unit,
+                               # feat_type = feat_type,
+                               # reduction = reduction,
+                               # reduction_method = 'pca',
+                               # name = name,
+                               # dimObject = dimObject)
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_pca')
@@ -801,6 +806,7 @@ screePlot = function(gobject,
       dimObject = create_dimObject(name = name,
                                    feat_type = feat_type,
                                    spat_unit = spat_unit,
+                                   reduction = reduction,
                                    reduction_method = 'pca',
                                    coordinates = pca_object$coords,
                                    misc = list(eigenvalues = pca_object$eigenvalues,
@@ -1397,6 +1403,7 @@ runUMAP <- function(gobject,
       dimObject = create_dimObject(name = name,
                                    feat_type = feat_type,
                                    spat_unit = spat_unit,
+                                   reduction = reduction,
                                    reduction_method = 'umap',
                                    coordinates = coordinates,
                                    misc = NULL)
@@ -1616,6 +1623,7 @@ runtSNE <- function(gobject,
       dimObject = create_dimObject(name = name,
                                    feat_type = feat_type,
                                    spat_unit = spat_unit,
+                                   reduction = reduction,
                                    reduction_method = 'tsne',
                                    coordinates = coordinates,
                                    misc = tsne_clus)
@@ -1802,6 +1810,7 @@ runGiottoHarmony = function(gobject,
   harmdimObject = create_dimObject(name = name,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
+                                   reduction = reduction,
                                    reduction_method = 'harmony',
                                    coordinates = harmony_results,
                                    misc = NULL)
