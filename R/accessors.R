@@ -405,8 +405,8 @@ set_cell_metadata = function(gobject,
   # 5. check if nesting address is already used - just feat_type for metadata
   potential_names = list_cell_metadata(gobject, spat_unit = spat_unit)[, feat_type]
   if(feat_type %in% potential_names) {
-    if(isTRUE(verbose)) message('Cell metadata for spat_unit "', spat_unit, '" and feat_type "',
-                                feat_type, '" already exists and will be replaced with new metadata.')
+    if(isTRUE(verbose)) wrap_msg('> Cell metadata for spat_unit "', spat_unit, '" and feat_type "',
+                                 feat_type, '" already exists and will be replaced with new metadata.')
   }
 
 
@@ -626,8 +626,8 @@ set_feature_metadata = function(gobject,
   # 5. check if nesting address is already used - just feat_type for metadata
   potential_names = list_feat_metadata(gobject, spat_unit = spat_unit)[, feat_type]
   if(feat_type %in% potential_names) {
-    if(isTRUE(verbose)) message('Feat metadata for spat_unit "', spat_unit, '" and feat_type "',
-                                feat_type, '" already exists and will be replaced with new metadata.')
+    if(isTRUE(verbose)) wrap_msg('> Feat metadata for spat_unit "', spat_unit, '" and feat_type "',
+                                 feat_type, '" already exists and will be replaced with new metadata.')
   }
 
   gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
@@ -842,7 +842,7 @@ set_expression_values = function(gobject,
   ## 5. check if specified name has already been used
   potential_names = list_expression_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
   if(name %in% potential_names) {
-    if(isTRUE(verbose)) message(name, ' already exist and will be replaced with new values \n')
+    if(isTRUE(verbose)) wrap_msg('> ', name, ' already exists and will be replaced with new values \n')
   }
 
   ## 6. update and return giotto object
@@ -1035,7 +1035,7 @@ set_spatial_locations = function(gobject,
   potential_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
   if(spat_loc_name %in% potential_names) {
     if(isTRUE(verbose)) {
-    message(spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
+      wrap_msg('> ', spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
     }
   }
 
@@ -1177,7 +1177,7 @@ set_dimReduction = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
   if(name %in% potential_names) {
-    if(isTRUE(verbose)) message(name, ' already exists and will be replaced with new dimension reduction object \n')
+    if(isTRUE(verbose)) wrap_msg('> ', name, ' already exists and will be replaced with new dimension reduction object \n')
   }
 
   ## TODO: 2. check input for dimension reduction object
@@ -1448,7 +1448,7 @@ set_NearestNetwork = function(gobject,
                                                 feat_type = feat_type,
                                                 nn_type = nn_network_to_use)
   if(network_name %in% potential_names) {
-    if(isTRUE(verbose)) message('"',network_name, '" already exists and will be replaced with new nearest neighbor network')
+    if(isTRUE(verbose)) wrap_msg('> "',network_name, '" already exists and will be replaced with new nearest neighbor network')
   }
 
   ## 6. update and return giotto object
@@ -1592,7 +1592,7 @@ set_spatialNetwork = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_network[[spat_unit]])
   if(name %in% potential_names) {
-    cat(name, ' already exist and will be replaced with new spatial network \n')
+    wrap_msg('> "', name, '" already exists and will be replaced with new spatial network \n')
   }
 
   ## TODO: 2. check input for spatial network
@@ -1768,7 +1768,7 @@ set_spatialGrid = function(gobject,
   ## 5. check if specified name has already been used
   potential_names = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])
   if(name %in% potential_names) {
-    cat(name, ' already exist and will be replaced with new spatial grid \n')
+    wrap_msg('> "', name, '" already exists and will be replaced with new spatial grid \n')
   }
 
   ## TODO: 2. check input for spatial grid
@@ -1877,7 +1877,7 @@ set_polygon_info = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_info)
   if(polygon_name %in% potential_names) {
-     if(verbose) message(polygon_name, ' already exists and will be replaced with new giotto polygon \n')
+     if(verbose) wrap_msg('> "', polygon_name, '" already exists and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
@@ -1957,7 +1957,7 @@ set_feature_info = function(gobject,
   ## 1. check if specified name has already been used
   potential_names = names(gobject@feat_info)
   if(feat_type %in% potential_names) {
-    if(isTRUE(verbose)) message(feat_type, ' already exists and will be replaced with new giotto polygon \n')
+    if(isTRUE(verbose)) wrap_msg('> "', feat_type, '" already exists and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
@@ -2101,7 +2101,7 @@ set_spatial_enrichment = function(gobject,
   # 5. check if specified name has already been used
   potential_names = list_spatial_enrichments_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
   if(enrichm_name %in% potential_names) {
-    cat(enrichm_name, ' already exist and will be replaced with new spatial enrichment results \n')
+    wrap_msg('> "', enrichm_name, '" already exists and will be replaced with new spatial enrichment results \n')
   }
 
   # 6. update and return giotto object
@@ -2168,7 +2168,7 @@ set_giottoImage_MG = function(gobject,
   potential_names = list_images_names(gobject = gobject, img_type = 'image')
 
   if(verbose == TRUE) {
-    if(name %in% potential_names) cat(name, ' already exists and will be replaced with new image object \n')
+    if(name %in% potential_names) wrap_msg('> "' ,name, '" already exists and will be replaced with new image object \n')
   }
 
   gobject@images[[name]] = image_object
@@ -2236,7 +2236,7 @@ set_giottoLargeImage = function(gobject,
   potential_names = list_images_names(gobject = gobject, img_type = 'largeImage')
 
   if(verbose == TRUE) {
-    if(name %in% potential_names) cat(name, 'already exists and will be replaced with new image object \n')
+    if(name %in% potential_names) wrap_msg('> "' ,name, '" already exists and will be replaced with new image object \n')
   }
 
   gobject@largeImages[[name]] = largeImage_object
