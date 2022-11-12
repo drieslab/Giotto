@@ -750,7 +750,7 @@ screePlot = function(gobject,
                              reduction = reduction,
                              reduction_method = 'pca',
                              name = name,
-                             output = 'data.table')
+                             output = 'dimObj')
 
   #gobject@dimension_reduction[[reduction]][[spat_unit]]$pca[[name]]
 
