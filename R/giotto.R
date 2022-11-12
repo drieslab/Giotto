@@ -612,15 +612,13 @@ read_expression_data = function(expr_list = NULL,
                                      cores = cores)
       # add default feat == 'rna'
       # add default region == 'cell'
-      exprObj = new('exprObj',
-                    name = data,
-                    exprMat = res_mat,
-                    sparse = sparse,
-                    spat_unit = 'cell',
-                    provenance = if(is.null(provenance)) 'cell' else provenance,
-                    feat_type = default_feat_type,
-                    misc = NULL)
-      # return_list[['cell']][[default_feat_type]][[data]] = res_mat
+      exprObj = create_expr_obj(name = data,
+                                exprMat = res_mat,
+                                spat_unit = 'cell',
+                                provenance = if(is.null(provenance)) 'cell' else provenance,
+                                feat_type = default_feat_type,
+                                misc = NULL)
+
       return_list = append(return_list, exprObj)
 
     }
@@ -638,15 +636,13 @@ read_expression_data = function(expr_list = NULL,
                                        sparse = sparse,
                                        cores = cores)
         # add default region == 'cell'
-        exprObj = new('exprObj',
-                      name = data,
-                      exprMat = res_mat,
-                      sparse = sparse,
-                      spat_unit = 'cell',
-                      provenance = if(is.null(provenance)) 'cell' else provenance,
-                      feat_type = feat,
-                      misc = NULL)
-        # return_list[['cell']][[feat]][[data]] = res_mat
+        exprObj = create_expr_obj(name = data,
+                                  exprMat = res_mat,
+                                  spat_unit = 'cell',
+                                  provenance = if(is.null(provenance)) 'cell' else provenance,
+                                  feat_type = feat,
+                                  misc = NULL)
+
         return_list = append(return_list, exprObj)
 
       }
@@ -664,15 +660,13 @@ read_expression_data = function(expr_list = NULL,
                                          sparse = sparse,
                                          cores = cores)
           # add default region == 'cell'
-          exprObj = new('exprObj',
-                        name = data,
-                        exprMat = res_mat,
-                        sparse = sparse,
-                        spat_unit = region,
-                        provenance = if(is.null(provenance)) region else provenance,
-                        feat_type = feat,
-                        misc = NULL)
-          # return_list[[region]][[feat]][[data]] = res_mat
+          exprObj = create_expr_obj(name = data,
+                                    exprMat = res_mat,
+                                    spat_unit = region,
+                                    provenance = if(is.null(provenance)) region else provenance,
+                                    feat_type = feat,
+                                    misc = NULL)
+
           return_list = append(return_list, exprObj)
 
         }
@@ -1850,8 +1844,10 @@ createGiottoObject <- function(expression,
   extra_not_installed_packages = extra_packages[!pack_index]
 
   if(any(pack_index == FALSE) == TRUE) {
-    wrap_msg("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ", extra_not_installed_packages)
-    wrap_msg(" Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
+    wrap_msg("Consider to install these (optional) packages to run all possible",
+             "Giotto commands for spatial analyses: ", extra_not_installed_packages)
+    wrap_msg("Giotto does not automatically install all these packages as they",
+             "are not absolutely required and this reduces the number of dependencies")
   }
 
 

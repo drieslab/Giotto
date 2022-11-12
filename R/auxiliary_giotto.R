@@ -87,9 +87,9 @@ libNorm_giotto = function(mymatrix, scalefactor){
   libsizes = colSums_flex(mymatrix)
 
   if(any(libsizes == 0)) {
-    warning('Total library size or counts for individual spat units are 0 \n,
-            This will likely result in normalization problems \n,
-            filter (filterGiotto) or impute (imputeGiotto) spatial units \n')
+    warning(wrap_txt('Total library size or counts for individual spat units are 0.
+                     This will likely result in normalization problems.
+                     filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
 
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
@@ -1229,8 +1229,8 @@ subsetGiotto <- function(gobject,
 
 
   # filter cell_ID and gene_ID
-  g_cell_IDs = gobject@cell_ID[[spat_unit]]
-  g_feat_IDs = gobject@feat_ID[[feat_type]]
+  g_cell_IDs = get_cell_id(gobject, spat_unit = spat_unit)
+  g_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
 
   ## filter index
   if(!is.null(cell_ids)) {
@@ -2057,13 +2057,11 @@ filterGiotto = function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
 
-  expr_obj = get_expression_values(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type,
-                                   values = values,
-                                   output = 'exprObj')
-  expr_values = slot(expr_obj, 'exprMat')
-
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values,
+                                      output = 'matrix')
 
   # approach:
   # 1. first remove genes that are not frequently detected
