@@ -86,6 +86,9 @@ libNorm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
+  # catch for libs with size of 0
+  if(any(libsizes == 0)) stop('0 total counts detected for some feature(s).\nNot allowed for library normalization and these features must first be filtered out')
+
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
 
 }
@@ -1223,8 +1226,8 @@ subsetGiotto <- function(gobject,
 
 
   # filter cell_ID and gene_ID
-  g_cell_IDs = gobject@cell_ID[[spat_unit]]
-  g_feat_IDs = gobject@feat_ID[[feat_type]]
+  g_cell_IDs = get_cell_id(gobject, spat_unit = spat_unit)
+  g_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
 
   ## filter index
   if(!is.null(cell_ids)) {
@@ -2051,25 +2054,23 @@ filterGiotto = function(gobject,
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
 
-  expr_obj = get_expression_values(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type,
-                                   values = values,
-                                   output = 'exprObj')
-  expr_values = slot(expr_obj, 'exprMat')
-
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values,
+                                      output = 'exprObj')
 
   # approach:
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes
 
   ## filter features
-  filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
+  filter_index_feats = rowSums_flex(expr_values[] >= expression_threshold) >= feat_det_in_min_cells
   selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
 
   ## filter cells
-  filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
+  filter_index_cells = colSums_flex(expr_values[][filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
 

@@ -37,10 +37,8 @@ setOldClass('data.table')
 #' Basic class for classes with expression information
 #'
 setClass('exprData',
-         representation = list(exprMat = 'ANY',
-                               sparse = 'logical'),
-         prototype = prototype(exprMat = NULL,
-                               sparse = NA))
+         representation = list(exprMat = 'ANY'),
+         prototype = prototype(exprMat = NULL))
 
 
 
@@ -504,7 +502,6 @@ check_expr_obj = function(object) {
 #' @description Framework to store aggregated expression information
 #' @slot name name of exprObj
 #' @slot exprMat matrix of expression information
-#' @slot sparse boolean whether exprMat is sparse
 #' @slot spat_unit spatial unit of expression (e.g. 'cell')
 #' @slot feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of expression information (if applicable)
@@ -530,13 +527,6 @@ setMethod(
 
     # Print if data is sparse
     cat("An object of class",  class(object), "\n\n")
-    if(!is.null(slot(object, 'sparse'))) {
-      if(isTRUE(slot(object, 'sparse'))) {
-        cat('Contains sparse matrix with aggregated expression information\n')
-      } else if(isFALSE(slot(object, 'sparse'))) {
-        cat('Contains dense matrix with aggregated expression information\n')
-      }
-    }
 
     # print spat/feat and provenance info
     cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "', slot(object, 'feat_type'),'" \n'))
@@ -1513,7 +1503,6 @@ setMethod(
 #' @keywords internal
 create_expr_obj = function(name = 'test',
                            exprMat = NULL,
-                           sparse = NA,
                            spat_unit = 'cell',
                            feat_type = 'rna',
                            provenance = NULL,
@@ -1524,7 +1513,6 @@ create_expr_obj = function(name = 'test',
   return(new('exprObj',
              name = name,
              exprMat = exprMat,
-             sparse = sparse,
              spat_unit = spat_unit,
              feat_type = feat_type,
              provenance = provenance,

@@ -771,12 +771,12 @@ dt_to_spatVector_polygon = function(dt,
     }
 
 
-    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = F]),
-                          type = 'polygons', atts = unique(dt[,other_values, with = F]))
+    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = FALSE]),
+                          type = 'polygons', atts = unique(dt[,other_values, with = FALSE]))
 
   } else {
 
-    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = F]),
+    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = FALSE]),
                           type = 'polygons', atts = NULL)
 
   }
