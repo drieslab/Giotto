@@ -321,14 +321,23 @@ calculateHVF <- function(gobject,
   if(return_gobject == TRUE) {
 
     # add HVG metadata to feat_metadata
-    feat_metadata = gobject@feat_metadata[[spat_unit]][[feat_type]]
+    feat_metadata = get_feature_metadata(gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type,
+                                         output = 'featMetaObj',
+                                         copy_obj = TRUE)
 
-    column_names_feat_metadata = colnames(feat_metadata)
+    column_names_feat_metadata = colnames(feat_metadata[])
 
     if(HVFname %in% column_names_feat_metadata) {
       cat('\n ', HVFname, ' has already been used, will be overwritten \n')
-      feat_metadata[, eval(HVFname) := NULL]
-      gobject@feat_metadata[[spat_unit]][[feat_type]] = feat_metadata
+      feat_metadata[][, eval(HVFname) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feature_metadata(gobject,
+                                     metadata = feat_metadata,
+                                     verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     if(method == 'var_p_resid') {
