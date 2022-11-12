@@ -3012,6 +3012,50 @@ aggregateStacksPolygons = function(gobject,
 
 
 
+#' @title aggregateStacksPolygonOverlaps
+#' @name aggregateStacksPolygonOverlaps
+#' @description aggregate polygons overlap information from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param feat_type feature type used for overlap calculations
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygonOverlaps = function(gobject,
+                                          spat_units,
+                                          feat_type,
+                                          new_spat_unit = 'aggregate') {
+
+  # aggregate spatvectors
+  polygon_list = list()
+
+  for(i in 1:length(spat_units)) {
+    spat_unit = spat_units[i]
+    vecDT = gobject@spatial_info[[spat_unit]]@overlaps[[feat_type]]
+
+    if(!is.null(vecDT)) {
+      vecDT = spatVector_to_dt(vecDT)
+      vecDT[, 'stack' :=  i]
+      polygon_list[[spat_unit]] = vecDT
+    }
+
+  }
+
+  if(length(polygon_list) == 0) {
+    wrap_msg('No feature overlaps found for stack aggregation \n')
+  } else {
+    polygon_DT = data.table::rbindlist(polygon_list)
+    polygon = dt_to_spatVector_polygon(dt = polygon_DT,
+                                       include_values = TRUE)
+    gobject@spatial_info[[new_spat_unit]]@overlaps[[feat_type]] = polygon
+  }
+
+  return(gobject)
+
+}
+
 #' @title aggregateStacks
 #' @name aggregateStacks
 #' @description aggregate expression matrices from different z-stacks
@@ -3044,16 +3088,28 @@ aggregateStacks = function(gobject,
                                       new_spat_unit = new_spat_unit)
 
 
-  gobject = aggregateStacksLocations(gobject = gobject,
-                                     spat_units = spat_units,
-                                     values = values,
-                                     summarize = summarize_locations,
-                                     new_spat_unit = new_spat_unit)
+  # gobject = aggregateStacksLocations(gobject = gobject,
+  #                                    spat_units = spat_units,
+  #                                    values = values,
+  #                                    summarize = summarize_locations,
+  #                                    new_spat_unit = new_spat_unit)
 
 
   gobject = aggregateStacksPolygons(gobject = gobject,
                                     spat_units = spat_units,
                                     new_spat_unit = new_spat_unit)
+
+  gobject = addSpatialCentroidLocations(gobject = gobject,
+                                        feat_type = feat_type,
+                                        poly_info = new_spat_unit,
+                                        spat_loc_name = 'raw',
+                                        return_gobject = T)
+
+  gobject = aggregateStacksPolygonOverlaps(gobject,
+                                           spat_units = spat_units,
+                                           feat_type = feat_type,
+                                           new_spat_unit = new_spat_unit)
+
 
   return(gobject)
 

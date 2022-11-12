@@ -37,3 +37,36 @@ installed it will be automatically detected when you run the Giotto toolbox. If 
 your own python path then you can set the python_path in the \code{\link{createGiottoInstructions}}
 and provide the instructions to the \code{\link{createGiottoObject}} function.
 }
+\examples{
+\dontrun{
+
+  # this command will install r-miniconda
+  # and a giotto environment with all necessary python modules
+  installGiottoEnvironment()
+
+By default, Python v3.10 will be used with the following python modules
+for Giotto Suite implementations:
+   - pandas==1.4.0
+   - networkx==2.7
+   - python-igraph==0.9.10
+   - leidenalg==0.8.9
+   - python-louvain==0.16
+   - python.app==2 # macOS only
+   - scikit-learn==1.1.0
+
+ The giotto environment can be custom installed by changing the
+ python_version parameter and module versions in the
+ packages_to_install parameter:
+
+ For example this giotto environment is known to work, and was the
+ default environment status for past releases of Giotto.
+ Python  v3.6
+  - pandas==1.1.5
+  - networkx==2.6.3
+  - python-igraph==0.9.6
+  - leidenalg==0.8.7
+  - python-louvain==0.15
+  - python.app==2 # macOS only
+  - scikit-learn==0.24.2
+  }
+}

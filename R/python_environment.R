@@ -252,7 +252,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'    - python-igraph==0.9.10
 #'    - leidenalg==0.8.9
 #'    - python-louvain==0.16
-#'    - python.app==2 [mac OSX only]
+#'    - python.app==2 # macOS only
 #'    - scikit-learn==1.1.0
 #'
 #'  The giotto environment can be custom installed by changing the
@@ -267,8 +267,9 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   - python-igraph==0.9.6
 #'   - leidenalg==0.8.7
 #'   - python-louvain==0.15
-#'   - python.app==2 [mac OSX only]
+#'   - python.app==2 # macOS only
 #'   - scikit-learn==0.24.2
+#'   }
 installGiottoEnvironment =  function(packages_to_install = c('pandas==1.4.0',
                                                              'networkx==2.7',
                                                              'python-igraph==0.9.10',

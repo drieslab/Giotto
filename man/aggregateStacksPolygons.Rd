@@ -23,6 +23,7 @@ aggregate polygons from different z-stacks
 Other aggregate stacks: 
 \code{\link{aggregateStacksExpression}()},
 \code{\link{aggregateStacksLocations}()},
+\code{\link{aggregateStacksPolygonOverlaps}()},
 \code{\link{aggregateStacks}()}
 }
 \concept{aggregate stacks}
