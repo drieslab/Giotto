@@ -7,7 +7,8 @@
 plotCPF(
   gobject,
   icfObject,
-  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap", "dotplot"),
+  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap",
+    "dotplot"),
   min_cells = 5,
   min_cells_expr = 1,
   min_int_cells = 3,
