@@ -2802,6 +2802,7 @@ combine_matrices = function(mat_list,
 #' @param values values to use
 #' @param summarize method to summarize expression information
 #' @param new_spat_unit new name for aggregated spatial unit
+#' @param verbose verbosity
 #' @return giotto object
 #' @family aggregate stacks
 #' @export
@@ -2811,7 +2812,8 @@ aggregateStacksExpression = function(gobject,
                                      feat_type,
                                      values = 'raw',
                                      summarize = 'sum',
-                                     new_spat_unit = 'aggregate') {
+                                     new_spat_unit = 'aggregate',
+                                     verbose = TRUE) {
 
   # aggregate matrices
   matrix_list = list()
@@ -2848,7 +2850,7 @@ aggregateStacksExpression = function(gobject,
                                       feat_type = feat_type,
                                       provenance = spat_units)
 
-  gobject = set_cell_metadata(gobject = gobject, cell_meta_S4)
+  gobject = set_cell_metadata(gobject = gobject, cell_meta_S4, verbose = verbose)
 
   # set new feat metadata
   feat_meta_S4 = create_feat_meta_obj(metaDT = data.table::data.table('feat_ID' = rownames(combined_matrix)),
@@ -2856,7 +2858,7 @@ aggregateStacksExpression = function(gobject,
                                       feat_type = feat_type,
                                       provenance = spat_units)
 
-  gobject = set_feature_metadata(gobject = gobject, feat_meta_S4)
+  gobject = set_feature_metadata(gobject = gobject, feat_meta_S4, verbose = verbose)
 
   return(gobject)
 

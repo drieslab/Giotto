@@ -25,6 +25,8 @@ create_expr_obj(
 \item{provenance}{origin data of expression information (if applicable)}
 
 \item{misc}{misc}
+
+\item{sparse}{boolean whether exprMat is sparse}
 }
 \description{
 Create an S4 exprObj

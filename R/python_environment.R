@@ -269,7 +269,6 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   - python-louvain==0.15
 #'   - python.app==2 # macOS only
 #'   - scikit-learn==0.24.2
-#'
 installGiottoEnvironment =  function(packages_to_install = c('pandas==1.5.1',
                                                              'networkx==2.8.8',
                                                              'python-igraph==0.10.2',

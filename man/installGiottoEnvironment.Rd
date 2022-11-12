@@ -68,5 +68,4 @@ for Giotto Suite implementations:
   - python-louvain==0.15
   - python.app==2 # macOS only
   - scikit-learn==0.24.2
-
 }
