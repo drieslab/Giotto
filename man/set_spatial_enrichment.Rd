@@ -9,7 +9,8 @@ set_spatial_enrichment(
   spatenrichment,
   spat_unit = NULL,
   feat_type = NULL,
-  enrichm_name = "enrichment"
+  enrichm_name = "enrichment",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ set_spatial_enrichment(
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

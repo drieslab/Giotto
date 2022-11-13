@@ -231,13 +231,15 @@ create_average_DT = function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
-
+                                    values = values,
+                                    output = 'matrix')
 
   # metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
   myrownames = rownames(expr_data)
 
   savelist = list()
@@ -287,15 +289,18 @@ create_average_detection_DT <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
+                                    values = values,
+                                    output = 'matrix')
 
   # metadata
-  cell_metadata <- pDataDT(gobject,
-                           feat_type = feat_type,
-                           spat_unit = spat_unit)
-  myrownames <- rownames(expr_data)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
+  myrownames = rownames(expr_data)
 
-  savelist <- list()
+  savelist = list()
   for(group in unique(cell_metadata[[meta_data_name]])) {
 
     name = paste0('cluster_', group)
@@ -764,7 +769,9 @@ subset_spatial_network = function(gobject,
 
       # Set the spatialNetworkObj back into the gobject
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatialNetwork(gobject = gobject, spatial_network = spatNetObj)
+      gobject = set_spatialNetwork(gobject = gobject,
+                                   spatial_network = spatNetObj,
+                                   verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
@@ -803,7 +810,7 @@ subset_dimension_reduction = function(gobject,
       dimObj[] = dimObj[][rownames(dimObj[]) %in% cell_ids,]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj)
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -848,7 +855,7 @@ subset_nearest_network = function(gobject,
       nnObj[] = igraph::subgraph(graph = nnObj[], vids = cell_ids)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -949,7 +956,7 @@ subset_spatial_enrichment = function(gobject,
       spatEnrObj[] = spatEnrObj[][get('cell_ID') %in% cell_ids]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj)
+      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
