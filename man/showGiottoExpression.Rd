@@ -4,14 +4,10 @@
 \alias{showGiottoExpression}
 \title{showGiottoExpression}
 \usage{
-showGiottoExpression(gobject, nrows = 4, ncols = 4)
+showGiottoExpression(gobject)
 }
 \arguments{
 \item{gobject}{giotto object}
-
-\item{nrows}{number of rows to print for each matrix}
-
-\item{ncols}{number of columns to print for each matrix}
 }
 \value{
 prints the name and small subset of available matrices

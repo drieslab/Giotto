@@ -526,16 +526,27 @@ setMethod(
   f = "show", signature('exprObj'), function(object) {
 
     # Print if data is sparse
-    cat("An object of class",  class(object), "\n\n")
+    cat("An object of class",  class(object), "\n")
 
     # print spat/feat and provenance info
     cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "', slot(object, 'feat_type'),'" \n'))
     if(!is.null(slot(object, 'provenance'))) cat('  Provenance: ', unlist(slot(object, 'provenance')),'\n')
 
+    cat('\ncontains:\n')
     # preview matrix
-    print(slot(object, 'exprMat'))
-
-    cat('\n')
+    print_cap = capture_output(Matrix::printSpMatrix2(x = slot(object, 'exprMat'),
+                                                      zero.print = ".",
+                                                      col.names = FALSE,
+                                                      note.dropping.colnames = FALSE,
+                                                      suppRows = TRUE,
+                                                      suppCols = TRUE,
+                                                      width = 40,
+                                                      maxp = 80))
+    print_cap = gsub('\n\n ..(.*?)..\n', replacement = '\n\n', x = print_cap)
+    print_cap = gsub('\n ..............................\n', replacement = '\n', x = print_cap)
+    writeLines(gsub(pattern = "in show(.*?))'", replacement = '', x = print_cap))
+    cat('\n First four colnames:')
+    cat('\n', wrap_txt(head(colnames(slot(object, 'exprMat')), 4), strWidth = 40), '\n')
 
   })
 
