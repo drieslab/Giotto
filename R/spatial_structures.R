@@ -1710,10 +1710,10 @@ annotateSpatialNetwork = function(gobject,
   if(!spatial_network_name %in% list_spatial_networks_names(gobject, spat_unit)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
-  spatial_network = get_spatialNetwork(gobject,
+  spatial_network = get_spatialNetwork(gobject = gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
 
 
 
@@ -1738,9 +1738,11 @@ annotateSpatialNetwork = function(gobject,
 
 
   # cell metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n the cluster column does not exist in pDataDT(gobject) \n')
   }

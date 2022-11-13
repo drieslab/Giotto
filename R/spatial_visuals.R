@@ -2866,8 +2866,6 @@ spatPlot2D_single = function(gobject,
   }
 
 
-  print('ok1')
-
   ## get cell metadata
 
   if(is.null(spat_loc_name)) {
@@ -2896,8 +2894,6 @@ spatPlot2D_single = function(gobject,
   }
 
 
-  print('ok2')
-
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
     cat('You have selected both individual cell IDs and a group of cells \n')
@@ -2923,8 +2919,6 @@ spatPlot2D_single = function(gobject,
   }
 
 
-  print('ok3')
-
   # update cell_color_code
   # only keep names from selected groups
   if(!is.null(select_cell_groups) & !is.null(cell_color_code)) {
@@ -2946,8 +2940,6 @@ spatPlot2D_single = function(gobject,
     print(cell_locations_metadata_other[1:5,])
   }
 
-
-  print('ok4')
 
 
   pl = ggplot2::ggplot()
@@ -4258,7 +4250,8 @@ spatFeatPlot2D_single <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep feats that are in the dataset
   selected_feats = feats
@@ -4291,16 +4284,18 @@ spatFeatPlot2D_single <- function(gobject,
     }
   }
 
-  cell_locations  = get_spatial_locations(gobject,
+  cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table',
+                                          copy_obj = TRUE)
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = get_spatialNetwork(gobject,
+    spatial_network = get_spatialNetwork(gobject = gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }

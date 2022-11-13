@@ -2519,7 +2519,8 @@ showGiottoSpatEnrichments = function(gobject,
       for(spatenrichname in available_data[spat_unit == spatial_unit][feat_type == feature_type][['name']]) {
 
         cat('----> Name ', spatenrichname, ': \n\n')
-        print(gobject@spatial_enrichment[[spatial_unit]][[feature_type]][[spatenrichname]][1:nrows,])
+
+        print(gobject@spatial_enrichment[[spatial_unit]][[feature_type]][[spatenrichname]][][1:nrows,])
 
       }
 
