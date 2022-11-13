@@ -922,11 +922,12 @@ binSpectSingle = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
 
   ## 2. spatial network
-  spatial_network = get_spatialNetwork(gobject,
+  spatial_network = get_spatialNetwork(gobject = gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
                                        output = 'networkDT')
@@ -3284,7 +3285,8 @@ detectSpatialCorFeats <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   if(!is.null(subset_feats)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_feats,]
@@ -3295,7 +3297,9 @@ detectSpatialCorFeats <- function(gobject,
   # get spatial locations
   spatial_locs = get_spatial_locations(gobject,
                                        spat_unit = spat_unit,
-                                       spat_loc_name = spat_loc_name)
+                                       spat_loc_name = spat_loc_name,
+                                       output = 'data.table',
+                                       copy_obj = TRUE)
 
   ## spatial averaging or smoothing
   if(method == 'grid') {
