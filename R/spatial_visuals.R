@@ -5042,7 +5042,8 @@ dimFeatPlot2D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep feats that are in the dataset
   selected_feats = feats
@@ -5079,9 +5080,11 @@ dimFeatPlot2D <- function(gobject,
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
-  cell_metadata = pDataDT(gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
@@ -5098,7 +5101,6 @@ dimFeatPlot2D <- function(gobject,
                                              nn_network_to_use = nn_network_to_use,
                                              network_name = network_name,
                                              output = 'igraph')
-    # gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
 
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
@@ -8812,7 +8814,8 @@ spatGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -9178,7 +9181,8 @@ dimGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -9570,7 +9574,8 @@ spatDimGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
