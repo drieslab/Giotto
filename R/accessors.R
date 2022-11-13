@@ -1540,6 +1540,7 @@ select_spatialNetwork = function(...) {
 #' @inheritParams data_access
 #' @param name name of spatial network
 #' @param spatial_network spatial network
+#' @param verbose be verbose
 #' @return giotto object
 #' @family spatial network data accessor functions
 #' @family functions to set data in giotto object
@@ -1547,7 +1548,8 @@ select_spatialNetwork = function(...) {
 set_spatialNetwork = function(gobject,
                               spat_unit = NULL,
                               name = NULL,
-                              spatial_network) {
+                              spatial_network,
+                              verbose = TRUE) {
 
   # 1. determmine if input was supplied to spat_unit and name
   if(is.null(spat_unit)) {
@@ -1590,9 +1592,11 @@ set_spatialNetwork = function(gobject,
   }
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_network[[spat_unit]])
-  if(name %in% potential_names) {
-    wrap_msg('> "', name, '" already exists and will be replaced with new spatial network \n')
+  if(isTRUE(verbose)) {
+    potential_names = names(gobject@spatial_network[[spat_unit]])
+    if(name %in% potential_names) {
+      wrap_msg('> "', name, '" already exists and will be replaced with new spatial network \n')
+    }
   }
 
   ## TODO: 2. check input for spatial network
@@ -2043,6 +2047,7 @@ get_spatial_enrichment = function(gobject,
 #' @inheritParams data_access
 #' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @param spatenrichment spatial enrichment results
+#' @param verbose be verbose
 #' @return giotto object
 #' @family spatial enrichment data accessor functions
 #' @family functions to set data in giotto object
@@ -2051,7 +2056,8 @@ set_spatial_enrichment = function(gobject,
                                   spatenrichment,
                                   spat_unit = NULL,
                                   feat_type = NULL,
-                                  enrichm_name = 'enrichment') {
+                                  enrichm_name = 'enrichment',
+                                  verbose = TRUE) {
 
   # 1. Check user input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -2099,9 +2105,11 @@ set_spatial_enrichment = function(gobject,
   }
 
   # 5. check if specified name has already been used
-  potential_names = list_spatial_enrichments_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
-  if(enrichm_name %in% potential_names) {
-    wrap_msg('> "', enrichm_name, '" already exists and will be replaced with new spatial enrichment results \n')
+  if(isTRUE(verbose)) {
+    potential_names = list_spatial_enrichments_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
+    if(enrichm_name %in% potential_names) {
+      wrap_msg('> "', enrichm_name, '" already exists and will be replaced with new spatial enrichment results \n')
+    }
   }
 
   # 6. update and return giotto object

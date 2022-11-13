@@ -764,7 +764,9 @@ subset_spatial_network = function(gobject,
 
       # Set the spatialNetworkObj back into the gobject
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatialNetwork(gobject = gobject, spatial_network = spatNetObj)
+      gobject = set_spatialNetwork(gobject = gobject,
+                                   spatial_network = spatNetObj,
+                                   verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
@@ -803,7 +805,7 @@ subset_dimension_reduction = function(gobject,
       dimObj[] = dimObj[][rownames(dimObj[]) %in% cell_ids,]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj)
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -848,7 +850,7 @@ subset_nearest_network = function(gobject,
       nnObj[] = igraph::subgraph(graph = nnObj[], vids = cell_ids)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -949,7 +951,7 @@ subset_spatial_enrichment = function(gobject,
       spatEnrObj[] = spatEnrObj[][get('cell_ID') %in% cell_ids]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj)
+      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
