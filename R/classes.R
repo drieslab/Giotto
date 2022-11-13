@@ -525,7 +525,6 @@ setClass('exprObj',
 setMethod(
   f = "show", signature('exprObj'), function(object) {
 
-    # Print if data is sparse
     cat("An object of class",  class(object), "\n")
 
     # print spat/feat and provenance info
@@ -534,19 +533,27 @@ setMethod(
 
     cat('\ncontains:\n')
     # preview matrix
-    print_cap = capture_output(Matrix::printSpMatrix2(x = slot(object, 'exprMat'),
-                                                      zero.print = ".",
-                                                      col.names = FALSE,
-                                                      note.dropping.colnames = FALSE,
-                                                      suppRows = TRUE,
-                                                      suppCols = TRUE,
-                                                      width = 40,
-                                                      maxp = 80))
-    print_cap = gsub('\n\n ..(.*?)..\n', replacement = '\n\n', x = print_cap)
-    print_cap = gsub('\n ..............................\n', replacement = '\n', x = print_cap)
-    writeLines(gsub(pattern = "in show(.*?))'", replacement = '', x = print_cap))
-    cat('\n First four colnames:')
-    cat('\n', wrap_txt(head(colnames(slot(object, 'exprMat')), 4), strWidth = 40), '\n')
+
+    # * Matrix sparseMatrix specific *
+    if(inherits(slot(object, 'exprMat'), 'sparseMatrix')) {
+      print_cap = capture_output(Matrix::printSpMatrix2(x = slot(object, 'exprMat'),
+                                                        zero.print = ".",
+                                                        col.names = FALSE,
+                                                        note.dropping.colnames = FALSE,
+                                                        suppRows = TRUE,
+                                                        suppCols = TRUE,
+                                                        width = 40,
+                                                        maxp = 80))
+      print_cap = gsub('\n\n ..(.*?)..\n', replacement = '\n\n', x = print_cap)
+      print_cap = gsub('\n ..............................\n', replacement = '\n', x = print_cap)
+      writeLines(gsub(pattern = "in show(.*?))'", replacement = '', x = print_cap))
+      cat('\n First four colnames:')
+      cat('\n', wrap_txt(head(colnames(slot(object, 'exprMat')), 4), strWidth = 40), '\n')
+    } else {
+      # * other matrices *
+      print(slot(object, 'exprMat'))
+      cat('\n')
+    }
 
   })
 

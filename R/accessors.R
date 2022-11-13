@@ -2334,33 +2334,89 @@ set_giottoImage = function(gobject = NULL,
 #' @name showGiottoExpression
 #' @description shows the available matrices
 #' @param gobject giotto object
+#' @param nrows number of rows to print for each matrix (ignored for sparse matrices)
+#' @param ncols number of columns to print for each matrix (ignored for sparse matrices)
 #' @return prints the name and small subset of available matrices
 #' @family functions to show data in giotto object
 #' @keywords show
 #' @export
-showGiottoExpression = function(gobject) {
+showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
+  # Define for data.table
+  name = NULL
+
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. get availability matrix
   available_data = list_expression(gobject = gobject)
-  if(is.null(available_data)) cat('No expression data available \n')
+  if(is.null(available_data)) {
+    cat('No expression data available \n')
+  } else {
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+    # 3.1 set up object printouts
+    objPrints = objRows = objCols = list()
+    for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial unit: ', spatial_unit, ' \n\n')
+      # get object
+      dataObj = get_expression_values(gobject = gobject,
+                                      values = available_data$name[[obj_i]],
+                                      spat_unit = available_data$spat_unit[[obj_i]],
+                                      feat_type = available_data$feat_type[[obj_i]],
+                                      output = 'exprObj')
 
-    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
-
-      cat('--> Feature: ', feature_type, ' \n\n')
-
-      for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
-
-        cat('----> Name: ', mat_i, 'matrix: \n')
-
-        show(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
+      # collect object prints
+      if(inherits(dataObj[], 'sparseMatrix')) {
+        objPrints[[obj_i]] = capture.output(show(dataObj))
+      } else if(inherits(dataObj[], c('denseMatrix', 'matrix', 'data.frame'))) {
+        objPrints[[obj_i]] = capture.output(abb_mat(dataObj, nrows, ncols))
+      } else {
+        # directly print slot (catch)
+        objPrints[[obj_i]] = capture.output(show(slot(dataObj, 'exprMat')))
       }
+
     }
+
+    # object printblock edits
+    objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # add indent
+    objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # linearize print
+
+    # append to availability table
+    available_data$values = unlist(objPrints)
+
+    # 3.2 setup general prints
+    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+    available_data$name = paste0('Expression data "', available_data$name, '" values:')
+
+    # 4. print information
+    print_leaf(level_index = 1,
+               availableDT = available_data,
+               inherit_last = TRUE,
+               indent = '')
+
   }
+
+
+  # for(spatial_unit in unique(available_data$spat_unit)) {
+  #
+  #   cat('Spatial unit: ', spatial_unit, ' \n\n')
+  #
+  #   for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+  #
+  #     cat('--> Feature: ', feature_type, ' \n\n')
+  #
+  #     for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
+  #
+  #       cat('----> Name: ', mat_i, 'matrix: \n')
+  #
+  #       show(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
+  #     }
+  #   }
+  # }
 }
 
 

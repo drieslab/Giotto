@@ -408,6 +408,34 @@ box_chars <- function() {
 }
 
 
+#' @title Print abbreviated matrix
+#' @name abb_mat
+#' @description print abbreviated matrix. Works for Matrix pkg denseMatrix,
+#' matrix, data.frame and classes that inherit them.
+#' @keywords internal
+abb_mat = function(exprObj, nrows, ncols) {
+  mat = as.matrix(exprObj[])
+  four_names = head(colnames(mat), 4)
+  mat_cols = ncol(mat)
+  mat_rows = nrow(mat)
+
+  # suppress colnames
+  mat = mat[1:if(nrows <= mat_rows) nrows else mat_rows,
+            1:if(ncols <= mat_cols) ncols else mat_cols]
+  colnames(mat) = NULL
+
+  # prints
+  cat('An object of class', class(exprObj), '\n')
+  cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
+  cat('  Provenance:', exprObj@provenance, '\n\ncontains:\n')
+  cat(paste0(mat_rows, ' x ', mat_cols, ' dense matrix of class "', class(exprObj[]), '"\n\n'))
+  print(mat)
+  cat('\n First four colnames:')
+  cat('\n', wrap_txt(four_names, strWidth = 40), '\n')
+}
+
+
+
 # Print Formatting ####
 
 #' @title Wrap message
