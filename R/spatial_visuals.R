@@ -5072,7 +5072,7 @@ dimFeatPlot2D <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
 
   #dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
@@ -6526,7 +6526,7 @@ dimPlot_2D_plotly <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
 
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
@@ -6576,7 +6576,7 @@ dimPlot_2D_plotly <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -6793,7 +6793,7 @@ dimPlot_3D_plotly <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -6839,7 +6839,7 @@ dimPlot_3D_plotly <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
 
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
     if(!is.null(eigenvalues)) {
@@ -7309,7 +7309,8 @@ spatPlot_2D_plotly = function(gobject,
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
 
   ## extract spatial network
@@ -7317,7 +7318,7 @@ spatPlot_2D_plotly = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -7552,14 +7553,15 @@ spatPlot_3D_plotly = function(gobject,
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -8045,7 +8047,7 @@ spatDimPlot3D <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -8071,7 +8073,7 @@ spatDimPlot3D <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -8121,7 +8123,7 @@ spatDimPlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -8831,7 +8833,8 @@ spatGenePlot3D <- function(gobject,
   ## extract cell locations
   cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
 
   ## extract spatial network
@@ -8839,7 +8842,7 @@ spatGenePlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -9202,7 +9205,7 @@ dimGenePlot3D <- function(gobject,
                                 reduction = 'cells',
                                 reduction_method = dim_reduction_to_use,
                                 name = dim_reduction_name,
-                                return_dimObj = FALSE)
+                                output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -9581,7 +9584,7 @@ spatDimGenePlot3D <- function(gobject,
                                 reduction = 'cells',
                                 reduction_method = dim_reduction_to_use,
                                 name = dim_reduction_name,
-                                return_dimObj = FALSE)
+                                output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -9630,7 +9633,7 @@ spatDimGenePlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }

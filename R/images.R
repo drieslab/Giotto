@@ -122,7 +122,7 @@ createGiottoImage = function(gobject = NULL,
                                      spat_unit = spat_unit,
                                      spat_loc_name = spat_loc_name,
                                      copy_obj = FALSE,
-                                     return_spatlocs_Obj = FALSE)
+                                     output = 'data.table')
 
 
     # Find g_image minmax (spatial) from spatial_locs in gobject

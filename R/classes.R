@@ -1495,7 +1495,6 @@ setMethod(
 #' @description Create an S4 exprObj
 #' @param name name of exprObj
 #' @param exprMat matrix of expression information
-#' @param sparse boolean whether exprMat is sparse
 #' @param spat_unit spatial unit of expression (e.g. 'cell')
 #' @param feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of expression information (if applicable)

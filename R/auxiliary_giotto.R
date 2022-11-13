@@ -2840,9 +2840,11 @@ aggregateStacksExpression = function(gobject,
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   # set new cell IDs
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_cell_id(gobject = gobject,
                         spat_unit = new_spat_unit,
                         cell_IDs = colnames(combined_matrix))
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   # set new cell metadata
   cell_meta_S4 = create_cell_meta_obj(metaDT = data.table::data.table('cell_ID' = colnames(combined_matrix)),
@@ -2850,7 +2852,9 @@ aggregateStacksExpression = function(gobject,
                                       feat_type = feat_type,
                                       provenance = spat_units)
 
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_cell_metadata(gobject = gobject, cell_meta_S4, verbose = verbose)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   # set new feat metadata
   feat_meta_S4 = create_feat_meta_obj(metaDT = data.table::data.table('feat_ID' = rownames(combined_matrix)),
@@ -2858,7 +2862,9 @@ aggregateStacksExpression = function(gobject,
                                       feat_type = feat_type,
                                       provenance = spat_units)
 
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_feature_metadata(gobject = gobject, feat_meta_S4, verbose = verbose)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
@@ -3103,7 +3109,8 @@ aggregateStacks = function(gobject,
                                         feat_type = feat_type,
                                         poly_info = new_spat_unit,
                                         spat_loc_name = 'raw',
-                                        return_gobject = T)
+                                        init_metadata = FALSE, # already done in aggregate expression
+                                        return_gobject = TRUE)
 
   gobject = aggregateStacksPolygonOverlaps(gobject,
                                            spat_units = spat_units,
@@ -4459,7 +4466,7 @@ findNetworkNeighbors = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     stop('You need to select a spatial network')
   }

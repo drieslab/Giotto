@@ -31,8 +31,8 @@ anndataToGiotto = function(anndata_path = NULL,
             install in the environment or python path with:
 
             'pip install scanpy==1.9.0'
-            
-            Alternatively, install in the active python 
+
+            Alternatively, install in the active python
             environment with reticulate:
 
             reticulate::py_install(packages = 'scanpy==1.9.0',
@@ -40,7 +40,7 @@ anndataToGiotto = function(anndata_path = NULL,
             \n
             ")
   } else if (module_test == FALSE && genv_in_use) {
-    cat ("Python module scanpy is required for conversion. 
+    cat ("Python module scanpy is required for conversion.
           Installing scanpy now in the Giotto Miniconda Environment.\n")
     conda_path = reticulate::miniconda_path()
     py_ver = reticulate::py_config()$version_string
@@ -88,19 +88,19 @@ anndataToGiotto = function(anndata_path = NULL,
   # Metadata ready
 
   ### Create Minimal giottoObject
-  gobject <- createGiottoObject(expression = X, 
+  gobject <- createGiottoObject(expression = X,
                                 spatial_locs = sp)
 
   ### Add metadata
-  gobject <- set_CellMetadata(gobject, 
+  gobject <- set_CellMetadata(gobject,
                               meta_dt = cm)
   gobject <- set_FeatMetadata(gobject,
                               meta_dt = fm)
 
-  spat_unit = set_default_spat_unit(gobject, 
+  spat_unit = set_default_spat_unit(gobject,
                                     spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject, 
-                                    feat_type = feat_type, 
+  feat_type = set_default_feat_type(gobject,
+                                    feat_type = feat_type,
                                     spat_unit = spat_unit)
 
   ### Set up PCA
@@ -263,14 +263,20 @@ giottoToSeurat <- function(obj_use = NULL,
     }
 
     # add cell metadata
-    meta_cells <- as.data.frame(pDataDT(obj_use,feat_type = assay_use))
+    meta_cells <- data.table::setDF(get_cell_metadata(obj_use,
+                                                      feat_type = assay_use,
+                                                      output = 'data.table',
+                                                      copy_obj = TRUE))
     rownames(meta_cells) <- meta_cells$cell_ID
     meta_cells <- meta_cells[,-which(colnames(meta_cells) == 'cell_ID')]
     colnames(meta_cells) <- paste0(assay_use,"_",colnames(meta_cells))
     sobj <- Seurat::AddMetaData(sobj,metadata = meta_cells[Seurat::Cells(sobj),])
 
     # add feature metadata
-    meta_genes <- as.data.frame(fDataDT(obj_use,feat_type = assay_use))
+    meta_genes <- data.table::setDF(get_feature_metadata(obj_use,
+                                                         feat_type = assay_use,
+                                                         output = 'data.table',
+                                                         copy_obj = TRUE))
     rownames(meta_genes) <- meta_genes$feat_ID
     sobj[[assay_use]]@meta.features <- cbind(sobj[[assay_use]]@meta.features,meta_genes)
   }
@@ -293,7 +299,7 @@ giottoToSeurat <- function(obj_use = NULL,
     for (i in dr_use){
       dr_name <- i
       dr_obj <- get_dimReduction(gobject = obj_use,
-                                 return_dimObj = T,
+                                 output = 'dimObj',
                                  reduction_method = dr_name,
                                  name = dr_name)
       emb_use <- slot(dr_obj, 'coordinates')[Seurat::Cells(sobj),]

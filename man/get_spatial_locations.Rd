@@ -26,11 +26,9 @@ a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 \item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
 
 \item{verbose}{be verbose}
-
-\item{return_spatlocs_Obj}{return spatLocsObj (default = FALSE)}
 }
 \value{
-data.table with coordinates or spatLocsObj depending on \code{return_spatlocs_Obj}
+data.table with coordinates or spatLocsObj depending on \code{output}
 }
 \description{
 Function to get a spatial location data.table

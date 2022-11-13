@@ -2691,7 +2691,7 @@ cellProximitySpatPlot2D <- function(gobject,
   cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name,
-                                          return_spatlocs_Obj = FALSE,
+                                          output = 'data.table',
                                           copy_obj = FALSE)
 
   spatial_grid = get_spatialGrid(gobject = gobject,
@@ -2700,9 +2700,11 @@ cellProximitySpatPlot2D <- function(gobject,
                                  name = spatial_grid_name,
                                  return_grid_Obj = FALSE)
 
-  cell_metadata   = pDataDT(gobject = gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            feat_type = feat_type,
@@ -2723,7 +2725,7 @@ cellProximitySpatPlot2D <- function(gobject,
     CellType <- strsplit(interaction_name,"--")
     all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
-    other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
+    other_cell_IDs = setdiff(all_cell_IDs, cell_IDs_to_keep)
   }
 
 
@@ -2731,7 +2733,7 @@ cellProximitySpatPlot2D <- function(gobject,
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata <- merge(cell_locations, cell_metadata, by = "cell_ID")
+    cell_locations_metadata = merge(cell_locations, cell_metadata, by = "cell_ID")
   }
 
 
