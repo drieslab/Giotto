@@ -728,7 +728,7 @@ set_cell_and_feat_IDs = function(gobject) {
 
   # 3. set feat_ID for each feature
   for(feature_type in avail_expr[, unique(feat_type)]) {
-    expr_feat_ID = colnames(get_expression_values(gobject,
+    expr_feat_ID = rownames(get_expression_values(gobject,
                                                   feat_type = feature_type,
                                                   output = 'matrix'))
     gobject = set_feat_id(gobject,
