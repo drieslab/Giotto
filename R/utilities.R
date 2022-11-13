@@ -414,19 +414,23 @@ box_chars <- function() {
 #' @name wrap_msg
 #' @param ... additional strings and/or elements to pass to cat
 #' @param collapse how to join elements of string (default is no space)
-#' @keywords internal
+#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
+#' @param keywords internal
 wrap_msg = function(..., collapse = '') {
   message(wrap_txt(..., collapse = ''))
 }
 
 #' @title Wrap text
 #' @name wrap_txt
+#' @param ... additional params to pass
+#' @param collapse how to join elements of string (default is no space)
+#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
 #' @keywords internal
-wrap_txt = function(..., collapse = '') {
+wrap_txt = function(..., collapse = '', strWidth = 100) {
   cat(...) %>%
     capture.output() %>%
     strwrap(., prefix =  ' ', initial = '',
-            width = min(80, getOption("width"))) %>%
+            width = min(80, getOption("width"), strWidth)) %>%
     paste(., collapse = '\n')
 }
 

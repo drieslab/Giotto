@@ -20,7 +20,7 @@ Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),

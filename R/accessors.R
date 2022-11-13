@@ -2334,13 +2334,11 @@ set_giottoImage = function(gobject = NULL,
 #' @name showGiottoExpression
 #' @description shows the available matrices
 #' @param gobject giotto object
-#' @param nrows number of rows to print for each matrix
-#' @param ncols number of columns to print for each matrix
 #' @return prints the name and small subset of available matrices
 #' @family functions to show data in giotto object
 #' @keywords show
 #' @export
-showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
+showGiottoExpression = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
@@ -2359,12 +2357,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
         cat('----> Name: ', mat_i, 'matrix: \n')
 
-        dimensions = dim(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
-        nrows = min(nrows, dimensions[1])
-        ncols = min(ncols, dimensions[2])
-
-        print(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]][1:nrows, 1:ncols])
-        cat('\n')
+        show(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
       }
     }
   }

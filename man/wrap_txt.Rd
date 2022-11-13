@@ -4,7 +4,14 @@
 \alias{wrap_txt}
 \title{Wrap text}
 \usage{
-wrap_txt(..., collapse = "")
+wrap_txt(..., collapse = "", strWidth = 100)
+}
+\arguments{
+\item{...}{additional params to pass}
+
+\item{collapse}{how to join elements of string (default is no space)}
+
+\item{strWidth}{externally set wrapping width. (default value of 100 is not effected)}
 }
 \description{
 Wrap text

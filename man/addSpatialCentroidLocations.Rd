@@ -9,6 +9,7 @@ addSpatialCentroidLocations(
   poly_info = "cell",
   feat_type = NULL,
   spat_loc_name = "raw",
+  init_metadata = TRUE,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -21,6 +22,9 @@ addSpatialCentroidLocations(
 \item{feat_type}{feature type}
 
 \item{spat_loc_name}{name to give to the created spatial locations}
+
+\item{init_metadata}{initialize cell and feature metadata for this spatial unit
+(default = TRUE, but should be turned off if generated earlier in the workflow)}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 
