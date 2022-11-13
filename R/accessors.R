@@ -2342,9 +2342,6 @@ set_giottoImage = function(gobject = NULL,
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
-  # Define for data.table
-  name = NULL
-
   # import boxchars
   ch = box_chars()
 
@@ -2358,7 +2355,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
   } else {
 
     # 3.1 set up object printouts
-    objPrints = objRows = objCols = list()
+    objPrints = list()
     for(obj_i in seq(nrow(available_data))) {
 
       # get object
@@ -2400,23 +2397,6 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   }
 
-
-  # for(spatial_unit in unique(available_data$spat_unit)) {
-  #
-  #   cat('Spatial unit: ', spatial_unit, ' \n\n')
-  #
-  #   for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
-  #
-  #     cat('--> Feature: ', feature_type, ' \n\n')
-  #
-  #     for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
-  #
-  #       cat('----> Name: ', mat_i, 'matrix: \n')
-  #
-  #       show(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]])
-  #     }
-  #   }
-  # }
 }
 
 
@@ -2434,26 +2414,58 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 showGiottoCellMetadata = function(gobject,
                                   nrows = 4) {
 
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. get availability matrix
   available_data = list_cell_metadata(gobject = gobject)
-  if(is.null(available_data)) cat('No cell metadata available \n')
+  if(is.null(available_data)) {
+    cat('No cell metadata available \n')
+  } else {
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+    # 3.1 set up object printouts
+    objPrints = objRows = list()
+    for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial unit: ', spatial_unit, ' \n\n')
+      # get object
+      dataObj = get_cell_metadata(gobject = gobject,
+                                  spat_unit = available_data$spat_unit[[obj_i]],
+                                  feat_type = available_data$feat_type[[obj_i]],
+                                  output = 'cellMetaObj',
+                                  copy_obj = TRUE)
 
-    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+      # collect object prints
+      objRows[[obj_i]] = nrow(dataObj[])
 
-      cat('--> Feature: ', feature_type, ' \n\n')
+      objPrints[[obj_i]] =
+        dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],] %>%
+        print %>%
+        capture.output
 
-      dimensions = dim(gobject@cell_metadata[[spatial_unit]][[feature_type]])
-      nrows = min(nrows, dimensions[1])
-
-      print(gobject@cell_metadata[[spatial_unit]][[feature_type]][1:nrows])
-      cat('\n')
     }
+
+    # object printblock edits
+    objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # add indent
+    objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # linearize print
+
+    # append to availability table
+    available_data$values = unlist(objPrints)
+
+    # 3.2 setup general prints
+    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+
+    # 4. print information
+    print_leaf(level_index = 1,
+               availableDT = available_data,
+               inherit_last = TRUE,
+               indent = '')
+
   }
+
 }
 
 
@@ -2470,25 +2482,56 @@ showGiottoCellMetadata = function(gobject,
 showGiottoFeatMetadata = function(gobject,
                                   nrows = 4) {
 
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. get availability matrix
   available_data = list_feat_metadata(gobject = gobject)
-  if(is.null(available_data)) cat('No feature metadata available \n')
+  if(is.null(available_data)) {
+    cat('No feature metadata available \n')
+  } else {
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+    # 3.1 set up object printouts
+    objPrints = objRows = list()
+    for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial unit: ', spatial_unit, ' \n\n')
+      # get object
+      dataObj = get_feature_metadata(gobject = gobject,
+                                     spat_unit = available_data$spat_unit[[obj_i]],
+                                     feat_type = available_data$feat_type[[obj_i]],
+                                     output = 'featMetaObj',
+                                     copy_obj = TRUE)
 
-    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
+      # collect object prints
+      objRows[[obj_i]] = nrow(dataObj[])
 
-      cat('--> Feature: ', feature_type, ' \n\n')
+      objPrints[[obj_i]] =
+        dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],] %>%
+        print %>%
+        capture.output
 
-      dimensions = dim(gobject@feat_metadata[[spatial_unit]][[feature_type]])
-      nrows = min(nrows, dimensions[1])
-
-      print(gobject@feat_metadata[[spatial_unit]][[feature_type]][1:nrows])
-      cat('\n')
     }
+
+    # object printblock edits
+    objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # add indent
+    objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # linearize print
+
+    # append to availability table
+    available_data$values = unlist(objPrints)
+
+    # 3.2 setup general prints
+    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+
+    # 4. print information
+    print_leaf(level_index = 1,
+               availableDT = available_data,
+               inherit_last = TRUE,
+               indent = '')
+
   }
 }
 
@@ -2506,30 +2549,83 @@ showGiottoFeatMetadata = function(gobject,
 showGiottoSpatLocs = function(gobject,
                               nrows = 4) {
 
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. get availability matrix
   available_data = list_spatial_locations(gobject = gobject)
-  if(is.null(available_data)) cat('No spatial locations available \n')
+  if(is.null(available_data)) {
+    cat('No spatial locations available \n')
+  } else {
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+    # 3.1 set up object printouts
+    objPrints = objRows = list()
+    for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial unit: ', spatial_unit, ' \n\n')
+      # get object
+      dataObj = get_spatial_locations(gobject = gobject,
+                                      spat_unit = available_data$spat_unit[[obj_i]],
+                                      spat_loc_name = available_data$name[[obj_i]],
+                                      output = 'spatLocsObj',
+                                      copy_obj = TRUE)
 
-    for(spatlocname in available_data[available_data$spat_unit == spatial_unit,]$name) {
-      if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'data.frame')) {
-        cat('--> Name: ', spatlocname, ' \n\n')
-        print(gobject@spatial_locs[[spatial_unit]][[spatlocname]][1:nrows,])
-        cat('\n')
-      }
-      if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatLocsObj')) {
-        cat('--> Name: ', spatlocname, ' \n\n')
-        cat('An object of class spatLocsObj\n')
-        cat('Provenance: ', slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'provenance'), ' \n')
-        print(slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'coordinates')[1:nrows,])
-        cat('\n')
-      }
+      # collect object prints
+      objRows[[obj_i]] = nrow(dataObj[])
+
+      objPrints[[obj_i]] = capture.output(abb_spatlocs(dataObj, nrows))
+
     }
+
+    # object printblock edits
+    objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # add indent
+    objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # linearize print
+
+    # append to availability table
+    available_data$values = unlist(objPrints)
+
+    # 3.2 setup general prints
+    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+    available_data$name = paste0('S4 spatLocsObj "', available_data$name, '" coordinates:')
+    for(obj_i in seq(nrow(available_data))) {
+      available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
+                                            ch$s, '(', objRows[[obj_i]], ' rows)')
+    }
+
+    # 4. print information
+    print_leaf(level_index = 1,
+               availableDT = available_data,
+               inherit_last = TRUE,
+               indent = '')
+
   }
+
+  # if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  #
+  # available_data = list_spatial_locations(gobject = gobject)
+  # if(is.null(available_data)) cat('No spatial locations available \n')
+  #
+  # for(spatial_unit in unique(available_data$spat_unit)) {
+  #
+  #   cat('Spatial unit: ', spatial_unit, ' \n\n')
+  #
+  #   for(spatlocname in available_data[available_data$spat_unit == spatial_unit,]$name) {
+  #     if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'data.frame')) {
+  #       cat('--> Name: ', spatlocname, ' \n\n')
+  #       print(gobject@spatial_locs[[spatial_unit]][[spatlocname]][1:nrows,])
+  #       cat('\n')
+  #     }
+  #     if(inherits(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'spatLocsObj')) {
+  #       cat('--> Name: ', spatlocname, ' \n\n')
+  #       cat('An object of class spatLocsObj\n')
+  #       cat('Provenance: ', slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'provenance'), ' \n')
+  #       print(slot(gobject@spatial_locs[[spatial_unit]][[spatlocname]], 'coordinates')[1:nrows,])
+  #       cat('\n')
+  #     }
+  #   }
+  # }
 
 }
 
