@@ -1606,17 +1606,20 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
+#' @param provenance (optional) provenance to assign to generated spatLocsObj. If
+#' not provided, provenance will default to \code{poly_info}
 #' @param init_metadata initialize cell and feature metadata for this spatial unit
 #' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
-#'   generated polygon centroids will be returned.
+#'   generated polygon centroids will be returned as spatLocsObj.
 #' @concept centroid
 #' @export
 addSpatialCentroidLocationsLayer = function(gobject,
                                             poly_info = 'cell',
                                             feat_type = NULL,
+                                            provenance = poly_info,
                                             spat_loc_name = 'raw',
                                             init_metadata = TRUE,
                                             return_gobject = TRUE) {
@@ -1647,6 +1650,11 @@ addSpatialCentroidLocationsLayer = function(gobject,
   spatial_locs = centroid_spatvector[, .(x, y, poly_ID)]
   colnames(spatial_locs) = c('sdimx', 'sdimy', 'cell_ID')
 
+  spatial_locs = create_spat_locs_obj(name = spat_loc_name,
+                                      coordinates = spatial_locs,
+                                      spat_unit = poly_info,
+                                      provenance = provenance)
+
   if(return_gobject == TRUE) {
 
     # spatial location
@@ -1659,8 +1667,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_locations(gobject = gobject,
-                                    spat_unit = poly_info,
-                                    spat_loc_name = spat_loc_name,
                                     spatlocs = spatial_locs,
                                     verbose = FALSE)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -1729,19 +1735,22 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
+#' @param provenance (optional) provenance to assign to generated spatLocsObj. If
+#' not provided, provenance will default to \code{poly_info}
 #' @param init_metadata initialize cell and feature metadata for this spatial unit
 #' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
-#'   generated polygon centroids will be returned.
+#'   generated polygon centroids will be returned as \code{spatLocObj}.
 #' @concept centroid
 #' @export
 addSpatialCentroidLocations = function(gobject,
                                        poly_info = 'cell',
                                        feat_type = NULL,
                                        spat_loc_name = 'raw',
+                                       provenance = poly_info,
                                        init_metadata = TRUE,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
@@ -1765,6 +1774,7 @@ addSpatialCentroidLocations = function(gobject,
         gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                    poly_info = poly_layer,
                                                    feat_type = feat_type,
+                                                   provenance = provenance,
                                                    spat_loc_name = spat_loc_name,
                                                    init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
@@ -1773,6 +1783,7 @@ addSpatialCentroidLocations = function(gobject,
         return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                                      poly_info = poly_layer,
                                                                      feat_type = feat_type,
+                                                                     provenance = provenance,
                                                                      spat_loc_name = spat_loc_name,
                                                                      init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)

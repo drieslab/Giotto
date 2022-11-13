@@ -410,7 +410,7 @@ box_chars <- function() {
 
 #' @title Print abbreviated matrix
 #' @name abb_mat
-#' @description print abbreviated matrix. Works for Matrix pkg denseMatrix,
+#' @description print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,
 #' matrix, data.frame and classes that inherit them.
 #' @keywords internal
 abb_mat = function(exprObj, nrows, ncols) {
@@ -432,6 +432,28 @@ abb_mat = function(exprObj, nrows, ncols) {
   print(mat)
   cat('\n First four colnames:')
   cat('\n', wrap_txt(four_names, strWidth = 40), '\n')
+}
+
+
+
+#' @title Print abbreviated spatlocs
+#' @name abb_spatlocs
+#' @description print abbreviated spatLocsObj
+#' @keywords internal
+abb_spatlocs = function(spatLocsObj, nrows) {
+  DT_rows = nrow(spatLocsObj[])
+  spatlocs = spatLocsObj[][1:if(nrows <= DT_rows) nrows else DT_rows,]
+
+  # prints
+  cat('An object of class', class(spatLocsObj), '\n')
+  cat('provenance:', slot(spatLocsObj, 'provenance'))
+  cat('\n    ------------------------\n')
+  print(spatlocs)
+  cat('\nranges:\n')
+  try(expr = print(sapply(slot(spatLocsObj, 'coordinates')[,.(sdimx,sdimy)], range)),
+      silent = TRUE)
+
+  cat('\n\n')
 }
 
 
