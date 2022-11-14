@@ -3924,6 +3924,175 @@ rankSpatialCorGroups = function(gobject,
 
 
 
+#' @title getBalancedSpatCoexpressionFeats
+#' @name getBalancedSpatCoexpressionFeats
+#' @description Extract features from spatial co-expression modules in a balanced manner
+#' @param spatCorObject spatial correlation object
+#' @param maximum maximum number of genes to get from each spatial co-expression module
+#' @param rank ranking method (see details)
+#' @param informed_ranking vector of ranked features
+#' @param seed seed
+#' @param verbose verbosity
+#' @return balanced vector with features for each co-expression module
+#' @details There are 3 different ways of selectig features from the spatial
+#' co-expression modules
+#' \itemize{
+#'   \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
+#'   \item{2. random: }{A random selection of features, set seed for reproducibility}
+#'   \item{3. informed: }{Features are selected based on prior information/ranking}
+#' }
+#' @export
+getBalancedSpatCoexpressionFeats = function(spatCorObject,
+                                            maximum = 50,
+                                            rank = c('weighted', 'random', 'informed'),
+                                            informed_ranking = NULL,
+                                            seed = NA,
+                                            verbose = TRUE) {
+
+  rank = match.arg(rank, choices = c('weighted', 'random', 'informed'))
+
+  clusters = spatCorObject$cor_clusters$spat_netw_clus
+
+  # rank = random
+  if(rank == 'random') {
+
+    if(!is.na(seed) & is.numeric(seed)) {
+      set.seed(seed)
+      wrap_msg('Seed has been set for random')
+    } else {
+      wrap_msg('Random is selected, but no seed has been set \n
+               Results might be fully reproducible \n')
+    }
+
+    result_list = list()
+    for(clus in 1:length(unique(clusters))) {
+
+      selected_cluster_features = names(clusters[clusters == clus])
+
+      feat_length = length(selected_cluster_features)
+      if(feat_length < maximum) {
+        maximum_to_use = feat_length
+        wrap_msg('There are only ', feat_length, ' features for cluster ', clus, '\n',
+                 'Maximum will be set to ', feat_length, '\n')
+      } else {maximum_to_use = maximum}
+
+      selected_feats = sample(x = selected_cluster_features,
+                              size = maximum_to_use,
+                              replace = FALSE)
+      clus_id = rep(clus, length(selected_feats))
+      names(clus_id) = selected_feats
+      result_list[[clus]] = clus_id
+    }
+
+    final_res = do.call('c', result_list)
+
+  }
+
+
+  # rank = random
+  if(rank == 'weighted') {
+
+    cor_data = spatCorObject$cor_DT
+
+    result_list = list()
+    for(clus in 1:length(unique(clusters))) {
+
+      if(verbose) print(clus)
+
+      # get all pairwise spatial feature correlations and rank them
+      selected_cluster_features = names(clusters[clusters == clus])
+      subset_cor_data = cor_data[feat_ID %in% selected_cluster_features & variable %in% selected_cluster_features]
+      subset_cor_data = subset_cor_data[feat_ID != variable]
+      subset_cor_data = sort_combine_two_DT_columns(DT = subset_cor_data,
+                                                    column1 = 'feat_ID',
+                                                    column2 =  'variable', myname = 'combo')
+      subset_cor_data = subset_cor_data[duplicated(combo)]
+      data.table::setorder(subset_cor_data, -spat_cor)
+
+      # create a ranked data.table
+      rnk1DT = data.table::data.table(feat_id = subset_cor_data$feat_ID, rnk = 1:length(subset_cor_data$feat_ID))
+      rnk2DT = data.table::data.table(feat_id = subset_cor_data$variable, rnk = 1:length(subset_cor_data$variable))
+      rnkDT = data.table::rbindlist(list(rnk1DT, rnk2DT))
+      data.table::setorder(rnkDT, rnk)
+
+      # summarize rank (weights)
+      rnkcombined = rnkDT[, sum(rnk), by = feat_id]
+      data.table::setorder(rnkcombined, V1)
+
+      feat_length = nrow(rnkcombined)
+      if(feat_length < maximum) {
+        maximum_to_use = feat_length
+        wrap_msg('There are only ', feat_length, ' features for cluster ', clus, '\n',
+                 'Maximum will be set to ', feat_length, '\n')
+      } else {maximum_to_use = maximum}
+
+      selected_feats = rnkcombined[1:maximum_to_use][['feat_id']]
+
+      clus_id = rep(clus, length(selected_feats))
+      names(clus_id) = selected_feats
+      result_list[[clus]] = clus_id
+
+    }
+
+
+    final_res = do.call('c', result_list)
+
+  }
+
+
+  # rank = random
+  if(rank == 'informed') {
+
+    if(is.null(informed_ranking)) {
+      stop('Informed has been selected, but no informed ranking vector has been provided')
+    }
+
+    # informed_ranking vector should be a ranked gene list
+    informed_ranking_numerical = 1:length(informed_ranking)
+    names(informed_ranking_numerical) = informed_ranking
+
+    result_list = list()
+    for(clus in 1:length(unique(clusters))) {
+
+      selected_cluster_features = names(clusters[clusters == clus])
+
+      feat_length = length(selected_cluster_features)
+      if(feat_length < maximum) {
+        maximum_to_use = feat_length
+        wrap_msg('There are only ', feat_length, ' features for cluster ', clus, '\n',
+                 'Maximum will be set to ', feat_length, '\n')
+      } else {maximum_to_use = maximum}
+
+
+      informed_subset = informed_ranking_numerical[names(informed_ranking_numerical) %in% selected_cluster_features]
+      informed_subset = sort(informed_subset)
+
+      feat_length = length(informed_subset)
+      if(feat_length < maximum) {
+        maximum_to_use = feat_length
+        wrap_msg('There are only ', feat_length, ' features for cluster ', clus, '\n',
+                 'Maximum will be set to ', feat_length, '\n')
+      } else {maximum_to_use = maximum}
+
+      selected_feats = names(informed_subset[1:maximum_to_use])
+
+      clus_id = rep(clus, length(selected_feats))
+      names(clus_id) = selected_feats
+      result_list[[clus]] = clus_id
+
+    }
+
+    final_res = do.call('c', result_list)
+
+  }
+
+  return(final_res)
+
+
+}
+
+
+
 
 
 # ** ####

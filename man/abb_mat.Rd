@@ -7,7 +7,7 @@
 abb_mat(exprObj, nrows, ncols)
 }
 \description{
-print abbreviated matrix. Works for Matrix pkg denseMatrix,
+print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,
 matrix, data.frame and classes that inherit them.
 }
 \keyword{internal}
