@@ -883,7 +883,7 @@ setMethod(
     sdimx = sdimy = NULL
 
     cat("An object of class",  class(object), "\n")
-    if(!is.null(slot(object, 'spat_unit'))) cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '"\n'))
+    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '"\n'))
     if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
 
     cat('   ------------------------\n\npreview:\n')
@@ -1107,8 +1107,8 @@ setMethod(
     x_start = x_end = y_start = y_end = z_start = z_end = NULL
 
     cat("An object of class",  class(object), "\n")
-    if(!is.null(slot(object, 'spat_unit'))) cat('Contains annotations for spatial unit: "', slot(object, 'spat_unit'),'"', sep = '')
-    if(!is.null(slot(object, 'feat_type'))) {
+    cat('Contains annotations for spatial unit: "', slot(object, 'spat_unit'),'"', sep = '')
+    if(!is.na(slot(object, 'feat_type'))) {
       cat(' and feature type: "', slot(object, 'feat_type'), '"\n', sep = '')
     } else cat('\n')
 
@@ -1196,6 +1196,32 @@ setClass('spatEnrObj',
          prototype = list(name = NA_character_))
 
 
+# * show ####
+# spatEnrObj Class
+
+#' show method for spatEnrObj class
+#' @param object spatial locations object
+#' @aliases show,spatEnrObj-method
+#' @docType methods
+#' @importFrom methods show
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('spatEnrObj'), function(object) {
+
+    cat("An object of class",  class(object), "\n")
+    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "',
+               slot(object, 'feat_type'), '"\n'))
+    if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
+
+    cat('   ------------------------\n\npreview:\n')
+    if(!is.null(slot(object, 'enrichDT'))) show(slot(object, 'enrichDT')[1:4])
+
+    cat('\n...remaining colnames:\n')
+    cat('\n', wrap_txt(colnames(slot(object, 'enrichDT'))[-c(1:4)], strWidth = 40), '\n')
+
+    cat('\n\n')
+
+  })
 
 
 # SUBCELLULAR ####
