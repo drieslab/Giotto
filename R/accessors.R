@@ -2350,8 +2350,9 @@ set_giottoImage = function(gobject = NULL,
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2393,9 +2394,9 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
     available_data$values = unlist(objPrints)
 
     # 3.2 setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
-    available_data$name = paste0('Expression data "', available_data$name, '" values:')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$feat_type = paste0('Feature type "', ct$r, available_data$feat_type, ct$x, '"')
+    available_data$name = paste0('Expression data "', ct$t, available_data$name, ct$x, '" values:')
 
     # 4. print information
     print_leaf(level_index = 1,
@@ -2422,8 +2423,9 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 showGiottoCellMetadata = function(gobject,
                                   nrows = 4) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2463,8 +2465,8 @@ showGiottoCellMetadata = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$feat_type = paste0('Feature type "', ct$r, available_data$feat_type, ct$x, '"')
 
     # 4. print information
     print_leaf(level_index = 1,
@@ -2490,8 +2492,9 @@ showGiottoCellMetadata = function(gobject,
 showGiottoFeatMetadata = function(gobject,
                                   nrows = 4) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2531,8 +2534,8 @@ showGiottoFeatMetadata = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$feat_type = paste0('Feature type "', ct$r, available_data$feat_type, ct$x, '"')
 
     # 4. print information
     print_leaf(level_index = 1,
@@ -2557,8 +2560,9 @@ showGiottoFeatMetadata = function(gobject,
 showGiottoSpatLocs = function(gobject,
                               nrows = 4) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2595,8 +2599,8 @@ showGiottoSpatLocs = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$name = paste0('S4 spatLocsObj "', available_data$name, '" coordinates:')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$name = paste0('S4 spatLocsObj "', ct$t, available_data$name, ct$x, '" coordinates:')
     for(obj_i in seq(nrow(available_data))) {
       available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
                                             ch$s, '(', objRows[[obj_i]], ' rows)')
@@ -2702,8 +2706,9 @@ showGiottoDimRed = function(gobject,
   # Define for data.table
   data_type = NULL
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. Check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2747,10 +2752,10 @@ showGiottoDimRed = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 Setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
-    available_data$dim_type = paste0('Dim reduction type "', available_data$dim_type, '"')
-    available_data$name = paste0('S4 dimObj "', available_data$name, '" coordinates:')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$feat_type = paste0('Feature type "', ct$r, available_data$feat_type, ct$x, '"')
+    available_data$dim_type = paste0('Dim reduction type "', ct$p, available_data$dim_type, ct$x, '"')
+    available_data$name = paste0('S4 dimObj "', ct$t, available_data$name, ct$x, '" coordinates:')
     for(obj_i in seq(nrow(available_data))) {
       available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
                                             ch$s ,'(', objRows[[obj_i]], ' rows ', objCols[[obj_i]], ' cols)')
@@ -2760,8 +2765,8 @@ showGiottoDimRed = function(gobject,
     for(data_type_red in unique(available_data$data_type)) {
       data_type_subset = available_data$data_type == data_type_red
 
-      if(data_type_red == 'feats') cat('Dim reduction on features:')
-      if(data_type_red == 'cells') cat('Dim reduction on cells:')
+      if(data_type_red == 'feats') cat(paste0('Dim reduction on ', ct$y, 'features', ct$x, ':'))
+      if(data_type_red == 'cells') cat(paste0('Dim reduction on ', ct$y, 'cells' , ct$x, ':'))
 
       cat('\n',
           '-------------------------',
@@ -2793,8 +2798,9 @@ showGiottoDimRed = function(gobject,
 showGiottoNearestNetworks = function(gobject,
                                      nrows = 3) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. check input
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2835,12 +2841,12 @@ showGiottoNearestNetworks = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 Setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
     if(!is.null(available_data$feat_type)) {
-      available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')  # Check to be deprecated
+      available_data$feat_type = paste0('Feature type "', ct$r, available_data$feat_type, ct$x, '"')  # Check to be deprecated
     } else warning('Only networks from the deprecated nesting will be shown')
-    available_data$nn_type = paste0('NN network type "', available_data$nn_type, '"')
-    available_data$name = paste0('S4 nnNetObj "', available_data$name, '"')
+    available_data$nn_type = paste0('NN network type "', ct$p, available_data$nn_type, ct$x, '"')
+    available_data$name = paste0('S4 nnNetObj "', ct$t, available_data$name, ct$x, '"')
     for(obj_i in seq(nrow(available_data))) {
       available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
                                             ch$s ,'(', objRows[[obj_i]], ' rows)')
@@ -2923,8 +2929,9 @@ showGiottoFeatInfo = function(gobject) {
 showGiottoSpatNetworks = function(gobject,
                                   nrows = 4) {
 
-  # import boxchars
+  # import print styling
   ch = box_chars()
+  ct = color_tag()
 
   # 1. Check input
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
@@ -2963,8 +2970,8 @@ showGiottoSpatNetworks = function(gobject,
     available_data$values = unlist(objPrints)
 
     # 3.2 Setup general prints
-    available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
-    available_data$name = paste0('S4 spatialNetworkObj "', available_data$name, '"')
+    available_data$spat_unit = paste0('Spatial unit "', ct$b, available_data$spat_unit, ct$x, '"')
+    available_data$name = paste0('S4 spatialNetworkObj "', ct$t, available_data$name, ct$x, '"')
     for(obj_i in seq(nrow(available_data))) {
       available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
                                             ch$s ,'(', objRows[[obj_i]], ' rows)')
@@ -3505,7 +3512,7 @@ list_nearest_networks = function(gobject,
         uniques$nn_type = c(uniques$nn_type, nnType)
         for(nnNet in names(slot(gobject, 'nn_network')[[spatUnit]][[featType]][[nnType]])) {
           uniques$name = c(uniques$name, nnNet)
-          if(inherits(slot(gobject, 'nn_network')[[spatUnit]][[featType]][[nnType]][[nnNet]], 'igraph'))
+          if(inherits(slot(gobject, 'nn_network')[[spatUnit]][[featType]][[nnType]][[nnNet]], c('igraph', 'nnData')))
           availableNN = rbind(availableNN,
                               list(spat_unit = spatUnit,
                                    feat_type = featType,
