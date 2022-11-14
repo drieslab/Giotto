@@ -1947,7 +1947,7 @@ createGiottoObject <- function(expression,
 
   } else {
 
-    if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
+    if(verbose == TRUE) warning(wrap_txt('No spatial locations have been provided, dummy locations will be created'))
 
     # for each spatial unit create a dummy raw spatial location matrix
 
@@ -1963,13 +1963,13 @@ createGiottoObject <- function(expression,
                                             sdimx = first_col,
                                             sdimy = second_col)
 
-      dummySpatLocObj = new('spatialLocationObj',
-                            name = 'raw',
-                            coordinates = spatial_locs,
-                            spat_unit = spat_unit)
-      set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
+      dummySpatLocObj = create_spat_locs_obj(name = 'raw',
+                                             coordinates = spatial_locs,
+                                             spat_unit = spat_unit)
 
-      # gobject@spatial_locs[[spat_unit]][['raw']] = spatial_locs
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
   }

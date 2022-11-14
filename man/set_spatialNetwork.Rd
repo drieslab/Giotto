@@ -4,7 +4,13 @@
 \alias{set_spatialNetwork}
 \title{Set spatial network}
 \usage{
-set_spatialNetwork(gobject, spat_unit = NULL, name = NULL, spatial_network)
+set_spatialNetwork(
+  gobject,
+  spat_unit = NULL,
+  name = NULL,
+  spatial_network,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -14,6 +20,8 @@ set_spatialNetwork(gobject, spat_unit = NULL, name = NULL, spatial_network)
 \item{name}{name of spatial network}
 
 \item{spatial_network}{spatial network}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
