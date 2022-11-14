@@ -485,8 +485,20 @@ wrap_txt = function(..., collapse = '', strWidth = 100) {
 }
 
 
-
-
+#' @title Colorize print text
+#' @name color_tag
+#' @keywords internal
+color_tag = function() {
+  list(
+    r = '\u001b[31m', # red
+    g = '\u001b[32m', # green
+    y = '\u001b[33m', # yellow
+    b = '\u001b[34m', # blue
+    p = '\u001b[35m', # purple
+    t = '\u001b[36m', # teal
+    x = '\u001b[39m'  # none (return)
+  )
+}
 
 
 
