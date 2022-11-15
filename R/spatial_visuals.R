@@ -10159,7 +10159,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' Get cells located within the polygons area
 #'
 #' @param gobject A Giotto object
-#' @param spat_unit spatial unit, default = "cell
+#' @param spat_unit spatial unit, default = 'cell'
+#' @param spat_loc_name name of spatial locations to use, default = 'raw'
 #' @param polygons character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved
 #'
 #' @return A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
@@ -10184,21 +10185,31 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' ## Get cells located within polygons area
 #' getCellsFromPolygon(my_giotto_object)
 #'
-#' ## Get onyl cells from polygon 1
+#' ## Get only cells from polygon 1
 #' getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
 #' }
 #'
-getCellsFromPolygon <- function(gobject, spat_unit = "cell", polygons = NULL) {
+getCellsFromPolygon <- function(gobject,
+                                spat_unit = "cell",
+                                spat_loc_name = 'raw',
+                                polygons = NULL) {
 
   if (!inherits(gobject, "giotto")) {
     stop("gobject needs to be a giotto object")
   }
 
   ## get polygons spatial info
-  polygon_spatVector <- methods::slot(methods::slot(gobject, "spatial_info")[[spat_unit]], "spatVector")
+  polygon_spatVector = get_polygon_info(gobject = gobject,
+                                        polygon_name = spat_unit,
+                                        return_giottoPolygon = FALSE)
+  # polygon_spatVector <- slot(slot(gobject, "spatial_info")[[spat_unit]], "spatVector")
 
   ## get cell spatial locations
-  spatial_locs <- get_spatial_locations(gobject, spat_unit = spat_unit)
+  spatial_locs <- get_spatial_locations(gobject = gobject,
+                                        spat_unit = spat_unit,
+                                        spat_loc_name = spat_loc_name,
+                                        output = 'data.table',
+                                        copy_obj = TRUE)
 
   ## convert cell spatial locations to spatVector
   cells_spatVector <- terra::vect(as.matrix(spatial_locs[,1:2]),
@@ -10315,7 +10326,9 @@ comparePolygonExpression <- function(gobject,
   my_metadata = get_cell_metadata(gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
-                                  output = 'data.table')
+                                  output = 'data.table',
+                                  copy_obj = TRUE)
+
   my_metadata = my_metadata[,c("cell_ID", "poly_ID")]
 
   if (length(selected_feats) == 1 && selected_feats == "top_genes") {
@@ -10445,7 +10458,8 @@ plotPolygons <- function(gobject, x, spat_unit = "cell", polygons = NULL, ...) {
 
   ## get polygons spatial info
   polygon_spatVector <- get_polygon_info(gobject = gobject,
-                                         polygon_name = spat_unit)
+                                         polygon_name = spat_unit,
+                                         return_giottoPolygon = FALSE)
 
   coordinates <- terra::geom(polygon_spatVector, df = TRUE)
 
