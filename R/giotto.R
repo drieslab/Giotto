@@ -3577,8 +3577,19 @@ createGiottoXeniumObject = function(xenium_dir,
     if(isTRUE(verbose)) message('> points data...')
 
     # filter by qv_threshold
-    if(isTRUE(verbose)) message('> filtering feature detections for qv >= ', qv_threshold)
+    if(isTRUE(verbose)) wrap_msg('> filtering feature detections for Phred score >= ', qv_threshold)
+    n_before = tx_dt[,.N]
     tx_dt_filtered = tx_dt[qv >= qv_threshold]
+    n_after = tx_dt_filtered[,.N]
+
+    cat('Number of feature points removed: ',
+        n_before - n_after,
+        ' out of ', n_before, '\n')
+
+    # separate detections by feature type
+    tx_dt_types = lapply(
+      feat_types_ID, function(x) tx_dt_filtered[feat_ID %in% types]
+    )
 
 
     # gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
