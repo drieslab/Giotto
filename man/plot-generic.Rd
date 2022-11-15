@@ -13,7 +13,7 @@
 
 \S4method{plot}{giottoLargeImage,missing}(x, y, ...)
 
-\S4method{plot}{giottoPolygon,missing}(x, y, ...)
+\S4method{plot}{giottoPolygon,missing}(x, y, point_size = 0.1, type = c("poly", "centroid"), ...)
 
 \S4method{plot}{giottoPoints,missing}(x, y, point_size = 0.1, feats = NULL, ...)
 }
@@ -24,9 +24,11 @@
 
 \item{\dots}{additional parameters to pass}
 
-\item{point_size}{size of points when plotting giottoPoint}
+\item{point_size}{size of points when plotting giottoPoints}
 
-\item{feats}{specific features to plot within giottoPoint object (defaults to NULL, meaning all available features)}
+\item{type}{what to plot: either 'poly' (default) or polygon 'centroid'}
+
+\item{feats}{specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)}
 }
 \description{
 S4 generic for previewing Giotto's image and subcellular objects.

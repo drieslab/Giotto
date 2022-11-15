@@ -3575,6 +3575,10 @@ createGiottoXeniumObject = function(xenium_dir,
     if(isTRUE(verbose)) message('Building subcellular giotto object...')
     # Giotto points object
     if(isTRUE(verbose)) message('> points data...')
+
+    # filter by qv_threshold
+
+
     gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
     # Giotto polygons object
     if(isTRUE(verbose)) message('> polygons data...')

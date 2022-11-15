@@ -12,6 +12,7 @@ createGiottoXeniumObject(
   h5_gene_ids = c("symbols", "ensembl"),
   gene_column_index = 1,
   bounds_to_load = c("cell"),
+  qv_threshold = 20,
   instructions = NULL,
   cores = NA,
   verbose = TRUE
@@ -37,6 +38,9 @@ expression matrix}
 \item{bounds_to_load}{vector of boundary information to load (e.g. \code{'cell'}
 or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
 at the same time.)}
+
+\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included as
+a subcellular transcript detection (default = 20)}
 
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
