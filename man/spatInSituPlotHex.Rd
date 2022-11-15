@@ -18,6 +18,7 @@ spatInSituPlotHex(
   polygon_fill = NULL,
   polygon_fill_as_factor = NULL,
   polygon_alpha = 0.5,
+  polygon_size = 0.5,
   axis_text = 8,
   axis_title = 8,
   legend_text = 6,
@@ -59,6 +60,8 @@ spatInSituPlotHex(
 \item{polygon_fill_as_factor}{is fill color a factor}
 
 \item{polygon_alpha}{alpha of polygon}
+
+\item{polygon_size}{size of polygon border}
 
 \item{axis_text}{axis text size}
 

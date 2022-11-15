@@ -1259,8 +1259,8 @@ subsetGiotto <- function(gobject,
   }
 
 
-  print(cell_ids[1:10])
-  print(feat_ids[1:10])
+  #print(cell_ids[1:10])
+  #print(feat_ids[1:10])
 
 
 
@@ -1379,8 +1379,6 @@ subsetGiotto <- function(gobject,
 
   ## feature info
   if(!is.null(gobject@feat_info)) {
-
-    print('start')
 
     gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
                                                  feat_ids = feat_ids,
