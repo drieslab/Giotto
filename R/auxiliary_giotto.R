@@ -844,7 +844,7 @@ subset_nearest_network = function(gobject,
   if(!is.null(avail_kNN)) {
 
     for(nn_i in seq(avail_kNN[, .N])) {
-      nnObj = get_NearestNetwork(gobject,
+      nnObj = get_NearestNetwork(gobject = gobject,
                                  spat_unit = avail_kNN$spat_unit[[nn_i]],
                                  feat_type = avail_kNN$feat_type[[nn_i]],
                                  nn_network_to_use = 'kNN',
@@ -852,7 +852,7 @@ subset_nearest_network = function(gobject,
                                  output = 'nnNetObj')
 
       #vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
-      nnObj[] = igraph::subgraph(graph = nnObj[], vids = cell_ids)
+      nnObj[] = igraph::induced_subgraph(graph = nnObj[], vids = cell_ids)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_NearestNetwork(gobject, nn_network = nnObj, verbose = FALSE)
@@ -871,7 +871,7 @@ subset_nearest_network = function(gobject,
                                  output = 'nnNetObj')
 
       #vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
-      nnObj[] = igraph::subgraph(graph = nnObj[], vids = cell_ids)
+      nnObj[] = igraph::induced_subgraph(graph = nnObj[], vids = cell_ids)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_NearestNetwork(gobject, nn_network = nnObj)
@@ -1711,7 +1711,8 @@ filterDistributions <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # plot distribution for feats or cells
   detection = match.arg(detection, c('feats', 'cells'))
