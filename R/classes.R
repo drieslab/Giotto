@@ -536,7 +536,7 @@ setMethod(
 
     # * Matrix sparseMatrix specific *
     if(inherits(slot(object, 'exprMat'), 'sparseMatrix')) {
-      print_cap = capture_output(Matrix::printSpMatrix2(x = slot(object, 'exprMat'),
+      print_cap = capture.output(Matrix::printSpMatrix2(x = slot(object, 'exprMat'),
                                                         zero.print = ".",
                                                         col.names = FALSE,
                                                         note.dropping.colnames = FALSE,
