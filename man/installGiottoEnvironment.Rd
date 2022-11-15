@@ -36,14 +36,7 @@ the miniconda system as implemented by reticulate. Once this giotto environment 
 installed it will be automatically detected when you run the Giotto toolbox. If you want to use
 your own python path then you can set the python_path in the \code{\link{createGiottoInstructions}}
 and provide the instructions to the \code{\link{createGiottoObject}} function.
-}
-\examples{
-\dontrun{
 
-  # this command will install r-miniconda
-  # and a giotto environment with all necessary python modules
-  installGiottoEnvironment()
-}
 By default, Python v3.10.2 will be used with the following python modules
 for Giotto Suite implementations:
    - pandas==1.5.1
@@ -68,4 +61,12 @@ for Giotto Suite implementations:
   - python-louvain==0.15
   - python.app==2 # macOS only
   - scikit-learn==0.24.2
+}
+\examples{
+\dontrun{
+
+  # this command will install r-miniconda
+  # and a giotto environment with all necessary python modules
+  installGiottoEnvironment()
+}
 }
