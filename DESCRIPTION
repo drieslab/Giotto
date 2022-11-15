@@ -129,6 +129,7 @@ Collate:
     'globals.R'
     'image_registration.R'
     'images.R'
+    'interactivity.R'
     'interoperability.R'
     'python_environment.R'
     'python_hmrf.R'
