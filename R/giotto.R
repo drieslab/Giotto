@@ -3577,9 +3577,11 @@ createGiottoXeniumObject = function(xenium_dir,
     if(isTRUE(verbose)) message('> points data...')
 
     # filter by qv_threshold
+    if(isTRUE(verbose)) message('> filtering feature detections for qv >= ', qv_threshold)
+    tx_dt_filtered = tx_dt[qv >= qv_threshold]
 
 
-    gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
+    # gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
     # Giotto polygons object
     if(isTRUE(verbose)) message('> polygons data...')
     gpolys = lapply(names(bound_dt_list),
