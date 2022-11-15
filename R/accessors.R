@@ -3248,8 +3248,9 @@ list_cell_metadata = function(gobject,
 
   # check if a specific category is desired
   if(!is.null(spat_unit)) spat_unit_subset = availableCMet$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableCMet$feat_type == feat_type else feat_type_subset = TRUE
 
-  availableCMet = availableCMet[spat_unit_subset,]
+  availableCMet = availableCMet[spat_unit_subset & feat_type_subset,]
 
   if(!isTRUE(return_uniques)) {
     # return data.table (NULL if empty)
@@ -3286,8 +3287,9 @@ list_feat_metadata = function(gobject,
 
   # check if a specific category is desired
   if(!is.null(spat_unit)) spat_unit_subset = availableFMet$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableFMet$feat_type == feat_type else feat_type_subset = TRUE
 
-  availableFMet = availableFMet[spat_unit_subset,]
+  availableFMet = availableFMet[spat_unit_subset & feat_type_subset,]
 
   if(!isTRUE(return_uniques)) {
     # return data.table (NULL if empty)
@@ -3384,9 +3386,10 @@ list_spatial_enrichments = function(gobject,
   }
 
   # check if a specific category is desired
-  if(!is.null(spat_unit)) {
-    availableSpatEnr = availableSpatEnr[availableSpatEnr$spat_unit == spat_unit,]
-  }
+  if(!is.null(spat_unit)) spat_unit_subset = availableSpatEnr$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableSpatEnr$feat_type == feat_type else feat_type_subset = TRUE
+
+  availableSpatEnr = availableSpatEnr[spat_unit_subset & feat_type_subset,]
 
   if(nrow(availableSpatEnr) == 0) return(NULL)
   else return(availableSpatEnr)
