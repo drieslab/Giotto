@@ -600,25 +600,27 @@ extract_polygon_list = function(polygonlist,
                                 polygon_mask_list_params,
                                 polygon_dfr_list_params) {
 
-  # if polygonlist is not a names list
+  named_list = FALSE
+
+  # if polygonlist is not a named list
   # try to make list and give default names
   if(!is.list(polygonlist)) {
 
     wrap_msg('polygonlist is not a list')
 
-    polygonlist = as.list(polygonlist)
+    try_val = try(as.list(polygonlist), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      polygonlist = list(polygonlist)
+    } else polygonlist = try_val
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
     } else {
       polygonlist_l = length(polygonlist)
       names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
     }
-  }
-
-  # if it is list
-  # test if it has names
-  if(is.null(names(polygonlist))) {
-
+  } else if(is.null(names(polygonlist))) {
+    # if it is list
+    # test if it has names
     wrap_msg('polygonlist is a list without names')
 
     if(length(polygonlist) == 1) {
@@ -628,6 +630,11 @@ extract_polygon_list = function(polygonlist,
       names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
 
     }
+  } else {
+
+    wrap_msg('polygonlist is a list with names')
+    named_list = TRUE
+
   }
 
   # make sure cell is one of the names
@@ -639,7 +646,7 @@ extract_polygon_list = function(polygonlist,
 
   final_list = list()
 
-  for(poly_i in 1:length(polygonlist)) {
+  for(poly_i in seq_along(polygonlist)) {
 
     name_polyinfo = names(polygonlist)[[poly_i]]
     polyinfo = polygonlist[[poly_i]]
@@ -659,12 +666,14 @@ extract_polygon_list = function(polygonlist,
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
+      # Override name slot ONLY if giottoPolygon provided as named list
+      if(isTRUE(named_list)) slot(polyinfo, 'name') = name_polyinfo
+      else name_polyinfo = polyinfo@name
       poly_results = polyinfo
-      name_polyinfo = polyinfo@name
 
     } else {
 
-      stop('Polygon can only be extraxted from a mask file or from a correctly formatted data.frame')
+      stop('Polygon can only be extracted from a mask file or from a correctly formatted data.frame')
 
     }
 
@@ -672,7 +681,7 @@ extract_polygon_list = function(polygonlist,
 
   }
 
-  print(final_list)
+  # print(final_list)
   return(final_list)
 
 }
@@ -1330,22 +1339,28 @@ addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
 #' @keywords internal
 extract_points_list = function(pointslist) {
 
+  named_list = FALSE
+
   # if pointslist is not a named list
   # try to make list and give default names
   if(!is.list(pointslist)) {
-    pointslist = as.list(pointslist)
+
+    wrap_msg('pointslist is not a list')
+
+    try_val = try(as.list(pointslist), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      pointslist = list(pointslist)
+    } else pointslist = try_val
     if(length(pointslist) == 1) {
       names(pointslist) = 'rna'
     } else {
       pointslist_l = length(pointslist)
       names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
     }
-  }
-
-  # if it is list
-  # test if it has names
-  if(is.null(names(pointslist))) {
-
+  } else if(is.null(names(pointslist))) {
+    # if it is list
+    # test if it has names
+    wrap_msg('pointslist is a list without names')
     if(length(pointslist) == 1) {
       names(pointslist) = 'rna'
     } else {
@@ -1353,6 +1368,11 @@ extract_points_list = function(pointslist) {
       names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
 
     }
+  } else {
+
+    wrap_msg('pointslist is a named list')
+    named_list = TRUE
+
   }
 
   # make sure rna is one of the names
@@ -1364,16 +1384,16 @@ extract_points_list = function(pointslist) {
 
   final_list = list()
 
-  for(point_i in 1:length(pointslist)) {
+  for(point_i in seq_along(pointslist)) {
 
     name_pointinfo = names(pointslist)[[point_i]]
     pointinfo = pointslist[[point_i]]
 
-
     if(inherits(pointinfo, 'giottoPoints')) {
 
+      if(isTRUE(named_list)) slot(pointinfo, 'feat_type') = name_pointinfo
+      else name_pointinfo = pointinfo@feat_type
       point_results = pointinfo
-      name_pointinfo = pointinfo@feat_type
 
     } else if(inherits(pointinfo, 'data.frame')) {
 
@@ -1390,13 +1410,11 @@ extract_points_list = function(pointslist) {
 
     }
 
-
     final_list[[name_pointinfo]] = point_results
 
   }
 
   return(final_list)
-
 
 }
 
