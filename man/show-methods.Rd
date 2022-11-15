@@ -8,6 +8,7 @@
 \alias{show,spatLocsObj-method}
 \alias{show,spatialNetworkObj-method}
 \alias{show,spatialGridObj-method}
+\alias{show,spatEnrObj-method}
 \alias{show,giottoImage-method}
 \alias{show,giottoLargeImage-method}
 \title{show method for giotto class}
@@ -23,6 +24,8 @@
 \S4method{show}{spatialNetworkObj}(object)
 
 \S4method{show}{spatialGridObj}(object)
+
+\S4method{show}{spatEnrObj}(object)
 
 \S4method{show}{giottoImage}(object)
 
@@ -43,6 +46,8 @@ show method for spatLocsObj class
 show method for spatialNetworkObj class
 
 show method for spatialGridObj class
+
+show method for spatEnrObj class
 
 show method for giottoImage class
 

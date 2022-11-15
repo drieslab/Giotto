@@ -92,12 +92,31 @@ setMethod('plot', signature(x = 'giottoImage', y = 'missing'), function(x,y,...)
 setMethod('plot', signature(x = 'giottoLargeImage', y = 'missing'), function(x,y,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
+#' @param point_size size of points when plotting giottoPolygon object centroids
+#' @param type what to plot: either 'poly' (default) or polygon 'centroid'
 #' @export
-setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'), function(x,y,...) terra::plot(x = x@spatVector,...))
+setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'), function(x,
+                                                                          y,
+                                                                          point_size = 0.1,
+                                                                          type = c('poly', 'centroid'),
+                                                                          ...) {
+  type = match.arg(type, choices = c('poly', 'centroid'))
+  if(type == 'poly') {
+    terra::plot(x = x@spatVector, ...)
+  }
+  if(type == 'centroid') {
+    if(!is.null(x@spatVectorCentroids)) {
+      terra::plot(x = x@spatVectorCentroids, cex = point_size, ...)
+    } else {
+      cat('no centroids calculated\n')
+    }
+  }
+
+})
 
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
-#' @param point_size size of points when plotting giottoPoint
-#' @param feats specific features to plot within giottoPoint object (defaults to NULL, meaning all available features)
+#' @param point_size size of points when plotting giottoPoints
+#' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
 #' @export
 setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
                                                                          y,
@@ -105,7 +124,7 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
                                                                          feats = NULL,
                                                                          ...) {
 
-  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size,...)
+  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
   else if(length(feats) == 1) {
     gp = x@spatVector
     x_feat_subset = gp[gp$feat_ID %in% feats]

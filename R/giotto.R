@@ -3306,6 +3306,8 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @param bounds_to_load vector of boundary information to load (e.g. \code{'cell'}
 #' or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
 #' at the same time.)
+#' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included as
+#' a subcellular transcript detection (default = 20)
 #' @inheritParams get10Xmatrix
 #' @inheritParams createGiottoObjectSubcellular
 #' @export
@@ -3316,6 +3318,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                     h5_gene_ids = c('symbols', 'ensembl'),
                                     gene_column_index = 1,
                                     bounds_to_load = c('cell'),
+                                    qv_threshold = 20,
                                     # include_analysis = FALSE,
                                     instructions = NULL,
                                     cores = NA,
@@ -3572,6 +3575,10 @@ createGiottoXeniumObject = function(xenium_dir,
     if(isTRUE(verbose)) message('Building subcellular giotto object...')
     # Giotto points object
     if(isTRUE(verbose)) message('> points data...')
+
+    # filter by qv_threshold
+
+
     gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
     # Giotto polygons object
     if(isTRUE(verbose)) message('> polygons data...')
