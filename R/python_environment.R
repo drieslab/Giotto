@@ -237,14 +237,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #' installed it will be automatically detected when you run the Giotto toolbox. If you want to use
 #' your own python path then you can set the python_path in the \code{\link{createGiottoInstructions}}
 #' and provide the instructions to the \code{\link{createGiottoObject}} function.
-#' @export
-#' @examples
-#' \dontrun{
 #'
-#'   # this command will install r-miniconda
-#'   # and a giotto environment with all necessary python modules
-#'   installGiottoEnvironment()
-#'}
 #' By default, Python v3.10.2 will be used with the following python modules
 #' for Giotto Suite implementations:
 #'    - pandas==1.5.1
@@ -269,6 +262,15 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   - python-louvain==0.15
 #'   - python.app==2 # macOS only
 #'   - scikit-learn==0.24.2
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#'
+#'   # this command will install r-miniconda
+#'   # and a giotto environment with all necessary python modules
+#'   installGiottoEnvironment()
+#'}
 installGiottoEnvironment =  function(packages_to_install = c('pandas==1.5.1',
                                                              'networkx==2.8.8',
                                                              'python-igraph==0.10.2',
