@@ -70,7 +70,7 @@ plotInteractivePolygons <- function(x,
     )
 
   } else { ## find min and max values for non-spatRaster image
-    ui <- miniPage(
+    ui <- miniUI::miniPage(
       gadgetTitleBar("Plot Interactive Polygons"),
       miniContentPanel(
         textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
@@ -90,7 +90,7 @@ plotInteractivePolygons <- function(x,
   }
 
   server <- function(input, output,session) {
-    output$plot <- renderPlot({
+    output$plot <- shiny::renderPlot({
       if ("ggplot" %in% class(x)) {
         x$coordinates$default <- TRUE
         x +
@@ -105,8 +105,8 @@ plotInteractivePolygons <- function(x,
       }
     }, res = 96, width = width, height = height)
 
-    clicklist <- reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
-    observeEvent(input$plot_click, {
+    clicklist <- shiny::reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
+    shiny::observeEvent(input$plot_click, {
       click_x <- input$plot_click$x
       click_y <- input$plot_click$y
       polygon_name <- input$polygon_name
@@ -116,14 +116,14 @@ plotInteractivePolygons <- function(x,
     })
 
 
-    output$info <- renderTable(clicklist())
+    output$info <- shiny::renderTable(clicklist())
 
-    observeEvent(input$done, {
+    shiny::observeEvent(input$done, {
       returnValue <- clicklist()
       stopApp(returnValue)
     })
   }
-  runGadget(ui, server)
+  shiny::runGadget(ui, server)
 }
 
 
