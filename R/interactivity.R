@@ -247,7 +247,7 @@ addPolygonCells <- function(gobject,
                                                                  spat_unit = spat_unit,
                                                                  spat_loc_name = spat_loc_name,
                                                                  polygons = polygons))
-  data.table::setnames(polygon_cells, old = 'poly_ID', new = 'selections')
+  data.table::setnames(polygon_cells, old = 'poly_ID', new = polygon_name)
 
   ## get original cell metadata
   cell_metadata <- get_cell_metadata(gobject = gobject,
@@ -406,7 +406,7 @@ compareCellAbundance <- function(gobject,
 
   # get poly_ID and cell_type from metadata
   my_metadata <- get_cell_metadata(gobject = gobject,
-                                   polygon_name = 'selections',
+                                   polygon_name = polygon_name,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
                                    output = 'data.talbe',
