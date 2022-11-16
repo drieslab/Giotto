@@ -15,7 +15,7 @@
 #' @details Function in beta. Converts a .h5ad file into a Giotto object.
 #'    The returned Giotto Object will take default insructions with the
 #'    exception of the python path, which may be customized.
-#'    See \code{\link{changeGiottoInstructions} to modify instructions after creation.
+#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
 #' @export
 anndataToGiotto = function(anndata_path = NULL,
                            python_path = NULL) {
