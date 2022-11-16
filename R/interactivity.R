@@ -406,7 +406,6 @@ compareCellAbundance <- function(gobject,
 
   # get poly_ID and cell_type from metadata
   my_metadata <- get_cell_metadata(gobject = gobject,
-                                   polygon_name = polygon_name,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
                                    output = 'data.talbe',

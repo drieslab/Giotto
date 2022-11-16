@@ -2086,10 +2086,6 @@ filterGiotto = function(gobject,
 
   #selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
-
-  print(selected_cell_ids[1:4])
-  print(selected_feat_ids[1:4])
-
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
