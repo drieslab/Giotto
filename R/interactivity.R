@@ -52,45 +52,45 @@ plotInteractivePolygons <- function(x,
   ## find min and max values for spatRaster image
   if("SpatRaster" %in% class(x)) {
     ui <- miniUI::miniPage(
-      gadgetTitleBar("Plot Interactive Polygons"),
-      miniContentPanel(
-        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-        sliderInput("xrange", label = "x coordinates",
+      miniUI::gadgetTitleBar("Plot Interactive Polygons"),
+      miniUI::miniContentPanel(
+        shiny::textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+        shiny::sliderInput("xrange", label = "x coordinates",
                     min = min(terra::ext(r))[1],
                     max = max(terra::ext(r))[1],
                     value = c(min(terra::ext(r))[1],
                               max(terra::ext(r))[1])) ,
-        sliderInput("yrange", label = "y coordinates",
+        shiny::sliderInput("yrange", label = "y coordinates",
                     min = min(terra::ext(r))[2],
                     max = max(terra::ext(r))[2],
                     value = c(min(terra::ext(r))[2],
                               max(terra::ext(r))[2])) ,
-        plotOutput("plot", click = "plot_click")
+        shiny::plotOutput("plot", click = "plot_click")
       )
     )
 
   } else { ## find min and max values for non-spatRaster image
-    ui <- miniPage(
-      gadgetTitleBar("Plot Interactive Polygons"),
-      miniContentPanel(
-        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-        sliderInput("xrange", label = "x coordinates",
+    ui <- miniUI::miniPage(
+      miniUI::gadgetTitleBar("Plot Interactive Polygons"),
+      miniUI::miniContentPanel(
+        shiny::textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+        shiny::sliderInput("xrange", label = "x coordinates",
                     min = min(x[["layers"]][[1]]$data$sdimx),
                     max = max(x[["layers"]][[1]]$data$sdimx),
                     value = c(min(x[["layers"]][[1]]$data$sdimx),
                               max(x[["layers"]][[1]]$data$sdimx))) ,
-        sliderInput("yrange", label = "y coordinates",
+        shiny::sliderInput("yrange", label = "y coordinates",
                     min = min(x[["layers"]][[1]]$data$sdimy),
                     max = max(x[["layers"]][[1]]$data$sdimy),
                     value = c(min(x[["layers"]][[1]]$data$sdimy),
                               max(x[["layers"]][[1]]$data$sdimy))) ,
-        plotOutput("plot", click = "plot_click")
+        shiny::plotOutput("plot", click = "plot_click")
       )
     )
   }
 
   server <- function(input, output,session) {
-    output$plot <- renderPlot({
+    output$plot <- shiny::renderPlot({
       if ("ggplot" %in% class(x)) {
         x$coordinates$default <- TRUE
         x +
@@ -105,8 +105,8 @@ plotInteractivePolygons <- function(x,
       }
     }, res = 96, width = width, height = height)
 
-    clicklist <- reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
-    observeEvent(input$plot_click, {
+    clicklist <- shiny::reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
+    shiny::observeEvent(input$plot_click, {
       click_x <- input$plot_click$x
       click_y <- input$plot_click$y
       polygon_name <- input$polygon_name
@@ -116,14 +116,14 @@ plotInteractivePolygons <- function(x,
     })
 
 
-    output$info <- renderTable(clicklist())
+    output$info <- shiny::renderTable(clicklist())
 
-    observeEvent(input$done, {
+    shiny::observeEvent(input$done, {
       returnValue <- clicklist()
-      stopApp(returnValue)
+      shiny::stopApp(returnValue)
     })
   }
-  runGadget(ui, server)
+  shiny::runGadget(ui, server)
 }
 
 
