@@ -39,9 +39,11 @@ filterGiotto(
 
 \item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
 
-\item{all_spat_units}{subset all spatial units with selected feature ids}
+\item{all_spat_units}{apply features to remove filtering results from current
+spatial unit/feature type combination across ALL spatial units (default = TRUE)}
 
-\item{all_feat_types}{subset all feature type data with selected cell ids}
+\item{all_feat_types}{apply cells to remove filtering results from current
+spatial unit/feature type combination across ALL feature types (default = TRUE)}
 
 \item{poly_info}{polygon information to use}
 
