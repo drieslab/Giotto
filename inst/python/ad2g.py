@@ -59,20 +59,25 @@ def extract_pca(adata = None):
     ad_guard(adata)
     o_keys = adata.obsm_keys()
     v_keys = adata.varm_keys()
-    u_keys = adata.uns['pca'].keys()
+    u_keys = None
 
     pca = dict()
 
     for ok in o_keys:
         if "pca" in ok or "PCA" in ok:
             pca['pca'] = adata.obsm[ok]
+            u_keys = adata.uns['pca'].keys()
     for vk in v_keys:
         if "PC" in vk:
             pca['loadings'] = adata.varm[vk]
-    for uk in u_keys:
-        if "variance" == uk:
-            pca['eigenvalues'] = adata.uns['pca'][uk]
+    if type(u_keys) is not type(None):
+        for uk in u_keys:
+            if "variance" == uk:
+                pca['eigenvalues'] = adata.uns['pca'][uk]
     
+    if(len(pca)) == 0:
+        pca = None
+
     return pca
     
 def extract_umap(adata = None):
@@ -116,15 +121,24 @@ def parse_obsm_for_spat_locs(adata = None):
     ad_guard(adata)
     cID = np.array(extract_cell_IDs(adata))
     spat_locs = None
+    spat_key = None
+    
     try:
         spat_locs = adata.obsm["spatial"]
     except (KeyError):
-        spat_key = [i for i in adata.obsm if 'spatial' in i][0]
-        spat_locs = adata.obsm[spat_key]
-    
+        spat_keys = [i for i in adata.obsm if 'spatial' in i]
+        if len(spat_keys) > 0:
+            spat_key = spat_keys[0]
+            spat_locs = adata.obsm[spat_key]
+
     if spat_locs is None:
-        print("Spatial locations were not found.")
-        raise(KeyError)
+        err_mess = '''Spatial locations were not found. If spatial locations should have been found,
+        please modify the anndata object to include a keyword-value pair within the obsm slot,
+        in which the keyword contains the phrase "spatial" and the value corresponds to the spatial locations.\n
+        In the Giotto Object resulting from this conversion, dummy locations will be used.'''
+        print(err_mess)
+        spat_locs = None
+        return spat_locs
     else:
         print("Spatial locations found.")
     
@@ -161,7 +175,9 @@ def extract_feat_metadata(adata = None):
 ### Alternative expression data
 def extract_layer_names(adata = None):
     ad_guard(adata)
-    layer_names = [i for i in adata.layers]
+    layer_names = None
+    if len(adata.layers) > 0:
+        layer_names = [i for i in adata.layers]
     return layer_names
 
 def extract_layered_data(adata = None, layer_name = None):
@@ -173,19 +189,9 @@ def extract_layered_data(adata = None, layer_name = None):
     target_layer = adata.layers[layer_name]
     if type(target_layer) == scipy.sparse.csr.csr_matrix:
         target_layer = target_layer.T
+    elif type(target_layer) == scipy.sparse.csr_matrix:
+        target_layer = target_layer.T
     else:
         target_layer = pd.DataFrame(target_layer)
     return target_layer
 
-def unstruct(adata = None):
-    """
-    Extracts unstructured data from AnnData object
-
-    INPUT: AnnData object
-
-    OUTPUT: Dictionary of dictionaries containing unstructured metadata
-    """
-    ad_guard(adata)
-    unstructured = adata.uns
-
-    return unstructured
