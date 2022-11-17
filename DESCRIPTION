@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 2.1
+Version: 3.0.0
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -51,7 +51,7 @@ Imports:
     parallel,
     RColorBrewer (>= 1.1-2),
     reshape2,
-    reticulate (>= 1.14),
+    reticulate (>= 1.25),
     rmarkdown,
     R.utils,
     Rtsne (>= 0.15),

@@ -4,12 +4,12 @@
 \alias{anndataToGiotto}
 \title{Convert anndata to Giotto}
 \usage{
-anndataToGiotto(anndata_path = NULL, instructions = NULL, ...)
+anndataToGiotto(anndata_path = NULL, python_path = NULL)
 }
 \arguments{
 \item{anndata_path}{path to the .h5ad file}
 
-\item{instructions}{giotto instructions (optional)}
+\item{python_path}{path to python executable within a conda/miniconda environment}
 }
 \value{
 Giotto object
@@ -19,4 +19,7 @@ Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 }
 \details{
 Function in beta. Converts a .h5ad file into a Giotto object.
+   The returned Giotto Object will take default insructions with the
+   exception of the python path, which may be customized.
+   See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
 }
