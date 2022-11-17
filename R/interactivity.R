@@ -408,7 +408,7 @@ compareCellAbundance <- function(gobject,
   my_metadata <- get_cell_metadata(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
-                                   output = 'data.talbe',
+                                   output = 'data.table',
                                    copy_obj = TRUE)
   columns_to_select = c(polygon_name, cell_type_column)
   my_metadata <- my_metadata[, ..columns_to_select]
