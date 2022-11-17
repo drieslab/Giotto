@@ -121,12 +121,9 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
   if(.Platform[['OS.type']] == 'unix') {
 
     conda_full_path = paste0(conda_path,'/','bin/conda')
-    installGiottoEnvironment(force_miniconda = FALSE,
-                             force_environment = TRUE,
-                             verbose = TRUE)(envname = 'giotto_env',
+    reticulate::conda_create(envname = 'giotto_env',
                              conda = conda_full_path,
                              python_version = python_version)
-
 
     full_envname = paste0(conda_path,'/envs/giotto_env')
 
