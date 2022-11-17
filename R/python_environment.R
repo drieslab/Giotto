@@ -125,7 +125,6 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                              conda = conda_full_path,
                              python_version = python_version)
 
-
     full_envname = paste0(conda_path,'/envs/giotto_env')
 
     if(os_specific_system == 'osx') {
