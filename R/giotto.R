@@ -3499,13 +3499,13 @@ createGiottoXeniumObject_subcellular = function(data_list,
 
   if(isTRUE(verbose)) message('> splitting detections by feat_type')
   # discover feat_IDs for each feat_type
-  all_IDs = tx_dt_filtered[, unique(feature_name)]
+  all_IDs = tx_dt_filtered[, unique(feat_ID)]
   feat_types_IDs = lapply(key_list, function(x) all_IDs[grepl(pattern = x, all_IDs)])
   rna = list('rna' = all_IDs[!all_IDs %in% unlist(feat_types_IDs)])
   feat_types_IDs = append(rna, feat_types_IDs)
 
   # separate detections by feature type
-  gpoints_list = lapply(
+  points_list = lapply(
     feat_types_IDs,
     function(types) {
       tx_dt_filtered[feat_ID %in% types]
@@ -3514,15 +3514,15 @@ createGiottoXeniumObject_subcellular = function(data_list,
 
   # Giotto polygons object
   if(isTRUE(verbose)) message('> polygons data prep...')
-  gpolys_list = lapply(
+  polys_list = lapply(
     bound_dt_list,
     function(bound_type) {
       bound_type[, cell_id := as.character(cell_id)]
     }
   )
-
-  xenium_gobject = createGiottoObjectSubcellular(gpoints = gpoints_list,
-                                                 gpolygons = gpolys_list,
+  browser()
+  xenium_gobject = createGiottoObjectSubcellular(gpoints = points_list,
+                                                 gpolygons = polys_list,
                                                  instructions = instructions,
                                                  cores = cores,
                                                  verbose = verbose)
