@@ -14,6 +14,7 @@ readPolygonFilesVizgenHDF5(
   smooth_polygons = TRUE,
   smooth_vertices = 60,
   set_neg_to_zero = FALSE,
+  H5Fopen_flags = h5default("H5F_ACC_RD"),
   verbose = TRUE
 )
 }
@@ -37,10 +38,15 @@ readPolygonFilesVizgenHDF5(
 
 \item{set_neg_to_zero}{set negative values to zero when smoothing}
 
+\item{H5Fopen_flags}{see \code{\link[rhdf5]{H5Fopen}} for more details}
+
 \item{verbose}{be verbose}
 }
 \description{
 Read and create polygons for all cells, or for only selected FOVs.
+}
+\details{
+Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
 }
 \seealso{
 \code{\link{smoothGiottoPolygons}}

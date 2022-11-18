@@ -39,22 +39,22 @@ Find the dimensions of an object
 }
 \section{Functions}{
 \itemize{
-\item \code{nrow(giottoPoints)}: Find rows of giottoPoints object
+\item \code{nrow,giottoPoints-method}: Find rows of giottoPoints object
 
-\item \code{nrow(giottoPolygon)}: Find rows of giottoPolygon object
+\item \code{nrow,giottoPolygon-method}: Find rows of giottoPolygon object
 
-\item \code{nrow(coordDataDT)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{nrow,coordDataDT-method}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
-\item \code{nrow(exprData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{nrow,exprData-method}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
-\item \code{nrow(metaData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{nrow,metaData-method}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
-\item \code{ncol(exprData)}: Find cols of giotto S4s with Matrix based \code{exprMat} slots
+\item \code{ncol,exprData-method}: Find cols of giotto S4s with Matrix based \code{exprMat} slots
 
-\item \code{ncol(metaData)}: Find cols of giotto S4s with data.table based \code{metaDT} slots
+\item \code{ncol,metaData-method}: Find cols of giotto S4s with data.table based \code{metaDT} slots
 
-\item \code{dim(exprData)}: Find dimensions of giotto S4s with Matrix based \code{exprMat} slots
+\item \code{dim,exprData-method}: Find dimensions of giotto S4s with Matrix based \code{exprMat} slots
 
-\item \code{dim(metaData)}: Find dimensions of giotto S4s with data.table based \code{metaDT} slots
-
+\item \code{dim,metaData-method}: Find dimensions of giotto S4s with data.table based \code{metaDT} slots
 }}
+
