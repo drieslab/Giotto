@@ -240,6 +240,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'
 #' By default, Python v3.10.2 will be used with the following python modules
 #' for Giotto Suite implementations:
+#' \preformatted{
 #'    - pandas==1.5.1
 #'    - networkx==2.8.8
 #'    - python-igraph==0.10.2
@@ -247,6 +248,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'    - python-louvain==0.16
 #'    - python.app==1.4
 #'    - scikit-learn==1.1.3
+#' }
 #'
 #'  The giotto environment can be custom installed by changing the
 #'  python_version parameter and module versions in the
@@ -255,6 +257,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'  For example, this giotto environment works as well, and was the
 #'  default environment status for past releases of Giotto.
 #'  Python  v3.6
+#'  \preformatted{
 #'   - pandas==1.1.5
 #'   - networkx==2.6.3
 #'   - python-igraph==0.9.6
@@ -262,6 +265,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   - python-louvain==0.15
 #'   - python.app==2 # macOS only
 #'   - scikit-learn==0.24.2
+#' }
 #'
 #' @export
 #' @examples

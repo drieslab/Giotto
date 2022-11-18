@@ -3308,8 +3308,40 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' at the same time.)
 #' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included as
 #' a subcellular transcript detection (default = 20)
+#' @param key_list (advanced) list of grep-based keywords to split the subcellular
+#' feature detections by feature type. See details
 #' @inheritParams get10Xmatrix
 #' @inheritParams createGiottoObjectSubcellular
+#' @details
+#'
+#' [\strong{QC feature types}]
+#' Xenium provides info on feature detections that include more than only the
+#' Gene Expression specific probes. Additional probes for QC are included:
+#' \emph{blank codeword}, \emph{negative control codeword}, and
+#' \emph{negative control probe}. These additional QC probes each occupy and are treated
+#' as their own feature types so that they can largely remain independent of the
+#' gene expression information.
+#'
+#' [\strong{key_list}]
+#' Related to \code{data_to_use = 'subcellular'} workflow only:
+#' Additional QC probe information is in the subcellular feature detections information
+#' and must be separated from the gene expression information during processing.
+#' The QC probes have prefixes that allow them to be selected from the rest of the
+#' feature IDs.
+#' Giotto uses a named list of keywords (\code{key_list}) to select these QC probes,
+#' with the list names being the names that will be assigned as the feature type
+#' of these feature detections. The default list is used when \code{key_list} = NULL.
+#'
+#' Default list:
+#' \preformatted{
+#'  list(blank_code = 'BLANK_',
+#'       neg_code = 'NegControlCodeword_',
+#'       neg_probe = c('NegControlProbe_|antisense_'))
+#' }
+#'
+#' The Gene expression subset is accepted as the subset of feat_IDs that do not
+#' map to any of the keys.
+#'
 #' @export
 createGiottoXeniumObject = function(xenium_dir,
                                     data_to_use = c('subcellular','aggregate'),
@@ -3319,10 +3351,13 @@ createGiottoXeniumObject = function(xenium_dir,
                                     gene_column_index = 1,
                                     bounds_to_load = c('cell'),
                                     qv_threshold = 20,
+                                    key_list = NULL,
                                     # include_analysis = FALSE,
                                     instructions = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
+
+  # 0. setup
 
   # Determine data to load
   data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate'))
@@ -3330,6 +3365,269 @@ createGiottoXeniumObject = function(xenium_dir,
   # Determine load formats
   load_format = 'csv' # TODO Remove this and add as param once other options are available
   load_format = match.arg(arg = load_format, choices = c('csv', 'parquet', 'zarr'))
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
+
+  # 1. detect xenium folder and find filepaths to load
+
+  # path_list contents:
+    # tx_path
+    # bound_paths
+    # cell_meta_path
+    # agg_expr_path
+    # panel_meta_path
+  path_list = read_xenium_folder(xenium_dir = xenium_dir,
+                                 data_to_use = data_to_use,
+                                 bounds_to_load = bounds_to_load,
+                                 load_format = load_format,
+                                 h5_expression = h5_expression,
+                                 verbose = verbose)
+
+
+  # 2. load in data
+
+  # data_list contents:
+    # feat_meta
+    # tx_dt
+    # bound_dt_list
+    # cell_meta
+    # agg_expr
+  data_list = load_xenium_folder(path_list = path_list,
+                                 load_format = load_format,
+                                 data_to_use = data_to_use,
+                                 h5_expression = h5_expression,
+                                 h5_gene_ids = h5_gene_ids,
+                                 gene_column_index = gene_column_index,
+                                 cores = cores,
+                                 verbose = verbose)
+
+
+  # TODO load images
+
+
+  # 3. Create giotto objects
+
+  if(data_to_use == 'subcellular') {
+
+    # ** feat type search keys **
+    if(is.null(key_list)) {
+      key_list = list(blank_code = 'BLANK_',
+                      neg_code = 'NegControlCodeword_',
+                      neg_probe = c('NegControlProbe_|antisense_'))
+    }
+
+    # needed:
+      # feat_meta
+      # tx_dt
+      # bound_dt_list
+    xenium_gobject = createGiottoXeniumObject_subcellular(data_list = data_list,
+                                                          qv_threshold = qv_threshold,
+                                                          key_list = key_list,
+                                                          instructions = instructions,
+                                                          cores = cores,
+                                                          verbose = verbose)
+
+  }
+
+  if(data_to_use == 'aggregate') {
+
+    # needed:
+      # feat_meta
+      # cell_meta
+      # agg_expr
+    # optional?
+      # tx_dt
+      # bound_dt_list
+    xenium_gobject = createGiottoXeniumObject_aggregate(data_list = data_list,
+                                                        instructions = instructions,
+                                                        cores = cores,
+                                                        verbose = verbose)
+
+  }
+
+  return(xenium_gobject)
+
+}
+
+
+
+
+#' @title Create a Xenium Giotto object from subcellular info
+#' @name createGiottoXeniumObject_subcellular
+#' @description Subcellular workflow for createGiottoXeniumObject
+#' @param data_list list of data loaded by \code{\link{load_xenium_folder}}
+#' @param key_list regex-based search keys for feature IDs to allow separation
+#' into separate giottoPoints objects by feat_type
+#' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included as
+#' a subcellular transcript detection (default = 20)
+#' @inheritParams get10Xmatrix
+#' @inheritParams createGiottoObjectSubcellular
+#' @seealso createGiottoXeniumObject createGiottoXeniumObject_aggregate
+#' @keywords internal
+createGiottoXeniumObject_subcellular = function(data_list,
+                                                key_list = NULL,
+                                                qv_threshold = 20,
+                                                instructions = NULL,
+                                                cores = NA,
+                                                verbose = TRUE) {
+
+  # Unpack data_list info
+  feat_meta = data_list$feat_meta
+  tx_dt = data_list$tx_dt
+  bound_dt_list = data_list$bound_dt_list
+  # cell_meta = data_list$cell_meta
+  # agg_expr = data_list$agg_expr
+
+  # define for data.table
+  cell_id = feat_ID = feature_name = NULL
+
+  if(isTRUE(verbose)) message('Building subcellular giotto object...')
+  # Giotto points object
+  if(isTRUE(verbose)) message('> points data...')
+
+  # filter by qv_threshold
+  if(isTRUE(verbose)) wrap_msg('> filtering feature detections for Phred score >= ', qv_threshold)
+  n_before = tx_dt[,.N]
+  tx_dt_filtered = tx_dt[qv >= qv_threshold]
+  n_after = tx_dt_filtered[,.N]
+
+  cat('Number of feature points removed: ',
+      n_before - n_after,
+      ' out of ', n_before, '\n')
+
+  # discover feat_IDs for each feat_type
+  all_IDs = tx_dt_filtered[, unique(feature_name)]
+  feat_types_IDs = lapply(key_list, function(x) all_IDs[grepl(pattern = x, all_IDs)])
+  rna = list('rna' = all_IDs[!all_IDs %in% unlist(feat_types_IDs)])
+  feat_types_IDs = append(rna, feat_types_IDs)
+
+  # separate detections by feature type
+  tx_dt_types = lapply(
+    feat_types_IDs, function(types) tx_dt_filtered[feat_ID %in% types]
+  )
+
+  gpoints_list = lapply(
+    tx_dt_types, function(x) createGiottoPoints(x = x)
+  )
+
+  # Giotto polygons object
+  if(isTRUE(verbose)) message('> polygons data...')
+  gpolys = lapply(names(bound_dt_list),
+                  function(bound_type) {
+                    if(isTRUE(verbose)) message('  [', bound_type, '] bounds...')
+                    bound_dt_list[[bound_type]][, cell_id := as.character(cell_id)]
+                    createGiottoPolygonsFromDfr(segmdfr = bound_dt_list[[bound_type]],
+                                                name = bound_type)
+                  })
+
+  xenium_gobject = createGiottoObjectSubcellular(gpoints = list(rna = gpoints),
+                                                 gpolygons = gpolys,
+                                                 instructions = instructions,
+                                                 cores = cores,
+                                                 verbose = verbose)
+
+  # generate centroids
+  if(isTRUE(verbose)) message('Calculating polygon centroids...')
+  xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
+                                               poly_info = c(names(bound_dt_list)))
+
+  # add in feature metadata
+  xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
+                                   new_metadata = feat_meta,
+                                   by_column = TRUE,
+                                   column_feat_ID = 'feat_ID')
+
+  return(xenium_gobject)
+
+}
+
+
+
+
+
+#' @title Create a Xenium Giotto object from aggregate info
+#' @name createGiottoXeniumObject_aggregate
+#' @description Aggregate workflow for createGiottoXeniumObject
+#' @param data_list list of data loaded by \code{load_xenium_folder}
+#' @inheritParams get10Xmatrix
+#' @inheritParams createGiottoObjectSubcellular
+#' @seealso createGiottoXeniumObject createGiottoXeniumObject_subcellular
+#' @keywords internal
+createGiottoXeniumObject_aggregate = function(data_list,
+                                              # include_analysis = FALSE,
+                                              instructions = NULL,
+                                              cores = NA,
+                                              verbose = TRUE) {
+
+  # Unpack data_list info
+  feat_meta = data_list$feat_meta
+  # tx_dt = data_list$tx_dt
+  # bound_dt_list = data_list$bound_dt_list
+  cell_meta = data_list$cell_meta
+  agg_expr = data_list$agg_expr
+
+  # define for data.table
+  cell_ID = x_centroid = y_centroid = NULL
+
+  # clean up names for aggregate matrices
+  names(agg_expr) = gsub(pattern = ' ', replacement = '_' ,names(agg_expr))
+  geneExpMat = which(names(agg_expr) == 'Gene_Expression')
+  names(agg_expr)[[geneExpMat]] = 'raw'
+
+  # set cell_id as character
+  cell_meta = cell_meta[, data.table::setnames(.SD, 'cell_id', 'cell_ID')]
+  cell_meta = cell_meta[, cell_ID := as.character(cell_ID)]
+
+  # set up spatial locations
+  agg_spatlocs = cell_meta[, .(x_centroid, y_centroid, cell_ID)]
+
+  # set up metadata
+  agg_meta = cell_meta[, !c('x_centroid','y_centroid')]
+
+  if(isTRUE(verbose)) message('Building aggregate giotto object...')
+  xenium_gobject = createGiottoObject(expression = agg_expr,
+                                      spatial_locs = agg_spatlocs,
+                                      instructions = instructions,
+                                      cores = cores,
+                                      verbose = verbose)
+
+  # append aggregate metadata
+  xenium_gobject = addCellMetadata(gobject = xenium_gobject,
+                                   new_metadata = agg_meta,
+                                   by_column = TRUE,
+                                   column_cell_ID = 'cell_ID')
+  xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
+                                   new_metadata = feat_meta,
+                                   by_column = TRUE,
+                                   column_feat_ID = 'feat_ID')
+
+  return(xenium_gobject)
+
+}
+
+
+
+
+
+
+
+#### folder detection and loading ####
+
+
+#' @title Read a structured xenium folder
+#' @name read_xenium_folder
+#' @inheritParams createGiottoXeniumObject
+#' @keywords internal
+#' @return path_list a list of xenium files discovered and their filepaths. NULL
+#' values denote missing items
+read_xenium_folder = function(xenium_dir,
+                              data_to_use = 'subcellular',
+                              bounds_to_load = c('cell'),
+                              load_format = 'csv',
+                              h5_expression = FALSE,
+                              verbose = TRUE) {
 
   # Check needed packages
   if(load_format == 'parquet') {
@@ -3365,6 +3663,9 @@ createGiottoXeniumObject = function(xenium_dir,
   if(isTRUE(verbose)) {
     message('Checking directory contents...')
     for(item in names(dir_items)) {
+
+      # IF ITEM FOUND
+
       if(dir_items_lengths[[item]] > 0) {
         message(ch$s, '> ' ,item, ' found')
         for(item_i in seq_along(dir_items[[item]])) { # print found item names
@@ -3372,6 +3673,12 @@ createGiottoXeniumObject = function(xenium_dir,
           message(ch$s, ch$s, ch$l,ch$h,ch$h, subItem)
         }
       } else {
+
+        # IF ITEM MISSING
+        # Based on workflow, determine if:
+        # necessary (error)
+        # optional (warning)
+
         if(data_to_use == 'subcellular') {
           # necessary items
           if(item %in% c('boundary info', 'raw transcript info')) stop(item, ' is missing\n')
@@ -3394,8 +3701,10 @@ createGiottoXeniumObject = function(xenium_dir,
 
 
   # **** transcript info ****
+  tx_path = NULL
   tx_path = dir_items$`raw transcript info`[grepl(pattern = load_format, dir_items$`raw transcript info`)]
   # **** cell metadata ****
+  cell_meta_path = NULL
   cell_meta_path = dir_items$`cell metadata`[grepl(pattern = load_format, dir_items$`cell metadata`)]
 
   # **** boundary info ****
@@ -3405,12 +3714,14 @@ createGiottoXeniumObject = function(xenium_dir,
   } else dir_items$`boundary info` = dir_items$`boundary info`[grepl(pattern = 'csv', dir_items$`boundary info`)]
 
   # Organize bound paths by type of bound (bounds_to_load param)
+  bound_paths = NULL
   bound_names = bounds_to_load
   bounds_to_load = as.list(bounds_to_load)
   bound_paths = lapply(bounds_to_load, function(x) dir_items$`boundary info`[grepl(pattern = x, dir_items$`boundary info`)])
   names(bound_paths) = bound_names
 
   # **** aggregated expression info ****
+  agg_expr_path = NULL
   if(isTRUE(h5_expression)) { # h5 expression matrix loading is default
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'h5', dir_items$`cell feature matrix`)]
     h5_gene_ids = match.arg(arg = h5_gene_ids, choices = c('symbols', 'ensembl'))
@@ -3418,252 +3729,254 @@ createGiottoXeniumObject = function(xenium_dir,
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'zarr', dir_items$`cell feature matrix`)]
   } else { # No parquet for aggregated expression - default to normal 10x loading
     agg_expr_path = dir_items$`cell feature matrix`[sapply(dir_items$`cell feature matrix`, function(x) file_test(op = '-d', x))]
-    if(length(agg_expr_path) == 0) stop('Expression matrix cannot be loaded.\nHas cell_feature_matrix(.tar.gz) been unpacked into a directory?')
+    if(length(agg_expr_path) == 0) stop(wrap_txt(
+      'Expression matrix cannot be loaded.\nHas cell_feature_matrix(.tar.gz) been unpacked into a directory?'
+      ))
   }
+  if(data_to_use == 'aggregate') {
+    if(length(path_list$agg_expr_path) == 0) stop(wrap_txt(
+      'Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n'
+      ))
+  }
+
+  # **** panel info ****
+  panel_meta_path = NULL
+  panel_meta_path = dir_items$`panel metadata`
 
 
   if(isTRUE(verbose)) message('Directory check done')
 
+  path_list = list('tx_path' = tx_path,
+                   'bound_paths' = bound_paths,
+                   'cell_meta_path' = cell_meta_path,
+                   'agg_expr_path' = agg_expr_path,
+                   'panel_meta_path' = panel_meta_path)
 
-  # 2. read in data
+  return(path_list)
+
+}
 
 
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
-
-  if(isTRUE(verbose)) message('Loading feature metadata...')
-  feat_meta = data.table::fread(dir_items$`panel metadata`[[1]], nThread = cores)
-  colnames(feat_meta)[[1]] = 'feat_ID'
+#' @title Load xenium data from folder
+#' @name load_xenium_folder
+#' @param path_list list of full filepaths from read_xenium_folder
+#' @inheritParams createGiottoXeniumObject
+#' @keywords internal
+#' @return list of loaded in xenium data
+load_xenium_folder = function(path_list,
+                              load_format = 'csv',
+                              data_to_use = 'subcellular',
+                              h5_expression = 'FALSE',
+                              h5_gene_ids = 'symbols',
+                              gene_column_index = 1,
+                              cores,
+                              verbose = TRUE) {
 
   if(load_format == 'csv') {
-    # ---------------------------------------------------------------------------- #
-    # **** subcellular info ****
-    if(data_to_use == 'subcellular') {
-      # append missing QC probe info to feat_meta
-      if(isTRUE(h5_expression)) {
-        h5 = hdf5r::H5File$new(agg_expr_path)
-        tryCatch({
-          root = names(h5)
-          feature_id = h5[[paste0(root, "/features/id")]][]
-          feature_info = h5[[paste0(root,"/features/feature_type")]][]
-          feature_names = h5[[paste0(root, "/features/name")]][]
-          features_dt = data.table::data.table(
-            'id' = feature_id,
-            'name' = feature_names,
-            'feature_type' = feature_info
-          )
-        }, finally = {
-          h5$close_all()
-        })
-      } else {
-        features_dt = data.table::fread(paste0(agg_expr_path, '/features.tsv.gz'), header = F)
-      }
-      colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
-      feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
-
-      if(isTRUE(verbose)) message('Loading transcript level info...')
-      tx_dt = data.table::fread(tx_path[[1]], nThread = cores)
-      if(isTRUE(verbose)) message('Loading boundary info...')
-      bound_dt_list = lapply(bound_paths, function(x) data.table::fread(x[[1]], nThread = cores))
-    }
-    # **** aggregate info ****
-    if(isTRUE(verbose)) message('Loading cell metadata...')
-    cell_meta = data.table::fread(cell_meta_path[[1]], nThread = cores)
-
-    if(data_to_use == 'aggregate') {
-      if(isTRUE(verbose)) message('Loading aggregated expression...')
-      if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
-      if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = agg_expr_path,
-                                                           gene_ids = h5_gene_ids,
-                                                           remove_zero_rows = TRUE,
-                                                           split_by_type = TRUE)
-      else agg_expr = get10Xmatrix(path_to_data = agg_expr_path,
-                                   gene_column_index = gene_column_index,
-                                   remove_zero_rows = TRUE,
-                                   split_by_type = TRUE)
-    }
-    # ---------------------------------------------------------------------------- #
-  } else if(load_format == 'parquet') {
-    # ---------------------------------------------------------------------------- #
-    # **** subcellular info ****
-    if(data_to_use == 'subcellular') {
-
-      # define for data.table
-      transcript_id = feature_name = NULL
-
-      # append missing QC probe info to feat_meta
-      if(isTRUE(h5_expression)) {
-        h5 = hdf5r::H5File$new(agg_expr_path)
-        tryCatch({
-          root = names(h5)
-          feature_id = h5[[paste0(root, "/features/id")]][]
-          feature_info = h5[[paste0(root,"/features/feature_type")]][]
-          feature_names = h5[[paste0(root, "/features/name")]][]
-          features_dt = data.table::data.table(
-            'id' = feature_id,
-            'name' = feature_names,
-            'feature_type' = feature_info
-          )
-        }, finally = {
-          h5$close_all()
-        })
-      } else {
-        features_dt = arrow::read_tsv_arrow(paste0(agg_expr_path, '/features.tsv.gz'),
-                                            col_names = FALSE) %>%
-          data.table::setDT()
-      }
-      colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
-      feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
-
-      if(isTRUE(verbose)) message('Loading transcript level info...')
-      tx_dt = arrow::read_parquet(file = tx_path[[1]], as_data_frame = FALSE) %>%
-        dplyr::mutate(transcript_id = cast(transcript_id, arrow::string())) %>%
-        dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-        dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
-        as.data.frame() %>%
-        data.table::setDT()
-      if(isTRUE(verbose)) message('Loading boundary info...')
-      bound_dt_list = lapply(bound_paths, function(x) {
-        arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
-          dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-          as.data.frame() %>%
-          data.table::setDT()})
-    }
-    # **** aggregate info ****
-    if(data_to_use == 'aggregate') {
-      if(isTRUE(verbose)) message('Loading cell metadata...')
-      cell_meta = arrow::read_parquet(file = cell_meta_path[[1]], as_data_frame = FALSE) %>%
-        dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-        as.data.frame() %>%
-        data.table::setDT()
-
-      if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
-      # NOTE: no parquet for agg_expr.
-      if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = agg_expr_path,
-                                                           gene_ids = h5_gene_ids,
-                                                           remove_zero_rows = TRUE,
-                                                           split_by_type = TRUE)
-      else agg_expr = get10Xmatrix(path_to_data = agg_expr_path,
-                                   gene_column_index = gene_column_index,
-                                   remove_zero_rows = TRUE,
-                                   split_by_type = TRUE)
-    }
-    # ---------------------------------------------------------------------------- #
-  } else if(load_format == 'zarr') { # TODO
-    # ---------------------------------------------------------------------------- #
-    # **** subcellular info ****
-    if(data_to_use == 'subcellular') {
-      # NOTE: no zarr for boundaries
-    }
-    # **** aggregate info ****
-    if(data_to_use == 'aggregate') {
-      if(length(agg_expr_path) == 0) stop('Aggregated expression not found.\nPlease confirm h5_expression and load_format params are correct\n')
-    }
-    # ---------------------------------------------------------------------------- #
+    data_list = load_xenium_folder_csv(path_list = path_list,
+                                       data_to_use = data_to_use,
+                                       h5_expression = h5_expression,
+                                       h5_gene_ids = h5_gene_ids,
+                                       gene_column_index = gene_column_index,
+                                       cores = cores,
+                                       verbose = verbose)
   }
 
-  # TODO load images
+  if(load_format == 'parquet') {
+    data_list = load_xenium_folder_parquet(path_list = path_list,
+                                           data_to_use = data_to_use,
+                                           h5_expression = h5_expression,
+                                           h5_gene_ids = h5_gene_ids,
+                                           gene_column_index = gene_column_index,
+                                           cores = cores,
+                                           verbose = verbose)
+  }
+
+  if(load_format == 'zarr') {
+    # TODO
+  }
 
 
-  # 3. Create giotto objects
+  return(data_list)
+}
 
-  # define for data.table
-  cell_id = cell_ID = x_centroid = y_centroid = NULL
 
+#' @describeIn load_xenium_folder Load from csv files
+#' @keywords internal
+load_xenium_folder_csv = function(path_list,
+                                  cores,
+                                  data_to_use = 'subcellular',
+                                  h5_expression = FALSE,
+                                  h5_gene_ids = 'symbols',
+                                  gene_column_index = 1,
+                                  verbose = TRUE) {
+
+  # initialize return vars
+  feat_meta = tx_dt = bound_dt_list = cell_meta = agg_expr = NULL
+
+  if(isTRUE(verbose)) message('Loading feature metadata...')
+  feat_meta = data.table::fread(path_list$panel_meta_path[[1]], nThread = cores)
+  colnames(feat_meta)[[1]] = 'feat_ID'
+
+  # **** subcellular info ****
   if(data_to_use == 'subcellular') {
-    if(isTRUE(verbose)) message('Building subcellular giotto object...')
-    # Giotto points object
-    if(isTRUE(verbose)) message('> points data...')
+    # append missing QC probe info to feat_meta
+    if(isTRUE(h5_expression)) {
+      h5 = hdf5r::H5File$new(path_list$agg_expr_path)
+      tryCatch({
+        root = names(h5)
+        feature_id = h5[[paste0(root, "/features/id")]][]
+        feature_info = h5[[paste0(root,"/features/feature_type")]][]
+        feature_names = h5[[paste0(root, "/features/name")]][]
+        features_dt = data.table::data.table(
+          'id' = feature_id,
+          'name' = feature_names,
+          'feature_type' = feature_info
+        )
+      }, finally = {
+        h5$close_all()
+      })
+    } else {
+      features_dt = data.table::fread(paste0(path_list$agg_expr_path, '/features.tsv.gz'), header = F)
+    }
+    colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
+    feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
 
-    # filter by qv_threshold
-    if(isTRUE(verbose)) wrap_msg('> filtering feature detections for Phred score >= ', qv_threshold)
-    n_before = tx_dt[,.N]
-    tx_dt_filtered = tx_dt[qv >= qv_threshold]
-    n_after = tx_dt_filtered[,.N]
-
-    cat('Number of feature points removed: ',
-        n_before - n_after,
-        ' out of ', n_before, '\n')
-
-    # separate detections by feature type
-    tx_dt_types = lapply(
-      feat_types_ID, function(x) tx_dt_filtered[feat_ID %in% types]
-    )
-
-
-    # gpoints = createGiottoPoints(x = tx_dt[, !'cell_id'], feat_type = 'rna')
-    # Giotto polygons object
-    if(isTRUE(verbose)) message('> polygons data...')
-    gpolys = lapply(names(bound_dt_list),
-                    function(bound_type) {
-                      if(isTRUE(verbose)) message('  [', bound_type, '] bounds...')
-                      bound_dt_list[[bound_type]][, cell_id := as.character(cell_id)]
-                      createGiottoPolygonsFromDfr(segmdfr = bound_dt_list[[bound_type]],
-                                                  name = bound_type)
-                    })
-
-    xenium_gobject = createGiottoObjectSubcellular(gpoints = list(rna = gpoints),
-                                                   gpolygons = gpolys,
-                                                   instructions = instructions,
-                                                   cores = cores,
-                                                   verbose = verbose)
-
-    # generate centroids
-    if(isTRUE(verbose)) message('Calculating polygon centroids...')
-    xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
-                                                 poly_info = c(names(bound_dt_list)))
-
-    # add in feature metadata
-    xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
-                                     new_metadata = feat_meta,
-                                     by_column = TRUE,
-                                     column_feat_ID = 'feat_ID')
+    if(isTRUE(verbose)) message('Loading transcript level info...')
+    tx_dt = data.table::fread(path_list$tx_path[[1]], nThread = cores)
+    data.table::setnames(x = tx_dt,
+                         old = c('feature_name', 'x_location', 'y_location'),
+                         new = c('feat_ID', 'x', 'y'))
+    if(isTRUE(verbose)) message('Loading boundary info...')
+    bound_dt_list = lapply(path_list$bound_paths, function(x) data.table::fread(x[[1]], nThread = cores))
   }
+
+  # **** aggregate info ****
+  if(isTRUE(verbose)) message('Loading cell metadata...')
+  cell_meta = data.table::fread(path_list$cell_meta_path[[1]], nThread = cores)
 
   if(data_to_use == 'aggregate') {
-    # clean up names for aggregate matrices
-    names(agg_expr) = gsub(pattern = ' ', replacement = '_' ,names(agg_expr))
-    geneExpMat = which(names(agg_expr) == 'Gene_Expression')
-    names(agg_expr)[[geneExpMat]] = 'raw'
-
-    # set cell_id as character
-    cell_meta = cell_meta[, data.table::setnames(.SD, 'cell_id', 'cell_ID')]
-    cell_meta = cell_meta[, cell_ID := as.character(cell_ID)]
-
-    # set up spatial locations
-    agg_spatlocs = cell_meta[, .(x_centroid, y_centroid, cell_ID)]
-
-    # set up metadata
-    agg_meta = cell_meta[, !c('x_centroid','y_centroid')]
-
-    if(isTRUE(verbose)) message('Building aggregate giotto object...')
-    xenium_gobject = createGiottoObject(expression = agg_expr,
-                                        spatial_locs = agg_spatlocs,
-                                        instructions = instructions,
-                                        cores = cores,
-                                        verbose = verbose)
-
-    # append aggregate metadata
-    xenium_gobject = addCellMetadata(gobject = xenium_gobject,
-                                     new_metadata = agg_meta,
-                                     by_column = TRUE,
-                                     column_cell_ID = 'cell_ID')
-    xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
-                                     new_metadata = feat_meta,
-                                     by_column = TRUE,
-                                     column_feat_ID = 'feat_ID')
-
+    if(isTRUE(verbose)) message('Loading aggregated expression...')
+    if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = path_list$agg_expr_path,
+                                                         gene_ids = h5_gene_ids,
+                                                         remove_zero_rows = TRUE,
+                                                         split_by_type = TRUE)
+    else agg_expr = get10Xmatrix(path_to_data = path_list$agg_expr_path,
+                                 gene_column_index = gene_column_index,
+                                 remove_zero_rows = TRUE,
+                                 split_by_type = TRUE)
   }
 
-  return(xenium_gobject)
+  data_list = list(
+    'feat_meta' = feat_meta,
+    'tx_dt' = tx_dt,
+    'bound_dt_list' = bound_dt_list,
+    'cell_meta' = cell_meta,
+    'agg_expr' = agg_expr
+  )
+
+  return(data_list)
 
 }
 
 
 
 
+#' @describeIn load_xenium_folder Load from parquet files
+#' @keywords internal
+load_xenium_folder_parquet = function(path_list,
+                                      cores,
+                                      data_to_use = 'subcellular',
+                                      h5_expression = FALSE,
+                                      h5_gene_ids = 'symbols',
+                                      gene_column_index = 1,
+                                      verbose = TRUE) {
 
+  # initialize return vars
+  feat_meta = tx_dt = bound_dt_list = cell_meta = agg_expr = NULL
+
+  if(isTRUE(verbose)) message('Loading feature metadata...')
+  feat_meta = data.table::fread(path_list$panel_meta_path[[1]], nThread = cores)
+  colnames(feat_meta)[[1]] = 'feat_ID'
+
+  # **** subcellular info ****
+  if(data_to_use == 'subcellular') {
+
+    # define for data.table
+    transcript_id = feature_name = NULL
+
+    # append missing QC probe info to feat_meta
+    if(isTRUE(h5_expression)) {
+      h5 = hdf5r::H5File$new(path_list$agg_expr_path)
+      tryCatch({
+        root = names(h5)
+        feature_id = h5[[paste0(root, "/features/id")]][]
+        feature_info = h5[[paste0(root,"/features/feature_type")]][]
+        feature_names = h5[[paste0(root, "/features/name")]][]
+        features_dt = data.table::data.table(
+          'id' = feature_id,
+          'name' = feature_names,
+          'feature_type' = feature_info
+        )
+      }, finally = {
+        h5$close_all()
+      })
+    } else {
+      features_dt = arrow::read_tsv_arrow(paste0(path_list$agg_expr_path, '/features.tsv.gz'),
+                                          col_names = FALSE) %>%
+        data.table::setDT()
+    }
+    colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
+    feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
+
+    if(isTRUE(verbose)) message('Loading transcript level info...')
+    tx_dt = arrow::read_parquet(file = path_list$tx_path[[1]], as_data_frame = FALSE) %>%
+      dplyr::mutate(transcript_id = cast(transcript_id, arrow::string())) %>%
+      dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+      dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
+      as.data.frame() %>%
+      data.table::setDT()
+    data.table::setnames(x = tx_dt,
+                         old = c('feature_name', 'x_location', 'y_location'),
+                         new = c('feat_ID', 'x', 'y'))
+    if(isTRUE(verbose)) message('Loading boundary info...')
+    bound_dt_list = lapply(path_list$bound_paths, function(x) {
+      arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
+        dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+        as.data.frame() %>%
+        data.table::setDT()})
+  }
+  # **** aggregate info ****
+  if(data_to_use == 'aggregate') {
+    if(isTRUE(verbose)) message('Loading cell metadata...')
+    cell_meta = arrow::read_parquet(file = path_list$cell_meta_path[[1]], as_data_frame = FALSE) %>%
+      dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+      as.data.frame() %>%
+      data.table::setDT()
+
+    # NOTE: no parquet for agg_expr.
+    if(isTRUE(verbose)) message('Loading aggregated expression...')
+    if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = path_list$agg_expr_path,
+                                                         gene_ids = h5_gene_ids,
+                                                         remove_zero_rows = TRUE,
+                                                         split_by_type = TRUE)
+    else agg_expr = get10Xmatrix(path_to_data = path_list$agg_expr_path,
+                                 gene_column_index = gene_column_index,
+                                 remove_zero_rows = TRUE,
+                                 split_by_type = TRUE)
+  }
+
+  data_list = list(
+    'feat_meta' = feat_meta,
+    'tx_dt' = tx_dt,
+    'bound_dt_list' = bound_dt_list,
+    'cell_meta' = cell_meta,
+    'agg_expr' = agg_expr
+  )
+
+  return(data_list)
+
+}
 
 
 
