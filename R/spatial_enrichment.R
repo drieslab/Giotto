@@ -1746,48 +1746,44 @@ solve_OLS_internal <- function(S,
   A = cbind(diag(dim(S)[2]))
   bzero = c(rep(0,dim(S)[2]))
 
-  #solution = quadprog::solve.QP(Dmat = D,
-  #                              dvec = d,
-  #                              Amat = A,
-  #                              bvec = bzero)$solution
-
+  
   out = tryCatch(
-    expr = {solution = quadprog::solve.QP(Dmat = D,
-                                          dvec = d,
-                                          Amat = A,
-                                          bvec = bzero)$solution},
+    expr = {quadprog::solve.QP(Dmat = D,
+                               dvec = d,
+                               Amat = A,
+                               bvec = bzero)$solution},
 
     error = function(cond) {
       message('Original error message: \n')
       message(cond)
 
       message('\n Will try to fix error with Matrix::nearPD()')
-      return('quadprog.indifinite.error')
+      return(NULL)
     }
   )
 
 
-  if(out == 'quadprog.indifinite.error') {
+  if(is.null(out)) {
 
     D = Matrix::nearPD(D)
     D = as.matrix(D$mat)
 
     out = tryCatch(
-      expr = {solution = quadprog::solve.QP(Dmat = D,
-                                            dvec = d,
-                                            Amat = A,
-                                            bvec = bzero)$solution},
+      expr = {quadprog::solve.QP(Dmat = D,
+                                 dvec = d,
+                                 Amat = A,
+                                 bvec = bzero)$solution},
 
       error = function(cond) {
         message('Original error message: \n')
         message(cond)
 
         message('\n nearPD() did not fix the error')
-        return('final.error')
+        return(NULL)
       }
     )
 
-    if(out == 'final.error') {
+    if(is.null(out)) {
       stop('Errors could not be fixed')
     } else {
       names(out) = colnames(S)
