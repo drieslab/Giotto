@@ -9,6 +9,7 @@ overlapImagesToMatrix(
   name = "raw",
   poly_info = "cell",
   feat_info = "protein",
+  name_overlap = "images",
   image_names = NULL,
   spat_locs_name = "raw",
   return_gobject = TRUE

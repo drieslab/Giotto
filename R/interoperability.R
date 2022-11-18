@@ -54,6 +54,7 @@ anndataToGiotto = function(anndata_path = NULL,
     cat ("Python module scanpy is required for conversion.
           Installing scanpy now in the Giotto Miniconda Environment.\n")
 
+    conda_path = reticulate::miniconda_path()
     py_ver = reticulate::py_config()$version_string
     py_ver = strsplit(py_ver,"|", fixed = T)[[1]][1]
     py_ver = gsub(" ","",py_ver, fixed = T)
