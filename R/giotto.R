@@ -3485,7 +3485,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
 
   if(isTRUE(verbose)) message('Building subcellular giotto object...')
   # Giotto points object
-  if(isTRUE(verbose)) message('> points data...')
+  if(isTRUE(verbose)) message('> points data prep...')
 
   # filter by qv_threshold
   if(isTRUE(verbose)) wrap_msg('> filtering feature detections for Phred score >= ', qv_threshold)
@@ -3506,25 +3506,20 @@ createGiottoXeniumObject_subcellular = function(data_list,
 
   # separate detections by feature type
   tx_dt_types = lapply(
-    names(feat_types_IDs), function(types) {
-      if(isTRUE(verbose)) message('  [', types, '] feats...')
-      tx_dt_filtered[feat_ID %in% feat_types_IDs[[types]]]
+    feat_types_IDs,
+    function(types) {
+      tx_dt_filtered[feat_ID %in% types]
     }
   )
 
-  gpoints_list = lapply(
-    tx_dt_types, function(x) createGiottoPoints(x = x)
-  )
-
   # Giotto polygons object
-  if(isTRUE(verbose)) message('> polygons data...')
-  gpolys = lapply(names(bound_dt_list),
-                  function(bound_type) {
-                    if(isTRUE(verbose)) message('  [', bound_type, '] bounds...')
-                    bound_dt_list[[bound_type]][, cell_id := as.character(cell_id)]
-                    createGiottoPolygonsFromDfr(segmdfr = bound_dt_list[[bound_type]],
-                                                name = bound_type)
-                  })
+  if(isTRUE(verbose)) message('> polygons data prep...')
+  gpolys = lapply(
+    bound_dt_list,
+    function(bound_type) {
+      bound_type[, cell_id := as.character(cell_id)]
+    }
+  )
 
   xenium_gobject = createGiottoObjectSubcellular(gpoints = gpoints_list,
                                                  gpolygons = gpolys,
@@ -3538,10 +3533,10 @@ createGiottoXeniumObject_subcellular = function(data_list,
                                                poly_info = c(names(bound_dt_list)))
 
   # add in feature metadata
-  xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
-                                   new_metadata = feat_meta,
-                                   by_column = TRUE,
-                                   column_feat_ID = 'feat_ID')
+  # xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
+  #                                  new_metadata = feat_meta,
+  #                                  by_column = TRUE,
+  #                                  column_feat_ID = 'feat_ID')
 
   return(xenium_gobject)
 
