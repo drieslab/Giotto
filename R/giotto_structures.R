@@ -598,28 +598,31 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 #' @keywords internal
 extract_polygon_list = function(polygonlist,
                                 polygon_mask_list_params,
-                                polygon_dfr_list_params) {
+                                polygon_dfr_list_params,
+                                verbose = TRUE) {
 
-  # if polygonlist is not a names list
+  named_list = FALSE
+
+  # if polygonlist is not a named list
   # try to make list and give default names
   if(!is.list(polygonlist)) {
 
-    wrap_msg('polygonlist is not a list')
+    if(isTRUE(verbose)) (wrap_msg('polygonlist is not a list'))
 
-    polygonlist = as.list(polygonlist)
+    try_val = try(as.list(polygonlist), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      polygonlist = list(polygonlist)
+    } else polygonlist = try_val
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
     } else {
       polygonlist_l = length(polygonlist)
       names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
     }
-  }
-
-  # if it is list
-  # test if it has names
-  if(is.null(names(polygonlist))) {
-
-    wrap_msg('polygonlist is a list without names')
+  } else if(is.null(names(polygonlist))) {
+    # if it is list
+    # test if it has names
+    if(isTRUE(verbose)) wrap_msg('polygonlist is a list without names')
 
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
@@ -628,6 +631,11 @@ extract_polygon_list = function(polygonlist,
       names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
 
     }
+  } else {
+
+    if(isTRUE(verbose)) wrap_msg('polygonlist is a list with names')
+    named_list = TRUE
+
   }
 
   # make sure cell is one of the names
@@ -639,32 +647,34 @@ extract_polygon_list = function(polygonlist,
 
   final_list = list()
 
-  for(poly_i in 1:length(polygonlist)) {
+  for(poly_i in seq_along(polygonlist)) {
 
     name_polyinfo = names(polygonlist)[[poly_i]]
     polyinfo = polygonlist[[poly_i]]
 
-    wrap_msg('Process polygon information for: ', name_polyinfo)
+    if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
 
     if(is.character(polyinfo)) {
-      poly_results = do.call('createGiottoPolygonsFromMask', c(name = name_polyinfo,
-                                                               maskfile = polyinfo,
-                                                               polygon_mask_list_params))
+      poly_results = do.call('createGiottoPolygonsFromMask', list(name = name_polyinfo,
+                                                                  maskfile = polyinfo,
+                                                                  polygon_mask_list_params))
 
     } else if(inherits(polyinfo, 'data.frame')) {
 
-      poly_results = do.call('createGiottoPolygonsFromDfr', c(name = name_polyinfo,
-                                                              segmdfr = polyinfo,
-                                                              polygon_dfr_list_params))
+      poly_results = do.call('createGiottoPolygonsFromDfr', list(name = name_polyinfo,
+                                                                 segmdfr = polyinfo,
+                                                                 polygon_dfr_list_params))
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
+      # Override name slot ONLY if giottoPolygon provided as named list
+      if(isTRUE(named_list)) slot(polyinfo, 'name') = name_polyinfo
+      else name_polyinfo = polyinfo@name
       poly_results = polyinfo
-      name_polyinfo = polyinfo@name
 
     } else {
 
-      stop('Polygon can only be extraxted from a mask file or from a correctly formatted data.frame')
+      stop(wrap_txt('Polygon can only be extracted from a mask file or from a correctly formatted data.frame'))
 
     }
 
@@ -672,7 +682,7 @@ extract_polygon_list = function(polygonlist,
 
   }
 
-  print(final_list)
+  # print(final_list)
   return(final_list)
 
 }
@@ -771,12 +781,12 @@ dt_to_spatVector_polygon = function(dt,
     }
 
 
-    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = F]),
-                          type = 'polygons', atts = unique(dt[,other_values, with = F]))
+    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = FALSE]),
+                          type = 'polygons', atts = unique(dt[,other_values, with = FALSE]))
 
   } else {
 
-    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = F]),
+    spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = FALSE]),
                           type = 'polygons', atts = NULL)
 
   }
@@ -1327,25 +1337,33 @@ addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
 #' @name extract_points_list
 #' @description to extract list of giotto points
 #' @param pointslist list of inputs from which to create giotto points objects
+#' @param verbose be verbose
 #' @keywords internal
-extract_points_list = function(pointslist) {
+extract_points_list = function(pointslist,
+                               verbose = TRUE) {
+
+  named_list = FALSE
 
   # if pointslist is not a named list
   # try to make list and give default names
   if(!is.list(pointslist)) {
-    pointslist = as.list(pointslist)
+
+    if(isTRUE(verbose)) wrap_msg('pointslist is not a list')
+
+    try_val = try(as.list(pointslist), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      pointslist = list(pointslist)
+    } else pointslist = try_val
     if(length(pointslist) == 1) {
       names(pointslist) = 'rna'
     } else {
       pointslist_l = length(pointslist)
       names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
     }
-  }
-
-  # if it is list
-  # test if it has names
-  if(is.null(names(pointslist))) {
-
+  } else if(is.null(names(pointslist))) {
+    # if it is list
+    # test if it has names
+    if(isTRUE(verbose)) wrap_msg('pointslist is a list without names')
     if(length(pointslist) == 1) {
       names(pointslist) = 'rna'
     } else {
@@ -1353,6 +1371,11 @@ extract_points_list = function(pointslist) {
       names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
 
     }
+  } else {
+
+    if(isTRUE(verbose)) wrap_msg('pointslist is a named list')
+    named_list = TRUE
+
   }
 
   # make sure rna is one of the names
@@ -1364,16 +1387,18 @@ extract_points_list = function(pointslist) {
 
   final_list = list()
 
-  for(point_i in 1:length(pointslist)) {
+  for(point_i in seq_along(pointslist)) {
 
     name_pointinfo = names(pointslist)[[point_i]]
     pointinfo = pointslist[[point_i]]
 
+    if(isTRUE(verbose)) wrap_msg('  [', name_pointinfo, '] Process point info...')
 
     if(inherits(pointinfo, 'giottoPoints')) {
 
+      if(isTRUE(named_list)) slot(pointinfo, 'feat_type') = name_pointinfo
+      else name_pointinfo = pointinfo@feat_type
       point_results = pointinfo
-      name_pointinfo = pointinfo@feat_type
 
     } else if(inherits(pointinfo, 'data.frame')) {
 
@@ -1382,21 +1407,19 @@ extract_points_list = function(pointslist) {
 
     } else if(inherits(pointinfo, 'character')) {
 
-      stop('Giotto points can not yet be created directly from a file path')
+      stop(wrap_txt('Giotto points can not yet be created directly from a file path'))
 
     } else {
 
-      stop('Giotto points can only be created from a correctly formatted data.frame-like object')
+      stop(wrap_txt('Giotto points can only be created from a correctly formatted data.frame-like object'))
 
     }
-
 
     final_list[[name_pointinfo]] = point_results
 
   }
 
   return(final_list)
-
 
 }
 
@@ -1606,16 +1629,22 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
+#' @param provenance (optional) provenance to assign to generated spatLocsObj. If
+#' not provided, provenance will default to \code{poly_info}
+#' @param init_metadata initialize cell and feature metadata for this spatial unit
+#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
-#'   generated polygon centroids will be returned.
+#'   generated polygon centroids will be returned as spatLocsObj.
 #' @concept centroid
 #' @export
 addSpatialCentroidLocationsLayer = function(gobject,
                                             poly_info = 'cell',
                                             feat_type = NULL,
+                                            provenance = poly_info,
                                             spat_loc_name = 'raw',
+                                            init_metadata = TRUE,
                                             return_gobject = TRUE) {
 
   # define for .()
@@ -1632,7 +1661,9 @@ addSpatialCentroidLocationsLayer = function(gobject,
   feat_type = slot(gobject, 'expression_feat')[[1]] # Specifically preferable over set_default function
   #There may be no existing data in expression slot to find feat_type nesting from
 
-  extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
+  gpoly = get_polygon_info(gobject, polygon_name = poly_info, return_giottoPolygon = TRUE)
+
+  extended_spatvector = calculate_centroids_polygons(gpolygon = gpoly,
                                                      name = 'centroids',
                                                      append_gpolygon = TRUE)
 
@@ -1642,36 +1673,74 @@ addSpatialCentroidLocationsLayer = function(gobject,
   spatial_locs = centroid_spatvector[, .(x, y, poly_ID)]
   colnames(spatial_locs) = c('sdimx', 'sdimy', 'cell_ID')
 
+  spatial_locs = create_spat_locs_obj(name = spat_loc_name,
+                                      coordinates = spatial_locs,
+                                      spat_unit = poly_info,
+                                      provenance = provenance)
+
   if(return_gobject == TRUE) {
 
     # spatial location
     spat_locs_names = list_spatial_locations_names(gobject,
                                                    spat_unit = poly_info)
     if(spat_loc_name %in% spat_locs_names) {
-      cat('spatial locations for polygon information layer ', poly_info,
-          ' and name ', spat_loc_name, ' already exists and will be replaced')
+      wrap_msg('> spatial locations for polygon information layer "', poly_info,
+               '" and name "', spat_loc_name, '" already exists and will be replaced\n')
     }
 
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_spatial_locations(gobject = gobject,
-                                    spat_unit = poly_info,
-                                    spat_loc_name = spat_loc_name,
-                                    spatlocs = spatial_locs)
+                                    spatlocs = spatial_locs,
+                                    verbose = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-    #gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
 
     # cell ID
-    gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
+    gpoly_IDs = gpoly@spatVector$poly_ID
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_cell_id(gobject,
+                          spat_unit = poly_info,
+                          cell_IDs = gpoly_IDs)
+    # gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
     # cell metadata
     # new spatial locations come with new cell and feature metadata
-    for(type in feat_type) {
-      gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
-      gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
+    if(isTRUE(init_metadata)) {
+      for(type in feat_type) {
+        cm = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = gpoly_IDs),
+                                  col_desc = c('unique IDs for each cell'),
+                                  spat_unit = poly_info,
+                                  feat_type = type,
+                                  provenance = poly_info)
+
+        gfeat_IDs = get_feat_id(gobject, feat_type = type)
+        fm = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = gfeat_IDs),
+                                  col_desc = c('unique IDs for each feature'),
+                                  spat_unit = poly_info,
+                                  feat_type = type,
+                                  provenance = poly_info)
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
+        gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
+        # gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
+        # gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
     }
 
 
     # add centroids information
-    gobject@spatial_info[[poly_info]] = extended_spatvector
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_polygon_info(gobject,
+                               polygon_name = poly_info,
+                               gpolygon = extended_spatvector,
+                               verbose = FALSE)
+    # gobject@spatial_info[[poly_info]] = extended_spatvector
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
     return(gobject)
 
@@ -1689,17 +1758,23 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
+#' @param provenance (optional) provenance to assign to generated spatLocsObj. If
+#' not provided, provenance will default to \code{poly_info}
+#' @param init_metadata initialize cell and feature metadata for this spatial unit
+#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
-#'   generated polygon centroids will be returned.
+#'   generated polygon centroids will be returned as \code{spatLocObj}.
 #' @concept centroid
 #' @export
 addSpatialCentroidLocations = function(gobject,
                                        poly_info = 'cell',
                                        feat_type = NULL,
                                        spat_loc_name = 'raw',
+                                       provenance = poly_info,
+                                       init_metadata = TRUE,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
 
@@ -1722,14 +1797,18 @@ addSpatialCentroidLocations = function(gobject,
         gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                    poly_info = poly_layer,
                                                    feat_type = feat_type,
+                                                   provenance = provenance,
                                                    spat_loc_name = spat_loc_name,
+                                                   init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
       } else {
 
         return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                                      poly_info = poly_layer,
                                                                      feat_type = feat_type,
+                                                                     provenance = provenance,
                                                                      spat_loc_name = spat_loc_name,
+                                                                     init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)
 
       }
@@ -1949,8 +2028,10 @@ overlap_points_single_polygon = function(spatvec,
 #' @param spatial_info polygon information
 #' @param poly_ID_names (optional) list of poly_IDs to use
 #' @param image_names names of the images with raw data
+#' @param poly_subset numerical values to subset the polygon spatVector
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
+#' @param ... additional params to \code{\link[exactextractr]{exact_extract}}
 #' @return giotto object or data.table with overlapping information
 #' @concept overlap
 #' @export
@@ -1959,18 +2040,23 @@ calculateOverlapPolygonImages = function(gobject,
                                          spatial_info = 'cell',
                                          poly_ID_names = NULL,
                                          image_names = NULL,
+                                         poly_subset = NULL,
                                          return_gobject = TRUE,
-                                         verbose = TRUE) {
+                                         verbose = TRUE,
+                                         ...) {
 
   if(is.null(image_names)) {
     stop('image_names = NULL, you need to provide the names of the images you want to use,
           see showGiottoImageNames() for attached images')
   }
 
+  # need for package exactextractr for fast overlap calculations
+  package_check('exactextractr')
+
   ## get polygon information
   poly_info = get_polygon_info(gobject = gobject,
                                polygon_name = spatial_info,
-                               return_giottoPolygon = T)
+                               return_giottoPolygon = TRUE)
 
 
   # calculate centroids for poly_info if not present
@@ -1983,47 +2069,65 @@ calculateOverlapPolygonImages = function(gobject,
 
   potential_large_image_names = list_images_names(gobject, img_type = 'largeImage')
 
+  # check for wrong input names
   for(img_name in image_names) {
+    if(!img_name %in% potential_large_image_names) {
+      warning('image with the name ', img_name, ' was not found and will be skipped \n')
+    }
+  }
+  image_names = image_names[image_names %in% potential_large_image_names]
 
-    if(verbose) cat('Start process for image: ', img_name, '\n')
+
+  image_list = list()
+
+  for(i in 1:length(image_names)) {
+
+    img_name = image_names[i]
 
     if(!img_name %in% potential_large_image_names) {
       warning('image with the name ', img_name, ' was not found and will be skipped \n')
-    } else {
-
-      intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
-
-      extract_intensity = data.table::as.data.table(terra::extract(x = intensity_image@raster_object,
-                                                            y = poly_info@spatVector))
-
-      poly_ID_vector = poly_info@spatVector$poly_ID
-      names(poly_ID_vector) = 1:length(poly_ID_vector)
-      extract_intensity[, ID := poly_ID_vector[ID]]
-      colnames(extract_intensity)[2] = img_name
-
-      poly_info@overlaps[[name_overlap]][[img_name]] = extract_intensity
-
-      return_list = list()
-
-      if(return_gobject) {
-
-        gobject = set_polygon_info(gobject = gobject,
-                                   polygon_name = spatial_info,
-                                   gpolygon = poly_info)
-      } else {
-
-        return_list[[img_name]] = pol_infoy
-
-      }
-
     }
+
+    intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
+    intensity_image = intensity_image@raster_object
+
+    image_list[[i]] = intensity_image
+
   }
+
+  image_vector_c = do.call('c', image_list)
+
+  # convert spatVectot to sf object
+  if(!is.null(poly_subset)) {
+    poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector[poly_subset])
+  } else{
+    poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector)
+  }
+
+
+  extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
+                                                           y = poly_info_spatvector_sf,
+                                                           include_cols = 'poly_ID',
+                                                           ...)
+  # rbind and convert output to data.table
+  dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
+
+  # prepare output
+  colnames(dt_exact)[2:(length(image_names)+1)] = image_names
+  dt_exact[, coverage_fraction := NULL]
 
   if(return_gobject) {
+
+    poly_info@overlaps[['intensity']][[name_overlap]] = dt_exact
+    gobject = set_polygon_info(gobject = gobject,
+                               polygon_name = spatial_info,
+                               gpolygon = poly_info)
     return(gobject)
+
   } else {
-    return(return_list)
+    return(dt_exact)
   }
+
 }
 
 
@@ -2364,12 +2468,20 @@ overlapToMatrix = function(gobject,
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
                                 match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
 
+  overlapExprObj = create_expr_obj(name = name,
+                                   exprMat = overlapmatrix,
+                                   spat_unit = poly_info,
+                                   feat_type = feat_info,
+                                   provenance = poly_info)
 
   if(return_gobject == TRUE) {
-    gobject@expression[[poly_info]][[feat_info]][[name]] = overlapmatrix
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_expression_values(gobject, values = overlapExprObj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     return(gobject)
   } else {
-    return(overlapmatrix)
+    return(overlapExprObj)
   }
 
 }
@@ -2502,6 +2614,7 @@ overlapImagesToMatrix = function(gobject,
                                  name = 'raw',
                                  poly_info = 'cell',
                                  feat_info = 'protein',
+                                 name_overlap = 'images',
                                  image_names = NULL,
                                  spat_locs_name = 'raw',
                                  return_gobject = TRUE) {
@@ -2509,33 +2622,30 @@ overlapImagesToMatrix = function(gobject,
   ## get polygon information
   polygon_info = get_polygon_info(gobject = gobject,
                                   polygon_name = poly_info,
-                                  return_giottoPolygon = T)
+                                  return_giottoPolygon = TRUE)
 
 
-  poly_info_image_overlap_names = names(polygon_info@overlaps$images)
-
-  overlap_aggr_list = list()
-
-  for(img_overlap in poly_info_image_overlap_names) {
-    overlap_DT = polygon_info@overlaps[['images']][[img_overlap]]
-    aggr_overlap_DT = overlap_DT[, mean(get(img_overlap)), by = 'ID']
-    aggr_overlap_DT[, feat := img_overlap]
-    colnames(aggr_overlap_DT) = c('poly_ID', 'mean_intensity', 'feat_ID')
-    overlap_aggr_list[[img_overlap]] = aggr_overlap_DT
-  }
-
-  aggr_comb = do.call('rbind', overlap_aggr_list)
-
-
+  image_info = gobject@spatial_info[[poly_info]]@overlaps[['intensity']][[name_overlap]]
+  melt_image_info = data.table::melt.data.table(data = image_info, id.vars = 'poly_ID', variable.name = 'feat_ID')
+  aggr_comb = melt_image_info[, mean(value), by = .(poly_ID, feat_ID)]
+  data.table::setnames(aggr_comb, 'V1', 'mean_intensity')
 
   if(return_gobject) {
 
-    cell_IDs = unique(aggr_comb$poly_ID)
-    feat_IDs = unique(aggr_comb$feat_ID)
+    cell_IDs = unique(as.character(aggr_comb$poly_ID))
+    feat_IDs = unique(as.character(aggr_comb$feat_ID))
+
+    print(feat_IDs[1:10])
 
     # create cell and feature metadata
-    gobject@cell_metadata[[poly_info]][[feat_info]] = data.table::data.table(cell_ID = cell_IDs)
-    gobject@feat_metadata[[poly_info]][[feat_info]] = data.table::data.table(feat_ID = feat_IDs)
+    S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
+                                        spat_unit = poly_info, feat_type = feat_info)
+    gobject = set_cell_metadata(gobject = gobject, S4_cell_meta)
+
+    S4_feat_meta = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = feat_IDs),
+                                        spat_unit = poly_info, feat_type = feat_info)
+    gobject = set_feature_metadata(gobject = gobject, S4_feat_meta)
+
 
     # add feat_ID and cell_ID
     gobject@feat_ID[[feat_info]] = feat_IDs
@@ -2613,7 +2723,9 @@ combineCellData = function(gobject,
   if(include_spat_locs == TRUE) {
     spat_locs_dt = get_spatial_locations(gobject = gobject,
                                          spat_unit = poly_info,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
   } else {
     spat_locs_dt = NULL
   }
@@ -2623,7 +2735,8 @@ combineCellData = function(gobject,
   if(include_poly_info == TRUE) {
     # get spatial cell information
     spatial_cell_info_spatvec = get_polygon_info(gobject = gobject,
-                                                 polygon_name = poly_info)
+                                                 polygon_name = poly_info,
+                                                 return_giottoPolygon = FALSE)
     spatial_cell_info_dt = spatVector_to_dt(spatial_cell_info_spatvec,
                                             include_values = TRUE)
     data.table::setnames(spatial_cell_info_dt, old = 'poly_ID', new = 'cell_ID')
@@ -2653,9 +2766,10 @@ combineCellData = function(gobject,
 
 
     # get spatial cell metadata
-    cell_meta = pDataDT(gobject = gobject,
-                        feat_type = feat,
-                        spat_unit = poly_info)
+    cell_meta = get_cell_metadata(gobject = gobject,
+                                  spat_unit = poly_info,
+                                  feat_type = feat,
+                                  output = 'data.table')
 
     # merge
     if(!is.null(comb_dt)) {
@@ -2708,9 +2822,10 @@ combineFeatureData = function(gobject,
       # feature meta
       # feat_meta = gobject@feat_metadata[[spat_unit]][[feat]]
 
-      feat_meta = fDataDT(gobject = gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat)
+      feat_meta = get_feature_metadata(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat,
+                                       output = 'data.table')
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2778,9 +2893,12 @@ combineFeatureOverlapData = function(gobject,
       # feature meta
       # feat_meta = gobject@feat_metadata[[feat]][[spat]]
 
-      feat_meta = fDataDT(gobject = gobject,
-                          spat_unit = spat,
-                          feat_type = feat)
+      feat_meta = get_feature_metadata(gobject = gobject,
+                                       spat_unit = spat,
+                                       feat_type = feat,
+                                       output = 'data.table')
+
+      print(feat_meta)
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2811,6 +2929,8 @@ combineFeatureOverlapData = function(gobject,
                                              by = 'feat_ID')
 
     }
+
+    print(comb_dt)
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt

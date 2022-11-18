@@ -4,10 +4,12 @@
 \alias{extract_points_list}
 \title{Extract list of giotto points objects}
 \usage{
-extract_points_list(pointslist)
+extract_points_list(pointslist, verbose = TRUE)
 }
 \arguments{
 \item{pointslist}{list of inputs from which to create giotto points objects}
+
+\item{verbose}{be verbose}
 }
 \description{
 to extract list of giotto points

@@ -82,7 +82,9 @@ plot_auto_largeImage_resample = function(gobject,
   # Get spatial locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
 
   # If no spatial locations are available, rely on first existing polygon extent
   if(is.null(cell_locations)) {
@@ -830,7 +832,7 @@ dimPlot2D_single <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = F)
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
 
   #dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
@@ -865,17 +867,16 @@ dimPlot2D_single <- function(gobject,
                                              network_name = network_name,
                                              output = 'igraph')
 
-    #selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
     old_dim_names = dim_names
 
-    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    annotated_network_DT = merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
-    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    annotated_network_DT = merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
 
@@ -884,7 +885,15 @@ dimPlot2D_single <- function(gobject,
   # add % variance information if reduction is PCA
   if(dim_reduction_to_use == "pca"){
 
-    eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]]@misc$eigenvalues
+    pcaObj = get_dimReduction(gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              reduction = 'cells',
+                              reduction_method = dim_reduction_to_use,
+                              name = dim_reduction_name,
+                              output = 'dimObj')
+    eigenvalues = pcaObj@misc$eigenvalues
+    # eigenvalues = gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]]@misc$eigenvalues
 
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
@@ -2435,7 +2444,10 @@ plot_spat_image_layer_ggplot = function(gg_obj,
   # spatial locations
   spatlocs = get_spatial_locations(gobject = gobject,
                                    spat_unit = spat_unit,
-                                   spat_loc_name = spat_loc_name)
+                                   spat_loc_name = spat_loc_name,
+                                   output = 'data.table',
+                                   copy_obj = TRUE,
+                                   verbose = FALSE)
 
   # Get spatial extent for positioning purposes
   spat_ext = spatlocs[, c('sdimx', 'sdimy'), with = FALSE]
@@ -2445,7 +2457,8 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 
   if(is.null(spat_ext)) {
     gpoly = get_polygon_info(gobject = gobject,
-                             polygon_name = polygon_feat_type)
+                             polygon_name = polygon_feat_type,
+                             return_giottoPolygon = FALSE)
 
     poly_ext = terra::ext(gpoly)[1:4]
     spat_ext = data.table::data.table(sdimx = c(poly_ext[['xmin']], poly_ext[['xmax']]),
@@ -2825,7 +2838,10 @@ spatPlot2D_single = function(gobject,
   ## get spatial cell locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE,
+                                         verbose = verbose)
 
 
   ## extract spatial network
@@ -2833,7 +2849,7 @@ spatPlot2D_single = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -2843,7 +2859,8 @@ spatPlot2D_single = function(gobject,
     spatial_grid = get_spatialGrid(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
-                                   name = spatial_grid_name)
+                                   name = spatial_grid_name,
+                                   return_grid_Obj = FALSE)
   } else {
     spatial_grid = NULL
   }
@@ -2852,8 +2869,9 @@ spatPlot2D_single = function(gobject,
   ## get cell metadata
 
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = list_spatial_locations_names(gobject, spat_unit = spat_unit)[[1]]
+      # spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL
@@ -2866,13 +2884,15 @@ spatPlot2D_single = function(gobject,
                                   feat_type = feat_type,
                                   spat_unit = spat_unit,
                                   spat_loc_name = spat_loc_name,
-                                  spat_enr_names = spat_enr_names)
+                                  spat_enr_names = spat_enr_names,
+                                  verbose = verbose)
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- cell_metadata
   }
+
 
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
@@ -2898,6 +2918,7 @@ spatPlot2D_single = function(gobject,
 
   }
 
+
   # update cell_color_code
   # only keep names from selected groups
   if(!is.null(select_cell_groups) & !is.null(cell_color_code)) {
@@ -2918,7 +2939,6 @@ spatPlot2D_single = function(gobject,
     cat('Data table with non-selected information (e.g. cells): \n')
     print(cell_locations_metadata_other[1:5,])
   }
-
 
 
 
@@ -4230,7 +4250,8 @@ spatFeatPlot2D_single <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep feats that are in the dataset
   selected_feats = feats
@@ -4252,8 +4273,9 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract cell locations
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
+      spat_loc_name = list_spatial_locations_names(gobject, spat_unit = spat_unit)[[1]]
+      # spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL
@@ -4262,16 +4284,18 @@ spatFeatPlot2D_single <- function(gobject,
     }
   }
 
-  cell_locations  = get_spatial_locations(gobject,
+  cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table',
+                                          copy_obj = TRUE)
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = get_spatialNetwork(gobject,
+    spatial_network = get_spatialNetwork(gobject = gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -5018,7 +5042,8 @@ dimFeatPlot2D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep feats that are in the dataset
   selected_feats = feats
@@ -5048,16 +5073,18 @@ dimFeatPlot2D <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
 
   #dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
-  cell_metadata = pDataDT(gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
@@ -5074,7 +5101,6 @@ dimFeatPlot2D <- function(gobject,
                                              nn_network_to_use = nn_network_to_use,
                                              network_name = network_name,
                                              output = 'igraph')
-    # gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
 
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
@@ -6502,7 +6528,7 @@ dimPlot_2D_plotly <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
 
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
@@ -6552,7 +6578,7 @@ dimPlot_2D_plotly <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -6769,7 +6795,7 @@ dimPlot_3D_plotly <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -6815,7 +6841,7 @@ dimPlot_3D_plotly <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
 
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
     if(!is.null(eigenvalues)) {
@@ -6830,7 +6856,7 @@ dimPlot_3D_plotly <- function(gobject,
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
     if(is.null(cell_color)) {
-      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+      stop('\n selection of cells is based on cell_color parameter, which is a metadata column \n')
     }
     cat('You have selected both individual cell IDs and a group of cells \n')
     group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
@@ -7285,7 +7311,8 @@ spatPlot_2D_plotly = function(gobject,
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
 
   ## extract spatial network
@@ -7293,7 +7320,7 @@ spatPlot_2D_plotly = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -7528,14 +7555,15 @@ spatPlot_3D_plotly = function(gobject,
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -8021,7 +8049,7 @@ spatDimPlot3D <- function(gobject,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
-                             return_dimObj = FALSE)
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -8047,7 +8075,7 @@ spatDimPlot3D <- function(gobject,
                                   reduction = 'cells',
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
-                                  return_dimObj = TRUE)
+                                  output = 'dimObj')
     eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -8097,7 +8125,7 @@ spatDimPlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -8786,7 +8814,8 @@ spatGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -8807,7 +8836,8 @@ spatGenePlot3D <- function(gobject,
   ## extract cell locations
   cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table')
 
 
   ## extract spatial network
@@ -8815,7 +8845,7 @@ spatGenePlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -9151,7 +9181,8 @@ dimGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -9178,7 +9209,7 @@ dimGenePlot3D <- function(gobject,
                                 reduction = 'cells',
                                 reduction_method = dim_reduction_to_use,
                                 name = dim_reduction_name,
-                                return_dimObj = FALSE)
+                                output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -9543,7 +9574,8 @@ spatDimGenePlot3D <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -9557,7 +9589,7 @@ spatDimGenePlot3D <- function(gobject,
                                 reduction = 'cells',
                                 reduction_method = dim_reduction_to_use,
                                 name = dim_reduction_name,
-                                return_dimObj = FALSE)
+                                output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -9606,7 +9638,7 @@ spatDimGenePlot3D <- function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     spatial_network = NULL
   }
@@ -9996,442 +10028,6 @@ spatDimGenePlot3D <- function(gobject,
   ## return plot
   if(return_plot == TRUE) {
     return(combo_plot)
-  }
-
-}
-
-
-# ** ####
-# ** interactive plotting ####
-
-#' Select image regions by plotting interactive polygons
-#'
-#' @description Plot interactive polygons on an image and retrieve the polygons coordinates.
-#' @param x A `ggplot` or `rast` plot object to draw polygons on
-#' @param width,height An integer, defining the width/height in pixels.
-#' @param ... Graphical parameters passed on to `polygon` or `geom_point`.
-#'
-#' @return A `data.table` containing x,y coordinates from the plotted polygons.
-#'
-#' @import data.table magrittr ggplot2
-#'
-#' @examples
-#' \dontrun{
-#' # Using a ggplot2 plot
-#' library(ggplot2)
-#' df <- data.frame(x = 1:5, y = 1:5)
-#' my_plot <- ggplot(df, aes(x,y)) + geom_point()
-#' plotInteractivePolygons(my_plot)
-#'
-#' # Using a terra rast image
-#' library(terra)
-#' r = rast(system.file("ex/elev.tif", package="terra"))
-#' plotInteractivePolygons(r)
-#' plotInteractivePolygons(r, border = "red", lwd = 2)
-#'
-#' # Using an image contained in Giotto object
-#' library(Giotto)
-#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
-#'                           show_image = TRUE,
-#'                           point_alpha = 0.75,
-#'                           save_plot = FALSE)
-#' plotInteractivePolygons(my_spatPlot, height = 500)
-#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
-#' }
-#' @export
-plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
-
-  # data.table variables
-  y = name = NULL
-
-  if(is.null(x)) stop('plot object is empty')
-
-  ## find min and max values for spatRaster image
-  if("SpatRaster" %in% class(x)) {
-    ui <- miniPage(
-      gadgetTitleBar("Plot Interactive Polygons"),
-      miniContentPanel(
-        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-        sliderInput("xrange", label = "x coordinates",
-                    min = min(terra::ext(r))[1],
-                    max = max(terra::ext(r))[1],
-                    value = c(min(terra::ext(r))[1],
-                              max(terra::ext(r))[1])) ,
-        sliderInput("yrange", label = "y coordinates",
-                    min = min(terra::ext(r))[2],
-                    max = max(terra::ext(r))[2],
-                    value = c(min(terra::ext(r))[2],
-                              max(terra::ext(r))[2])) ,
-        plotOutput("plot", click = "plot_click")
-      )
-    )
-
-  } else { ## find min and max values for non-spatRaster image
-    ui <- miniPage(
-      gadgetTitleBar("Plot Interactive Polygons"),
-      miniContentPanel(
-        textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-        sliderInput("xrange", label = "x coordinates",
-                    min = min(x[["layers"]][[1]]$data$sdimx),
-                    max = max(x[["layers"]][[1]]$data$sdimx),
-                    value = c(min(x[["layers"]][[1]]$data$sdimx),
-                              max(x[["layers"]][[1]]$data$sdimx))) ,
-        sliderInput("yrange", label = "y coordinates",
-                    min = min(x[["layers"]][[1]]$data$sdimy),
-                    max = max(x[["layers"]][[1]]$data$sdimy),
-                    value = c(min(x[["layers"]][[1]]$data$sdimy),
-                              max(x[["layers"]][[1]]$data$sdimy))) ,
-        plotOutput("plot", click = "plot_click")
-      )
-    )
-  }
-
-  server <- function(input, output,session) {
-    output$plot <- renderPlot({
-      if ("ggplot" %in% class(x)) {
-        x$coordinates$default <- TRUE
-        x +
-          geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
-                       alpha = 0, ...) +
-          coord_fixed(xlim = c(input$xrange[1], input$xrange[2]),
-                      ylim = c(input$yrange[1], input$yrange[2])) +
-          theme(legend.position = 'none')
-      } else {
-        terra::plot(x)
-        lapply(split(clicklist(), by = "name"), function (x) graphics::polygon(x$x, x$y, ...) )
-      }
-    }, res = 96, width = width, height = height)
-
-    clicklist <- reactiveVal(data.table::data.table(x = numeric(), y = numeric(), name = character())) # empty table
-    observeEvent(input$plot_click, {
-      click_x <- input$plot_click$x
-      click_y <- input$plot_click$y
-      polygon_name <- input$polygon_name
-      temp <- clicklist() # get the table of past clicks
-      temp <- rbind(temp,data.table::data.table(x = click_x, y = click_y, name = polygon_name))
-      clicklist(temp)
-    })
-
-
-    output$info <- renderTable(clicklist())
-
-    observeEvent(input$done, {
-      returnValue <- clicklist()
-      stopApp(returnValue)
-    })
-  }
-  runGadget(ui, server)
-}
-
-
-#' Get cells located within the polygons area
-#'
-#' @param gobject A Giotto object
-#' @param spat_unit spatial unit, default = "cell
-#' @param polygons character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved
-#'
-#' @return A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
-#'
-#' @export
-#'
-#' @examples
-#'
-#' \dontrun{
-#' ## Plot interactive polygons
-#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
-#'                           show_image = TRUE,
-#'                           point_alpha = 0.75,
-#'                           save_plot = FALSE)
-#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
-#'
-#' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
-#'                                       gpolygons = list(my_giotto_polygons))
-#'
-#' ## Get cells located within polygons area
-#' getCellsFromPolygon(my_giotto_object)
-#'
-#' ## Get onyl cells from polygon 1
-#' getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
-#' }
-#'
-getCellsFromPolygon <- function(gobject, spat_unit = "cell", polygons = NULL) {
-
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject needs to be a giotto object")
-  }
-
-  ## get polygons spatial info
-  polygon_spatVector <- methods::slot(methods::slot(gobject, "spatial_info")[[spat_unit]], "spatVector")
-
-  ## get cell spatial locations
-  spatial_locs <- get_spatial_locations(gobject, spat_unit = spat_unit)
-
-  ## convert cell spatial locations to spatVector
-  cells_spatVector <- terra::vect(as.matrix(spatial_locs[,1:2]),
-                                  type = "points",
-                                  atts = spatial_locs)
-
-  polygonCells <- terra::intersect(cells_spatVector, polygon_spatVector)
-
-  if(!is.null(polygons)) {
-    polygonCells <- terra::subset(polygonCells, polygonCells$poly_ID %in% polygons)
-  }
-
-  return(polygonCells)
-}
-
-
-#' Add corresponding polygon IDs to cell metadata
-#'
-#' @param gobject A Giotto object
-#' @param feat_type feature name where metadata will be added
-#' @param spat_unit spatial unit
-#' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
-#'
-#' @return A Giotto object with a modified cell_metadata slot that includes the
-#' polygon name where each cell is located or no_polygon label if the cell is not located
-#' within a polygon area
-#'
-#' @export
-#'
-#' @examples
-#'
-#' \dontrun{
-#' ## Plot interactive polygons
-#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
-#'
-#' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
-#'                                       gpolygons = list(my_giotto_polygons))
-#'
-#' ## Add polygon IDs to cell metadata
-#' my_giotto_object <- addPolygonCells(my_giotto_object)
-#' }
-#'
-addPolygonCells <- function(gobject, spat_unit = "cell", feat_type = "rna", na.label = "no_polygon") {
-
-  ## verify gobject
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject needs to be a giotto object")
-  }
-
-  ## get cells within each polygon
-  polygon_cells <- as.data.frame(getCellsFromPolygon(gobject))
-
-  ## get original cell metadata
-  cell_metadata <- pDataDT(gobject = gobject,
-                           spat_unit = spat_unit,
-                           feat_type = feat_type )
-
-  ## add polygon ID to cell metadata
-  new_cell_metadata <- merge(cell_metadata,
-                             polygon_cells[,c("cell_ID", "poly_ID")],
-                             by = "cell_ID", all.x = TRUE)
-
-  ## assign a default ID to cells outside of polygons
-  new_cell_metadata[is.na(new_cell_metadata$poly_ID), "poly_ID"] <- na.label
-
-  ## keep original order of cells
-  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID,
-                                               new_cell_metadata$cell_ID), ]
-
-  gobject <- addCellMetadata(gobject = gobject,
-                             spat_unit = spat_unit,
-                             feat_type = feat_type,
-                             new_metadata = new_cell_metadata[,-1])
-
-  return(gobject)
-}
-
-
-#' Compare gene expression between polygon areas
-#'
-#' @param gobject A Giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
-#' @param selected_feats vector of selected features to plot
-#' @param expression_values gene expression values to use ("normalized", "scaled", "custom")
-#' @param method method to use to detect differentially expressed feats ("scran", "gini", "mast")
-#' @param \dots Arguments passed to \link[ComplexHeatmap]{Heatmap}
-#'
-#' @return A ComplexHeatmap::Heatmap object
-#' @export
-comparePolygonExpression <- function(gobject,
-                                     spat_unit = "cell",
-                                     feat_type = "rna",
-                                     selected_feats = "top_genes",
-                                     expression_values = "normalized",
-                                     method = "scran",
-                                     ...) {
-
-  # verify gobject
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject needs to be a giotto object")
-  }
-
-  # get expression
-  my_expression <- gobject@expression[[spat_unit]][[feat_type]][[expression_values]]
-
-  # get cell_ID and poly_ID from metadata
-  my_metadata <- gobject@cell_metadata[[spat_unit]][[feat_type]]
-  my_metadata <- my_metadata[,c("cell_ID", "poly_ID")]
-
-  if (length(selected_feats) == 1 && selected_feats == "top_genes") {
-    # find top features
-    scran_results <- findMarkers_one_vs_all(gobject,
-                                            spat_unit = "cell",
-                                            feat_type = "rna",
-                                            method = method,
-                                            expression_values = "normalized",
-                                            cluster_column = "poly_ID",
-                                            min_feats = 10)
-
-    selected_feats <- scran_results[, head(.SD, 2), by = 'cluster']$feats
-  }
-  # select features
-  my_expression <- my_expression[selected_feats,]
-
-  # convert to data frame
-  my_rownames <- rownames(my_expression)
-
-  # calculate zscore
-
-  my_zscores <- my_expression
-
-  for (gene in my_rownames) {
-    mean_expression_gene <- mean(my_expression[gene,])
-    sd_expression_gene <- stats::sd(my_expression[gene,])
-    for (cell in colnames(my_expression)) {
-      my_zscores[gene, cell] <- (my_expression[gene, cell]-mean_expression_gene)/sd_expression_gene
-    }
-
-  }
-
-  # calculate mean zscore per polygon
-  my_zscores_mean <- data.table::data.table(feat_ID = my_rownames)
-
-  for(i in unique(my_metadata$poly_ID)) {
-    my_cells <- my_metadata[my_metadata$poly_ID == i, "cell_ID" ]
-    my_sub_zscores <- my_zscores[,my_cells$cell_ID]
-    mean_zscores <- Matrix::rowMeans(my_sub_zscores)
-    my_zscores_mean <- cbind(my_zscores_mean, mean_zscores)
-  }
-
-  my_zscores_mean <- as.matrix(my_zscores_mean[,-1])
-  colnames(my_zscores_mean) <- unique(my_metadata$poly_ID)
-  rownames(my_zscores_mean) <- my_rownames
-
-  # plot heatmap
-  my_heatmap <- ComplexHeatmap::Heatmap(my_zscores_mean,
-                                        heatmap_legend_param = list(title = "Normalized mean z score"),
-                                        cluster_rows = FALSE,
-                                        cluster_columns = FALSE,
-                                        column_order = sort(colnames(my_zscores_mean)),
-                                        ...)
-  return(my_heatmap)
-}
-
-#' Compare cell types percent per polygon
-#'
-#' @param gobject A Giotto object
-#' @param spat_unit spatial unit. Default = "cell"
-#' @param feat_type feature type. Default =  "rna"
-#' @param cell_type_column column name within the cell metadata table to use
-#' @param ... Additional parameters passed to ComplexHeatmap::Heatmap
-#'
-#' @return A ComplexHeatmap::Heatmap
-#' @export
-compareCellAbundance <- function(gobject,
-                                 spat_unit = "cell",
-                                 feat_type = "rna",
-                                 cell_type_column = "leiden_clus",
-                                 ...) {
-
-  # verify gobject
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject needs to be a giotto object")
-  }
-
-  # get poly_ID and cell_type from metadata
-  my_metadata <- pDataDT(gobject = gobject,
-                         spat_unit = spat_unit,
-                         feat_type = feat_type)
-  columns_to_select = c("poly_ID", cell_type_column)
-  my_metadata <- my_metadata[, ..columns_to_select]
-
-  # count cell_type per polygon
-  my_cell_counts <- table(my_metadata)
-
-  my_cell_percent <- 100*my_cell_counts/rowSums(my_cell_counts)
-
-  # convert to matrix
-  my_matrix <- Matrix::as.matrix(my_cell_percent)
-
-  rownames(my_matrix) <- rownames(my_cell_percent)
-  colnames(my_matrix) <- colnames(my_cell_percent)
-
-  # plot heatmap
-  my_heatmap <- ComplexHeatmap::Heatmap(t(my_matrix),
-                                        heatmap_legend_param = list(title = "Cell type percent\nper polygon"),
-                                        cluster_rows = FALSE,
-                                        cluster_columns = FALSE,
-                                        ...)
-  return(my_heatmap)
-}
-
-
-#' Plot stored polygons
-#'
-#' @param gobject A Giotto object with polygon coordinates
-#' @param x A ggplot2, spatPlot or terra::rast object
-#' @param spat_unit spatial unit
-#' @param polygons character. Vector of polygon names to plot. If NULL, all polygons are plotted
-#' @param ... Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon
-#'
-#' @return A ggplot2 image
-#' @export
-#'
-plotPolygons <- function(gobject, x, spat_unit = "cell", polygons = NULL, ...) {
-
-  ## verify gobject
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject must be a Giotto object")
-  }
-
-  ## verify plot exists
-  if(is.null(x)) stop('A plot object must be provided')
-
-  ## get polygons spatial info
-  polygon_spatVector <- get_polygon_info(gobject = gobject,
-                                         polygon_name = spat_unit)
-
-  coordinates <- terra::geom(polygon_spatVector, df = TRUE)
-
-  if(!is.null(polygons)) {
-    ## replace polygon names
-    for (i in 1:length(unlist(polygon_spatVector[["poly_ID"]])) ) {
-      coordinates$geom <- replace(coordinates$geom,
-                                  coordinates$geom == i,
-                                  unlist(polygon_spatVector[["poly_ID"]])[i])
-    }
-
-    coordinates <- coordinates[coordinates$geom %in% polygons,]
-  }
-
-  ## plot over ggplot or spatPlot
-  if(inherits(x, "ggplot")) {
-    x +
-      geom_polygon(data = coordinates,
-                   aes(x, y, colour = factor(geom), group = geom),
-                   alpha = 0, show.legend = FALSE, ...) +
-      theme(legend.position = 'none')
-  } else {
-    terra::plot(x)
-    lapply(split(coordinates, by = "name"),
-           function (x) graphics::polygon(x$x, x$y, ...) )
   }
 
 }

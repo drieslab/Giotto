@@ -11,7 +11,7 @@ get_dimReduction(
   reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
-  return_dimObj = FALSE
+  output = c("dimObj", "data.table")
 )
 }
 \arguments{
@@ -27,10 +27,11 @@ get_dimReduction(
 
 \item{name}{name of reduction results}
 
-\item{return_dimObj}{return full dimension object result. Default = FALSE}
+\item{output}{object type to return as. Either 'dimObj' (default) or 'data.table
+of the embedding coordinates.}
 }
 \value{
-dim reduction coordinates (default) or dim reduction object
+dim reduction object (default) or dim reduction coordinates
 }
 \description{
 Function to get a dimension reduction object

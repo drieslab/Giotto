@@ -9,6 +9,8 @@ addSpatialCentroidLocations(
   poly_info = "cell",
   feat_type = NULL,
   spat_loc_name = "raw",
+  provenance = poly_info,
+  init_metadata = TRUE,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -22,6 +24,12 @@ addSpatialCentroidLocations(
 
 \item{spat_loc_name}{name to give to the created spatial locations}
 
+\item{provenance}{(optional) provenance to assign to generated spatLocsObj. If
+not provided, provenance will default to \code{poly_info}}
+
+\item{init_metadata}{initialize cell and feature metadata for this spatial unit
+(default = TRUE, but should be turned off if generated earlier in the workflow)}
+
 \item{return_gobject}{return giotto object (default: TRUE)}
 
 \item{verbose}{be verbose}
@@ -29,7 +37,7 @@ addSpatialCentroidLocations(
 \value{
 If \code{return_gobject = TRUE} the giotto object containing the calculated
   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
-  generated polygon centroids will be returned.
+  generated polygon centroids will be returned as \code{spatLocObj}.
 }
 \description{
 Calculates the centroid locations for the polygons within one or more selected layers

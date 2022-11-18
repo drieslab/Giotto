@@ -115,7 +115,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
   pip_packages = c("smfishhmrf", py_lou)
 
   # python-louvain must be installed with pip, not with conda-forge
-  packages_to_install = packages_to_install[!grepl(pattern = 'python-louvain',x = packages_to_install)]  
+  packages_to_install = packages_to_install[!grepl(pattern = 'python-louvain',x = packages_to_install)]
 
   ## for unix-like systems ##
   if(.Platform[['OS.type']] == 'unix') {
@@ -124,7 +124,6 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
     reticulate::conda_create(envname = 'giotto_env',
                              conda = conda_full_path,
                              python_version = python_version)
-
 
     full_envname = paste0(conda_path,'/envs/giotto_env')
 
@@ -237,16 +236,10 @@ install_giotto_environment = function(force_environment = FALSE,
 #' installed it will be automatically detected when you run the Giotto toolbox. If you want to use
 #' your own python path then you can set the python_path in the \code{\link{createGiottoInstructions}}
 #' and provide the instructions to the \code{\link{createGiottoObject}} function.
-#' @export
-#' @examples
-#' \dontrun{
 #'
-#'   # this command will install r-miniconda
-#'   # and a giotto environment with all necessary python modules
-#'   installGiottoEnvironment()
-#'}
 #' By default, Python v3.10.2 will be used with the following python modules
 #' for Giotto Suite implementations:
+#' \preformatted{
 #'    - pandas==1.5.1
 #'    - networkx==2.8.8
 #'    - python-igraph==0.10.2
@@ -254,6 +247,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'    - python-louvain==0.16
 #'    - python.app==1.4
 #'    - scikit-learn==1.1.3
+#' }
 #'
 #'  The giotto environment can be custom installed by changing the
 #'  python_version parameter and module versions in the
@@ -262,13 +256,24 @@ install_giotto_environment = function(force_environment = FALSE,
 #'  For example, this giotto environment works as well, and was the
 #'  default environment status for past releases of Giotto.
 #'  Python  v3.6
+#'  \preformatted{
 #'   - pandas==1.1.5
 #'   - networkx==2.6.3
 #'   - python-igraph==0.9.6
 #'   - leidenalg==0.8.7
 #'   - python-louvain==0.15
-#'   - python.app==2 [mac OSX only]
+#'   - python.app==2 # macOS only
 #'   - scikit-learn==0.24.2
+#' }
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#'
+#'   # this command will install r-miniconda
+#'   # and a giotto environment with all necessary python modules
+#'   installGiottoEnvironment()
+#'}
 installGiottoEnvironment =  function(packages_to_install = c('pandas==1.5.1',
                                                              'networkx==2.8.8',
                                                              'python-igraph==0.10.2',

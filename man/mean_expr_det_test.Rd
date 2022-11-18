@@ -6,6 +6,11 @@
 \usage{
 mean_expr_det_test(mymatrix, detection_threshold = 1)
 }
+\arguments{
+\item{mymatrix}{matrix of expression info}
+
+\item{detection_threshold}{detection threshold. Defaults to 1 count.}
+}
 \description{
 mean_expr_det_test
 }

@@ -6,15 +6,20 @@
 \usage{
 set_NearestNetwork(
   gobject,
+  nn_network,
   spat_unit = NULL,
   feat_type = NULL,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  nn_network
+  provenance = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
+yet supported.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -24,7 +29,9 @@ set_NearestNetwork(
 
 \item{network_name}{name of NN network to be used}
 
-\item{nn_network}{nearest network}
+\item{provenance}{provenance information (optional)}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -37,11 +44,15 @@ Other expression space nearest network accessor functions:
 \code{\link{get_NearestNetwork}()}
 
 Other functions to set data in giotto object: 
-\code{\link{set_CellMetadata}()},
-\code{\link{set_FeatMetadata}()},
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_cell_metadata}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
+\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialGrid}()},

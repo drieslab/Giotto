@@ -8,6 +8,7 @@ create_dimObject(
   name = "test",
   spat_unit = "cell",
   feat_type = "rna",
+  reduction = "cells",
   reduction_method = NULL,
   coordinates = NULL,
   misc = NULL,
@@ -20,6 +21,8 @@ create_dimObject(
 \item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
+
+\item{reduction}{reduction on columns (e.g. cells) or rows (e.g. features)}
 
 \item{reduction_method}{method used to reduce dimensions}
 

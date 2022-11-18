@@ -18,6 +18,9 @@ PAGE_DT_method(
   verbose = TRUE
 )
 }
+\arguments{
+\item{expr_values}{matrix of expression values}
+}
 \description{
 PAGE data.table method
 }

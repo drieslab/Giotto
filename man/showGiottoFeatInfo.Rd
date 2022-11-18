@@ -14,8 +14,10 @@ show the available giotto spatial feature information
 }
 \seealso{
 Other functions to show data in giotto object: 
+\code{\link{showGiottoCellMetadata}()},
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoExpression}()},
+\code{\link{showGiottoFeatMetadata}()},
 \code{\link{showGiottoImageNames}()},
 \code{\link{showGiottoNearestNetworks}()},
 \code{\link{showGiottoSpatEnrichments}()},

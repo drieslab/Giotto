@@ -16,6 +16,8 @@ Framework to store dimension reduction information
 
 \item{\code{spat_unit}}{spatial unit of data}
 
+\item{\code{provenance}}{origin of aggregated information (if applicable)}
+
 \item{\code{reduction_method}}{method used to generate dimension reduction}
 
 \item{\code{coordinates}}{embedding coordinates}

@@ -10,9 +10,13 @@ select_spatial_locations(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_spatial_locations]{get_spatial_locations}}
   \describe{
+    \item{\code{spat_loc_name}}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
+    \item{\code{output}}{what object type to get the spatial locations as. Default is as
+a 'spatLocsObj'. Returning as 'data.table' is also possible.}
+    \item{\code{copy_obj}}{whether to copy/duplicate when getting the object (default = TRUE)}
+    \item{\code{verbose}}{be verbose}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
-    \item{\code{spat_loc_name}}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
   }}
 }
 \description{

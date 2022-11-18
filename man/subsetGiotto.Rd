@@ -12,6 +12,8 @@ subsetGiotto(
   feat_ids = NULL,
   gene_ids = NULL,
   poly_info = NULL,
+  all_spat_units = TRUE,
+  all_feat_types = TRUE,
   x_max = NULL,
   x_min = NULL,
   y_max = NULL,
@@ -31,9 +33,11 @@ subsetGiotto(
 
 \item{feat_ids}{feature IDs to keep}
 
-\item{gene_ids}{deprecated, use feat_ids}
-
 \item{poly_info}{polygon information to use}
+
+\item{all_spat_units}{subset all spatial units with selected feature ids}
+
+\item{all_feat_types}{subset all feature type data with selected cell ids}
 
 \item{x_max, x_min, y_max, y_min}{minimum and maximum x and y coordinates to keep for feature coordinates}
 

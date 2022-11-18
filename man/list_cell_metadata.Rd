@@ -24,5 +24,5 @@ list_cell_metadata(
 names and locations of available cell metadata as data.table
 }
 \description{
-lists the available cell metadata
+lists the available cell metadata.
 }

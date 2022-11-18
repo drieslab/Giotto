@@ -26,12 +26,14 @@ test_that("Object initialization creates expected Giotto object", {
   expect_s4_class(object@expression[["cell"]][["rna"]][["raw"]], "dgCMatrix")
   expect_true(all(object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(161, 73655)))
 
-  # gobject contains S3 object "data.table" of dimensions 73655 x 4 containing spatial locations
-  expect_s3_class(object@spatial_locs[["cell"]][["raw"]], "data.table")
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimx"]], 73655)
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimy"]], 73655)
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimz"]], 73655)
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["cell_ID"]], 73655)
+  # gobject contains S4 object "spatLocsObj" of dimensions 73655 x 4 containing spatial locations
+  st = get_spatial_locations(test, spat_unit = 'cell', spat_loc_name = 'raw', return_spatlocs_Obj = TRUE)
+  expect_identical(st@coordinates, object@spatial_locs[["cell"]][["raw"]]@coordinates)
+  expect_s4_class(object@spatial_locs[["cell"]][["raw"]], "spatLocsObj")
+  expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimx"]], 73655)
+  expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimy"]], 73655)
+  expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimz"]], 73655)
+  expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["cell_ID"]], 73655)
 
 })
 
@@ -70,10 +72,10 @@ test_that("Data in filtered object is expected size", {
   expect_true(all(filtered_object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(153, 17814)))
 
   # filtered object spatial locations have expected length
-  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimx"]], 17814)
-  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimy"]], 17814)
-  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimz"]], 17814)
-  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["cell_ID"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimx"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimy"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimz"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["cell_ID"]], 17814)
 
   # filtered object metadata has expected length
   expect_length(filtered_object@cell_metadata[["cell"]][["rna"]][["layer_ID"]], 17814)

@@ -3,23 +3,29 @@
 \docType{methods}
 \name{show,giotto-method}
 \alias{show,giotto-method}
-\alias{show,aggregateExprObj-method}
+\alias{show,exprObj-method}
 \alias{show,dimObj-method}
+\alias{show,spatLocsObj-method}
 \alias{show,spatialNetworkObj-method}
 \alias{show,spatialGridObj-method}
+\alias{show,spatEnrObj-method}
 \alias{show,giottoImage-method}
 \alias{show,giottoLargeImage-method}
 \title{show method for giotto class}
 \usage{
 \S4method{show}{giotto}(object)
 
-\S4method{show}{aggregateExprObj}(object)
+\S4method{show}{exprObj}(object)
 
 \S4method{show}{dimObj}(object)
+
+\S4method{show}{spatLocsObj}(object)
 
 \S4method{show}{spatialNetworkObj}(object)
 
 \S4method{show}{spatialGridObj}(object)
+
+\S4method{show}{spatEnrObj}(object)
 
 \S4method{show}{giottoImage}(object)
 
@@ -31,13 +37,17 @@
 \description{
 show method for giotto class
 
-show method for aggregateExprObj class
+show method for exprObj class
 
 show method for dimObj class
+
+show method for spatLocsObj class
 
 show method for spatialNetworkObj class
 
 show method for spatialGridObj class
+
+show method for spatEnrObj class
 
 show method for giottoImage class
 

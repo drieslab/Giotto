@@ -108,7 +108,7 @@ doHMRF <- function(gobject,
                                    reduction = 'cells',
                                    reduction_method = dim_reduction_to_use,
                                    name = dim_reduction_name,
-                                   return_dimObj = FALSE)
+                                   output = 'data.table')
     expr_values = expr_values[, dimensions_to_use]
     expr_values = t_flex(expr_values)
 
@@ -117,7 +117,8 @@ doHMRF <- function(gobject,
     expr_values = get_expression_values(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
-                                        values = values)
+                                        values = values,
+                                        output = 'matrix')
   }
 
   if(!'matrix' %in% class(expr_values)) {
@@ -182,7 +183,7 @@ doHMRF <- function(gobject,
   spatial_network = get_spatialNetwork(gobject = gobject,
                                        spat_unit = spat_unit,
                                        name = spatial_network_name,
-                                       return_network_Obj = FALSE)
+                                       output = 'networkDT')
   spatial_network = spatial_network[,.(to,from)]
   spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
 
@@ -205,8 +206,9 @@ doHMRF <- function(gobject,
   ## 4. cell location
   spatial_location = get_spatial_locations(gobject = gobject,
                                            spat_unit = spat_unit,
-                                           spat_loc_name = spat_loc_name)
-  #spatial_location = gobject@spatial_locs
+                                           spat_loc_name = spat_loc_name,
+                                           output = 'data.table',
+                                           copy_obj = TRUE)
 
   # select spatial dimensions that are available #
   spatial_dimensions = spatial_dimensions[spatial_dimensions %in% colnames(spatial_location)]

@@ -8,17 +8,21 @@ get_spatial_enrichment(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  enrichm_name = "DWLS"
+  enrichm_name = "DWLS",
+  output = c("spatEnrObj", "data.table"),
+  copy_obj = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit (e.g."cell")}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
+
+\item{output}{what format in which to get information (e.g. "data.table")}
 }
 \value{
 data.table with fractions

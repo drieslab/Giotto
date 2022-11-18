@@ -4,7 +4,7 @@
 \alias{subset_spatial_enrichment}
 \title{Subset spatial enrichment}
 \usage{
-subset_spatial_enrichment(gobject, spat_unit, feat_type, filter_bool_cells)
+subset_spatial_enrichment(gobject, spat_unit, feat_type, cell_ids)
 }
 \description{
 Subset spatial enrichment results from giotto object

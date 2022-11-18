@@ -690,7 +690,8 @@ decide_cluster_order = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # subset expression data
   detected_feats = feats[feats %in% rownames(expr_values)]
@@ -769,25 +770,25 @@ decide_cluster_order = function(gobject,
 #' @return list
 #' @details Creates input data.tables for plotHeatmap function.
 #' @keywords internal
-createHeatmap_DT <- function(gobject,
-                             spat_unit = NULL,
-                             feat_type = NULL,
-                             expression_values = c('normalized', 'scaled', 'custom'),
-                             feats,
-                             genes = NULL,
-                             cluster_column = NULL,
-                             cluster_order = c('size', 'correlation', 'custom'),
-                             cluster_custom_order = NULL,
-                             cluster_cor_method = 'pearson',
-                             cluster_hclust_method = 'ward.D',
-                             feat_order = c('correlation', 'custom'),
-                             gene_order = NULL,
-                             feat_custom_order = NULL,
-                             gene_custom_order = NULL,
-                             feat_cor_method = 'pearson',
-                             gene_cor_method = NULL,
-                             feat_hclust_method = 'complete',
-                             gene_hclust_method = NULL) {
+createHeatmap_DT = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            expression_values = c('normalized', 'scaled', 'custom'),
+                            feats,
+                            genes = NULL,
+                            cluster_column = NULL,
+                            cluster_order = c('size', 'correlation', 'custom'),
+                            cluster_custom_order = NULL,
+                            cluster_cor_method = 'pearson',
+                            cluster_hclust_method = 'ward.D',
+                            feat_order = c('correlation', 'custom'),
+                            gene_order = NULL,
+                            feat_custom_order = NULL,
+                            gene_custom_order = NULL,
+                            feat_cor_method = 'pearson',
+                            gene_cor_method = NULL,
+                            feat_hclust_method = 'complete',
+                            gene_hclust_method = NULL) {
 
 
   ## deprecated arguments
@@ -826,7 +827,8 @@ createHeatmap_DT <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # subset expression data
   detected_feats = feats[feats %in% rownames(expr_values)]
@@ -1763,7 +1765,8 @@ violinPlot <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     feat_type = feat_type,
                                     spat_unit = spat_unit,
-                                    values = values)
+                                    values = values,
+                                    output = 'matrix')
 
   # only keep feats that are in the dataset
   selected_feats = feats[feats %in% rownames(expr_data)]

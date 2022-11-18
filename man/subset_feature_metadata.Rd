@@ -4,7 +4,25 @@
 \alias{subset_feature_metadata}
 \title{Subset feature metadata}
 \usage{
-subset_feature_metadata(gobject, feat_type, spat_unit, filter_bool_feats)
+subset_feature_metadata(
+  gobject,
+  feat_type,
+  spat_unit = NULL,
+  feat_ids,
+  all_spat_units = TRUE
+)
+}
+\arguments{
+\item{gobject}{giotto object}
+
+\item{feat_type}{feature type (e.g. 'rna', 'protein')}
+
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_ids}{feature ids to keep}
+
+\item{all_spat_units}{(boolean) applies subset operation across the whole gobject
+(ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.}
 }
 \description{
 Subset feature metadata from giotto object

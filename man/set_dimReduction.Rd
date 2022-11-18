@@ -6,16 +6,20 @@
 \usage{
 set_dimReduction(
   gobject,
+  dimObject,
   spat_unit = NULL,
   feat_type = NULL,
   reduction = c("cells", "genes"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
-  dimObject
+  provenance = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dimObject}{dimension object result to set}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -27,7 +31,9 @@ set_dimReduction(
 
 \item{name}{name of reduction results}
 
-\item{dimObject}{dimension object result to set}
+\item{provenance}{provenance information (optional)}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -40,11 +46,15 @@ Other dimensional reduction data accessor functions:
 \code{\link{get_dimReduction}()}
 
 Other functions to set data in giotto object: 
-\code{\link{set_CellMetadata}()},
-\code{\link{set_FeatMetadata}()},
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_cell_metadata}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
+\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialGrid}()},

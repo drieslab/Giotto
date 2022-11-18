@@ -4,14 +4,16 @@
 \alias{set_feature_info}
 \title{Set feature info}
 \usage{
-set_feature_info(gobject, feat_type = NULL, gpolygon)
+set_feature_info(gobject, feat_type = NULL, gpolygon, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{name of feat (e.g. "rna", "dna", "protein")}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{gpolygon}{giotto polygon}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -24,11 +26,15 @@ Other feature info data accessor functions:
 \code{\link{get_feature_info}()}
 
 Other functions to set data in giotto object: 
-\code{\link{set_CellMetadata}()},
-\code{\link{set_FeatMetadata}()},
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_cell_metadata}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
+\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialGrid}()},

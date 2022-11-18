@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 2.1
+Version: 3.0.0
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -20,7 +20,7 @@ Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),
@@ -51,7 +51,7 @@ Imports:
     parallel,
     RColorBrewer (>= 1.1-2),
     reshape2,
-    reticulate (>= 1.14),
+    reticulate (>= 1.25),
     rmarkdown,
     R.utils,
     Rtsne (>= 0.15),
@@ -112,8 +112,8 @@ Suggests:
     qs
 Collate:
     'NN_network.R'
-    'auxiliary_giotto.R'
     'accessors.R'
+    'auxiliary_giotto.R'
     'auxiliary_visuals.R'
     'cell_segmentation.R'
     'classes.R'
@@ -129,6 +129,7 @@ Collate:
     'globals.R'
     'image_registration.R'
     'images.R'
+    'interactivity.R'
     'interoperability.R'
     'python_environment.R'
     'python_hmrf.R'

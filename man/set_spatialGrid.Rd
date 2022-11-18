@@ -6,14 +6,17 @@
 \usage{
 set_spatialGrid(
   gobject,
+  spatial_grid,
   spat_unit = NULL,
   feat_type = NULL,
   name = NULL,
-  spatial_grid
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spatial_grid}{spatial grid object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -21,7 +24,7 @@ set_spatialGrid(
 
 \item{name}{name of spatial grid}
 
-\item{spatial_grid}{spatial grid object}
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -34,12 +37,16 @@ Other spatial grid data accessor functions:
 \code{\link{get_spatialGrid}()}
 
 Other functions to set data in giotto object: 
-\code{\link{set_CellMetadata}()},
-\code{\link{set_FeatMetadata}()},
+\code{\link{get_cell_id}()},
+\code{\link{get_feat_id}()},
 \code{\link{set_NearestNetwork}()},
+\code{\link{set_cell_id}()},
+\code{\link{set_cell_metadata}()},
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
+\code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
+\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialNetwork}()},

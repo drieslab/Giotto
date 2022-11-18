@@ -10,8 +10,10 @@ calculateOverlapPolygonImages(
   spatial_info = "cell",
   poly_ID_names = NULL,
   image_names = NULL,
+  poly_subset = NULL,
   return_gobject = TRUE,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -25,9 +27,13 @@ calculateOverlapPolygonImages(
 
 \item{image_names}{names of the images with raw data}
 
+\item{poly_subset}{numerical values to subset the polygon spatVector}
+
 \item{return_gobject}{return giotto object (default: TRUE)}
 
 \item{verbose}{be verbose}
+
+\item{...}{additional params to \code{\link[exactextractr]{exact_extract}}}
 }
 \value{
 giotto object or data.table with overlapping information

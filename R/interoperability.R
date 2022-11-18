@@ -13,9 +13,9 @@
 #' @param python_path path to python executable within a conda/miniconda environment
 #' @return Giotto object
 #' @details Function in beta. Converts a .h5ad file into a Giotto object.
-#'    The returned Giotto Object will take default insructions with the 
-#'    exception of the python path, which may be customized. 
-#'    See \code{\link{changeGiottoInstructions} to modify instructions after creation.
+#'    The returned Giotto Object will take default insructions with the
+#'    exception of the python path, which may be customized.
+#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
 #' @export
 anndataToGiotto = function(anndata_path = NULL,
                            python_path = NULL) {
@@ -28,7 +28,7 @@ anndataToGiotto = function(anndata_path = NULL,
   if(!file.exists(anndata_path)) {
     stop("The provided path to the AnnData .h5ad file does not exist.\n")
   }
-  
+
   # Required step to properly initialize reticualte
   instrs = createGiottoInstructions(python_path = python_path)
 
@@ -42,8 +42,8 @@ anndataToGiotto = function(anndata_path = NULL,
             install in the environment or python path with:
 
             'pip install scanpy==1.9.0'
-            
-            Alternatively, install in the active python 
+
+            Alternatively, install in the active python
             environment with reticulate:
 
             reticulate::py_install(packages = 'scanpy==1.9.0',
@@ -51,9 +51,10 @@ anndataToGiotto = function(anndata_path = NULL,
             \n
             ")
   } else if (module_test == FALSE && genv_in_use) {
-    cat ("Python module scanpy is required for conversion. 
+    cat ("Python module scanpy is required for conversion.
           Installing scanpy now in the Giotto Miniconda Environment.\n")
 
+    conda_path = reticulate::miniconda_path()
     py_ver = reticulate::py_config()$version_string
     py_ver = strsplit(py_ver,"|", fixed = T)[[1]][1]
     py_ver = gsub(" ","",py_ver, fixed = T)
@@ -89,31 +90,31 @@ anndataToGiotto = function(anndata_path = NULL,
   #Spatial locations sp ready
 
   ### Set up metadata
-  cm <- extract_cell_metadata(adata)
-  cm <- as.data.table(cm)
+  cm = extract_cell_metadata(adata)
+  cm = as.data.table(cm)
   if ('leiden' %in% names(cm)) {
     cm$leiden = as.numeric(cm$leiden)
   }
 
-  fm <- extract_feat_metadata(adata)
-  fm <- as.data.table(fm)
+  fm = extract_feat_metadata(adata)
+  fm = as.data.table(fm)
   # Metadata ready
 
   ### Create Minimal giottoObject
-  gobject <- createGiottoObject(expression = X, 
+  gobject <- createGiottoObject(expression = X,
                                 spatial_locs = sp,
                                 instructions = instrs)
 
   ### Add metadata
-  gobject <- set_CellMetadata(gobject, 
+  gobject = set_CellMetadata(gobject,
                               meta_dt = cm)
-  gobject <- set_FeatMetadata(gobject,
+  gobject = set_FeatMetadata(gobject,
                               meta_dt = fm)
 
-  spat_unit = set_default_spat_unit(gobject, 
+  spat_unit = set_default_spat_unit(gobject,
                                     spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject, 
-                                    feat_type = feat_type, 
+  feat_type = set_default_feat_type(gobject,
+                                    feat_type = feat_type,
                                     spat_unit = spat_unit)
 
   ### Set up PCA
@@ -123,14 +124,14 @@ anndataToGiotto = function(anndata_path = NULL,
     evs = p$eigenvalues
     loads = p$loadings
     # Add PCA to giottoObject
-    dobj = Giotto:::create_dimObject(name = 'pca.ad',
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    reduction_method = 'pca',
-                                    coordinates = pca,
-                                    misc = list(eigenvalues = evs,
-                                                loadings = loads),
-                                    my_rownames = colnames(X))
+    dobj = create_dimObject(name = 'pca.ad',
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            reduction_method = 'pca',
+                            coordinates = pca,
+                            misc = list(eigenvalues = evs,
+                                        loadings = loads),
+                            my_rownames = colnames(X))
 
     gobject = set_dimReduction(gobject = gobject,
                           spat_unit = spat_unit,
@@ -141,18 +142,18 @@ anndataToGiotto = function(anndata_path = NULL,
                           dimObject = dobj)
 
   }
-  
+
   ### Set up UMAP
   u = extract_umap(adata)
   if (!is.null(u)) {
     # Add UMAP to giottoObject
-    dobj = Giotto:::create_dimObject(name = 'umap.ad',
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    reduction_method = 'umap',
-                                    coordinates = u,
-                                    misc = NULL,
-                                    my_rownames = colnames(X))
+    dobj = create_dimObject(name = 'umap.ad',
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            reduction_method = 'umap',
+                            coordinates = u,
+                            misc = NULL,
+                            my_rownames = colnames(X))
 
     gobject = set_dimReduction(gobject = gobject,
                           spat_unit = spat_unit,
@@ -161,19 +162,19 @@ anndataToGiotto = function(anndata_path = NULL,
                           reduction_method = 'umap',
                           name = 'umap.ad',
                           dimObject = dobj)
-  
+
   }
   ### Set up TSNE
   t = extract_tsne(adata)
   if (!is.null(t)) {
     # Add UMAP to giottoObject
-    dobj = Giotto:::create_dimObject(name = 'tsne.ad',
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    reduction_method = 'tsne',
-                                    coordinates = t,
-                                    misc = NULL,
-                                    my_rownames = colnames(X))
+    dobj = create_dimObject(name = 'tsne.ad',
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            reduction_method = 'tsne',
+                            coordinates = t,
+                            misc = NULL,
+                            my_rownames = colnames(X))
 
     gobject = set_dimReduction(gobject = gobject,
                           spat_unit = spat_unit,
@@ -183,7 +184,7 @@ anndataToGiotto = function(anndata_path = NULL,
                           name = 'tsne.ad',
                           dimObject = dobj)
   }
-  
+
   ### Layers
   lay_names = extract_layer_names(adata)
   if (!is.null(lay_names)) {
@@ -285,14 +286,20 @@ giottoToSeurat <- function(obj_use = NULL,
     }
 
     # add cell metadata
-    meta_cells <- as.data.frame(pDataDT(obj_use,feat_type = assay_use))
+    meta_cells <- data.table::setDF(get_cell_metadata(obj_use,
+                                                      feat_type = assay_use,
+                                                      output = 'data.table',
+                                                      copy_obj = TRUE))
     rownames(meta_cells) <- meta_cells$cell_ID
     meta_cells <- meta_cells[,-which(colnames(meta_cells) == 'cell_ID')]
     colnames(meta_cells) <- paste0(assay_use,"_",colnames(meta_cells))
     sobj <- Seurat::AddMetaData(sobj,metadata = meta_cells[Seurat::Cells(sobj),])
 
     # add feature metadata
-    meta_genes <- as.data.frame(fDataDT(obj_use,feat_type = assay_use))
+    meta_genes <- data.table::setDF(get_feature_metadata(obj_use,
+                                                         feat_type = assay_use,
+                                                         output = 'data.table',
+                                                         copy_obj = TRUE))
     rownames(meta_genes) <- meta_genes$feat_ID
     sobj[[assay_use]]@meta.features <- cbind(sobj[[assay_use]]@meta.features,meta_genes)
   }
@@ -315,7 +322,7 @@ giottoToSeurat <- function(obj_use = NULL,
     for (i in dr_use){
       dr_name <- i
       dr_obj <- get_dimReduction(gobject = obj_use,
-                                 return_dimObj = T,
+                                 output = 'dimObj',
                                  reduction_method = dr_name,
                                  name = dr_name)
       emb_use <- slot(dr_obj, 'coordinates')[Seurat::Cells(sobj),]

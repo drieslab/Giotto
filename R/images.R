@@ -120,9 +120,10 @@ createGiottoImage = function(gobject = NULL,
     # Get spatial locations (or automatically take first available)
     spatlocs = get_spatial_locations(gobject = gobject,
                                      spat_unit = spat_unit,
-                                     spat_loc_name = spat_loc_name)
+                                     spat_loc_name = spat_loc_name,
+                                     copy_obj = FALSE,
+                                     output = 'data.table')
 
-    # spatlocs = gobject@spatial_locs[['raw']]
 
     # Find g_image minmax (spatial) from spatial_locs in gobject
     my_xmin = min(spatlocs$sdimx)
@@ -759,7 +760,7 @@ addGiottoImageMG = function(gobject,
   if(is.null(images)) stop('The giotto image(s) that will be added needs to be provided')
 
   if(is.null(spat_loc_name)) {
-    if(!is.null(gobject@spatial_locs)) {
+    if(!is.null(slot(gobject, 'spatial_locs'))) {
       spat_loc_name = list_spatial_locations(gobject = gobject, spat_unit = spat_unit)[1,]
     } else {
       spat_loc_name = NULL

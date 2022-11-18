@@ -29,6 +29,8 @@ Grids can be annotated with both spatial and feature information
 
 \item{\code{feat_type}}{feature type}
 
+\item{\code{provenance}}{origin of aggregated information (if applicable)}
+
 \item{\code{misc}}{misc}
 }}
 

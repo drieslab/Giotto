@@ -6,10 +6,12 @@
 \usage{
 subset_expression_data(
   gobject,
-  filter_bool_feats,
-  filter_bool_cells,
+  cell_ids,
+  feat_ids,
   feat_type,
-  spat_unit
+  spat_unit,
+  all_spat_units,
+  all_feat_types
 )
 }
 \description{

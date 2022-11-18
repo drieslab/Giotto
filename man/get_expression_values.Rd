@@ -4,16 +4,26 @@
 \alias{get_expression_values}
 \title{Get expression values}
 \usage{
-get_expression_values(gobject, spat_unit = NULL, feat_type = NULL, values)
+get_expression_values(
+  gobject,
+  values = NULL,
+  spat_unit = NULL,
+  feat_type = NULL,
+  output = c("exprObj", "matrix")
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{values}{expression values to extract (e.g. "raw", "normalized", "scaled")}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{values}{expression values to extract (e.g. "raw", "normalized", "scaled")}
+\item{output}{what object type to retrieve the expression as. Currently either
+'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
+the exprObj itself are allowed.}
 }
 \value{
 expression matrix

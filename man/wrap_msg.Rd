@@ -10,8 +10,11 @@ wrap_msg(..., collapse = "")
 \item{...}{additional strings and/or elements to pass to cat}
 
 \item{collapse}{how to join elements of string (default is no space)}
+
+\item{strWidth}{externally set wrapping width. (default value of 100 is not effected)}
+
+\item{keywords}{internal}
 }
 \description{
 Wrap message
 }
-\keyword{internal}

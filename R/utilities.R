@@ -306,7 +306,7 @@ list_element_exists = function(x, index) {
 
 
 
-# methods imports ####
+# methods/operator imports ####
 
 
 # Additional methods functions that might also be imported later...
@@ -341,7 +341,6 @@ NULL
 #' @importFrom methods validObject
 #' @usage validObject(object, test = FALSE, complete = FALSE)
 NULL
-
 
 
 
@@ -409,20 +408,98 @@ box_chars <- function() {
 }
 
 
+#' @title Print abbreviated matrix
+#' @name abb_mat
+#' @description print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,
+#' matrix, data.frame and classes that inherit them.
+#' @keywords internal
+abb_mat = function(exprObj, nrows, ncols) {
+  mat = as.matrix(exprObj[])
+  four_names = head(colnames(mat), 4)
+  mat_cols = ncol(mat)
+  mat_rows = nrow(mat)
+
+  # suppress colnames
+  mat = mat[1:if(nrows <= mat_rows) nrows else mat_rows,
+            1:if(ncols <= mat_cols) ncols else mat_cols]
+  colnames(mat) = NULL
+
+  # prints
+  cat('An object of class', class(exprObj), '\n')
+  cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
+  cat('  Provenance:', exprObj@provenance, '\n\ncontains:\n')
+  cat(paste0(mat_rows, ' x ', mat_cols, ' dense matrix of class "', class(exprObj[]), '"\n\n'))
+  print(mat)
+  cat('\n First four colnames:')
+  cat('\n', wrap_txt(four_names, strWidth = 40), '\n')
+}
+
+
+
+#' @title Print abbreviated spatlocs
+#' @name abb_spatlocs
+#' @description print abbreviated spatLocsObj
+#' @keywords internal
+abb_spatlocs = function(spatLocsObj, nrows) {
+  DT_rows = nrow(spatLocsObj[])
+  spatlocs = spatLocsObj[][1:if(nrows <= DT_rows) nrows else DT_rows,]
+
+  # prints
+  cat('An object of class', class(spatLocsObj), '\n')
+  cat('provenance:', slot(spatLocsObj, 'provenance'))
+  cat('\n    ------------------------\n')
+  print(spatlocs)
+  cat('\nranges:\n')
+  try(expr = print(sapply(slot(spatLocsObj, 'coordinates')[,.(sdimx,sdimy)], range)),
+      silent = TRUE)
+
+  cat('\n\n')
+}
+
+
+
 # Print Formatting ####
 
 #' @title Wrap message
 #' @name wrap_msg
-#' @keywords internal
 #' @param ... additional strings and/or elements to pass to cat
 #' @param collapse how to join elements of string (default is no space)
+#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
+#' @param keywords internal
 wrap_msg = function(..., collapse = '') {
+  message(wrap_txt(..., collapse = ''))
+}
+
+#' @title Wrap text
+#' @name wrap_txt
+#' @param ... additional params to pass
+#' @param collapse how to join elements of string (default is no space)
+#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
+#' @keywords internal
+wrap_txt = function(..., collapse = '', strWidth = 100) {
   cat(...) %>%
     capture.output() %>%
-    strwrap() %>%
-    paste(., collapse = '\n') %>%
-    message()
+    strwrap(., prefix =  ' ', initial = '',
+            width = min(80, getOption("width"), strWidth)) %>%
+    paste(., collapse = '\n')
 }
+
+
+#' @title Colorize print text
+#' @name color_tag
+#' @keywords internal
+color_tag = function() {
+  list(
+    r = '\u001b[31m', # red
+    g = '\u001b[32m', # green
+    y = '\u001b[33m', # yellow
+    b = '\u001b[34m', # blue
+    p = '\u001b[35m', # purple
+    t = '\u001b[36m', # teal
+    x = '\u001b[39m'  # none (return)
+  )
+}
+
 
 
 

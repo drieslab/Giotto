@@ -149,9 +149,19 @@ doLeidenCluster = function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
-      cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     gobject = addCellMetadata(gobject = gobject,
@@ -626,8 +636,9 @@ doSNNCluster <- function(gobject,
 
   ## select network to use
   igraph_object = get_NearestNetwork(gobject,
-                                        nn_network_to_use = nn_network_to_use,
-                                        network_name = network_name)
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = 'igraph')
 
 
   if(nn_network_to_use == 'sNN') {
@@ -775,31 +786,30 @@ doKmeans <- function(gobject,
     # use only available dimensions if dimensions < dimensions_to_use
     dim_coord = get_dimReduction(gobject = gobject,
                                  spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
                                  name = dim_reduction_name,
-                                 return_dimObj = FALSE)
+                                 output = 'dimObj')
 
-    #dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
-
-    dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
-    matrix_to_use = dim_coord[, dimensions_to_use]
+    dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord[])]
+    matrix_to_use = dim_coord[][, dimensions_to_use]
 
 
   } else {
 
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
-
     ## using original matrix ##
     expr_values = get_expression_values(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
-                                        values = values)
+                                        values = values,
+                                        output = 'exprObj')
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% feats_to_use, ]
+      expr_values[] = expr_values[][rownames(expr_values[]) %in% feats_to_use, ]
     }
 
     # features as columns
@@ -956,9 +966,7 @@ doHclust <- function(gobject,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
                                  name = dim_reduction_name,
-                                 return_dimObj = FALSE)
-
-    #dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+                                 output = 'data.table')
 
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]
@@ -1020,9 +1028,19 @@ doHclust <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
-      cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     gobject = addCellMetadata(gobject = gobject,

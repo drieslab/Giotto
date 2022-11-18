@@ -1161,7 +1161,7 @@ plotCellProximityGenes <- function(...){
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return plot 
+#' @return plot
 #' @export
 plotCellProximityFeats = function(gobject,
                                   icfObject,
@@ -2690,16 +2690,21 @@ cellProximitySpatPlot2D <- function(gobject,
   # get information from all slots
   cell_locations  = get_spatial_locations(gobject = gobject,
                                           spat_unit = spat_unit,
-                                          spat_loc_name = spat_loc_name)
+                                          spat_loc_name = spat_loc_name,
+                                          output = 'data.table',
+                                          copy_obj = FALSE)
 
   spatial_grid = get_spatialGrid(gobject = gobject,
                                  spat_unit = spat_unit,
                                  feat_type = feat_type,
-                                 name = spatial_grid_name)
+                                 name = spatial_grid_name,
+                                 return_grid_Obj = FALSE)
 
-  cell_metadata   = pDataDT(gobject = gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            feat_type = feat_type,
@@ -2720,15 +2725,15 @@ cellProximitySpatPlot2D <- function(gobject,
     CellType <- strsplit(interaction_name,"--")
     all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
-    other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
+    other_cell_IDs = setdiff(all_cell_IDs, cell_IDs_to_keep)
   }
 
 
-  # annotated cell data
+  # annotated cell data ()
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata <- merge(cell_locations, cell_metadata, by = "cell_ID")
+    cell_locations_metadata = merge(cell_locations, cell_metadata, by = "cell_ID")
   }
 
 

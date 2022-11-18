@@ -22,6 +22,9 @@ findCellProximityFeats_per_interaction(
   seed_number = 1234
 )
 }
+\arguments{
+\item{expr_values}{Matrix object}
+}
 \description{
 Identifies features that are differentially expressed due to proximity to other cell types.
 }

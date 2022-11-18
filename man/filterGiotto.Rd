@@ -14,6 +14,8 @@ filterGiotto(
   gene_det_in_min_cells = NULL,
   min_det_feats_per_cell = 100,
   min_det_genes_per_cell = NULL,
+  all_spat_units = TRUE,
+  all_feat_types = TRUE,
   poly_info = "cell",
   verbose = TRUE
 )
@@ -36,6 +38,12 @@ filterGiotto(
 \item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
 
 \item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
+
+\item{all_spat_units}{apply features to remove filtering results from current
+spatial unit/feature type combination across ALL spatial units (default = TRUE)}
+
+\item{all_feat_types}{apply cells to remove filtering results from current
+spatial unit/feature type combination across ALL feature types (default = TRUE)}
 
 \item{poly_info}{polygon information to use}
 

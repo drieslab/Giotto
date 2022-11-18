@@ -4,7 +4,7 @@
 \alias{subset_dimension_reduction}
 \title{Subset dimension reduction}
 \usage{
-subset_dimension_reduction(gobject, spat_unit, feat_type, cells_to_keep)
+subset_dimension_reduction(gobject, spat_unit, feat_type, cell_ids)
 }
 \description{
 Subset dimension reduction results from giotto object

@@ -9,9 +9,9 @@ showGiottoExpression(gobject, nrows = 4, ncols = 4)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{nrows}{number of rows to print for each matrix}
+\item{nrows}{number of rows to print for each matrix (ignored for sparse matrices)}
 
-\item{ncols}{number of columns to print for each matrix}
+\item{ncols}{number of columns to print for each matrix (ignored for sparse matrices)}
 }
 \value{
 prints the name and small subset of available matrices
@@ -21,8 +21,10 @@ shows the available matrices
 }
 \seealso{
 Other functions to show data in giotto object: 
+\code{\link{showGiottoCellMetadata}()},
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoFeatMetadata}()},
 \code{\link{showGiottoImageNames}()},
 \code{\link{showGiottoNearestNetworks}()},
 \code{\link{showGiottoSpatEnrichments}()},

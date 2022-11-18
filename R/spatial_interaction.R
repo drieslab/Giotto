@@ -295,15 +295,13 @@ addCellIntMetadata = function(gobject,
                               name = 'select_int',
                               return_gobject = TRUE) {
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression)[[1]]
-  }
+  # set spatial unit and feature type
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = names(gobject@expression[[spat_unit]])[[1]]
-  }
 
   if(is.null(spatial_network)) {
     stop('spatial_network must be provided, this must be an existing spatial network \n')
@@ -332,18 +330,29 @@ addCellIntMetadata = function(gobject,
   selected_cells = unique(c(spatial_network_annot[unified_int == cell_interaction]$to,
                             spatial_network_annot[unified_int == cell_interaction]$from))
 
-  cell_metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
+  # cell_metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
+
   cell_type_1 = strsplit(cell_interaction, split = '--')[[1]][1]
   cell_type_2 = strsplit(cell_interaction, split = '--')[[1]][2]
 
-  cell_metadata[, c(name) := ifelse(!get(cluster_column) %in% c(cell_type_1, cell_type_2), 'other',
+  cell_metadata[][, c(name) := ifelse(!get(cluster_column) %in% c(cell_type_1, cell_type_2), 'other',
                                     ifelse(get(cluster_column) == cell_type_1 & cell_ID %in% selected_cells, paste0("select_", cell_type_1),
                                            ifelse(get(cluster_column) == cell_type_2 & cell_ID %in% selected_cells, paste0("select_", cell_type_2),
                                                   ifelse(get(cluster_column) == cell_type_1, paste0("other_", cell_type_1), paste0("other_", cell_type_2)))))]
 
   if(return_gobject == TRUE) {
 
-    gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    # gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+    gobject = set_cell_metadata(gobject,
+                                metadata = cell_metadata,
+                                verbose = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_add_cell_int_info')
@@ -696,6 +705,7 @@ do_permuttest = function(expr_values,
 #' @title Do cell proximity test
 #' @name do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
+#' @param expr_values Matrix object
 #' @keywords internal
 do_cell_proximity_test = function(expr_values,
                                   select_ind, other_ind,
@@ -755,6 +765,7 @@ do_cell_proximity_test = function(expr_values,
 #' @title findCellProximityFeats_per_interaction
 #' @name findCellProximityFeats_per_interaction
 #' @description Identifies features that are differentially expressed due to proximity to other cell types.
+#' @param expr_values Matrix object
 #' @keywords internal
 findCellProximityFeats_per_interaction = function(sel_int,
                                                   expr_values,
@@ -1012,7 +1023,8 @@ findInteractionChangedFeats = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix') # as matrix (never set back)
 
   ## test selected feats ##
   if(!is.null(selected_feats)) {
@@ -1131,7 +1143,7 @@ findInteractionChangedFeats = function(gobject,
                                     'min interacting cells' = minimum_unique_int_cells,
                                     'exclude selected cells' = exclude_selected_cells_from_test,
                                     'perm' = permutation_test))
-  class(icfObject) = append(class(icfObject), 'icfObject')
+  class(icfObject) = append('icfObject' ,class(icfObject))
   return(icfObject)
 
 }
@@ -1145,7 +1157,7 @@ findInteractionChangedFeats = function(gobject,
 #' @seealso \code{\link{findInteractionChangedFeats}}
 #' @export
 findInteractionChangedGenes = function(...) {
-  
+
   .Deprecated(new = "findInteractionChangedFeats")
 
   findInteractionChangedFeats(...)
@@ -1165,7 +1177,7 @@ findCellProximityGenes <- function(...) {
 
   .Deprecated(new = "findInteractionChangedFeats")
 
-  findInteractionChangedFeats(...) 
+  findInteractionChangedFeats(...)
 
 }
 
@@ -1272,7 +1284,7 @@ findICF = function(gobject,
 #' @export
 findICG = function(...) {
 
-  .Deprecated(new = "findICF") 
+  .Deprecated(new = "findICF")
 
   findICF(...)
 
@@ -1291,7 +1303,7 @@ findCPG <- function(...) {
 
   .Deprecated(new = "findICF")
 
-  findICF(...) 
+  findICF(...)
 
 }
 
@@ -2668,7 +2680,8 @@ spatCellCellcom = function(gobject,
                                     feat_type = feat_type)
 
   ## check if spatial network exists ##
-  spat_networks = names(gobject@spatial_network[[spat_unit]])
+  spat_networks = list_spatial_networks_names(gobject,
+                                              spat_unit = spat_unit)
 
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',

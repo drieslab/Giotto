@@ -68,6 +68,8 @@ set_default_feat_type = function(gobject,
 
 
 #' @title mean_expr_det_test
+#' @param mymatrix matrix of expression info
+#' @param detection_threshold detection threshold. Defaults to 1 count.
 #' @keywords internal
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
@@ -76,11 +78,19 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   }))
 }
 
-#' @title libNorm_giotto
+#' @title Normalize for library size
+#' @param mymatrix matrix object
+#' @param scalefactor scalefactor
 #' @keywords internal
-libNorm_giotto <- function(mymatrix, scalefactor){
+libNorm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
+
+  if(any(libsizes == 0)) {
+    warning(wrap_txt('Total library size or counts for individual spat units are 0.
+                     This will likely result in normalization problems.
+                     filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
+  }
 
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
 
@@ -111,12 +121,13 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @aliases get_CellMetadata
+#' @param ... additional params to pass
 #' @return data.table with cell metadata
 #' @export
-pDataDT <- function(gobject,
-                    spat_unit = NULL,
-                    feat_type = NULL) {
+pDataDT = function(gobject,
+                   spat_unit = NULL,
+                   feat_type = NULL,
+                   ...) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -134,7 +145,14 @@ pDataDT <- function(gobject,
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(inherits(gobject, 'giotto')) {
-    return(gobject@cell_metadata[[spat_unit]][[feat_type]])
+
+    if(is.null(match.call(expand.dots = TRUE)$output)) output = 'data.table'
+    else output = match.call(expand.dots = TRUE)$output
+
+    return(get_cell_metadata(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             output = output))
   }
   else if(inherits(gobject, 'seurat')) {
     return(data.table::as.data.table(gobject@meta.data))
@@ -142,79 +160,20 @@ pDataDT <- function(gobject,
 
 }
 
-# #' @rdname pDataDT
-# get_CellMetadata <- pDataDT
-
-
-# #' @title set_CellMetadata
-# #' @name set_CellMetadata
-# #' @description set specific slots of cell metadata, overwriting all other slots
-# #' @param gobject giotto object
-# #' @param spat_unit spatial unit
-# #' @param feat_type feautre type
-# #' @param meta_dt data.table object containing cell metadata
-# #' @return giotto object
-# #' @family functions to set data in giotto object
-# set_CellMetadata <- function(gobject,
-#                              spat_unit = NULL,
-#                              feat_type = NULL,
-#                              meta_dt = NULL) {
-
-#   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
-
-#   if(is.null(meta_dt) || !inherits(meta_dt, 'data.table')) {
-#     stop("Please provide a data.table containing metadata.")
-#   }
-#   spat_unit = set_default_spat_unit(gobject = gobject,
-#                                     spat_unit = spat_unit)
-#   feat_type = set_default_feat_type(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type)
-
-#   old_meta = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
-
-#   new_cols = NULL
-#   if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-#     old_cols = colnames(old_meta)
-#     new_cols = colnames(meta_dt)
-#     cat("\nWarning: The following columns will be overwritten:",
-#     old_cols, "\nThey will be replaced with:", new_cols,"\n")
-
-#     old_meta[, (old_cols) := NULL]
-
-#   } else {
-#     new_cols = colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols,
-#     "\nto cell metadata\n")
-#   }
-
-#   suppressWarnings({
-#     gobject <- removeCellAnnotation(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type,
-#                                     columns = old_cols,
-#                                     return_gobject = TRUE)
-#     gobject@cell_metadata[[spat_unit]][[feat_type]] <- meta_dt
-#   })
-
-#   cat("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
-#   return(gobject)
-
-# }
-
 
 #' @title fDataDT
 #' @name fDataDT
-#' @description show gene metadata
+#' @description show feature metadata
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @aliases get_FeatMetadata
-#' @return data.table with gene metadata
+#' @param ... additional params to pass
+#' @return data.table with feature metadata
 #' @export
-fDataDT <- function(gobject,
-                    spat_unit = NULL,
-                    feat_type = NULL) {
+fDataDT = function(gobject,
+                   spat_unit = NULL,
+                   feat_type = NULL,
+                   ...) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -227,71 +186,21 @@ fDataDT <- function(gobject,
     stop('only works with ExpressionSet (-like) objects')
   }
   else if(inherits(gobject, 'giotto')) {
-    return(gobject@feat_metadata[[spat_unit]][[feat_type]])
+
+    if(is.null(match.call(expand.dots = TRUE)$output)) output = 'data.table'
+    else output = match.call(expand.dots = TRUE)$output
+
+    return(get_feature_metadata(gobject = gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                output = output))
+
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
 
-# #' @rdname fDataDT
-# get_FeatMetadata <- fDataDT
 
-# #' @title set_FeatMetadata
-# #' @name set_FeatMetadata
-# #' @description set specific slots of feature metadata, overwriting all other slots
-# #' @param gobject giotto object
-# #' @param spat_unit spatial unit
-# #' @param feat_type feature type
-# #' @param meta_dt data.table object containing feature metadata
-# #' @return giotto object
-# #' @family functions to set data in giotto object
-# set_FeatMetadata <- function(gobject,
-#                              spat_unit = NULL,
-#                              feat_type = NULL,
-#                              meta_dt = NULL){
-#   if (!inherits(gobject,'giotto')) stop("Only Giotto Objects are supported for this function.")
-
-#   if(is.null(meta_dt) || !inherits(meta_dt, "data.table")){
-#     stop("Please provide a data.table containing metadata.")
-#   }
-
-#   spat_unit <- set_default_spat_unit(gobject = gobject,
-#                                      spat_unit = spat_unit)
-
-#   feat_type <- set_default_feat_type(gobject = gobject,
-#                                      feat_type = feat_type,
-#                                      spat_unit = spat_unit)
-
-#   old_meta <- data.table::copy(gobject@feat_metadata[[spat_unit]][[feat_type]])
-
-#   new_cols <- NULL
-#   if(!is.null(old_meta) && inherits(old_meta, "data.table")){
-#     old_cols <- colnames(old_meta)
-#     new_cols <- colnames(meta_dt)
-#     cat("\nWarning: The following columns will be overwritten:",
-#     old_cols, "\nThey will be replaced with:", new_cols,"\n")
-
-#     old_meta[, (old_cols) := NULL]
-
-#   } else {
-#     new_cols <- colnames(meta_dt)
-#     cat("\nWriting data within columns:", new_cols,
-#     "\nto feature metadata\n")
-#   }
-
-#   suppressWarnings({
-#     gobject <- removeFeatAnnotation(gobject = gobject,
-#                                     spat_unit = spat_unit,
-#                                     feat_type = feat_type,
-#                                     columns = old_cols,
-#                                     return_gobject = TRUE)
-#     gobject@feat_metadata[[spat_unit]][[feat_type]] <- meta_dt
-#   })
-
-#   cat("\nFeature Metadata slot '",spat_unit, feat_type, "' set.\n")
-#   return(gobject)
-
-# }
 
 
 #' @title create_average_DT
@@ -303,11 +212,11 @@ fDataDT <- function(gobject,
 #' @param expression_values which expression values to use
 #' @return data.table with average gene epression values for each factor
 #' @keywords internal
-create_average_DT <- function(gobject,
-                              spat_unit = NULL,
-                              feat_type = NULL,
-                              meta_data_name,
-                              expression_values = c('normalized', 'scaled', 'custom')) {
+create_average_DT = function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
+                             meta_data_name,
+                             expression_values = c('normalized', 'scaled', 'custom')) {
 
 
   # Set feat_type and spat_unit
@@ -322,16 +231,18 @@ create_average_DT <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
-
+                                    values = values,
+                                    output = 'matrix')
 
   # metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
   myrownames = rownames(expr_data)
 
-  savelist <- list()
+  savelist = list()
   for(group in unique(cell_metadata[[meta_data_name]])) {
 
     name = paste0('cluster_', group)
@@ -339,7 +250,7 @@ create_average_DT <- function(gobject,
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
     temp_DT = rowMeans_flex(temp)
 
-    savelist[[name]] <- temp_DT
+    savelist[[name]] = temp_DT
   }
 
   finalDF = do.call('cbind', savelist)
@@ -378,15 +289,18 @@ create_average_detection_DT <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
+                                    values = values,
+                                    output = 'matrix')
 
   # metadata
-  cell_metadata <- pDataDT(gobject,
-                           feat_type = feat_type,
-                           spat_unit = spat_unit)
-  myrownames <- rownames(expr_data)
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
+  myrownames = rownames(expr_data)
 
-  savelist <- list()
+  savelist = list()
   for(group in unique(cell_metadata[[meta_data_name]])) {
 
     name = paste0('cluster_', group)
@@ -411,81 +325,252 @@ create_average_detection_DT <- function(gobject,
 
 
 
+#' @title Initialize cell metadata slot
+#' @name init_cell_metadata
+#' @description Generate cellMetaObjs to hold cell metadata for each spatial unit
+#' @param gobject giotto object
+#' @param provenance provenance information (optional)
+#' and feature type in the giotto object.
+#' @keywords internal
+init_cell_metadata = function(gobject,
+                              provenance = NULL) {
+
+  avail_expr = list_expression(gobject)
+  avail_spat_info = list_spatial_info_names(gobject)
+  avail_feat_info = list_feature_info_names(gobject)
+
+  # If no spatial_info then initialize for all expression matrices
+  if(is.null(avail_spat_info)) {
+    for(expr_i in seq(avail_expr[, .N])) {
+      # initialize relevant metadata
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject = gobject,
+                                  spat_unit = avail_expr[expr_i, spat_unit],
+                                  feat_type = avail_expr[expr_i, feat_type],
+                                  provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
+                                  metadata = 'initialize',
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+  } else {
+    # if spatial_info present then initialize by spat_unit from spat_info,
+    # but prefer feat_type from expression
+    if(is.null(avail_expr)) avail_to_use = unique(avail_feat_info)
+    else avail_to_use = unique(avail_expr[, feat_type])
+    for(poly in avail_spat_info) {
+      for(feature_type in unique(avail_to_use)) {
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_cell_metadata(gobject = gobject,
+                                    spat_unit = poly,
+                                    feat_type = feature_type,
+                                    provenance = if(is.null(provenance)) poly else provenance,
+                                    metadata = 'initialize',
+                                    verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+      }
+    }
+  }
+  return(gobject)
+}
+
+
+#' @title Initialize feature metadata slot
+#' @name init_feat_metadata
+#' @description Generate featMetaObjs to hold all feature metadata for each spatial unit
+#' and feature type in the giotto object.
+#' @param gobject giotto object
+#' @param provenance provenance information (optional)
+#' @keywords internal
+init_feat_metadata = function(gobject,
+                              provenance = NULL) {
+
+  avail_expr = list_expression(gobject)
+  avail_spat_info = list_spatial_info_names(gobject)
+  avail_feat_info = list_feature_info_names(gobject)
+
+  # If no spatial_info then initialize by expression mat
+  if(is.null(avail_spat_info)) {
+    for(expr_i in seq(avail_expr[, .N])) {
+      # initialize relevant metadata
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feature_metadata(gobject = gobject,
+                                     spat_unit = avail_expr[expr_i, spat_unit],
+                                     feat_type = avail_expr[expr_i, feat_type],
+                                     provenance = if(is.null(provenance)) avail_expr[expr_i, spat_unit] else provenance,
+                                     metadata = 'initialize',
+                                     verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+  } else {
+    # if spatial_info present then initialize by spat_unit from spat_info,
+    # but prefer feat_type from expression
+    if(is.null(avail_expr)) avail_to_use = unique(avail_feat_info)
+    else avail_to_use = unique(avail_expr[, feat_type])
+    for(poly in avail_spat_info) {
+      for(feature_type in unique(avail_to_use)) {
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_feature_metadata(gobject = gobject,
+                                       spat_unit = poly,
+                                       feat_type = feature_type,
+                                       provenance = if(is.null(provenance)) poly else provenance,
+                                       metadata = 'initialize',
+                                       verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+      }
+    }
+  }
+  return(gobject)
+}
+
+
+
+### subset Giotto object ####
+
 
 #' @title Subset expression data
 #' @name subset_expression_data
 #' @description Subset expression data from giotto object
 #' @keywords internal
 subset_expression_data = function(gobject,
-                                  filter_bool_feats,
-                                  filter_bool_cells,
+                                  cell_ids,
+                                  feat_ids,
                                   feat_type,
-                                  spat_unit) {
+                                  spat_unit,
+                                  all_spat_units,
+                                  all_feat_types) {
 
 
-  for(spat_unit_name in names(gobject@expression)) {
 
-    for(feat_type_name in names(gobject@expression[[spat_unit_name]])) {
+  # get cell/spatial ids and feature ids
+  g_cell_IDs = get_cell_id(gobject = gobject, spat_unit = spat_unit)
+  g_feat_IDs = get_feat_id(gobject = gobject, feat_type = feat_type)
+
+  # get expression information from giotto object
+  output_table = list_expression(gobject)
+
+  if(!is.null(output_table)) {
+
+    # loop through expression objects and update accordingly
+    for(row in 1:nrow(output_table)) {
+
+      spat_unit_name = output_table[row][['spat_unit']]
+      feat_type_name = output_table[row][['feat_type']]
+      expression_name = output_table[row][['name']]
+
 
       if(feat_type_name == feat_type & spat_unit_name == spat_unit) {
 
-        # filter features and cells
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
+        S4_expr = get_expression_values(gobject = gobject,
+                                        spat_unit = spat_unit_name,
+                                        feat_type = feat_type_name,
+                                        values = expression_name,
+                                        output = 'exprObj')
 
-        for(expr_name in expression_names) {
+        ## filter index
+        g_cell_IDs = colnames(S4_expr@exprMat)
+        g_feat_IDs = rownames(S4_expr@exprMat)
+        if(!is.null(cell_ids)) {
+          filter_bool_cells = g_cell_IDs %in% cell_ids
+        } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+        if(!is.null(feat_ids)) {
+          filter_bool_feats = g_feat_IDs %in% feat_ids
+        } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
-          # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
-          }
 
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells]
+        # for HDF5Array
+        if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+          S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[filter_bool_feats, filter_bool_cells], "HDF5Array")
+        } else {
+          S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, filter_bool_cells]
         }
 
-      } else if(feat_type_name == feat_type & spat_unit_name != spat_unit){
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject = set_expression_values(gobject = gobject,
+                                        values = S4_expr,
+                                        verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-        # filter only features, but NOT cells
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
+      } else if(feat_type_name == feat_type & spat_unit_name != spat_unit) {
 
-        for(expr_name in expression_names) {
+        if(all_spat_units == TRUE) {
+
+          # filter only features, but NOT cells
+          S4_expr = get_expression_values(gobject = gobject,
+                                          spat_unit = spat_unit_name,
+                                          feat_type = feat_type_name,
+                                          values = expression_name,
+                                          output = 'exprObj')
+          ## filter index
+          g_feat_IDs = rownames(S4_expr@exprMat)
+          if(!is.null(feat_ids)) {
+            filter_bool_feats = g_feat_IDs %in% feat_ids
+          } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ], "HDF5Array")
+          if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+            S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[filter_bool_feats, ], "HDF5Array")
+          } else {
+            S4_expr@exprMat = S4_expr@exprMat[filter_bool_feats, ]
           }
 
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ]
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_expression_values(gobject = gobject,
+                                          values = S4_expr,
+                                          verbose = FALSE)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
         }
+
+
+
 
       } else if(feat_type_name != feat_type & spat_unit_name == spat_unit) {
 
-        # filter only cells, but NOT features
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
+        if(all_feat_types == TRUE) {
 
-        for(expr_name in expression_names) {
+          # filter only cells, but NOT features
+          S4_expr = get_expression_values(gobject = gobject,
+                                          spat_unit = spat_unit_name,
+                                          feat_type = feat_type_name,
+                                          values = expression_name,
+                                          output = 'exprObj')
+          ## filter index
+          g_cell_IDs = colnames(S4_expr@exprMat)
+
+          if(!is.null(cell_ids)) {
+            filter_bool_cells = g_cell_IDs %in% cell_ids
+          } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells], "HDF5Array")
+          if(methods::is(S4_expr@exprMat, 'HDF5Array')) {
+            S4_expr@exprMat = DelayedArray::realize(S4_expr@exprMat[, filter_bool_cells], "HDF5Array")
+          } else {
+            S4_expr@exprMat = S4_expr@exprMat[, filter_bool_cells]
           }
 
-          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells]
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          gobject = set_expression_values(gobject = gobject,
+                                          values = S4_expr,
+                                          verbose = FALSE)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
         }
-
-      } else {
-
-        # don't filter
-        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
       }
 
     }
 
-
   }
 
   return(gobject)
-
 
 }
 
@@ -494,20 +579,39 @@ subset_expression_data = function(gobject,
 #' @description Subset location data from giotto object
 #' @keywords internal
 subset_spatial_locations = function(gobject,
-                                    filter_bool_cells,
+                                    cell_ids,
                                     spat_unit) {
+
+  avail_locs = list_spatial_locations_names(gobject, spat_unit = spat_unit)
 
   # only subset cell_ID if the spatial unit is the same (e.g. cell)
 
-  for(spat_unit_name in names(gobject@spatial_locs)) {
-    if(spat_unit_name == spat_unit) {
-      #print(spat_unit)
-      #print(spat_unit_name)
-      for(spatlocname in names(gobject@spatial_locs[[spat_unit_name]])) {
-        gobject@spatial_locs[[spat_unit_name]][[spatlocname]] = gobject@spatial_locs[[spat_unit_name]][[spatlocname]][filter_bool_cells]
-      }
+  if(!is.null(avail_locs)) {
+    for(spatlocname in avail_locs) {
+
+      spatObj = get_spatial_locations(gobject,
+                                      spat_unit = spat_unit,
+                                      spat_loc_name = spatlocname,
+                                      output = 'spatLocsObj',
+                                      copy_obj = FALSE)
+
+      ## filter index
+      g_cell_IDs = spatObj@coordinates[['cell_ID']]
+
+      if(!is.null(cell_ids)) {
+        filter_bool_cells = g_cell_IDs %in% cell_ids
+      } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+
+      spatObj[] = spatObj[][filter_bool_cells]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_spatial_locations(gobject, spatlocs = spatObj, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      # not yet possible to row subset data.tables by reference. Must be set back in.
+
     }
   }
+
   return(gobject)
 }
 
@@ -515,18 +619,60 @@ subset_spatial_locations = function(gobject,
 #' @title Subset cell metadata
 #' @name subset_cell_metadata
 #' @description Subset cell metadata from giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type (e.g. 'rna', 'protein')
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param cell_ids cell ids to keep
+#' @param all_feat_types (boolean) applies subset operation across the whole gobject
+#' (ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.
 #' @keywords internal
 subset_cell_metadata = function(gobject,
-                                feat_type,
-                                filter_bool_cells,
-                                spat_unit) {
+                                feat_type = NULL,
+                                cell_ids,
+                                spat_unit,
+                                all_feat_types = TRUE) {
 
-  if(!is.null(gobject@cell_metadata)) {
-    # only subset cell_ID for selected spatial unit
-    for(feat_type in names(gobject@cell_metadata[[spat_unit]])) {
-      gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][filter_bool_cells,]
-    }
+  if(isTRUE(all_feat_types)) {
+    avail_cm = list_cell_metadata(gobject,
+                                  spat_unit = spat_unit)
+  } else {
+    avail_cm = list_cell_metadata(gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
   }
+
+  if(!is.null(avail_cm)) {
+
+    for(cm_i in seq(nrow(avail_cm))) {
+
+      cm = get_cell_metadata(gobject,
+                             spat_unit = avail_cm$spat_unit[[cm_i]],
+                             feat_type = avail_cm$feat_type[[cm_i]],
+                             output = 'cellMetaObj')
+
+      ## filter index
+      g_cell_IDs = cm@metaDT[['cell_ID']]
+
+      if(!is.null(cell_ids)) {
+        filter_bool_cells = g_cell_IDs %in% cell_ids
+      } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+
+      cm[] = cm[][filter_bool_cells]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+
+  }
+
+  # if(!is.null(gobject@cell_metadata)) {
+  #   # only subset cell_ID for selected spatial unit
+  #   for(feat_type in names(gobject@cell_metadata[[spat_unit]])) {
+  #     gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][filter_bool_cells,]
+  #   }
+  # }
 
   return(gobject)
 }
@@ -535,19 +681,57 @@ subset_cell_metadata = function(gobject,
 #' @title Subset feature metadata
 #' @name subset_feature_metadata
 #' @description Subset feature metadata from giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type (e.g. 'rna', 'protein')
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_ids feature ids to keep
+#' @param all_spat_units (boolean) applies subset operation across the whole gobject
+#' (ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.
 #' @keywords internal
 subset_feature_metadata = function(gobject,
                                    feat_type,
-                                   spat_unit,
-                                   filter_bool_feats) {
+                                   spat_unit = NULL,
+                                   feat_ids,
+                                   all_spat_units = TRUE) {
+
+  if(isTRUE(all_spat_units)) {
+    avail_fm = list_feat_metadata(gobject,
+                                  feat_type = feat_type)
+  } else {
+    avail_fm = list_feat_metadata(gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
+  }
 
 
-  if(!is.null(gobject@feat_metadata)) {
+  if(!is.null(avail_fm)) {
 
-    for(spat_unit in names(gobject@feat_metadata)) {
-      # only subset features of the feat type, but do it for all spaital regions
-      gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][filter_bool_feats,]
+    for(fm_i in seq(nrow(avail_fm))) {
+
+      fm = get_feature_metadata(gobject,
+                                spat_unit = avail_fm$spat_unit[[fm_i]],
+                                feat_type = avail_fm$feat_type[[fm_i]],
+                                output = 'featMetaObj')
+
+      ## filter index
+      g_feat_IDs = fm@metaDT[['feat_ID']]
+
+      if(!is.null(feat_ids)) {
+        filter_bool_feats = g_feat_IDs %in% feat_ids
+      } else filter_bool_feats = g_feat_IDs %in% feat_ids
+
+      fm[] = fm[][filter_bool_feats]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
     }
+
+    # for(spat_unit in names(gobject@feat_metadata)) {
+    #   # only subset features of the feat type, but do it for all spatial regions
+    #   gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][filter_bool_feats,]
+    # }
 
   }
 
@@ -563,9 +747,9 @@ subset_feature_metadata = function(gobject,
 #' @keywords internal
 subset_spatial_network = function(gobject,
                                   spat_unit,
-                                  cells_to_keep) {
+                                  cell_ids) {
 
-  # define for data.table [] subset
+  # define for data.table
   to = from = NULL
 
   # cell spatial network
@@ -578,16 +762,17 @@ subset_spatial_network = function(gobject,
       spatNetObj = get_spatialNetwork(gobject = gobject,
                                       spat_unit = spat_unit,
                                       name = network,
-                                      return_network_Obj = TRUE)
+                                      output = 'spatialNetworkObj')
 
       # Within each spatialNetworkObj, subset only the cells_to_keep
-      slot(spatNetObj, 'networkDT') = slot(spatNetObj, 'networkDT')[to %in% cells_to_keep & from %in% cells_to_keep]
+      spatNetObj[] = spatNetObj[][to %in% cell_ids & from %in% cell_ids]
 
       # Set the spatialNetworkObj back into the gobject
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_spatialNetwork(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   name = network,
-                                   spatial_network = spatNetObj)
+                                   spatial_network = spatNetObj,
+                                   verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
 
@@ -603,54 +788,30 @@ subset_spatial_network = function(gobject,
 subset_dimension_reduction = function(gobject,
                                       spat_unit,
                                       feat_type,
-                                      cells_to_keep) {
+                                      cell_ids) {
 
+  # find available dim reductions
+  avail_dim = list_dim_reductions(gobject = gobject,
+                                  data_type = 'cells',
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
 
-  if(!is.null(gobject@dimension_reduction$cells)) {
+  if(!is.null(avail_dim)) {
 
-    for(spat_unit_name in names(gobject@dimension_reduction[['cells']])) {
+    for(data_i in seq(avail_dim[, .N])) {
+      dimObj = get_dimReduction(gobject = gobject,
+                                spat_unit = avail_dim$spat_unit[[data_i]],
+                                feat_type = avail_dim$feat_type[[data_i]],
+                                reduction = 'cells',
+                                reduction_method = avail_dim$dim_type[[data_i]],
+                                name = avail_dim$name[[data_i]],
+                                output = 'dimObj')
 
+      dimObj[] = dimObj[][rownames(dimObj[]) %in% cell_ids,]
 
-      for(feat_type_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]])) {
-
-
-        for(dim_method in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]])) {
-
-          if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
-
-            dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
-                                                      spat_unit = spat_unit_name, feat_type = feat_type_name,
-                                                      dim_type = dim_method)
-
-            for(selected_name in dim_red_names) {
-
-              dimObj = get_dimReduction(gobject = gobject,
-                                        spat_unit = spat_unit_name,
-                                        feat_type = feat_type_name,
-                                        reduction = 'cells',
-                                        reduction_method = dim_method,
-                                        name = selected_name,
-                                        return_dimObj = TRUE)
-
-              old_coord = slot(dimObj, 'coordinates')
-              new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-              slot(dimObj, 'coordinates') = new_coord
-
-              gobject = set_dimReduction(gobject = gobject,
-                                         reduction = 'cells',
-                                         spat_unit = spat_unit_name,
-                                         feat_type = feat_type_name,
-                                         reduction_method = dim_method,
-                                         name = selected_name,
-                                         dimObject = dimObj)
-
-            }
-
-          }
-
-        }
-
-      }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObj, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
 
@@ -668,54 +829,102 @@ subset_dimension_reduction = function(gobject,
 #' @keywords internal
 subset_nearest_network = function(gobject,
                                   spat_unit,
-                                  filter_bool_cells) {
+                                  feat_type,
+                                  cell_ids) {
 
+  avail_kNN = list_nearest_networks(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    nn_type = 'kNN')
+  avail_sNN = list_nearest_networks(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    nn_type = 'sNN')
 
-  ## nn network ##
-  if(!is.null(gobject@nn_network[['cells']])) {
+  if(!is.null(avail_kNN)) {
 
-    for(spat_unit_name in names(gobject@nn_network[['cells']])) {
+    for(nn_i in seq(avail_kNN[, .N])) {
+      nnObj = get_NearestNetwork(gobject = gobject,
+                                 spat_unit = avail_kNN$spat_unit[[nn_i]],
+                                 feat_type = avail_kNN$feat_type[[nn_i]],
+                                 nn_network_to_use = 'kNN',
+                                 network_name = avail_kNN$name[[nn_i]],
+                                 output = 'nnNetObj')
 
-      if(spat_unit_name == spat_unit) {
+      #vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
+      nnObj[] = igraph::induced_subgraph(graph = nnObj[], vids = cell_ids)
 
-        for(knn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['kNN']])) {
-
-          # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['layout']]
-
-          if(!is.null(old_layout)) {
-            new_layout = old_layout[filter_bool_cells,]
-            gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['layout']] = new_layout
-          }
-
-          # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
-          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
-          new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
-        }
-
-        for(snn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['sNN']])) {
-
-          # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']]
-
-          if(!is.null(old_layout)) {
-            new_layout = old_layout[filter_bool_cells,]
-            gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']] = new_layout
-          }
-
-          # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
-          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
-          new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
-        }
-
-      }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
   }
+  if(!is.null(avail_sNN)) {
+
+    for(nn_i in seq(avail_sNN[, .N])) {
+      nnObj = get_NearestNetwork(gobject,
+                                 spat_unit = avail_sNN$spat_unit[[nn_i]],
+                                 feat_type = avail_sNN$feat_type[[nn_i]],
+                                 nn_network_to_use = 'sNN',
+                                 network_name = avail_sNN$name[[nn_i]],
+                                 output = 'nnNetObj')
+
+      #vertices_to_keep = igraph::V(nnObj[])[filter_bool_cells]
+      nnObj[] = igraph::induced_subgraph(graph = nnObj[], vids = cell_ids)
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    }
+
+  }
+
+  # ## nn network ##
+  # if(!is.null(gobject@nn_network[['cells']])) {
+  #
+  #   for(spat_unit_name in names(gobject@nn_network[['cells']])) {
+  #
+  #     if(spat_unit_name == spat_unit) {
+  #
+  #       for(knn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['kNN']])) {
+  #
+  #         # # layout
+  #         # old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['layout']]
+  #         #
+  #         # if(!is.null(old_layout)) {
+  #         #   new_layout = old_layout[filter_bool_cells,]
+  #         #   gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['layout']] = new_layout
+  #         # }
+  #
+  #         # igraph object
+  #         old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
+  #         vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
+  #         new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
+  #         gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
+  #       }
+  #
+  #       for(snn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['sNN']])) {
+  #
+  #         # # layout
+  #         # old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']]
+  #         #
+  #         # if(!is.null(old_layout)) {
+  #         #   new_layout = old_layout[filter_bool_cells,]
+  #         #   gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']] = new_layout
+  #         # }
+  #
+  #         # igraph object
+  #         old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
+  #         vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
+  #         new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
+  #         gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
+  #       }
+  #
+  #     }
+  #   }
+  #
+  # }
 
   return(gobject)
 }
@@ -729,26 +938,48 @@ subset_nearest_network = function(gobject,
 subset_spatial_enrichment = function(gobject,
                                      spat_unit,
                                      feat_type,
-                                     filter_bool_cells) {
+                                     cell_ids) {
 
-  if(!is.null(gobject@spatial_enrichment)) {
-    for(spat_unit_name in names(gobject@spatial_enrichment)) {
+  avail_enr = list_spatial_enrichments(gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type)
 
-      for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+  if(!is.null(avail_enr)) {
+    for(enr_i in seq(avail_enr[, .N])) {
 
-        if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
-          for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+      spatEnrObj = get_spatial_enrichment(gobject,
+                                          spat_unit = avail_enr$spat_unit[[enr_i]],
+                                          feat_type = avail_enr$feat_type[[enr_i]],
+                                          enrichm_name = avail_enr$name[[enr_i]],
+                                          output = 'spatEnrObj')
 
-            gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+      spatEnrObj[] = spatEnrObj[][get('cell_ID') %in% cell_ids]
 
-          }
-        }
-
-      }
-
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_spatial_enrichment(gobject, spatenrichment = spatEnrObj, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
   }
+
+  # if(!is.null(gobject@spatial_enrichment)) {
+  #   for(spat_unit_name in names(gobject@spatial_enrichment)) {
+  #
+  #     for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+  #
+  #       if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+  #         for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+  #
+  #           gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+  #
+  #         }
+  #       }
+  #
+  #     }
+  #
+  #
+  #   }
+  # }
 
   return(gobject)
 }
@@ -883,11 +1114,17 @@ subset_giotto_points_object = function(gpoints,
 
     if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
 
+      print('im1')
+
       myspatvector = gpoints@spatVector
       spatDT = spatVector_to_dt(myspatvector)
 
+      print('im2')
+
       spatDT_subset = spatDT[x >= x_min & x <= x_max & y >= y_min & y <= y_max]
       myspatvector_subset = dt_to_spatVector_points(dt = spatDT_subset)
+
+      print('im3')
 
       gpoints@spatVector = myspatvector_subset
     }
@@ -915,6 +1152,8 @@ subset_feature_info_data = function(feat_info,
   res_list = list()
   for(feat in names(feat_info)) {
 
+    print(feat)
+
     if(feat == feat_type) {
 
       feat_subset = subset_giotto_points_object(feat_info[[feat]],
@@ -923,6 +1162,7 @@ subset_feature_info_data = function(feat_info,
                                                 x_max = x_max,
                                                 y_min = y_min,
                                                 y_max = y_max)
+
       res_list[[feat]] = feat_subset
 
     } else {
@@ -951,8 +1191,9 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_type feature type to use
 #' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
-#' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
+#' @param all_spat_units subset all spatial units with selected feature ids
+#' @param all_feat_types subset all feature type data with selected cell ids
 #' @param x_max,x_min,y_max,y_min minimum and maximum x and y coordinates to keep for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
@@ -966,6 +1207,8 @@ subsetGiotto <- function(gobject,
                          feat_ids = NULL,
                          gene_ids = NULL,
                          poly_info = NULL,
+                         all_spat_units = TRUE,
+                         all_feat_types = TRUE,
                          x_max = NULL,
                          x_min = NULL,
                          y_max = NULL,
@@ -991,55 +1234,63 @@ subsetGiotto <- function(gobject,
     warning('gene_ids argument is deprecated, use feat_ids argument in the future \n')
   }
 
-  g_cell_IDs = gobject@cell_ID[[spat_unit]]
-  g_feat_IDs = gobject@feat_ID[[feat_type]]
 
-  #print(g_cell_IDs[1:5])
-  #print(g_feat_IDs[1:5])
+  # filter cell_ID and gene_ID
+  g_cell_IDs = get_cell_id(gobject, spat_unit = spat_unit)
+  g_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
 
   ## filter index
   if(!is.null(cell_ids)) {
     filter_bool_cells = g_cell_IDs %in% cell_ids
-  } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+    cell_ids = g_cell_IDs[filter_bool_cells]
+  } else {
+    # set cell ids to all if not provided
+    filter_bool_cells = g_cell_IDs %in% g_cell_IDs
+    cell_ids = g_cell_IDs[filter_bool_cells]
+  }
+
   if(!is.null(feat_ids)) {
     filter_bool_feats = g_feat_IDs %in% feat_ids
-  } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
+    feat_ids = g_feat_IDs[filter_bool_feats]
+  } else {
+    # set feat ids to all if not provided
+    filter_bool_feats = g_feat_IDs %in% g_feat_IDs
+    feat_ids = g_feat_IDs[filter_bool_feats]
+  }
 
-  cells_to_keep = g_cell_IDs[filter_bool_cells]
-  feats_to_keep = g_feat_IDs[filter_bool_feats]
 
-  #print(cells_to_keep[1:5])
-  #print(length(filter_bool_cells))
-  #print(feats_to_keep[1:5])
-  #print(length(filter_bool_feats))
+  #print(cell_ids[1:10])
+  #print(feat_ids[1:10])
+
+
 
   if(verbose) cat('completed 1: preparation \n')
 
 
-  #print(gobject@spatial_locs[[spat_unit]][['raw']])
-
   ## FILTER ##
   # filter expression data
   gobject = subset_expression_data(gobject = gobject,
-                                   filter_bool_feats = filter_bool_feats,
-                                   filter_bool_cells = filter_bool_cells,
+                                   cell_ids = cell_ids,
+                                   feat_ids = feat_ids,
                                    feat_type = feat_type,
-                                   spat_unit = spat_unit)
+                                   spat_unit = spat_unit,
+                                   all_spat_units = all_spat_units,
+                                   all_feat_types = all_feat_types)
 
   if(verbose) cat('completed 2: subset expression data \n')
 
-  #print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   # filter spatial locations
   #print(spat_unit)
   gobject = subset_spatial_locations(gobject = gobject,
-                                     filter_bool_cells = filter_bool_cells,
+                                     cell_ids = cell_ids,
                                      spat_unit = spat_unit)
 
   if(verbose) cat('completed 3: subset spatial locations \n')
 
 
-  # filter cell_ID and gene_ID
+
+
   gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
   gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
 
@@ -1050,9 +1301,10 @@ subsetGiotto <- function(gobject,
   ## cell & feature metadata ##
   # cell metadata
   gobject = subset_cell_metadata(gobject = gobject,
-                                  feat_type = feat_type,
-                                  filter_bool_cells = filter_bool_cells,
-                                  spat_unit = spat_unit)
+                                 feat_type = feat_type,
+                                 cell_ids = cell_ids,
+                                 spat_unit = spat_unit,
+                                 all_feat_types = all_feat_types)
 
   if(verbose) cat('completed 5: subset cell metadata \n')
 
@@ -1060,7 +1312,8 @@ subsetGiotto <- function(gobject,
   gobject = subset_feature_metadata(gobject = gobject,
                                     feat_type = feat_type,
                                     spat_unit = spat_unit,
-                                    filter_bool_feats = filter_bool_feats)
+                                    feat_ids = feat_ids,
+                                    all_spat_units = all_spat_units)
 
   if(verbose) cat('completed 6: subset feature metadata \n')
 
@@ -1071,7 +1324,7 @@ subsetGiotto <- function(gobject,
   # cell spatial network
   gobject = subset_spatial_network(gobject = gobject,
                                    spat_unit = spat_unit,
-                                   cells_to_keep = cells_to_keep)
+                                   cell_ids = cell_ids)
 
 
   if(verbose) cat('completed 7: subset spatial network(s) \n')
@@ -1085,7 +1338,7 @@ subsetGiotto <- function(gobject,
   gobject = subset_dimension_reduction(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
-                                       cells_to_keep = cells_to_keep)
+                                       cell_ids = cell_ids)
 
   if(verbose == TRUE) cat('completed 8: subsetted dimension reductions \n')
 
@@ -1093,7 +1346,8 @@ subsetGiotto <- function(gobject,
   ## nn network ##
   gobject = subset_nearest_network(gobject = gobject,
                                    spat_unit = spat_unit,
-                                   filter_bool_cells = filter_bool_cells)
+                                   feat_type = feat_type,
+                                   cell_ids =  cell_ids)
 
   if(verbose == TRUE) cat('completed 9: subsetted nearest network(s) \n')
 
@@ -1102,17 +1356,22 @@ subsetGiotto <- function(gobject,
   gobject = subset_spatial_enrichment(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      filter_bool_cells = filter_bool_cells)
+                                      cell_ids = cell_ids)
 
   if(verbose == TRUE) cat('completed 10: subsetted spatial enrichment results \n')
 
   ## spatial info
   if(!is.null(gobject@spatial_info)) {
-    gobject@spatial_info = subset_spatial_info_data(spatial_info = gobject@spatial_info,
-                                                    feat_type = feat_type,
-                                                    cell_ids = cells_to_keep,
-                                                    feat_ids = feats_to_keep,
-                                                    poly_info = poly_info)
+
+    for(select_poly_info in poly_info) {
+
+      gobject@spatial_info = subset_spatial_info_data(spatial_info = gobject@spatial_info,
+                                                      feat_type = feat_type,
+                                                      cell_ids = cell_ids,
+                                                      feat_ids = feat_ids,
+                                                      poly_info = select_poly_info)
+
+    }
 
     if(verbose == TRUE) cat('completed 11: subsetted spatial information data \n')
   }
@@ -1120,8 +1379,9 @@ subsetGiotto <- function(gobject,
 
   ## feature info
   if(!is.null(gobject@feat_info)) {
+
     gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
-                                                 feat_ids = feats_to_keep,
+                                                 feat_ids = feat_ids,
                                                  feat_type = feat_type,
                                                  x_max = x_max,
                                                  x_min = x_min,
@@ -1213,9 +1473,11 @@ subsetGiottoLocs = function(gobject,
 
   # function requires spat_loc_name
   if(is.null(spat_loc_name)) {
+
     if(!is.null(slot(gobject, 'spatial_locs'))) {
       spat_loc_name = names(slot(gobject, 'spatial_locs')[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+
     } else if(!is.null(slot(gobject, 'spatial_info'))) {
       # EXCEPTION: if no spatlocs found but polys exist, find cell_IDs from polys
       polys_list = slot(gobject, 'spatial_info')
@@ -1447,7 +1709,8 @@ filterDistributions <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
 
   # plot distribution for feats or cells
   detection = match.arg(detection, c('feats', 'cells'))
@@ -1757,22 +2020,28 @@ filterCombinations <- function(gobject,
 #' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
 #' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
 #' @param min_det_genes_per_cell deprecated, use min_det_feats_per_cell
+#' @param all_spat_units apply features to remove filtering results from current
+#' spatial unit/feature type combination across ALL spatial units (default = TRUE)
+#' @param all_feat_types apply cells to remove filtering results from current
+#' spatial unit/feature type combination across ALL feature types (default = TRUE)
 #' @param poly_info polygon information to use
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
-filterGiotto <- function(gobject,
-                         spat_unit = NULL,
-                         feat_type = NULL,
-                         expression_values = c('raw', 'normalized', 'scaled', 'custom'),
-                         expression_threshold = 1,
-                         feat_det_in_min_cells = 100,
-                         gene_det_in_min_cells = NULL,
-                         min_det_feats_per_cell = 100,
-                         min_det_genes_per_cell = NULL,
-                         poly_info = 'cell',
-                         verbose = TRUE) {
+filterGiotto = function(gobject,
+                        spat_unit = NULL,
+                        feat_type = NULL,
+                        expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                        expression_threshold = 1,
+                        feat_det_in_min_cells = 100,
+                        gene_det_in_min_cells = NULL,
+                        min_det_feats_per_cell = 100,
+                        min_det_genes_per_cell = NULL,
+                        all_spat_units = TRUE,
+                        all_feat_types = TRUE,
+                        poly_info = 'cell',
+                        verbose = TRUE) {
 
   ## deprecated arguments
   if(!is.null(gene_det_in_min_cells)) {
@@ -1795,11 +2064,12 @@ filterGiotto <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
+
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
-
+                                      values = values,
+                                      output = 'matrix')
 
   # approach:
   # 1. first remove genes that are not frequently detected
@@ -1807,22 +2077,24 @@ filterGiotto <- function(gobject,
 
   ## filter features
   filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
-  selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
+  selected_feat_ids = names(filter_index_feats[filter_index_feats == TRUE])
+
+  #selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
 
   ## filter cells
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
-  selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
+  selected_cell_ids = names(filter_index_cells[filter_index_cells == TRUE])
 
-
-  print(selected_cell_ids[1:4])
-  print(selected_feat_ids[1:4])
+  #selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
                                  cell_ids = selected_cell_ids,
                                  feat_ids = selected_feat_ids,
+                                 all_spat_units = all_spat_units,
+                                 all_feat_types = all_feat_types,
                                  poly_info = poly_info,
                                  verbose = verbose)
 
@@ -1863,6 +2135,9 @@ filterGiotto <- function(gobject,
 
 
 
+### normalization ####
+
+
 #' @title RNA standard normalization
 #' @name rna_standard_normalization
 #' @description standard function for RNA normalization
@@ -1886,21 +2161,22 @@ rna_standard_normalization = function(gobject,
     warning('Caution: Standard normalization was developed for RNA data \n')
   }
 
-  feat_names = rownames(raw_expr)
-  col_names = colnames(raw_expr)
+  feat_names = rownames(raw_expr[])
+  col_names = colnames(raw_expr[])
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
+    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+                               scalefactor = scalefactor)
   } else {
-    norm_expr = raw_expr
+    norm_expr = raw_expr[]
   }
 
   ## 2. lognormalize
   if(log_norm == TRUE) {
-    norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
-  } else {
-    norm_expr = norm_expr
+    norm_expr = logNorm_giotto(mymatrix = norm_expr,
+                               base = logbase,
+                               offset = log_offset)
   }
 
   ## 3. scale
@@ -1961,23 +2237,31 @@ rna_standard_normalization = function(gobject,
     colnames(norm_scaled_expr) = col_names
   }
 
-  # return Giotto object
+  ## 5. create and set exprObj
 
+  norm_expr = create_expr_obj(name = 'normalized',
+                              exprMat = norm_expr,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              provenance = raw_expr@provenance,
+                              misc = NULL)
+
+  norm_scaled_expr = create_expr_obj(name = 'scaled',
+                                     exprMat = norm_scaled_expr,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     provenance = raw_expr@provenance,
+                                     misc = NULL)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = 'normalized',
                                   values = norm_expr)
 
   gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = 'scaled',
                                   values = norm_scaled_expr)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-  #gobject@expression[[spat_unit]][[feat_type]][['normalized']] = norm_expr
-  #gobject@expression[[spat_unit]][[feat_type]][['scaled']] = norm_scaled_expr
-
+  ## 6. return Giotto object
   return(gobject)
 }
 
@@ -2000,20 +2284,24 @@ rna_osmfish_normalization = function(gobject,
   }
 
   # 1. normalize per gene with scale-factor equal to number of genes
-  norm_feats = (raw_expr/rowSums_flex(raw_expr)) * nrow(raw_expr)
+  norm_feats = (raw_expr[]/rowSums_flex(raw_expr[])) * nrow(raw_expr[])
   # 2. normalize per cells with scale-factor equal to number of cells
-  norm_feats_cells = t_flex((t_flex(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
+  norm_feats_cells = t_flex((t_flex(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr[]))
 
   # return results to Giotto object
   if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the', name, 'Giotto slot \n')
 
-  gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = name,
-                                  values = norm_feats_cells)
+  norm_feats_cells = create_expr_obj(name = name,
+                                     exprMat = norm_feats_cells,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     provenance = raw_expr@provenance)
 
-  #gobject@expression[[spat_unit]][[feat_type]][[name]] = norm_feats_cells
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_expression_values(gobject = gobject,
+                                  values = norm_feats_cells)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
   return(gobject)
 }
@@ -2044,34 +2332,34 @@ rna_pears_resid_normalization = function(gobject,
     warning('Caution: pearson residual normalization was developed for RNA count normalization \n')
   }
 
-  if(methods::is(raw_expr, 'HDF5Matrix')) {
+  if(methods::is(raw_expr[], 'HDF5Matrix')) {
 
-    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
-    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
-    counts_sum  = sum(raw_expr)
+    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr[]),nrow=1),"HDF5Matrix")
+    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr[]),ncol=1),"HDF5Matrix")
+    counts_sum  = sum(raw_expr[])
 
     #get residuals
     mu = (counts_sum1 %*% counts_sum0) / counts_sum
-    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+    z  = (raw_expr[] - mu) / sqrt(mu + mu^2/theta)
 
     #clip to sqrt(n)
-    n = ncol(raw_expr)
+    n = ncol(raw_expr[])
     z[z > sqrt(n)]  = sqrt(n)
     z[z < -sqrt(n)] = -sqrt(n)
 
   } else {
 
 
-    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
-    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
-    counts_sum  = sum(raw_expr)
+    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr[]),nrow=1),"dgCMatrix")
+    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr[]),ncol=1),"dgCMatrix")
+    counts_sum  = sum(raw_expr[])
 
     #get residuals
     mu = (counts_sum1 %*% counts_sum0) / counts_sum
-    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+    z  = (raw_expr[] - mu) / sqrt(mu + mu^2/theta)
 
     #clip to sqrt(n)
-    n = ncol(raw_expr)
+    n = ncol(raw_expr[])
     z[z > sqrt(n)]  = sqrt(n)
     z[z < -sqrt(n)] = -sqrt(n)
 
@@ -2080,13 +2368,16 @@ rna_pears_resid_normalization = function(gobject,
   # return results to Giotto object
   if(verbose == TRUE) message('\n Pearson residual normalized data will be returned to the ', name, ' Giotto slot \n')
 
-  gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = name,
-                                  values = z)
+  z = create_expr_obj(name = name,
+                      exprMat = z,
+                      spat_unit = spat_unit,
+                      feat_type = feat_type,
+                      provenance = raw_expr@provenance)
 
-  #gobject@expression[[spat_unit]][[feat_type]][[name]] = z
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_expression_values(gobject = gobject,
+                                  values = z)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
@@ -2140,23 +2431,23 @@ rna_pears_resid_normalization = function(gobject,
 #' By default the latter two results will be saved in the Giotto slot for scaled expression,
 #'  this can be changed by changing the update_slot parameters
 #' @export
-normalizeGiotto <- function(gobject,
-                            spat_unit = NULL,
-                            feat_type = NULL,
-                            expression_values = 'raw',
-                            norm_methods = c('standard', 'pearson_resid', 'osmFISH'),
-                            library_size_norm = TRUE,
-                            scalefactor = 6e3,
-                            log_norm = TRUE,
-                            log_offset = 1,
-                            logbase = 2,
-                            scale_feats = TRUE,
-                            scale_genes = NULL,
-                            scale_cells = TRUE,
-                            scale_order = c('first_feats', 'first_cells'),
-                            theta = 100,
-                            update_slot = 'scaled',
-                            verbose = TRUE) {
+normalizeGiotto = function(gobject,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           expression_values = 'raw',
+                           norm_methods = c('standard', 'pearson_resid', 'osmFISH'),
+                           library_size_norm = TRUE,
+                           scalefactor = 6e3,
+                           log_norm = TRUE,
+                           log_offset = 1,
+                           logbase = 2,
+                           scale_feats = TRUE,
+                           scale_genes = NULL,
+                           scale_cells = TRUE,
+                           scale_order = c('first_feats', 'first_cells'),
+                           theta = 100,
+                           update_slot = 'scaled',
+                           verbose = TRUE) {
 
 
 
@@ -2178,7 +2469,8 @@ normalizeGiotto <- function(gobject,
   raw_expr = get_expression_values(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
-                                   values = values)
+                                   values = values,
+                                   output = 'exprObj')
 
   norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'pearson_resid', 'osmFISH'))
 
@@ -2257,7 +2549,7 @@ normalizeGiotto <- function(gobject,
 #' @param covariate_columns metadata columns that represent covariates to regress out
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
-#' @return giotto object
+#' @return giotto object or exprObj
 #' @details This function implements the \code{\link[limma]{removeBatchEffect}} function to
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
@@ -2284,9 +2576,11 @@ adjustGiottoMatrix <- function(gobject,
                                     feat_type = feat_type)
 
   # metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    output = 'data.table',
+                                    copy_obj = TRUE)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
@@ -2307,7 +2601,8 @@ adjustGiottoMatrix <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = values)
+                                    values = values,
+                                    output = 'exprObj')
 
 
   # batch columns
@@ -2333,18 +2628,23 @@ adjustGiottoMatrix <- function(gobject,
 
 
   # TODO: implement ResidualMatrix to work with a delayed matrix
-  adjusted_matrix = limma::removeBatchEffect(x = expr_data,
+  adjusted_matrix = limma::removeBatchEffect(x = expr_data[],
                                              batch = batch_column_1,
                                              batch2 =  batch_column_2,
                                              covariates = covariates)
 
   if(return_gobject == TRUE) {
 
+    adjusted_matrix = create_expr_obj(name = update_slot,
+                                      exprMat = adjusted_matrix,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = expr_data@provenance)
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = set_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    name = update_slot,
                                     values = adjusted_matrix)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
 
@@ -2430,9 +2730,411 @@ processGiotto = function(gobject,
 
 
 
+### aggregate stacks ####
+
+
+
+#' @title combine_matrices
+#' @keywords internal
+combine_matrices = function(mat_list,
+                            summarize = 'sum') {
+
+  feats_list = list()
+  sample_list = list()
+  DT_list = list()
+
+  # loop through all matrices
+  # create a triplet data.table (i, j, x)
+  for(mat_i in 1:length(mat_list)) {
+
+    mat = mat_list[[mat_i]]
+
+    if(!inherits(mat, c('matrix', 'dgCMatrix'))) {
+      stop('Matrix needs to be a base or sparse matrix from the Matrix package')
+    }
+
+    if(inherits(mat, 'matrix')) mat = as(mat, 'dgCMatrix')
+
+    mat_feats = mat@Dimnames[[1]]
+    names(mat_feats) = 1:mat@Dim[[1]]
+    feats_list[[mat_i]] = mat_feats
+
+    mat_samples = mat@Dimnames[[2]]
+    names(mat_samples) = 1:mat@Dim[[2]]
+    sample_list[[mat_i]] = mat_samples
+
+    matDT = data.table::as.data.table(Matrix::summary(mat))
+    matDT[, c('i','j') := list(mat_feats[i], mat_samples[j])]
+    DT_list[[mat_i]] = matDT
+  }
+
+  # find all combined unique features
+  combined_feats = sort(unique(unlist(feats_list)))
+  combined_feats_index = 1:length(combined_feats)
+  names(combined_feats_index) = combined_feats
+
+  # find all combined unique samples
+  combined_samples = sort(unique(unlist(sample_list)))
+  combined_samples_index = 1:length(combined_samples)
+  names(combined_samples_index) = combined_samples
+
+  # combine matrices in data.table format and aggregate (sum by default)
+  new_dt = data.table::rbindlist(l = DT_list)
+  new_dt[, c('i','j') := list(combined_feats_index[i], combined_samples_index[j])]
+  if(summarize == 'sum') {
+    new_dt[, x := sum(x), by = .(i, j)]
+  }
+
+  # convert triplet data.table to sparseMatrix
+  combined_matrix = Matrix::sparseMatrix(i = new_dt$i,
+                                         j = new_dt$j,
+                                         x = new_dt$x,
+                                         dims = c(length(combined_feats), length(combined_samples)),
+                                         dimnames = list(combined_feats, combined_samples))
+
+
+  return(combined_matrix)
+
+}
+
+#' @title aggregateStacksExpression
+#' @name aggregateStacksExpression
+#' @description aggregate expression matrices from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param feat_type feature type
+#' @param values values to use
+#' @param summarize method to summarize expression information
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @param verbose verbosity
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksExpression = function(gobject,
+                                     spat_units,
+                                     feat_type,
+                                     values = 'raw',
+                                     summarize = 'sum',
+                                     new_spat_unit = 'aggregate',
+                                     verbose = TRUE) {
+
+  # aggregate matrices
+  matrix_list = list()
+  for(spat_unit in spat_units) {
+    mat = get_expression_values(gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                values = values,
+                                output = 'matrix')
+    matrix_list[[spat_unit]] = mat
+  }
+  combined_matrix = combine_matrices(matrix_list,
+                                     summarize = summarize)
+
+  new_expr_obj = create_expr_obj(name = values,
+                                 exprMat = combined_matrix,
+                                 spat_unit = new_spat_unit,
+                                 feat_type = feat_type,
+                                 provenance = spat_units,
+                                 misc = NULL)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_expression_values(gobject = gobject, values = new_expr_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  # set new cell IDs
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_cell_id(gobject = gobject,
+                        spat_unit = new_spat_unit,
+                        cell_IDs = colnames(combined_matrix))
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  # set new cell metadata
+  cell_meta_S4 = create_cell_meta_obj(metaDT = data.table::data.table('cell_ID' = colnames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_cell_metadata(gobject = gobject, cell_meta_S4, verbose = verbose)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  # set new feat metadata
+  feat_meta_S4 = create_feat_meta_obj(metaDT = data.table::data.table('feat_ID' = rownames(combined_matrix)),
+                                      spat_unit = new_spat_unit,
+                                      feat_type = feat_type,
+                                      provenance = spat_units)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_feature_metadata(gobject = gobject, feat_meta_S4, verbose = verbose)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  return(gobject)
+
+}
+
+
+#' @title combine_spatlocs
+#' @keywords internal
+combine_spatlocs = function(spatlocs_list,
+                            summarize = 'mean') {
+
+  newlocs = data.table::rbindlist(spatlocs_list)
+
+  if(summarize == 'mean') {
+    if('sdimz' %in% colnames(newlocs)) {
+      newlocs = unique(newlocs[, c('sdimx', 'sdimy', 'sdimz') := list(mean(sdimx), mean(sdimy), mean(sdimz)), by = 'cell_ID'])
+    } else {
+      newlocs = unique(newlocs[, c('sdimx', 'sdimy') := list(mean(sdimx), mean(sdimy)), by = 'cell_ID'])
+    }
+  }
+
+  return(newlocs)
+
+}
+
+
+
+#' @title aggregateStacksLocations
+#' @name aggregateStacksLocations
+#' @description aggregate expression matrices from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param values values to use
+#' @param summarize method to summarize spatial location information
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksLocations = function(gobject,
+                                    spat_units,
+                                    values = 'raw',
+                                    summarize = 'mean',
+                                    new_spat_unit = 'aggregate') {
+
+  # aggregate locations
+  locs_list = list()
+  for(spat_unit in spat_units) {
+    locDT = get_spatial_locations(vizsubc,
+                                  spat_unit = spat_unit,
+                                  spat_loc_name = values,
+                                  output = 'data.table')
+    locs_list[[spat_unit]] = locDT
+  }
+  combined_locs = combine_spatlocs(spatlocs_list = locs_list,
+                                   summarize = summarize)
+
+
+  new_spatlocs_obj = create_spat_locs_obj(name = values,
+                                          coordinates = combined_locs,
+                                          spat_unit = new_spat_unit,
+                                          provenance = spat_units,
+                                          misc = NULL)
+
+  gobject = set_spatial_locations(gobject = gobject, spatlocs = new_spatlocs_obj)
+
+  return(gobject)
+
+}
+
+
+#' @title combine_polygons
+#' @keywords internal
+combine_polygons = function(polygon_list) {
+
+  polygon_DT = data.table::rbindlist(polygon_list)
+
+  polygon = dt_to_spatVector_polygon(polygon_DT)
+
+  # TODO: maybe replace step 1 and 2 with polygon_to_raster()
+  # TODO: how to define number of columns and rows?
+
+  # step 1: convert polygon into detailed raster
+  pol_xmax = terra::xmax(polygon)
+  pol_xmin = terra::xmin(polygon)
+  ncols = abs(pol_xmax-pol_xmin)
+  ncols = ncols * 2
+
+  pol_ymax = terra::ymax(polygon)
+  pol_ymin = terra::ymin(polygon)
+  nrows = abs(pol_ymax-pol_ymin)
+  nrows = nrows * 2
+
+  myraster = terra::rast(polygon, ncols = ncols, nrows = nrows)
+
+  # step 2: transfer vector data to a raster based on
+  poly_rast = terra::rasterize(x = polygon, y = myraster, field = 'poly_ID')
+
+  # create new combined polygon
+  aggr_polygon = terra::as.polygons(poly_rast)
+
+  return(aggr_polygon)
+
+}
+
+
+
+#' @title aggregateStacksPolygons
+#' @name aggregateStacksPolygons
+#' @description aggregate polygons from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygons = function(gobject,
+                                   spat_units,
+                                   new_spat_unit = 'aggregate') {
+
+
+  # aggregate spatvectors
+  polygon_list = list()
+
+  for(i in 1:length(spat_units)) {
+
+    spat_unit = spat_units[i]
+    vecDT = gobject@spatial_info[[spat_unit]]@spatVector
+    vecDT = spatVector_to_dt(vecDT)
+    vecDT = vecDT[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
+    vecDT[, 'stack' :=  i]
+    polygon_list[[spat_unit]] = vecDT
+  }
+
+  combined_polygons = combine_polygons(polygon_list = polygon_list)
+
+  gpolygon = create_giotto_polygon_object(name = new_spat_unit,
+                                          spatVector = combined_polygons,
+                                          spatVectorCentroids = NULL,
+                                          overlaps = NULL)
+
+  gobject = set_polygon_info(gobject = gobject,
+                             polygon_name = new_spat_unit,
+                             gpolygon = gpolygon,
+                             verbose = F)
+
+  return(gobject)
+
+}
+
+
+
+#' @title aggregateStacksPolygonOverlaps
+#' @name aggregateStacksPolygonOverlaps
+#' @description aggregate polygons overlap information from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param feat_type feature type used for overlap calculations
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygonOverlaps = function(gobject,
+                                          spat_units,
+                                          feat_type,
+                                          new_spat_unit = 'aggregate') {
+
+  # aggregate spatvectors
+  polygon_list = list()
+
+  for(i in 1:length(spat_units)) {
+    spat_unit = spat_units[i]
+    vecDT = gobject@spatial_info[[spat_unit]]@overlaps[[feat_type]]
+
+    if(!is.null(vecDT)) {
+      vecDT = spatVector_to_dt(vecDT)
+      vecDT[, 'stack' :=  i]
+      polygon_list[[spat_unit]] = vecDT
+    }
+
+  }
+
+  if(length(polygon_list) == 0) {
+    wrap_msg('No feature overlaps found for stack aggregation \n')
+  } else {
+    polygon_DT = data.table::rbindlist(polygon_list)
+    polygon = dt_to_spatVector_polygon(dt = polygon_DT,
+                                       include_values = TRUE)
+    gobject@spatial_info[[new_spat_unit]]@overlaps[[feat_type]] = polygon
+  }
+
+  return(gobject)
+
+}
+
+#' @title aggregateStacks
+#' @name aggregateStacks
+#' @description aggregate expression matrices from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param feat_type feature type
+#' @param values values to use
+#' @param summarize_expression method to summarize expression information
+#' @param summarize_locations method to summarize spatial location information
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @details Combines both \code{\link{aggregateStacksExpression}} and \code{\link{aggregateStacksLocations}}
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacks = function(gobject,
+                           spat_units,
+                           feat_type,
+                           values,
+                           summarize_expression = 'sum',
+                           summarize_locations = 'mean',
+                           new_spat_unit = 'aggregate') {
+
+
+  gobject = aggregateStacksExpression(gobject = gobject,
+                                      spat_units = spat_units,
+                                      feat_type = feat_type,
+                                      values = values,
+                                      summarize = summarize_expression,
+                                      new_spat_unit = new_spat_unit)
+
+
+  # gobject = aggregateStacksLocations(gobject = gobject,
+  #                                    spat_units = spat_units,
+  #                                    values = values,
+  #                                    summarize = summarize_locations,
+  #                                    new_spat_unit = new_spat_unit)
+
+
+  gobject = aggregateStacksPolygons(gobject = gobject,
+                                    spat_units = spat_units,
+                                    new_spat_unit = new_spat_unit)
+
+  gobject = addSpatialCentroidLocations(gobject = gobject,
+                                        feat_type = feat_type,
+                                        poly_info = new_spat_unit,
+                                        provenance = spat_units,
+                                        spat_loc_name = 'raw',
+                                        init_metadata = FALSE, # already done in aggregate expression
+                                        return_gobject = TRUE)
+
+  gobject = aggregateStacksPolygonOverlaps(gobject,
+                                           spat_units = spat_units,
+                                           feat_type = feat_type,
+                                           new_spat_unit = new_spat_unit)
+
+
+  return(gobject)
+
+}
+
+
+
+
+
+
 
 ## * ####
-## Gene & Cell metadata functions ####
+## Feature & Cell metadata functions ####
 
 
 #' @title Annotate giotto clustering
@@ -2635,9 +3337,13 @@ addCellMetadata <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
 
-  cell_metadata = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
-  ordered_cell_IDs = gobject@cell_ID[[spat_unit]]
+  ordered_cell_IDs = get_cell_id(gobject, spat_unit = spat_unit)
 
   if(is.vector(new_metadata) | is.factor(new_metadata)) {
     original_name = deparse(substitute(new_metadata))
@@ -2660,7 +3366,7 @@ addCellMetadata <- function(gobject,
   # overwrite columns with same name
   new_col_names = colnames(new_metadata)
   new_col_names = new_col_names[new_col_names != column_cell_ID]
-  old_col_names = colnames(cell_metadata)
+  old_col_names = colnames(cell_metadata[])
   old_col_names = old_col_names[old_col_names != 'cell_ID']
   same_col_names = new_col_names[new_col_names %in% old_col_names]
 
@@ -2668,29 +3374,35 @@ addCellMetadata <- function(gobject,
   if(length(same_col_names) >= 1) {
     cat('\n these column names were already used: ', same_col_names, '\n',
         'and will be overwritten \n')
-    cell_metadata[, (same_col_names) := NULL]
+    cell_metadata[][, (same_col_names) := NULL]
   }
 
 
 
   if(by_column == FALSE) {
-    cell_metadata = cbind(cell_metadata, new_metadata)
+    cell_metadata[] = cbind(cell_metadata[], new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata = data.table::merge.data.table(cell_metadata,
-                                                 by.x = 'cell_ID',
-                                                 new_metadata,
-                                                 by.y = column_cell_ID,
-                                                 all.x = TRUE)
+    cell_metadata[] = data.table::merge.data.table(cell_metadata[],
+                                                   by.x = 'cell_ID',
+                                                   new_metadata,
+                                                   by.y = column_cell_ID,
+                                                   all.x = TRUE)
   }
 
   # data.table variables
   cell_ID = NULL
 
   # reorder
-  cell_metadata = cell_metadata[match(ordered_cell_IDs, cell_ID)]
+  cell_metadata[] = cell_metadata[][match(ordered_cell_IDs, cell_ID)]
 
-  gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_cell_metadata(gobject,
+                              metadata = cell_metadata,
+                              verbose = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
   return(gobject)
 }
 
@@ -2727,24 +3439,34 @@ addFeatMetadata <- function(gobject,
   # data.table variables
   feat_ID = NULL
 
-  feat_metadata = gobject@feat_metadata[[spat_unit]][[feat_type]]
-  ordered_feat_IDs = gobject@feat_ID[[feat_type]]
+  feat_metadata = get_feature_metadata(gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'featMetaObj',
+                                       copy_obj = TRUE)
+
+  ordered_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
 
   if(by_column == FALSE) {
-    feat_metadata = cbind(feat_metadata, new_metadata)
+    feat_metadata[] = cbind(feat_metadata[], new_metadata)
   } else {
     if(is.null(column_feat_ID)) stop('You need to provide feat ID column')
-    feat_metadata <- data.table::merge.data.table(feat_metadata,
-                                                  by.x = 'feat_ID',
-                                                  new_metadata,
-                                                  by.y = column_feat_ID,
-                                                  all.x = T)
+    feat_metadata[] = data.table::merge.data.table(feat_metadata[],
+                                                   by.x = 'feat_ID',
+                                                   new_metadata,
+                                                   by.y = column_feat_ID,
+                                                   all.x = T)
   }
 
   # reorder
-  feat_metadata = feat_metadata[match(ordered_feat_IDs, feat_ID)]
+  feat_metadata[] = feat_metadata[][match(ordered_feat_IDs, feat_ID)]
 
-  gobject@feat_metadata[[spat_unit]][[feat_type]] = feat_metadata
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_feature_metadata(gobject,
+                                 metadata = feat_metadata,
+                                 verbose = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
   return(gobject)
 }
 
@@ -2821,34 +3543,46 @@ addFeatStatistics <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'exprObj')
 
   # calculate stats
-  feat_stats = data.table::data.table(feats = rownames(expr_data),
-                                      nr_cells = rowSums_flex(expr_data > detection_threshold),
-                                      perc_cells = (rowSums_flex(expr_data > detection_threshold)/ncol(expr_data))*100,
-                                      total_expr = rowSums_flex(expr_data),
-                                      mean_expr = rowMeans_flex(expr_data))
+  feat_stats = data.table::data.table(feats = rownames(expr_data[]),
+                                      nr_cells = rowSums_flex(expr_data[] > detection_threshold),
+                                      perc_cells = (rowSums_flex(expr_data[] > detection_threshold)/ncol(expr_data[]))*100,
+                                      total_expr = rowSums_flex(expr_data[]),
+                                      mean_expr = rowMeans_flex(expr_data[]))
 
   # data.table variables
   mean_expr_det = NULL
 
-  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
+  mean_expr_detected = mean_expr_det_test(expr_data[], detection_threshold = detection_threshold)
   feat_stats[, mean_expr_det := mean_expr_detected]
 
 
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    feat_metadata = fDataDT(gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
-    metadata_names = colnames(feat_metadata)
+    feat_metadata = get_feature_metadata(gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type,
+                                         output = 'featMetaObj',
+                                         copy_obj = TRUE)
+
+    if(!identical(expr_data@provenance, feat_metadata@provenance)) {
+      warning('expression and feature metadata provenance mismatch')
+    }
+
+    metadata_names = colnames(feat_metadata[])
 
     if('nr_cells' %in% metadata_names) {
       cat('\n feat statistics has already been applied once, will be overwritten \n')
-      feat_metadata[, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
-      gobject@feat_metadata[[feat_type]][[spat_unit]] = feat_metadata
+      feat_metadata[][, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_feature_metadata(gobject,
+                                     metadata = feat_metadata,
+                                     verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     gobject = addFeatMetadata(gobject = gobject,
@@ -2972,26 +3706,38 @@ addCellStatistics <- function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'exprObj')
 
   # calculate stats
   #print('ok 1')
-  cell_stats = data.table::data.table(cells = colnames(expr_data),
-                                      nr_feats = colSums_flex(expr_data > detection_threshold),
-                                      perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
-                                      total_expr = colSums_flex(expr_data))
+  cell_stats = data.table::data.table(cells = colnames(expr_data[]),
+                                      nr_feats = colSums_flex(expr_data[] > detection_threshold),
+                                      perc_feats = (colSums_flex(expr_data[] > detection_threshold)/nrow(expr_data[]))*100,
+                                      total_expr = colSums_flex(expr_data[]))
 
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = pDataDT(gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
-    metadata_names = colnames(cell_metadata)
+    cell_metadata = get_cell_metadata(gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      output = 'cellMetaObj',
+                                      copy_obj = TRUE)
+
+    if(!identical(expr_data@provenance, cell_metadata@provenance)) {
+      warning('expression and feature metadata provenance mismatch')
+    }
+
+    metadata_names = colnames(cell_metadata[])
     if('nr_feats' %in% metadata_names) {
-      cat('\n cells statistics has already been applied once, will be overwritten \n')
-      cell_metadata[, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
-      gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+      message('\n cells statistics has already been applied once, will be overwritten \n')
+      cell_metadata[][, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
 
@@ -3146,7 +3892,8 @@ addFeatsPerc = function(gobject,
   expr_data = get_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
-                                    values = expression_values)
+                                    values = expression_values,
+                                    output = 'matrix')
 
 
   totalsum = colSums_flex(expr_data)
@@ -3369,7 +4116,8 @@ calculateMetaTable = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'matrix')
   if(!is.null(selected_feats)) {
     expr_values = expr_values[rownames(expr_values) %in% selected_feats, ]
   }
@@ -3470,13 +4218,15 @@ calculateMetaTableCells = function(gobject,
 #' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations to include
 #' @param spat_enr_names names of spatial enrichment results to include
+#' @param verbose verbosity
 #' @return Extended cell metadata in data.table format.
 #' @export
 combineMetadata = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL,
                            spat_loc_name = 'raw',
-                           spat_enr_names = NULL) {
+                           spat_enr_names = NULL,
+                           verbose = TRUE) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -3486,19 +4236,22 @@ combineMetadata = function(gobject,
                                     feat_type = feat_type)
 
   # cell metadata
-  metadata = pDataDT(gobject,
-                     spat_unit = spat_unit,
-                     feat_type = feat_type)
+  metadata = get_cell_metadata(gobject,
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               output = 'data.table')
 
   # spatial locations
   if(!is.null(spat_loc_name)) {
     spatial_locs = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name)
+                                         spat_loc_name = spat_loc_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE,
+                                         verbose = verbose)
   } else {
     spatial_locs = NULL
   }
-
 
   # data.table variables
   cell_ID = NULL
@@ -3509,7 +4262,9 @@ combineMetadata = function(gobject,
 
 
   # cell/spot enrichment data
-  available_enr = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
+  available_enr = list_spatial_enrichments_names(gobject = gobject,
+                                                 spat_unit = spat_unit,
+                                                 feat_type = feat_type)
 
   # output warning if not found
   not_available = spat_enr_names[!spat_enr_names %in% available_enr]
@@ -3530,7 +4285,9 @@ combineMetadata = function(gobject,
       temp_spat = get_spatial_enrichment(gobject = gobject,
                                          spat_unit = spat_unit,
                                          feat_type = feat_type,
-                                         enrichm_name = spatenr_name)
+                                         enrichm_name = spatenr_name,
+                                         output = 'data.table',
+                                         copy_obj = TRUE)
 
       temp_spat[, 'cell_ID' := NULL]
 
@@ -3591,7 +4348,8 @@ createMetafeats = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values,
+                                      output = 'exprObj')
 
 
   ## calculate metafeat ##
@@ -3602,7 +4360,7 @@ createMetafeats = function(gobject,
     clus_id = id
 
     selected_feats = names(feat_clusters[feat_clusters == clus_id])
-    sub_mat = expr_values[rownames(expr_values) %in% selected_feats,]
+    sub_mat = expr_values[][rownames(expr_values[]) %in% selected_feats,]
 
     # calculate mean
     if(length(selected_feats) == 1) {
@@ -3620,8 +4378,16 @@ createMetafeats = function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  res_final[, cell_ID := colnames(expr_values)]
+  res_final[, cell_ID := colnames(expr_values[])]
 
+  # create spatial enrichment object
+  enrObj = create_spat_enr_obj(name = name,
+                               method = 'metafeat',
+                               enrichDT = res_final,
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               provenance = expr_values@provenance,
+                               misc = list(expr_values_used = expression_values))
 
   if(return_gobject == TRUE) {
 
@@ -3632,19 +4398,16 @@ createMetafeats = function(gobject,
       cat('\n ', name, ' has already been used, will be overwritten \n')
     }
 
-
-    gobject = set_spatial_enrichment(gobject = gobject,
-                                     spat_unit = spat_unit,
-                                     feat_type = feat_type,
-                                     enrichm_name = name,
-                                     spatenrichment = res_final)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_spatial_enrichment(gobject = gobject, spatenrichment = enrObj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_create_metafeat')
     return(gobject)
 
   } else {
-    return(res_final)
+    return(enrObj)
   }
 
 }
@@ -3708,7 +4471,7 @@ findNetworkNeighbors = function(gobject,
     spatial_network = get_spatialNetwork(gobject,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
-                                         return_network_Obj = FALSE)
+                                         output = 'networkDT')
   } else {
     stop('You need to select a spatial network')
   }
