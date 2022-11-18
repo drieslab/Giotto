@@ -6856,7 +6856,7 @@ dimPlot_3D_plotly <- function(gobject,
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
     if(is.null(cell_color)) {
-      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+      stop('\n selection of cells is based on cell_color parameter, which is a metadata column \n')
     }
     cat('You have selected both individual cell IDs and a group of cells \n')
     group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]

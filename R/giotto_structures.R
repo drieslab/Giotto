@@ -598,7 +598,8 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 #' @keywords internal
 extract_polygon_list = function(polygonlist,
                                 polygon_mask_list_params,
-                                polygon_dfr_list_params) {
+                                polygon_dfr_list_params,
+                                verbose = TRUE) {
 
   named_list = FALSE
 
@@ -606,7 +607,7 @@ extract_polygon_list = function(polygonlist,
   # try to make list and give default names
   if(!is.list(polygonlist)) {
 
-    wrap_msg('polygonlist is not a list')
+    if(isTRUE(verbose)) (wrap_msg('polygonlist is not a list'))
 
     try_val = try(as.list(polygonlist), silent = TRUE)
     if(inherits(try_val, 'try-error')) {
@@ -621,7 +622,7 @@ extract_polygon_list = function(polygonlist,
   } else if(is.null(names(polygonlist))) {
     # if it is list
     # test if it has names
-    wrap_msg('polygonlist is a list without names')
+    if(isTRUE(verbose)) wrap_msg('polygonlist is a list without names')
 
     if(length(polygonlist) == 1) {
       names(polygonlist) = 'cell'
@@ -632,7 +633,7 @@ extract_polygon_list = function(polygonlist,
     }
   } else {
 
-    wrap_msg('polygonlist is a list with names')
+    if(isTRUE(verbose)) wrap_msg('polygonlist is a list with names')
     named_list = TRUE
 
   }
@@ -651,18 +652,18 @@ extract_polygon_list = function(polygonlist,
     name_polyinfo = names(polygonlist)[[poly_i]]
     polyinfo = polygonlist[[poly_i]]
 
-    wrap_msg('Process polygon information for: ', name_polyinfo)
+    if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
 
     if(is.character(polyinfo)) {
-      poly_results = do.call('createGiottoPolygonsFromMask', c(name = name_polyinfo,
-                                                               maskfile = polyinfo,
-                                                               polygon_mask_list_params))
+      poly_results = do.call('createGiottoPolygonsFromMask', list(name = name_polyinfo,
+                                                                  maskfile = polyinfo,
+                                                                  polygon_mask_list_params))
 
     } else if(inherits(polyinfo, 'data.frame')) {
 
-      poly_results = do.call('createGiottoPolygonsFromDfr', c(name = name_polyinfo,
-                                                              segmdfr = polyinfo,
-                                                              polygon_dfr_list_params))
+      poly_results = do.call('createGiottoPolygonsFromDfr', list(name = name_polyinfo,
+                                                                 segmdfr = polyinfo,
+                                                                 polygon_dfr_list_params))
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
@@ -673,7 +674,7 @@ extract_polygon_list = function(polygonlist,
 
     } else {
 
-      stop('Polygon can only be extracted from a mask file or from a correctly formatted data.frame')
+      stop(wrap_txt('Polygon can only be extracted from a mask file or from a correctly formatted data.frame'))
 
     }
 
@@ -1336,8 +1337,10 @@ addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
 #' @name extract_points_list
 #' @description to extract list of giotto points
 #' @param pointslist list of inputs from which to create giotto points objects
+#' @param verbose be verbose
 #' @keywords internal
-extract_points_list = function(pointslist) {
+extract_points_list = function(pointslist,
+                               verbose = TRUE) {
 
   named_list = FALSE
 
@@ -1345,7 +1348,7 @@ extract_points_list = function(pointslist) {
   # try to make list and give default names
   if(!is.list(pointslist)) {
 
-    wrap_msg('pointslist is not a list')
+    if(isTRUE(verbose)) wrap_msg('pointslist is not a list')
 
     try_val = try(as.list(pointslist), silent = TRUE)
     if(inherits(try_val, 'try-error')) {
@@ -1360,7 +1363,7 @@ extract_points_list = function(pointslist) {
   } else if(is.null(names(pointslist))) {
     # if it is list
     # test if it has names
-    wrap_msg('pointslist is a list without names')
+    if(isTRUE(verbose)) wrap_msg('pointslist is a list without names')
     if(length(pointslist) == 1) {
       names(pointslist) = 'rna'
     } else {
@@ -1370,7 +1373,7 @@ extract_points_list = function(pointslist) {
     }
   } else {
 
-    wrap_msg('pointslist is a named list')
+    if(isTRUE(verbose)) wrap_msg('pointslist is a named list')
     named_list = TRUE
 
   }
@@ -1389,6 +1392,8 @@ extract_points_list = function(pointslist) {
     name_pointinfo = names(pointslist)[[point_i]]
     pointinfo = pointslist[[point_i]]
 
+    if(isTRUE(verbose)) wrap_msg('  [', name_pointinfo, '] Process point info...')
+
     if(inherits(pointinfo, 'giottoPoints')) {
 
       if(isTRUE(named_list)) slot(pointinfo, 'feat_type') = name_pointinfo
@@ -1402,11 +1407,11 @@ extract_points_list = function(pointslist) {
 
     } else if(inherits(pointinfo, 'character')) {
 
-      stop('Giotto points can not yet be created directly from a file path')
+      stop(wrap_txt('Giotto points can not yet be created directly from a file path'))
 
     } else {
 
-      stop('Giotto points can only be created from a correctly formatted data.frame-like object')
+      stop(wrap_txt('Giotto points can only be created from a correctly formatted data.frame-like object'))
 
     }
 

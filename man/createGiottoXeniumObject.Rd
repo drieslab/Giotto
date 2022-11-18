@@ -13,6 +13,7 @@ createGiottoXeniumObject(
   gene_column_index = 1,
   bounds_to_load = c("cell"),
   qv_threshold = 20,
+  key_list = NULL,
   instructions = NULL,
   cores = NA,
   verbose = TRUE
@@ -42,6 +43,9 @@ at the same time.)}
 \item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included as
 a subcellular transcript detection (default = 20)}
 
+\item{key_list}{(advanced) list of grep-based keywords to split the subcellular
+feature detections by feature type. See details}
+
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
@@ -51,4 +55,33 @@ a subcellular transcript detection (default = 20)}
 \description{
 Given the path to a Xenium experiment output folder, creates a Giotto
 object
+}
+\details{
+[\strong{QC feature types}]
+Xenium provides info on feature detections that include more than only the
+Gene Expression specific probes. Additional probes for QC are included:
+\emph{blank codeword}, \emph{negative control codeword}, and
+\emph{negative control probe}. These additional QC probes each occupy and are treated
+as their own feature types so that they can largely remain independent of the
+gene expression information.
+
+[\strong{key_list}]
+Related to \code{data_to_use = 'subcellular'} workflow only:
+Additional QC probe information is in the subcellular feature detections information
+and must be separated from the gene expression information during processing.
+The QC probes have prefixes that allow them to be selected from the rest of the
+feature IDs.
+Giotto uses a named list of keywords (\code{key_list}) to select these QC probes,
+with the list names being the names that will be assigned as the feature type
+of these feature detections. The default list is used when \code{key_list} = NULL.
+
+Default list:
+\preformatted{
+ list(blank_code = 'BLANK_',
+      neg_code = 'NegControlCodeword_',
+      neg_probe = c('NegControlProbe_|antisense_'))
+}
+
+The Gene expression subset is accepted as the subset of feat_IDs that do not
+map to any of the keys.
 }
