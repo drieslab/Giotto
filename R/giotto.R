@@ -3520,7 +3520,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
       bound_type[, cell_id := as.character(cell_id)]
     }
   )
-  browser()
+
   xenium_gobject = createGiottoObjectSubcellular(gpoints = points_list,
                                                  gpolygons = polys_list,
                                                  instructions = instructions,
