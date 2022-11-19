@@ -106,10 +106,10 @@ anndataToGiotto = function(anndata_path = NULL,
                                 instructions = instrs)
 
   ### Add metadata
-  gobject = set_CellMetadata(gobject,
-                              meta_dt = cm)
-  gobject = set_FeatMetadata(gobject,
-                              meta_dt = fm)
+  gobject = set_cell_metadata(gobject,
+                              metadata = cm)
+  gobject = set_feature_metadata(gobject,
+                              metadata = fm)
 
   spat_unit = set_default_spat_unit(gobject,
                                     spat_unit = spat_unit)
