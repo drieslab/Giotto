@@ -29,7 +29,22 @@ subsetGiottoLocsMulti(
 
 \item{spat_loc_name}{name of spatial locations to use}
 
-\item{x_max, x_min, y_max, y_min, z_max, z_min}{minimum and maximum x, y, and z coordinates
+\item{x_max}{minimum and maximum x, y, and z coordinates
+to subset to}
+
+\item{x_min}{minimum and maximum x, y, and z coordinates
+to subset to}
+
+\item{y_max}{minimum and maximum x, y, and z coordinates
+to subset to}
+
+\item{y_min}{minimum and maximum x, y, and z coordinates
+to subset to}
+
+\item{z_max}{minimum and maximum x, y, and z coordinates
+to subset to}
+
+\item{z_min}{minimum and maximum x, y, and z coordinates
 to subset to}
 
 \item{poly_info}{polygon information to use}

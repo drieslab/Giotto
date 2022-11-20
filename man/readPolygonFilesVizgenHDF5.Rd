@@ -14,7 +14,7 @@ readPolygonFilesVizgenHDF5(
   smooth_polygons = TRUE,
   smooth_vertices = 60,
   set_neg_to_zero = FALSE,
-  H5Fopen_flags = h5default("H5F_ACC_RD"),
+  H5Fopen_flags = "H5F_ACC_RDWR",
   verbose = TRUE
 )
 }

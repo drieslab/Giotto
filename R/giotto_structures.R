@@ -655,15 +655,22 @@ extract_polygon_list = function(polygonlist,
     if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
 
     if(is.character(polyinfo)) {
-      poly_results = do.call('createGiottoPolygonsFromMask', list(name = name_polyinfo,
-                                                                  maskfile = polyinfo,
-                                                                  polygon_mask_list_params))
+
+      parameters = c(name = name_polyinfo,
+                     maskfile = polyinfo,
+                     polygon_mask_list_params)
+      if(isTRUE(verbose)) print(parameters)
+
+      poly_results = do.call('createGiottoPolygonsFromMask', parameters)
 
     } else if(inherits(polyinfo, 'data.frame')) {
 
-      poly_results = do.call('createGiottoPolygonsFromDfr', list(name = name_polyinfo,
-                                                                 segmdfr = polyinfo,
-                                                                 polygon_dfr_list_params))
+      parameters = c(name = name_polyinfo,
+                     maskfile = polyinfo,
+                     polygon_dfr_list_params)
+      if(isTRUE(verbose)) print(parameters)
+
+      poly_results = do.call('createGiottoPolygonsFromDfr', parameters)
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
