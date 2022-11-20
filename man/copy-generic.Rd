@@ -19,9 +19,9 @@ certain subobjects that usually return referenced information.
 }
 \section{Functions}{
 \itemize{
-\item \code{copy(coordDataDT)}: Copy \emph{data.table}-based spatial locations object.
-
+\item \code{copy,coordDataDT-method}: Copy \emph{data.table}-based spatial locations object.
 }}
+
 \seealso{
 \code{\link[data.table]{copy}} \code{\link[terra]{deepcopy}}
 }

@@ -66,9 +66,9 @@ Load xenium data from folder
 }
 \section{Functions}{
 \itemize{
-\item \code{load_xenium_folder_csv()}: Load from csv files
+\item \code{load_xenium_folder_csv}: Load from csv files
 
-\item \code{load_xenium_folder_parquet()}: Load from parquet files
-
+\item \code{load_xenium_folder_parquet}: Load from parquet files
 }}
+
 \keyword{internal}
