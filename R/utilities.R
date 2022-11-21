@@ -391,21 +391,61 @@ print_leaf = function(level_index,
 
 #' @title Box characters
 #' @name box_chars
+#' @description Helper function to print unicode characters using escape codes.
 #' @keywords internal
-#' @details Much inspiration taken from https://rdrr.io/cran/fs/src/R/tree.R
+#' @details Much inspiration taken from \pkg{fs} \href{https://rdrr.io/cran/fs/src/R/tree.R}{tree.R}
 # These are derived from https://github.com/r-lib/cli/blob/e9acc82b0d20fa5c64dd529400b622c0338374ed/R/tree.R#L111
-box_chars <- function() {
-  list(
-    "h" = "\u2500",                   # horizontal
-    "v" = "\u2502",                   # vertical
-    "l" = "\u2514",
-    "j" = "\u251C",
-    "b" = "\u2514\u2500\u2500",       # branch
-    "t" = "\u251C\u2500\u2500",       # T
-    "i" = "\u2502  ",                 # layer
-    "s" = "   "                       # spaces
-  )
+box_chars = function() {
+  if(is_utf8_output()) {
+    list(
+      "h" = "\u2500",                   # horizontal
+      "v" = "\u2502",                   # vertical
+      "l" = "\u2514",
+      "j" = "\u251C",
+      "b" = "\u2514\u2500\u2500",       # branch
+      "t" = "\u251C\u2500\u2500",       # T
+      "i" = "\u2502  ",                 # layer
+      "s" = "   "                       # spaces
+    )
+  } else {
+    list(
+      "h" = "-",                        # horizontal
+      "v" = "|",                        # vertical
+      "l" = "\\",
+      "j" = "+",
+      "b" = "\\--",                     # branch
+      "t" = "+--",                      # T
+      "i" = "|  ",                      # layer
+      "s" = "   "                       # spaces
+    )
+  }
 }
+
+
+#' @describeIn box_chars
+#' @keywords internal
+is_latex_output = function() {
+  if(!('knitr' %in% loadedNamespaces())) return(FALSE)
+  get('is_latex_output', asNamespace('knitr'))()
+}
+
+
+#' @describeIn box_chars
+#' @keywords internal
+is_utf8_output = function() {
+  opt = any(getOption('cli.unicode', default = NULL),
+            getOption('giotto.unicode', default = NULL))
+  if(!is.null(opt)) {
+    isTRUE(opt)
+  } else {
+    is_utf8 = (l10n_info()$`UTF-8` & !is_latex_output())
+    options('giotto.unicode' = is_utf8)
+    return(is_utf8)
+  }
+}
+
+
+
 
 
 #' @title Print abbreviated matrix
@@ -485,8 +525,14 @@ wrap_txt = function(..., collapse = '', strWidth = 100) {
 }
 
 
+
+
+# Color text (8 colors) ####
+
 #' @title Colorize print text
 #' @name color_tag
+#' @details supported colors checking is modified from \pkg{cli}
+#' \href{https://github.com/r-lib/cli/blob/HEAD/R/num-ansi-colors.R}{aab-num-ansi-colors.R}
 #' @keywords internal
 color_tag = function() {
   list(
@@ -501,6 +547,94 @@ color_tag = function() {
 }
 
 
+#' @describeIn color_tag
+#' @keywords internal
+use_color_text = function() {
+  opt = getOption('giotto.color_show', default = NULL)
+  ansi8_color = ansi_colors() >= 8L
+  if(!is.null(opt)) {
+    if(!isTRUE(opt)) return(opt)
+    if(isTRUE(opt) & isTRUE(ansi8_color)) return(opt)
+    if(isTRUE(opt) & !isTRUE(ansi8_color)) {
+      wrap_msg('Color text not supported on this system.
+               Set options("giotto.color_show" = FALSE)')
+    }
+  } else ansi8_color
+}
+
+
+#' @describeIn color_tag
+#' @keywords internal
+ansi_colors = function() {
+
+  # options
+  opt = getOption('cli.num_colors', default = NULL)
+  if(!is.null(opt)) return(as.integer(opt))
+  opt = getOption('giotto.num_colors', default = NULL)
+  if(!is.null(opt)) return(as.integer(opt))
+
+  if((env = Sys.getenv('R_CLI_NUM_COLORS', '')) != '') {
+    return(as.integer(env))
+  }
+
+  # crayon compatibility (allow color disabling through crayon)
+  cray_opt_has = getOption('crayon.enabled', NULL)
+  cray_opt_num = getOption('crayon.colors', NULL)
+  if(!is.null(cray_opt_has) & !isTRUE(cray_opt_has)) return(1L) # disable
+  if(isTRUE(cray_opt_has) & !is.null(cray_opt_num)) {
+    return(as.integer(cray_opt_num))
+  }
+  if(isTRUE(cray_opt_has) & is.null(cray_opt_num)) {
+    return(8L)
+  }
+
+  # 'NO_COLOR env setting disabling
+  if(!is.na(Sys.getenv('NO_COLOR', NA_character_))) return(1L)
+
+  # if knitr then no color in .Rmd chunks
+  if(isTRUE(getOption('knitr.in.progress'))) return(1L)
+
+  if(.Platform$GUI == 'AQUA') return(1L)
+
+  # No specific usage cases needed
+  # Colors only used in show functions
+  if(Sys.getenv('RSTUDIO') == 1) return(8L) # at least
+
+  # Must be placed after 'RSTUDIO' check
+  if(.Platform$GUI == 'Rgui') return(1L)
+
+  # Windows Emacs
+  if(.Platform$OS.type == 'windows' &
+     '--ess' %in% commandArgs() &
+     is_emacs_with_color()) {
+    return(8L)
+  }
+
+  # end catch
+  return(8L)
+
+}
+
+
+#' @describeIn color_tag
+#' @keywords internal
+is_emacs_with_color = function() {
+  (Sys.getenv('EMACS') != '' || Sys.getenv('INSIDE_EMACS') !=
+     '') & !is.na(emacs_version()[1]) & emacs_version()[1] >=
+    23
+}
+
+
+#' @describeIn color_tag
+#' @keywords internal
+emacs_version = function() {
+  ver <- Sys.getenv('INSIDE_EMACS')
+  ver <- gsub('[^0-9\\.]+', '', ver)
+  if (ver == '')
+    return(NA_integer_)
+  ver <- strsplit(ver, '.', fixed = TRUE)[[1]]
+  as.numeric(ver)
+}
 
 
 
