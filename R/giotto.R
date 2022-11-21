@@ -4794,7 +4794,7 @@ joinGiottoObjects = function(gobject_list,
 
           combmat = join_expression_matrices(matrix_list = savelist)
 
-          S4_expr_object = create_expr_obj(exprMat = combmat,
+          S4_expr_object = create_expr_obj(exprMat = combmat[['matrix']],
                                            name = mode,
                                            spat_unit = spat_unit,
                                            feat_type = feat_type)
@@ -4803,7 +4803,7 @@ joinGiottoObjects = function(gobject_list,
 
           #comb_gobject@expression[[spat_unit]][[feat_type]][[mode]] = combmat$matrix
 
-          comb_gobject@feat_ID[[feat_type]] = combmat$sort_all_feats
+          comb_gobject@feat_ID[[feat_type]] = combmat[['sort_all_feats']]
 
           S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
                                                   feat_type = feat_type,
