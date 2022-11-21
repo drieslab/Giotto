@@ -874,7 +874,7 @@ subset_nearest_network = function(gobject,
       nnObj[] = igraph::induced_subgraph(graph = nnObj[], vids = cell_ids)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_NearestNetwork(gobject, nn_network = nnObj)
+      gobject = set_NearestNetwork(gobject, nn_network = nnObj, verbose = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
