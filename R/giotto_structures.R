@@ -656,21 +656,21 @@ extract_polygon_list = function(polygonlist,
 
     if(is.character(polyinfo)) {
 
-      parameters = c(name = name_polyinfo,
-                     maskfile = polyinfo,
+      parameters = c(list(name = name_polyinfo,
+                          maskfile = polyinfo),
                      polygon_mask_list_params)
       if(isTRUE(verbose)) print(parameters)
 
-      poly_results = do.call('createGiottoPolygonsFromMask', parameters)
+      poly_results = do.call(what = 'createGiottoPolygonsFromMask', args = parameters)
 
     } else if(inherits(polyinfo, 'data.frame')) {
 
-      parameters = c(name = name_polyinfo,
-                     maskfile = polyinfo,
+      parameters = c(list(name = name_polyinfo,
+                          segmdfr = polyinfo),
                      polygon_dfr_list_params)
       if(isTRUE(verbose)) print(parameters)
 
-      poly_results = do.call('createGiottoPolygonsFromDfr', parameters)
+      poly_results = do.call(what = 'createGiottoPolygonsFromDfr', args = parameters)
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
