@@ -4355,7 +4355,7 @@ joinGiottoObjects = function(gobject_list,
       for(feat_type in names(gobj@expression[[spat_unit]])) {
 
         for(matr in names(gobj@expression[[spat_unit]][[feat_type]])) {
-          colnames(gobj@expression[[spat_unit]][[feat_type]][[matr]]) = gobj@cell_ID[[spat_unit]]
+          colnames(gobj@expression[[spat_unit]][[feat_type]][[matr]][]) = gobj@cell_ID[[spat_unit]]
         }
 
         #all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
