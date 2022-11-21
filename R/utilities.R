@@ -433,15 +433,15 @@ is_latex_output = function() {
 #' @describeIn box_chars
 #' @keywords internal
 is_utf8_output = function() {
-  opt = any(getOption('cli.unicode', default = NULL),
-            getOption('giotto.unicode', default = NULL))
-  if(!is.null(opt)) {
-    isTRUE(opt)
-  } else {
-    is_utf8 = (l10n_info()$`UTF-8` & !is_latex_output())
-    options('giotto.unicode' = is_utf8)
-    return(is_utf8)
-  }
+  opt = getOption('cli.unicode', default = NULL)
+  if(!is.null(opt)) return(isTRUE(opt))
+  opt = getOption('giotto.unicode', default = NULL)
+  if(!is.null(opt)) return(isTRUE(opt))
+
+  is_utf8 = (l10n_info()$`UTF-8` & !is_latex_output())
+  options('giotto.unicode' = is_utf8)
+  return(is_utf8)
+
 }
 
 
