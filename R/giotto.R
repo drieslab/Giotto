@@ -3055,7 +3055,7 @@ createGiottoCosMxObject_subcellular = function(dir_items,
   tx_coord_all[, x_global_px := NULL]
   tx_coord_all[, y_global_px := NULL]
 
-  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z'))
+  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov', 'cell_ID'))
 
   if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs neg probe')
   all_IDs = tx_coord_all[, unique(target)]
@@ -3096,13 +3096,14 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
 
     # feature info
+    coord_oldnames = c('target', 'x_local_px', 'y_local_px', 'cell_ID')
+    coord_newnames = c('feat_ID', 'x', 'y', 'fov_cell_ID')
+
     feat_coord = feat_coords_all[fov == as.numeric(x)]
-    feat_coord = feat_coord[,.(target, x_local_px, y_local_px, z, CellComp)]
-    colnames(feat_coord) = c('feat_ID','x','y','z')
+    data.table::setnames(feat_coord, old = coord_oldnames, new = coord_newnames)
     # neg probe info
     neg_coord = neg_coords_all[fov == as.numeric(x)]
-    neg_coord = neg_coord[,.(target, x_local_px, y_local_px, z, CellComp)]
-    colnames(neg_coord) = c('feat_ID','x','y','z')
+    data.table::setnames(neg_coord, old = coord_oldnames, new = coord_newnames)
 
 
     # build giotto object
