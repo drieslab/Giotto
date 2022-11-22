@@ -879,12 +879,15 @@ get_spatial_locations = function(gobject,
 
   if(!is.null(spat_unit)) {
     potential_spat_unit = names(slot(gobject, 'spatial_locs'))
-    if(!spat_unit %in% potential_spat_unit) stop('No spatial locations for spatial unit "', spat_unit, '" exist in spatial_locs slot.')
+    if(!spat_unit %in% potential_spat_unit) stop(wrap_txt('No spatial locations for spatial unit "', spat_unit, '" exist in spatial_locs slot.'))
   }
 
   # spatial locations
   spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+                                    spat_unit = spat_unit,
+                                    verbose = FALSE)
+
+
 
   # if NULL (not given) and spatial locations have been added, then use first one
   # if NULL (not given) and spatial locations have NOT been added, then keep NULL
@@ -931,11 +934,11 @@ get_spatial_locations = function(gobject,
         }
       }
     } else {
-      if(isTRUE(verbose)) message('Other spatial locations outputs not yet supported')
+      if(isTRUE(verbose)) wrap_msg('Other spatial locations outputs not yet supported')
     }
     return(spatloc)
   } else { # case if not found
-    stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
+    stop(wrap_txt("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n"))
   }
 }
 

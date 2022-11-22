@@ -4,12 +4,14 @@
 \alias{set_default_spat_unit}
 \title{set_default_spat_unit}
 \usage{
-set_default_spat_unit(gobject, spat_unit = NULL)
+set_default_spat_unit(gobject, spat_unit = NULL, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{gobject}
 
 \item{spat_unit}{spatial unit}
+
+\item{verbose}{be verbose about warning}
 }
 \description{
 set_default_spat_unit

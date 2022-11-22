@@ -4,7 +4,7 @@
 \alias{abb_mat}
 \title{Print abbreviated matrix}
 \usage{
-abb_mat(exprObj, nrows, ncols)
+abb_mat(exprObj, nrows, ncols, header = TRUE)
 }
 \description{
 print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,

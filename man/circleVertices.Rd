@@ -19,5 +19,5 @@ Generates vertex coordinates for a circle around (0,0) with the
 given radius. Modified from \pkg{packcircles}.
 }
 \seealso{
-polyStamp rectVertices
+polyStamp rectVertices hexVertices
 }

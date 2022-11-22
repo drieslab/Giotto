@@ -7,9 +7,11 @@
 #' @name set_default_spat_unit
 #' @param gobject gobject
 #' @param spat_unit spatial unit
+#' @param verbose be verbose about warning
 #' @keywords internal
 set_default_spat_unit = function(gobject,
-                                 spat_unit = NULL) {
+                                 spat_unit = NULL,
+                                 verbose = TRUE) {
 
 
   # set spatial unit
@@ -22,7 +24,7 @@ set_default_spat_unit = function(gobject,
       } else if(!is.null(gobject@spatial_info)){
         spat_unit = names(gobject@spatial_info)[[1]]
       } else {
-        warning('No default for spat_unit could be set \n')
+        if(isTRUE(verbose)) (warning('No default for spat_unit could be set \n'))
       }
     }
 
@@ -39,10 +41,12 @@ set_default_spat_unit = function(gobject,
 #' @param gobject gobject
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param verbose be verbose about warning
 #' @keywords internal
 set_default_feat_type = function(gobject,
                                  feat_type = NULL,
-                                 spat_unit) {
+                                 spat_unit,
+                                 verbose = TRUE) {
 
 
   # set spatial unit
@@ -57,7 +61,7 @@ set_default_feat_type = function(gobject,
       } else if(!is.null(gobject@feat_info)){
         feat_type = names(gobject@feat_info)[[1]]
       } else {
-        warning('No default for feat_type could be set \n')
+        if(isTRUE(verbose)) warning('No default for feat_type could be set \n')
       }
     }
 

@@ -4,7 +4,7 @@
 \alias{set_default_feat_type}
 \title{set_default_feat_type}
 \usage{
-set_default_feat_type(gobject, feat_type = NULL, spat_unit)
+set_default_feat_type(gobject, feat_type = NULL, spat_unit, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{gobject}
@@ -12,6 +12,8 @@ set_default_feat_type(gobject, feat_type = NULL, spat_unit)
 \item{feat_type}{feature type}
 
 \item{spat_unit}{spatial unit}
+
+\item{verbose}{be verbose about warning}
 }
 \description{
 set_default_feat_type
