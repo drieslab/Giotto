@@ -453,7 +453,7 @@ is_utf8_output = function() {
 #' @description print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,
 #' matrix, data.frame and classes that inherit them.
 #' @keywords internal
-abb_mat = function(exprObj, nrows, ncols) {
+abb_mat = function(exprObj, nrows, ncols, header = TRUE) {
   mat = as.matrix(exprObj[])
   four_names = head(colnames(mat), 4)
   mat_cols = ncol(mat)
@@ -465,9 +465,13 @@ abb_mat = function(exprObj, nrows, ncols) {
   colnames(mat) = NULL
 
   # prints
-  cat('An object of class', class(exprObj), '\n')
-  cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
-  cat('  Provenance:', exprObj@provenance, '\n\ncontains:\n')
+  if(isTRUE(header)) {
+    cat('An object of class', class(exprObj), '\n')
+    cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
+  }
+  cat('  Provenance:', exprObj@provenance)
+  if(isTRUE(header)) cat('\n\ncontains:\n')
+  else cat('\n')
   cat(paste0(mat_rows, ' x ', mat_cols, ' dense matrix of class "', class(exprObj[]), '"\n\n'))
   print(mat)
   cat('\n First four colnames:')

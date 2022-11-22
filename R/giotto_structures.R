@@ -962,7 +962,7 @@ polyStamp = function(stamp_dt,
 #' given radius. Modified from \pkg{packcircles}.
 #' @param radius radius of circle to be drawn
 #' @param npoints number of vertices to generate
-#' @seealso polyStamp rectVertices
+#' @seealso polyStamp rectVertices hexVertices
 #' @return a data.table of circle vertices
 #' @export
 circleVertices = function(radius,
@@ -981,7 +981,7 @@ circleVertices = function(radius,
 #' through \code{dims} param.
 #' @param dims named vector in the style of c(x = \code{numeric}, y = \code{numeric})
 #' that defines the width (x) and height (y) of the generated rectangle polygon.
-#' @seealso polyStamp circleVertices
+#' @seealso polyStamp circleVertices hexVertices
 #' @return a data.table of rectangle vertices
 #' @export
 rectVertices = function(dims) {
@@ -991,6 +991,48 @@ rectVertices = function(dims) {
   m = data.table::data.table(x = c(0,0,xdim,xdim),
                              y = c(0,ydim,ydim,0))
   return(m)
+}
+
+
+#' @title Generate regular hexagon vertices
+#' @name hexVertices
+#' @description Generates vertex coordinates for a regular hexagon.
+#' @param radius radius of the hexagon
+#' @param  major_axis orientation of the major axis 'v' is vertical (default)
+#' and 'h' is horizontal
+#' @seealso polyStamp circleVertices rectVertices
+#' @return a data.table of regular hexagon vertices
+#' @export
+hexVertices = function(radius, major_axis = c('v', 'h')) {
+  major_axis = match.arg(major_axis, choices = c('v', 'h'))
+  r = radius
+  v = data.table::data.table(
+    # counter clockwise
+    x = c(
+      0,                # A
+      (sqrt(3) * r)/2,  # B
+      (sqrt(3) * r)/2,  # C
+      0,                # D
+      -(sqrt(3) * r)/2, # E
+      -(sqrt(3) * r)/2 # F
+    ),
+    y = c(
+      r,    # A
+      r/2,  # B
+      -r/2, # C
+      -r,   # D
+      -r/2, # E
+      r/2   # F
+    ))
+  if(major_axis == 'v') {
+    return(v)
+  }
+  if(major_axis == 'h') {
+    h = data.table::data.table()
+    h$x = v$y
+    h$y = v$x
+    return(h)
+  }
 }
 
 
