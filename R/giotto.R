@@ -3051,6 +3051,12 @@ createGiottoCosMxObject_subcellular = function(dir_items,
   fov_offset_file = data_list$fov_offset_file
   tx_coord_all = data_list$tx_coord_all
 
+  # remove global xy values
+  tx_coord_all[, x_global_px := NULL]
+  tx_coord_all[, y_global_px := NULL]
+
+  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z'))
+
   if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs neg probe')
   all_IDs = tx_coord_all[, unique(target)]
   neg_IDs = all_IDs[grepl(pattern = 'NegPrb', all_IDs)]
@@ -3068,6 +3074,21 @@ createGiottoCosMxObject_subcellular = function(dir_items,
   # Start FOV lapply
   fov_gobjects_list = lapply(FOV_ID, function(x) {
 
+    # Build image paths
+    if(isTRUE(verbose)) message('Loading image information...')
+
+    composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('*',x, '*')))
+    cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('*',x, '*')))
+    compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('*',x, '*')))
+    cellOverlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('*',x, '*')))
+    # Missing warnings
+    if(length(composite_dir) == 0) {warning('[ FOV ', x, ' ] No composite images found') ; composite_dir = NULL}
+    if(length(cellLabel_dir) == 0) {stop('[ FOV ', x, ' ] No cell mask images found')} # cell masks are necessary
+    if(length(compartmentLabel_dir) == 0) {warning('[ FOV ', x, ' ] No compartment label images found') ; compartmentLabel_dir = NULL}
+    if(length(cellOverlay_dir) == 0) {warning('[ FOV ', x, ' ] No cell polygon overlay images found') ; cellOverlay_dir = NULL}
+
+    if(isTRUE(verbose)) message('Image load done')
+
     if(isTRUE(verbose)) wrap_msg('[ FOV ', x, ']')
 
     # get FOV specific tx locations
@@ -3076,11 +3097,11 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
     # feature info
     feat_coord = feat_coords_all[fov == as.numeric(x)]
-    feat_coord = feat_coord[,.(target, x_local_px, y_local_px, z)]
+    feat_coord = feat_coord[,.(target, x_local_px, y_local_px, z, CellComp)]
     colnames(feat_coord) = c('feat_ID','x','y','z')
     # neg probe info
     neg_coord = neg_coords_all[fov == as.numeric(x)]
-    neg_coord = neg_coord[,.(target, x_local_px, y_local_px, z)]
+    neg_coord = neg_coord[,.(target, x_local_px, y_local_px, z, CellComp)]
     colnames(neg_coord) = c('feat_ID','x','y','z')
 
 
@@ -3107,21 +3128,6 @@ createGiottoCosMxObject_subcellular = function(dir_items,
                                              poly_info = 'cell',
                                              spat_loc_name = 'raw')
 
-
-    # Build image paths
-    if(isTRUE(verbose)) message('Loading image information...')
-
-    composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('*',x, '*')))
-    cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('*',x, '*')))
-    compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('*',x, '*')))
-    cellOverlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('*',x, '*')))
-    # Missing warnings
-    if(length(composite_dir) == 0) {warning('[ FOV ', x, ' ] No composite images found') ; composite_dir = NULL}
-    if(length(cellLabel_dir) == 0) {stop('[ FOV ', x, ' ] No cell mask images found')} # cell masks are necessary
-    if(length(compartmentLabel_dir) == 0) {warning('[ FOV ', x, ' ] No compartment label images found') ; compartmentLabel_dir = NULL}
-    if(length(cellOverlay_dir) == 0) {warning('[ FOV ', x, ' ] No cell polygon overlay images found') ; cellOverlay_dir = NULL}
-
-    if(isTRUE(verbose)) message('Image load done')
 
     # create and add giotto image objects
     if(isTRUE(verbose)) message('Attaching image files...')
@@ -3824,7 +3830,7 @@ load_cosmx_folder_aggregate = function(dir_items,
   metadata[, cell_ID := paste0('fov', sprintf('%03d', fov), '-', 'cell_', cell_ID)]
   # metadata$cell_ID = paste0('fov', sprintf('%03d', metadata$fov), '-', 'cell_', metadata$cell_ID)
   # reorder
-  metadata = metadata[,.SD, c('cell_ID','fov','fov_cell_ID')]
+  data.table::setcolorder(x = metadata, c('cell_ID','fov','fov_cell_ID'))
 
 
   # extract spatial locations
