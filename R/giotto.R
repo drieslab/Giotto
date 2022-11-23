@@ -4375,11 +4375,20 @@ objHistory = function(object) {
 
 #' @title Check provenance info matches across list of S4 subobjects
 #' @name check_prov_match
+#' @param ... list of s4 subobjects to match provenance
 #' @keywords internal
 #' @return NULL
-check_prov_match = function(s4_list) {
+check_prov_match = function(...) {
 
+  s4_list = list(...)
   prov_list = lapply(s4_list, prov)
+
+  # if(isTRUE(verbose)) {
+  #   out_dt = data.table::data.table(
+  #     class()
+  #   )
+  # }
+
   length(unique(prov_list)) == 1
 
 }
