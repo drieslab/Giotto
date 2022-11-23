@@ -5169,7 +5169,9 @@ joinGiottoObjects = function(gobject_list,
                          spat_unit = spat_unit_i,
                          coordinates = combspatlocs,
                          provenance = NULL)
-      comb_gobject = set_spatial_locations(comb_gobject, spatlocs = combspat_obj)
+      comb_gobject = set_spatial_locations(comb_gobject,
+                                           spatlocs = combspat_obj,
+                                           set_defaults = FALSE)
     }
 
   }
@@ -5197,7 +5199,8 @@ joinGiottoObjects = function(gobject_list,
                                           feat_type = feat_type)
 
       comb_gobject = set_cell_metadata(gobject = comb_gobject,
-                                       S4_cell_meta)
+                                       metadata = S4_cell_meta,
+                                       set_defaults = FALSE)
 
       #comb_gobject@cell_metadata[[spat_unit]][[feat_type]] = combcellmeta
 
