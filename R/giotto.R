@@ -3051,10 +3051,8 @@ createGiottoCosMxObject_subcellular = function(dir_items,
   fov_offset_file = data_list$fov_offset_file
   tx_coord_all = data_list$tx_coord_all
 
-  # remove global xy values
-  tx_coord_all[, x_global_px := NULL]
-  tx_coord_all[, y_global_px := NULL]
-  tx_coord_all[, cell_ID := NULL]
+  # remove global xy values and cell_ID
+  tx_coord_all[, c('x_global_px', 'y_global_px', 'cell_ID') := NULL]
 
   data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov'))
 
@@ -5089,7 +5087,9 @@ joinGiottoObjects = function(gobject_list,
       S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
                                               feat_type = feat_type,
                                               metaDT = data.table::data.table(feat_ID = combined_feat_ID))
-      comb_gobject = set_feature_metadata(gobject = comb_gobject, S4_feat_metadata)
+      comb_gobject = set_feature_metadata(gobject = comb_gobject,
+                                          S4_feat_metadata,
+                                          set_defaults = FALSE)
 
     }
 

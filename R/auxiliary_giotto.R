@@ -42,7 +42,7 @@ set_default_spat_unit = function(gobject,
 #' @keywords internal
 set_default_feat_type = function(gobject,
                                  feat_type = NULL,
-                                 spat_unit,) {
+                                 spat_unit) {
 
 
   # set spatial unit
