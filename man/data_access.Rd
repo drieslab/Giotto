@@ -13,6 +13,9 @@
 \item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 
 \item{output}{what format in which to get information (e.g. "data.table")}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Access or examine slots within the giotto object

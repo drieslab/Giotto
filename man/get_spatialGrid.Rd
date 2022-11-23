@@ -9,7 +9,8 @@ get_spatialGrid(
   spat_unit = NULL,
   feat_type = NULL,
   name = NULL,
-  return_grid_Obj = FALSE
+  return_grid_Obj = FALSE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ get_spatialGrid(
 \item{name}{name of spatial grid}
 
 \item{return_grid_Obj}{return grid object (default = FALSE)}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Function to get spatial grid

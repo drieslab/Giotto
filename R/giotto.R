@@ -4379,7 +4379,8 @@ objHistory = function(object) {
 #' @return NULL
 check_prov_match = function(s4_list) {
 
-  c()
+  prov_list = lapply(s4_list, prov)
+  length(unique(prov_list)) == 1
 
 }
 

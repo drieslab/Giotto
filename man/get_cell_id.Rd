@@ -4,12 +4,15 @@
 \alias{get_cell_id}
 \title{Get cell IDs for a given spatial unit}
 \usage{
-get_cell_id(gobject, spat_unit = NULL)
+get_cell_id(gobject, spat_unit = NULL, set_defaults = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 character vector of cell_IDs

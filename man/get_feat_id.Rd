@@ -4,12 +4,15 @@
 \alias{get_feat_id}
 \title{Get feat IDs for a given feature type}
 \usage{
-get_feat_id(gobject, feat_type = NULL)
+get_feat_id(gobject, feat_type = NULL, set_defaults = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Across a single modality/feature type, all feature information is

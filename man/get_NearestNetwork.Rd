@@ -10,7 +10,8 @@ get_NearestNetwork(
   feat_type = NULL,
   nn_network_to_use = NULL,
   network_name = NULL,
-  output = c("nnNetObj", "igraph", "data.table")
+  output = c("nnNetObj", "igraph", "data.table"),
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ get_NearestNetwork(
 \item{network_name}{name of NN network to be used}
 
 \item{output}{return a igraph or data.table object. Default 'igraph'}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 igraph or data.table object

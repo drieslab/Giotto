@@ -10,7 +10,8 @@ set_cell_metadata(
   spat_unit = NULL,
   feat_type = NULL,
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ the object. Passing 'initialize' will reset the object.}
 \item{provenance}{provenance information to set}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object
