@@ -166,6 +166,30 @@ setMethod('copy', signature(x = 'coordDataDT'), function(x) {
 
 
 
+# prov() S4 generic ####
+#' @title Provenance information
+#' @name prov-generic
+#' @description access and set provenance slot of S4 subobject
+#' @param x a Giotto S4 class subobject
+#' @param value value to set as provenance
+#' @include classes.R
+#' @export
+setGeneric('prov', function(x) standardGeneric('prov'))
+setGeneric('prov<-', function(x, value) standardGeneric('prov<-'))
+
+
+#' @describeIn prov-generic Get provenance information
+#' @export
+setMethod('prov', signature = 'provData', function(x) x@provenance)
+
+
+#' @describeIn prov-generic Set provenance information
+#' @export
+setMethod('prov<-', signature = 'provData', function(x, value) {
+  x@provenance = value
+  x
+})
+
 
 
 

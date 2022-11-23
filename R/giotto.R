@@ -4371,6 +4371,21 @@ objHistory = function(object) {
 
 
 
+#### provenance ####
+
+#' @title Check provenance info matches across list of S4 subobjects
+#' @name check_prov_match
+#' @keywords internal
+#' @return NULL
+check_prov_match = function(s4_list) {
+
+  c()
+
+}
+
+
+
+
 #### joining giotto object ####
 
 #' @title join_expression_matrices
@@ -4844,7 +4859,7 @@ joinGiottoObjects = function(gobject_list,
                                          spat_loc_name = locs_i,
                                          output = 'spatLocsObj',
                                          copy_obj = TRUE,
-                                         verbose = FALSE)
+                                         set_defaults = FALSE)
         myspatlocs = slot(spat_obj, 'coordinates')
 
         if(join_method == 'z_stack') {
@@ -5072,6 +5087,7 @@ joinGiottoObjects = function(gobject_list,
 
   ## expression and feat IDs
   ## if no expression matrices are provided, then just combine all feature IDs
+  ## additionally, do feature metadata
   if(verbose) wrap_msg('2. expression data \n')
 
   expr_names = names(first_obj@expression)
@@ -5081,15 +5097,21 @@ joinGiottoObjects = function(gobject_list,
     ## feat IDS
     for(feat in first_features) {
       combined_feat_ID = unique(unlist(all_feat_ID_list[[feat]]))
-      comb_gobject@feat_ID[[feat]] = combined_feat_ID
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_feat_id(gobject = comb_gobject,
+                                 feat_type = feat,
+                                 feat_IDs = combined_feat_ID)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
       # TODO: figure out best way
       S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
                                               feat_type = feat_type,
                                               metaDT = data.table::data.table(feat_ID = combined_feat_ID))
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       comb_gobject = set_feature_metadata(gobject = comb_gobject,
                                           S4_feat_metadata,
                                           set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
 
@@ -5117,7 +5139,10 @@ joinGiottoObjects = function(gobject_list,
                                            spat_unit = spat_unit,
                                            feat_type = feat_type)
 
-          comb_gobject = set_expression_values(gobject = comb_gobject, S4_expr_object)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          comb_gobject = set_expression_values(gobject = comb_gobject,
+                                               S4_expr_object)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
           #comb_gobject@expression[[spat_unit]][[feat_type]][[mode]] = combmat$matrix
 
@@ -5126,7 +5151,10 @@ joinGiottoObjects = function(gobject_list,
           S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
                                                   feat_type = feat_type,
                                                   metaDT = data.table::data.table(feat_ID = combmat$sort_all_feats))
-          comb_gobject = set_feature_metadata(gobject = comb_gobject, S4_feat_metadata)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          comb_gobject = set_feature_metadata(gobject = comb_gobject,
+                                              metadata = S4_feat_metadata)
+          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
           #comb_gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = combmat$sort_all_feats)
 
