@@ -4674,8 +4674,8 @@ joinGiottoObjects = function(gobject_list,
     if(verbose) wrap_msg('0. Update cell and feature IDs \n')
 
     for(spat_unit in names(gobj@cell_ID)) {
-      gobj@cell_ID[[spat_unit]] = paste0(gname,'-',gobj@cell_ID[[spat_unit]])
-      all_cell_ID_list[[spat_unit]][[gobj_i]] = gobj@cell_ID[[spat_unit]]
+      old_cell_ID = get_cell_id(gobject = gobj, spat_unit = spat_unit)
+      all_cell_ID_list[[spat_unit]][[gobj_i]] = paste0(gname, '-', old_cell_ID)
     }
 
 
