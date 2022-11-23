@@ -3054,8 +3054,9 @@ createGiottoCosMxObject_subcellular = function(dir_items,
   # remove global xy values
   tx_coord_all[, x_global_px := NULL]
   tx_coord_all[, y_global_px := NULL]
+  tx_coord_all[, cell_ID := NULL]
 
-  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov', 'cell_ID'))
+  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov'))
 
   if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs neg probe')
   all_IDs = tx_coord_all[, unique(target)]
@@ -3096,8 +3097,8 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
 
     # feature info
-    coord_oldnames = c('target', 'x_local_px', 'y_local_px', 'cell_ID')
-    coord_newnames = c('feat_ID', 'x', 'y', 'fov_cell_ID')
+    coord_oldnames = c('target', 'x_local_px', 'y_local_px')
+    coord_newnames = c('feat_ID', 'x', 'y')
 
     feat_coord = feat_coords_all[fov == as.numeric(x)]
     data.table::setnames(feat_coord, old = coord_oldnames, new = coord_newnames)
