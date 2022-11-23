@@ -1924,6 +1924,7 @@ polygon_to_raster = function(polygon, field = NULL) {
 #' @param feat_info feature information
 #' @param feat_subset_column feature info column to subset features with
 #' @param feat_subset_ids ids within feature info column to use for subsetting
+#' @param count_info_column column with count information (optional)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
@@ -1937,6 +1938,7 @@ calculateOverlapRaster = function(gobject,
                                   feat_info = NULL,
                                   feat_subset_column = NULL,
                                   feat_subset_ids = NULL,
+                                  count_info_column = NULL,
                                   return_gobject = TRUE,
                                   verbose = TRUE) {
 
@@ -2010,11 +2012,16 @@ calculateOverlapRaster = function(gobject,
   overlap_test_dt[, feat_ID := pointvec_dt_feat_ID[ID]]
   overlap_test_dt[, feat_ID_uniq := pointvec_dt_feat_ID_uniq[ID]]
 
+  if(!is.null(count_info_column)) {
+    pointvec_dt_count = pointvec_dt[[count_info_column]] ; names(pointvec_dt_count) = pointvec_dt$geom
+    overlap_test_dt[, c(count_info_column) := pointvec_dt_count[ID]]
+  }
+
   if(verbose) cat('5. create overlap polygon information \n')
   overlap_test_dt_spatvector = terra::vect(x = as.matrix(overlap_test_dt[, c('x', 'y'), with = F]),
                                            type = "points",
-                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'feat_ID_uniq'), with = F])
-  names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq')
+                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'feat_ID_uniq', count_info_column), with = F])
+  names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq', count_info_column)
 
 
 
@@ -2457,6 +2464,7 @@ calculateOverlapParallel = function(gobject,
 #' @param name name for the overlap count matrix
 #' @param poly_info polygon information
 #' @param feat_info feature information
+#' @param count_info_column column with count information
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or count matrix
 #' @concept overlap
@@ -2465,6 +2473,7 @@ overlapToMatrix = function(gobject,
                            name = 'raw',
                            poly_info = 'cell',
                            feat_info = 'rna',
+                           count_info_column = NULL,
                            return_gobject = TRUE) {
 
   # define for data.table
