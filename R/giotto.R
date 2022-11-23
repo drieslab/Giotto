@@ -4681,7 +4681,7 @@ joinGiottoObjects = function(gobject_list,
 
 
     for(feat_type in names(gobj@feat_ID)) {
-      all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
+      all_feat_ID_list[[feat_type]][[gobj_i]] = get_feat_id(gobject = gobj, feat_type = feat_type)
     }
 
 
@@ -4907,7 +4907,9 @@ joinGiottoObjects = function(gobject_list,
 
         slot(spat_obj, 'coordinates') = myspatlocs
 
-        gobj = set_spatial_locations(gobj, spatlocs = spat_obj)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobj = set_spatial_locations(gobject = gobj, spatlocs = spat_obj)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
       }
     }
@@ -5089,7 +5091,7 @@ joinGiottoObjects = function(gobject_list,
 
   ## feat IDs
   for(feat_type in names(all_feat_ID_list)) {
-    combined_feat_ID = unique(unlist(all_cell_ID_list[[feat_type]]))
+    combined_feat_ID = unique(unlist(all_feat_ID_list[[feat_type]]))
     comb_gobject@feat_ID[[feat_type]] = combined_feat_ID
   }
 
