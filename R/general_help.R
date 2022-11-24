@@ -1502,3 +1502,28 @@ readPolygonFilesVizgen = function(gobject,
 }
 
 
+#' @title getGEFtxCoords
+#' @name getGEFtxCoords
+#' @description Converts .gef file (output stereo-seq pipeline) into
+#' transcript with coordinates
+#' @param gef_file path to .gef file
+#' @param bin_size bin size to select from .gef file
+#' @export
+getGEFtxCoords = function(gef_file,
+                          bin_size = 'bin100') {
+
+  # package check
+  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+  if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+
+  # step 1: read expression and gene data from gef file
+  geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
+  exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
+  geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
+
+  # step 2: combine gene information from the geneDT to the exprDT
+  exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+
+  return(exprDT)
+
+}

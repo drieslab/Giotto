@@ -2491,7 +2491,22 @@ overlapToMatrix = function(gobject,
   dtoverlap = spatVector_to_dt(overlap_spatvec)
   dtoverlap = dtoverlap[!is.na(poly_ID)] # removes points that have no overlap with any polygons
   #dtoverlap[, poly_ID := ifelse(is.na(poly_ID), 'no_overlap', poly_ID), by = 1:nrow(dtoverlap)]
-  aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
+
+
+  if(!is.null(count_info_column)) {
+
+    if(!count_info_column %in% colnames(dtoverlap)) stop('count_info_column ', count_info_column, ' does not exist')
+
+    # aggregate counts of features
+    dtoverlap[, c(count_info_column) := as.numeric(get(count_info_column))]
+    aggr_dtoverlap = dtoverlap[, base::sum(get(count_info_column)), by = c('poly_ID', 'feat_ID')]
+    data.table::setnames(aggr_dtoverlap, 'V1', 'N')
+  } else {
+
+    # aggregate individual features
+    aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
+  }
+
 
 
   # get all feature and cell information
