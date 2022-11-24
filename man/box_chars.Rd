@@ -2,14 +2,19 @@
 % Please edit documentation in R/utilities.R
 \name{box_chars}
 \alias{box_chars}
+\alias{is_utf8_output}
 \title{Box characters}
 \usage{
 box_chars()
+
+is_utf8_output()
 }
 \description{
-Box characters
+Helper function to print unicode characters using escape codes.
+
+box_chars
 }
 \details{
-Much inspiration taken from https://rdrr.io/cran/fs/src/R/tree.R
+Much inspiration taken from \pkg{fs} \href{https://rdrr.io/cran/fs/src/R/tree.R}{tree.R}
 }
 \keyword{internal}

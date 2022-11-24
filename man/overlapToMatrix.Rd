@@ -9,6 +9,7 @@ overlapToMatrix(
   name = "raw",
   poly_info = "cell",
   feat_info = "rna",
+  count_info_column = NULL,
   return_gobject = TRUE
 )
 }
@@ -20,6 +21,8 @@ overlapToMatrix(
 \item{poly_info}{polygon information}
 
 \item{feat_info}{feature information}
+
+\item{count_info_column}{column with count information}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 }

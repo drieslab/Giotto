@@ -389,6 +389,7 @@ print_leaf = function(level_index,
 }
 
 
+
 #' @title Box characters
 #' @name box_chars
 #' @description Helper function to print unicode characters using escape codes.
@@ -422,6 +423,9 @@ box_chars = function() {
 }
 
 
+#' @title is_latex_output
+#' @name is_latex_output
+#' @description is_latex_output
 #' @describeIn box_chars
 #' @keywords internal
 is_latex_output = function() {
@@ -430,6 +434,9 @@ is_latex_output = function() {
 }
 
 
+#' @title box_chars
+#' @name box_chars
+#' @description box_chars
 #' @describeIn box_chars
 #' @keywords internal
 is_utf8_output = function() {
@@ -551,6 +558,8 @@ color_tag = function() {
 }
 
 
+#' @title use_color_text
+#' @name use_color_text
 #' @describeIn color_tag
 #' @keywords internal
 use_color_text = function() {
@@ -566,7 +575,8 @@ use_color_text = function() {
   } else ansi8_color
 }
 
-
+#' @title ansi_colors
+#' @name ansi_colors
 #' @describeIn color_tag
 #' @keywords internal
 ansi_colors = function() {
@@ -620,6 +630,8 @@ ansi_colors = function() {
 }
 
 
+#' @title is_emacs_with_color
+#' @name is_emacs_with_color
 #' @describeIn color_tag
 #' @keywords internal
 is_emacs_with_color = function() {
@@ -629,6 +641,8 @@ is_emacs_with_color = function() {
 }
 
 
+#' @title emacs_version
+#' @name emacs_version
 #' @describeIn color_tag
 #' @keywords internal
 emacs_version = function() {

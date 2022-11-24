@@ -16,7 +16,11 @@ plot_feature_points_layer(
   shape = "feat",
   point_size = 1.5,
   show_legend = TRUE,
-  plot_method = c("ggplot", "scattermore", "scattermost")
+  plot_method = c("ggplot", "scattermore", "scattermost"),
+  expand_counts = FALSE,
+  count_info_column = "count",
+  jitter = c(0, 0),
+  verbose = TRUE
 )
 }
 \value{
