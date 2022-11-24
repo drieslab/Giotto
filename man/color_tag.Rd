@@ -9,4 +9,8 @@ color_tag()
 \description{
 Colorize print text
 }
+\details{
+supported colors checking is modified from \pkg{cli}
+\href{https://github.com/r-lib/cli/blob/HEAD/R/num-ansi-colors.R}{aab-num-ansi-colors.R}
+}
 \keyword{internal}

@@ -18,5 +18,5 @@ Generates vertex coordinates for a rectangle with dimensions given
 through \code{dims} param.
 }
 \seealso{
-polyStamp circleVertices
+polyStamp circleVertices hexVertices
 }
