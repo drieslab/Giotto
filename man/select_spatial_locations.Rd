@@ -17,6 +17,8 @@ a 'spatLocsObj'. Returning as 'data.table' is also possible.}
     \item{\code{verbose}}{be verbose}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{set_defaults}}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
   }}
 }
 \description{

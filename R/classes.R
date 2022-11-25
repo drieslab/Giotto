@@ -604,7 +604,6 @@ check_cell_meta_obj = function(object) {
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of aggregated expression information (if applicable)
-#' @slot misc misc
 #' @export
 setClass('cellMetaObj',
          contains = c('metaData', 'spatFeatData'),
@@ -655,12 +654,11 @@ check_feat_meta_obj = function(object) {
 # * Definition ####
 #' @title S4 featMetaObj
 #' @description Framework to store feature metadata
-#' @slot metadata metadata info
+#' @slot metaDT metadata info
 #' @slot col_desc (optional) character vector describing columns of the metadata
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of aggregated expression information (if applicable)
-#' @slot misc misc
 #' @export
 setClass('featMetaObj',
          contains = c('metaData', 'spatFeatData'),
@@ -725,6 +723,7 @@ check_dim_obj = function(object) {
 #' @slot feat_type feature type of data
 #' @slot spat_unit spatial unit of data
 #' @slot provenance origin of aggregated information (if applicable)
+#' @slot reduction whether reduction was performed on 'feats' or 'cells'
 #' @slot reduction_method method used to generate dimension reduction
 #' @slot coordinates embedding coordinates
 #' @slot misc method-specific additional outputs

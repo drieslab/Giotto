@@ -10,7 +10,8 @@ set_spatial_enrichment(
   spat_unit = NULL,
   feat_type = NULL,
   enrichm_name = "enrichment",
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ set_spatial_enrichment(
 \item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object

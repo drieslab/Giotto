@@ -4,12 +4,15 @@
 \alias{get_feature_info}
 \title{Get feature info}
 \usage{
-get_feature_info(gobject, feat_type = NULL)
+get_feature_info(gobject, feat_type = NULL, set_defaults = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Get giotto points spatVector

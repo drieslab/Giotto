@@ -10,7 +10,8 @@ get_spatial_locations(
   spat_loc_name = NULL,
   output = c("spatLocsObj", "data.table"),
   copy_obj = TRUE,
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 \item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 data.table with coordinates or spatLocsObj depending on \code{output}

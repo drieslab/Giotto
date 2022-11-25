@@ -17,6 +17,8 @@ the exprObj itself are allowed.}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
     \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
+    \item{\code{set_defaults}}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
   }}
 }
 \description{

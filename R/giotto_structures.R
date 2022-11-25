@@ -1014,7 +1014,7 @@ hexVertices = function(radius, major_axis = c('v', 'h')) {
       (sqrt(3) * r)/2,  # C
       0,                # D
       -(sqrt(3) * r)/2, # E
-      -(sqrt(3) * r)/2 # F
+      -(sqrt(3) * r)/2  # F
     ),
     y = c(
       r,    # A

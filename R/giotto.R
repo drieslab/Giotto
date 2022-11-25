@@ -2964,52 +2964,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
                                    cores = NA,
                                    verbose = TRUE) {
 
-  # Define for data.table
-  fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
-    CenterX_local_px = CenterY_local_px = NULL
-
-  # 0. test if folder structure exists and is as expected
-  if(is.null(cosmx_dir) | !dir.exists(cosmx_dir)) stop('The full path to a cosmx directory must be given.\n')
-  if(isTRUE(verbose)) message('A structured CosMx directory will be used\n')
-
-  # find directories (length = 1 if present, length = 0 if missing)
-  dir_items = list(`CellLabels folder` = '*CellLabels',
-                   `CompartmentLabels folder` = '*CompartmentLabels',
-                   `CellComposite folder` = '*CellComposite',
-                   `CellOverlay folder` = '*CellOverlay',
-                   `transcript locations file` = '*tx_file*',
-                   `fov positions file` = '*fov_positions_file*',
-                   `expression matrix file` = '*exprMat_file*',
-                   `metadata file` = '*metadata_file*')
-  dir_items = lapply(dir_items, function(x) Sys.glob(paths = file.path(cosmx_dir, x)))
-  dir_items_lengths = lengths(dir_items)
-
-  if(isTRUE(verbose)) {
-    message('Checking directory contents...')
-    for(item in names(dir_items)) {
-      if(dir_items_lengths[[item]] > 0) {
-        message('--| ' ,item, ' found')
-      } else {
-        warning(item, ' is missing\n')
-      }
-    }
-  }
-
-  # select first directory in list if multiple are detected
-  if(any(dir_items_lengths > 1)) {
-    warning('Multiple matches for expected subdirectory item(s).\n First matching item selected')
-
-    multiples = which(dir_items_lengths > 1)
-    for(mult_i in multiples) {
-      message(names(dir_items)[[mult_i]], 'multiple matches found:')
-      print(dir_items[[mult_i]])
-      dir_items[[mult_i]] = dir_items[[mult_i]][[1]]
-    }
-  }
-  if(isTRUE(verbose)) message('Directory check done')
-
-
-  # 1. read in data
+  # 0. setup
   # set number of cores automatically, but with limit of 10
   cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
@@ -3017,273 +2972,400 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
 
-  # load in subcellular information, subcellular FOV objects, then join
-  if(data_to_use == 'all' | data_to_use == 'subcellular') {
-
-    if(isTRUE(verbose)) message('Loading subcellular information...')
-
-    # subcellular checks
-    if(!file.exists(dir_items$`transcript locations file`)) stop('No transcript locations file (.csv) detected')
-    if(!file.exists(dir_items$`fov positions file`)) stop('No fov positions file (.csv) detected')
-
-    # FOVs to load
-    fov_offset_file = fread(input = dir_items$`fov positions file`, nThread = cores)
-    if(is.null(FOVs)) FOVs = fov_offset_file$fov
-    FOV_ID = as.list(sprintf('%03d', FOVs))
-
-    #TODO Load only relevant portions of file?
-
-    tx_coord_all = fread(input = dir_items$`transcript locations file`, nThread = cores)
-    if(isTRUE(verbose)) message('Subcellular load done')
+  # Define for data.table
+  fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
+    CenterX_local_px = CenterY_local_px = NULL
 
 
-    fov_gobjects_list = lapply(FOV_ID, function(x) {
-
-      if(isTRUE(verbose)) message('Starting FOV ', x)
-
-      # Build image paths
-      if(isTRUE(verbose)) message('Loading image information...')
-
-      composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('*',x, '*')))
-      cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('*',x, '*')))
-      compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('*',x, '*')))
-      cellOverlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('*',x, '*')))
-      # Missing warnings
-      if(length(composite_dir) == 0) {warning('No composite images found') ; composite_dir = NULL}
-      if(length(cellLabel_dir) == 0) {stop('No cell mask images found')} # cell masks are necessary
-      if(length(compartmentLabel_dir) == 0) {warning('No compartment label images found') ; compartmentLabel_dir = NULL}
-      if(length(cellOverlay_dir) == 0) {warning('No cell polygon overlay images found') ; cellOverlay_dir = NULL}
-
-      if(isTRUE(verbose)) message('Image load done')
-
-      # get FOV specific tx locations
-      tx_coord = tx_coord_all[fov == as.numeric(x)]
-      tx_coord = tx_coord[,.(target, x_local_px, y_local_px, z)]
-      colnames(tx_coord) = c('feat_ID','x','y','z')
-
-      # build giotto object
-      if(isTRUE(verbose)) message('Building subcellular giotto object...')
-      fov_subset = createGiottoObjectSubcellular(gpoints = list('rna' = tx_coord),
-                                                 gpolygons = list('cell' = cellLabel_dir),
-                                                 polygon_mask_list_params = list(mask_method = 'guess',
-                                                                                 flip_vertical = TRUE,
-                                                                                 flip_horizontal = FALSE,
-                                                                                 shift_horizontal_step = FALSE),
-                                                 instructions = instructions,
-                                                 cores = cores)
+  # 1. test if folder structure exists and is as expected
+  dir_items = read_cosmx_folder(cosmx_dir = cosmx_dir,
+                                verbose = verbose)
 
 
+  # 2. load and create giotto object
+  if(data_to_use == 'subcellular') {
 
-      # find centroids as spatial locations
-      if(isTRUE(verbose)) message('Finding polygon centroids as cell spatial locations...')
-      fov_subset = addSpatialCentroidLocations(fov_subset,
-                                               poly_info = 'cell',
-                                               spat_loc_name = 'raw')
-
-
-
-      # create and add giotto image objects
-      if(isTRUE(verbose)) message('Attaching image files...')
-      print(composite_dir)
-      print(cellOverlay_dir)
-      print(compartmentLabel_dir)
-
-      gImage_list = list()
-
-      # load image if files are found
-      if(!is.null(composite_dir)) gImage_list$composite = createGiottoLargeImage(raster_object = composite_dir, negative_y = F, name = 'composite')
-      if(!is.null(cellOverlay_dir)) gImage_list$overlay = createGiottoLargeImage(raster_object = cellOverlay_dir, negative_y = F, name = 'overlay')
-      if(!is.null(compartmentLabel_dir)) gImage_list$compartment = createGiottoLargeImage(raster_object = compartmentLabel_dir, negative_y = F, name = 'compartment') #TODO
-
-
-
-      if(length(gImage_list) > 0) {
-        fov_subset = addGiottoImage(gobject = fov_subset,
-                                    largeImages = gImage_list)
-
-        # convert to MG for faster loading (particularly relevant for pulling from server)
-        fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$composite, gobject = fov_subset, return_gobject = TRUE)
-        # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$overlay, gobject = fov_subset, return_gobject = TRUE)
-        # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$compartment, gobject = fov_subset, return_gobject = TRUE)
-      } else {
-        message('No images found for fov')
-      }
-
-
-    }) #lapply end
-
-    # join giotto objects according to FOV positions file
-    if(isTRUE(verbose)) message('Joining FOV gobjects...')
-    new_gobj_names = paste0('fov', FOV_ID)
-
-    id_match = match(as.numeric(FOV_ID), fov_offset_file$fov)
-    x_shifts = fov_offset_file[id_match]$x_global_px
-    y_shifts = fov_offset_file[id_match]$y_global_px
-
-    # Join giotto objects
-    cosmx_gobject = joinGiottoObjects(gobject_list = fov_gobjects_list,
-                                      gobject_names = new_gobj_names,
-                                      join_method = 'shift',
-                                      x_shift = x_shifts,
-                                      y_shift = y_shifts)
+    cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items,
+                                                        FOVs = FOVs,
+                                                        cores = cores,
+                                                        verbose = verbose,
+                                                        instructions = instructions)
 
   }
+
+  if(data_to_use == 'aggregate') {
+
+    cosmx_gobject = createGiottoCosMxObject_aggregate(dir_items,
+                                                      cores = cores,
+                                                      verbose = verbose,
+                                                      instructions = instructions)
+
+  }
+
+  if(data_to_use == 'all') {
+
+    cosmx_gobject = createGiottoCosMxObject_all(dir_items,
+                                                FOVs = FOVs,
+                                                cores = cores,
+                                                verbose = verbose,
+                                                instructions = instructions)
+
+  }
+
+
+  # load in subcellular information, subcellular FOV objects, then join
+
 
   # load in pre-generated aggregated expression matrix
   if(data_to_use == 'aggregate' | data_to_use == 'all') {
 
-    # load aggregate information
-    message('Loading provided aggregated information...')
-
-    # aggregate checks
-    if(!file.exists(dir_items$`expression matrix file`)) stop('No expression matrix file (.csv) detected')
-    if(!file.exists(dir_items$`metadata file`)) stop('No metadata file (.csv) detected. Needed for cell spatial locations.')
-
-    # read in aggregate data
-    expr_mat = fread(input = dir_items$`expression matrix file`, nThread = cores)
-    metadata = fread(input = dir_items$`metadata file`, nThread = cores)
-
-    # setorder expression and spatlocs
-    data.table::setorder(metadata, fov, cell_ID)
-    data.table::setorder(expr_mat, fov, cell_ID)
-
-
-    # generate unique cell IDs
-    expr_mat$cell_ID = paste0('fov', sprintf('%03d', expr_mat$fov), '-', 'cell_', expr_mat$cell_ID)
-    expr_mat = expr_mat[,-'fov']
-
-    metadata$fov_cell_ID = metadata$cell_ID
-    metadata$cell_ID = paste0('fov', sprintf('%03d', metadata$fov), '-', 'cell_', metadata$cell_ID)
-    # reorder
-    metadata = metadata[,.SD, c('cell_ID','fov','fov_cell_ID')]
-
-
-    # extract spatial locations
-    spatlocs = metadata[,.(CenterX_global_px, CenterY_global_px, cell_ID)]
-    spatlocs_fov = metadata[,.(CenterX_local_px, CenterY_local_px, cell_ID)]
-    #TODO FOV shifts can be regenerated from this if necessary
-
-    # rename spatloc column names
-    spatloc_colnames = c('sdimx', 'sdimy', 'cell_ID')
-    colnames(spatlocs) = spatloc_colnames
-    colnames(spatlocs_fov) = spatloc_colnames
-
-    # cleanup metadata and spatlocs
-    metadata = metadata[,c('CenterX_global_px', 'CenterY_global_px', 'CenterX_local_px', 'CenterY_local_px'):=NULL]
-    # find unique cell_IDs present in both expression and metadata
-    giotto_cell_ID = unique(intersect(expr_mat$cell_ID, metadata$cell_ID))
-
-    # subset to only unique cell_IDs
-    expr_mat = expr_mat[cell_ID %in% giotto_cell_ID,]
-    metadata = metadata[cell_ID %in% giotto_cell_ID,]
-
-    # convert expression to sparse matrix
-    spM = Matrix::Matrix(as.matrix(expr_mat[,-1]), dimnames = list(expr_mat[[1]], colnames(expr_mat[,-1])), sparse = TRUE)
-    spM = t_flex(spM)
-
-    ## Ready for downstream aggregate gobject creation or appending into existing subcellular Giotto object ##
-
-
-
-    # create standard gobject from aggregate matrix
-    if(data_to_use == 'aggregate') {
-
-      # Create aggregate gobject
-      if(isTRUE(verbose)) message('Building giotto object...')
-      cosmx_gobject = createGiottoObject(expression = list('raw' = spM),
-                                         cell_metadata = list('cell' = list('rna' = metadata)),
-                                         spatial_locs = spatlocs,
-                                         instructions = instructions,
-                                         cores = cores)
-
-
-      # # load in images if FOV positions are available
-      # if(file.exists(dir_items$`fov positions file`)) {
-      #   fov_offset_file = fread(input = dir_items$`fov positions file`, nThread = cores)
-      #
-      #   # load images
-      #   if(isTRUE(verbose)) message('Attaching image files...')
-      #   composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('/*')))
-      #   cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('/*')))
-      #   compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('/*')))
-      #   overlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('/*')))
-      #
-      #   if(length(cellLabel_imgList) > 0) cellLabel_imgList = lapply(cellLabel_dir, function(x) {createGiottoLargeImage(x,name = 'cellLabel',negative_y = TRUE)})
-      #   if(length(composite_imgList) > 0) composite_imgList = lapply(composite_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
-      #   if(length(compartmentLabel_dir) > 0) compartmentLabel_imgList = lapply(compartmentLabel_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
-      #   if(length(overlay_dir) > 0) overlay_imgList = lapply(overlay_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
-      #
-      #
-      # } else {warning('No FOV positions file (.csv) detected\n No images or polygons will be loaded.')}
-
-    }
-
   }
 
-  # add in pre-generated aggregated expression matrix information for 'all' workflow
-  if(data_to_use == 'all') {
 
-    # Add aggregate expression information
-    if(isTRUE(verbose)) message('Appending provided aggregate expression data as...\n spat_unit: "cell_agg"\n feat_type: "rna"\n name: "raw"')
-    # add expression data to expression slot
-    cosmx_gobject = set_expression_values(cosmx_gobject,
-                                          spat_unit = 'cell_agg',
-                                          feat_type = 'rna',
-                                          name = 'raw',
-                                          values = spM)
-
-    # Add spatial locations
-    if(isTRUE(verbose)) message('Appending metadata provided spatial locations data as...\n --> spat_unit: "cell_agg" name: "raw"\n --> spat_unit: "cell" name: "raw_fov"')
-    if(isTRUE(verbose)) message('Polygon centroid derived spatial locations assigned as...\n --> spat_unit: "cell" name: "raw" (default)')
-    locsObj = new('spatLocsObj',
-                  name = 'raw',
-                  coordinates = spatlocs,
-                  spat_unit = 'cell_agg',
-                  provenance = 'cell_agg',
-                  misc = NULL)
-    locsObj_fov = new('spatLocsObj',
-                      name = 'raw_fov',
-                      coordinates = spatlocs_fov,
-                      spat_unit = 'cell_agg',
-                      provenance = 'cell_agg',
-                      misc = NULL)
-
-    cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj)
-    cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj_fov)
-
-    # cosmx_gobject = set_spatial_locations(cosmx_gobject,
-    #                                       spat_unit = 'cell_agg',
-    #                                       spat_loc_name = 'raw',
-    #                                       spatlocs = spatlocs)
-    # cosmx_gobject = set_spatial_locations(cosmx_gobject,
-    #                                       spat_unit = 'cell_agg',
-    #                                       spat_loc_name = 'raw_fov',
-    #                                       spatlocs = spatlocs_fov)
-
-    # initialize cell and feat IDs and metadata slots for 'cell_agg' spat_unit
-    cosmx_gobject@cell_ID[['cell_agg']] = colnames(cosmx_gobject@expression[['cell_agg']][[1]][[1]])
-    cosmx_gobject@feat_ID[['rna']] = unique(c(cosmx_gobject@feat_ID, rownames(cosmx_gobject@expression[['cell_agg']][['rna']][[1]])))
-    cosmx_gobject@cell_metadata[['cell_agg']][['rna']] = data.table::data.table(cell_ID = cosmx_gobject@cell_ID[['cell_agg']])
-    cosmx_gobject@feat_metadata[['cell_agg']][['rna']] = data.table::data.table(feat_ID = cosmx_gobject@feat_ID[['rna']])
-
-    # Add metadata to both the given and the poly spat_units
-    if(isTRUE(verbose)) message('Appending provided cell metadata...')
-    cosmx_gobject = addCellMetadata(cosmx_gobject,
-                                    spat_unit = 'cell',
-                                    feat_type = 'rna',
-                                    new_metadata = metadata,
-                                    by_column = TRUE,
-                                    column_cell_ID = 'cell_ID')
-    cosmx_gobject = addCellMetadata(cosmx_gobject,
-                                    spat_unit = 'cell_agg',
-                                    feat_type = 'rna',
-                                    new_metadata = metadata,
-                                    by_column = TRUE,
-                                    column_cell_ID = 'cell_ID')
-  }
 
   message('done')
   return(cosmx_gobject)
+
+}
+
+
+
+#' @title Load and create a CosMx Giotto object from subcellular info
+#' @name createGiottoCosMxObject_subcellular
+#' @inheritParams createGiottoCosMxObject
+#' @keywords internal
+createGiottoCosMxObject_subcellular = function(dir_items,
+                                               FOVs = NULL,
+                                               cores,
+                                               verbose = TRUE,
+                                               instructions = NULL) {
+
+  # load tx detections and FOV offsets
+  data_list = load_cosmx_folder_subcellular(dir_items = dir_items,
+                                            FOVs = FOVs,
+                                            cores = cores,
+                                            verbose = verbose)
+
+  # unpack data_list
+  FOV_ID = data_list$FOV_ID
+  fov_offset_file = data_list$fov_offset_file
+  tx_coord_all = data_list$tx_coord_all
+
+  # remove global xy values and cell_ID
+  tx_coord_all[, c('x_global_px', 'y_global_px', 'cell_ID') := NULL]
+
+  data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov'))
+
+  if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs neg probe')
+  all_IDs = tx_coord_all[, unique(target)]
+  neg_IDs = all_IDs[grepl(pattern = 'NegPrb', all_IDs)]
+  feat_IDs = all_IDs[!all_IDs %in% neg_IDs]
+
+  # split detections DT
+  feat_coords_all = tx_coord_all[target %in% feat_IDs]
+  neg_coords_all = tx_coord_all[target %in% neg_IDs]
+
+  if(isTRUE(verbose)) {
+    message('  > Features: ', feat_coords_all[, .N])
+    message('  > NegProbes: ', neg_coords_all[, .N])
+  }
+
+  # Start FOV lapply
+  fov_gobjects_list = lapply(FOV_ID, function(x) {
+
+    # Build image paths
+    if(isTRUE(verbose)) message('Loading image information...')
+
+    composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('*',x, '*')))
+    cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('*',x, '*')))
+    compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('*',x, '*')))
+    cellOverlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('*',x, '*')))
+    # Missing warnings
+    if(length(composite_dir) == 0) {warning('[ FOV ', x, ' ] No composite images found') ; composite_dir = NULL}
+    if(length(cellLabel_dir) == 0) {stop('[ FOV ', x, ' ] No cell mask images found')} # cell masks are necessary
+    if(length(compartmentLabel_dir) == 0) {warning('[ FOV ', x, ' ] No compartment label images found') ; compartmentLabel_dir = NULL}
+    if(length(cellOverlay_dir) == 0) {warning('[ FOV ', x, ' ] No cell polygon overlay images found') ; cellOverlay_dir = NULL}
+
+    if(isTRUE(verbose)) message('Image load done')
+
+    if(isTRUE(verbose)) wrap_msg('[ FOV ', x, ']')
+
+    # get FOV specific tx locations
+    if(isTRUE(verbose)) wrap_msg('Assigning FOV feature detections...')
+
+
+    # feature info
+    coord_oldnames = c('target', 'x_local_px', 'y_local_px')
+    coord_newnames = c('feat_ID', 'x', 'y')
+
+    feat_coord = feat_coords_all[fov == as.numeric(x)]
+    data.table::setnames(feat_coord, old = coord_oldnames, new = coord_newnames)
+    # neg probe info
+    neg_coord = neg_coords_all[fov == as.numeric(x)]
+    data.table::setnames(neg_coord, old = coord_oldnames, new = coord_newnames)
+
+
+    # build giotto object
+    if(isTRUE(verbose)) wrap_msg('Building subcellular giotto object...')
+    fov_subset = createGiottoObjectSubcellular(
+      gpoints = list('rna' = feat_coord,
+                     'neg_probe' = neg_coord),
+      gpolygons = list('cell' = cellLabel_dir),
+      polygon_mask_list_params = list(
+        mask_method = 'guess',
+        flip_vertical = TRUE,
+        flip_horizontal = FALSE,
+        shift_horizontal_step = FALSE
+      ),
+      instructions = instructions,
+      cores = cores
+    )
+
+
+    # find centroids as spatial locations
+    if(isTRUE(verbose)) wrap_msg('Finding polygon centroids as cell spatial locations...')
+    fov_subset = addSpatialCentroidLocations(fov_subset,
+                                             poly_info = 'cell',
+                                             spat_loc_name = 'raw')
+
+
+    # create and add giotto image objects
+    if(isTRUE(verbose)) message('Attaching image files...')
+    print(composite_dir)
+    print(cellOverlay_dir)
+    print(compartmentLabel_dir)
+
+    gImage_list = list()
+
+    # load image if files are found
+    if(!is.null(composite_dir))
+      gImage_list$composite = createGiottoLargeImage(raster_object = composite_dir,
+                                                     negative_y = F,
+                                                     name = 'composite')
+    if(!is.null(cellOverlay_dir))
+      gImage_list$overlay = createGiottoLargeImage(raster_object = cellOverlay_dir,
+                                                   negative_y = F,
+                                                   name = 'overlay')
+    if(!is.null(compartmentLabel_dir))
+      gImage_list$compartment = createGiottoLargeImage(raster_object = compartmentLabel_dir,
+                                                       negative_y = F,
+                                                       name = 'compartment') #TODO
+
+
+
+    if(length(gImage_list) > 0) {
+      fov_subset = addGiottoImage(gobject = fov_subset,
+                                  largeImages = gImage_list)
+
+      # convert to MG for faster loading (particularly relevant for pulling from server)
+      fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$composite,
+                                               gobject = fov_subset,
+                                               return_gobject = TRUE,
+                                               verbose = FALSE)
+      # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$overlay, gobject = fov_subset, return_gobject = TRUE)
+      # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$compartment, gobject = fov_subset, return_gobject = TRUE)
+    } else {
+      message('No images found for fov')
+    }
+
+
+  }) #lapply end
+
+  # join giotto objects according to FOV positions file
+  if(isTRUE(verbose)) message('Joining FOV gobjects...')
+  new_gobj_names = paste0('fov', FOV_ID)
+
+  id_match = match(as.numeric(FOV_ID), fov_offset_file$fov)
+  x_shifts = fov_offset_file[id_match]$x_global_px
+  y_shifts = fov_offset_file[id_match]$y_global_px
+
+  # Join giotto objects
+  cosmx_gobject = joinGiottoObjects(gobject_list = fov_gobjects_list,
+                                    gobject_names = new_gobj_names,
+                                    join_method = 'shift',
+                                    x_shift = x_shifts,
+                                    y_shift = y_shifts)
+
+}
+
+
+
+#' @title Load and create a CosMx Giotto object from aggregate info
+#' @name createGiottoCosMxObject_aggregate
+#' @inheritParams createGiottoCosMxObject
+#' @keywords internal
+createGiottoCosMxObject_aggregate = function(dir_items,
+                                             cores,
+                                             verbose = TRUE,
+                                             instructions = NULL) {
+
+
+
+  data_list = load_cosmx_folder_aggregate(dir_items = dir_items,
+                                          cores = cores,
+                                          verbose = verbose)
+
+  # unpack data_list
+  spatlocs = data_list$spatlocs
+  spatlocs_fov = data_list$spatlocs_fov
+  metadata = data_list$metadata
+  protM = data_list$protM
+  spM = data_list$spM
+  fov_shifts = data_list$fov_shifts
+
+
+  # create standard gobject from aggregate matrix
+  if(data_to_use == 'aggregate') {
+
+    # Create aggregate gobject
+    if(isTRUE(verbose)) message('Building giotto object...')
+    cosmx_gobject = createGiottoObject(expression = list('raw' = spM, 'protein' = protM),
+                                       cell_metadata = list('cell' = list('rna' = metadata,
+                                                                          'protein' = metadata)),
+                                       spatial_locs = spatlocs,
+                                       instructions = instructions,
+                                       cores = cores)
+
+
+    # load in images
+    img_ID = data.table::data.table(fov = fov_shifts[, fov],
+                                    img_name = paste0('fov', sprintf('%03d', fov_shifts[, fov]), '-image'))
+
+    if(isTRUE(verbose)) message('Attaching image files...')
+    composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('/*')))
+    cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('/*')))
+    compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('/*')))
+    overlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('/*')))
+
+    if(length(cellLabel_imgList) > 0) cellLabel_imgList = lapply(cellLabel_dir, function(x) {createGiottoLargeImage(x,name = 'cellLabel',negative_y = TRUE)})
+    if(length(composite_imgList) > 0) composite_imgList = lapply(composite_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+    if(length(compartmentLabel_dir) > 0) compartmentLabel_imgList = lapply(compartmentLabel_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+    if(length(overlay_dir) > 0) overlay_imgList = lapply(overlay_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+
+
+
+  }
+
+}
+
+
+
+
+#' @title Load and create a CosMx Giotto object from subcellular and aggregate info
+#' @name createGiottoCosMxObject_all
+#' @param dir_items list of full directory paths from \code{read_cosmx_folder}
+#' @inheritParams createGiottoCosMxObject
+#' @details Both \emph{subcellular} (subellular transcript detection information) and
+#' \emph{aggregate} (aggregated detection count matrices by cell polygon from NanoString)
+#' data will be loaded in. The two will be separated into 'cell' and 'cell_agg'
+#' spatial units in order to denote the difference in origin of the two.
+#' @seealso createGiottoCosMxObject createGiottoCosMxObject_aggregate
+#' createGiottoCosMxObject_subcellular
+#' @keywords internal
+createGiottoCosMxObject_all = function(dir_items,
+                                       FOVs,
+                                       cores,
+                                       verbose = TRUE,
+                                       instructions = NULL) {
+
+  # 1. create subcellular giotto as spat_unit 'cell'
+  cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items = dir_items,
+                                                      FOVs = FOVs,
+                                                      cores = cores,
+                                                      verbose = verbose,
+                                                      instructions = instructions)
+
+  # 2. load and append aggregated information in spat_unit 'cell_agg'
+  agg_data = load_cosmx_folder_aggregate(dir_items = dir_items,
+                                         cores = cores,
+                                         verbose = verbose)
+
+  # unpack data_list
+  spatlocs = agg_data$spatlocs
+  spatlocs_fov = agg_data$spatlocs_fov
+  metadata = agg_data$metadata
+  protM = agg_data$protM
+  spM = agg_data$spM
+
+  # add in pre-generated aggregated expression matrix information for 'all' workflow
+
+  # Add aggregate expression information
+  if(isTRUE(verbose)) wrap_msg('Appending provided aggregate expression data as...
+                               spat_unit: "cell_agg"
+                               feat_type: "rna"
+                               name: "raw"')
+  # add expression data to expression slot
+  s4_expr = create_expr_obj(name = 'raw',
+                            exprMat = spM,
+                            spat_unit = 'cell_agg',
+                            feat_type = 'rna',
+                            provenance = 'cell_agg')
+
+  cosmx_gobject = set_expression_values(cosmx_gobject, values = s4_expr)
+
+  # Add spatial locations
+  if(isTRUE(verbose)) wrap_msg('Appending metadata provided spatial locations data as...
+                               --> spat_unit: "cell_agg" name: "raw"
+                               --> spat_unit: "cell" name: "raw_fov"')
+  if(isTRUE(verbose)) wrap_msg('Polygon centroid derived spatial locations assigned as...
+                               --> spat_unit: "cell" name: "raw" (default)')
+
+  locsObj = create_spat_locs_obj(name = 'raw',
+                                 coordinates = spatlocs,
+                                 spat_unit = 'cell_agg',
+                                 provenance = 'cell_agg')
+  locsObj_fov = create_spat_locs_obj(name = 'raw_fov',
+                                     coordinates = spatlocs_fov,
+                                     spat_unit = 'cell_agg',
+                                     provenance = 'cell_agg')
+
+  cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj)
+  cosmx_gobject = set_spatial_locations(cosmx_gobject, spatlocs = locsObj_fov)
+
+  # cosmx_gobject = set_spatial_locations(cosmx_gobject,
+  #                                       spat_unit = 'cell_agg',
+  #                                       spat_loc_name = 'raw',
+  #                                       spatlocs = spatlocs)
+  # cosmx_gobject = set_spatial_locations(cosmx_gobject,
+  #                                       spat_unit = 'cell_agg',
+  #                                       spat_loc_name = 'raw_fov',
+  #                                       spatlocs = spatlocs_fov)
+
+  # initialize cell and feat IDs and metadata slots for 'cell_agg' spat_unit
+  agg_cell_ID = colnames(s4_expr[])
+  agg_feat_ID = rownames(s4_expr[])
+
+  sub_feat_ID = get_feat_id(cosmx_gobject, feat_type = 'rna')
+  feat_ID_new = unique(c(agg_feat_ID, sub_feat_ID))
+
+  cosmx_gobject = set_cell_id(gobject = cosmx_gobject,
+                              spat_unit = 'cell_agg',
+                              cell_IDs = agg_cell_ID)
+  cosmx_gobject = set_feat_id(gobject = cosmx_gobject,
+                              feat_type = 'rna',
+                              feat_IDs = feat_ID_new)
+
+  # cell metadata
+
+  # cosmx_gobject@cell_ID[['cell_agg']] = colnames(cosmx_gobject@expression[['cell_agg']][[1]][[1]])
+  # cosmx_gobject@feat_ID[['rna']] = unique(c(cosmx_gobject@feat_ID, rownames(cosmx_gobject@expression[['cell_agg']][['rna']][[1]])))
+  # cosmx_gobject@cell_metadata[['cell_agg']][['rna']] = data.table::data.table(cell_ID = cosmx_gobject@cell_ID[['cell_agg']])
+  # cosmx_gobject@feat_metadata[['cell_agg']][['rna']] = data.table::data.table(feat_ID = cosmx_gobject@feat_ID[['rna']])
+
+  # Add metadata to both the given and the poly spat_units
+  if(isTRUE(verbose)) message('Appending provided cell metadata...')
+  cosmx_gobject = addCellMetadata(cosmx_gobject,
+                                  spat_unit = 'cell',
+                                  feat_type = 'rna',
+                                  new_metadata = metadata,
+                                  by_column = TRUE,
+                                  column_cell_ID = 'cell_ID')
+  cosmx_gobject = addCellMetadata(cosmx_gobject,
+                                  spat_unit = 'cell_agg',
+                                  feat_type = 'rna',
+                                  new_metadata = metadata,
+                                  by_column = TRUE,
+                                  column_cell_ID = 'cell_ID')
 
 }
 
@@ -3613,6 +3695,202 @@ createGiottoXeniumObject_aggregate = function(data_list,
 
 
 #### folder detection and loading ####
+
+
+#' @title Read a structured CosMx folder
+#' @name read_cosmx_folder
+#' @inheritParams createGiottoCosMxObject
+#' @seealso createGiottoCosMxObject load_cosmx_folder
+#' @return path_list a list of cosmx files discovered and their filepaths. NULL
+#' values denote missing items
+#' @keywords internal
+read_cosmx_folder = function(cosmx_dir,
+                             verbose = TRUE) {
+
+  ch = box_chars()
+
+  if(is.null(cosmx_dir) | !dir.exists(cosmx_dir)) stop('The full path to a cosmx directory must be given.\n')
+  if(isTRUE(verbose)) wrap_msg('A structured CosMx directory will be used\n')
+
+  # find directories (length = 1 if present, length = 0 if missing)
+  dir_items = list(`CellLabels folder` = '*CellLabels',
+                   `CompartmentLabels folder` = '*CompartmentLabels',
+                   `CellComposite folder` = '*CellComposite',
+                   `CellOverlay folder` = '*CellOverlay',
+                   `transcript locations file` = '*tx_file*',
+                   `fov positions file` = '*fov_positions_file*',
+                   `expression matrix file` = '*exprMat_file*',
+                   `metadata file` = '*metadata_file*')
+  dir_items = lapply(dir_items, function(x) Sys.glob(paths = file.path(cosmx_dir, x)))
+  dir_items_lengths = lengths(dir_items)
+
+  if(isTRUE(verbose)) {
+    message('Checking directory contents...')
+    for(item in names(dir_items)) {
+      if(dir_items_lengths[[item]] > 0) {
+        message(ch$s, '> ' ,item, ' found')
+      } else {
+        warning(item, ' is missing\n')
+      }
+    }
+  }
+
+  # select first directory in list if multiple are detected
+  if(any(dir_items_lengths > 1)) {
+    warning('Multiple matches for expected subdirectory item(s).\n First matching item selected')
+
+    multiples = which(dir_items_lengths > 1)
+    for(mult_i in multiples) {
+      message(names(dir_items)[[mult_i]], 'multiple matches found:')
+      print(dir_items[[mult_i]])
+      dir_items[[mult_i]] = dir_items[[mult_i]][[1]]
+    }
+  }
+  if(isTRUE(verbose)) message('Directory check done')
+
+  return(dir_items)
+
+}
+
+
+#' @title Load CosMx folder subcellular info
+#' @name load_cosmx_folder_subcellular
+#' @description loads in the feature detections information. Note that the mask
+#' images are still required for a working subcellular object, and those are loaded
+#' in \code{\link{createGiottoCosMxObject_subcellular}}
+#' @inheritParams createGiottoCosMxObject
+#' @keywords internal
+load_cosmx_folder_subcellular = function(dir_items,
+                                         FOVs = NULL,
+                                         cores,
+                                         verbose = TRUE) {
+
+  if(isTRUE(verbose)) wrap_msg('Loading subcellular information...')
+
+  # subcellular checks
+  if(!file.exists(dir_items$`transcript locations file`))
+    stop(wrap_txt('No transcript locations file (.csv) detected'))
+  if(!file.exists(dir_items$`fov positions file`))
+    stop(wrap_txt('No fov positions file (.csv) detected'))
+
+  # FOVs to load
+  if(isTRUE(verbose)) wrap_msg('Loading FOV offsets...')
+  fov_offset_file = fread(input = dir_items$`fov positions file`, nThread = cores)
+  if(is.null(FOVs)) FOVs = fov_offset_file$fov # default to ALL FOVs
+  FOV_ID = as.list(sprintf('%03d', FOVs))
+
+  #TODO Load only relevant portions of file?
+
+  if(isTRUE(verbose)) wrap_msg('Loading transcript level info...')
+  tx_coord_all = fread(input = dir_items$`transcript locations file`, nThread = cores)
+  if(isTRUE(verbose)) wrap_msg('Subcellular load done')
+
+  data_list = list(
+    'FOV_ID' = FOV_ID,
+    'fov_offset_file' = fov_offset_file,
+    'tx_coord_all' = tx_coord_all
+  )
+
+  return(data_list)
+
+}
+
+
+
+#' @title Load CosMx folder aggregate info
+#' @name load_cosmx_folder_aggregate
+#' @inheritParams createGiottoCosMxObject
+#' @keywords internal
+load_cosmx_folder_aggregate = function(dir_items,
+                                       cores,
+                                       verbose = TRUE) {
+
+  # load aggregate information
+  wrap_msg('Loading provided aggregated information...')
+
+  # aggregate checks
+  if(!file.exists(dir_items$`expression matrix file`)) stop(wrap_txt('No expression matrix file (.csv) detected'))
+  if(!file.exists(dir_items$`metadata file`)) stop(wrap_txt('No metadata file (.csv) detected. Needed for cell spatial locations.'))
+
+  # read in aggregate data
+  expr_mat = fread(input = dir_items$`expression matrix file`, nThread = cores)
+  metadata = fread(input = dir_items$`metadata file`, nThread = cores)
+
+  # setorder expression and spatlocs
+  data.table::setorder(metadata, fov, cell_ID)
+  data.table::setorder(expr_mat, fov, cell_ID)
+
+
+  # generate unique cell IDs
+  expr_mat[, cell_ID := paste0('fov', sprintf('%03d', fov), '-', 'cell_', cell_ID)]
+  # expr_mat$cell_ID = paste0('fov', sprintf('%03d', expr_mat$fov), '-', 'cell_', expr_mat$cell_ID)
+  expr_mat = expr_mat[, fov := NULL]
+
+  metadata[, fov_cell_ID := cell_ID]
+  metadata[, cell_ID := paste0('fov', sprintf('%03d', fov), '-', 'cell_', cell_ID)]
+  # metadata$cell_ID = paste0('fov', sprintf('%03d', metadata$fov), '-', 'cell_', metadata$cell_ID)
+  # reorder
+  data.table::setcolorder(x = metadata, c('cell_ID','fov','fov_cell_ID'))
+
+
+  # extract spatial locations
+  spatlocs = metadata[,.(CenterX_global_px, CenterY_global_px, cell_ID)]
+  spatlocs_fov = metadata[,.(CenterX_local_px, CenterY_local_px, cell_ID)]
+  # regenerate FOV shifts
+  metadata[, x_shift := CenterX_global_px - CenterX_local_px]
+  metadata[, y_shift := CenterY_global_px - CenterY_local_px]
+  fov_shifts = metadata[, .(mean(x_shift), mean(y_shift)), fov]
+  colnames(fov_shifts) = c('fov', 'x_shift', 'y_shift')
+
+
+  # rename spatloc column names
+  spatloc_oldnames = c('CenterX_global_px', 'CenterY_global_px', 'cell_ID')
+  spatloc_oldnames_fov = c('CenterX_local_px', 'CenterY_local_px', 'cell_ID')
+  spatloc_newnames = c('sdimx', 'sdimy', 'cell_ID')
+  data.table::setnames(spatlocs, old = spatloc_oldnames, new = spatloc_newnames)
+  data.table::setnames(spatlocs_fov, old = spatloc_oldnames_fov, new = spatloc_newnames)
+
+  # cleanup metadata and spatlocs
+  metadata = metadata[,c('CenterX_global_px', 'CenterY_global_px', 'CenterX_local_px', 'CenterY_local_px') := NULL]
+  # find unique cell_IDs present in both expression and metadata
+  giotto_cell_ID = unique(intersect(expr_mat$cell_ID, metadata$cell_ID))
+
+  # subset to only unique cell_IDs
+  expr_mat = expr_mat[cell_ID %in% giotto_cell_ID,]
+  metadata = metadata[cell_ID %in% giotto_cell_ID,]
+
+
+  # convert protein metadata to expr mat
+  # take all mean intensity protein information except for MembraneStain and DAPI
+  protein_meta_cols = colnames(metadata)
+  protein_meta_cols = protein_meta_cols[grepl(pattern = 'Mean.*', x = protein_meta_cols)]
+  protein_meta_cols = protein_meta_cols[!protein_meta_cols %in% c('Mean.MembraneStain', 'Mean.DAPI')]
+  protein_meta_cols = c('cell_ID', protein_meta_cols)
+
+  prot_expr = metadata[, protein_meta_cols, with = FALSE]
+  prot_cell_ID = metadata[, cell_ID]
+  protM = Matrix::Matrix(as.matrix(prot_expr[,-1]), dimnames = list(prot_expr[[1]], colnames(prot_expr[,-1])), sparse = FALSE)
+  protM = t_flex(protM)
+
+  # convert expression to sparse matrix
+  spM = Matrix::Matrix(as.matrix(expr_mat[,-1]), dimnames = list(expr_mat[[1]], colnames(expr_mat[,-1])), sparse = TRUE)
+  spM = t_flex(spM)
+
+  ## Ready for downstream aggregate gobject creation or appending into existing subcellular Giotto object ##
+
+  data_list = list(
+    'spatlocs' = spatlocs,
+    'spatlocs_fov' = spatlocs_fov,
+    'metadata' = metadata,
+    'protM' = protM,
+    'spM' = spM,
+    'fov_shifts' = fov_shifts
+  )
+
+  return(data_list)
+
+}
+
 
 
 #' @title Read a structured xenium folder
@@ -4093,6 +4371,37 @@ objHistory = function(object) {
 
 
 
+#### provenance ####
+
+#' @title Check provenance info matches across list of S4 subobjects
+#' @name prov_match
+#' @param ... list of s4 subobjects to match provenance
+#' @param verbose print discovered provenance info
+#' @keywords internal
+#' @return NULL
+prov_match = function(..., verbose = FALSE) {
+
+  if(length(match.call()) == 2) {
+    if(isS4(...)) stop('more than one object must be provided')
+    s4_list = as.list(...)
+  } else if(length(match.call()) > 2) {
+    s4_list = list(...)
+  }
+
+  if(!all(unlist(lapply(s4_list, inherits, 'provData'))))
+    stop('Not all items to test contain provenance information\n')
+
+  prov_list = lapply(s4_list, prov)
+
+  if(isTRUE(verbose)) print(unlist(prov_list))
+
+  length(unique(prov_list)) == 1
+
+}
+
+
+
+
 #### joining giotto object ####
 
 #' @title join_expression_matrices
@@ -4153,6 +4462,32 @@ join_cell_meta = function(dt_list) {
 
 }
 
+#' @title join_feat_meta
+#' @name join_feat_meta
+#' @keywords internal
+join_feat_meta = function(dt_list) {
+
+  feat_ID = NULL
+
+  comb_meta = do.call('rbind', c(dt_list, fill = TRUE))
+  comb_meta = unique(comb_meta)
+
+  # find feat_IDs with multiple metadata versions
+  dup_feats = unique(comb_meta[duplicated(feat_ID), feat_ID])
+
+  # pick first entry of duplicates
+  comb_meta = comb_meta[!duplicated(feat_ID)]
+
+  if(length(dup_feats) > 0) {
+    warning(wrap_txt('feature metadata: multiple versions of metadata for:\n',
+                     dup_feats,
+                     '\n First entry will be selected for joined object.'))
+  }
+
+  return(comb_meta)
+
+}
+
 
 #' @title Join giotto objects
 #' @name joinGiottoObjects
@@ -4165,7 +4500,9 @@ join_cell_meta = function(dt_list) {
 #' @param y_shift list of values to shift along y-axis if method is shift
 #' @param x_padding padding between datasets/images if method is shift
 #' @param y_padding padding between datasets/images if method is shift
+# @param dry_run (experimental) Works best for join_method 'shift' or 'no_change'.
 #' @param verbose be verbose
+#' Preview where each gobject will be in space with bounding polygons
 #' @return giotto object
 #' @details This function joins both the expression and spatial information of
 #' multiple giotto objects into a single one. Giotto supports multiple ways of
@@ -4216,6 +4553,7 @@ joinGiottoObjects = function(gobject_list,
                              y_shift = NULL,
                              x_padding = NULL,
                              y_padding = NULL,
+                             # dry_run = FALSE,
                              verbose = TRUE) {
 
   # define for data.table
@@ -4224,11 +4562,11 @@ joinGiottoObjects = function(gobject_list,
   n_gobjects = length(gobject_list)
 
   ## check general input params
-  if(n_gobjects == 0) stop('A list of Giotto objects to be joined must be provided.')
-  if(n_gobjects == 1) stop('Only one gobject provided in gobject_list.')
-  if(!is.vector(gobject_names) | !is.character(gobject_names)) stop('gobject_names need to be a vector with unique names for the giotto objects')
-  if(n_gobjects != length(gobject_names)) stop('each giotto object in the list needs to have a unique (short) name')
-  if(is.null(join_method)) message('No join_method given. Defaulting to "shift"')
+  if(n_gobjects == 0) stop(wrap_txt('A list of Giotto objects to be joined must be provided.'))
+  if(n_gobjects == 1) stop(wrap_txt('Only one gobject provided in gobject_list.'))
+  if(!is.vector(gobject_names) | !is.character(gobject_names)) stop(wrap_txt('gobject_names need to be a vector with unique names for the giotto objects'))
+  if(n_gobjects != length(gobject_names)) stop(wrap_txt('each giotto object in the list needs to have a unique (short) name'))
+  if(is.null(join_method)) wrap_msg('No join_method given. Defaulting to "shift"')
 
 
   ## determine join method
@@ -4236,16 +4574,15 @@ joinGiottoObjects = function(gobject_list,
   if(isTRUE(verbose)) message('Join method:', join_method)
 
 
-
   # **** For shift workflow ****
   if(join_method == 'shift') {
     # Make sure enough x_shift and y_shift values are given to cover all gobjects
-    if(!is.null(x_shift)) if(length(x_shift) != n_gobjects) stop('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n')
-    if(!is.null(y_shift)) if(length(y_shift) != n_gobjects) stop('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n')
+    if(!is.null(x_shift)) if(length(x_shift) != n_gobjects) stop(wrap_txt('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n'))
+    if(!is.null(y_shift)) if(length(y_shift) != n_gobjects) stop(wrap_txt('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n'))
 
     # Set defaults if no shift params are given
     if(is.null(x_shift) & is.null(y_shift) & is.null(x_padding) & is.null(y_padding)) {
-      message('No xy shift or specific padding values given. Using defaults: x_padding = 1000')
+      wrap_msg('No xy shift or specific padding values given. Using defaults: x_padding = 1000')
       x_padding = 1000
     }
     # Assign default padding values if NULL
@@ -4282,6 +4619,41 @@ joinGiottoObjects = function(gobject_list,
     }
   }
 
+
+  # TODO # **** dry run ****
+  # if(isTRUE(dry_run)) {
+  #   if(isTRUE(verbose)) wrap_msg('dry_run = TRUE:
+  #                                Spatial preview of join operation.')
+  #   # Detect sources of bounds info
+  #   avail_bound_info = list(
+  #     avail_img = lapply(gobject_list, list_images),
+  #     avail_spat_info = lapply(gobject_list, list_spatial_info),
+  #     avail_feat_info = lapply(gobject_list, list_feature_info),
+  #     avail_spatlocs = lapply(gobject_list, list_spatial_locations)
+  #   )
+  #   avail_bound = lapply(avail_bound_info, function(avail) {
+  #     isTRUE(!is.null(unlist(avail)))
+  #   })
+  #   if(is.null(unlist(avail_bound))) stop(wrap_txt('dry_run error: No shared sources of bounds info
+  #                                              Previewing from heterogenous sources not yet implemented'))
+  #
+  #   bound_to_use = avail_bound_info[names(avail_bound_info)[1]]
+  #
+  #   # get bound info
+  #   if(names(bound_to_use) == 'avail_img') {
+  #
+  #   }
+  #   if(names(bound_to_use) == 'avail_spat_info') {
+  #
+  #   }
+  #   if(names(bound_to_use) == 'avail_feat_info') {
+  #
+  #   }
+  #   if(names(bound_to_use) == 'avail_spatlocs') {
+  #
+  #   }
+  #
+  # }
 
 
   # keep instructions from first giotto object
@@ -4334,14 +4706,19 @@ joinGiottoObjects = function(gobject_list,
     if(verbose) wrap_msg('0. Update cell and feature IDs \n')
 
     for(spat_unit in names(gobj@cell_ID)) {
-      gobj@cell_ID[[spat_unit]] = paste0(gname,'-',gobj@cell_ID[[spat_unit]])
-      all_cell_ID_list[[spat_unit]][[gobj_i]] = gobj@cell_ID[[spat_unit]]
+      old_cell_ID = get_cell_id(gobject = gobj, spat_unit = spat_unit)
+      new_cell_ID = paste0(gname, '-', old_cell_ID)
+      all_cell_ID_list[[spat_unit]][[gobj_i]] = new_cell_ID
+      gobj = set_cell_id(gobject = gobj,
+                         spat_unit = spat_unit,
+                         cell_IDs = new_cell_ID,
+                         set_defaults = FALSE)
     }
 
 
 
     for(feat_type in names(gobj@feat_ID)) {
-      all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
+      all_feat_ID_list[[feat_type]][[gobj_i]] = get_feat_id(gobject = gobj, feat_type = feat_type)
     }
 
 
@@ -4528,7 +4905,8 @@ joinGiottoObjects = function(gobject_list,
                                          spat_unit = spat_unit_i,
                                          spat_loc_name = locs_i,
                                          output = 'spatLocsObj',
-                                         copy_obj = TRUE)
+                                         copy_obj = TRUE,
+                                         set_defaults = FALSE)
         myspatlocs = slot(spat_obj, 'coordinates')
 
         if(join_method == 'z_stack') {
@@ -4566,7 +4944,9 @@ joinGiottoObjects = function(gobject_list,
 
         slot(spat_obj, 'coordinates') = myspatlocs
 
-        gobj = set_spatial_locations(gobj, spatlocs = spat_obj)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobj = set_spatial_locations(gobject = gobj, spatlocs = spat_obj)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
       }
     }
@@ -4576,6 +4956,7 @@ joinGiottoObjects = function(gobject_list,
 
 
     ## 4. cell metadata
+    # * (feat metadata happens during joined object creation)
     # rbind metadata
     # create capture area specific names
     if(verbose) wrap_msg('4. rbind cell metadata')
@@ -4748,7 +5129,7 @@ joinGiottoObjects = function(gobject_list,
 
   ## feat IDs
   for(feat_type in names(all_feat_ID_list)) {
-    combined_feat_ID = unique(unlist(all_cell_ID_list[[feat_type]]))
+    combined_feat_ID = unique(unlist(all_feat_ID_list[[feat_type]]))
     comb_gobject@feat_ID[[feat_type]] = combined_feat_ID
   }
 
@@ -4758,69 +5139,67 @@ joinGiottoObjects = function(gobject_list,
   ## if no expression matrices are provided, then just combine all feature IDs
   if(verbose) wrap_msg('2. expression data \n')
 
-  expr_names = names(first_obj@expression)
+  avail_expr = list_expression(gobject = first_obj)
 
-  if(is.null(expr_names)) {
+  if(is.null(avail_expr)) {
 
     ## feat IDS
     for(feat in first_features) {
       combined_feat_ID = unique(unlist(all_feat_ID_list[[feat]]))
-      comb_gobject@feat_ID[[feat]] = combined_feat_ID
-
-      # TODO: figure out best way
-      S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
-                                              feat_type = feat_type,
-                                              metaDT = data.table::data.table(feat_ID = combined_feat_ID))
-      comb_gobject = set_feature_metadata(gobject = comb_gobject, S4_feat_metadata)
-
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_feat_id(gobject = comb_gobject,
+                                 feat_type = feat,
+                                 feat_IDs = combined_feat_ID,
+                                 set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
+    # Moved de novo feature metadata generation as a catch to the end of the fxn
+    # Done through init_feat_meta()
+
+    # S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
+    #                                         feat_type = feat_type,
+    #                                         metaDT = data.table::data.table(feat_ID = combined_feat_ID))
+
+    # comb_gobject = set_feature_metadata(gobject = comb_gobject,
+    #                                     S4_feat_metadata,
+    #                                     set_defaults = FALSE)
 
 
   } else {
 
-    for(spat_unit in names(first_obj@expression)) {
+    for(exprObj_i in seq(nrow(avail_expr))) {
 
-      for(feat_type in names(first_obj@expression[[spat_unit]])) {
+      expr_list = lapply(updated_object_list, function(gobj) {
+        get_expression_values(gobject = gobj,
+                              spat_unit = avail_expr$spat_unit[[exprObj_i]],
+                              feat_type = avail_expr$feat_type[[exprObj_i]],
+                              values = avail_expr$name[[exprObj_i]],
+                              output = 'exprObj',
+                              set_defaults = FALSE)
+      })
 
-        for(mode in names(first_obj@expression[[spat_unit]][[feat_type]])) {
+      if(!prov_match(expr_list)) warning(wrap_txt('expression: provenance mismatch'))
 
-          savelist = list()
-          for(gobj_i in seq_along(updated_object_list)) {
+      combmat = join_expression_matrices(matrix_list = lapply(expr_list, function(expr) expr[]))
+      expr_list[[1]][] = combmat[['matrix']]
 
-            mat = updated_object_list[[gobj_i]]@expression[[spat_unit]][[feat_type]][[mode]][]
-            savelist[[gobj_i]] = mat
-          }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_expression_values(gobject = comb_gobject,
+                                           values = expr_list[[1]],
+                                           set_defaults = FALSE)
 
-          combmat = join_expression_matrices(matrix_list = savelist)
+      comb_gobject = set_feat_id(gobject = comb_gobject,
+                                 feat_type = avail_expr$feat_type[[exprObj_i]],
+                                 feat_IDs = combmat[['sort_all_feats']],
+                                 set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-          S4_expr_object = create_expr_obj(exprMat = combmat[['matrix']],
-                                           name = mode,
-                                           spat_unit = spat_unit,
-                                           feat_type = feat_type)
-
-          comb_gobject = set_expression_values(gobject = comb_gobject, S4_expr_object)
-
-          #comb_gobject@expression[[spat_unit]][[feat_type]][[mode]] = combmat$matrix
-
-          comb_gobject@feat_ID[[feat_type]] = combmat[['sort_all_feats']]
-
-          S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
-                                                  feat_type = feat_type,
-                                                  metaDT = data.table::data.table(feat_ID = combmat$sort_all_feats))
-          comb_gobject = set_feature_metadata(gobject = comb_gobject, S4_feat_metadata)
-
-          #comb_gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = combmat$sort_all_feats)
-
-        }
-
-
-      }
+      # Moved de novo feat metadata generation to end of fxn as a catch
 
     }
 
   }
-
 
 
 
@@ -4830,30 +5209,26 @@ joinGiottoObjects = function(gobject_list,
 
   available_locs = list_spatial_locations(first_obj)
 
-  for(spat_unit_i in available_locs[['spat_unit']]) {
+  for(slObj_i in seq(nrow(available_locs))) {
 
-    for(name_i in available_locs[spat_unit == spat_unit_i, name]) {
+    sl_list = lapply(updated_object_list, function(gobj) {
+      get_spatial_locations(gobject = gobj,
+                            spat_unit = available_locs$spat_unit[[slObj_i]],
+                            spat_loc_name = available_locs$name[[slObj_i]],
+                            output = 'spatLocsObj',
+                            copy_obj = FALSE)
+    })
 
-      savelist = list()
-      for(gobj_i in seq_along(updated_object_list)) {
-        spatlocs = get_spatial_locations(gobject = updated_object_list[[gobj_i]],
-                                         spat_unit = spat_unit_i,
-                                         spat_loc_name = name_i,
-                                         output = 'data.table',
-                                         copy_obj = FALSE)
+    if(!prov_match(sl_list)) warning(wrap_txt('spatial locations: provenance mismatch'))
 
-        savelist[[gobj_i]] = spatlocs
-      }
+    combspatlocs = join_spatlocs(dt_list = lapply(sl_list, function(sl) sl[]))
+    sl_list[[1]][] = combspatlocs
 
-      combspatlocs = join_spatlocs(dt_list = savelist)
-      combspat_obj = new('spatLocsObj',
-                         name = name_i,
-                         spat_unit = spat_unit_i,
-                         coordinates = combspatlocs,
-                         provenance = NULL)
-      comb_gobject = set_spatial_locations(comb_gobject, spatlocs = combspat_obj)
-    }
-
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    comb_gobject = set_spatial_locations(comb_gobject,
+                                         spatlocs = sl_list[[1]],
+                                         set_defaults = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
 
@@ -4861,7 +5236,7 @@ joinGiottoObjects = function(gobject_list,
 
 
   ## cell metadata
-  if(verbose) wrap_msg('4. cell metadata \n')
+  if(isTRUE(verbose)) wrap_msg('4. cell metadata \n')
 
   for(spat_unit in names(first_obj@cell_metadata)) {
 
@@ -4874,29 +5249,65 @@ joinGiottoObjects = function(gobject_list,
       }
       combcellmeta = join_cell_meta(dt_list = savelist)
 
-      S4_cell_meta = create_cell_meta_obj(metaDT = combcellmeta,
-                                          spat_unit = spat_unit,
-                                          feat_type = feat_type)
+      S4_cell_meta = get_cell_metadata(gobject = first_obj,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       copy_obj = TRUE,
+                                       set_defaults = FALSE,
+                                       output = 'cellMetaObj')
+      S4_cell_meta[] = combcellmeta
 
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       comb_gobject = set_cell_metadata(gobject = comb_gobject,
-                                       S4_cell_meta)
-
-      #comb_gobject@cell_metadata[[spat_unit]][[feat_type]] = combcellmeta
+                                       metadata = S4_cell_meta,
+                                       set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
+  }
+
+
+  ## feat metadata
+  # check if any already exists in first_obj
+  # otherwise, skip and generate feat_metadata de novo at end
+  avail_featmeta = list_feat_metadata(gobject = first_obj)
+  if(!is.null(avail_featmeta)) {
+    if(isTRUE(verbose)) message('   feature metadata \n')
+    for(fmObj_i in seq(nrow(avail_featmeta))) {
+
+      fm_list = lapply(updated_object_list, function(gobj) {
+        get_feature_metadata(gobject = gobj,
+                             spat_unit = avail_featmeta$spat_unit[[fmObj_i]],
+                             feat_type = avail_featmeta$feat_type[[fmObj_i]],
+                             output = 'featMetaObj',
+                             copy_obj = TRUE)
+      })
+
+      if(!prov_match(fm_list)) warning(wrap_txt('feature metadata: provenance mismatch'))
+
+      comb_fm = join_feat_meta(dt_list = lapply(fm_list, function(fm) fm[]))
+      fm_list[[1]][] = comb_fm
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_feature_metadata(gobject = comb_gobject,
+                                          metadata = fm_list[[1]],
+                                          set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+
   }
 
 
 
 
 
-
   ## spatial info
-  if(verbose) wrap_msg('5. spatial polygon information \n')
+  if(isTRUE(verbose)) wrap_msg('5. spatial polygon information \n')
 
     available_spat_info = unique(unlist(all_spatinfo_list))
 
-  if(verbose) {
+  if(isTRUE(verbose)) {
     wrap_msg ('available_spat_info: \n')
     print(available_spat_info)
   }
@@ -4973,6 +5384,11 @@ joinGiottoObjects = function(gobject_list,
 
   }
 
+
+  ## If no feature_metadata exists, then generate now
+  if(is.null(list_cell_metadata(comb_gobject))) {
+    comb_gobject = init_feat_metadata()
+  }
 
 
 

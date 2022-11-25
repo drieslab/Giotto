@@ -12,7 +12,8 @@ set_NearestNetwork(
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ yet supported.}
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object

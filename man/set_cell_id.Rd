@@ -4,7 +4,7 @@
 \alias{set_cell_id}
 \title{Set cell IDs for a given spatial unit}
 \usage{
-set_cell_id(gobject, spat_unit = NULL, cell_IDs)
+set_cell_id(gobject, spat_unit = NULL, cell_IDs, set_defaults = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +12,9 @@ set_cell_id(gobject, spat_unit = NULL, cell_IDs)
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{cell_IDs}{character vector of cell IDs to set}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object with set cell_ID slot

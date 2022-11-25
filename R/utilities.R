@@ -423,10 +423,8 @@ box_chars = function() {
 }
 
 
-#' @title is_latex_output
-#' @name is_latex_output
-#' @description is_latex_output
-#' @describeIn box_chars
+
+#' @describeIn box_chars Determine if print is latex output
 #' @keywords internal
 is_latex_output = function() {
   if(!('knitr' %in% loadedNamespaces())) return(FALSE)
@@ -434,10 +432,8 @@ is_latex_output = function() {
 }
 
 
-#' @title box_chars
-#' @name box_chars
-#' @description box_chars
-#' @describeIn box_chars
+
+#' @describeIn box_chars Determine if system is using UTF-8 encoding
 #' @keywords internal
 is_utf8_output = function() {
   opt = getOption('cli.unicode', default = NULL)
@@ -558,9 +554,8 @@ color_tag = function() {
 }
 
 
-#' @title use_color_text
-#' @name use_color_text
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine if system should print color
 #' @keywords internal
 use_color_text = function() {
   opt = getOption('giotto.color_show', default = NULL)
@@ -575,9 +570,9 @@ use_color_text = function() {
   } else ansi8_color
 }
 
-#' @title ansi_colors
-#' @name ansi_colors
-#' @describeIn color_tag
+
+
+#' @describeIn color_tag Determine if system can print at least 8 colors
 #' @keywords internal
 ansi_colors = function() {
 
@@ -630,9 +625,8 @@ ansi_colors = function() {
 }
 
 
-#' @title is_emacs_with_color
-#' @name is_emacs_with_color
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine if emacs can print color
 #' @keywords internal
 is_emacs_with_color = function() {
   (Sys.getenv('EMACS') != '' || Sys.getenv('INSIDE_EMACS') !=
@@ -641,9 +635,8 @@ is_emacs_with_color = function() {
 }
 
 
-#' @title emacs_version
-#' @name emacs_version
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine emacs version
 #' @keywords internal
 emacs_version = function() {
   ver <- Sys.getenv('INSIDE_EMACS')

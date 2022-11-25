@@ -9,7 +9,8 @@ get_expression_values(
   values = NULL,
   spat_unit = NULL,
   feat_type = NULL,
-  output = c("exprObj", "matrix")
+  output = c("exprObj", "matrix"),
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ get_expression_values(
 \item{output}{what object type to retrieve the expression as. Currently either
 'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
 the exprObj itself are allowed.}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 expression matrix

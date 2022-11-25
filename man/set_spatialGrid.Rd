@@ -10,7 +10,8 @@ set_spatialGrid(
   spat_unit = NULL,
   feat_type = NULL,
   name = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ set_spatialGrid(
 \item{name}{name of spatial grid}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object
