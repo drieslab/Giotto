@@ -165,6 +165,56 @@ select_gimage = function(gobject,
 }
 
 
+
+
+#' @title expand_feature_info
+#' @name expand_feature_info
+#' @description low level function to expand feature coordinates
+#' @return data.table
+#' @keywords internal
+expand_feature_info = function(spatial_feat_info,
+                               expand_counts = FALSE,
+                               count_info_column = 'count',
+                               jitter = c(0,0),
+                               verbose = TRUE) {
+
+
+  # 1. expand feature locations with multiple counts (e.g. in seq-Scope or Stereo-seq)
+  if(isTRUE(expand_counts)) {
+
+    if(!count_info_column %in% colnames(spatial_feat_info)) stop('count_info_column ', count_info_column, ' does not exist')
+
+    if(isTRUE(verbose)) {wrap_msg('Start expanding feature information based on count column')}
+    #print(spatial_feat_info)
+
+    extra_feats = spatial_feat_info[get(count_info_column) > 1]
+    extra_feats = extra_feats[,rep(get(count_info_column), get(count_info_column)), by = .(feat_ID, x, y, feat, spat_unit)]
+    spatial_feat_info = rbind(extra_feats[,.(feat_ID, x, y, feat, spat_unit)], spatial_feat_info[get(count_info_column) == 1, .(feat_ID, x, y, feat, spat_unit)])
+
+    #print(spatial_feat_info)
+
+  }
+
+  # 2. add jitter to x and y coordinates
+
+  if(!identical(c(0,0), jitter)) {
+
+    if(isTRUE(verbose)) {wrap_msg('Start adding jitter to x and y based on provided max jitter information')}
+
+    # create jitter for x and y coordinates: from 0 to max-x or max-y
+    tx_number = nrow(spatial_feat_info)
+    x_jitter = sample(0:jitter[[1]], size = tx_number, replace = TRUE)
+    y_jitter = sample(0:jitter[[2]], size = tx_number, replace = TRUE)
+
+    spatial_feat_info[, c('x', 'y') := list(x+x_jitter, y+y_jitter)]
+  }
+
+  return(spatial_feat_info)
+
+}
+
+
+
 #' @title plot_feature_points_layer
 #' @name plot_feature_points_layer
 #' @description low level function to plot a points at the spatial in situ level
@@ -182,12 +232,26 @@ plot_feature_points_layer = function(ggobject,
                                      shape = 'feat',
                                      point_size = 1.5,
                                      show_legend = TRUE,
-                                     plot_method = c('ggplot', 'scattermore', 'scattermost')) {
+                                     plot_method = c('ggplot', 'scattermore', 'scattermost'),
+                                     expand_counts = FALSE,
+                                     count_info_column = 'count',
+                                     jitter = c(0,0),
+                                     verbose = TRUE) {
 
   # data.table variables
   feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
+
+  # expand feature coordinates and/or add jitter to coordiantes
+  if(isTRUE(expand_counts) | !identical(c(0,0), jitter)) {
+    spatial_feat_info_subset = expand_feature_info(spatial_feat_info = spatial_feat_info_subset,
+                                                   expand_counts = expand_counts,
+                                                   count_info_column = count_info_column,
+                                                   jitter = jitter,
+                                                   verbose = verbose)
+  }
+
   cat(' --| Plotting ', nrow(spatial_feat_info_subset), ' feature points\n')
 
   if(!is.null(ggobject) & inherits(ggobject, 'ggplot')) {
@@ -237,6 +301,9 @@ plot_feature_points_layer = function(ggobject,
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
 #' @param point_size size of the points
+#' @param expand_counts expand feature coordinate counts (see details)
+#' @param count_info_column column name with count information (if expand_counts = TRUE)
+#' @param jitter maximum x,y jitter provided as c(x, y)
 #' @param show_polygon overlay polygon information (e.g. cell shape)
 #' @param use_overlap use polygon and feature coordinates overlap results
 #' @param polygon_feat_type feature type associated with polygon information
@@ -262,6 +329,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param verbose verbosity
 #' @return ggplot
 #' @details TODO
 #' @family In Situ visualizations
@@ -280,6 +348,9 @@ spatInSituPlotPoints = function(gobject,
                                 sdimx = 'x',
                                 sdimy = 'y',
                                 point_size = 1.5,
+                                expand_counts = FALSE,
+                                count_info_column = 'count',
+                                jitter = c(0,0),
                                 show_polygon = TRUE,
                                 use_overlap = TRUE,
                                 polygon_feat_type = 'cell',
@@ -303,7 +374,8 @@ spatInSituPlotPoints = function(gobject,
                                 return_plot = NA,
                                 save_plot = NA,
                                 save_param =  list(),
-                                default_save_name = 'spatInSituPlotPoints') {
+                                default_save_name = 'spatInSituPlotPoints',
+                                verbose = TRUE) {
 
 
   if(is.null(feats)) {
@@ -316,7 +388,6 @@ spatInSituPlotPoints = function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
- print('ok 1')
 
   ## giotto image ##
   if(show_image == TRUE) {
@@ -330,10 +401,12 @@ spatInSituPlotPoints = function(gobject,
                            feat_type = feat_type,
                            polygon_feat_type = polygon_feat_type)
 
+    if(isTRUE(verbose)) wrap_msg('select image done')
+
   }
 
 
- print('ok 2')
+
 
 
 
@@ -351,9 +424,10 @@ spatInSituPlotPoints = function(gobject,
                                         gimage = gimage,
                                         sdimx = 'sdimx',
                                         sdimy = 'sdimy')
+
+    if(isTRUE(verbose)) wrap_msg('plot image layer done')
   }
 
-  print('ok 3')
 
   ## 1. plot morphology first
   if(show_polygon == TRUE) {
@@ -397,10 +471,11 @@ spatInSituPlotPoints = function(gobject,
                                    alpha = polygon_alpha,
                                    size = polygon_line_size)
 
+    if(isTRUE(verbose)) wrap_msg('plot polygon layer done')
+
+
   }
 
-
-  print('ok 4')
 
   ## 2. plot features second
 
@@ -416,7 +491,6 @@ spatInSituPlotPoints = function(gobject,
                                                     poly_info = polygon_feat_type)
     } else {
 
-      print('start')
       spatial_feat_info = combineFeatureData(gobject = gobject,
                                              spat_unit =  polygon_feat_type,
                                              feat_type = feat_type,
@@ -430,6 +504,9 @@ spatInSituPlotPoints = function(gobject,
                                      feats = feats,
                                      feats_color_code = feats_color_code,
                                      feat_shape_code = feat_shape_code,
+                                     expand_counts = expand_counts,
+                                     count_info_column = count_info_column,
+                                     jitter = jitter,
                                      sdimx = 'x',
                                      sdimy = 'y',
                                      color = 'feat_ID',
@@ -438,9 +515,9 @@ spatInSituPlotPoints = function(gobject,
                                      show_legend = show_legend,
                                      plot_method = plot_method)
 
-  }
+    if(isTRUE(verbose)) wrap_msg('plot feature points layer done')
 
-  print('ok 5')
+  }
 
 
   ## 3. adjust theme settings

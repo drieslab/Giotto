@@ -389,6 +389,7 @@ print_leaf = function(level_index,
 }
 
 
+
 #' @title Box characters
 #' @name box_chars
 #' @description Helper function to print unicode characters using escape codes.
@@ -422,12 +423,14 @@ box_chars = function() {
 }
 
 
+
 #' @describeIn box_chars Determine if print is latex output
 #' @keywords internal
 is_latex_output = function() {
   if(!('knitr' %in% loadedNamespaces())) return(FALSE)
   get('is_latex_output', asNamespace('knitr'))()
 }
+
 
 
 #' @describeIn box_chars Determine if system is using UTF-8 encoding
@@ -551,6 +554,7 @@ color_tag = function() {
 }
 
 
+
 #' @describeIn color_tag Determine if system should print color
 #' @keywords internal
 use_color_text = function() {
@@ -565,6 +569,7 @@ use_color_text = function() {
     }
   } else ansi8_color
 }
+
 
 
 #' @describeIn color_tag Determine if system can print at least 8 colors
@@ -620,6 +625,7 @@ ansi_colors = function() {
 }
 
 
+
 #' @describeIn color_tag Determine if emacs can print color
 #' @keywords internal
 is_emacs_with_color = function() {
@@ -627,6 +633,7 @@ is_emacs_with_color = function() {
      '') & !is.na(emacs_version()[1]) & emacs_version()[1] >=
     23
 }
+
 
 
 #' @describeIn color_tag Determine emacs version
