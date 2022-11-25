@@ -4374,20 +4374,26 @@ objHistory = function(object) {
 #### provenance ####
 
 #' @title Check provenance info matches across list of S4 subobjects
-#' @name check_prov_match
+#' @name prov_match
 #' @param ... list of s4 subobjects to match provenance
+#' @param verbose print discovered provenance info
 #' @keywords internal
 #' @return NULL
-check_prov_match = function(...) {
+prov_match = function(..., verbose = FALSE) {
 
-  s4_list = list(...)
+  if(length(match.call()) == 2) {
+    if(isS4(...)) stop('more than one object must be provided')
+    s4_list = as.list(...)
+  } else if(length(match.call()) > 2) {
+    s4_list = list(...)
+  }
+
+  if(!all(unlist(lapply(s4_list, inherits, 'provData'))))
+    stop('Not all items to test contain provenance information\n')
+
   prov_list = lapply(s4_list, prov)
 
-  # if(isTRUE(verbose)) {
-  #   out_dt = data.table::data.table(
-  #     class()
-  #   )
-  # }
+  if(isTRUE(verbose)) print(unlist(prov_list))
 
   length(unique(prov_list)) == 1
 
@@ -4453,6 +4459,32 @@ join_cell_meta = function(dt_list) {
 
   final_list = do.call('rbind', dt_list)
   return(final_list)
+
+}
+
+#' @title join_feat_meta
+#' @name join_feat_meta
+#' @keywords internal
+join_feat_meta = function(dt_list) {
+
+  feat_ID = NULL
+
+  comb_meta = do.call('rbind', c(dt_list, fill = TRUE))
+  comb_meta = unique(comb_meta)
+
+  # find feat_IDs with multiple metadata versions
+  dup_feats = unique(comb_meta[duplicated(feat_ID), feat_ID])
+
+  # pick first entry of duplicates
+  comb_meta = comb_meta[!duplicated(feat_ID)]
+
+  if(length(dup_feats) > 0) {
+    warning(wrap_txt('feature metadata: multiple versions of metadata for:\n',
+                     dup_feats,
+                     '\n First entry will be selected for joined object.'))
+  }
+
+  return(comb_meta)
 
 }
 
@@ -4675,7 +4707,12 @@ joinGiottoObjects = function(gobject_list,
 
     for(spat_unit in names(gobj@cell_ID)) {
       old_cell_ID = get_cell_id(gobject = gobj, spat_unit = spat_unit)
-      all_cell_ID_list[[spat_unit]][[gobj_i]] = paste0(gname, '-', old_cell_ID)
+      new_cell_ID = paste0(gname, '-', old_cell_ID)
+      all_cell_ID_list[[spat_unit]][[gobj_i]] = new_cell_ID
+      gobj = set_cell_id(gobject = gobj,
+                         spat_unit = spat_unit,
+                         cell_IDs = new_cell_ID,
+                         set_defaults = FALSE)
     }
 
 
@@ -4919,6 +4956,7 @@ joinGiottoObjects = function(gobject_list,
 
 
     ## 4. cell metadata
+    # * (feat metadata happens during joined object creation)
     # rbind metadata
     # create capture area specific names
     if(verbose) wrap_msg('4. rbind cell metadata')
@@ -5099,12 +5137,11 @@ joinGiottoObjects = function(gobject_list,
 
   ## expression and feat IDs
   ## if no expression matrices are provided, then just combine all feature IDs
-  ## additionally, do feature metadata
   if(verbose) wrap_msg('2. expression data \n')
 
-  expr_names = names(first_obj@expression)
+  avail_expr = list_expression(gobject = first_obj)
 
-  if(is.null(expr_names)) {
+  if(is.null(avail_expr)) {
 
     ## feat IDS
     for(feat in first_features) {
@@ -5112,73 +5149,57 @@ joinGiottoObjects = function(gobject_list,
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       comb_gobject = set_feat_id(gobject = comb_gobject,
                                  feat_type = feat,
-                                 feat_IDs = combined_feat_ID)
+                                 feat_IDs = combined_feat_ID,
+                                 set_defaults = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-      # TODO: figure out best way
-      S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
-                                              feat_type = feat_type,
-                                              metaDT = data.table::data.table(feat_ID = combined_feat_ID))
-      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      comb_gobject = set_feature_metadata(gobject = comb_gobject,
-                                          S4_feat_metadata,
-                                          set_defaults = FALSE)
-      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
     }
 
+    # Moved de novo feature metadata generation as a catch to the end of the fxn
+    # Done through init_feat_meta()
+
+    # S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
+    #                                         feat_type = feat_type,
+    #                                         metaDT = data.table::data.table(feat_ID = combined_feat_ID))
+
+    # comb_gobject = set_feature_metadata(gobject = comb_gobject,
+    #                                     S4_feat_metadata,
+    #                                     set_defaults = FALSE)
 
 
   } else {
 
-    for(spat_unit in names(first_obj@expression)) {
+    for(exprObj_i in seq(nrow(avail_expr))) {
 
-      for(feat_type in names(first_obj@expression[[spat_unit]])) {
+      expr_list = lapply(updated_object_list, function(gobj) {
+        get_expression_values(gobject = gobj,
+                              spat_unit = avail_expr$spat_unit[[exprObj_i]],
+                              feat_type = avail_expr$feat_type[[exprObj_i]],
+                              values = avail_expr$name[[exprObj_i]],
+                              output = 'exprObj',
+                              set_defaults = FALSE)
+      })
 
-        for(mode in names(first_obj@expression[[spat_unit]][[feat_type]])) {
+      if(!prov_match(expr_list)) warning(wrap_txt('expression: provenance mismatch'))
 
-          savelist = list()
-          for(gobj_i in seq_along(updated_object_list)) {
+      combmat = join_expression_matrices(matrix_list = lapply(expr_list, function(expr) expr[]))
+      expr_list[[1]][] = combmat[['matrix']]
 
-            mat = updated_object_list[[gobj_i]]@expression[[spat_unit]][[feat_type]][[mode]][]
-            savelist[[gobj_i]] = mat
-          }
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_expression_values(gobject = comb_gobject,
+                                           values = expr_list[[1]],
+                                           set_defaults = FALSE)
 
-          combmat = join_expression_matrices(matrix_list = savelist)
+      comb_gobject = set_feat_id(gobject = comb_gobject,
+                                 feat_type = avail_expr$feat_type[[exprObj_i]],
+                                 feat_IDs = combmat[['sort_all_feats']],
+                                 set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-          S4_expr_object = create_expr_obj(exprMat = combmat[['matrix']],
-                                           name = mode,
-                                           spat_unit = spat_unit,
-                                           feat_type = feat_type)
-
-          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-          comb_gobject = set_expression_values(gobject = comb_gobject,
-                                               S4_expr_object)
-          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-          #comb_gobject@expression[[spat_unit]][[feat_type]][[mode]] = combmat$matrix
-
-          comb_gobject@feat_ID[[feat_type]] = combmat[['sort_all_feats']]
-
-          S4_feat_metadata = create_feat_meta_obj(spat_unit = spat_unit,
-                                                  feat_type = feat_type,
-                                                  metaDT = data.table::data.table(feat_ID = combmat$sort_all_feats))
-          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-          comb_gobject = set_feature_metadata(gobject = comb_gobject,
-                                              metadata = S4_feat_metadata)
-          ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-          #comb_gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = combmat$sort_all_feats)
-
-        }
-
-
-      }
+      # Moved de novo feat metadata generation to end of fxn as a catch
 
     }
 
   }
-
 
 
 
@@ -5188,32 +5209,26 @@ joinGiottoObjects = function(gobject_list,
 
   available_locs = list_spatial_locations(first_obj)
 
-  for(spat_unit_i in available_locs[['spat_unit']]) {
+  for(slObj_i in seq(nrow(available_locs))) {
 
-    for(name_i in available_locs[spat_unit == spat_unit_i, name]) {
+    sl_list = lapply(updated_object_list, function(gobj) {
+      get_spatial_locations(gobject = gobj,
+                            spat_unit = available_locs$spat_unit[[slObj_i]],
+                            spat_loc_name = available_locs$name[[slObj_i]],
+                            output = 'spatLocsObj',
+                            copy_obj = FALSE)
+    })
 
-      savelist = list()
-      for(gobj_i in seq_along(updated_object_list)) {
-        spatlocs = get_spatial_locations(gobject = updated_object_list[[gobj_i]],
-                                         spat_unit = spat_unit_i,
-                                         spat_loc_name = name_i,
-                                         output = 'data.table',
-                                         copy_obj = FALSE)
+    if(!prov_match(sl_list)) warning(wrap_txt('spatial locations: provenance mismatch'))
 
-        savelist[[gobj_i]] = spatlocs
-      }
+    combspatlocs = join_spatlocs(dt_list = lapply(sl_list, function(sl) sl[]))
+    sl_list[[1]][] = combspatlocs
 
-      combspatlocs = join_spatlocs(dt_list = savelist)
-      combspat_obj = new('spatLocsObj',
-                         name = name_i,
-                         spat_unit = spat_unit_i,
-                         coordinates = combspatlocs,
-                         provenance = NULL)
-      comb_gobject = set_spatial_locations(comb_gobject,
-                                           spatlocs = combspat_obj,
-                                           set_defaults = FALSE)
-    }
-
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    comb_gobject = set_spatial_locations(comb_gobject,
+                                         spatlocs = sl_list[[1]],
+                                         set_defaults = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
 
@@ -5221,7 +5236,7 @@ joinGiottoObjects = function(gobject_list,
 
 
   ## cell metadata
-  if(verbose) wrap_msg('4. cell metadata \n')
+  if(isTRUE(verbose)) wrap_msg('4. cell metadata \n')
 
   for(spat_unit in names(first_obj@cell_metadata)) {
 
@@ -5234,30 +5249,65 @@ joinGiottoObjects = function(gobject_list,
       }
       combcellmeta = join_cell_meta(dt_list = savelist)
 
-      S4_cell_meta = create_cell_meta_obj(metaDT = combcellmeta,
-                                          spat_unit = spat_unit,
-                                          feat_type = feat_type)
+      S4_cell_meta = get_cell_metadata(gobject = first_obj,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       copy_obj = TRUE,
+                                       set_defaults = FALSE,
+                                       output = 'cellMetaObj')
+      S4_cell_meta[] = combcellmeta
 
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       comb_gobject = set_cell_metadata(gobject = comb_gobject,
                                        metadata = S4_cell_meta,
                                        set_defaults = FALSE)
-
-      #comb_gobject@cell_metadata[[spat_unit]][[feat_type]] = combcellmeta
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
+  }
+
+
+  ## feat metadata
+  # check if any already exists in first_obj
+  # otherwise, skip and generate feat_metadata de novo at end
+  avail_featmeta = list_feat_metadata(gobject = first_obj)
+  if(!is.null(avail_featmeta)) {
+    if(isTRUE(verbose)) message('   feature metadata \n')
+    for(fmObj_i in seq(nrow(avail_featmeta))) {
+
+      fm_list = lapply(updated_object_list, function(gobj) {
+        get_feature_metadata(gobject = gobj,
+                             spat_unit = avail_featmeta$spat_unit[[fmObj_i]],
+                             feat_type = avail_featmeta$feat_type[[fmObj_i]],
+                             output = 'featMetaObj',
+                             copy_obj = TRUE)
+      })
+
+      if(!prov_match(fm_list)) warning(wrap_txt('feature metadata: provenance mismatch'))
+
+      comb_fm = join_feat_meta(dt_list = lapply(fm_list, function(fm) fm[]))
+      fm_list[[1]][] = comb_fm
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      comb_gobject = set_feature_metadata(gobject = comb_gobject,
+                                          metadata = fm_list[[1]],
+                                          set_defaults = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+
   }
 
 
 
 
 
-
   ## spatial info
-  if(verbose) wrap_msg('5. spatial polygon information \n')
+  if(isTRUE(verbose)) wrap_msg('5. spatial polygon information \n')
 
     available_spat_info = unique(unlist(all_spatinfo_list))
 
-  if(verbose) {
+  if(isTRUE(verbose)) {
     wrap_msg ('available_spat_info: \n')
     print(available_spat_info)
   }
@@ -5334,6 +5384,11 @@ joinGiottoObjects = function(gobject_list,
 
   }
 
+
+  ## If no feature_metadata exists, then generate now
+  if(is.null(list_cell_metadata(comb_gobject))) {
+    comb_gobject = init_feat_metadata()
+  }
 
 
 
