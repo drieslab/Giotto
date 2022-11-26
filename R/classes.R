@@ -53,6 +53,13 @@ setClass('coordDataDT',
          representation = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
+setMethod('initialize', 'coordDataDT',
+          function(.Object, ...) {
+            # prepare DT for set by reference
+            .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            .Object
+          })
+
 # setClass('coordDataMT',
 #          representation = list(coordinates = 'matrix'),
 #          prototype = prototype(coordinates = matrix()))
@@ -71,12 +78,28 @@ setClass('metaData',
                                col_desc = NA_character_))
 
 
+setMethod('initialize', 'metaData',
+          function(.Object, ...) {
+            # prepare DT for set by reference
+            .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            .Object
+          })
+
+
 # ** enrData ####
 setClass('enrData',
          representation = list(method = 'character',
                                enrichDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                enrichDT = NULL))
+
+setMethod('initialize', 'enrData',
+          function(.Object, ...) {
+            # prepare DT for set by reference
+            .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            .Object
+          })
+
 
 
 # ** nnData ####
@@ -102,6 +125,15 @@ setClass('spatNetData',
                                networkDT_before_filter = NULL,
                                cellShapeObj = NULL))
 
+setMethod('initialize', 'spatNetData',
+          function(.Object, ...) {
+            # prepare DT for set by reference
+            .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
+            .Object
+          })
+
+
 # ** spatGridData ####
 setClass('spatGridData',
          representation = list(method = 'character',
@@ -111,6 +143,13 @@ setClass('spatGridData',
                                parameters = NULL,
                                gridDT = NULL))
 
+
+setMethod('initialize', 'spatGridData',
+          function(.Object, ...) {
+            # prepare DT for set by reference
+            .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            .Object
+          })
 
 
 # ** provData Class ####
