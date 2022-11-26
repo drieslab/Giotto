@@ -2888,9 +2888,9 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                                           name = im_name,
                                                           largeImages_list_params))
 
-        glargeImage = createGiottoLargeImage(raster_object = im,
-                                             negative_y = FALSE,
-                                             name = im_name)
+        # glargeImage = createGiottoLargeImage(raster_object = im,
+        #                                      negative_y = FALSE,
+        #                                      name = im_name)
 
         gobject = addGiottoImage(gobject = gobject,
                                  largeImages = list(glargeImage))

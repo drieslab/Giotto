@@ -2092,7 +2092,7 @@ overlap_points_single_polygon = function(spatvec,
 #' @concept overlap
 #' @export
 calculateOverlapPolygonImages = function(gobject,
-                                         name_overlap = 'images',
+                                         name_overlap = 'protein',
                                          spatial_info = 'cell',
                                          poly_ID_names = NULL,
                                          image_names = NULL,
@@ -2147,9 +2147,13 @@ calculateOverlapPolygonImages = function(gobject,
     intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
     intensity_image = intensity_image@raster_object
 
+    names(intensity_image) = img_name
+
     image_list[[i]] = intensity_image
 
   }
+
+  print('0. create image list')
 
   image_vector_c = do.call('c', image_list)
 
@@ -2161,6 +2165,8 @@ calculateOverlapPolygonImages = function(gobject,
   }
 
 
+  print('1. start extraction')
+
   extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
                                                            y = poly_info_spatvector_sf,
                                                            include_cols = 'poly_ID',
@@ -2169,8 +2175,10 @@ calculateOverlapPolygonImages = function(gobject,
   dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
 
   # prepare output
-  colnames(dt_exact)[2:(length(image_names)+1)] = image_names
+  print(dt_exact)
+  colnames(dt_exact)[2:(length(image_names)+1)] = image_names # probably not needed anymore
   dt_exact[, coverage_fraction := NULL]
+  print(dt_exact)
 
   if(return_gobject) {
 
@@ -2708,7 +2716,7 @@ overlapImagesToMatrix = function(gobject,
     cell_IDs = unique(as.character(aggr_comb$poly_ID))
     feat_IDs = unique(as.character(aggr_comb$feat_ID))
 
-    print(feat_IDs[1:10])
+    #print(feat_IDs[1:10])
 
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
