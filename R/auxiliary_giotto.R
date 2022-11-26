@@ -2025,6 +2025,10 @@ filterCombinations <- function(gobject,
 #' @param all_feat_types apply cells to remove filtering results from current
 #' spatial unit/feature type combination across ALL feature types (default = TRUE)
 #' @param poly_info polygon information to use
+#' @param tag_cells tag filtered cells in metadata vs. remove cells
+#' @param tag_cell_name column name for tagged cells in metadata
+#' @param tag_feats tag features in metadata vs. remove features
+#' @param tag_feats_name column name for tagged features in metadata
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
@@ -2041,6 +2045,10 @@ filterGiotto = function(gobject,
                         all_spat_units = TRUE,
                         all_feat_types = TRUE,
                         poly_info = 'cell',
+                        tag_cells = FALSE,
+                        tag_cell_name = 'tag',
+                        tag_feats = FALSE,
+                        tag_feats_name = 'tag',
                         verbose = TRUE) {
 
   ## deprecated arguments
@@ -2079,15 +2087,36 @@ filterGiotto = function(gobject,
   filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
   selected_feat_ids = names(filter_index_feats[filter_index_feats == TRUE])
 
-  #selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
 
   ## filter cells
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = names(filter_index_cells[filter_index_cells == TRUE])
 
-  #selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
+
+  # update cell metadata
+  if(isTRUE(tag_cells)) {
+    cell_meta = get_cell_metadata(gobject = gobject, copy_obj = TRUE)
+    cell_meta[][, c(tag_cell_name) := ifelse(cell_ID %in% selected_cell_ids, 0, 1)]
+    gobject = set_cell_metadata(gobject = gobject, metadata = cell_meta)
+
+    # set selected cells back to all cells
+    selected_cell_ids = names(filter_index_cells)
+  }
+
+  if(isTRUE(tag_feats)) {
+    feat_meta = get_feature_metadata(gobject = gobject, copy_obj = TRUE)
+    feat_meta[][, c(tag_feats_name) := ifelse(feat_ID %in% selected_feat_ids, 0, 1)]
+    gobject = set_feature_metadata(gobject = gobject, metadata = feat_meta)
+
+    # set selected feats back to all feats
+    selected_feat_ids = names(filter_index_feats)
+  }
+
+
+
+  # update feature metadata
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
@@ -2106,9 +2135,20 @@ filterGiotto = function(gobject,
   total_cells   = length(filter_index_cells)
 
   if(verbose == TRUE) {
+    cat('\n')
     cat('Feature type: ', feat_type, '\n')
-    cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
-    cat('Number of feats removed: ', removed_feats, ' out of ', total_feats, '\n')
+
+    if(isTRUE(tag_cells)) {
+      cat('Number of cells tagged: ', removed_cells, ' out of ', total_cells, '\n')
+    } else {
+      cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
+    }
+
+    if(isTRUE(tag_feats)) {
+      cat('Number of feats tagged: ', removed_feats, ' out of ', total_feats, '\n')
+    } else {
+      cat('Number of feats removed: ', removed_feats, ' out of ', total_feats, '\n')
+    }
   }
 
 
