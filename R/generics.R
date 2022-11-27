@@ -1,6 +1,6 @@
 # Methods and Generics ####
 
-
+# NOTE: initialize generics are in classes.R #
 
 
 
