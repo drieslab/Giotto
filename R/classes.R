@@ -55,6 +55,7 @@ setClass('coordDataDT',
 
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
+            .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@coordinates = data.table::setalloccol(.Object@coordinates)
             .Object
@@ -80,6 +81,7 @@ setClass('metaData',
 
 setMethod('initialize', 'metaData',
           function(.Object, ...) {
+            .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@metaDT = data.table::setalloccol(.Object@metaDT)
             .Object
@@ -95,6 +97,7 @@ setClass('enrData',
 
 setMethod('initialize', 'enrData',
           function(.Object, ...) {
+            .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
             .Object
@@ -127,6 +130,7 @@ setClass('spatNetData',
 
 setMethod('initialize', 'spatNetData',
           function(.Object, ...) {
+            .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@networkDT = data.table::setalloccol(.Object@networkDT)
             .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
@@ -146,6 +150,7 @@ setClass('spatGridData',
 
 setMethod('initialize', 'spatGridData',
           function(.Object, ...) {
+            .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@gridDT = data.table::setalloccol(.Object@gridDT)
             .Object
