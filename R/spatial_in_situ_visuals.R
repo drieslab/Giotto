@@ -870,7 +870,7 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
   pl = pl + ggplot2::stat_density_2d(data = spatial_feat_info_subset,
                                      ggplot2::aes_string(x = sdimx,
                                                          y = sdimy,
-                                                         fill = '..density..'),
+                                                         fill = 'after_stat(density)'),
                                      geom = "raster",
                                      alpha = alpha,
                                      contour = FALSE)
