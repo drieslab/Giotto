@@ -565,17 +565,23 @@ spatInSituPlotPoints = function(gobject,
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
 plot_feature_hexbin_layer = function(ggobject = NULL,
-                                      spatial_feat_info,
-                                      sel_feat,
-                                      sdimx = 'x',
-                                      sdimy = 'y',
-                                      bins = 10,
-                                      alpha = 0.5) {
+                                     spatial_feat_info,
+                                     sel_feat,
+                                     sdimx = 'x',
+                                     sdimy = 'y',
+                                     binwidth = NULL,
+                                     alpha = 0.5) {
 
   # data.table variables
   feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% sel_feat]
+
+  # set default binwidth to 1/10 of minor axis
+  if(is.null(binwidth)) {
+    minorRange = spatial_feat_info_subset[, min(diff(sapply(.SD, range))), .SDcols = c('x','y')]
+    binwidth = as.integer(minorRange/10L)
+  }
 
   if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {
     pl = ggobject
@@ -586,7 +592,7 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
   pl = pl + ggplot2::geom_hex(data = spatial_feat_info_subset,
                               ggplot2::aes_string(x = sdimx,
                                                   y = sdimy),
-                              bins = bins,
+                              binwidth = binwidth,
                               alpha = alpha)
   pl = pl + labs(title = sel_feat)
   return(pl)
@@ -606,7 +612,7 @@ spatInSituPlotHex_single = function(gobject,
                                     feat_type = 'rna',
                                     sdimx = 'x',
                                     sdimy = 'y',
-                                    bins = 10,
+                                    binwidth = NULL,
                                     alpha = 0.5,
                                     show_polygon = TRUE,
                                     polygon_feat_type = 'cell',
@@ -672,11 +678,11 @@ spatInSituPlotHex_single = function(gobject,
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_hexbin_layer(ggobject = plot,
-                                    spatial_feat_info = spatial_feat_info,
-                                    sel_feat = feat,
-                                    sdimx = sdimx,
-                                    sdimy = sdimy,
-                                    bins = bins)
+                                   spatial_feat_info = spatial_feat_info,
+                                   sel_feat = feat,
+                                   sdimx = sdimx,
+                                   sdimy = sdimy,
+                                   bins = bins)
 
 
   ## adjust theme settings
@@ -707,7 +713,7 @@ spatInSituPlotHex_single = function(gobject,
 #' @param feat_type feature types of the feats
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
-#' @param bins number of hexbins in one direction
+#' @param binwidth numeric vector for x and y width of bins (default is 1/10 of minor axis)
 #' @param alpha alpha of hexbin plot
 #' @param show_polygon overlay polygon information (cell shape)
 #' @param polygon_feat_type feature type associated with polygon information
@@ -739,7 +745,7 @@ spatInSituPlotHex = function(gobject,
                              feat_type = 'rna',
                              sdimx = 'x',
                              sdimy = 'y',
-                             bins = 10,
+                             binwidth = NULL,
                              alpha = 0.5,
                              show_polygon = TRUE,
                              polygon_feat_type = 'cell',
