@@ -570,6 +570,7 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
                                      sdimx = 'x',
                                      sdimy = 'y',
                                      binwidth = NULL,
+                                     min_axis_bins = 10L,
                                      alpha = 0.5) {
 
   # data.table variables
@@ -580,7 +581,7 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
   # set default binwidth to 1/10 of minor axis
   if(is.null(binwidth)) {
     minorRange = spatial_feat_info_subset[, min(diff(sapply(.SD, range))), .SDcols = c('x','y')]
-    binwidth = as.integer(minorRange/10L)
+    binwidth = as.integer(minorRange/min_axis_bins)
   }
 
   if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {
@@ -613,6 +614,7 @@ spatInSituPlotHex_single = function(gobject,
                                     sdimx = 'x',
                                     sdimy = 'y',
                                     binwidth = NULL,
+                                    min_axis_bins = NULL,
                                     alpha = 0.5,
                                     show_polygon = TRUE,
                                     polygon_feat_type = 'cell',
@@ -713,7 +715,10 @@ spatInSituPlotHex_single = function(gobject,
 #' @param feat_type feature types of the feats
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
-#' @param binwidth numeric vector for x and y width of bins (default is 1/10 of minor axis)
+#' @param binwidth numeric vector for x and y width of bins (default is minor axis
+#' range/10, where the 10 is from \code{min_axis_bins})
+#' @param min_axis_bins number of bins to create per range defined by minor axis.
+#' (default value is 10)
 #' @param alpha alpha of hexbin plot
 #' @param show_polygon overlay polygon information (cell shape)
 #' @param polygon_feat_type feature type associated with polygon information
@@ -746,6 +751,7 @@ spatInSituPlotHex = function(gobject,
                              sdimx = 'x',
                              sdimy = 'y',
                              binwidth = NULL,
+                             min_axis_bins = 10,
                              alpha = 0.5,
                              show_polygon = TRUE,
                              polygon_feat_type = 'cell',
