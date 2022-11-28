@@ -44,7 +44,7 @@ spatCellPlot2D(
   other_cell_color = "lightgrey",
   other_point_size = 1,
   other_cells_alpha = 0.1,
-  coord_fix_ratio = NULL,
+  coord_fix_ratio = 1,
   show_legend = T,
   legend_text = 8,
   legend_symbol_size = 1,

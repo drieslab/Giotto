@@ -693,7 +693,6 @@ spatInSituPlotHex_single = function(gobject,
     plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
   }
 
-
   return(plot)
 
 }
@@ -749,7 +748,7 @@ spatInSituPlotHex = function(gobject,
                              polygon_fill_as_factor = NULL,
                              polygon_alpha = 0.5,
                              polygon_size = 0.5,
-                             coord_fix_ratio = NULL,
+                             coord_fix_ratio = 1,
                              axis_text = 8,
                              axis_title = 8,
                              legend_text = 6,
@@ -803,12 +802,16 @@ spatInSituPlotHex = function(gobject,
 
   }
 
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h,
-                                   rel_widths = cow_rel_w,
-                                   align = cow_align)
+  if(length(savelist) == 1) {
+    combo_plot = savelist[[1]]
+  } else {
+    # combine plots with cowplot
+    combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                     ncol = cow_n_col,
+                                     rel_heights = cow_rel_h,
+                                     rel_widths = cow_rel_w,
+                                     align = cow_align)
+  }
 
 
   ## print plot
@@ -969,7 +972,6 @@ spatInSituPlotDensity_single = function(gobject,
     plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
   }
 
-
   return(plot)
 
 }
@@ -1023,7 +1025,7 @@ spatInSituPlotDensity = function(gobject,
                                  polygon_fill_as_factor = NULL,
                                  polygon_alpha = 0.5,
                                  polygon_size = 0.5,
-                                 coord_fix_ratio = NULL,
+                                 coord_fix_ratio = 1,
                                  axis_text = 8,
                                  axis_title = 8,
                                  legend_text = 6,
@@ -1079,13 +1081,17 @@ spatInSituPlotDensity = function(gobject,
 
   }
 
+  if(length(savelist) == 1) {
+    combo_plot = savelist[[1]]
+  } else {
+    # combine plots with cowplot
+    combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                     ncol = cow_n_col,
+                                     rel_heights = cow_rel_h,
+                                     rel_widths = cow_rel_w,
+                                     align = cow_align)
+  }
 
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h,
-                                   rel_widths = cow_rel_w,
-                                   align = cow_align)
 
 
   ## print plot

@@ -37,7 +37,7 @@ spatInSituPlotPoints(
   axis_text = 8,
   axis_title = 8,
   legend_text = 6,
-  coord_fix_ratio = NULL,
+  coord_fix_ratio = 1,
   background_color = "black",
   show_legend = TRUE,
   plot_method = c("ggplot", "scattermore", "scattermost"),
