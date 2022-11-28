@@ -615,6 +615,7 @@ spatInSituPlotHex_single = function(gobject,
                                     polygon_fill_as_factor = NULL,
                                     polygon_alpha = 0.5,
                                     polygon_size = 0.5,
+                                    coord_fix_ratio = NULL,
                                     axis_text = 8,
                                     axis_title = 8,
                                     legend_text = 6,
@@ -687,6 +688,10 @@ spatInSituPlotHex_single = function(gobject,
                                 panel.grid = element_blank(),
                                 panel.background = element_rect(fill = background_color))
 
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
 
 
   return(plot)
@@ -712,6 +717,7 @@ spatInSituPlotHex_single = function(gobject,
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_size size of polygon border
+#' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
@@ -743,6 +749,7 @@ spatInSituPlotHex = function(gobject,
                              polygon_fill_as_factor = NULL,
                              polygon_alpha = 0.5,
                              polygon_size = 0.5,
+                             coord_fix_ratio = NULL,
                              axis_text = 8,
                              axis_title = 8,
                              legend_text = 6,
@@ -786,6 +793,7 @@ spatInSituPlotHex = function(gobject,
                                   polygon_fill_as_factor = polygon_fill_as_factor,
                                   polygon_alpha = polygon_alpha,
                                   polygon_size = polygon_size,
+                                  coord_fix_ratio = coord_fix_ratio,
                                   axis_text = axis_text,
                                   axis_title = axis_title,
                                   legend_text = legend_text,
@@ -885,6 +893,7 @@ spatInSituPlotDensity_single = function(gobject,
                                         polygon_fill_as_factor = NULL,
                                         polygon_alpha = 0.5,
                                         polygon_size = 0.5,
+                                        coord_fix_ratio = NULL,
                                         axis_text = 8,
                                         axis_title = 8,
                                         legend_text = 6,
@@ -955,6 +964,10 @@ spatInSituPlotDensity_single = function(gobject,
                                 panel.grid = element_blank(),
                                 panel.background = element_rect(fill = background_color))
 
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
 
 
   return(plot)
@@ -979,6 +992,7 @@ spatInSituPlotDensity_single = function(gobject,
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_size size of polygon border
+#' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
@@ -1009,6 +1023,7 @@ spatInSituPlotDensity = function(gobject,
                                  polygon_fill_as_factor = NULL,
                                  polygon_alpha = 0.5,
                                  polygon_size = 0.5,
+                                 coord_fix_ratio = NULL,
                                  axis_text = 8,
                                  axis_title = 8,
                                  legend_text = 6,
@@ -1054,6 +1069,7 @@ spatInSituPlotDensity = function(gobject,
                                       polygon_fill_as_factor = polygon_fill_as_factor,
                                       polygon_alpha = polygon_alpha,
                                       polygon_size = polygon_size,
+                                      coord_fix_ratio = coord_fix_ratio,
                                       axis_text = axis_text,
                                       axis_title = axis_title,
                                       legend_text = legend_text,
