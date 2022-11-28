@@ -565,17 +565,24 @@ spatInSituPlotPoints = function(gobject,
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
 plot_feature_hexbin_layer = function(ggobject = NULL,
-                                      spatial_feat_info,
-                                      sel_feat,
-                                      sdimx = 'x',
-                                      sdimy = 'y',
-                                      bins = 10,
-                                      alpha = 0.5) {
+                                     spatial_feat_info,
+                                     sel_feat,
+                                     sdimx = 'x',
+                                     sdimy = 'y',
+                                     binwidth = NULL,
+                                     min_axis_bins = 10L,
+                                     alpha = 0.5) {
 
   # data.table variables
   feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% sel_feat]
+
+  # set default binwidth to 1/10 of minor axis
+  if(is.null(binwidth)) {
+    minorRange = spatial_feat_info_subset[, min(diff(sapply(.SD, range))), .SDcols = c('x','y')]
+    binwidth = as.integer(minorRange/min_axis_bins)
+  }
 
   if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {
     pl = ggobject
@@ -586,7 +593,7 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
   pl = pl + ggplot2::geom_hex(data = spatial_feat_info_subset,
                               ggplot2::aes_string(x = sdimx,
                                                   y = sdimy),
-                              bins = bins,
+                              binwidth = binwidth,
                               alpha = alpha)
   pl = pl + labs(title = sel_feat)
   return(pl)
@@ -606,7 +613,8 @@ spatInSituPlotHex_single = function(gobject,
                                     feat_type = 'rna',
                                     sdimx = 'x',
                                     sdimy = 'y',
-                                    bins = 10,
+                                    binwidth = NULL,
+                                    min_axis_bins = NULL,
                                     alpha = 0.5,
                                     show_polygon = TRUE,
                                     polygon_feat_type = 'cell',
@@ -615,6 +623,7 @@ spatInSituPlotHex_single = function(gobject,
                                     polygon_fill_as_factor = NULL,
                                     polygon_alpha = 0.5,
                                     polygon_size = 0.5,
+                                    coord_fix_ratio = NULL,
                                     axis_text = 8,
                                     axis_title = 8,
                                     legend_text = 6,
@@ -671,11 +680,12 @@ spatInSituPlotHex_single = function(gobject,
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_hexbin_layer(ggobject = plot,
-                                    spatial_feat_info = spatial_feat_info,
-                                    sel_feat = feat,
-                                    sdimx = sdimx,
-                                    sdimy = sdimy,
-                                    bins = bins)
+                                   spatial_feat_info = spatial_feat_info,
+                                   sel_feat = feat,
+                                   sdimx = sdimx,
+                                   sdimy = sdimy,
+                                   binwidth = binwidth,
+                                   min_axis_bins = min_axis_bins)
 
 
   ## adjust theme settings
@@ -687,7 +697,10 @@ spatInSituPlotHex_single = function(gobject,
                                 panel.grid = element_blank(),
                                 panel.background = element_rect(fill = background_color))
 
-
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
 
   return(plot)
 
@@ -703,7 +716,10 @@ spatInSituPlotHex_single = function(gobject,
 #' @param feat_type feature types of the feats
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
-#' @param bins number of hexbins in one direction
+#' @param binwidth numeric vector for x and y width of bins (default is minor axis
+#' range/10, where the 10 is from \code{min_axis_bins})
+#' @param min_axis_bins number of bins to create per range defined by minor axis.
+#' (default value is 10)
 #' @param alpha alpha of hexbin plot
 #' @param show_polygon overlay polygon information (cell shape)
 #' @param polygon_feat_type feature type associated with polygon information
@@ -712,6 +728,7 @@ spatInSituPlotHex_single = function(gobject,
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_size size of polygon border
+#' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
@@ -734,7 +751,8 @@ spatInSituPlotHex = function(gobject,
                              feat_type = 'rna',
                              sdimx = 'x',
                              sdimy = 'y',
-                             bins = 10,
+                             binwidth = NULL,
+                             min_axis_bins = 10,
                              alpha = 0.5,
                              show_polygon = TRUE,
                              polygon_feat_type = 'cell',
@@ -743,6 +761,7 @@ spatInSituPlotHex = function(gobject,
                              polygon_fill_as_factor = NULL,
                              polygon_alpha = 0.5,
                              polygon_size = 0.5,
+                             coord_fix_ratio = 1,
                              axis_text = 8,
                              axis_title = 8,
                              legend_text = 6,
@@ -777,7 +796,8 @@ spatInSituPlotHex = function(gobject,
                                   feat_type = feat_type,
                                   sdimx = sdimx,
                                   sdimy = sdimy,
-                                  bins = bins,
+                                  binwidth = binwidth,
+                                  min_axis_bins = min_axis_bins,
                                   alpha = alpha,
                                   show_polygon = show_polygon,
                                   polygon_feat_type = polygon_feat_type,
@@ -786,6 +806,7 @@ spatInSituPlotHex = function(gobject,
                                   polygon_fill_as_factor = polygon_fill_as_factor,
                                   polygon_alpha = polygon_alpha,
                                   polygon_size = polygon_size,
+                                  coord_fix_ratio = coord_fix_ratio,
                                   axis_text = axis_text,
                                   axis_title = axis_title,
                                   legend_text = legend_text,
@@ -795,12 +816,16 @@ spatInSituPlotHex = function(gobject,
 
   }
 
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h,
-                                   rel_widths = cow_rel_w,
-                                   align = cow_align)
+  if(length(savelist) == 1) {
+    combo_plot = savelist[[1]]
+  } else {
+    # combine plots with cowplot
+    combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                     ncol = cow_n_col,
+                                     rel_heights = cow_rel_h,
+                                     rel_widths = cow_rel_w,
+                                     align = cow_align)
+  }
 
 
   ## print plot
@@ -853,7 +878,7 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
   pl = pl + ggplot2::stat_density_2d(data = spatial_feat_info_subset,
                                      ggplot2::aes_string(x = sdimx,
                                                          y = sdimy,
-                                                         fill = '..density..'),
+                                                         fill = 'after_stat(density)'),
                                      geom = "raster",
                                      alpha = alpha,
                                      contour = FALSE)
@@ -885,6 +910,7 @@ spatInSituPlotDensity_single = function(gobject,
                                         polygon_fill_as_factor = NULL,
                                         polygon_alpha = 0.5,
                                         polygon_size = 0.5,
+                                        coord_fix_ratio = NULL,
                                         axis_text = 8,
                                         axis_title = 8,
                                         legend_text = 6,
@@ -955,7 +981,10 @@ spatInSituPlotDensity_single = function(gobject,
                                 panel.grid = element_blank(),
                                 panel.background = element_rect(fill = background_color))
 
-
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
 
   return(plot)
 
@@ -979,6 +1008,7 @@ spatInSituPlotDensity_single = function(gobject,
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_size size of polygon border
+#' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
@@ -1009,6 +1039,7 @@ spatInSituPlotDensity = function(gobject,
                                  polygon_fill_as_factor = NULL,
                                  polygon_alpha = 0.5,
                                  polygon_size = 0.5,
+                                 coord_fix_ratio = 1,
                                  axis_text = 8,
                                  axis_title = 8,
                                  legend_text = 6,
@@ -1054,6 +1085,7 @@ spatInSituPlotDensity = function(gobject,
                                       polygon_fill_as_factor = polygon_fill_as_factor,
                                       polygon_alpha = polygon_alpha,
                                       polygon_size = polygon_size,
+                                      coord_fix_ratio = coord_fix_ratio,
                                       axis_text = axis_text,
                                       axis_title = axis_title,
                                       legend_text = legend_text,
@@ -1063,13 +1095,17 @@ spatInSituPlotDensity = function(gobject,
 
   }
 
+  if(length(savelist) == 1) {
+    combo_plot = savelist[[1]]
+  } else {
+    # combine plots with cowplot
+    combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                     ncol = cow_n_col,
+                                     rel_heights = cow_rel_h,
+                                     rel_widths = cow_rel_w,
+                                     align = cow_align)
+  }
 
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h,
-                                   rel_widths = cow_rel_w,
-                                   align = cow_align)
 
 
   ## print plot

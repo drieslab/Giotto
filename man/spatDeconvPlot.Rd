@@ -25,7 +25,7 @@ spatDeconvPlot(
   title = NULL,
   axis_text = 8,
   axis_title = 8,
-  coord_fix_ratio = TRUE,
+  coord_fix_ratio = 1,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
