@@ -684,7 +684,8 @@ spatInSituPlotHex_single = function(gobject,
                                    sel_feat = feat,
                                    sdimx = sdimx,
                                    sdimy = sdimy,
-                                   binwidth = binwidth)
+                                   binwidth = binwidth,
+                                   min_axis_bins = min_axis_bins)
 
 
   ## adjust theme settings
@@ -796,6 +797,7 @@ spatInSituPlotHex = function(gobject,
                                   sdimx = sdimx,
                                   sdimy = sdimy,
                                   binwidth = binwidth,
+                                  min_axis_bins = min_axis_bins,
                                   alpha = alpha,
                                   show_polygon = show_polygon,
                                   polygon_feat_type = polygon_feat_type,
