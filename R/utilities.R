@@ -510,23 +510,23 @@ abb_spatlocs = function(spatLocsObj, nrows) {
 #' @title Wrap message
 #' @name wrap_msg
 #' @param ... additional strings and/or elements to pass to cat
-#' @param collapse how to join elements of string (default is no space)
+#' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
 #' @param keywords internal
-wrap_msg = function(..., collapse = '') {
-  message(wrap_txt(..., collapse = ''))
+wrap_msg = function(..., sep = ' ') {
+  message(wrap_txt(..., sep = sep))
 }
 
 #' @title Wrap text
 #' @name wrap_txt
 #' @param ... additional params to pass
-#' @param collapse how to join elements of string (default is no space)
+#' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
 #' @keywords internal
-wrap_txt = function(..., collapse = '', strWidth = 100) {
-  cat(...) %>%
+wrap_txt = function(..., sep = ' ', strWidth = 100) {
+  cat(..., sep = sep) %>%
     capture.output() %>%
-    strwrap(., prefix =  ' ', initial = '',
+    strwrap(., prefix =  ' ', initial = '', # indent later lines, no indent first line
             width = min(80, getOption("width"), strWidth)) %>%
     paste(., collapse = '\n')
 }
