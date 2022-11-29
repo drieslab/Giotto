@@ -45,7 +45,7 @@ clusterCells(
   hc_k = 10,
   hc_h = NULL,
   return_gobject = TRUE,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234
 )
 }

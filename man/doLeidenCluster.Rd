@@ -18,7 +18,7 @@ doLeidenCluster(
   init_membership = NULL,
   n_iterations = 1000,
   return_gobject = TRUE,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234
 )
 }
