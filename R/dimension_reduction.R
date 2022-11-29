@@ -106,14 +106,21 @@ runPCA_prcomp_irlba = function(x,
     ncp = min_ncp-1
   }
 
-  if(rev == TRUE) {
+  if(isTRUE(rev)) {
 
     x = t_flex(x)
 
-    if(set_seed == TRUE) {
+    # start seed
+    if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
     }
+
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
+
+    # exit seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = Sys.time())
+    }
 
     # eigenvalues
     eigenvalues = pca_res$sdev^2
@@ -129,10 +136,17 @@ runPCA_prcomp_irlba = function(x,
 
   } else {
 
-    if(set_seed == TRUE) {
+    # start seed
+    if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
     }
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
+
+    # exit seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = Sys.time())
+    }
+
     # eigenvalues
     eigenvalues = pca_res$sdev^2
     # PC loading
@@ -179,7 +193,7 @@ runPCA_factominer = function(x,
     x = as.matrix(x)
   }
 
-  if(rev == TRUE) {
+  if(isTRUE(rev)) {
 
     x = t_flex(x)
 
@@ -188,10 +202,17 @@ runPCA_factominer = function(x,
       ncp = nrow(x)
     }
 
-    if(set_seed == TRUE) {
+    # start seed
+    if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
     }
+
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
+
+    # exit seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = Sys.time())
+    }
 
     # eigenvalues
     eigenvalues = pca_res$eig[,1]
@@ -215,10 +236,17 @@ runPCA_factominer = function(x,
       ncp = ncol(x)
     }
 
-    if(set_seed == TRUE) {
+    # start seed
+    if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
     }
+
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
+
+    # exit seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = Sys.time())
+    }
 
     # eigenvalues
     eigenvalues = pca_res$eig[,1]
@@ -276,13 +304,14 @@ runPCA_BiocSingular = function(x,
     ncp = min_ncp-1
   }
 
-  if(rev == TRUE) {
+  # start seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = seed_number)
+  }
+
+  if(isTRUE(rev)) {
 
     x = t_flex(x)
-
-    if(set_seed == TRUE) {
-      set.seed(seed = seed_number)
-    }
 
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
@@ -317,11 +346,6 @@ runPCA_BiocSingular = function(x,
 
   } else {
 
-    if(set_seed == TRUE) {
-      set.seed(seed = seed_number)
-    }
-
-
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
@@ -351,6 +375,11 @@ runPCA_BiocSingular = function(x,
     colnames(coords) = paste0('Dim.', 1:ncol(coords))
     result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
 
+  }
+
+  # exit seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = Sys.time())
   }
 
   return(result)
@@ -393,7 +422,7 @@ create_feats_to_use_matrix = function(gobject,
                           spat_unit = spat_unit,
                           feat_type = feat_type)
 
-  # for hvg genes
+  # for hvf genes
   if(is.character(feats_to_use) & length(feats_to_use) == 1) {
     if(feats_to_use %in% colnames(feat_metadata)) {
       if(verbose == TRUE) cat(feats_to_use, ' was found in the feats metadata information and will be used to select highly variable features \n')
@@ -1365,22 +1394,30 @@ runUMAP <- function(gobject,
       matrix_to_use = t_flex(expr_values)
     }
 
-    uwot_clus <- uwot::umap(X = matrix_to_use, # as.matrix(matrix_to_use) neccesary?
+    # start seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = seed_number)
+    }
+
+    ## run umap ##
+    uwot_clus <- uwot::umap(X = matrix_to_use, # as.matrix(matrix_to_use) necessary?
                             n_neighbors = n_neighbors,
                             n_components = n_components,
                             n_epochs = n_epochs,
                             min_dist = min_dist,
                             n_threads = n_threads,
-                            spread = spread, ...)
+                            spread = spread,
+                            ...)
+
     uwot_clus_pos_DT = data.table::as.data.table(uwot_clus)
 
     # data.table variables
     cell_ID = NULL
     uwot_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
-
-    if(set_seed == TRUE) {
-      set.seed(Sys.time())
+    # exit seed
+    if(isTRUE(set_seed)) {
+      set.seed(seed = Sys.time())
     }
 
 
@@ -1493,8 +1530,8 @@ runtSNE <- function(gobject,
                     dims = 2,
                     perplexity = 30,
                     theta = 0.5,
-                    do_PCA_first = F,
-                    set_seed = T,
+                    do_PCA_first = FALSE,
+                    set_seed = TRUE,
                     seed_number = 1234,
                     verbose = TRUE,
                     ...) {
@@ -1583,12 +1620,12 @@ runtSNE <- function(gobject,
 
     }
 
-
-    if(set_seed == TRUE) {
+    # start seed
+    if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
     }
 
-    ## run umap ##
+    ## run tSNE ##
     tsne_clus = Rtsne::Rtsne(X = matrix_to_use,
                              dims = dims,
                              perplexity = perplexity,
@@ -1601,12 +1638,13 @@ runtSNE <- function(gobject,
     cell_ID = NULL
     tsne_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
-    if(set_seed == TRUE) {
+    # exit seed
+    if(isTRUE(set_seed)) {
       set.seed(Sys.time())
     }
 
 
-    if(return_gobject == TRUE) {
+    if(isTRUE(return_gobject)) {
 
       tsne_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
                                              spat_unit = spat_unit, feat_type = feat_type,

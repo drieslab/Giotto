@@ -13,8 +13,7 @@ clusterCells(
   network_name = "sNN.pca",
   pyth_leid_resolution = 1,
   pyth_leid_weight_col = "weight",
-  pyth_leid_part_type = c("RBConfigurationVertexPartition",
-    "ModularityVertexPartition"),
+  pyth_leid_part_type = c("RBConfigurationVertexPartition", "ModularityVertexPartition"),
   pyth_leid_init_memb = NULL,
   pyth_leid_iterations = 1000,
   pyth_louv_resolution = 1,
@@ -46,7 +45,7 @@ clusterCells(
   hc_k = 10,
   hc_h = NULL,
   return_gobject = TRUE,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234
 )
 }

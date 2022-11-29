@@ -20,8 +20,8 @@ runtSNE(
   dims = 2,
   perplexity = 30,
   theta = 0.5,
-  do_PCA_first = F,
-  set_seed = T,
+  do_PCA_first = FALSE,
+  set_seed = TRUE,
   seed_number = 1234,
   verbose = TRUE,
   ...
