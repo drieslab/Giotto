@@ -21,7 +21,7 @@ doHclust(
   h = NULL,
   name = "hclust",
   return_gobject = TRUE,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234
 )
 }

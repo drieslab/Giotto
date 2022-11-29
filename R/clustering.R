@@ -53,7 +53,7 @@ doLeidenCluster = function(gobject,
                            init_membership = NULL,
                            n_iterations = 1000,
                            return_gobject = TRUE,
-                           set_seed = T,
+                           set_seed = TRUE,
                            seed_number = 1234) {
 
 
@@ -92,8 +92,8 @@ doLeidenCluster = function(gobject,
   python_leiden_function = system.file("python", "python_leiden.py", package = 'Giotto')
   reticulate::source_python(file = python_leiden_function)
 
-  ## start seed
-  if(set_seed == TRUE) {
+  ## set seed
+  if(isTRUE(set_seed)) {
     seed_number = as.integer(seed_number)
   } else {
     seed_number = as.integer(sample(x = 1:10000, size = 1))
@@ -242,8 +242,8 @@ doLouvainCluster_community <- function(gobject,
   python_louvain_function = system.file("python", "python_louvain.py", package = 'Giotto')
   reticulate::source_python(file = python_louvain_function)
 
-  # start seed
-  if(set_seed == TRUE) {
+  # set seed
+  if(isTRUE(set_seed)) {
     seed_number = as.integer(seed_number)
   } else {
     seed_number = as.integer(sample(x = 1:10000, size = 1))
@@ -282,7 +282,7 @@ doLouvainCluster_community <- function(gobject,
 
 
   ## return
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     cluster_names = names(gobject@cell_metadata)
     if(name %in% cluster_names) {
@@ -373,8 +373,8 @@ doLouvainCluster_multinet <- function(gobject,
   multinet::add_igraph_layer_ml(n = mln_object, g = igraph_object, name = name)
 
   # start seed
-  if(set_seed == TRUE) {
-    set.seed(seed = seed_number)
+  if(isTRUE(set_seed)) {
+    set.seed(seed = as.integer(seed_number))
   }
 
   # data.table variables
@@ -386,7 +386,7 @@ doLouvainCluster_multinet <- function(gobject,
   data.table::setnames(ident_clusters_DT, 'cid', name)
 
   # exit seed
-  if(set_seed == TRUE) {
+  if(isTRUE(set_seed)) {
     set.seed(Sys.time())
   }
 
@@ -557,7 +557,7 @@ doRandomWalkCluster <- function(gobject,
 
 
   # start seed
-  if(set_seed == TRUE) {
+  if(isTRUE(set_seed)) {
     set.seed(seed = seed_number)
   }
 
@@ -568,7 +568,7 @@ doRandomWalkCluster <- function(gobject,
   data.table::setnames(ident_clusters_DT, 'name', name)
 
   # exit seed
-  if(set_seed == TRUE) {
+  if(isTRUE(set_seed)) {
     set.seed(Sys.time())
   }
 
@@ -647,7 +647,7 @@ doSNNCluster <- function(gobject,
 
 
   # start seed
-  if(set_seed == TRUE) {
+  if(isTRUE(set_seed)) {
     set.seed(seed = seed_number)
   }
 
@@ -673,7 +673,7 @@ doSNNCluster <- function(gobject,
   data.table::setnames(ident_clusters_DT, 'name', name)
 
   # exit seed
-  if(set_seed == TRUE) {
+  if(isTRUE(set_seed)) {
     set.seed(Sys.time())
   }
 
@@ -830,13 +830,10 @@ doKmeans <- function(gobject,
   }
 
   ## kmeans clustering
-  # set seed
-  if(set_seed == TRUE) {
-    seed_number = as.integer(seed_number)
-  } else {
-    seed_number = as.integer(sample(x = 1:10000, size = 1))
+  # start seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = as.integer(seed_number))
   }
-  set.seed(seed = seed_number)
 
   # start clustering
   kclusters = stats::kmeans(x = celldist,
@@ -845,6 +842,10 @@ doKmeans <- function(gobject,
                             nstart = nstart,
                             algorithm =  algorithm)
 
+  # exit seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = Sys.time())
+  }
 
   ident_clusters_DT = data.table::data.table(cell_ID = names(kclusters[['cluster']]),
                                              'name' = kclusters[['cluster']])
@@ -852,7 +853,7 @@ doKmeans <- function(gobject,
 
 
   ## add clusters to metadata ##
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     #cluster_names = names(gobject@cell_metadata[[spat_unit]][[feat_type]])
 
@@ -862,16 +863,26 @@ doKmeans <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
-      cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+      cell_metadata = get_cell_metadata(gobject = gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject = gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
     gobject = addCellMetadata(gobject = gobject,
                               spat_unit = spat_unit,
                               feat_type = feat_type,
-                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE,
                               column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
@@ -931,7 +942,7 @@ doHclust <- function(gobject,
                      h = NULL,
                      name = 'hclust',
                      return_gobject = TRUE,
-                     set_seed = T,
+                     set_seed = TRUE,
                      seed_number = 1234) {
 
 
@@ -1001,17 +1012,19 @@ doHclust <- function(gobject,
   }
 
   ## hierarchical clustering
-  # set seed
-  if(set_seed == TRUE) {
-    seed_number = as.integer(seed_number)
-  } else {
-    seed_number = as.integer(sample(x = 1:10000, size = 1))
+  # start seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = as.integer(seed_number))
   }
-  set.seed(seed = seed_number)
 
   # start clustering
   hclusters = stats::hclust(d = celldist, method = agglomeration_method)
   hclusters_cut = stats::cutree(tree = hclusters, k = k, h = h)
+
+  # exit seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = Sys.time())
+  }
 
   ident_clusters_DT = data.table::data.table(cell_ID = names(hclusters_cut),
                                              'name' = hclusters_cut)
@@ -1170,7 +1183,7 @@ clusterCells <- function(gobject,
 
 
                          return_gobject = TRUE,
-                         set_seed = T,
+                         set_seed = TRUE,
                          seed_number = 1234) {
 
   ## select cluster method
