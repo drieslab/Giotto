@@ -10,7 +10,8 @@ spatInSituPlotHex(
   feat_type = "rna",
   sdimx = "x",
   sdimy = "y",
-  bins = 10,
+  binwidth = NULL,
+  min_axis_bins = 10,
   alpha = 0.5,
   show_polygon = TRUE,
   polygon_feat_type = "cell",
@@ -19,7 +20,7 @@ spatInSituPlotHex(
   polygon_fill_as_factor = NULL,
   polygon_alpha = 0.5,
   polygon_size = 0.5,
-  coord_fix_ratio = NULL,
+  coord_fix_ratio = 1,
   axis_text = 8,
   axis_title = 8,
   legend_text = 6,
@@ -46,7 +47,11 @@ spatInSituPlotHex(
 
 \item{sdimy}{spatial dimension y}
 
-\item{bins}{number of hexbins in one direction}
+\item{binwidth}{numeric vector for x and y width of bins (default is minor axis
+range/10, where the 10 is from \code{min_axis_bins})}
+
+\item{min_axis_bins}{number of bins to create per range defined by minor axis.
+(default value is 10)}
 
 \item{alpha}{alpha of hexbin plot}
 
