@@ -3644,13 +3644,15 @@ spatDeconvPlot = function(gobject,
   ## get spatial cell locations
   spatial_locations = get_spatial_locations(gobject = gobject,
                                             spat_unit = spat_unit,
-                                            spat_loc_name = spat_loc_name)
+                                            spat_loc_name = spat_loc_name,
+                                            output = "data.table")
 
   ## deconvolution results
   spatial_enrichment = get_spatial_enrichment(gobject = gobject,
                                               spat_unit = spat_unit,
                                               feat_type = feat_type,
-                                              enrichm_name = deconv_name)
+                                              enrichm_name = deconv_name,
+                                              output = "data.table")
 
 
 
