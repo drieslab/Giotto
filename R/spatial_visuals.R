@@ -9,6 +9,26 @@
 ## 2-D ggplots ####
 ## ----------- ##
 
+
+
+
+## ** set default plot n cols ####
+#' @title Set default ncols in plotting grid
+#' @name set_default_cow_n_col
+#' @keywords internal
+set_default_cow_n_col = function(cow_n_col = NULL,
+                                 nr_plots) {
+
+  if(is.null(cow_n_col)) {
+    cow_n_col = ceiling(sqrt(nr_plots))
+  } else {
+    cow_n_col
+  }
+  return(cow_n_col)
+}
+
+
+
 ## ** image object compatibility ####
 
 #' @title Optimized largeImage resampling
@@ -1187,7 +1207,7 @@ dimPlot2D = function(gobject,
                      background_color = 'white',
                      axis_text = 8,
                      axis_title = 8,
-                     cow_n_col = 2,
+                     cow_n_col = NULL,
                      cow_rel_h = 1,
                      cow_rel_w = 1,
                      cow_align = 'h',
@@ -1372,7 +1392,8 @@ dimPlot2D = function(gobject,
 
     # combine plots with cowplot
     combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                     ncol = cow_n_col,
+                                     ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                  nr_plots = length(savelist)),
                                      rel_heights = cow_rel_h,
                                      rel_widths = cow_rel_w,
                                      align = cow_align)
@@ -3253,7 +3274,7 @@ spatPlot2D = function(gobject,
                       vor_alpha = 1,
                       axis_text = 8,
                       axis_title = 8,
-                      cow_n_col = 2,
+                      cow_n_col = NULL,
                       cow_rel_h = 1,
                       cow_rel_w = 1,
                       cow_align = 'h',
@@ -3469,7 +3490,8 @@ spatPlot2D = function(gobject,
 
     # combine plots with cowplot
     combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                     ncol = cow_n_col,
+                                     ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                  nr_plots = length(savelist)),
                                      rel_heights = cow_rel_h,
                                      rel_widths = cow_rel_w,
                                      align = cow_align)
@@ -4193,7 +4215,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   vor_max_radius = 200,
                                   axis_text = 8,
                                   axis_title = 8,
-                                  cow_n_col = 2,
+                                  cow_n_col = NULL,
                                   cow_rel_h = 1,
                                   cow_rel_w = 1,
                                   cow_align = 'h',
@@ -4559,7 +4581,8 @@ spatFeatPlot2D_single <- function(gobject,
 
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
+                                   ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                nr_plots = length(savelist)),
                                    rel_heights = cow_rel_h,
                                    rel_widths = cow_rel_w,
                                    align = cow_align)
@@ -4677,7 +4700,7 @@ spatFeatPlot2D <- function(gobject,
                            vor_max_radius = 200,
                            axis_text = 8,
                            axis_title = 8,
-                           cow_n_col = 2,
+                           cow_n_col = NULL,
                            cow_rel_h = 1,
                            cow_rel_w = 1,
                            cow_align = 'h',
@@ -4851,7 +4874,8 @@ spatFeatPlot2D <- function(gobject,
 
     # combine plots with cowplot
     combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                     ncol = cow_n_col,
+                                     ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                  nr_plots = length(savelist)),
                                      rel_heights = cow_rel_h,
                                      rel_widths = cow_rel_w,
                                      align = cow_align)
@@ -5001,7 +5025,7 @@ dimFeatPlot2D <- function(gobject,
                           background_color = 'white',
                           axis_text = 8,
                           axis_title = 8,
-                          cow_n_col = 2,
+                          cow_n_col = NULL,
                           cow_rel_h = 1,
                           cow_rel_w = 1,
                           cow_align = 'h',
@@ -5265,7 +5289,8 @@ dimFeatPlot2D <- function(gobject,
 
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
+                                   ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                nr_plots = length(savelist)),
                                    rel_heights = cow_rel_h, rel_widths = cow_rel_w,
                                    align = cow_align)
 
@@ -5446,7 +5471,7 @@ spatDimFeatPlot2D <- function(gobject,
                               cell_color_gradient = c('blue', 'white', 'red'),
                               gradient_midpoint = NULL,
                               gradient_limits = NULL,
-                              cow_n_col = 2,
+                              cow_n_col = NULL,
                               cow_rel_h = 1,
                               cow_rel_w = 1,
                               cow_align = 'h',
@@ -5753,7 +5778,7 @@ spatCellPlot2D = function(gobject,
                           vor_alpha = 1,
                           axis_text = 8,
                           axis_title = 8,
-                          cow_n_col = 2,
+                          cow_n_col = NULL,
                           cow_rel_h = 1,
                           cow_rel_w = 1,
                           cow_align = 'h',
@@ -5861,7 +5886,8 @@ spatCellPlot2D = function(gobject,
 
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
+                                   ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                nr_plots = length(savelist)),
                                    rel_heights = cow_rel_h,
                                    rel_widths = cow_rel_w,
                                    align = cow_align)
@@ -5999,7 +6025,7 @@ dimCellPlot2D = function(gobject,
                          background_color = 'white',
                          axis_text = 8,
                          axis_title = 8,
-                         cow_n_col = 2,
+                         cow_n_col = NULL,
                          cow_rel_h = 1,
                          cow_rel_w = 1,
                          cow_align = 'h',
@@ -6097,7 +6123,8 @@ dimCellPlot2D = function(gobject,
 
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
+                                   ncol = set_default_cow_n_col(cow_n_col = cow_n_col,
+                                                                nr_plots = length(savelist)),
                                    rel_heights = cow_rel_h,
                                    rel_widths = cow_rel_w,
                                    align = cow_align)
@@ -6301,7 +6328,7 @@ spatDimCellPlot2D <- function(gobject,
                               axis_text = 8,
                               axis_title = 8,
                               coord_fix_ratio = 1,
-                              cow_n_col = 2,
+                              cow_n_col = NULL,
                               cow_rel_h = 1,
                               cow_rel_w = 1,
                               cow_align = 'h',
