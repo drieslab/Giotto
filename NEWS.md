@@ -26,7 +26,7 @@
 # Giotto Suite 3.0.0 (2022-11-18)
 
 ## Added
-- New S4 subobjects. Details can be found in [classes.R](https://github.com/drieslab/Giotto/blob/suite_dev/R/classes.R)
+- New S4 subobjects. Details can be found in [classes.R](https://github.com/drieslab/Giotto/blob/suite/R/classes.R)
 - New basic generics for S4 subobjects. Mainly the use of `[]` and `[]<-` to get or set information into the main data slot
 - New `@provenance` slot in S4 subobjects to track provenance of aggregated information (z_layers used for example)
 
