@@ -4,14 +4,29 @@
 \alias{polyStamp}
 \title{Spatial polygons stamp}
 \usage{
-polyStamp(stamp_dt, spatlocs)
+polyStamp(
+  stamp_dt,
+  spatlocs,
+  id_col = "cell_ID",
+  x_col = "sdimx",
+  y_col = "sdimy",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{stamp_dt}{data.table with x and y vertices for a polygon to be stamped.
 Column names are expected to be 'x' and 'y' respectively}
 
 \item{spatlocs}{spatial locations with x and y coordinates where polygons should
-be stamped. Column names are expected to be 'sdimx' and 'sdimy' respectively.}
+be stamped. Column names are 'cell_ID', 'sdimx' and 'sdimy' by default}
+
+\item{id_col}{column in spatlocs to use as IDs (default is 'cell_ID')}
+
+\item{x_col}{column in spatlocs to use as x locations (default is 'sdimx')}
+
+\item{y_col}{column in spatlocs to use as y locations (default is 'sdimy')}
+
+\item{verbose}{be verbose}
 }
 \value{
 returns a data.table of polygon vertices
