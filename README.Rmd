@@ -25,7 +25,7 @@ We have created a new [readthedocs website](https://giottosuite.readthedocs.io/e
 
 Giotto Suite is a major upgrade to the Giotto package that provides tools to process, analyze and visualize **spatial multi-omics data at all scales and multiple resolutions**. The underlying framework is generalizable to virtually all current and emerging spatial technologies. Our Giotto Suite prototype pipeline is generally applicable on various different datasets, such as those created by state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH, CosMx), sequencing (Slide-seq, Visium, STARmap, Seq-Scope, Stereo-Seq) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (subcellular, single cell or multiple cells), spatial dimension (2D vs 3D), molecular modality (protein, RNA, DNA, ...), and throughput (number of cells and analytes). 
 
-The package is in heavy development. Please check back often!
+The package is in heavy development. Please check back often!  
 For a version history/changelog, please see the [NEWS file](https://github.com/drieslab/Giotto/blob/suite/NEWS.md).
 
 <!-- <img src="inst/images/general_figs/overview_datasets.png" /> -->

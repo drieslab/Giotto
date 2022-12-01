@@ -50,8 +50,8 @@ in terms of resolution (subcellular, single cell or multiple cells),
 spatial dimension (2D vs 3D), molecular modality (protein, RNA, DNA, …),
 and throughput (number of cells and analytes).
 
-The package is in heavy development. Please check back often! For a
-version history/changelog, please see the [NEWS
+The package is in heavy development. Please check back often!  
+For a version history/changelog, please see the [NEWS
 file](https://github.com/drieslab/Giotto/blob/suite/NEWS.md).
 
 <!-- <img src="inst/images/general_figs/overview_datasets.png" /> -->
