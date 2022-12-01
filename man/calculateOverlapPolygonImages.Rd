@@ -6,7 +6,7 @@
 \usage{
 calculateOverlapPolygonImages(
   gobject,
-  name_overlap = "images",
+  name_overlap = "protein",
   spatial_info = "cell",
   poly_ID_names = NULL,
   image_names = NULL,

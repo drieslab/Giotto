@@ -18,6 +18,8 @@ Framework to store dimension reduction information
 
 \item{\code{provenance}}{origin of aggregated information (if applicable)}
 
+\item{\code{reduction}}{whether reduction was performed on 'feats' or 'cells'}
+
 \item{\code{reduction_method}}{method used to generate dimension reduction}
 
 \item{\code{coordinates}}{embedding coordinates}

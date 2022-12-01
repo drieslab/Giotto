@@ -9,6 +9,8 @@
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
 #' @param output what format in which to get information (e.g. "data.table")
+#' @param set_defaults set default spat_unit and feat_type. Change to FALSE only when
+#' expression and spat_info are not expected to exist.
 #' @keywords internal
 NULL
 
@@ -37,11 +39,14 @@ NULL
 #' @family functions to set data in giotto object
 #' @keywords internal
 get_cell_id = function(gobject,
-                       spat_unit = NULL) {
+                       spat_unit = NULL,
+                       set_defaults = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
   return(slot(gobject, 'cell_ID')[[spat_unit]])
 
@@ -63,10 +68,13 @@ get_cell_id = function(gobject,
 #' @keywords internal
 set_cell_id = function(gobject,
                        spat_unit = NULL,
-                       cell_IDs) {
+                       cell_IDs,
+                       set_defaults = TRUE) {
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
   if(!is.null(cell_IDs)) {
     if(!inherits(cell_IDs, 'character')) stop('cell_IDs must be a character vector.')
@@ -92,13 +100,16 @@ set_cell_id = function(gobject,
 #' @family functions to set data in giotto object
 #' @keywords internal
 get_feat_id = function(gobject,
-                       feat_type = NULL) {
+                       feat_type = NULL,
+                       set_defaults = TRUE) {
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = NULL)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = NULL)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   return(slot(gobject, 'feat_ID')[[feat_type]])
 
@@ -118,13 +129,16 @@ get_feat_id = function(gobject,
 #' @keywords internal
 set_feat_id = function(gobject,
                        feat_type = NULL,
-                       feat_IDs) {
+                       feat_IDs,
+                       set_defaults = TRUE) {
   if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = NULL)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = NULL)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   if(!is.null(feat_IDs)) {
     if(!inherits(feat_IDs, 'character')) stop('feat_IDs must be a character vector.')
@@ -249,16 +263,19 @@ get_cell_metadata = function(gobject,
                              spat_unit = NULL,
                              feat_type = NULL,
                              output = c('cellMetaObj', 'data.table'),
-                             copy_obj = TRUE) {
+                             copy_obj = TRUE,
+                             set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('cellMetaObj', 'data.table'))
 
   # 1. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 2. Find object - note that metadata objects do not have names
   cellMeta = gobject@cell_metadata[[spat_unit]][[feat_type]]
@@ -302,7 +319,8 @@ set_cell_metadata = function(gobject,
                              spat_unit = NULL,
                              feat_type = NULL,
                              provenance = NULL,
-                             verbose = TRUE) {
+                             verbose = TRUE,
+                             set_defaults = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
@@ -311,11 +329,13 @@ set_cell_metadata = function(gobject,
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
 
   # 2. set spat unit/ feat type if needed
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 3.1 if input is NULL, remove object
   if(is.null(metadata)) {
@@ -457,16 +477,19 @@ get_feature_metadata = function(gobject,
                                 spat_unit = NULL,
                                 feat_type = NULL,
                                 output = c('featMetaObj', 'data.table'),
-                                copy_obj = TRUE) {
+                                copy_obj = TRUE,
+                                set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('featMetaObj', 'data.table'))
 
   # 1. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 2. Find object - note that metadata objects do not have names
   featMeta = gobject@feat_metadata[[spat_unit]][[feat_type]]
@@ -523,7 +546,8 @@ set_feature_metadata = function(gobject,
                                 spat_unit = NULL,
                                 feat_type = NULL,
                                 provenance = NULL,
-                                verbose = TRUE) {
+                                verbose = TRUE,
+                                set_defaults = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
@@ -532,15 +556,17 @@ set_feature_metadata = function(gobject,
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
 
   # 2. set spat unit/ feat type if needed
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 3.1 if input is NULL, remove object
   if(is.null(metadata)) {
-    if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
+    if(isTRUE(verbose)) wrap_msg('NULL passed to metadata.\n Removing specified metadata.')
     gobject@feat_metadata[[spat_unit]][[feat_type]] = NULL
     return(gobject)
   }
@@ -655,18 +681,20 @@ get_expression_values = function(gobject,
                                  values = NULL,
                                  spat_unit = NULL,
                                  feat_type = NULL,
-                                 output = c('exprObj', 'matrix')) {
+                                 output = c('exprObj', 'matrix'),
+                                 set_defaults = TRUE) {
 
 
   output = match.arg(output, choices = c('exprObj', 'matrix'))
 
   # 1. Set feat_type and spat_unit
-
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 2. Find object
 
@@ -758,7 +786,8 @@ set_expression_values = function(gobject,
                                  feat_type = NULL,
                                  name = 'test',
                                  provenance = NULL,
-                                 verbose = TRUE) {
+                                 verbose = TRUE,
+                                 set_defaults = TRUE) {
 
   if(!inherits(gobject, 'giotto')) stop('Only Giotto objects are supported for this function.')
 
@@ -768,7 +797,7 @@ set_expression_values = function(gobject,
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
-  if(depth(slot(gobject, 'expression')) > 0) {
+  if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
     feat_type = set_default_feat_type(gobject = gobject,
@@ -873,18 +902,22 @@ get_spatial_locations = function(gobject,
                                  spat_loc_name = NULL,
                                  output = c('spatLocsObj', 'data.table'),
                                  copy_obj = TRUE,
-                                 verbose = TRUE) {
+                                 verbose = TRUE,
+                                 set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('spatLocsObj', 'data.table'))
 
   if(!is.null(spat_unit)) {
     potential_spat_unit = names(slot(gobject, 'spatial_locs'))
-    if(!spat_unit %in% potential_spat_unit) stop('No spatial locations for spatial unit "', spat_unit, '" exist in spatial_locs slot.')
+    if(!spat_unit %in% potential_spat_unit) stop(wrap_txt('No spatial locations for spatial unit "', spat_unit, '" exist in spatial_locs slot.'))
   }
 
   # spatial locations
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
+
 
   # if NULL (not given) and spatial locations have been added, then use first one
   # if NULL (not given) and spatial locations have NOT been added, then keep NULL
@@ -931,11 +964,11 @@ get_spatial_locations = function(gobject,
         }
       }
     } else {
-      if(isTRUE(verbose)) message('Other spatial locations outputs not yet supported')
+      if(isTRUE(verbose)) wrap_msg('Other spatial locations outputs not yet supported')
     }
     return(spatloc)
   } else { # case if not found
-    stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
+    stop(wrap_txt("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n"))
   }
 }
 
@@ -984,15 +1017,18 @@ set_spatial_locations = function(gobject,
                                  spat_unit = NULL,
                                  spat_loc_name = 'raw',
                                  provenance = NULL,
-                                 verbose = TRUE) {
+                                 verbose = TRUE,
+                                 set_defaults = TRUE) {
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$spat_loc_name), yes = TRUE, no = FALSE)
 
   # 2. spatial locations
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
   # 3. remove if input is NULL
   if(is.null(spatlocs)) {
@@ -1069,16 +1105,19 @@ get_dimReduction = function(gobject,
                             reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
-                            output = c('dimObj', 'data.table')) {
+                            output = c('dimObj', 'data.table'),
+                            set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('dimObj', 'data.table'))
 
   # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   ## check parameters
   reduction = match.arg(arg = reduction, choices = c('cells', 'feats'))
@@ -1154,15 +1193,18 @@ set_dimReduction = function(gobject,
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
                             provenance = NULL,
-                            verbose = TRUE) {
+                            verbose = TRUE,
+                            set_defaults = TRUE) {
 
 
   # Set feat_type and spat_unit
-  # spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                   spat_unit = spat_unit)
-  # feat_type = set_default_feat_type(gobject = gobject,
-  #                                   spat_unit = spat_unit,
-  #                                   feat_type = feat_type)
+  # if(isTRUE(set_defaults)) {
+  #   spat_unit = set_default_spat_unit(gobject = gobject,
+  #                                     spat_unit = spat_unit)
+  #   feat_type = set_default_feat_type(gobject = gobject,
+  #                                     spat_unit = spat_unit,
+  #                                     feat_type = feat_type)
+  # }
 
   # get set location from S4
   name = slot(dimObject, 'name')
@@ -1218,17 +1260,19 @@ get_NearestNetwork = function(gobject,
                               feat_type = NULL,
                               nn_network_to_use = NULL,
                               network_name = NULL,
-                              output = c('nnNetObj', 'igraph', 'data.table')) {
+                              output = c('nnNetObj', 'igraph', 'data.table'),
+                              set_defaults = TRUE) {
 
   output = match.arg(arg = output, choices = c('nnNetObj', 'igraph', 'data.table'))
 
   # 1.  Set feat_type and spat_unit
-
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 2 Find the object
 
@@ -1377,7 +1421,8 @@ set_NearestNetwork = function(gobject,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               provenance = NULL,
-                              verbose = TRUE) {
+                              verbose = TRUE,
+                              set_defaults = TRUE) {
 
   # 1. determine user input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -1386,11 +1431,13 @@ set_NearestNetwork = function(gobject,
   nospec_name = ifelse(is.null(match.call()$network_name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 3. If input is null, remove object
   if(is.null(nn_network)) {
@@ -1478,7 +1525,8 @@ get_spatialNetwork = function(gobject,
                               output = c('spatialNetworkObj',
                                          'networkDT',
                                          'networkDT_before_filter',
-                                         'outputObj')) {
+                                         'outputObj'),
+                              set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('spatialNetworkObj',
                                          'networkDT',
@@ -1487,8 +1535,10 @@ get_spatialNetwork = function(gobject,
 
 
   # Set spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
   # set name to get if missing
   if(is.null(name)) name = names(slot(gobject, 'spatial_network')[[spat_unit]])[[1]]
@@ -1547,7 +1597,8 @@ set_spatialNetwork = function(gobject,
                               spat_unit = NULL,
                               name = NULL,
                               spatial_network,
-                              verbose = TRUE) {
+                              verbose = TRUE,
+                              set_defaults = TRUE) {
 
   # 1. determmine if input was supplied to spat_unit and name
   if(is.null(spat_unit)) {
@@ -1558,8 +1609,10 @@ set_spatialNetwork = function(gobject,
   } else nospec_name = FALSE
 
   # 2. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
   # 3. If input is NULL, remove object
   if(is.null(spatial_network)) {
@@ -1626,14 +1679,17 @@ get_spatialGrid = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL,
                            name = NULL,
-                           return_grid_Obj = FALSE) {
+                           return_grid_Obj = FALSE,
+                           set_defaults = TRUE) {
 
   # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # **To be deprecated** - check for old nesting
   if(is.null(names(gobject@spatial_grid[[spat_unit]][[feat_type]])[[1]])) { # If gobject has nothing for this feat_type
@@ -1721,7 +1777,8 @@ set_spatialGrid = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL,
                            name = NULL,
-                           verbose = TRUE) {
+                           verbose = TRUE,
+                           set_defaults = TRUE) {
 
   # 1. check input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -1729,11 +1786,13 @@ set_spatialGrid = function(gobject,
   nospec_name = ifelse(is.null(name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 3. if input is null, remove object
   if(is.null(spatial_grid)) {
@@ -1906,11 +1965,14 @@ set_polygon_info = function(gobject,
 #' @family functions to get data from giotto object
 #' @export
 get_feature_info = function(gobject,
-                            feat_type = NULL) {
+                            feat_type = NULL,
+                            set_defaults = TRUE) {
 
   # specify feat_type
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      feat_type = feat_type)
+  }
 
   potential_names = names(gobject@feat_info)
 
@@ -1990,16 +2052,19 @@ get_spatial_enrichment = function(gobject,
                                   feat_type = NULL,
                                   enrichm_name = 'DWLS',
                                   output = c('spatEnrObj', 'data.table'),
-                                  copy_obj = TRUE) {
+                                  copy_obj = TRUE,
+                                  set_defaults = TRUE) {
 
   output = match.arg(output, choices = c('spatEnrObj', 'data.table'))
 
   # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # spatial locations
   # if NULL (not given) and spatial locations have been added, then use first one
@@ -2055,7 +2120,8 @@ set_spatial_enrichment = function(gobject,
                                   spat_unit = NULL,
                                   feat_type = NULL,
                                   enrichm_name = 'enrichment',
-                                  verbose = TRUE) {
+                                  verbose = TRUE,
+                                  set_defaults = TRUE) {
 
   # 1. Check user input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -2063,11 +2129,13 @@ set_spatial_enrichment = function(gobject,
   nospec_name = ifelse(is.null(match.call()$enrichm_name), yes = TRUE, no = FALSE)
 
   # 2. Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
 
   # 3. Remove object if input is NULL
   if(is.null(spatenrichment)) {

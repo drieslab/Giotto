@@ -10,7 +10,7 @@ Framework to store feature metadata
 \section{Slots}{
 
 \describe{
-\item{\code{metadata}}{metadata info}
+\item{\code{metaDT}}{metadata info}
 
 \item{\code{col_desc}}{(optional) character vector describing columns of the metadata}
 
@@ -19,7 +19,5 @@ Framework to store feature metadata
 \item{\code{feat_type}}{feature type of aggregated expression (e.g. 'rna', 'protein')}
 
 \item{\code{provenance}}{origin data of aggregated expression information (if applicable)}
-
-\item{\code{misc}}{misc}
 }}
 

@@ -389,6 +389,7 @@ print_leaf = function(level_index,
 }
 
 
+
 #' @title Box characters
 #' @name box_chars
 #' @description Helper function to print unicode characters using escape codes.
@@ -422,7 +423,8 @@ box_chars = function() {
 }
 
 
-#' @describeIn box_chars
+
+#' @describeIn box_chars Determine if print is latex output
 #' @keywords internal
 is_latex_output = function() {
   if(!('knitr' %in% loadedNamespaces())) return(FALSE)
@@ -430,7 +432,8 @@ is_latex_output = function() {
 }
 
 
-#' @describeIn box_chars
+
+#' @describeIn box_chars Determine if system is using UTF-8 encoding
 #' @keywords internal
 is_utf8_output = function() {
   opt = getOption('cli.unicode', default = NULL)
@@ -453,7 +456,7 @@ is_utf8_output = function() {
 #' @description print abbreviated matrix exprObj. Works for Matrix pkg denseMatrix,
 #' matrix, data.frame and classes that inherit them.
 #' @keywords internal
-abb_mat = function(exprObj, nrows, ncols) {
+abb_mat = function(exprObj, nrows, ncols, header = TRUE) {
   mat = as.matrix(exprObj[])
   four_names = head(colnames(mat), 4)
   mat_cols = ncol(mat)
@@ -465,9 +468,13 @@ abb_mat = function(exprObj, nrows, ncols) {
   colnames(mat) = NULL
 
   # prints
-  cat('An object of class', class(exprObj), '\n')
-  cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
-  cat('  Provenance:', exprObj@provenance, '\n\ncontains:\n')
+  if(isTRUE(header)) {
+    cat('An object of class', class(exprObj), '\n')
+    cat(paste0('for spatial unit: "', exprObj@spat_unit, '" and feature type: "', exprObj@feat_type, '"\n'))
+  }
+  cat('  Provenance:', exprObj@provenance)
+  if(isTRUE(header)) cat('\n\ncontains:\n')
+  else cat('\n')
   cat(paste0(mat_rows, ' x ', mat_cols, ' dense matrix of class "', class(exprObj[]), '"\n\n'))
   print(mat)
   cat('\n First four colnames:')
@@ -503,23 +510,23 @@ abb_spatlocs = function(spatLocsObj, nrows) {
 #' @title Wrap message
 #' @name wrap_msg
 #' @param ... additional strings and/or elements to pass to cat
-#' @param collapse how to join elements of string (default is no space)
+#' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
 #' @param keywords internal
-wrap_msg = function(..., collapse = '') {
-  message(wrap_txt(..., collapse = ''))
+wrap_msg = function(..., sep = ' ') {
+  message(wrap_txt(..., sep = sep))
 }
 
 #' @title Wrap text
 #' @name wrap_txt
 #' @param ... additional params to pass
-#' @param collapse how to join elements of string (default is no space)
+#' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
 #' @keywords internal
-wrap_txt = function(..., collapse = '', strWidth = 100) {
-  cat(...) %>%
+wrap_txt = function(..., sep = ' ', strWidth = 100) {
+  cat(..., sep = sep) %>%
     capture.output() %>%
-    strwrap(., prefix =  ' ', initial = '',
+    strwrap(., prefix =  ' ', initial = '', # indent later lines, no indent first line
             width = min(80, getOption("width"), strWidth)) %>%
     paste(., collapse = '\n')
 }
@@ -547,7 +554,8 @@ color_tag = function() {
 }
 
 
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine if system should print color
 #' @keywords internal
 use_color_text = function() {
   opt = getOption('giotto.color_show', default = NULL)
@@ -563,7 +571,8 @@ use_color_text = function() {
 }
 
 
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine if system can print at least 8 colors
 #' @keywords internal
 ansi_colors = function() {
 
@@ -616,7 +625,8 @@ ansi_colors = function() {
 }
 
 
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine if emacs can print color
 #' @keywords internal
 is_emacs_with_color = function() {
   (Sys.getenv('EMACS') != '' || Sys.getenv('INSIDE_EMACS') !=
@@ -625,7 +635,8 @@ is_emacs_with_color = function() {
 }
 
 
-#' @describeIn color_tag
+
+#' @describeIn color_tag Determine emacs version
 #' @keywords internal
 emacs_version = function() {
   ver <- Sys.getenv('INSIDE_EMACS')

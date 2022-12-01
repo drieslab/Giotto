@@ -10,7 +10,8 @@ plot_feature_hexbin_layer(
   sel_feat,
   sdimx = "x",
   sdimy = "y",
-  bins = 10,
+  binwidth = NULL,
+  min_axis_bins = 10L,
   alpha = 0.5
 )
 }

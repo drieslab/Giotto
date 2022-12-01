@@ -962,7 +962,7 @@ polyStamp = function(stamp_dt,
 #' given radius. Modified from \pkg{packcircles}.
 #' @param radius radius of circle to be drawn
 #' @param npoints number of vertices to generate
-#' @seealso polyStamp rectVertices
+#' @seealso polyStamp rectVertices hexVertices
 #' @return a data.table of circle vertices
 #' @export
 circleVertices = function(radius,
@@ -981,7 +981,7 @@ circleVertices = function(radius,
 #' through \code{dims} param.
 #' @param dims named vector in the style of c(x = \code{numeric}, y = \code{numeric})
 #' that defines the width (x) and height (y) of the generated rectangle polygon.
-#' @seealso polyStamp circleVertices
+#' @seealso polyStamp circleVertices hexVertices
 #' @return a data.table of rectangle vertices
 #' @export
 rectVertices = function(dims) {
@@ -991,6 +991,48 @@ rectVertices = function(dims) {
   m = data.table::data.table(x = c(0,0,xdim,xdim),
                              y = c(0,ydim,ydim,0))
   return(m)
+}
+
+
+#' @title Generate regular hexagon vertices
+#' @name hexVertices
+#' @description Generates vertex coordinates for a regular hexagon.
+#' @param radius radius of the hexagon
+#' @param  major_axis orientation of the major axis 'v' is vertical (default)
+#' and 'h' is horizontal
+#' @seealso polyStamp circleVertices rectVertices
+#' @return a data.table of regular hexagon vertices
+#' @export
+hexVertices = function(radius, major_axis = c('v', 'h')) {
+  major_axis = match.arg(major_axis, choices = c('v', 'h'))
+  r = radius
+  v = data.table::data.table(
+    # counter clockwise
+    x = c(
+      0,                # A
+      (sqrt(3) * r)/2,  # B
+      (sqrt(3) * r)/2,  # C
+      0,                # D
+      -(sqrt(3) * r)/2, # E
+      -(sqrt(3) * r)/2  # F
+    ),
+    y = c(
+      r,    # A
+      r/2,  # B
+      -r/2, # C
+      -r,   # D
+      -r/2, # E
+      r/2   # F
+    ))
+  if(major_axis == 'v') {
+    return(v)
+  }
+  if(major_axis == 'h') {
+    h = data.table::data.table()
+    h$x = v$y
+    h$y = v$x
+    return(h)
+  }
 }
 
 
@@ -1882,6 +1924,7 @@ polygon_to_raster = function(polygon, field = NULL) {
 #' @param feat_info feature information
 #' @param feat_subset_column feature info column to subset features with
 #' @param feat_subset_ids ids within feature info column to use for subsetting
+#' @param count_info_column column with count information (optional)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
@@ -1895,6 +1938,7 @@ calculateOverlapRaster = function(gobject,
                                   feat_info = NULL,
                                   feat_subset_column = NULL,
                                   feat_subset_ids = NULL,
+                                  count_info_column = NULL,
                                   return_gobject = TRUE,
                                   verbose = TRUE) {
 
@@ -1968,11 +2012,16 @@ calculateOverlapRaster = function(gobject,
   overlap_test_dt[, feat_ID := pointvec_dt_feat_ID[ID]]
   overlap_test_dt[, feat_ID_uniq := pointvec_dt_feat_ID_uniq[ID]]
 
+  if(!is.null(count_info_column)) {
+    pointvec_dt_count = pointvec_dt[[count_info_column]] ; names(pointvec_dt_count) = pointvec_dt$geom
+    overlap_test_dt[, c(count_info_column) := pointvec_dt_count[ID]]
+  }
+
   if(verbose) cat('5. create overlap polygon information \n')
   overlap_test_dt_spatvector = terra::vect(x = as.matrix(overlap_test_dt[, c('x', 'y'), with = F]),
                                            type = "points",
-                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'feat_ID_uniq'), with = F])
-  names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq')
+                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'feat_ID_uniq', count_info_column), with = F])
+  names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq', count_info_column)
 
 
 
@@ -2043,7 +2092,7 @@ overlap_points_single_polygon = function(spatvec,
 #' @concept overlap
 #' @export
 calculateOverlapPolygonImages = function(gobject,
-                                         name_overlap = 'images',
+                                         name_overlap = 'protein',
                                          spatial_info = 'cell',
                                          poly_ID_names = NULL,
                                          image_names = NULL,
@@ -2098,9 +2147,13 @@ calculateOverlapPolygonImages = function(gobject,
     intensity_image = get_giottoLargeImage(gobject = gobject, name = img_name)
     intensity_image = intensity_image@raster_object
 
+    names(intensity_image) = img_name
+
     image_list[[i]] = intensity_image
 
   }
+
+  print('0. create image list')
 
   image_vector_c = do.call('c', image_list)
 
@@ -2112,6 +2165,8 @@ calculateOverlapPolygonImages = function(gobject,
   }
 
 
+  print('1. start extraction')
+
   extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
                                                            y = poly_info_spatvector_sf,
                                                            include_cols = 'poly_ID',
@@ -2120,8 +2175,10 @@ calculateOverlapPolygonImages = function(gobject,
   dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
 
   # prepare output
-  colnames(dt_exact)[2:(length(image_names)+1)] = image_names
+  print(dt_exact)
+  colnames(dt_exact)[2:(length(image_names)+1)] = image_names # probably not needed anymore
   dt_exact[, coverage_fraction := NULL]
+  print(dt_exact)
 
   if(return_gobject) {
 
@@ -2415,6 +2472,7 @@ calculateOverlapParallel = function(gobject,
 #' @param name name for the overlap count matrix
 #' @param poly_info polygon information
 #' @param feat_info feature information
+#' @param count_info_column column with count information
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or count matrix
 #' @concept overlap
@@ -2423,6 +2481,7 @@ overlapToMatrix = function(gobject,
                            name = 'raw',
                            poly_info = 'cell',
                            feat_info = 'rna',
+                           count_info_column = NULL,
                            return_gobject = TRUE) {
 
   # define for data.table
@@ -2440,7 +2499,22 @@ overlapToMatrix = function(gobject,
   dtoverlap = spatVector_to_dt(overlap_spatvec)
   dtoverlap = dtoverlap[!is.na(poly_ID)] # removes points that have no overlap with any polygons
   #dtoverlap[, poly_ID := ifelse(is.na(poly_ID), 'no_overlap', poly_ID), by = 1:nrow(dtoverlap)]
-  aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
+
+
+  if(!is.null(count_info_column)) {
+
+    if(!count_info_column %in% colnames(dtoverlap)) stop('count_info_column ', count_info_column, ' does not exist')
+
+    # aggregate counts of features
+    dtoverlap[, c(count_info_column) := as.numeric(get(count_info_column))]
+    aggr_dtoverlap = dtoverlap[, base::sum(get(count_info_column)), by = c('poly_ID', 'feat_ID')]
+    data.table::setnames(aggr_dtoverlap, 'V1', 'N')
+  } else {
+
+    # aggregate individual features
+    aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
+  }
+
 
 
   # get all feature and cell information
@@ -2642,7 +2716,7 @@ overlapImagesToMatrix = function(gobject,
     cell_IDs = unique(as.character(aggr_comb$poly_ID))
     feat_IDs = unique(as.character(aggr_comb$feat_ID))
 
-    print(feat_IDs[1:10])
+    #print(feat_IDs[1:10])
 
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),

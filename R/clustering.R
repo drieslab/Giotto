@@ -238,7 +238,7 @@ doLouvainCluster_community <- function(gobject,
   }
 
   # prepare python path and louvain script
-  reticulate::use_python(required = T, python = python_path)
+  reticulate::use_python(required = TRUE, python = python_path)
   python_louvain_function = system.file("python", "python_louvain.py", package = 'Giotto')
   reticulate::source_python(file = python_louvain_function)
 
@@ -292,8 +292,8 @@ doLouvainCluster_community <- function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
 
 
     ## update parameters used ##
@@ -584,8 +584,8 @@ doRandomWalkCluster <- function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
 
 
     ## update parameters used ##
@@ -688,8 +688,8 @@ doSNNCluster <- function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
 
 
     ## update parameters used ##
@@ -1354,7 +1354,7 @@ doLeidenSubCluster = function(gobject,
                               name = 'sub_pleiden_clus',
                               cluster_column = NULL,
                               selected_clusters = NULL,
-                              hvf_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
+                              hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values = 'normalized'),
                               hvg_param = NULL,
                               hvf_min_perc_cells = 5,
                               hvg_min_perc_cells = NULL,
@@ -1364,7 +1364,7 @@ doLeidenSubCluster = function(gobject,
                               use_all_genes_as_hvg = NULL,
                               min_nr_of_hvf = 5,
                               min_nr_of_hvg = NULL,
-                              pca_param = list(expression_values = 'normalized', scale_unit = T),
+                              pca_param = list(expression_values = 'normalized', scale_unit = TRUE),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 10,
                               resolution = 0.5,
@@ -1373,7 +1373,7 @@ doLeidenSubCluster = function(gobject,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               return_gobject = TRUE,
-                              verbose = T) {
+                              verbose = TRUE) {
 
 
   # specify feat_type
@@ -1559,7 +1559,7 @@ doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
-                                         hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
+                                         hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
                                          use_all_genes_as_hvg = FALSE,
@@ -1678,8 +1678,8 @@ doLouvainSubCluster_community = function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = F],
-                               by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = FALSE],
+                               by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
     parameters_list = gobject@parameters
@@ -1741,12 +1741,12 @@ doLouvainSubCluster_multinet =  function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
-                                         hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
+                                         hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
                                          use_all_genes_as_hvg = FALSE,
                                          min_nr_of_hvg = 5,
-                                         pca_param = list(expression_values = 'normalized', scale_unit = T),
+                                         pca_param = list(expression_values = 'normalized', scale_unit = TRUE),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 10,
                                          gamma = 1,
@@ -1754,7 +1754,7 @@ doLouvainSubCluster_multinet =  function(gobject,
                                          nn_network_to_use = 'sNN',
                                          network_name = 'sNN.pca',
                                          return_gobject = TRUE,
-                                         verbose = T) {
+                                         verbose = TRUE) {
 
 
   if("multinet" %in% rownames(installed.packages()) == FALSE) {
@@ -1929,12 +1929,12 @@ doLouvainSubCluster =  function(gobject,
                                 version = c('community', 'multinet'),
                                 cluster_column = NULL,
                                 selected_clusters = NULL,
-                                hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
+                                hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values = 'normalized'),
                                 hvg_min_perc_cells = 5,
                                 hvg_mean_expr_det = 1,
                                 use_all_genes_as_hvg = FALSE,
                                 min_nr_of_hvg = 5,
-                                pca_param = list(expression_values = 'normalized', scale_unit = T),
+                                pca_param = list(expression_values = 'normalized', scale_unit = TRUE),
                                 nn_param = list(dimensions_to_use = 1:20),
                                 k_neighbors = 10,
                                 resolution = 0.5,
@@ -1944,7 +1944,7 @@ doLouvainSubCluster =  function(gobject,
                                 nn_network_to_use = 'sNN',
                                 network_name = 'sNN.pca',
                                 return_gobject = TRUE,
-                                verbose = T) {
+                                verbose = TRUE) {
 
   ## louvain clustering version to use
   version = match.arg(version, c('community', 'multinet'))

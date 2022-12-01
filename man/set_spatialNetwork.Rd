@@ -9,7 +9,8 @@ set_spatialNetwork(
   spat_unit = NULL,
   name = NULL,
   spatial_network,
-  verbose = TRUE
+  verbose = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ set_spatialNetwork(
 \item{spatial_network}{spatial network}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object

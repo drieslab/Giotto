@@ -19,6 +19,9 @@ spatInSituPlotPoints(
   sdimx = "x",
   sdimy = "y",
   point_size = 1.5,
+  expand_counts = FALSE,
+  count_info_column = "count",
+  jitter = c(0, 0),
   show_polygon = TRUE,
   use_overlap = TRUE,
   polygon_feat_type = "cell",
@@ -34,7 +37,7 @@ spatInSituPlotPoints(
   axis_text = 8,
   axis_title = 8,
   legend_text = 6,
-  coord_fix_ratio = NULL,
+  coord_fix_ratio = 1,
   background_color = "black",
   show_legend = TRUE,
   plot_method = c("ggplot", "scattermore", "scattermost"),
@@ -42,7 +45,8 @@ spatInSituPlotPoints(
   return_plot = NA,
   save_plot = NA,
   save_param = list(),
-  default_save_name = "spatInSituPlotPoints"
+  default_save_name = "spatInSituPlotPoints",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -73,6 +77,12 @@ spatInSituPlotPoints(
 \item{sdimy}{spatial dimension y}
 
 \item{point_size}{size of the points}
+
+\item{expand_counts}{expand feature coordinate counts (see details)}
+
+\item{count_info_column}{column name with count information (if expand_counts = TRUE)}
+
+\item{jitter}{maximum x,y jitter provided as c(x, y)}
 
 \item{show_polygon}{overlay polygon information (e.g. cell shape)}
 
@@ -122,6 +132,8 @@ left as \code{NULL}, the median value detected will be chosen}
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{verbose}{verbosity}
 }
 \value{
 ggplot

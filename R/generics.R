@@ -1,6 +1,6 @@
 # Methods and Generics ####
 
-
+# NOTE: initialize generics are in classes.R #
 
 
 
@@ -163,6 +163,86 @@ setMethod('copy', signature(x = 'coordDataDT'), function(x) {
 
 
 
+
+
+
+# prov() S4 generic ####
+#' @title Provenance information
+#' @name prov-generic
+#' @description access and set provenance slot of S4 subobject
+#' @param x a Giotto S4 class subobject
+#' @param value value to set as provenance
+#' @include classes.R
+#' @export
+setGeneric('prov', function(x) standardGeneric('prov'))
+setGeneric('prov<-', function(x, value) standardGeneric('prov<-'))
+
+
+#' @describeIn prov-generic Get provenance information
+#' @export
+setMethod('prov', signature = 'provData', function(x) x@provenance)
+
+
+#' @describeIn prov-generic Set provenance information
+#' @export
+setMethod('prov<-', signature = 'provData', function(x, value) {
+  x@provenance = value
+  x
+})
+
+
+
+
+# spatUnit() S4 generic ####
+#' @title Spatial unit information
+#' @name spatUnit-generic
+#' @description access and set spat_unit slot of S4 subobject
+#' @param x a Giotto S4 class subobject with spatial unit
+#' @param value value to set as spatial unit
+#' @include classes.R
+#' @export
+setGeneric('spatUnit', function(x) standardGeneric('spatUnit'))
+setGeneric('spatUnit<-', function(x, value) standardGeneric('spatUnit<-'))
+
+
+#' @describeIn spatUnit-generic Get spatial unit information
+#' @export
+setMethod('spatUnit', signature = 'spatData', function(x) x@spat_unit)
+
+
+#' @describeIn spatUnit-generic Set spatial unit information
+#' @export
+setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
+  x@spat_unit = value
+  x
+})
+
+
+
+
+# featType() S4 generic ####
+#' @title Feature type information
+#' @name featType-generic
+#' @description access and set feat_type slot of S4 subobject
+#' @param x a Giotto S4 class subobject with feature type
+#' @param value value to set as feature type
+#' @include classes.R
+#' @export
+setGeneric('featType', function(x) standardGeneric('featType'))
+setGeneric('featType<-', function(x, value) standardGeneric('featType<-'))
+
+
+#' @describeIn featType-generic Get feature type information
+#' @export
+setMethod('featType', signature = 'featData', function(x) x@feat_type)
+
+
+#' @describeIn featType-generic Set feature type information
+#' @export
+setMethod('featType<-', signature = 'featData', function(x, value) {
+  x@feat_type = value
+  x
+})
 
 
 

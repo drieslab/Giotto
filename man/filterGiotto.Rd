@@ -17,6 +17,10 @@ filterGiotto(
   all_spat_units = TRUE,
   all_feat_types = TRUE,
   poly_info = "cell",
+  tag_cells = FALSE,
+  tag_cell_name = "tag",
+  tag_feats = FALSE,
+  tag_feats_name = "tag",
   verbose = TRUE
 )
 }
@@ -46,6 +50,14 @@ spatial unit/feature type combination across ALL spatial units (default = TRUE)}
 spatial unit/feature type combination across ALL feature types (default = TRUE)}
 
 \item{poly_info}{polygon information to use}
+
+\item{tag_cells}{tag filtered cells in metadata vs. remove cells}
+
+\item{tag_cell_name}{column name for tagged cells in metadata}
+
+\item{tag_feats}{tag features in metadata vs. remove features}
+
+\item{tag_feats_name}{column name for tagged features in metadata}
 
 \item{verbose}{verbose}
 }

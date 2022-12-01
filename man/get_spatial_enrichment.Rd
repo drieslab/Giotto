@@ -10,7 +10,8 @@ get_spatial_enrichment(
   feat_type = NULL,
   enrichm_name = "DWLS",
   output = c("spatEnrObj", "data.table"),
-  copy_obj = TRUE
+  copy_obj = TRUE,
+  set_defaults = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ get_spatial_enrichment(
 \item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 
 \item{output}{what format in which to get information (e.g. "data.table")}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 data.table with fractions

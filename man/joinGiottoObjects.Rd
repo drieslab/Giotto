@@ -33,7 +33,8 @@ joinGiottoObjects(
 
 \item{y_padding}{padding between datasets/images if method is shift}
 
-\item{verbose}{be verbose}
+\item{verbose}{be verbose
+Preview where each gobject will be in space with bounding polygons}
 }
 \value{
 giotto object

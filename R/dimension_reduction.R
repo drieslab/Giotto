@@ -425,18 +425,22 @@ create_feats_to_use_matrix = function(gobject,
   # for hvf genes
   if(is.character(feats_to_use) & length(feats_to_use) == 1) {
     if(feats_to_use %in% colnames(feat_metadata)) {
-      if(verbose == TRUE) cat(feats_to_use, ' was found in the feats metadata information and will be used to select highly variable features \n')
+      if(verbose == TRUE) {
+          wrap_msg('"', feats_to_use, '" was found in the feats metadata information and will be used to select highly variable features',
+                   sep = '')
+        }
       feats_to_use = feat_metadata[get(feats_to_use) == 'yes'][['feat_ID']]
       sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
     } else {
-      if(verbose == TRUE) cat(feats_to_use, ' was not found in the gene metadata information, all genes will be used \n')
+      if(verbose == TRUE) wrap_msg('"', feats_to_use, '" was not found in the gene metadata information, all genes will be used',
+                                   sep = '')
     }
   } else {
-    if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix \n')
+    if(verbose == TRUE) wrap_msg('a custom vector of genes will be used to subset the matrix')
     sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
   }
 
-  if(verbose == TRUE) cat('class of selected matrix: ', class(sel_matrix))
+  if(verbose == TRUE) cat('class of selected matrix: ', class(sel_matrix), '\n')
   return(sel_matrix)
 
 }

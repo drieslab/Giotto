@@ -12,6 +12,7 @@ calculateOverlapRaster(
   feat_info = NULL,
   feat_subset_column = NULL,
   feat_subset_ids = NULL,
+  count_info_column = NULL,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -30,6 +31,8 @@ calculateOverlapRaster(
 \item{feat_subset_column}{feature info column to subset features with}
 
 \item{feat_subset_ids}{ids within feature info column to use for subsetting}
+
+\item{count_info_column}{column with count information (optional)}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 

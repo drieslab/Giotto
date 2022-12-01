@@ -53,6 +53,14 @@ setClass('coordDataDT',
          representation = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
+setMethod('initialize', 'coordDataDT',
+          function(.Object, ...) {
+            .Object = callNextMethod()
+            # prepare DT for set by reference
+            .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            .Object
+          })
+
 # setClass('coordDataMT',
 #          representation = list(coordinates = 'matrix'),
 #          prototype = prototype(coordinates = matrix()))
@@ -71,12 +79,30 @@ setClass('metaData',
                                col_desc = NA_character_))
 
 
+setMethod('initialize', 'metaData',
+          function(.Object, ...) {
+            .Object = callNextMethod()
+            # prepare DT for set by reference
+            .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            .Object
+          })
+
+
 # ** enrData ####
 setClass('enrData',
          representation = list(method = 'character',
                                enrichDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                enrichDT = NULL))
+
+setMethod('initialize', 'enrData',
+          function(.Object, ...) {
+            .Object = callNextMethod()
+            # prepare DT for set by reference
+            .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            .Object
+          })
+
 
 
 # ** nnData ####
@@ -102,6 +128,16 @@ setClass('spatNetData',
                                networkDT_before_filter = NULL,
                                cellShapeObj = NULL))
 
+setMethod('initialize', 'spatNetData',
+          function(.Object, ...) {
+            .Object = callNextMethod()
+            # prepare DT for set by reference
+            .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
+            .Object
+          })
+
+
 # ** spatGridData ####
 setClass('spatGridData',
          representation = list(method = 'character',
@@ -111,6 +147,14 @@ setClass('spatGridData',
                                parameters = NULL,
                                gridDT = NULL))
 
+
+setMethod('initialize', 'spatGridData',
+          function(.Object, ...) {
+            .Object = callNextMethod()
+            # prepare DT for set by reference
+            .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            .Object
+          })
 
 
 # ** provData Class ####
@@ -548,6 +592,8 @@ setMethod(
       writeLines(gsub(pattern = "in show(.*?))'", replacement = '', x = print_cap))
       cat('\n First four colnames:')
       cat('\n', wrap_txt(head(colnames(slot(object, 'exprMat')), 4), strWidth = 40), '\n')
+    } else if(inherits(slot(object, 'exprMat'), 'denseMatrix')) {
+      abb_mat(object, nrows = 10, ncols = 10, header = FALSE)
     } else {
       # * other matrices *
       print(slot(object, 'exprMat'))
@@ -602,7 +648,6 @@ check_cell_meta_obj = function(object) {
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of aggregated expression information (if applicable)
-#' @slot misc misc
 #' @export
 setClass('cellMetaObj',
          contains = c('metaData', 'spatFeatData'),
@@ -653,12 +698,11 @@ check_feat_meta_obj = function(object) {
 # * Definition ####
 #' @title S4 featMetaObj
 #' @description Framework to store feature metadata
-#' @slot metadata metadata info
+#' @slot metaDT metadata info
 #' @slot col_desc (optional) character vector describing columns of the metadata
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @slot provenance origin data of aggregated expression information (if applicable)
-#' @slot misc misc
 #' @export
 setClass('featMetaObj',
          contains = c('metaData', 'spatFeatData'),
@@ -723,6 +767,7 @@ check_dim_obj = function(object) {
 #' @slot feat_type feature type of data
 #' @slot spat_unit spatial unit of data
 #' @slot provenance origin of aggregated information (if applicable)
+#' @slot reduction whether reduction was performed on 'feats' or 'cells'
 #' @slot reduction_method method used to generate dimension reduction
 #' @slot coordinates embedding coordinates
 #' @slot misc method-specific additional outputs
