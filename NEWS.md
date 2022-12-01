@@ -9,6 +9,7 @@
 - Update `createGiottoCosMxObject()` for 3.0 and modularization of functions. 'subcellular' workflow has been tested to work along with an updated tutorial.
 - Update grid plotting behavior to set a default number columns to use based on number of elements to plot. Can be overridden by explicitly providing input to `cow_n_col` param
 - Fix bug in `annotateGiotto()` after 3.0 update ([#433](https://github.com/drieslab/Giotto/issues/433#issuecomment-1324211224))
+- Fix bug in `joinGiottoObjects()` metadata processing
 - Update seed setting behavior
 
 
@@ -26,9 +27,11 @@
 # Giotto Suite 3.0.0 (2022-11-18)
 
 ## Added
+- New `createGiottoXeniumObject()` for loading 10x Xenium data
 - New S4 subobjects. Details can be found in [classes.R](https://github.com/drieslab/Giotto/blob/suite/R/classes.R)
 - New basic generics for S4 subobjects. Mainly the use of `[]` and `[]<-` to get or set information into the main data slot
 - New `@provenance` slot in S4 subobjects to track provenance of aggregated information (z_layers used for example)
+- New `saveGiotto()` and `loadGiotto()` for preserving memory-pointer based objects
 
 
 ## Changes
