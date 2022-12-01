@@ -25,7 +25,7 @@ spatInSituPlotHex(
   axis_title = 8,
   legend_text = 6,
   background_color = "white",
-  cow_n_col = 2,
+  cow_n_col = NULL,
   cow_rel_h = 1,
   cow_rel_w = 1,
   cow_align = "h",

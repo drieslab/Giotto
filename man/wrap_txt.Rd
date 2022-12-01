@@ -4,12 +4,12 @@
 \alias{wrap_txt}
 \title{Wrap text}
 \usage{
-wrap_txt(..., collapse = "", strWidth = 100)
+wrap_txt(..., sep = " ", strWidth = 100)
 }
 \arguments{
 \item{...}{additional params to pass}
 
-\item{collapse}{how to join elements of string (default is no space)}
+\item{sep}{how to join elements of string (default is one space)}
 
 \item{strWidth}{externally set wrapping width. (default value of 100 is not effected)}
 }

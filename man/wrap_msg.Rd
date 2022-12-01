@@ -4,12 +4,12 @@
 \alias{wrap_msg}
 \title{Wrap message}
 \usage{
-wrap_msg(..., collapse = "")
+wrap_msg(..., sep = " ")
 }
 \arguments{
 \item{...}{additional strings and/or elements to pass to cat}
 
-\item{collapse}{how to join elements of string (default is no space)}
+\item{sep}{how to join elements of string (default is one space)}
 
 \item{strWidth}{externally set wrapping width. (default value of 100 is not effected)}
 

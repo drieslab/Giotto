@@ -47,7 +47,7 @@ spatDimFeatPlot2D(
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,
-  cow_n_col = 2,
+  cow_n_col = NULL,
   cow_rel_h = 1,
   cow_rel_w = 1,
   cow_align = "h",

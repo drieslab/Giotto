@@ -54,7 +54,7 @@ spatCellPlot2D(
   vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
-  cow_n_col = 2,
+  cow_n_col = NULL,
   cow_rel_h = 1,
   cow_rel_w = 1,
   cow_align = "h",
