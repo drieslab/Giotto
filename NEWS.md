@@ -56,10 +56,10 @@
 # Giotto Suite 2.1.0 (2202-11-09)
 
 ## Breaking Changes
-- Update of python version to **3.10.2** [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#id1)
+- Update of python version to **3.10.2** [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#giotto-suite-2-1-0-2202-11-09)
 
 ## Added
-- New `anndataToGiotto()` to convert scanpy anndata to Giotto [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#id2)
+- New `anndataToGiotto()` to convert scanpy anndata to Giotto
 
 
 
