@@ -1,3 +1,12 @@
+# TBD RELEASE
+
+## Changes
+- Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
+
+
+
+
+
 # Giotto Suite 3.1.0 (2202-12-01)  
   
 

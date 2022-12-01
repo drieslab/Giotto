@@ -930,11 +930,23 @@ smoothGiottoPolygons = function(gpolygon,
 #' @param stamp_dt data.table with x and y vertices for a polygon to be stamped.
 #' Column names are expected to be 'x' and 'y' respectively
 #' @param spatlocs spatial locations with x and y coordinates where polygons should
-#' be stamped. Column names are expected to be 'sdimx' and 'sdimy' respectively.
+#' be stamped. Column names are 'cell_ID', 'sdimx' and 'sdimy' by default
+#' @param id_col column in spatlocs to use as IDs (default is 'cell_ID')
+#' @param x_col column in spatlocs to use as x locations (default is 'sdimx')
+#' @param y_col column in spatlocs to use as y locations (default is 'sdimy')
+#' @param verbose be verbose
 #' @return returns a data.table of polygon vertices
 #' @export
 polyStamp = function(stamp_dt,
-                     spatlocs) {
+                     spatlocs,
+                     id_col = 'cell_ID',
+                     x_col = 'sdimx',
+                     y_col = 'sdimy',
+                     verbose = TRUE) {
+
+  if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
+    stop(wrap_txt('Not all colnames found in spatlocs'))
+  }
 
   # define polys relative to centroid
   stamp_centroid = c(x = mean(stamp_dt[['x']]),
@@ -946,10 +958,12 @@ polyStamp = function(stamp_dt,
   poly_dt = apply(X = spatlocs,
                   MARGIN = 1,
                   function(r) {
-                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[['sdimx']]),
-                                                  y = rel_vertices[['y']] + as.numeric(r[['sdimy']]),
-                                                  poly_ID = as.character(r[['cell_ID']])))
+                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[[x_col]]),
+                                                  y = rel_vertices[['y']] + as.numeric(r[[y_col]]),
+                                                  poly_ID = as.character(r[[id_col]])))
                   })
+
+  if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons stamped')
 
   return(do.call(rbind, poly_dt))
 
