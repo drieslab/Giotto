@@ -72,16 +72,14 @@
 - New `GiottoData` package to work with spatial datasets associated with Giotto
 	- Stores the minidatasets: preprocessed giotto objects that are ready to be used in any function
 	- Moved: `getSpatialDataset()` and `loadGiottoMini()` functions to this package
-
 - New `saveGiotto()` and `loadGiotto()` for preserving memory-pointer based objects. In [general_help.R](https://github.com/drieslab/Giotto/blob/suite/R/general_help.R)
-
   - It saves a Giotto object into a folder using a specific structure. Essentially a wrapper around `saveRDS()` that also works with spatVector and spatRaster pointers.
 - New `plotInteractivePolygon()` for plot-interactive polygonal selection of points.
 - New polygon shape array creation through `polyStamp()`, `circleVertices`, `rectVertices`. In [giotto_structures.R](https://github.com/drieslab/Giotto/blob/suite/R/giotto_structures.R)
 - Add accessor functions `get_CellMetadata` (alias of `pDataDT()`), `set_CellMetadata`, `get_FeatMetadata` (alias of `fDataDT()`), `set_FeatMetadata`. See [accessors.R](https://github.com/drieslab/Giotto/blob/suite/R/accessors.R)
 - New `filterDistributions()` to generate histogram plots from expression statistics
 
-## Changed
+## Changes
 - Deprecate `plotInteractionChangedGenes()` ,`plotICG()`, `plotCPG()` in favor of `plotInteractionChangedFeatures()` and `plotICF()` and `plotCPF()`
 - Deprecate `plotCellProximityGenes()`, in favor of `plotCellProximityFeatures()`
 - Deprecate `plotCombineInteractionChangedGenes()`, `plotCombineICG()`, `plotCombineCPG()` in favor of `plotCombineInteractionChangedFeatures()` and `plotCombineICF()`
