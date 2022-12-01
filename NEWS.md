@@ -8,7 +8,7 @@
 ## Changes  
 - Update `createGiottoCosMxObject()` for 3.0 and modularization of functions. 'subcellular' workflow has been tested to work along with an updated tutorial.
 - Update grid plotting behavior to set a default number columns to use based on number of elements to plot. Can be overridden by explicitly providing input to `cow_n_col` param
-- Fix bug in `annotateGiotto()` after 3.0 update ([#455](https://github.com/drieslab/Giotto/issues/433#issuecomment-1324211224))
+- Fix bug in `annotateGiotto()` after 3.0 update ([#433](https://github.com/drieslab/Giotto/issues/433#issuecomment-1324211224))
 - Update seed setting behavior
 
 
@@ -19,7 +19,7 @@
 - Add ability to turn off colored text in `show` functions with `options("giotto.color_show" = FALSE)`
 
 ## Changes
-- Fix bug in `extract_polygon_list()` ([#455](https://github.com/drieslab/Giotto/issues/433#issuecomment-1321221382))
+- Fix bug in `extract_polygon_list()` ([#433](https://github.com/drieslab/Giotto/issues/433#issuecomment-1321221382))
 - Update Unicode character printing with `show` functions for Latin1 systems
 
 
