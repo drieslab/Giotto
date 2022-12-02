@@ -3216,18 +3216,20 @@ annotateGiotto <- function(gobject,
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
 
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+  cell_metadata = get_cell_metadata(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
 
   # 1. verify if cluster column exist
-  if(!cluster_column %in% colnames(cell_metadata)) {
+  if(!cluster_column %in% colnames(cell_metadata[])) {
     stop('\n Cluster column is not found in cell metadata \n')
   }
 
   # 2. verify if each cluster has an annotation
   uniq_names = names(annotation_vector)
-  uniq_clusters = unique(cell_metadata[[cluster_column]])
+  uniq_clusters = unique(cell_metadata[][[cluster_column]])
   missing_annotations = uniq_clusters[!uniq_clusters %in% uniq_names]
   no_matching_annotations = uniq_names[!uniq_names %in% uniq_clusters]
 
@@ -3241,20 +3243,24 @@ annotateGiotto <- function(gobject,
 
   # 3. remove previous annotation name if it's the same
   # but only if new name is not the same as cluster to be used
-  if(name %in% colnames(cell_metadata)) {
-    cat('\n annotation name ', name,' was already used \n',
-        'and will be overwritten \n')
+  if(name %in% colnames(cell_metadata[])) {
+    wrap_msg('annotation name "', name,'" was already used and will be overwritten',
+             sep = '')
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
-    cell_metadata[, (name) := NULL]
+    cell_metadata[][, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata[])]
+    cell_metadata[][, (name) := NULL]
 
   } else {
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
+    cell_metadata[][, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata[])]
   }
 
-  data.table::setnames(cell_metadata, old = 'temp_cluster_name', new = name)
-  gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
+  data.table::setnames(cell_metadata[], old = 'temp_cluster_name', new = name)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_cell_metadata(gobject = gobject,
+                              metadata = cell_metadata,
+                              verbose = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
