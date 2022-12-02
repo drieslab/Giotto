@@ -3171,20 +3171,23 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
   }) #lapply end
 
-  # join giotto objects according to FOV positions file
-  if(isTRUE(verbose)) message('Joining FOV gobjects...')
-  new_gobj_names = paste0('fov', FOV_ID)
-
-  id_match = match(as.numeric(FOV_ID), fov_offset_file$fov)
-  x_shifts = fov_offset_file[id_match]$x_global_px
-  y_shifts = fov_offset_file[id_match]$y_global_px
-
-  # Join giotto objects
-  cosmx_gobject = joinGiottoObjects(gobject_list = fov_gobjects_list,
-                                    gobject_names = new_gobj_names,
-                                    join_method = 'shift',
-                                    x_shift = x_shifts,
-                                    y_shift = y_shifts)
+  if(length(FOVs) == 1) {
+    return(fov_gobjects_list[[1]])
+  } else {
+    # join giotto objects according to FOV positions file
+    if(isTRUE(verbose)) message('Joining FOV gobjects...')
+    new_gobj_names = paste0('fov', FOV_ID)
+    id_match = match(as.numeric(FOV_ID), fov_offset_file$fov)
+    x_shifts = fov_offset_file[id_match]$x_global_px
+    y_shifts = fov_offset_file[id_match]$y_global_px
+    # Join giotto objects
+    cosmx_gobject = joinGiottoObjects(gobject_list = fov_gobjects_list,
+                                      gobject_names = new_gobj_names,
+                                      join_method = 'shift',
+                                      x_shift = x_shifts,
+                                      y_shift = y_shifts)
+    return(cosmx_gobject)
+  }
 
 }
 
