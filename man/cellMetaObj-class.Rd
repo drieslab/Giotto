@@ -10,7 +10,7 @@ Framework to store cell metadata
 \section{Slots}{
 
 \describe{
-\item{\code{metadata}}{metadata info}
+\item{\code{metaDT}}{metadata info}
 
 \item{\code{col_desc}}{(optional) character vector describing columns of the metadata}
 

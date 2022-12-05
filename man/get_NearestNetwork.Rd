@@ -27,8 +27,7 @@ get_NearestNetwork(
 
 \item{output}{return a igraph or data.table object. Default 'igraph'}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 igraph or data.table object

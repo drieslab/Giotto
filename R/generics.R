@@ -172,6 +172,7 @@ setMethod('copy', signature(x = 'coordDataDT'), function(x) {
 #' @description access and set provenance slot of S4 subobject
 #' @param x a Giotto S4 class subobject
 #' @param value value to set as provenance
+#' @aliases prov
 #' @include classes.R
 #' @export
 setGeneric('prov', function(x) standardGeneric('prov'))
@@ -199,6 +200,7 @@ setMethod('prov<-', signature = 'provData', function(x, value) {
 #' @description access and set spat_unit slot of S4 subobject
 #' @param x a Giotto S4 class subobject with spatial unit
 #' @param value value to set as spatial unit
+#' @aliases spatUnit
 #' @include classes.R
 #' @export
 setGeneric('spatUnit', function(x) standardGeneric('spatUnit'))
@@ -226,6 +228,7 @@ setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
 #' @description access and set feat_type slot of S4 subobject
 #' @param x a Giotto S4 class subobject with feature type
 #' @param value value to set as feature type
+#' @aliases featType
 #' @include classes.R
 #' @export
 setGeneric('featType', function(x) standardGeneric('featType'))
@@ -354,7 +357,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
 
 #' @rdname extract-generic
 #' @section \code{`[<-`} methods:
-#'   Return \code{coordinates} slot data.table from giotto S4
+#'   Assign to \code{coordinates} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'coordDataDT', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -403,7 +406,7 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'm
 
 #' @rdname extract-generic
 #' @section \code{`[<-`} methods:
-#'   Return \code{coordinates} slot data.table from giotto S4
+#'   Assign to \code{metaDT} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'metaData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -430,6 +433,8 @@ setMethod('[', signature(x = 'dimObj', i = 'missing', j = 'missing', drop = 'mis
           })
 
 #' @rdname extract-generic
+#' @section \code{`[<-`} methods:
+#'   Assign to \code{coordinates} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'dimObj', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -476,7 +481,7 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'missing', drop = 'm
 
 #' @rdname extract-generic
 #' @section \code{`[<-`} methods:
-#'   Return \code{exprMat} slot Matrix object from giotto S4
+#'   Assign to \code{exprMat} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'exprData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {

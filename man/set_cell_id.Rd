@@ -13,8 +13,7 @@ set_cell_id(gobject, spat_unit = NULL, cell_IDs, set_defaults = TRUE)
 
 \item{cell_IDs}{character vector of cell IDs to set}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 giotto object with set cell_ID slot

@@ -205,6 +205,7 @@ getCellsFromPolygon <- function(gobject,
 #' @param polygon_name name of polygon selections
 #' @param feat_type feature name where metadata will be added
 #' @param spat_unit spatial unit
+#' @param spat_loc_name name of spatial locations to use
 #' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
 #'
 #' @return A Giotto object with a modified cell_metadata slot that includes the

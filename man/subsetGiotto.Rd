@@ -33,6 +33,8 @@ subsetGiotto(
 
 \item{feat_ids}{feature IDs to keep}
 
+\item{gene_ids}{deprecated. Use \code{feat_ids}}
+
 \item{poly_info}{polygon information to use}
 
 \item{all_spat_units}{subset all spatial units with selected feature ids}

@@ -31,8 +31,7 @@ will be removed.}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 giotto object

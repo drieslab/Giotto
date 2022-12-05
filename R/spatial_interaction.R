@@ -1154,6 +1154,7 @@ findInteractionChangedFeats = function(gobject,
 #' @name findInteractionChangedGenes
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. genes that are differentially expressed due to interactions with other cell types.
+#' @param ... params to pass to \code{findInteractionChangedFeats}
 #' @seealso \code{\link{findInteractionChangedFeats}}
 #' @export
 findInteractionChangedGenes = function(...) {
