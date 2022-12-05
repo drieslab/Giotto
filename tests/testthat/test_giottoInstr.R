@@ -1,9 +1,9 @@
-python_path = NULL 
+python_path = NULL
 if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/testdata/"))
+GiottoData::getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/testdata/"))
 
 expr_path = "./testdata/merFISH_3D_data_expression.txt.gz"
 loc_path = "./testdata/merFISH_3D_data_cell_locations.txt"

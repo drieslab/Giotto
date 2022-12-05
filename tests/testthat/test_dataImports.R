@@ -5,20 +5,20 @@ if(is.null(python_path)) {
 
 ### TESTS FOR DATA IMPORT FUNCTIONS
 # ------------------------------------
-library(GiottoData)
-
-# getSpatialDataset
-getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata/"))
 
 test_that("Spatial dataset was downloaded", {
+  # getSpatialDataset
+  GiottoData::getSpatialDataset(dataset = "scRNA_mouse_brain", directory = paste0(getwd(), "/testdata/"))
+
   expect_true(file.exists("./testdata/brain_sc_expression_matrix.txt.gz"))
   expect_true(file.exists("./testdata/brain_sc_metadata.csv"))
 })
 
-# readExprMatrix
-expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
 
 test_that("Expression matrix is read correctly", {
+  # readExprMatrix
+  expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
+
   expect_s4_class(expr_mat, "dgCMatrix")
   expect_equal(expr_mat@Dim, c(27998, 8039))
 
