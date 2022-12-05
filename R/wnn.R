@@ -43,6 +43,7 @@ runWNN <- function(gobject,
                               spat_unit = spat_unit,
                               feat_type = modality_1,
                               nn_network_to_use = "kNN")
+  kNN_1 <- slot(kNN_1, "igraph")
 
   pca_1 <- get_dimReduction(gobject,
                             spat_unit = spat_unit,
@@ -50,12 +51,14 @@ runWNN <- function(gobject,
                             reduction = "cells",
                             reduction_method = "pca",
                             name = pca_name_modality_1)
+  pca_1 <- slot(pca_1, "coordinates")
 
   ## modality 2
   kNN_2 <- get_NearestNetwork(gobject,
                               spat_unit = spat_unit,
                               feat_type = modality_2,
                               nn_network_to_use = "kNN")
+  kNN_2 <- slot(kNN_2, "igraph")
 
   pca_2 <- get_dimReduction(gobject,
                             spat_unit = "cell",
@@ -63,6 +66,7 @@ runWNN <- function(gobject,
                             reduction = "cells",
                             reduction_method = "pca",
                             name = pca_name_modality_2)
+  pca_2 <- slot(pca_2, "coordinates")
 
   ## get cell names
   cell_names <- unique(igraph::get.edgelist(kNN_1)[,1])
