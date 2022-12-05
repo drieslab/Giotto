@@ -4207,6 +4207,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   point_alpha = 1,
                                   point_border_col = 'black',
                                   point_border_stroke = 0.1,
+                                  coord_fix_ratio = 1,
                                   show_legend = T,
                                   legend_text = 8,
                                   background_color = 'white',
@@ -4575,6 +4576,9 @@ spatFeatPlot2D_single <- function(gobject,
                               panel.grid = element_blank(),
                               panel.background = element_rect(fill = background_color))
 
+    if(!is.null(coord_fix_ratio)) {
+      pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+    }
 
     savelist[[feat]] <- pl
   }
@@ -4692,6 +4696,7 @@ spatFeatPlot2D <- function(gobject,
                            point_alpha = 1,
                            point_border_col = 'black',
                            point_border_stroke = 0.1,
+                           coord_fix_ratio = 1,
                            show_legend = T,
                            legend_text = 8,
                            background_color = 'white',
