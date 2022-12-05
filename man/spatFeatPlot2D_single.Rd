@@ -34,6 +34,7 @@ spatFeatPlot2D_single(
   point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
+  coord_fix_ratio = 1,
   show_legend = T,
   legend_text = 8,
   background_color = "white",
