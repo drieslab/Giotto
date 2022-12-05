@@ -10,6 +10,7 @@
 #' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
 #' @param output what format in which to get information (e.g. "data.table")
 #' @param set_defaults set default spat_unit and feat_type. Change to FALSE only when
+#' @param copy_obj whether to deep copy/duplicate when getting the object (default = TRUE)
 #' expression and spat_info are not expected to exist.
 #' @keywords internal
 NULL
@@ -2488,7 +2489,6 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @description shows the available cell metadata
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each metadata
-#' @param ncols number of columns to print for each metadata
 #' @return prints the name and small subset of available metadata
 #' @family functions to show data in giotto object
 #' @keywords show
@@ -2563,7 +2563,6 @@ showGiottoCellMetadata = function(gobject,
 #' @description shows the available feature metadata
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each metadata
-#' @param ncols number of columns to print for each metadata
 #' @return prints the name and small subset of available metadata
 #' @family functions to show data in giotto object
 #' @keywords show

@@ -24,6 +24,8 @@ overlapImagesToMatrix(
 
 \item{feat_info}{feature information}
 
+\item{name_overlap}{name of the overlap}
+
 \item{image_names}{names of images you used}
 
 \item{spat_locs_name}{name for spatial centroids / locations associated with matrix}

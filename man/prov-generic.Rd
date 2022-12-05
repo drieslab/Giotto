@@ -2,6 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{prov-generic}
 \alias{prov-generic}
+\alias{prov}
 \alias{prov,provData-method}
 \alias{prov<-,provData-method}
 \title{Provenance information}

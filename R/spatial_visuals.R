@@ -4156,6 +4156,7 @@ spatDimPlot = function(...) {
 #' @param point_alpha transparancy of points
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
+#' @param coord_fix_ratio fix ratio between x and y-axis (default = 1)
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -4643,6 +4644,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param point_alpha transparancy of points
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
+#' @param coord_fix_ratio fix ratio between x and y-axis (default = 1)
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width

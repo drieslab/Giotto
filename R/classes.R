@@ -645,7 +645,7 @@ check_cell_meta_obj = function(object) {
 # * Definition ####
 #' @title S4 cellMetaObj
 #' @description Framework to store cell metadata
-#' @slot metadata metadata info
+#' @slot metaDT metadata info
 #' @slot col_desc (optional) character vector describing columns of the metadata
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')

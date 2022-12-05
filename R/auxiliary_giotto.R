@@ -1191,6 +1191,7 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_type feature type to use
 #' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
+#' @param gene_ids deprecated. Use \code{feat_ids}
 #' @param poly_info polygon information to use
 #' @param all_spat_units subset all spatial units with selected feature ids
 #' @param all_feat_types subset all feature type data with selected cell ids
@@ -1668,7 +1669,7 @@ subsetGiottoLocsMulti = function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param details
+#' @details
 #' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
 #' \itemize{
 #'   \item{1. threshold: calculate features that cross a thresold (default)}
@@ -4720,6 +4721,84 @@ combineSpatialCellMetadataInfo = function(gobject,
   return(res_list)
 
 }
+
+
+
+#' @title Query Matrix with data.table syntax
+#' @name mat_queryDT
+#' @description Finds the rows of the Matrix needed to perform the query, converts
+#' first to matrix, transposes, then to data.table after which the query is performed
+#' just as if it had been a cell_ID (rows) by gene (cols) data.table. Only works
+#' when j param is provided.
+#' @param i select by row
+#' @param j select by column or expression to query
+#' @param by return results by which column
+#' @param mtx matrix to use
+#' @keywords internal
+mat_queryDT = function(i = NULL,
+                       j = NULL,
+                       by = cell_ID,
+                       mtx) {
+
+  i_sub = deparse(substitute(i))
+  j_sub = deparse(substitute(j))
+  by_sub = deparse(substitute(by))
+
+  # only i
+  if(i_sub != 'NULL' & j_sub == 'NULL' & by_sub == 'NULL') {
+    warning('Only i not supported')
+    return(NULL)
+  }
+
+  # by only
+  # i,by
+  if(i_sub != 'NULL' & by_sub != 'NULL') {
+    warning(wrap_txt('Ignoring by= because j= is not supplied'))
+    return(NULL)
+  }
+
+  query_to_match = paste(i_sub, j_sub, by_sub)
+  print(query_to_match)
+
+  genes = rownames(mtx)
+  gene_matches = genes[sapply(genes, function(x) {grepl(x, query_to_match)})]
+  names(gene_matches) = NULL
+
+  print(gene_matches)
+
+  cell_IDs = colnames(mtx)
+  match_dt = data.table::as.data.table(t_flex(as.matrix(mtx[gene_matches,,drop = FALSE])))
+  match_dt[, cell_ID := cell_IDs]
+
+  print(match_dt)
+
+
+
+  # only j
+  if(i_sub == 'NULL' & j_sub != 'NULL' & by_sub == 'NULL') {
+    return(match_dt[,eval(parse(text = j_sub))])
+  }
+
+  # i,j
+  if(i_sub != 'NULL' & j_sub != 'NULL' & by_sub == 'NULL') {
+    return(match_dt[eval(parse(text = i_sub)),
+                    eval(parse(text = j_sub))])
+  }
+
+  # j,by
+  if(i_sub == 'NULL' & j_sub != 'NULL' & by_sub != 'NULL') {
+    return(match_dt[,eval(parse(text = j_sub)), c(by_sub)])
+  }
+
+  # i,j,by
+  if(i_sub != 'NULL' & j_sub != 'NULL' & by_sub != 'NULL') {
+    return(match_dt[eval(parse(text = i_sub)),
+                    eval(parse(text = j_sub)),
+                    c(by_sub)])
+  }
+
+}
+
 
 
 

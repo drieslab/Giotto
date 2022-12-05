@@ -170,13 +170,16 @@ or replace parts.
   TODO
 
 
-  Return \code{coordinates} slot data.table from giotto S4
+  Assign to \code{coordinates} slot in giotto S4
 
 
-  Return \code{coordinates} slot data.table from giotto S4
+  Assign to \code{metaDT} slot in giotto S4
 
 
-  Return \code{exprMat} slot Matrix object from giotto S4
+  Assign to \code{coordinates} slot in giotto S4
+
+
+  Assign to \code{exprMat} slot in giotto S4
 
 
   Return \code{spatNetData} slot network data.table object from giotto S4

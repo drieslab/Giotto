@@ -2699,6 +2699,7 @@ overlapToMatrixMultiPoly = function(gobject,
 #' @param name name for the overlap count matrix
 #' @param poly_info polygon information
 #' @param feat_info feature information
+#' @param name_overlap name of the overlap
 #' @param image_names names of images you used
 #' @param spat_locs_name name for spatial centroids / locations associated with matrix
 #' @param return_gobject return giotto object (default: TRUE)

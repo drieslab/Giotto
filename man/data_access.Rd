@@ -14,7 +14,9 @@
 
 \item{output}{what format in which to get information (e.g. "data.table")}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+
+\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)
 expression and spat_info are not expected to exist.}
 }
 \description{

@@ -24,8 +24,7 @@ get_feature_metadata(
 
 \item{copy_obj}{whether to perform a deepcopy of the data.table information}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \description{
 Get feature metadata from giotto object

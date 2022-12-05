@@ -509,10 +509,9 @@ abb_spatlocs = function(spatLocsObj, nrows) {
 
 #' @title Wrap message
 #' @name wrap_msg
-#' @param ... additional strings and/or elements to pass to cat
+#' @param ... additional strings and/or elements to pass to wrap_txt
 #' @param sep how to join elements of string (default is one space)
-#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
-#' @param keywords internal
+#' @keywords internal
 wrap_msg = function(..., sep = ' ') {
   message(wrap_txt(..., sep = sep))
 }

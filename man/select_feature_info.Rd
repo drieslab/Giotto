@@ -12,8 +12,7 @@ select_feature_info(...)
   \describe{
     \item{\code{gobject}}{giotto object}
     \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
-    \item{\code{set_defaults}}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+    \item{\code{set_defaults}}{set default spat_unit and feat_type. Change to FALSE only when}
   }}
 }
 \description{

@@ -2409,6 +2409,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
 #' @param largeImages list of large images
+#' @param largeImages_list_params image params when loading largeImages as list
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose when building Giotto object
