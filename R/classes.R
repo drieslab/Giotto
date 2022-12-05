@@ -133,7 +133,9 @@ setMethod('initialize', 'spatNetData',
             .Object = callNextMethod()
             # prepare DT for set by reference
             .Object@networkDT = data.table::setalloccol(.Object@networkDT)
-            .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
+            if(!is.null(.Object@networkDT_before_filter)) {
+              .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
+            }
             .Object
           })
 
