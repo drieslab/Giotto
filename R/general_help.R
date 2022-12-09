@@ -1385,6 +1385,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
     if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
     print(hdf5_boundary_selected_list[bound_i][[1]])
+    cat('\n')
 
     # read file and select feature data
     read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]], flags = H5Fopen_flags)
@@ -1423,8 +1424,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     remaining = round_seconds(sec = round(as.numeric(est)), output = 'char')
     time_taken = round_seconds(sec = round(as.numeric(time)), output = 'char')
 
-    cat(paste(' // Execution time:', time_taken,
-              ' // Estimated time remaining:', remaining), '')
+    cat(wrap_txt('\n // Execution time:', time_taken,
+                 '// Estimated time remaining:', remaining), '\n')
 
   }
 

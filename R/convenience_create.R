@@ -174,7 +174,7 @@ createGiottoMerscopeObject = function(merscope_dir,
   if(data_to_use == 'subcellular') {
 
     merscope_gobject = createGiottoMerscopeObject_subcellular(data_list = data_list,
-                                                              corse = cores,
+                                                              cores = cores,
                                                               verbose = verbose)
 
   } else if(data_to_use == 'aggregate') {
