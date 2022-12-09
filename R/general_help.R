@@ -1367,10 +1367,9 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                    start extracting .hdf5 information'))
 
   # read selected polygon files
-  start_index = 1
   # create a results list for each z index of the polygon file
-  result_list = replicate(length(polygon_feat_types), list())
-  multidt_list = replicate(length(polygon_feat_types), list())
+  # result_list = replicate(length(polygon_feat_types), list())
+  # multidt_list = replicate(length(polygon_feat_types), list())
 
   hdf5_list_length = length(hdf5_boundary_selected_list)
 
@@ -1380,20 +1379,23 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   init = proc.time()
 
-  lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
+  # lapply for list of hdf5 to read
+  result_list = lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
 
-    if(verbose == TRUE) cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
-    print(hdf5_boundary_selected_list[bound_i][[1]])
-    cat('\n')
+    if(verbose == TRUE) {
+      cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
+      print(hdf5_boundary_selected_list[bound_i][[1]])
+      cat('\n')
+    }
 
     # read file and select feature data
     read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]], flags = H5Fopen_flags)
     featdt = read_file$featuredata
     cell_names = names(featdt)
 
-    # extract values for each z index
-    for(cell_i in 1:length(featdt)) {
-      for(z_i in 1:length(poly_feat_indexes)) {
+    # extract values for each z index and cell
+    result_list = lapply_flex(seq_along(poly_feat_indexes), cores = cores, function(z_i) {
+      lapply_flex(seq_along(featdt), cores = cores, function(cell_i) {
         singlearray = featdt[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
         cell_name = cell_names[[cell_i]]
         if(!is.null(singlearray)) {
@@ -1404,15 +1406,13 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
           singlearraydt[, file_id := paste0('file', bound_i)]
           singlearraydt[, cell_id := cell_name]
-          singlearraydt[, my_id := paste0('cell', start_index)]
-          result_list[[z_i]][[start_index]] = singlearraydt
+          singlearraydt[, my_id := paste0('cell', cell_i)]
         }
-      }
-      start_index = start_index + 1
-    }
-    for (i in 1:length(multidt_list)) {
-      multidt_list[[i]] = do.call('rbind', result_list[[i]])
-    }
+      })
+    })
+    multidt_list = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
+      do.call('rbind', result_list[[z_i]])
+    })
 
     # time end
     setTxtProgressBar(pb, bound_i)
@@ -1433,24 +1433,21 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
 
   # create Giotto polygons and add them to gobject
-  smooth_cell_polygons_list = list()
+  # smooth_cell_polygons_list = list()
 
-  for (i in 1:length(multidt_list)) {
+  smooth_cell_polygons_list = lapply_flex(seq_along(multidt_list), cores = cores, function(i) {
     dfr_subset = multidt_list[[i]][,.(x, y, cell_id)]
     cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
                                                 name = poly_feat_names[i])
 
     if(smooth_polygons == TRUE) {
-      smooth_cell_polygons = smoothGiottoPolygons(cell_polygons,
-                                                  vertices = smooth_vertices,
-                                                  set_neg_to_zero = set_neg_to_zero)
+      return(smoothGiottoPolygons(cell_polygons,
+                                  vertices = smooth_vertices,
+                                  set_neg_to_zero = set_neg_to_zero))
     } else {
-      smooth_cell_polygons = cell_polygons
+      return(cell_polygons)
     }
-
-    smooth_cell_polygons_list[[i]] = smooth_cell_polygons
-  }
-
+  })
 
   # TODO: add spatial centroids
   # needs to happen after smoothing to be correct
