@@ -1370,7 +1370,18 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   hdf5_list_length = length(hdf5_boundary_selected_list)
 
-  for(bound_i in 1:hdf5_list_length) {
+  # create progressbar
+  n_iter = 100
+  pb = create_pb(max = hdf5_list_length)
+
+  # keep track of time per iteration
+  init = numeric()
+  end = numeric()
+
+  for(bound_i in seq(hdf5_list_length)) {
+
+    # time start
+    init[bound_i] = Sys.time()
 
     if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
     print(hdf5_boundary_selected_list[bound_i][[1]])
@@ -1402,10 +1413,25 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     for (i in 1:length(multidt_list)) {
       multidt_list[[i]] = do.call('rbind', result_list[[i]])
     }
+
+    # time end
+    end[bound_i] = Sys.time()
+    setTxtProgressBar(pb, bound_i)
+    time = sum(end - init)
+    # estimated time remaining
+    est = hdf5_list_length * (mean(end[end != 0] - init[init != 0])) - time
+    remaining = round_seconds(sec = round(as.numeric(est)), output = 'char')
+    time_taken = round_seconds(sec = round(as.numeric(time)), output = 'char')
+
+    cat(paste(' // Execution time:', time_taken,
+              ' // Estimated time remaining:', remaining), '')
+
   }
 
-  if(verbose == TRUE) cat('finished extracting .hdf5 files \n
-                          start creating polygons \n')
+  close(pb)
+
+  if(verbose == TRUE) wrap_msg('finished extracting .hdf5 files
+                               start creating polygons')
 
 
   # create Giotto polygons and add them to gobject

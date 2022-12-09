@@ -646,6 +646,63 @@ emacs_version = function() {
   as.numeric(ver)
 }
 
+# time periods ####
+
+#' @title Round seconds to other periods of time
+#' @name round_seconds
+#' @keywords internal
+round_seconds = function(sec,
+                         output = c('list', 'char')) {
+
+  output = match.arg(output, choices = c('list', 'char'))
+
+  days = floor(sec/86400)
+  hrs = floor((sec%%86400)/3600)
+  mins = floor(((sec%%86400)%%3600/60))
+  secs = (((sec%%86400)%%3600%%60))
+
+  out = list()
+  if(days > 0) out$days = days
+  if(hrs > 0) out$hrs = hrs
+  if(mins > 0) out$mins = mins
+  if(secs > 0) out$secs = secs
+
+  out_print = paste(
+    switch(length(out$days) + 1, NULL, paste0(days, 'D')),
+    switch(length(out$hrs) + 1, NULL, paste0(hrs, 'H')),
+    switch(length(out$mins) + 1, NULL, paste0(mins, 'M')),
+    switch(length(out$secs) + 1, NULL, paste0(secs, 'S'))
+  )
+
+  if(output == 'list') {
+    return(out)
+  } else if(output == 'char') {
+    return(out_print)
+  }
+}
+
+# progress bar setup ####
+
+#' @title Create a txt progressbar
+#' @name create_pb
+#' @keywords internal
+create_pb = function(max,
+                     min = 0,
+                     width = min(35, getOption('width')),
+                     char = '=') {
+
+  txtProgressBar(min = min,
+                 max = max,
+                 style = 3,
+                 width = width,
+                 char = char)
+
+}
+
+
+
+
+
 
 
 

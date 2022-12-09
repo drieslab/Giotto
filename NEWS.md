@@ -3,6 +3,8 @@
 ## Changes
 - Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
+- Add `createGiottoMerscopeObject()`
+- Move giotto object method-specific creation functions from `giotto.R` to `convenience_create.R`
 
 
 
