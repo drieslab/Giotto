@@ -1302,6 +1302,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @param smooth_vertices number of vertices for smoothing
 #' @param set_neg_to_zero set negative values to zero when smoothing
 #' @param H5Fopen_flags see \code{\link[rhdf5]{H5Fopen}} for more details
+#' @param cores cores to use
 #' @param verbose be verbose
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
@@ -1316,9 +1317,12 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       smooth_vertices = 60,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
+                                      cores = NA,
                                       verbose = TRUE) {
 
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+
+  cores = determine_cores(cores)
 
   # define for .()
   x = NULL
@@ -1378,12 +1382,12 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   init = numeric()
   end = numeric()
 
-  for(bound_i in seq(hdf5_list_length)) {
+  lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
 
     # time start
     init[bound_i] = Sys.time()
 
-    if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
+    if(verbose == TRUE) cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
     print(hdf5_boundary_selected_list[bound_i][[1]])
     cat('\n')
 
@@ -1427,7 +1431,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     cat(wrap_txt('\n // Execution time:', time_taken,
                  '// Estimated time remaining:', remaining), '\n')
 
-  }
+  })
 
   close(pb)
 
