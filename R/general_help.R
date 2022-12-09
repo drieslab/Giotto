@@ -1378,14 +1378,9 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   n_iter = 100
   pb = create_pb(max = hdf5_list_length)
 
-  # keep track of time per iteration
-  init = numeric()
-  end = numeric()
+  init = proc.time()
 
   lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
-
-    # time start
-    init[bound_i] = Sys.time()
 
     if(verbose == TRUE) cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
     print(hdf5_boundary_selected_list[bound_i][[1]])
@@ -1420,16 +1415,14 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     }
 
     # time end
-    end[bound_i] = Sys.time()
     setTxtProgressBar(pb, bound_i)
-    time = sum(end - init)
     # estimated time remaining
-    est = hdf5_list_length * (mean(end[end != 0] - init[init != 0])) - time
-    remaining = round_seconds(sec = round(as.numeric(est)), output = 'char')
-    time_taken = round_seconds(sec = round(as.numeric(time)), output = 'char')
+    elapsed = (proc.time() - init)[[3L]]
+    step_time = elapsed/bound_i
+    est = (hdf5_list_length * step_time) - elapsed
 
-    cat(wrap_txt('\n // Execution time:', time_taken,
-                 '// Estimated time remaining:', remaining), '\n')
+    cat(wrap_txt('\n // Execution time:', time_format(elapsed),
+                 '// Estimated time remaining:', time_format(est), '\n'))
 
   })
 
