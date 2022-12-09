@@ -1359,8 +1359,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   }
 
 
-  if(verbose == TRUE) cat('finished listing .hdf5 files \n
-                          start extracting .hdf5 information \n')
+  if(verbose == TRUE) cat(wrap_txt('finished listing .hdf5 files
+                                   start extracting .hdf5 information'))
 
   # read selected polygon files
   start_index = 1
