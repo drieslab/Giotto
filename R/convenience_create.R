@@ -128,6 +128,10 @@ read_data_folder = function(spat_method = NULL,
 #' to use for object creation
 #' @param FOVs which FOVs to use when building the subcellular object. (default is NULL)
 #' NULL loads all FOVs (very slow)
+#' @param calculate_overlap whether to run \code{\link{calculateOverlapRaster}}
+#' @param overlap_to_matrix whether to run \code{\link{overlapToMatrix}}
+#' @param aggregate_stack whether to run \code{\link{aggregateStacks}}
+#' @param aggregate_stack_param params to pass to \code{\link{aggregateStacks}}
 #' @inheritParams createGiottoObjectSubcellular
 #' @return a giotto object
 #' @export
@@ -145,6 +149,12 @@ read_data_folder = function(spat_method = NULL,
 createGiottoMerscopeObject = function(merscope_dir,
                                       data_to_use = c('subcellular', 'aggregate'),
                                       FOVs = NULL,
+                                      calculate_overlap = TRUE,
+                                      overlap_to_matrix = TRUE,
+                                      aggregate_stack = TRUE,
+                                      aggregate_stack_param = list(summarize_expression = 'sum',
+                                                                   summarize_locations = 'mean',
+                                                                   new_spat_unit = 'cell'),
                                       instructions = NULL,
                                       cores = NA,
                                       verbose = TRUE) {
@@ -174,6 +184,10 @@ createGiottoMerscopeObject = function(merscope_dir,
   if(data_to_use == 'subcellular') {
 
     merscope_gobject = createGiottoMerscopeObject_subcellular(data_list = data_list,
+                                                              calculate_overlap = calculate_overlap,
+                                                              overlap_to_matrix = overlap_to_matrix,
+                                                              aggregate_stack = aggregate_stack,
+                                                              aggregate_stack_param = aggregate_stack_param,
                                                               cores = cores,
                                                               verbose = verbose)
 
@@ -198,6 +212,12 @@ createGiottoMerscopeObject = function(merscope_dir,
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
 #' @keywords internal
 createGiottoMerscopeObject_subcellular = function(data_list,
+                                                  calculate_overlap = TRUE,
+                                                  overlap_to_matrix = TRUE,
+                                                  aggregate_stack = TRUE,
+                                                  aggregate_stack_param = list(summarize_expression = 'sum',
+                                                                               summarize_locations = 'mean',
+                                                                               new_spat_unit = 'cell'),
                                                   cores = NA,
                                                   verbose = TRUE) {
 
@@ -207,7 +227,44 @@ createGiottoMerscopeObject_subcellular = function(data_list,
   micronToPixelScale = data_list$micronToPixelScale
   image_list = data_list$images
 
+  # data.table vars
+  gene = NULL
 
+  # split tx_dt by expression and blank
+  if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs blank')
+  feat_id_all = tx_dt[, unique(gene)]
+  blank_id = feat_id_all[grepl(pattern = 'Blank', feat_id_all)]
+  feat_id = feat_id_all[!feat_id_all %in% blank_id]
+
+  feat_dt = tx_dt[gene %in% feat_id,]
+  blank_dt = tx_dt[gene %in% blank_id,]
+
+  # extract transcript_id col and store as feature meta
+  feat_meta = unique(feat_dt[, c('gene', 'transcript_id', 'barcode_id'), with = FALSE])
+  blank_meta = unique(blank_dt[, c('gene', 'transcript_id', 'barcode_id'), with = FALSE])
+  feat_dt[, c('transcript_id', 'barcode_id') := NULL]
+  blank_dt[, c('transcript_id', 'barcode_id') := NULL]
+
+  if(isTRUE(verbose)) {
+    message('  > Features: ', feat_dt[, .N])
+    message('  > Blanks: ', blank_dt[, .N])
+  }
+
+  # build giotto object
+  if(isTRUE(verbose)) wrap_msg('Building subcellular giotto object...')
+  z_sub = createGiottoObjectSubcellular(
+    gpoints = list('rna' = feat_coord,
+                   'neg_probe' = neg_coord),
+    gpolygons = list('cell' = cellLabel_dir),
+    polygon_mask_list_params = list(
+      mask_method = 'guess',
+      flip_vertical = TRUE,
+      flip_horizontal = FALSE,
+      shift_horizontal_step = FALSE
+    ),
+    instructions = instructions,
+    cores = cores
+  )
 
 }
 
@@ -223,11 +280,13 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 
   # unpack data_list
   micronToPixelScale = data_list$micronToPixelScale
-  expr_mat = data_list$expr_mat
+  expr_dt = data_list$expr_dt
   cell_meta = data_list$expr_mat
   image_list = data_list$images
 
+  # split expr_dt by expression and blank
 
+  # feat_id_all =
 
 }
 
@@ -1371,7 +1430,18 @@ load_merscope_folder_subcellular = function(dir_items,
                                             fovs = NULL) {
 
   if(isTRUE(verbose)) wrap_msg('Loading transcript level info...')
-  tx_dt = data.table::fread(dir_items$dir_items$`raw transcript info`, nThread = cores)
+  if(is.null(fovs)) {
+    tx_dt = data.table::fread(dir_items$`raw transcript info`, nThread = cores)
+  } else {
+    if(isTRUE(verbose)) wrap_msg('Selecting FOV subset transcripts')
+    tx_dt = fread_colmatch(file = dir_items$`raw transcript info`,
+                           col = 'fov',
+                           values_to_match = fovs,
+                           verbose = FALSE,
+                           nThread = cores)
+  }
+  tx_dt[, c('x','y') := NULL] # remove unneeded cols
+  data.table::setcolorder(tx_dt, c('gene', 'global_x', 'global_y', 'global_z'))
 
   if(isTRUE(verbose)) wrap_msg('Loading polygon info...')
   poly_info = readPolygonFilesVizgenHDF5(boundaries_path = dir_items$`boundary info`,
@@ -1383,7 +1453,7 @@ load_merscope_folder_subcellular = function(dir_items,
     'poly_info' = poly_info,
     'tx_dt' = tx_dt,
     'micronToPixelScale' = NULL,
-    'expr_mat' = NULL,
+    'expr_dt' = NULL,
     'cell_meta' = NULL,
     'images' = NULL
   )
@@ -1402,16 +1472,16 @@ load_merscope_folder_aggregate = function(dir_items,
   # metadata is polygon-related measurements
   if(isTRUE(verbose)) wrap_msg('Loading cell metadata...')
   cell_metadata_file = data.table::fread(dir_items$`cell metadata`, nThread = cores)
-  # expr_mat contains Blank probes
+
   if(isTRUE(verbose)) wrap_msg('Loading expression matrix')
-  expr_mat = data.table::fread(dir_items$`cell feature matrix`, nThread = cores)
+  expr_dt = data.table::fread(dir_items$`cell feature matrix`, nThread = cores)
 
 
   data_list = list(
     'poly_info' = NULL,
     'tx_dt' = NULL,
     'micronToPixelScale' = NULL,
-    'expr_mat' = expr_mat,
+    'expr_dt' = expr_dt,
     'cell_meta' = cell_metadata_file,
     'images' = NULL
   )

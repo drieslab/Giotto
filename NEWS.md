@@ -5,6 +5,7 @@
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `createGiottoMerscopeObject()`
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience_create.R`
+- Add `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
 
 
 

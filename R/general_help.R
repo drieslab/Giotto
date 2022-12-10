@@ -1380,7 +1380,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   init = proc.time()
 
   # lapply for list of hdf5 to read
-  result_list = lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
+  multidt_list = lapply_flex(seq(hdf5_list_length), cores = cores, function(bound_i) {
 
     if(verbose == TRUE) {
       cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
@@ -1410,7 +1410,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
         }
       })
     })
-    multidt_list = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
+    result_list_rbind = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
       do.call('rbind', result_list[[z_i]])
     })
 
@@ -1424,6 +1424,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     cat(wrap_txt('\n // Execution time:', time_format(elapsed),
                  '// Estimated time remaining:', time_format(est), '\n'))
 
+    return(result_list_rbind)
   })
 
   close(pb)
