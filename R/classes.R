@@ -55,7 +55,7 @@ setClass('coordDataDT',
 
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             .Object@coordinates = data.table::setalloccol(.Object@coordinates)
             .Object
@@ -81,7 +81,7 @@ setClass('metaData',
 
 setMethod('initialize', 'metaData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             .Object@metaDT = data.table::setalloccol(.Object@metaDT)
             .Object
@@ -97,7 +97,7 @@ setClass('enrData',
 
 setMethod('initialize', 'enrData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
             .Object
@@ -130,7 +130,7 @@ setClass('spatNetData',
 
 setMethod('initialize', 'spatNetData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             .Object@networkDT = data.table::setalloccol(.Object@networkDT)
             if(!is.null(.Object@networkDT_before_filter)) {
@@ -152,7 +152,7 @@ setClass('spatGridData',
 
 setMethod('initialize', 'spatGridData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             .Object@gridDT = data.table::setalloccol(.Object@gridDT)
             .Object
@@ -378,6 +378,7 @@ setClass('spatFeatData',
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @slot join_info information about joined Giotto objects
+#' @slot multiomics multiomics integration results
 #' @details
 #' [\strong{expression}] There are several ways to provide expression information:
 #'
@@ -409,7 +410,8 @@ giotto <- setClass(
     instructions = "ANY",
     offset_file = "ANY",
     OS_platform = "ANY",
-    join_info = "ANY"
+    join_info = "ANY",
+    multiomics = "ANY"
 
   ),
 
@@ -434,7 +436,8 @@ giotto <- setClass(
     instructions = NULL,
     offset_file = NULL,
     OS_platform = NULL,
-    join_info = NULL
+    join_info = NULL,
+    multiomics = NULL
   )
 )
 
