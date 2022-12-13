@@ -1473,7 +1473,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     # }))
   })
   result_list_rbind = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
-    do.call('rbind', result_list[[z_i]])
+    data.table::rbindlist(result_list[[z_i]])
   })
 
 
@@ -1511,13 +1511,13 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
       cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
                                                   name = poly_feat_names[i],
-                                                  verbose = verbose,
-                                                  verbose = TRUE)
+                                                  verbose = verbose)
 
       if(smooth_polygons == TRUE) {
         return(smoothGiottoPolygons(cell_polygons,
                                     vertices = smooth_vertices,
-                                    set_neg_to_zero = set_neg_to_zero))
+                                    set_neg_to_zero = set_neg_to_zero,
+                                    verbose = FALSE))
       } else {
         return(cell_polygons)
       }
@@ -1609,6 +1609,9 @@ readPolygonFilesVizgen = function(gobject,
 getGEFtxCoords = function(gef_file,
                           bin_size = 'bin100') {
 
+  # data.table vars
+  genes = NULL
+
   # package check
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
@@ -1624,3 +1627,48 @@ getGEFtxCoords = function(gef_file,
   return(exprDT)
 
 }
+
+
+
+#' @title Fread rows based on column matches
+#' @name fread_colmatch
+#' @param file path to file to load
+#' @param col name of col to match from
+#' @param sep grep term to match as column delimiters within the file
+#' @param values_to_match values in \code{col} to match given as a vector
+#' @param verbose whether to print the grep command
+#' @param ... additional parameters to pass to \code{\link[data.table]{fread}}
+#' @keywords internal
+fread_colmatch = function(file,
+                          col,
+                          sep = NULL,
+                          values_to_match,
+                          verbose = FALSE,
+                          ...) {
+
+  # get colnames
+  col_names = colnames(data.table::fread(file, nrows = 1L))
+  col_num = which(col_names == col)
+
+  # try to guess col separating char if not given
+  if(is.null(sep)) {
+    filename = basename(file)
+    if(grepl(pattern = '.csv', x = filename)) {
+      sep = '.*,'
+    } else if(grepl(pattern = '.tsv', x = filename)) {
+      sep = '.*\t'
+    } else {
+      stop('sep param cannot be guessed')
+    }
+  }
+
+  # create grep search
+  pattern = paste(values_to_match, collapse = '|')
+  gpat = paste0('\'', strrep(x = sep, times = col_num - 1), '(', pattern, '),\' ')
+  fread_cmd = paste0('grep -E ', gpat, file)
+  if(isTRUE(verbose)) print(fread_cmd)
+
+  file_DT = data.table::fread(cmd = fread_cmd, col.names = col_names, ...)
+  return(file_DT)
+}
+

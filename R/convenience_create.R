@@ -47,7 +47,7 @@ read_data_folder = function(spat_method = NULL,
 
   # 1. detect items
   dir_items = lapply_flex(dir_items, function(x) {
-    Sys.glob(paths = file.path(merscope_dir, x))
+    Sys.glob(paths = file.path(data_dir, x))
   }, cores = cores)
   # (length = 1 if present, length = 0 if missing)
   dir_items_lengths = lengths(dir_items)
@@ -960,6 +960,9 @@ createGiottoXeniumObject_subcellular = function(data_list,
                                                 cores = NA,
                                                 verbose = TRUE) {
 
+  # data.table vars
+  qv = NULL
+
   # Unpack data_list info
   feat_meta = data_list$feat_meta
   tx_dt = data_list$tx_dt
@@ -1447,7 +1450,7 @@ load_merscope_folder_subcellular = function(dir_items,
   poly_info = readPolygonFilesVizgenHDF5(boundaries_path = dir_items$`boundary info`,
                                          polygon_feat_types = c(0,6),
                                          flip_y_axis = TRUE,
-                                         fovs = subsetFOVs)
+                                         fovs = fovs)
 
   data_list = list(
     'poly_info' = poly_info,
@@ -1547,6 +1550,10 @@ load_cosmx_folder_subcellular = function(dir_items,
 load_cosmx_folder_aggregate = function(dir_items,
                                        cores,
                                        verbose = TRUE) {
+
+  # data.table vars
+  fov = cell_ID = fov_cell_ID = CenterX_global_px = CenterY_global_px = CenterX_local_px =
+    CenterY_local_px = x_shift = y_shift = NULL
 
   # load aggregate information
   wrap_msg('Loading provided aggregated information...')
@@ -1779,6 +1786,8 @@ load_xenium_folder_parquet = function(path_list,
 
   # initialize return vars
   feat_meta = tx_dt = bound_dt_list = cell_meta = agg_expr = NULL
+  # dplyr variable
+  cell_id = NULL
 
   if(isTRUE(verbose)) message('Loading feature metadata...')
   feat_meta = data.table::fread(path_list$panel_meta_path[[1]], nThread = cores)

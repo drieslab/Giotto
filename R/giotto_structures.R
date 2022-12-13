@@ -2719,6 +2719,9 @@ overlapImagesToMatrix = function(gobject,
                                  spat_locs_name = 'raw',
                                  return_gobject = TRUE) {
 
+  # data.table vars
+  value = poly_ID = feat_ID = x = y = NULL
+
   ## get polygon information
   polygon_info = get_polygon_info(gobject = gobject,
                                   polygon_name = poly_info,

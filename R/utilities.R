@@ -488,6 +488,9 @@ abb_mat = function(exprObj, nrows, ncols, header = TRUE) {
 #' @description print abbreviated spatLocsObj
 #' @keywords internal
 abb_spatlocs = function(spatLocsObj, nrows) {
+  # data.table vars
+  sdimx = sdimy = NULL
+
   DT_rows = nrow(spatLocsObj[])
   spatlocs = spatLocsObj[][1:if(nrows <= DT_rows) nrows else DT_rows,]
 
@@ -646,83 +649,8 @@ emacs_version = function() {
   as.numeric(ver)
 }
 
-# time format ####
-
-#' @title Format time for printing
-#' @name time_format
-#' @keywords internal
-#' @details Code from \code{\link[data.table]{timetaken}}
-time_format = function(secs) {
-  if (secs > 60) {
-    secs = as.integer(secs)
-    sprintf("%02d:%02d:%02d", secs%/%3600L, (secs%/%60L)%%60L,
-            secs%%60L)
-  }
-  else {
-    sprintf(if (secs >= 10)
-      "%.1fs"
-      else "%.3fs", secs)
-  }
-}
-
-# progress bar setup ####
-
-#' @title Create a txt progressbar
-#' @name create_pb
-#' @keywords internal
-create_pb = function(max,
-                     min = 0,
-                     width = min(35, getOption('width')),
-                     char = '=') {
-
-  txtProgressBar(min = min,
-                 max = max,
-                 style = 3,
-                 width = width,
-                 char = char)
-
-}
 
 
-#' @param file path to file to load
-#' @param col name of col to match from
-#' @param sep grep term to match as column delimiters within the file
-#' @param values_to_match values in \code{col} to match given as a vector
-#' @param verbose whether to print the grep command
-#' @param ... additional parameters to pass to \code{\link[data.table]{fread}}
-#' @keywords internal
-fread_colmatch = function(file,
-                          col,
-                          sep = NULL,
-                          values_to_match,
-                          verbose = FALSE,
-                          ...) {
-
-  # get colnames
-  col_names = colnames(data.table::fread(file, nrows = 1L))
-  col_num = which(col_names == col)
-
-  # try to guess col separating char if not given
-  if(is.null(sep)) {
-    filename = basename(file)
-    if(grepl(pattern = '.csv', x = filename)) {
-      sep = '.*,'
-    } else if(grepl(pattern = '.tsv', x = filename)) {
-      sep = '.*\t'
-    } else {
-      stop('sep param cannot be guessed')
-    }
-  }
-
-  # create grep search
-  pattern = paste(values_to_match, collapse = '|')
-  gpat = paste0('\'', strrep(x = sep, times = col_num - 1), '(', pattern, '),\' ')
-  fread_cmd = paste0('grep -E ', gpat, file)
-  if(isTRUE(verbose)) print(fread_cmd)
-
-  file_DT = data.table::fread(cmd = fread_cmd, col.names = col_names, ...)
-  return(file_DT)
-}
 
 
 

@@ -10,12 +10,26 @@ createGiottoMerscopeObject(
   merscope_dir,
   data_to_use = c("subcellular", "aggregate"),
   FOVs = NULL,
+  calculate_overlap = TRUE,
+  overlap_to_matrix = TRUE,
+  aggregate_stack = TRUE,
+  aggregate_stack_param = list(summarize_expression = "sum", summarize_locations =
+    "mean", new_spat_unit = "cell"),
   instructions = NULL,
   cores = NA,
   verbose = TRUE
 )
 
-createGiottoMerscopeObject_subcellular(data_list, cores = NA, verbose = TRUE)
+createGiottoMerscopeObject_subcellular(
+  data_list,
+  calculate_overlap = TRUE,
+  overlap_to_matrix = TRUE,
+  aggregate_stack = TRUE,
+  aggregate_stack_param = list(summarize_expression = "sum", summarize_locations =
+    "mean", new_spat_unit = "cell"),
+  cores = NA,
+  verbose = TRUE
+)
 
 createGiottoMerscopeObject_aggregate(data_list, cores = NA, verbose = TRUE)
 }
@@ -27,6 +41,14 @@ to use for object creation}
 
 \item{FOVs}{which FOVs to use when building the subcellular object. (default is NULL)
 NULL loads all FOVs (very slow)}
+
+\item{calculate_overlap}{whether to run \code{\link{calculateOverlapRaster}}}
+
+\item{overlap_to_matrix}{whether to run \code{\link{overlapToMatrix}}}
+
+\item{aggregate_stack}{whether to run \code{\link{aggregateStacks}}}
+
+\item{aggregate_stack_param}{params to pass to \code{\link{aggregateStacks}}}
 
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 

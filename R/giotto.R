@@ -766,6 +766,9 @@ read_cell_metadata = function(gobject,
                               provenance = NULL,
                               verbose = TRUE) {
 
+  # data.table vars
+  cell_ID = NULL
+
   cellMetaObj_list = list()
 
   # extract all metadata information
@@ -833,6 +836,9 @@ read_feature_metadata = function(gobject,
                                  metadata,
                                  provenance = NULL,
                                  verbose = TRUE) {
+
+  # data.table vars
+  feat_ID = NULL
 
   featMetaObj_list = list()
 
@@ -1065,6 +1071,9 @@ read_spatial_location_data = function(gobject,
                                       cores = 1,
                                       provenance = NULL,
                                       verbose = TRUE) {
+
+  # data.table vars
+  cell_ID = NULL
 
   if(is.null(spat_loc_list)) return(NULL)
 
@@ -2440,9 +2449,8 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          cores = NA,
                                          verbose = TRUE) {
 
-  # define for data.table :=
-  cell_ID = NULL
-  feat_ID = NULL
+  # data.table vars
+  cell_ID feat_ID = x = y = NULL
 
   # create minimum giotto
   gobject = giotto(expression = NULL,

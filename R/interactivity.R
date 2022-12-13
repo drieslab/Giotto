@@ -412,7 +412,7 @@ compareCellAbundance <- function(gobject,
                                    output = 'data.table',
                                    copy_obj = TRUE)
   columns_to_select = c(polygon_name, cell_type_column)
-  my_metadata <- my_metadata[, ..columns_to_select]
+  my_metadata <- my_metadata[, columns_to_select, with = FALSE]
 
   # count cell_type per polygon
   my_cell_counts <- table(my_metadata)
