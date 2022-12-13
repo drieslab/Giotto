@@ -1425,7 +1425,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
         # update progress
         f_n = basename(bound_i[[1]])
         pb_msg = c('...', substr(f_n, nchar(f_n) - 14, nchar(f_n)))
-        pb(message = pg_msg)
+        pb(message = pb_msg)
         return(fov_info)
       })
     })
