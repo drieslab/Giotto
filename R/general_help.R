@@ -1476,26 +1476,52 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
 
 
-  if(verbose == TRUE) wrap_msg('finished extracting .hdf5 files
+  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
                                start creating polygons')
 
 
   # create Giotto polygons and add them to gobject
   # smooth_cell_polygons_list = list()
 
-  smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
-    dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
-    cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
-                                                name = poly_feat_names[i])
+  if(isTRUE(progressr_avail)) {
+    progressr::with_progress({
+      pb = progressr::progressor(along = result_list_rbind)
+      smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
+        dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
+        cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                    name = poly_feat_names[i],
+                                                    verbose = verbose)
 
-    if(smooth_polygons == TRUE) {
-      return(smoothGiottoPolygons(cell_polygons,
-                                  vertices = smooth_vertices,
-                                  set_neg_to_zero = set_neg_to_zero))
-    } else {
-      return(cell_polygons)
-    }
-  })
+        pb(message = poly_feat_names[i])
+
+        if(smooth_polygons == TRUE) {
+          return(smoothGiottoPolygons(cell_polygons,
+                                      vertices = smooth_vertices,
+                                      set_neg_to_zero = set_neg_to_zero,
+                                      verbose = FALSE))
+        } else {
+          return(cell_polygons)
+        }
+      })
+    })
+  } else {
+    smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
+      dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
+      cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                  name = poly_feat_names[i],
+                                                  verbose = verbose,
+                                                  verbose = TRUE)
+
+      if(smooth_polygons == TRUE) {
+        return(smoothGiottoPolygons(cell_polygons,
+                                    vertices = smooth_vertices,
+                                    set_neg_to_zero = set_neg_to_zero))
+      } else {
+        return(cell_polygons)
+      }
+    })
+  }
+
 
   # TODO: add spatial centroids
   # needs to happen after smoothing to be correct
