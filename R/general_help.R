@@ -1422,14 +1422,11 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
         read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
         fov_info = read_file$featuredata
 
-        # combine to FOV data single list
-        read_list = do.call('append', fov_info)
-
         # update progress
         f_n = basename(bound_i[[1]])
         pb_msg = c('...', substr(f_n, nchar(f_n) - 14, nchar(f_n)))
         pb(message = pg_msg)
-        return(read_list)
+        return(fov_info)
       })
     })
   } else {
@@ -1445,12 +1442,11 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
       fov_info = read_file$featuredata
 
-      # combine to FOV data single list
-      read_list = do.call('append', fov_info)
-
-      return(read_list)
+      return(fov_info)
     })
   }
+  # combine to FOV data single list
+  read_list = Reduce('append', fov_info)
   cell_names = names(read_list)
 
 
