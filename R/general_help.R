@@ -1446,7 +1446,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     })
   }
   # combine to FOV data single list
-  read_list = Reduce('append', fov_info)
+  read_list = Reduce('append', read_list)
   cell_names = names(read_list)
 
 
