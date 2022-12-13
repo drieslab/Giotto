@@ -1415,7 +1415,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   if(isTRUE(progressr_avail)) {
     progressr::with_progress({
-      pb = progressr::progressor(along = hdf5_boundary_list)
+      pb = progressr::progressor(along = hdf5_boundary_selected_list)
       read_list = lapply_flex(hdf5_boundary_selected_list, cores = cores, function(bound_i) {
 
         # read file and select feature data
@@ -1424,7 +1424,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
         # update progress
         f_n = basename(bound_i[[1]])
-        pb_msg = c('...', substr(f_n, nchar(f_n) - 14, nchar(f_n)))
+        pb_msg = c('...', substr(f_n, nchar(f_n) - 19, nchar(f_n)))
         pb(message = pb_msg)
         return(fov_info)
       })
@@ -1445,27 +1445,30 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       return(fov_info)
     })
   }
-  # combine to FOV data single list
-  read_list = Reduce('append', read_list)
-  cell_names = names(read_list)
+  # # combine to FOV data single list
+  # read_list = Reduce('append', read_list)
+  # cell_names = names(read_list)
 
 
   # extract values for each z index and cell from read_list
   result_list = lapply_flex(seq_along(poly_feat_indexes), cores = cores, function(z_i) {
-    lapply_flex(seq_along(read_list), cores = cores, function(cell_i) {
-      singlearray = read_list[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
-      cell_name = cell_names[[cell_i]]
-      if(!is.null(singlearray)) {
-        singlearraydt = data.table::as.data.table(t_flex(as.matrix(singlearray[,,1])))
-        data.table::setnames(singlearraydt, old = c('V1', 'V2'), new = c('x', 'y'))
-        if(flip_x_axis) singlearraydt[, x := -1 * x]
-        if(flip_y_axis) singlearraydt[, y := -1 * y]
+    Reduce('append', lapply_flex(seq_along(read_list), cores = cores, function(bound_i) {
+      cell_names = names(read_list[[bound_i]])
+      lapply_flex(seq_along(read_list[[bound_i]]), cores = cores, function(cell_i) {
+        singlearray = read_list[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+        cell_name = cell_names[[cell_i]]
+        if(!is.null(singlearray)) {
+          singlearraydt = data.table::as.data.table(t_flex(as.matrix(singlearray[,,1])))
+          data.table::setnames(singlearraydt, old = c('V1', 'V2'), new = c('x', 'y'))
+          if(flip_x_axis) singlearraydt[, x := -1 * x]
+          if(flip_y_axis) singlearraydt[, y := -1 * y]
 
-        singlearraydt[, file_id := paste0('file', bound_i)]
-        singlearraydt[, cell_id := cell_name]
-        singlearraydt[, my_id := paste0('cell', cell_i)]
-      }
-    })
+          singlearraydt[, file_id := paste0('file', bound_i)]
+          singlearraydt[, cell_id := cell_name]
+          singlearraydt[, my_id := paste0('cell', cell_i)]
+        }
+      })
+    }))
   })
   result_list_rbind = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
     do.call('rbind', result_list[[z_i]])
