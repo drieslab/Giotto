@@ -46,6 +46,7 @@ Other functions to get data from giotto object:
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
+\code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},
 \code{\link{get_spatialGrid}()},
 \code{\link{get_spatialNetwork}()},
