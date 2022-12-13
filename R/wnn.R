@@ -5,16 +5,26 @@
 #' @param spat_unit spatial unit
 #' @param modality_1 modality 1 name. Default = "rna"
 #' @param modality_2 modality 2 name. Default = "protein"
+#' @param pca_name_modality_1 Default = 'rna.pca'
+#' @param pca_name_modality_2 Default = 'protein.pca'
+#' @param integrated_feat_type integrated feature type (e.g. 'rna_protein')
+#' @param matrix_result_name Default = 'theta_weighted_matrix'
+#' @param w_name_modality_1 name for modality 1 weights
+#' @param w_name_modality_2 name for modality 2 weights
 #'
 #' @return A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.
 #' @export
 runWNN <- function(gobject,
-                   spat_unit = "cell",
-                   modality_1 = "rna",
-                   modality_2 = "protein",
-                   pca_name_modality_1 = "rna.pca",
-                   pca_name_modality_2 = "protein.pca",
-                   k = 20) {
+                   spat_unit = 'cell',
+                   modality_1 = 'rna',
+                   modality_2 = 'protein',
+                   pca_name_modality_1 = 'rna.pca',
+                   pca_name_modality_2 = 'protein.pca',
+                   k = 20,
+                   integrated_feat_type = NULL,
+                   matrix_result_name = NULL,
+                   w_name_modality_1 = NULL,
+                   w_name_modality_2 = NULL) {
 
   # validate Giotto object
   if (!inherits(gobject, "giotto")) {
@@ -33,38 +43,30 @@ runWNN <- function(gobject,
                               spat_unit = spat_unit,
                               feat_type = modality_1,
                               nn_network_to_use = "kNN")
-  #kNN_1 <- gobject@nn_network$cell$modality1$kNN$modality1_kNN.pca
-  # pca_1 <- get_dimReduction(gobject,
-  #                             spat_unit = "cell",
-  #                             feat_type = modality_1,
-  #                             reduction = "cells",
-  #                             reduction_method = "pca",
-  #                             name = "pca")
+  kNN_1 <- slot(kNN_1, "igraph")
+
   pca_1 <- get_dimReduction(gobject,
                             spat_unit = spat_unit,
                             feat_type = modality_1,
                             reduction = "cells",
                             reduction_method = "pca",
                             name = pca_name_modality_1)
+  pca_1 <- slot(pca_1, "coordinates")
 
   ## modality 2
   kNN_2 <- get_NearestNetwork(gobject,
                               spat_unit = spat_unit,
                               feat_type = modality_2,
                               nn_network_to_use = "kNN")
-  #kNN_2 <- gobject@nn_network$cell$modality2$kNN$modality2_kNN.pca
-  # pca_2 <- get_dimReduction(gobject,
-  #                                 spat_unit = "cell",
-  #                                 feat_type = modality_2,
-  #                                 reduction = "cells",
-  #                                 reduction_method = "pca",
-  #                                 name = "modality2.pca")
+  kNN_2 <- slot(kNN_2, "igraph")
+
   pca_2 <- get_dimReduction(gobject,
                             spat_unit = "cell",
                             feat_type = modality_2,
                             reduction = "cells",
                             reduction_method = "pca",
                             name = pca_name_modality_2)
+  pca_2 <- slot(pca_2, "coordinates")
 
   ## get cell names
   cell_names <- unique(igraph::get.edgelist(kNN_1)[,1])
@@ -400,48 +402,44 @@ runWNN <- function(gobject,
   }
 
   # save theta_weighted
-  dimObject <- Giotto:::create_dimObject(name = "theta_weighted",
-                                         spat_unit = "cell",
-                                         feat_type = "WNN",
-                                         reduction_method = "umap",
-                                         coordinates = theta_weighted)
-  gobject <- set_dimReduction(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = "WNN",
-                              reduction = "cell",
-                              reduction_method = "umap",
-                              name = "theta_weighted",
-                              dimObject = dimObject)
+
+  ## set integrated feat_type and result name if not provided
+  if(is.null(integrated_feat_type)) {integrated_feat_type = paste0(modality_1,'_',modality_2)}
+
+  if(is.null(matrix_result_name)) {matrix_result_name = 'theta_weighted_matrix'}
+
+  gobject <- set_multiomics(gobject = gobject,
+                            result = theta_weighted,
+                            spat_unit = spat_unit,
+                            feat_type = integrated_feat_type,
+                            integration_method = 'WNN',
+                            result_name = matrix_result_name,
+                            verbose = TRUE)
+
 
   # save modalities weight
 
   ## modality 1
-  # dimObject <- Giotto:::create_dimObject(name = paste0("weight_",modality_1),
-  #                                        spat_unit = "cell",
-  #                                        feat_type = "WNN",
-  #                                        reduction_method = "umap",
-  #                                        coordinates = w_modality1)
-  # gobject <- set_dimReduction(gobject = gobject,
-  #                             spat_unit = spat_unit,
-  #                             feat_type = "WNN",
-  #                             reduction_method = "umap",
-  #                             name = paste0("weight_",modality_1),
-  #                             dimObject = dimObject)
-  #
-  # ## modality 2
-  # dimObject <- Giotto:::create_dimObject(name = paste0("weight_",modality_2),
-  #                                        spat_unit = "cell",
-  #                                        feat_type = "WNN",
-  #                                        reduction_method = "umap",
-  #                                        coordinates = w_modality2)
-  # gobject <- set_dimReduction(gobject = gobject,
-  #                             spat_unit = spat_unit,
-  #                             feat_type = "WNN",
-  #                             reduction_method = "umap",
-  #                             name = paste0("weight_",modality_2),
-  #                             dimObject = dimObject)
+  if(is.null(w_name_modality_1)) {w_name_modality_1 = paste0('w_',modality_1)}
 
-  #gobject@dimension_reduction$cells$cell[['WNN']][['theta_weighted']] <- theta_weighted
+  gobject <- set_multiomics(gobject = gobject,
+                            result = w_modality1,
+                            spat_unit = spat_unit,
+                            feat_type = integrated_feat_type,
+                            integration_method = 'WNN',
+                            result_name = w_name_modality_1,
+                            verbose = TRUE)
+
+  ## modality 2
+  if(is.null(w_name_modality_2)) {w_name_modality_2 = paste0('w_',modality_2)}
+
+  gobject <- set_multiomics(gobject = gobject,
+                            result = w_modality2,
+                            spat_unit = spat_unit,
+                            feat_type = integrated_feat_type,
+                            integration_method = 'WNN',
+                            result_name = w_name_modality_2,
+                            verbose = TRUE)
 
   return(gobject)
 }
@@ -456,6 +454,9 @@ runWNN <- function(gobject,
 #' @param k k number
 #' @param spread UMAP param: spread
 #' @param min_dist UMAP param: min_dist
+#' @param integrated_feat_type integrated feature type (e.g. 'rna_protein')
+#' @param integration_method multiomics integration method used. Default = 'WNN'
+#' @param matrix_result_name Default = 'theta_weighted_matrix'
 #' @param ... additional UMAP parameters
 #'
 #' @return A Giotto object with integrated UMAP
@@ -464,6 +465,9 @@ runIntegratedUMAP <- function(gobject,
                               spat_unit = "cell",
                               modality1 = "rna",
                               modality2 = "protein",
+                              integrated_feat_type = NULL,
+                              integration_method = 'WNN',
+                              matrix_result_name = 'theta_weighted_matrix',
                               k = 20,
                               spread = 5,
                               min_dist = 0.01,
@@ -471,12 +475,13 @@ runIntegratedUMAP <- function(gobject,
 
   ################# Calculate integrated Nearest Neighbors #######################
 
-  theta_weighted <- get_dimReduction(gobject = gobject,
-                                     spat_unit = spat_unit,
-                                     feat_type = "WNN",
-                                     reduction_method = "umap",
-                                     name = "theta_weighted",
-  )
+  if(is.null(integrated_feat_type)) {integrated_feat_type = paste0(modality1,'_',modality2)}
+
+  theta_weighted <- get_multiomics(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = integrated_feat_type,
+                                   integration_method = integration_method,
+                                   result_name = matrix_result_name)
 
   #theta_weighted <- gobject@dimension_reduction$cells$cell$WNN$theta_weighted
   theta_weighted[is.na(theta_weighted)] <- 0
@@ -537,3 +542,115 @@ runIntegratedUMAP <- function(gobject,
 
   return(gobject)
 }
+
+
+#' @title Set multiomics integration results
+#' @name set_multiomics
+#' @description Set a multiomics integration result in a Giotto object
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type (e.g. 'rna_protein')
+#' @param result A matrix or result from multiomics integration (e.g. theta weighted values from runWNN)
+#' @param integration_method multiomics integration method used. Default = 'WNN'
+#' @param result_name Default = 'theta_weighted_matrix'
+#' @param verbose be verbose
+#'
+#' @return A giotto object
+#' @family multiomics accessor functions
+#' @family functions to set data in giotto object
+#' @export
+set_multiomics = function(gobject,
+                          result,
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          integration_method = 'WNN',
+                          result_name = 'theta_weighted_matrix',
+                          verbose = TRUE) {
+
+  # 1. determine user input
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+
+  # 2. Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # 3. If input is null, remove object
+  if(is.null(result)) {
+    if(isTRUE(verbose)) message('NULL passed to result\n Removing specified result')
+    gobject@multiomics[[spat_unit]][[feat_type]][[integration_method]][[result_name]] = result
+    return(gobject)
+  }
+
+  ## 4. check if specified name has already been used
+  potential_names = names(slot(gobject, 'multiomics')[[spat_unit]][[integration_method]][[feat_type]])
+
+  if(result_name %in% potential_names) {
+    if(isTRUE(verbose)) wrap_msg('> "',result_name, '" already exists and will be replaced with new result')
+  }
+
+  ## 5. update and return giotto object
+  gobject@multiomics[[spat_unit]][[feat_type]][[integration_method]][[result_name]] = result
+  return(gobject)
+
+}
+
+#' @title Get multiomics integration results
+#' @name get_multiomics
+#' @description Get a multiomics integration result from a Giotto object
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type integrated feature type (e.g. 'rna_protein')
+#' @param integration_method multiomics integration method used. Default = 'WNN'
+#' @param result_name Default = 'theta_weighted_matrix'
+#'
+#' @return A multiomics integration result (e.g. theta_weighted_matrix from WNN)
+#' @family multiomics accessor functions
+#' @family functions to get data from giotto object
+#' @export
+get_multiomics = function(gobject,
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          integration_method = 'WNN',
+                          result_name = 'theta_weighted_matrix') {
+
+  # 1.  Set feat_type and spat_unit
+
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # 2 Find the object
+
+  # automatic result selection
+  if(is.null(result_name)) {
+    result_to_use = names(gobject@multiomics[[spat_unit]][[integration_method]][[feat_type]])[[1]]
+    if(is.null(result_to_use)) {
+
+      stop('There is currently no multiomics integration created for
+           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
+           First run runWNN() or other multiomics integration method\n')
+    } else {
+      message('The result name was not specified, default to the first: "', result_to_use,'"')
+    }
+  }
+
+  # 3. get object
+
+  result = gobject@multiomics[[spat_unit]][[feat_type]][[integration_method]][[result_name]]
+  if(is.null(result)) {
+    stop('result: "', result_to_use, '" does not exist. Create a multiomics integration first')
+  }
+
+  # return WNN_result
+  return(result)
+
+}
+

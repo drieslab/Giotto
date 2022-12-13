@@ -2794,7 +2794,7 @@ combine_matrices = function(mat_list,
       stop('Matrix needs to be a base or sparse matrix from the Matrix package')
     }
 
-    if(inherits(mat, 'matrix')) mat = as(mat, 'dgCMatrix')
+    if(inherits(mat, 'matrix')) mat = methods::as(mat, 'dgCMatrix')
 
     mat_feats = mat@Dimnames[[1]]
     names(mat_feats) = 1:mat@Dim[[1]]
