@@ -1446,14 +1446,14 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     })
   }
   # # combine to FOV data single list
-  # read_list = Reduce('append', read_list)
-  # cell_names = names(read_list)
+  read_list = Reduce('append', read_list)
+  cell_names = names(read_list)
 
 
   # extract values for each z index and cell from read_list
   result_list = lapply_flex(seq_along(poly_feat_indexes), cores = cores, function(z_i) {
-    Reduce('append', lapply_flex(seq_along(read_list), cores = cores, function(bound_i) {
-      cell_names = names(read_list[[bound_i]])
+    # Reduce('append', lapply_flex(seq_along(read_list), cores = cores, function(bound_i) {
+    #   cell_names = names(read_list[[bound_i]])
       lapply_flex(seq_along(read_list[[bound_i]]), cores = cores, function(cell_i) {
         singlearray = read_list[[bound_i]][[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
         cell_name = cell_names[[cell_i]]
@@ -1463,12 +1463,12 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
           if(flip_x_axis) singlearraydt[, x := -1 * x]
           if(flip_y_axis) singlearraydt[, y := -1 * y]
 
-          singlearraydt[, file_id := paste0('file', bound_i)]
+          # singlearraydt[, file_id := paste0('file', bound_i)]
           singlearraydt[, cell_id := cell_name]
-          singlearraydt[, my_id := paste0('cell', cell_i)]
+          # singlearraydt[, my_id := paste0('cell', cell_i)]
         }
       })
-    }))
+    # }))
   })
   result_list_rbind = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
     do.call('rbind', result_list[[z_i]])
