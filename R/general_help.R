@@ -1456,7 +1456,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     #   cell_names = names(read_list[[bound_i]])
       # lapply_flex(seq_along(read_list[[bound_i]]), cores = cores, function(cell_i) {
       lapply_flex(seq_along(read_list), cores = cores, function(cell_i) {
-        singlearray = read_list[[bound_i]][[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+        # singlearray = read_list[[bound_i]][[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+        singlearray = read_list[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
         cell_name = cell_names[[cell_i]]
         if(!is.null(singlearray)) {
           singlearraydt = data.table::as.data.table(t_flex(as.matrix(singlearray[,,1])))
