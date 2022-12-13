@@ -842,6 +842,7 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 #' @param vertices number of vertices
 #' @param k k
 #' @param set_neg_to_zero set negative values to zero (default: TRUE)
+#' @param verbose be verbose (default: TRUE)
 #' @param ... additional params to pass to \code{spline}
 #' @return Smoothed Giotto polygon object with reduced vertices
 #' @concept polygon
@@ -851,6 +852,7 @@ smoothGiottoPolygons = function(gpolygon,
                                 vertices = 20,
                                 k = 3,
                                 set_neg_to_zero = TRUE,
+                                verbose = TRUE
                                 ...) {
 
   # define for .()
@@ -899,13 +901,15 @@ smoothGiottoPolygons = function(gpolygon,
 
   new_spatvec = dt_to_spatVector_polygon(comb_res)
 
-  for(ID in new_spatvec$poly_ID) {
-    bool = terra::is.valid(new_spatvec[new_spatvec$poly_ID == ID])
-    if(bool == FALSE) {
-      print(ID)
-      #plot(new_spatvec[new_spatvec$poly_ID == ID])
-      #orig_spatvector = gpolygon@spatVector
-      #new_spatvec[new_spatvec$poly_ID == ID] = orig_spatvector[orig_spatvector$poly_ID == ID]
+  if(isTRUE(verbose)) {
+    for(ID in new_spatvec$poly_ID) {
+      bool = terra::is.valid(new_spatvec[new_spatvec$poly_ID == ID])
+      if(!isTRUE(bool)) {
+        print(ID)
+        #plot(new_spatvec[new_spatvec$poly_ID == ID])
+        #orig_spatvector = gpolygon@spatVector
+        #new_spatvec[new_spatvec$poly_ID == ID] = orig_spatvector[orig_spatvector$poly_ID == ID]
+      }
     }
   }
 
