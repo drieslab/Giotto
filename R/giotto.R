@@ -2450,7 +2450,7 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          verbose = TRUE) {
 
   # data.table vars
-  cell_ID feat_ID = x = y = NULL
+  cell_ID = feat_ID = x = y = NULL
 
   # create minimum giotto
   gobject = giotto(expression = NULL,
