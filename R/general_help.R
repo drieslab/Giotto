@@ -1404,7 +1404,6 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   # open selected polygon files
   # append data from all FOVs to single list
   hdf5_list_length = length(hdf5_boundary_selected_list)
-  if(isTRUE(verbose)) files_read = c()
   init = proc.time()
 
   progressr::with_progress({
@@ -1416,10 +1415,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       fov_info = read_file$featuredata
 
       # update progress
-      if(isTRUE(verbose)) {
-        f_n = basename(hdf5_boundary_selected_list[[bound_i]][[1]])
-        files_read = c(files_read, f_n)
-      }
+      print(basename(hdf5_boundary_selected_list[[bound_i]]))
       elapsed = (proc.time() - init)[[3L]]
       step_time = elapsed/bound_i
       est = (hdf5_list_length * step_time) - elapsed
@@ -1427,10 +1423,6 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       return(fov_info)
     })
   })
-  if(isTRUE(verbose)) {
-    message('Files read:')
-    print(files_read)
-  }
 
   # # combine to FOV data single list
   read_list = Reduce('append', read_list)
