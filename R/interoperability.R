@@ -223,7 +223,7 @@ anndataToGiotto = function(anndata_path = NULL,
 #' @param feat_type feature type which will be used in conversion.
 #' @param python_path path to python executable within a conda/miniconda environment
 #' @param save_directory directory in which the file will be saved.
-#' @return .h5ad file path(s)
+#' @return vector containing .h5ad file path(s)
 #' @details Function in beta. Converts a Giotto object into .h5ad file(s).
 #' 
 #' If there are multiple spatial units and/or feature types, but only
@@ -236,9 +236,6 @@ anndataToGiotto = function(anndata_path = NULL,
 #'
 #' The save_directory will be created if it does not already exist.
 #' The default save_directory is the working directory.
-#' 
-#' 
-#' 
 #' @export
 giottoToAnnData <- function(gobject = NULL,
                             spat_unit = NULL,
@@ -540,12 +537,13 @@ giottoToAnnData <- function(gobject = NULL,
   adata_pos = 1
 
   # Nearest Neighbor Network
-  
+
 
   # Pipe non-expression data into AnnData object
 
   # Write AnnData object to .h5ad file
   # Verify it exists, and return upon success
+  fname_list = lapply(1:su_ft_length, function(i) NULL)
   wrap_msg("\n")
   for (su in spat_unit) {
     for (ft in names(gobject@expression[[su]])) {
@@ -557,6 +555,7 @@ giottoToAnnData <- function(gobject = NULL,
       if (!is.null(path_adata)) {
         wrap_msg("Spatial unit", su, "and feature type", ft, "converted to:")
         wrap_msg(path_adata)
+        fname_list[[adata_pos]] = path_adata
         adata_pos = adata_pos + 1
       } else {
         wrap_msg("Unable to convert spatial unit feature type pair", su, ft)
@@ -567,7 +566,7 @@ giottoToAnnData <- function(gobject = NULL,
 
   wrap_msg("\nGiotto object successfully converted to .h5ad file(s)\n")
 
-  return(path_adata)
+  return(fname_list)
 }
 
 
