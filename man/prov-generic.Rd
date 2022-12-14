@@ -3,6 +3,7 @@
 \name{prov-generic}
 \alias{prov-generic}
 \alias{prov}
+\alias{prov<-}
 \alias{prov,provData-method}
 \alias{prov<-,provData-method}
 \title{Provenance information}

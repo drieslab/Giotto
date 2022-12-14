@@ -488,6 +488,9 @@ abb_mat = function(exprObj, nrows, ncols, header = TRUE) {
 #' @description print abbreviated spatLocsObj
 #' @keywords internal
 abb_spatlocs = function(spatLocsObj, nrows) {
+  # data.table vars
+  sdimx = sdimy = NULL
+
   DT_rows = nrow(spatLocsObj[])
   spatlocs = spatLocsObj[][1:if(nrows <= DT_rows) nrows else DT_rows,]
 
@@ -645,6 +648,9 @@ emacs_version = function() {
   ver <- strsplit(ver, '.', fixed = TRUE)[[1]]
   as.numeric(ver)
 }
+
+
+
 
 
 

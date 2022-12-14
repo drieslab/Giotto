@@ -7,7 +7,9 @@
 package_check(
   pkg_name,
   repository = c("CRAN", "Bioc", "github", "pip"),
-  github_repo = NULL
+  github_repo = NULL,
+  optional = FALSE,
+  custom_msg = NULL
 )
 }
 \arguments{
@@ -16,6 +18,11 @@ package_check(
 \item{repository}{where is the package}
 
 \item{github_repo}{name of github repository if needed}
+
+\item{optional}{whether the package is optional. \code{stop()} is used if TRUE
+and only \code{message()} will be sent if FALSE.}
+
+\item{custom_msg}{custom message to be sent instead of default error or message}
 }
 \description{
 check if package is available and provide installation instruction if not available

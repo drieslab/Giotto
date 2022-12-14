@@ -335,6 +335,9 @@ create_average_detection_DT <- function(gobject,
 init_cell_metadata = function(gobject,
                               provenance = NULL) {
 
+  # data.table vars
+  spat_unit = feat_type = NULL
+
   avail_expr = list_expression(gobject)
   avail_spat_info = list_spatial_info_names(gobject)
   avail_feat_info = list_feature_info_names(gobject)
@@ -387,6 +390,9 @@ init_cell_metadata = function(gobject,
 #' @keywords internal
 init_feat_metadata = function(gobject,
                               provenance = NULL) {
+
+  # data.table vars
+  spat_unit = feat_type = NULL
 
   avail_expr = list_expression(gobject)
   avail_spat_info = list_spatial_info_names(gobject)
@@ -2052,6 +2058,9 @@ filterGiotto = function(gobject,
                         tag_feats_name = 'tag',
                         verbose = TRUE) {
 
+  # data.table vars
+  cell_ID = feat_ID = NULL
+
   ## deprecated arguments
   if(!is.null(gene_det_in_min_cells)) {
     feat_det_in_min_cells = gene_det_in_min_cells
@@ -2780,6 +2789,9 @@ processGiotto = function(gobject,
 combine_matrices = function(mat_list,
                             summarize = 'sum') {
 
+  # data.table vars
+  i = j = x = NULL
+
   feats_list = list()
   sample_list = list()
   DT_list = list()
@@ -2921,6 +2933,9 @@ aggregateStacksExpression = function(gobject,
 combine_spatlocs = function(spatlocs_list,
                             summarize = 'mean') {
 
+  # data.table vars
+  sdimx = sdimy = sdimz = NULL
+
   newlocs = data.table::rbindlist(spatlocs_list)
 
   if(summarize == 'mean') {
@@ -2958,7 +2973,7 @@ aggregateStacksLocations = function(gobject,
   # aggregate locations
   locs_list = list()
   for(spat_unit in spat_units) {
-    locDT = get_spatial_locations(vizsubc,
+    locDT = get_spatial_locations(gobject = gobject,
                                   spat_unit = spat_unit,
                                   spat_loc_name = values,
                                   output = 'data.table')
@@ -2974,7 +2989,11 @@ aggregateStacksLocations = function(gobject,
                                           provenance = spat_units,
                                           misc = NULL)
 
-  gobject = set_spatial_locations(gobject = gobject, spatlocs = new_spatlocs_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_spatial_locations(gobject = gobject,
+                                  spatlocs = new_spatlocs_obj,
+                                  set_defaults = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
@@ -4739,6 +4758,9 @@ mat_queryDT = function(i = NULL,
                        j = NULL,
                        by = cell_ID,
                        mtx) {
+
+  # data.table vars
+  cell_ID = NULL
 
   i_sub = deparse(substitute(i))
   j_sub = deparse(substitute(j))

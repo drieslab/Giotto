@@ -33,11 +33,17 @@ setOldClass('data.table')
 
 # BASIC CLASSES ####
 
+# ** nameData Class ####
+#'
+setClass('nameData',
+         slots = list(name = 'character'),
+         prototype = prototype(name = NA_character_))
+
 # ** exprData Class ####
 #' Basic class for classes with expression information
 #'
 setClass('exprData',
-         representation = list(exprMat = 'ANY'),
+         slots = list(exprMat = 'ANY'),
          prototype = prototype(exprMat = NULL))
 
 
@@ -50,19 +56,21 @@ setClass('exprData',
 #' data.table when interacting with some basic generic operators for data
 #' retreival and setting.
 setClass('coordDataDT',
-         representation = list(coordinates = 'data.table'),
+         slots = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            if(!is.null(.Object@coordinates)) {
+              .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            }
             .Object
           })
 
 # setClass('coordDataMT',
-#          representation = list(coordinates = 'matrix'),
+#          slots = list(coordinates = 'matrix'),
 #          prototype = prototype(coordinates = matrix()))
 
 
@@ -73,8 +81,8 @@ setMethod('initialize', 'coordDataDT',
 #' information in a data.table and should work similarly to data.table when interacting
 #' with some basic generic operators for data retrieval and setting
 setClass('metaData',
-         representation = list(metaDT = 'data.table',
-                               col_desc = 'character'),
+         slots = list(metaDT = 'data.table',
+                      col_desc = 'character'),
          prototype = prototype(metaDT = data.table::data.table(),
                                col_desc = NA_character_))
 
@@ -83,15 +91,17 @@ setMethod('initialize', 'metaData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            if(!is.null(.Object@metaDT)) {
+              .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            }
             .Object
           })
 
 
 # ** enrData ####
 setClass('enrData',
-         representation = list(method = 'character',
-                               enrichDT = 'nullOrDatatable'),
+         slots = list(method = 'character',
+                      enrichDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                enrichDT = NULL))
 
@@ -99,7 +109,9 @@ setMethod('initialize', 'enrData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            if(!is.null(.Object@enrichDT)) {
+              .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            }
             .Object
           })
 
@@ -107,20 +119,20 @@ setMethod('initialize', 'enrData',
 
 # ** nnData ####
 setClass('nnData',
-         representation = list(nn_type = 'character',
-                               igraph = 'ANY'),
+         slots = list(nn_type = 'character',
+                      igraph = 'ANY'),
          prototype = prototype(nn_type = NA_character_,
                                igraph = NULL))
 
 
 # ** spatNetData ####
 setClass('spatNetData',
-         representation = list(method = 'character',
-                               parameters = 'ANY',
-                               outputObj = 'ANY',
-                               networkDT = 'nullOrDatatable',
-                               networkDT_before_filter = 'nullOrDatatable',
-                               cellShapeObj = 'ANY'),
+         slots = list(method = 'character',
+                      parameters = 'ANY',
+                      outputObj = 'ANY',
+                      networkDT = 'nullOrDatatable',
+                      networkDT_before_filter = 'nullOrDatatable',
+                      cellShapeObj = 'ANY'),
          prototype = prototype(method = NA_character_,
                                parameters = NULL,
                                outputObj = NULL,
@@ -132,7 +144,9 @@ setMethod('initialize', 'spatNetData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            if(!is.null(.Object@networkDT)) {
+              .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            }
             if(!is.null(.Object@networkDT_before_filter)) {
               .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
             }
@@ -142,9 +156,9 @@ setMethod('initialize', 'spatNetData',
 
 # ** spatGridData ####
 setClass('spatGridData',
-         representation = list(method = 'character',
-                               parameters = 'ANY',
-                               gridDT = 'nullOrDatatable'),
+         slots = list(method = 'character',
+                      parameters = 'ANY',
+                      gridDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                parameters = NULL,
                                gridDT = NULL))
@@ -154,7 +168,9 @@ setMethod('initialize', 'spatGridData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            if(!is.null(.Object@gridDT)) {
+              .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            }
             .Object
           })
 
@@ -169,7 +185,7 @@ setMethod('initialize', 'spatGridData',
 #' is Giotto's method of mapping this aggregated information back to the original
 #' z layers that were used in its generation.
 setClass('provData',
-         representation = list(provenance = 'ANY'),
+         slots = list(provenance = 'ANY'),
          prototype = prototype(provenance = NULL))
 
 
@@ -185,7 +201,7 @@ setClass('provData',
 #'
 setClass('spatData',
          contains = c('provData'),
-         representation = list(spat_unit = 'character'), # not allowed to be NULL
+         slots = list(spat_unit = 'character'), # not allowed to be NULL
          prototype = prototype(spat_unit = NA_character_))
 
 
@@ -202,7 +218,7 @@ setClass('spatData',
 #' and then by feature type
 #'
 setClass('featData',
-         representation = list(feat_type = 'character'), # not allowed to be NULL
+         slots = list(feat_type = 'character'), # not allowed to be NULL
          prototype = prototype(feat_type = NA_character_))
 
 
@@ -215,7 +231,7 @@ setClass('featData',
 #' use the misc slot to hold additional information specific to each method.
 #' Information may be stored within as S3 structures.
 setClass('miscData',
-         representation = list(misc = 'ANY'),
+         slots = list(misc = 'ANY'),
          prototype = prototype(misc = NULL))
 
 
@@ -557,9 +573,7 @@ check_expr_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('exprObj',
-         contains = c('exprData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'exprData', 'spatFeatData', 'miscData'),
          validity = check_expr_obj)
 
 ## * Show ####
@@ -778,14 +792,12 @@ check_dim_obj = function(object) {
 #' @slot misc method-specific additional outputs
 #' @export
 setClass('dimObj',
-         contains = c('spatFeatData'),
-         slots = c(name = 'character',
-                   reduction = 'character',
+         contains = c('nameData', 'spatFeatData'),
+         slots = c(reduction = 'character',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
-         prototype = list(name = NA_character_,
-                          reduction = NA_character_,
+         prototype = list(reduction = NA_character_,
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
@@ -851,9 +863,7 @@ S3toS4dimObj = function(object) {
 ## nnNetObj ####
 
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'miscData'),
-         representation = list(name = 'character'),
-         prototype = prototype(name = NA_character_))
+         contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
 
 
 
@@ -909,9 +919,7 @@ check_spat_locs_obj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'coordDataDT', 'spatData', 'miscData'),
          validity = check_spat_locs_obj)
 
 
@@ -1004,11 +1012,9 @@ check_spat_net_obj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatNetData' ,'spatData', 'miscData'),
-         slots = c(name = 'character',
-                   crossSectionObjects = 'ANY'),
-         prototype = list(name = NA_character_,
-                          crossSectionObjects = NULL),
+         contains = c('nameData', 'spatNetData' ,'spatData', 'miscData'),
+         slots = c(crossSectionObjects = 'ANY'),
+         prototype = list(crossSectionObjects = NULL),
          validity = check_spat_net_obj)
 
 
@@ -1133,9 +1139,7 @@ check_spat_grid_obj = function(object) {
 #' Grids can be annotated with both spatial and feature information
 #' @export
 setClass('spatialGridObj',
-         contains = c('spatGridData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'spatGridData', 'spatFeatData', 'miscData'),
          validity = check_spat_grid_obj)
 
 
@@ -1240,9 +1244,7 @@ S3toS4spatialGridObj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('spatEnrObj',
-         contains = c('enrData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_))
+         contains = c('nameData', 'enrData', 'spatFeatData', 'miscData'))
 
 
 # * show ####

@@ -3,6 +3,13 @@
 ## Changes
 - Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
+- Add `createGiottoMerscopeObject()`
+- Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
+- Add `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
+- Add `optional` and `custom_msg` params to `package_check()`
+- Add packages `exactextractr` and `sf` to "suggests" packages
+- Add package `progressr` to "imports" packages
+- Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 
 
 
