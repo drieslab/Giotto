@@ -190,8 +190,14 @@ anndataToGiotto = function(anndata_path = NULL,
   if (!is.null(lay_names)) {
     for (l_n in lay_names){
       lay = extract_layered_data(adata, layer_name = l_n)
-      lay@Dimnames[[1]] = fID
-      lay@Dimnames[[2]] = cID
+      if ("data.frame" %in% class(lay)){
+        names(lay) = fID
+        row.names(lay) = cID
+      }
+      else{
+        lay@Dimnames[[1]] = fID
+        lay@Dimnames[[2]] = cID
+      }
       gobject = set_expression_values(gobject = gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
@@ -203,9 +209,365 @@ anndataToGiotto = function(anndata_path = NULL,
   gobject <- update_giotto_params(gobject = gobject,
                                   description = "_AnnData_Conversion")
 
-
+  wrap_msg("\nAnnData object successfully converted to Giotto.\n")
   return(gobject)
 
+}
+
+
+#' @title Convert Giotto to anndata
+#' @name giottoToAnnData
+#' @description Converts a Giotto object to a spatial anndata (e.g. scanpy) .h5ad file
+#' @param gobject giotto object to be converted
+#' @param spat_unit spatial unit which will be used in conversion.
+#' @param feat_type feature type which will be used in conversion.
+#' @param python_path path to python executable within a conda/miniconda environment
+#' @param save_directory directory in which the file will be saved.
+#' @return .h5ad file path(s)
+#' @details Function in beta. Converts a Giotto object into .h5ad file(s).
+#' 
+#' If there are multiple spatial units and/or feature types, but only
+#' one spatial unit and/or feature type is specified, then only the
+#' specified spatial unit and/or feature type will be used. If NULL,
+#' by default, all spatial units will be used in conversion.
+#'
+#' If multiple spatial units or feature types are specified, multiple
+#' AnnData object will be created and returned. 
+#'
+#' The save_directory will be created if it does not already exist.
+#' The default save_directory is the working directory.
+#' 
+#' 
+#' 
+#' @export
+giottoToAnnData <- function(gobject = NULL,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            python_path = NULL,
+                            save_directory = NULL){
+  # Check gobject
+  invalid_obj = !("giotto" %in% class(gobject))
+  if (is.null(gobject) || invalid_obj) {
+    stop(wrap_msg("Please provide a valid Giotto Object for conversion."))
+  }
+  
+  # Python module import
+  g2ad_path <- system.file("python","g2ad.py",package="Giotto")
+  reticulate::source_python(g2ad_path)
+  if (!is.null(save_directory)) dir_guard(save_directory)
+  
+  # Check directory, make it if it doesn't exist
+  if (is.null(save_directory)) save_directory = paste0(getwd(),"/")
+  else if (!dir.exists(save_directory)) {
+    warning(wrap_msg("Provided save directory not found. Creating save directory at location:"))
+    cat(save_directory)
+    dir.create(save_directory, recursive = TRUE)
+    if (dir.exists(save_directory)) cat("Created directory", save_directory)
+    else stop(wrap_msg("Unable to create directory. Please change the provided path and try again."))
+  }
+  else {
+    wrap_msg("Directory", save_directory,"found. The converted Giotto object will be saved here as a .h5ad file.")
+  }
+
+  # Expresion
+  expr_dt <- list_expression(gobject)
+  # ID spat_unit and feat_type if not already provided.
+  if (is.null(spat_unit) && is.null(feat_type)) {
+    spat_unit = unique(expr_dt$spat_unit)
+    feat_type = unique(expr_dt$feat_type)
+  } else if (is.null(spat_unit && !is.null(feat_type))) {
+    spat_unit = unique(expr_dt$spat_unit)
+  } else if (!is.null(spat_unit && is.null(feat_type))) {
+    feat_type = unique(expr_dt$feat_type)
+  }
+  
+  for (su in spat_unit) wrap_msg("Spatial unit(s)", su, "will be used in conversion.")
+  for (ft in feat_type) wrap_msg("Feature type(s)", ft, "will be used in conversion.")
+
+  # Iterate through spat_unit and feat_type to pull out expression data.
+  # By default, the raw expression in the slot of the first spatial unit 
+  # and first feature type (if multiple are present) will be transferred to
+  # the AnnData.anndata.X slot
+  # Any other expression data will be inserted into AnnData.anndata.layers
+  # By default, layer names are formed by "'spatial_unit'_'feature_type'_'value'"
+
+  adata = NULL #scope
+  su_ft_length = 0
+
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) {
+      su_ft_length = su_ft_length + 1
+    }
+  }
+  
+
+  adata_list = lapply(1:su_ft_length, function(i) adata)
+  adata_pos = 1
+
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) {
+      expr_names = list_expression_names(gobject = gobject,
+                                         spat_unit = su,
+                                         feat_type = ft)
+
+      for (en in expr_names) {
+        if (en == "raw") {
+          raw_x = get_expression_values(gobject = gobject,
+                                values = en,
+                                spat_unit = su,
+                                feat_type = ft,
+                                output = "matrix")
+
+          adata = ad_obj(x = raw_x)
+        } else {
+          ad_layer_name = paste0(su,"_",ft,"_",en)
+
+          x = get_expression_values(gobject = gobject,
+                                    values = en,
+                                    spat_unit = su,
+                                    feat_type = ft,
+                                    output = "matrix")
+
+          if ("dgeMatrix" %in% class(x)) x = as(x,'array')
+
+          adata = set_adg_layer_data(adata = adata,
+                                     lay = x,
+                                     lay_name = ad_layer_name)
+        }
+
+      }
+      adata_list[[adata_pos]] = adata
+      adata_pos = adata_pos + 1
+      adata = NULL 
+    }
+  }
+  # Reset indexing variable
+  adata_pos = 1
+
+  # Spatial Locations
+  for (su in spat_unit){
+    for (ft_ in names(gobject@expression[[su]])) {
+      sl = get_spatial_locations(gobject = gobject,
+                                 output = "data.table",
+                                 spat_unit = su)
+      n_col_sl = dim(sl)[2]
+
+      #preallocate data.table params
+      sdimx = sdimy = sdimz = NULL
+
+      if (n_col_sl == 3){
+        sl = sl[, .(sdimx, sdimy)]
+      } else {
+        sl = sl[, .(sdimx, sdimy, sdimz)]
+      }
+      adata = adata_list[[adata_pos]]
+      adata = set_adg_spat_locs(adata = adata,
+                                spat_locs = sl)
+      adata_pos = adata_pos + 1
+    }
+  }
+  # Reset indexing variable
+  adata_pos = 1
+
+  # Spatial Info
+
+  # Cell Metadata
+  # Feat Metadata
+  for (su in spat_unit){
+    for (ft in names(gobject@expression[[su]])){
+
+      cm = get_cell_metadata(gobject = gobject,
+                             spat_unit = su,
+                             feat_type = ft,
+                             output = "data.table",
+                             set_defaults = FALSE)
+
+      fm = get_feature_metadata(gobject = gobject,
+                                spat_unit = su,
+                                feat_type = ft,
+                                output = "data.table",
+                                set_defaults = FALSE)
+
+      adata_list[[adata_pos]] = set_adg_metadata(adata = adata_list[[adata_pos]],
+                                                 cell_meta = cm,
+                                                 feat_meta = fm)
+
+      adata_pos = adata_pos + 1
+
+    }
+  }
+  # Reset indexing variable
+  adata_pos = 1
+
+  # Dimension Reductions
+
+  # error hanldling wrapper to get_dimReduction
+  try_get_dimReduction = function(gobject,
+                                spat_unit,
+                                feat_type,
+                                reduction,
+                                reduction_method,
+                                name,
+                                output,
+                                set_defaults) {
+  tryCatch(
+    {
+    dim_red = get_dimReduction(gobject = gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                reduction = reduction,
+                                reduction_method = reduction_method,
+                                name = name,
+                                output = output,
+                                set_defaults = set_defaults)
+    return(dim_red)
+    },
+    error = function(e) {
+      return(NULL)
+    }
+    )
+  }
+
+  ## PCA
+  
+  # pca on feats not supported by anndata because of dimensionality agreement reqs
+  reduction_options = c("cells", "feats")
+  dim_red = NULL
+
+  for (ro in reduction_options) {
+    if (ro != "cells") {
+      warning("AnnData does not support storing PCA by features. Skipping PCA data conversion.")
+      break
+    }
+    for (su in spat_unit) {
+      for (ft in names(gobject@expression[[su]])) {
+        name = "pca"
+        if (ft != "rna") name = paste0(ft,".pca")
+        dim_red = try_get_dimReduction(gobject = gobject,
+                                       spat_unit = su,
+                                       feat_type = ft,
+                                       reduction = ro,
+                                       reduction_method = "pca",
+                                       name = name,
+                                       output = "dimObj",
+                                       set_defaults = FALSE)
+        if (is.null(dim_red)){
+          adata_pos = adata_pos + 1
+          next
+        }
+        pca_coord = dim_red[]
+        pca_loadings = data.table(dim_red@misc$loadings)
+        feats_used = dimnames(dim_red@misc$loadings)[[1]]
+        evs = dim_red@misc$eigenvalues
+
+        adata_list[[adata_pos]] = set_adg_pca(adata = adata_list[[adata_pos]],
+                                              pca_coord = pca_coord,
+                                              loadings = pca_loadings,
+                                              eigenv = evs,
+                                              feats_used = feats_used)
+        adata_pos = adata_pos + 1
+      }
+    adata_pos = 1
+    }
+
+  }
+
+  # Reset indexing variable
+  adata_pos = 1
+
+  ## UMAP
+  for (ro in reduction_options) {
+    for (su in spat_unit) {
+      for (ft in names(gobject@expression[[su]])) {
+        name = "umap"
+        if (ft != "rna") name = paste0(ft,".umap")
+        dim_red = try_get_dimReduction(gobject = gobject,
+                                       spat_unit = su,
+                                       feat_type = ft,
+                                       reduction = ro,
+                                       reduction_method = "umap",
+                                       name = name,
+                                       output = "dimObj",
+                                       set_defaults = FALSE)
+
+        if (is.null(dim_red)) {
+          adata_pos = adata_pos + 1
+          next
+        }
+        umap_data = dim_red[]
+        adata_list[[adata_pos]] = set_adg_umap(adata = adata_list[[adata_pos]],
+                                               umap_data = umap_data)
+        adata_pos = adata_pos + 1
+      }
+    }
+    # Reset indexing variable
+    adata_pos = 1
+  }
+
+  # Reset indexing variable
+  adata_pos = 1
+
+  ## T-SNE
+  for (ro in reduction_options) {
+    for (su in spat_unit) {
+      for (ft in names(gobject@expression[[su]])) {
+        name = "tsne"
+        if (ft != "rna") name = paste0(ft,".tsne")
+        dim_red = try_get_dimReduction(gobject = gobject,
+                                       spat_unit = su,
+                                       feat_type = ft,
+                                       reduction = ro,
+                                       reduction_method = "tsne",
+                                       name = name,
+                                       output = "dimObj",
+                                       set_defaults = FALSE)
+
+        if (is.null(dim_red)) {
+          adata_pos = adata_pos + 1
+          next
+        }
+        tsne_data = dim_red[]
+        adata_list[[adata_pos]] = set_adg_tsne(adata = adata_list[[adata_pos]],
+                                               tsne_data = tsne_data)
+        adata_pos = adata_pos + 1
+      }
+    }
+    # Reset indexing variable
+    adata_pos = 1
+  }
+
+  # Reset indexing variable
+  adata_pos = 1
+
+  # Nearest Neighbor Network
+  
+
+  # Pipe non-expression data into AnnData object
+
+  # Write AnnData object to .h5ad file
+  # Verify it exists, and return upon success
+  wrap_msg("\n")
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) {
+      adata = adata_list[[adata_pos]]
+      path_adata = write_ad_h5ad(adata = adata,
+                                 save_directory = save_directory,
+                                 spat_unit = su,
+                                 feat_type = ft)
+      if (!is.null(path_adata)) {
+        wrap_msg("Spatial unit", su, "and feature type", ft, "converted to:")
+        wrap_msg(path_adata)
+        adata_pos = adata_pos + 1
+      } else {
+        wrap_msg("Unable to convert spatial unit feature type pair", su, ft)
+        stop(wrap_msg("File writing error. Please try again."))
+      }
+    }
+  }
+
+  wrap_msg("\nGiotto object successfully converted to .h5ad file(s)\n")
+
+  return(path_adata)
 }
 
 
