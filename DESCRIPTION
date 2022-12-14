@@ -122,7 +122,6 @@ Collate:
     'classes.R'
     'clustering.R'
     'convenience.R'
-    'convenience_create.R'
     'cross_section.R'
     'differential_expression.R'
     'dimension_reduction.R'
