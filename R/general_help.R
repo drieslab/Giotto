@@ -1356,14 +1356,6 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   # necessary pkgs
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
-  # optional pkgs
-  progressr_avail = package_check(
-    pkg_name = 'progressr',
-    repository = 'CRAN',
-    optional = TRUE,
-    custom_msg = c('(Optional) For progress bar, install:\ninstall.packages("progressr)\n',
-                   'After install:\nprogressr::handlers("progress")')
-  )
 
   cores = determine_cores(cores)
 
@@ -1412,39 +1404,34 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   # open selected polygon files
   # append data from all FOVs to single list
   hdf5_list_length = length(hdf5_boundary_selected_list)
+  if(isTRUE(verbose)) files_read = c()
+  init = proc.time()
 
-  if(isTRUE(progressr_avail)) {
-    progressr::with_progress({
-      pb = progressr::progressor(along = hdf5_boundary_selected_list)
-      read_list = lapply_flex(hdf5_boundary_selected_list, cores = cores, function(bound_i) {
-
-        # read file and select feature data
-        read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
-        fov_info = read_file$featuredata
-
-        # update progress
-        f_n = basename(bound_i[[1]])
-        pb_msg = c('...', substr(f_n, nchar(f_n) - 19, nchar(f_n)))
-        pb(message = pb_msg)
-        return(fov_info)
-      })
-    })
-  } else {
-    read_list = lapply_flex(hdf5_boundary_selected_list, cores = cores, function(bound_i) {
-
-      if(isTRUE(verbose)) {
-        cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
-        print(basename(bound_i[[1]]))
-        cat('\n')
-      }
+  progressr::with_progress({
+    pb = progressr::progressor(along = hdf5_boundary_selected_list)
+    read_list = lapply_flex(seq_along(hdf5_boundary_selected_list), cores = cores, function(bound_i) {
 
       # read file and select feature data
-      read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
+      read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[[bound_i]][[1]], flags = H5Fopen_flags)
       fov_info = read_file$featuredata
 
+      # update progress
+      if(isTRUE(verbose)) {
+        f_n = basename(hdf5_boundary_selected_list[[bound_i]][[1]])
+        files_read = c(files_read, f_n)
+      }
+      elapsed = (proc.time() - init)[[3L]]
+      step_time = elapsed/bound_i
+      est = (hdf5_list_length * step_time) - elapsed
+      pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
       return(fov_info)
     })
+  })
+  if(isTRUE(verbose)) {
+    message('Files read:')
+    print(files_read)
   }
+
   # # combine to FOV data single list
   read_list = Reduce('append', read_list)
   cell_names = names(read_list)
@@ -1484,34 +1471,15 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   # create Giotto polygons and add them to gobject
   # smooth_cell_polygons_list = list()
-
-  if(isTRUE(progressr_avail)) {
-    progressr::with_progress({
-      pb = progressr::progressor(along = result_list_rbind)
-      smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
-        dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
-        cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
-                                                    name = poly_feat_names[i],
-                                                    verbose = verbose)
-
-        pb(message = poly_feat_names[i])
-
-        if(smooth_polygons == TRUE) {
-          return(smoothGiottoPolygons(cell_polygons,
-                                      vertices = smooth_vertices,
-                                      set_neg_to_zero = set_neg_to_zero,
-                                      verbose = FALSE))
-        } else {
-          return(cell_polygons)
-        }
-      })
-    })
-  } else {
+  progressr::with_progress({
+    pb = progressr::progressor(along = result_list_rbind)
     smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
       dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
       cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
                                                   name = poly_feat_names[i],
                                                   verbose = verbose)
+
+      pb(message = poly_feat_names[i])
 
       if(smooth_polygons == TRUE) {
         return(smoothGiottoPolygons(cell_polygons,
@@ -1522,7 +1490,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
         return(cell_polygons)
       }
     })
-  }
+  })
 
 
   # TODO: add spatial centroids
