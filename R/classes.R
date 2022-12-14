@@ -33,6 +33,12 @@ setOldClass('data.table')
 
 # BASIC CLASSES ####
 
+# ** nameData Class ####
+#'
+setClass('nameData',
+         slots = list(name = 'character'),
+         prototype = prototype(name = NA_character_))
+
 # ** exprData Class ####
 #' Basic class for classes with expression information
 #'
@@ -567,9 +573,7 @@ check_expr_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('exprObj',
-         contains = c('exprData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'exprData', 'spatFeatData', 'miscData'),
          validity = check_expr_obj)
 
 ## * Show ####
@@ -788,14 +792,12 @@ check_dim_obj = function(object) {
 #' @slot misc method-specific additional outputs
 #' @export
 setClass('dimObj',
-         contains = c('spatFeatData'),
-         slots = c(name = 'character',
-                   reduction = 'character',
+         contains = c('nameData', 'spatFeatData'),
+         slots = c(reduction = 'character',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
-         prototype = list(name = NA_character_,
-                          reduction = NA_character_,
+         prototype = list(reduction = NA_character_,
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
@@ -861,9 +863,7 @@ S3toS4dimObj = function(object) {
 ## nnNetObj ####
 
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'miscData'),
-         slots = list(name = 'character'),
-         prototype = prototype(name = NA_character_))
+         contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
 
 
 
@@ -919,9 +919,7 @@ check_spat_locs_obj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'coordDataDT', 'spatData', 'miscData'),
          validity = check_spat_locs_obj)
 
 
@@ -1014,11 +1012,9 @@ check_spat_net_obj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatNetData' ,'spatData', 'miscData'),
-         slots = c(name = 'character',
-                   crossSectionObjects = 'ANY'),
-         prototype = list(name = NA_character_,
-                          crossSectionObjects = NULL),
+         contains = c('nameData', 'spatNetData' ,'spatData', 'miscData'),
+         slots = c(crossSectionObjects = 'ANY'),
+         prototype = list(crossSectionObjects = NULL),
          validity = check_spat_net_obj)
 
 
@@ -1143,9 +1139,7 @@ check_spat_grid_obj = function(object) {
 #' Grids can be annotated with both spatial and feature information
 #' @export
 setClass('spatialGridObj',
-         contains = c('spatGridData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'spatGridData', 'spatFeatData', 'miscData'),
          validity = check_spat_grid_obj)
 
 
@@ -1250,9 +1244,7 @@ S3toS4spatialGridObj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('spatEnrObj',
-         contains = c('enrData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_))
+         contains = c('nameData', 'enrData', 'spatFeatData', 'miscData'))
 
 
 # * show ####
