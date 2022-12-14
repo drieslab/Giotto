@@ -172,7 +172,7 @@ setMethod('copy', signature(x = 'coordDataDT'), function(x) {
 #' @description access and set provenance slot of S4 subobject
 #' @param x a Giotto S4 class subobject
 #' @param value value to set as provenance
-#' @aliases prov
+#' @aliases prov prov<-
 #' @include classes.R
 #' @export
 setGeneric('prov', function(x) standardGeneric('prov'))
@@ -200,7 +200,7 @@ setMethod('prov<-', signature = 'provData', function(x, value) {
 #' @description access and set spat_unit slot of S4 subobject
 #' @param x a Giotto S4 class subobject with spatial unit
 #' @param value value to set as spatial unit
-#' @aliases spatUnit
+#' @aliases spatUnit spatUnit<-
 #' @include classes.R
 #' @export
 setGeneric('spatUnit', function(x) standardGeneric('spatUnit'))
@@ -228,7 +228,7 @@ setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
 #' @description access and set feat_type slot of S4 subobject
 #' @param x a Giotto S4 class subobject with feature type
 #' @param value value to set as feature type
-#' @aliases featType
+#' @aliases featType featType<-
 #' @include classes.R
 #' @export
 setGeneric('featType', function(x) standardGeneric('featType'))
@@ -253,7 +253,9 @@ setMethod('featType<-', signature = 'featData', function(x, value) {
 
 
 #' @title Extract or replace parts of an object
-#' @name extract-generic
+#' @name extract-methods
+#' @docType methods
+#' @aliases `[` `[<-` `$` `$<-`
 #' @description Operators Giotto S4 internal data.tables to extract
 #' or replace parts.
 #' @param x Giotto S4 object to extract columns from
@@ -266,14 +268,14 @@ setMethod('featType<-', signature = 'featData', function(x, value) {
 #' @section \code{`$<-`} methods:
 #' @section \code{`[`} methods:
 #' @section \code{`[<-`} methods:
-#'   TODO
+#'
 NULL
 
 # $ S4 access generic ####
 
 ## * coordDataDT ####
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`$`} methods:
 #'   Select by colname from giotto S4 data.table coordinates slot.
 #' @export
@@ -281,7 +283,7 @@ setMethod('$', signature(x = 'coordDataDT'),
           function(x, name) x@coordinates[[name]])
 
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`$<-`} methods:
 #'   Set values by colname into giotto S4 data.table coordinates slot.
 #'   Works via data.table methods
@@ -295,7 +297,7 @@ setMethod('$<-', signature(x = 'coordDataDT'),
 
 ## * metaData ####
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`$`} methods:
 #'   Select by colname from giotto S4 data.table metaDT slot.
 #' @export
@@ -303,7 +305,7 @@ setMethod('$', signature(x = 'metaData'),
           function(x, name) x@metaDT[[name]])
 
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`$<-`} methods:
 #'   Set values by colname into giotto S4 data.table metaDT slot.
 #'   Works via data.table methods
@@ -320,7 +322,9 @@ setMethod('$<-', signature(x = 'metaData'),
 
 ## * coordDataDT ####
 
-#' @rdname extract-generic
+
+
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Select rows (i) and cols (j) from giotto S4 coordinates slot
 #' @export
@@ -330,7 +334,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'mi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
@@ -338,7 +342,7 @@ setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'missing', drop = 'mi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
@@ -346,7 +350,9 @@ setMethod('[', signature(x = 'coordDataDT', i = 'ANY', j = 'ANY', drop = 'missin
             x
           })
 
-#' @rdname extract-generic
+#' @name [
+#' @rdname extract-methods
+#' @aliases [,coordDataDT,missing,missing,missing-method
 #' @section \code{`[`} methods:
 #'   Return \code{coordinates} slot data.table from giotto S4
 #' @export
@@ -355,11 +361,13 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', drop =
             x@coordinates
           })
 
-#' @rdname extract-generic
+#' @name [
+#' @rdname extract-methods
+#' @aliases [<-,coordDataDT,missing,missing,ANY-method [<-,coordDataDT,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
 #'   Assign to \code{coordinates} slot in giotto S4
-#' @export
-setMethod('[<-', signature(x = 'coordDataDT', i = 'missing', j = 'missing', value = 'ANY'),
+setReplaceMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
             x@coordinates = value
             x
@@ -369,7 +377,7 @@ setMethod('[<-', signature(x = 'coordDataDT', i = 'missing', j = 'missing', valu
 
 ## * metaData ####
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Select rows (i) and cols (j) from giotto S4 metaDT slot
 #' @export
@@ -379,7 +387,7 @@ setMethod('[', signature(x = 'metaData', i = 'missing', j = 'ANY', drop = 'missi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
@@ -387,7 +395,7 @@ setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'missing', drop = 'missi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
@@ -395,16 +403,18 @@ setMethod('[', signature(x = 'metaData', i = 'ANY', j = 'ANY', drop = 'missing')
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
-#'   Return \code{coordinates} slot data.table from giotto S4
+#'   Return \code{metaDT} slot data.table from giotto S4
 #' @export
 setMethod('[', signature(x = 'metaData', i = 'missing', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@metaDT
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,metaData,missing,missing,ANY-method [<-,metaData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
 #'   Assign to \code{metaDT} slot in giotto S4
 #' @export
@@ -417,7 +427,7 @@ setMethod('[<-', signature(x = 'metaData', i = 'missing', j = 'missing', value =
 
 ## * dimObj (temp) ####
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'dimObj', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
@@ -425,16 +435,20 @@ setMethod('[', signature(x = 'dimObj', i = 'ANY', j = 'ANY', drop = 'missing'),
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @section \code{`[`} methods:
+#'    Return \code{coordinates} slot matrix from giotto S4 dimObj
 #' @export
 setMethod('[', signature(x = 'dimObj', i = 'missing', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@coordinates
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,dimObj,missing,missing,ANY-method [<-,dimObj,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
-#'   Assign to \code{coordinates} slot in giotto S4
+#'   Assign to \code{coordinates} slot in giotto S4 dimObj
 #' @export
 setMethod('[<-', signature(x = 'dimObj', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -444,7 +458,7 @@ setMethod('[<-', signature(x = 'dimObj', i = 'missing', j = 'missing', value = '
 
 ## * exprData ####
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Select rows (i) and cols (j) from giotto S4 exprMat slot
 #' @export
@@ -454,7 +468,7 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'ANY', drop = 'missi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'missing', drop = 'missing'),
           function(x, i, j) {
@@ -462,7 +476,7 @@ setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'missing', drop = 'missi
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @export
 setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'ANY', drop = 'missing'),
           function(x, i, j) {
@@ -470,7 +484,7 @@ setMethod('[', signature(x = 'exprData', i = 'ANY', j = 'ANY', drop = 'missing')
             x
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Return \code{exprMat} slot Matrix object from giotto S4
 #' @export
@@ -479,7 +493,9 @@ setMethod('[', signature(x = 'exprData', i = 'missing', j = 'missing', drop = 'm
             x@exprMat
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,exprData,missing,missing,ANY-method [<-,exprData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
 #'   Assign to \code{exprMat} slot in giotto S4
 #' @export
@@ -490,7 +506,7 @@ setMethod('[<-', signature(x = 'exprData', i = 'missing', j = 'missing', value =
           })
 
 # * spatNetData ####
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Return \code{spatNetData} slot network data.table object from giotto S4
 #' @export
@@ -499,9 +515,11 @@ setMethod('[', signature(x = 'spatNetData', i = 'missing', j = 'missing', drop =
             x@networkDT
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,spatNetData,missing,missing,ANY-method [<-,spatNetData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
-#'   Return \code{spatNetData} slot network data.table object from giotto S4
+#'   Assign to \code{networkDT} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'spatNetData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -511,7 +529,7 @@ setMethod('[<-', signature(x = 'spatNetData', i = 'missing', j = 'missing', valu
 
 
 # * nnData ####
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Return \code{nnData} slot igraph object from giotto S4
 #' @export
@@ -520,9 +538,11 @@ setMethod('[', signature(x = 'nnData', i = 'missing', j = 'missing', drop = 'mis
             x@igraph
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,nnData,missing,missing,ANY-method [<-,nnData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
-#'   Return \code{nnData} slot igraph object from giotto S4
+#'   Assign to \code{igraph} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'nnData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -532,7 +552,7 @@ setMethod('[<-', signature(x = 'nnData', i = 'missing', j = 'missing', value = '
 
 
 # * enrData ####
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
 #'   Return \code{enrData} slot enrichment data.table object from giotto S4
 #' @export
@@ -541,9 +561,11 @@ setMethod('[', signature(x = 'enrData', i = 'missing', j = 'missing', drop = 'mi
             x@enrichDT
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,enrData,missing,missing,ANY-method [<-,enrData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
-#'   Return \code{enrData} slot enrichment data.table object from giotto S4
+#'   Assign to \code{enrichDT} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'enrData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {
@@ -552,18 +574,20 @@ setMethod('[<-', signature(x = 'enrData', i = 'missing', j = 'missing', value = 
           })
 
 # * spatGridData ####
-#' @rdname extract-generic
+#' @rdname extract-methods
 #' @section \code{`[`} methods:
-#'   Return \code{spatGridData} slot enrichment data.table object from giotto S4
+#'   Return \code{spatGridData} slot data.table object from giotto S4
 #' @export
 setMethod('[', signature(x = 'spatGridData', i = 'missing', j = 'missing', drop = 'missing'),
           function(x, i, j) {
             x@gridDT
           })
 
-#' @rdname extract-generic
+#' @rdname extract-methods
+#' @aliases [<-,spatGridData,missing,missing,ANY-method [<-,spatGridData,missing,missing-method
+#' @docType methods
 #' @section \code{`[<-`} methods:
-#'   Return \code{spatGridData} slot enrichment data.table object from giotto S4
+#'   Assign to \code{gridDT} slot in giotto S4
 #' @export
 setMethod('[<-', signature(x = 'spatGridData', i = 'missing', j = 'missing', value = 'ANY'),
           function(x, i, j, value) {

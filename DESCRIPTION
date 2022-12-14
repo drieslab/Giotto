@@ -49,6 +49,7 @@ Imports:
     matrixStats (>= 0.55.0),
     plotly,
     parallel,
+    progressr,
     RColorBrewer (>= 1.1-2),
     reshape2,
     reticulate (>= 1.25),
@@ -70,6 +71,7 @@ Suggests:
     deldir,
     dendextend (>= 1.13.0),
     dplyr,
+    exactextractr,
     FactoMineR,
     factoextra,
     fitdistrplus,
@@ -97,6 +99,7 @@ Suggests:
     Rvision,
     S4Vectors,
     Seurat,
+    sf,
     scatterpie,
     scattermore,
     scran (>= 1.10.1),
@@ -118,6 +121,8 @@ Collate:
     'cell_segmentation.R'
     'classes.R'
     'clustering.R'
+    'convenience.R'
+    'convenience_create.R'
     'cross_section.R'
     'differential_expression.R'
     'dimension_reduction.R'

@@ -561,21 +561,41 @@ sort_combine_two_DT_columns = function(DT,
 #' @param pkg_name name of package
 #' @param repository where is the package
 #' @param github_repo name of github repository if needed
+#' @param optional whether the package is optional. \code{stop()} is used if TRUE
+#' and only \code{message()} will be sent if FALSE.
+#' @param custom_msg custom message to be sent instead of default error or message
 #' @description check if package is available and provide installation instruction if not available
 #' @keywords internal
 package_check = function(pkg_name,
                          repository = c('CRAN', 'Bioc', 'github', 'pip'),
-                         github_repo = NULL) {
+                         github_repo = NULL,
+                         optional = FALSE,
+                         custom_msg = NULL) {
 
   repository = match.arg(repository, choices = c('CRAN', 'Bioc', 'github', 'pip'))
 
+  check_message = function(default_msg, custom_msg, optional) {
+    if(!isTRUE(optional)) {
+      if(is.null(custom_msg)) stop(default_msg, call. = FALSE)
+      else stop(custom_msg, call. = FALSE)
+    } else {
+      if(is.null(custom_msg)) message(default_msg)
+      else message(custom_msg)
+    }
+  }
+
   if(repository == 'CRAN') {
 
+    default_msg = c("\n package ", pkg_name ," is not yet installed \n",
+    "To install: \n",
+    "install.packages('",pkg_name,"')")
+
     if(!requireNamespace(pkg_name, quietly = TRUE)) {
-      stop("\n package ", pkg_name ," is not yet installed \n",
-           "To install: \n",
-           "install.packages('",pkg_name,"')",
-           call. = FALSE)
+
+      check_message(default_msg = default_msg,
+                    custom_msg = custom_msg,
+                    optional = optional)
+
     } else {
       return(TRUE)
     }
@@ -583,36 +603,50 @@ package_check = function(pkg_name,
 
   } else if(repository == 'Bioc') {
 
+    default_msg = c("\n package ", pkg_name ," is not yet installed \n",
+                    "To install: \n",
+                    "if(!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');\nBiocManager::install('",pkg_name,"')")
+
     if(!requireNamespace(pkg_name, quietly = TRUE)) {
-      stop("\n package ", pkg_name ," is not yet installed \n",
-           "To install: \n",
-           "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('",pkg_name,"')",
-           call. = FALSE)
+
+      check_message(default_msg = default_msg,
+                    custom_msg = custom_msg,
+                    optional = optional)
+
     } else {
       return(TRUE)
     }
 
   } else if(repository == 'github') {
 
-    if(is.null(github_repo)) stop("provide the github repo of package, e.g. 'johndoe/cooltool' ")
+    if(is.null(github_repo)) stop(wrap_txt("provide the github repo of package, e.g. 'johndoe/cooltool' ", sep = ''))
+
+    default_msg = c("\n package ", pkg_name ," is not yet installed \n",
+                    "To install: \n",
+                    "devtools::install_github('",github_repo,"')")
 
     if(!requireNamespace(pkg_name, quietly = TRUE)) {
-      stop("\n package ", pkg_name ," is not yet installed \n",
-           "To install: \n",
-           "devtools::install_github('",github_repo,"')",
-           call. = FALSE)
+
+      check_message(default_msg = default_msg,
+                    custom_msg = custom_msg,
+                    optional = optional)
+
     } else {
       return(TRUE)
     }
 
   } else if(repository == 'pip') {
 
+    default_msg = c("\n package ", pkg_name ," is not yet installed \n",
+                    "To install for default Giotto miniconda environment: \n",
+                    "reticulate::conda_install(envname = 'giotto_env',packages = '",pkg_name,"',pip = TRUE)")
+
     if(!reticulate::py_module_available(pkg_name)) {
-      stop("\n package ", pkg_name ," is not yet installed \n",
-           "To install for default Giotto miniconda environment: \n",
-           "reticulate::conda_install(envname = 'giotto_env',packages = '",pkg_name,"',pip = TRUE)",
-           call. = FALSE)
+
+      check_message(default_msg = default_msg,
+                    custom_msg = custom_msg,
+                    optional = optional)
+
     }
   }
 
@@ -1302,6 +1336,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @param smooth_vertices number of vertices for smoothing
 #' @param set_neg_to_zero set negative values to zero when smoothing
 #' @param H5Fopen_flags see \code{\link[rhdf5]{H5Fopen}} for more details
+#' @param cores cores to use
 #' @param verbose be verbose
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
@@ -1316,9 +1351,21 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       smooth_vertices = 60,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
+                                      cores = NA,
                                       verbose = TRUE) {
 
+  # necessary pkgs
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+  # optional pkgs
+  progressr_avail = package_check(
+    pkg_name = 'progressr',
+    repository = 'CRAN',
+    optional = TRUE,
+    custom_msg = c('(Optional) For progress bar, install:\ninstall.packages("progressr)\n',
+                   'After install:\nprogressr::handlers("progress")')
+  )
+
+  cores = determine_cores(cores)
 
   # define for .()
   x = NULL
@@ -1327,7 +1374,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   file_id = NULL
   my_id = NULL
 
-  # define names
+  # prepare poly feat names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
 
@@ -1335,96 +1382,146 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   if(!is.null(custom_polygon_names)) {
 
     if(!is.character(custom_polygon_names)) {
-      stop('If custom_polygon_names are provided, it needs to be a character vector')
+      stop(wrap_txt('If custom_polygon_names are provided, it needs to be a character vector'))
     }
 
     if(length(custom_polygon_names) != length(poly_feat_names)) {
-      stop('length of custom names need to be same as polygon_feat_types')
+      stop(wrap_txt('length of custom names need to be same as polygon_feat_types'))
     } else {
       poly_feat_names = custom_polygon_names
     }
   }
 
+  if(isTRUE(verbose)) wrap_msg('Reading from:', boundaries_path)
   # list all files in the folder
-  hdf5_boundary_list = list.files(full.names = T, boundaries_path)
-
+  hdf5_boundary_list = list.files(full.names = TRUE, boundaries_path)
+  # only load subset of files if fov is given
   if(!is.null(fovs)) {
 
     selected_hdf5s = paste0('feature_data_', fovs, '.hdf5')
     selected_hdf5s_concatenated = paste0(selected_hdf5s, collapse = '|')
-    hdf5_boundary_selected_list = grep(selected_hdf5s_concatenated, x = hdf5_boundary_list, value = T)
+    hdf5_boundary_selected_list = grep(selected_hdf5s_concatenated, x = hdf5_boundary_list, value = TRUE)
 
   } else {
     hdf5_boundary_selected_list = hdf5_boundary_list
   }
 
+  if(isTRUE(verbose)) wrap_msg('finished listing .hdf5 files
+                               start extracting .hdf5 information')
 
-  if(verbose == TRUE) cat('finished listing .hdf5 files \n
-                          start extracting .hdf5 information \n')
-
-  # read selected polygon files
-  start_index = 1
-  # create a results list for each z index of the polygon file
-  result_list = replicate(length(polygon_feat_types), list())
-  multidt_list = replicate(length(polygon_feat_types), list())
-
+  # open selected polygon files
+  # append data from all FOVs to single list
   hdf5_list_length = length(hdf5_boundary_selected_list)
 
-  for(bound_i in 1:hdf5_list_length) {
+  if(isTRUE(progressr_avail)) {
+    progressr::with_progress({
+      pb = progressr::progressor(along = hdf5_boundary_selected_list)
+      read_list = lapply_flex(hdf5_boundary_selected_list, cores = cores, function(bound_i) {
 
-    if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
-    print(hdf5_boundary_selected_list[bound_i][[1]])
+        # read file and select feature data
+        read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
+        fov_info = read_file$featuredata
 
-    # read file and select feature data
-    read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]], flags = H5Fopen_flags)
-    featdt = read_file$featuredata
-    cell_names = names(featdt)
+        # update progress
+        f_n = basename(bound_i[[1]])
+        pb_msg = c('...', substr(f_n, nchar(f_n) - 19, nchar(f_n)))
+        pb(message = pb_msg)
+        return(fov_info)
+      })
+    })
+  } else {
+    read_list = lapply_flex(hdf5_boundary_selected_list, cores = cores, function(bound_i) {
 
-    # extract values for each z index
-    for(cell_i in 1:length(featdt)) {
-      for(z_i in 1:length(poly_feat_indexes)) {
-        singlearray = featdt[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+      if(isTRUE(verbose)) {
+        cat('\n','hdf5: ', (hdf5_list_length - bound_i) ,'\n')
+        print(basename(bound_i[[1]]))
+        cat('\n')
+      }
+
+      # read file and select feature data
+      read_file = rhdf5::H5Fopen(bound_i[[1]], flags = H5Fopen_flags)
+      fov_info = read_file$featuredata
+
+      return(fov_info)
+    })
+  }
+  # # combine to FOV data single list
+  read_list = Reduce('append', read_list)
+  cell_names = names(read_list)
+
+
+  # extract values for each z index and cell from read_list
+  result_list = lapply_flex(seq_along(poly_feat_indexes), cores = cores, function(z_i) {
+    # Reduce('append', lapply_flex(seq_along(read_list), cores = cores, function(bound_i) {
+    #   cell_names = names(read_list[[bound_i]])
+      # lapply_flex(seq_along(read_list[[bound_i]]), cores = cores, function(cell_i) {
+      lapply_flex(seq_along(read_list), cores = cores, function(cell_i) {
+        # singlearray = read_list[[bound_i]][[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+        singlearray = read_list[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
         cell_name = cell_names[[cell_i]]
         if(!is.null(singlearray)) {
-          singlearraydt = data.table::as.data.table(t(as.matrix(singlearray[,,1])))
+          singlearraydt = data.table::as.data.table(t_flex(as.matrix(singlearray[,,1])))
           data.table::setnames(singlearraydt, old = c('V1', 'V2'), new = c('x', 'y'))
           if(flip_x_axis) singlearraydt[, x := -1 * x]
           if(flip_y_axis) singlearraydt[, y := -1 * y]
 
-          singlearraydt[, file_id := paste0('file', bound_i)]
+          # singlearraydt[, file_id := paste0('file', bound_i)]
           singlearraydt[, cell_id := cell_name]
-          singlearraydt[, my_id := paste0('cell', start_index)]
-          result_list[[z_i]][[start_index]] = singlearraydt
+          # singlearraydt[, my_id := paste0('cell', cell_i)]
         }
-      }
-      start_index = start_index + 1
-    }
-    for (i in 1:length(multidt_list)) {
-      multidt_list[[i]] = do.call('rbind', result_list[[i]])
-    }
-  }
+      })
+    # }))
+  })
+  result_list_rbind = lapply_flex(seq_along(result_list), cores = cores, function(z_i) {
+    data.table::rbindlist(result_list[[z_i]])
+  })
 
-  if(verbose == TRUE) cat('finished extracting .hdf5 files \n
-                          start creating polygons \n')
+
+
+  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
+                               start creating polygons')
 
 
   # create Giotto polygons and add them to gobject
-  smooth_cell_polygons_list = list()
+  # smooth_cell_polygons_list = list()
 
-  for (i in 1:length(multidt_list)) {
-    dfr_subset = multidt_list[[i]][,.(x, y, cell_id)]
-    cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
-                                                name = poly_feat_names[i])
+  if(isTRUE(progressr_avail)) {
+    progressr::with_progress({
+      pb = progressr::progressor(along = result_list_rbind)
+      smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
+        dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
+        cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                    name = poly_feat_names[i],
+                                                    verbose = verbose)
 
-    if(smooth_polygons == TRUE) {
-      smooth_cell_polygons = smoothGiottoPolygons(cell_polygons,
-                                                  vertices = smooth_vertices,
-                                                  set_neg_to_zero = set_neg_to_zero)
-    } else {
-      smooth_cell_polygons = cell_polygons
-    }
+        pb(message = poly_feat_names[i])
 
-    smooth_cell_polygons_list[[i]] = smooth_cell_polygons
+        if(smooth_polygons == TRUE) {
+          return(smoothGiottoPolygons(cell_polygons,
+                                      vertices = smooth_vertices,
+                                      set_neg_to_zero = set_neg_to_zero,
+                                      verbose = FALSE))
+        } else {
+          return(cell_polygons)
+        }
+      })
+    })
+  } else {
+    smooth_cell_polygons_list = lapply_flex(seq_along(result_list_rbind), cores = cores, function(i) {
+      dfr_subset = result_list_rbind[[i]][,.(x, y, cell_id)]
+      cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                  name = poly_feat_names[i],
+                                                  verbose = verbose)
+
+      if(smooth_polygons == TRUE) {
+        return(smoothGiottoPolygons(cell_polygons,
+                                    vertices = smooth_vertices,
+                                    set_neg_to_zero = set_neg_to_zero,
+                                    verbose = FALSE))
+      } else {
+        return(cell_polygons)
+      }
+    })
   }
 
 
@@ -1512,6 +1609,9 @@ readPolygonFilesVizgen = function(gobject,
 getGEFtxCoords = function(gef_file,
                           bin_size = 'bin100') {
 
+  # data.table vars
+  genes = NULL
+
   # package check
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
@@ -1527,3 +1627,48 @@ getGEFtxCoords = function(gef_file,
   return(exprDT)
 
 }
+
+
+
+#' @title Fread rows based on column matches
+#' @name fread_colmatch
+#' @param file path to file to load
+#' @param col name of col to match from
+#' @param sep grep term to match as column delimiters within the file
+#' @param values_to_match values in \code{col} to match given as a vector
+#' @param verbose whether to print the grep command
+#' @param ... additional parameters to pass to \code{\link[data.table]{fread}}
+#' @keywords internal
+fread_colmatch = function(file,
+                          col,
+                          sep = NULL,
+                          values_to_match,
+                          verbose = FALSE,
+                          ...) {
+
+  # get colnames
+  col_names = colnames(data.table::fread(file, nrows = 1L))
+  col_num = which(col_names == col)
+
+  # try to guess col separating char if not given
+  if(is.null(sep)) {
+    filename = basename(file)
+    if(grepl(pattern = '.csv', x = filename)) {
+      sep = '.*,'
+    } else if(grepl(pattern = '.tsv', x = filename)) {
+      sep = '.*\t'
+    } else {
+      stop('sep param cannot be guessed')
+    }
+  }
+
+  # create grep search
+  pattern = paste(values_to_match, collapse = '|')
+  gpat = paste0('\'', strrep(x = sep, times = col_num - 1), '(', pattern, '),\' ')
+  fread_cmd = paste0('grep -E ', gpat, file)
+  if(isTRUE(verbose)) print(fread_cmd)
+
+  file_DT = data.table::fread(cmd = fread_cmd, col.names = col_names, ...)
+  return(file_DT)
+}
+

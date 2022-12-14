@@ -178,6 +178,8 @@ expand_feature_info = function(spatial_feat_info,
                                jitter = c(0,0),
                                verbose = TRUE) {
 
+  # data.table variables
+  feat_ID = x = y = feat = spat_unit = NULL
 
   # 1. expand feature locations with multiple counts (e.g. in seq-Scope or Stereo-seq)
   if(isTRUE(expand_counts)) {

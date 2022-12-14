@@ -323,6 +323,9 @@ set_cell_metadata = function(gobject,
                              verbose = TRUE,
                              set_defaults = TRUE) {
 
+  # data.table vars
+  cell_ID = NULL
+
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 
   # 1. determine if user input was supplied
@@ -549,6 +552,9 @@ set_feature_metadata = function(gobject,
                                 provenance = NULL,
                                 verbose = TRUE,
                                 set_defaults = TRUE) {
+
+  # data.table vars
+  feat_ID = NULL
 
   if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
 

@@ -15,6 +15,7 @@ readPolygonFilesVizgenHDF5(
   smooth_vertices = 60,
   set_neg_to_zero = FALSE,
   H5Fopen_flags = "H5F_ACC_RDWR",
+  cores = NA,
   verbose = TRUE
 )
 }
@@ -39,6 +40,8 @@ readPolygonFilesVizgenHDF5(
 \item{set_neg_to_zero}{set negative values to zero when smoothing}
 
 \item{H5Fopen_flags}{see \code{\link[rhdf5]{H5Fopen}} for more details}
+
+\item{cores}{cores to use}
 
 \item{verbose}{be verbose}
 }
