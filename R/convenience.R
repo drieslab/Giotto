@@ -128,7 +128,6 @@ read_data_folder = function(spat_method = NULL,
 #' to use for object creation
 #' @param FOVs which FOVs to use when building the subcellular object. (default is NULL)
 #' NULL loads all FOVs (very slow)
-#' @param polygon_feat_types which Vizgen polygon z slices are loaded (There are 0 - 6)
 #' @param calculate_overlap whether to run \code{\link{calculateOverlapRaster}}
 #' @param overlap_to_matrix whether to run \code{\link{overlapToMatrix}}
 #' @param aggregate_stack whether to run \code{\link{aggregateStacks}}
@@ -150,7 +149,6 @@ read_data_folder = function(spat_method = NULL,
 createGiottoMerscopeObject = function(merscope_dir,
                                       data_to_use = c('subcellular', 'aggregate'),
                                       FOVs = NULL,
-                                      polygon_feat_types = 0:6,
                                       calculate_overlap = TRUE,
                                       overlap_to_matrix = TRUE,
                                       aggregate_stack = TRUE,
@@ -178,8 +176,7 @@ createGiottoMerscopeObject = function(merscope_dir,
   # 2. load in directory items
   data_list = load_merscope_folder(dir_items = dir_items,
                                    data_to_use = data_to_use,
-                                   FOVs = FOVs,
-                                   polygon_feat_types = polygon_feat_types,
+                                   fovs = fovs,
                                    cores = cores,
                                    verbose = verbose)
 
@@ -191,14 +188,12 @@ createGiottoMerscopeObject = function(merscope_dir,
                                                               overlap_to_matrix = overlap_to_matrix,
                                                               aggregate_stack = aggregate_stack,
                                                               aggregate_stack_param = aggregate_stack_param,
-                                                              instructions = instructions,
                                                               cores = cores,
                                                               verbose = verbose)
 
   } else if(data_to_use == 'aggregate') {
 
     merscope_gobject = createGiottoMerscopeObject_aggregate(data_list = data_list,
-                                                            instructions = instructions,
                                                             cores = cores,
                                                             verbose = verbose)
 
@@ -223,15 +218,11 @@ createGiottoMerscopeObject_subcellular = function(data_list,
                                                   aggregate_stack_param = list(summarize_expression = 'sum',
                                                                                summarize_locations = 'mean',
                                                                                new_spat_unit = 'cell'),
-                                                  instructions,
                                                   cores = NA,
                                                   verbose = TRUE) {
 
-  # data.table vars
-  feat_coord = neg_coord = cellLabel_dir = NULL
-
   # unpack data_list
-  poly_info = data_list$poly_info # expected to be list of giottoPolygons
+  poly_info = data_list$poly_info
   tx_dt = data_list$tx_dt
   micronToPixelScale = data_list$micronToPixelScale
   image_list = data_list$images
@@ -264,7 +255,7 @@ createGiottoMerscopeObject_subcellular = function(data_list,
   z_sub = createGiottoObjectSubcellular(
     gpoints = list('rna' = feat_coord,
                    'neg_probe' = neg_coord),
-    gpolygons = poly_info,
+    gpolygons = list('cell' = cellLabel_dir),
     polygon_mask_list_params = list(
       mask_method = 'guess',
       flip_vertical = TRUE,
@@ -284,7 +275,6 @@ createGiottoMerscopeObject_subcellular = function(data_list,
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
 #' @keywords internal
 createGiottoMerscopeObject_aggregate = function(data_list,
-                                                instructions = NULL,
                                                 cores = NA,
                                                 verbose = TRUE) {
 
@@ -362,8 +352,7 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #'
 #'
 createGiottoCosMxObject = function(cosmx_dir = NULL,
-                                   # data_to_use = c('subcellular','aggregate','all'),
-                                   data_to_use = c('subcellular'),
+                                   data_to_use = c('all','subcellular','aggregate'),
                                    FOVs = NULL,
                                    instructions = NULL,
                                    cores = NA,
@@ -375,8 +364,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
   data.table::setDTthreads(threads = cores)
 
   # determine data to use
-  data_to_use = match.arg(arg = data_to_use, choices = c('subcellular'))
-  # data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate','all'))
+  data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
 
   # Define for data.table
   fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
@@ -445,9 +433,6 @@ createGiottoCosMxObject_subcellular = function(dir_items,
                                                cores,
                                                verbose = TRUE,
                                                instructions = NULL) {
-
-  # data.table vars
-  target = fov = NULL
 
   # load tx detections and FOV offsets
   data_list = load_cosmx_folder_subcellular(dir_items = dir_items,
@@ -617,9 +602,6 @@ createGiottoCosMxObject_aggregate = function(dir_items,
                                           cores = cores,
                                           verbose = verbose)
 
-  # data.table vars
-  fov = NULL
-
   # unpack data_list
   spatlocs = data_list$spatlocs
   spatlocs_fov = data_list$spatlocs_fov
@@ -630,34 +612,36 @@ createGiottoCosMxObject_aggregate = function(dir_items,
 
 
   # create standard gobject from aggregate matrix
+  if(data_to_use == 'aggregate') {
 
-  # Create aggregate gobject
-  if(isTRUE(verbose)) message('Building giotto object...')
-  cosmx_gobject = createGiottoObject(expression = list('raw' = spM, 'protein' = protM),
-                                     cell_metadata = list('cell' = list('rna' = metadata,
-                                                                        'protein' = metadata)),
-                                     spatial_locs = spatlocs,
-                                     instructions = instructions,
-                                     cores = cores)
-
-
-  # load in images
-  img_ID = data.table::data.table(fov = fov_shifts[, fov],
-                                  img_name = paste0('fov', sprintf('%03d', fov_shifts[, fov]), '-image'))
-
-  if(isTRUE(verbose)) message('Attaching image files...')
-  composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('/*')))
-  cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('/*')))
-  compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('/*')))
-  overlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('/*')))
-
-  if(length(cellLabel_imgList) > 0) cellLabel_imgList = lapply(cellLabel_dir, function(x) {createGiottoLargeImage(x,name = 'cellLabel',negative_y = TRUE)})
-  if(length(composite_imgList) > 0) composite_imgList = lapply(composite_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
-  if(length(compartmentLabel_dir) > 0) compartmentLabel_imgList = lapply(compartmentLabel_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
-  if(length(overlay_dir) > 0) overlay_imgList = lapply(overlay_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+    # Create aggregate gobject
+    if(isTRUE(verbose)) message('Building giotto object...')
+    cosmx_gobject = createGiottoObject(expression = list('raw' = spM, 'protein' = protM),
+                                       cell_metadata = list('cell' = list('rna' = metadata,
+                                                                          'protein' = metadata)),
+                                       spatial_locs = spatlocs,
+                                       instructions = instructions,
+                                       cores = cores)
 
 
+    # load in images
+    img_ID = data.table::data.table(fov = fov_shifts[, fov],
+                                    img_name = paste0('fov', sprintf('%03d', fov_shifts[, fov]), '-image'))
 
+    if(isTRUE(verbose)) message('Attaching image files...')
+    composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('/*')))
+    cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('/*')))
+    compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('/*')))
+    overlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('/*')))
+
+    if(length(cellLabel_imgList) > 0) cellLabel_imgList = lapply(cellLabel_dir, function(x) {createGiottoLargeImage(x,name = 'cellLabel',negative_y = TRUE)})
+    if(length(composite_imgList) > 0) composite_imgList = lapply(composite_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+    if(length(compartmentLabel_dir) > 0) compartmentLabel_imgList = lapply(compartmentLabel_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+    if(length(overlay_dir) > 0) overlay_imgList = lapply(overlay_dir, function(x) {createGiottoLargeImage(x,name = 'composite',negative_y = TRUE)})
+
+
+
+  }
 
 }
 
@@ -1386,8 +1370,7 @@ read_xenium_folder = function(xenium_dir,
 #' @return list of loaded-in MERSCOPE data
 load_merscope_folder = function(dir_items,
                                 data_to_use,
-                                FOVs = NULL,
-                                polygon_feat_types = 0:6,
+                                fovs = NULL,
                                 cores = NA,
                                 verbose = TRUE) {
 
@@ -1395,8 +1378,7 @@ load_merscope_folder = function(dir_items,
   if(data_to_use == 'subcellular') {
     data_list = load_merscope_folder_subcellular(dir_items = dir_items,
                                                  data_to_use = data_to_use,
-                                                 FOVs = FOVs,
-                                                 polygon_feat_types = polygon_feat_types,
+                                                 fovs = fovs,
                                                  cores = cores,
                                                  verbose = verbose)
   } else if(data_to_use == 'aggregate') {
@@ -1446,19 +1428,18 @@ load_merscope_folder = function(dir_items,
 #' @keywords internal
 load_merscope_folder_subcellular = function(dir_items,
                                             data_to_use,
-                                            polygon_feat_types = 0:6,
                                             cores = NA,
                                             verbose = TRUE,
-                                            FOVs = NULL) {
+                                            fovs = NULL) {
 
   if(isTRUE(verbose)) wrap_msg('Loading transcript level info...')
-  if(is.null(FOVs)) {
+  if(is.null(fovs)) {
     tx_dt = data.table::fread(dir_items$`raw transcript info`, nThread = cores)
   } else {
     if(isTRUE(verbose)) wrap_msg('Selecting FOV subset transcripts')
     tx_dt = fread_colmatch(file = dir_items$`raw transcript info`,
                            col = 'fov',
-                           values_to_match = FOVs,
+                           values_to_match = fovs,
                            verbose = FALSE,
                            nThread = cores)
   }
@@ -1467,9 +1448,9 @@ load_merscope_folder_subcellular = function(dir_items,
 
   if(isTRUE(verbose)) wrap_msg('Loading polygon info...')
   poly_info = readPolygonFilesVizgenHDF5(boundaries_path = dir_items$`boundary info`,
-                                         polygon_feat_types = polygon_feat_types,
+                                         polygon_feat_types = c(0,6),
                                          flip_y_axis = TRUE,
-                                         fovs = FOVs)
+                                         fovs = fovs)
 
   data_list = list(
     'poly_info' = poly_info,

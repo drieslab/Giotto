@@ -2973,7 +2973,7 @@ aggregateStacksLocations = function(gobject,
   # aggregate locations
   locs_list = list()
   for(spat_unit in spat_units) {
-    locDT = get_spatial_locations(vizsubc,
+    locDT = get_spatial_locations(gobject = gobject,
                                   spat_unit = spat_unit,
                                   spat_loc_name = values,
                                   output = 'data.table')
@@ -2989,7 +2989,11 @@ aggregateStacksLocations = function(gobject,
                                           provenance = spat_units,
                                           misc = NULL)
 
-  gobject = set_spatial_locations(gobject = gobject, spatlocs = new_spatlocs_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_spatial_locations(gobject = gobject,
+                                  spatlocs = new_spatlocs_obj,
+                                  set_defaults = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 

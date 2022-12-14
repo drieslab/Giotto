@@ -2119,6 +2119,9 @@ calculateOverlapPolygonImages = function(gobject,
                                          verbose = TRUE,
                                          ...) {
 
+  # data.table vars
+  coverage_fraction = NULL
+
   if(is.null(image_names)) {
     stop('image_names = NULL, you need to provide the names of the images you want to use,
           see showGiottoImageNames() for attached images')
