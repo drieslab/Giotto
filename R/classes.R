@@ -57,7 +57,9 @@ setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            if(!is.null(.Object@coordinates)) {
+              .Object@coordinates = data.table::setalloccol(.Object@coordinates)
+            }
             .Object
           })
 
@@ -83,7 +85,9 @@ setMethod('initialize', 'metaData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            if(!is.null(.Object@metaDT)) {
+              .Object@metaDT = data.table::setalloccol(.Object@metaDT)
+            }
             .Object
           })
 
@@ -99,7 +103,9 @@ setMethod('initialize', 'enrData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            if(!is.null(.Object@enrichDT)) {
+              .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
+            }
             .Object
           })
 
@@ -132,7 +138,9 @@ setMethod('initialize', 'spatNetData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            if(!is.null(.Object@networkDT)) {
+              .Object@networkDT = data.table::setalloccol(.Object@networkDT)
+            }
             if(!is.null(.Object@networkDT_before_filter)) {
               .Object@networkDT_before_filter = data.table::setalloccol(.Object@networkDT_before_filter)
             }
@@ -154,7 +162,9 @@ setMethod('initialize', 'spatGridData',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
             # prepare DT for set by reference
-            .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            if(!is.null(.Object@gridDT)) {
+              .Object@gridDT = data.table::setalloccol(.Object@gridDT)
+            }
             .Object
           })
 
