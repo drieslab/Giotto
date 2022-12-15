@@ -1,6 +1,7 @@
 # TBD RELEASE
 
 ## Added
+- New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
 - Add `createGiottoMerscopeObject()` convenience function
 - Add packages `exactextractr` and `sf` to "suggests" packages
