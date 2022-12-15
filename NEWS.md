@@ -1,10 +1,8 @@
 # TBD RELEASE
 
-## Changes
+## Added
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
-- Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
-- Add `createGiottoMerscopeObject()`
-- Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
+- Add `createGiottoMerscopeObject()` convenience function
 - Add packages `exactextractr` and `sf` to "suggests" packages
 - Add package `progressr` to "imports" packages
 - Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
@@ -12,8 +10,9 @@
 - Add `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
 - Add `optional` and `custom_msg` params to `package_check()`
 
-
-
+## Changes
+- Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
+- Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 
 
 # Giotto Suite 3.1.0 (2202-12-01)  
