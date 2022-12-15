@@ -187,9 +187,9 @@ def extract_layered_data(adata = None, layer_name = None):
         print(f"Invalid Key, {layer_name}, for adata.layers")
         raise(KeyError)
     target_layer = adata.layers[layer_name]
-    if type(target_layer) == scipy.sparse.csr.csr_matrix:
+    if type(target_layer) == scipy.sparse.csr_matrix:
         target_layer = target_layer.T
-    elif type(target_layer) == scipy.sparse.csr_matrix:
+    elif type(target_layer) == scipy.sparse.csr.csr_matrix:
         target_layer = target_layer.T
     else:
         target_layer = pd.DataFrame(target_layer)

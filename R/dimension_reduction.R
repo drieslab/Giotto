@@ -573,16 +573,16 @@ runPCA <- function(gobject,
   } else {
     # PCA on genes
     if(method %in% c('irlba', 'exact', 'random')) {
-      runPCA_BiocSingular(x = expr_values,
-                          center = center,
-                          scale = scale_unit,
-                          ncp = ncp,
-                          rev = rev,
-                          set_seed = set_seed,
-                          seed_number = seed_number,
-                          BSPARAM = method,
-                          BSParameters = method_params,
-                          ...)
+      pca_object = runPCA_BiocSingular(x = expr_values,
+                                       center = center,
+                                       scale = scale_unit,
+                                       ncp = ncp,
+                                       rev = rev,
+                                       set_seed = set_seed,
+                                       seed_number = seed_number,
+                                       BSPARAM = method,
+                                       BSParameters = method_params,
+                                       ...)
 
     } else if(method == 'factominer') {
       pca_object = runPCA_factominer(x = expr_values,
@@ -607,6 +607,12 @@ runPCA <- function(gobject,
       cat('\n ', name, ' has already been used, will be overwritten \n')
     }
 
+    if (reduction == "cells") {
+      my_row_names = colnames(expr_values)
+    } else {
+      my_row_names = rownames(expr_values)
+    }
+    
     dimObject = create_dimObject(name = name,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
@@ -615,7 +621,7 @@ runPCA <- function(gobject,
                                  coordinates = pca_object$coords,
                                  misc = list(eigenvalues = pca_object$eigenvalues,
                                              loadings = pca_object$loadings),
-                                 my_rownames = colnames(expr_values))
+                                 my_rownames = my_row_names)
 
 
     gobject = set_dimReduction(gobject = gobject, dimObject)
