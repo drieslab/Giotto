@@ -862,6 +862,19 @@ S3toS4dimObj = function(object) {
 
 ## nnNetObj ####
 
+### * Definition ####
+# nnNetObj Class
+
+#' @title S4 nnNetObj
+#' @description Framework to store nearest neighbor network information
+#' @slot name name of nnNetObj
+#' @slot nn_type type of nearest neighbor network
+#' @slot igraph igraph object containing network information
+#' @slot feat_type feature type of data
+#' @slot spat_unit spatial unit of data
+#' @slot provenance origin of aggregated information (if applicable)
+#' @slot misc misc
+#' @export
 setClass('nnNetObj',
          contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
 
@@ -1228,7 +1241,7 @@ S3toS4spatialGridObj = function(object) {
 
 
 
-# * spatEnrObj class ####
+## spatEnrObj class ####
 
 # * definition ####
 # spatEnrObj class
@@ -1701,6 +1714,35 @@ create_dim_obj = function(name = 'test',
              reduction = reduction,
              reduction_method = reduction_method,
              coordinates = coordinates,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+}
+
+
+#' @title Create S4 nnNetObj
+#' @name create_nn_net_obj
+#' @description Create an S4 nnNetObj
+#' @param name name of nnNetObj
+#' @param nn_type type of nearest neighbor network
+#' @param igraph igraph object containing nearest neighbor information
+#' @slot spat_unit spatial unit of data
+#' @slot feat_type feature type of data
+#' @slot provenance origin of aggregated information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_nn_net_obj = function(name = 'test',
+                             nn_type = NA_character_,
+                             igraph = NULL,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             misc = NULL) {
+  return(new('nnNetObj',
+             name = name,
+             nn_type = nn_type,
+             igraph = igraph,
              spat_unit = spat_unit,
              feat_type = feat_type,
              provenance = provenance,
