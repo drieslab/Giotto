@@ -1402,16 +1402,20 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                start extracting .hdf5 information')
 
   # open selected polygon files
-  # append data from all FOVs to single list
   hdf5_list_length = length(hdf5_boundary_selected_list)
+  read_file_list = lapply(hdf5_boundary_selected_list, function(hdf5_file) {
+    rhdf5::H5Fopen(hdf5_boundary_selected_list[[hdf5_file]][[1]], flags = H5Fopen_flags)
+  })
+
+  # append data from all FOVs to single list
+
   init = proc.time()
-
   progressr::with_progress({
-    pb = progressr::progressor(along = hdf5_boundary_selected_list)
-    read_list = lapply_flex(seq_along(hdf5_boundary_selected_list), cores = cores, function(bound_i) {
+    pb = progressr::progressor(along = read_file_list)
+    read_list = lapply_flex(seq_along(read_file_list), cores = cores, function(bound_i) {
 
-      # read file and select feature data
-      read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[[bound_i]][[1]], flags = H5Fopen_flags)
+      # get feature data
+      read_file = read_file_list[[bound_i]]
       fov_info = read_file$featuredata
 
       # update progress
@@ -1476,8 +1480,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       if(smooth_polygons == TRUE) {
         return(smoothGiottoPolygons(cell_polygons,
                                     vertices = smooth_vertices,
-                                    set_neg_to_zero = set_neg_to_zero,
-                                    verbose = FALSE))
+                                    set_neg_to_zero = set_neg_to_zero))
       } else {
         return(cell_polygons)
       }
