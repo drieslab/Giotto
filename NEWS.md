@@ -11,6 +11,9 @@
 - Add package `progressr` to "imports" packages
 - Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 
+## Breaking Changes
+- Removed support for deprecated nesting in `@nn_network` slot
+
 
 
 
