@@ -31,7 +31,7 @@ setOldClass('data.table')
 
 
 
-# BASIC CLASSES ####
+# SUPERCLASSES ####
 
 # ** nameData Class ####
 #'
@@ -241,7 +241,7 @@ setClass('miscData',
 
 
 
-# SUPER CLASSES ####
+# SUBCLASSES ####
 
 # ** spatFeatData ####
 #' Superclass for classes that contain both spatial and feature data

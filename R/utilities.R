@@ -650,6 +650,24 @@ emacs_version = function() {
 }
 
 
+# time formatting ####
+
+#' @title Format time for printing
+#' @name time_format
+#' @keywords internal
+#' @details Code from \code{\link[data.table]{timetaken}}
+time_format = function(secs) {
+  if (secs > 60) {
+    secs = as.integer(secs)
+    sprintf("%02d:%02d:%02d", secs%/%3600L, (secs%/%60L)%%60L,
+            secs%%60L)
+  }
+  else {
+    sprintf(if (secs >= 10)
+      "%.1fs"
+      else "%.3fs", secs)
+  }
+}
 
 
 

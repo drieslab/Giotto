@@ -1282,96 +1282,49 @@ get_NearestNetwork = function(gobject,
   }
 
   # 2 Find the object
-
-  # **to be deprecated - check for old nesting**
-  if(is.null(names(gobject@nn_network[[spat_unit]][[feat_type]])[[1]])) { # If gobject has nothing for this feat_type
-    available = list_nearest_networks(gobject,
-                                      spat_unit = spat_unit,
-                                      nn_type = nn_network_to_use)
-    if(!is.null(available)) {
-      if(nrow(available) > 0 & is.null(available$feat_type)) { # If ANY old nesting objects are discovered (only reports old nestings if detected)
-        if(is.null(network_name)) igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[available$name[[1]]]]
-        else igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[network_name]]
-        if(inherits(igraph_object, 'igraph')) {
-          if(is.null(nn_network_to_use)) message('The NN network type was not specified, default to the first: "', available$nn_type[[1]],'"')
-          if(is.null(network_name)) message('The NN network name was not specified, default to the first: "', available$name[[1]],'"')
-          ## convert igraph to data.table
-          if(output == 'data.table') {
-            igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
-            return(igraph_object)
-          }
-          return(igraph_object)
-        } else {
-          stop('There is currently no nearest-neighbor network created for
-           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
-           First run createNearestNetwork()\n')
-        }
-      }
-    } else {
-      stop('There is currently no nearest-neighbor network created for
-           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
-           First run createNearestNetwork()\n')
-    }
-  } # **deprecation end**
-
-
-  # automatic nearest network selection
   if(is.null(nn_network_to_use)) {
-    nn_network_to_use = names(gobject@nn_network[[spat_unit]][[feat_type]])[[1]]
+    nn_network_to_use = names(slot(gobject, 'nn_network')[[spat_unit]][[feat_type]])[[1]]
     if(is.null(nn_network_to_use)) {
 
-      stop('There is currently no nearest-neighbor network created for
-           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
-           First run createNearestNetwork()\n')
+      stop(wrap_txt('There is currently no nearest-neighbor network created for
+                     spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
+                     First run createNearestNetwork()\n', sep = ''))
     } else {
-      message('The NN network type was not specified, default to the first: "', nn_network_to_use,'"')
+      wrap_msg('The NN network type was not specified, default to the first: "',
+               nn_network_to_use,'"', sep = '')
     }
   }
 
   if(is.null(network_name)) {
-    network_name = names(gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]])[[1]]
+    network_name = names(slot(gobject, 'nn_network')[[spat_unit]][[feat_type]][[nn_network_to_use]])[[1]]
     if(is.null(network_name)) {
-      stop('There is currently no nearest-neighbor network built for spatial unit: "', spat_unit,
-           '" feature type: "', feat_type, '" and network type: "', nn_network_to_use,'"\n')
+      stop(wrap_txt('There is currently no nearest-neighbor network built for spatial unit: "', spat_unit,
+                    '" feature type: "', feat_type, '" and network type: "', nn_network_to_use,'"\n',
+                    sep = ''))
     }else {
-      message('The NN network name was not specified, default to the first: "', network_name,'"')
+      wrap_msg('The NN network name was not specified, default to the first: "',
+               network_name,'"', sep = '')
     }
   }
 
   # 3. get object in desired format
 
-  nnNet = gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]]
+  nnNet = slot(gobject, 'nn_network')[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]]
   if(is.null(nnNet)) {
-    stop('nn_network_to_use: "', nn_network_to_use, '" or network_name: "', network_name, '" does not exist.
-          Create a nearest-neighbor network first')
+    stop(wrap_txt('nn_network_to_use: "', nn_network_to_use, '" or network_name: "', network_name, '" does not exist.
+                  Create a nearest-neighbor network first', sep = ''))
   }
 
   if(output == 'nnNetObj') {
-    if(inherits(nnNet, 'igraph')) { # ** TO BE DEPRECATED **
-      nnNet = new('nnNetObj',
-                  name = network_name,
-                  nn_type = nn_network_to_use,
-                  igraph = nnNet,
-                  spat_unit = spat_unit,
-                  feat_type = feat_type,
-                  provenance = spat_unit, # assumed if nnNet is igraph
-                  misc = NULL)
-    }
 
-    if(!inherits(nnNet, 'nnNetObj')) stop('Specified nnNet is neither igraph nor nnNetObj')
-
-    # return nnNetObj
-    return(nnNet)
+    return(nnNet) # return nnNetObj
 
   } else if(output == 'igraph' | output == 'data.table') {
-    if(inherits(nnNet, 'nnNetObj')) { # ** TO BE DEPRECATED ** Will always be assumed to be the case moving forward
-      nnNet = slot(nnNet, 'igraph')
-    }
+    nnNet = slot(nnNet, 'igraph')
 
     if(output == 'igraph') return(nnNet) # return igraph
-
     if(output == 'data.table') {
-      nnNet = data.table::as.data.table(igraph::get.data.frame(x = nnNet))
+      nnNet = data.table::setDT(igraph::get.data.frame(x = nnNet))
       return(nnNet) # return data.table
     }
   }
