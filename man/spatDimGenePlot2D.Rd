@@ -24,6 +24,7 @@ spatDimGenePlot2D(gobject, genes, default_save_name = "spatDimGenePlot2D", ...)
     \item{\code{largeImage_name}}{name of a giottoLargeImage}
     \item{\code{expression_values}}{feat expression values to use}
     \item{\code{plot_alignment}}{direction to align plot}
+    \item{\code{order}}{order points according to feature expression}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}

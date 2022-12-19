@@ -15,6 +15,7 @@ spatDimFeatPlot2D(
   expression_values = c("normalized", "scaled", "custom"),
   plot_alignment = c("vertical", "horizontal"),
   feats,
+  order = TRUE,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,
@@ -87,6 +88,8 @@ spatDimFeatPlot2D(
 \item{plot_alignment}{direction to align plot}
 
 \item{feats}{features to show}
+
+\item{order}{order points according to feature expression}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

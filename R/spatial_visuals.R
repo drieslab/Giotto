@@ -4968,6 +4968,7 @@ spatGenePlot = function(...) {
 #' @param spat_unit spatial unit
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5009,6 +5010,7 @@ dimFeatPlot2D <- function(gobject,
                           feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           feats = NULL,
+                          order = TRUE,
                           dim_reduction_to_use = 'umap',
                           dim_reduction_name = NULL,
                           dim1_to_use = 1,
@@ -5156,6 +5158,11 @@ dimFeatPlot2D <- function(gobject,
 
 
   for(feat in selected_feats) {
+
+    # order spatial units (e.g. cell IDs) based on expression of feature
+    if(isTRUE(order)) {
+      annotated_feat_DT = annotated_feat_DT[order(get(feat))]
+    }
 
 
     ## OLD need to be combined ##
@@ -5382,6 +5389,7 @@ dimGenePlot = function(...) {
 #' @param expression_values feat expression values to use
 #' @param plot_alignment direction to align plot
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5446,6 +5454,7 @@ spatDimFeatPlot2D <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               plot_alignment = c('vertical', 'horizontal'),
                               feats,
+                              order = TRUE,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -5505,6 +5514,7 @@ spatDimFeatPlot2D <- function(gobject,
                        spat_unit = spat_unit,
                        expression_values = expression_values,
                        feats = feats,
+                       order = order,
                        dim_reduction_to_use = dim_reduction_to_use,
                        dim_reduction_name = dim_reduction_name,
                        dim1_to_use = dim1_to_use,
