@@ -13,6 +13,7 @@
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
 - Add `optional` and `custom_msg` params to `package_check()`
+- Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 
 ## Changes
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
