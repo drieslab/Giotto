@@ -19,6 +19,7 @@ dimGenePlot2D(gobject, genes = NULL, default_save_name = "dimGenePlot2D", ...)
     \item{\code{feat_type}}{feature type}
     \item{\code{spat_unit}}{spatial unit}
     \item{\code{expression_values}}{gene expression values to use}
+    \item{\code{order}}{order points according to feature expression}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}

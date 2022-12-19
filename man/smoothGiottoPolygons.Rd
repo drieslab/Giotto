@@ -22,8 +22,6 @@ smoothGiottoPolygons(
 
 \item{set_neg_to_zero}{set negative values to zero (default: TRUE)}
 
-\item{verbose}{be verbose (default: TRUE)}
-
 \item{...}{additional params to pass to \code{spline}}
 }
 \value{
