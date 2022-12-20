@@ -1741,8 +1741,7 @@ h5read_vizgen = function(h5File,
   group = name = cell = z_name = NULL
 
   h5_ls = data.table::setDT(rhdf5::h5ls(h5File, recursive = 5, datasetinfo = FALSE))
-  cell_names = h5_ls[group == '/featuredata', name]
-  cell_names = as.character(cell_names)
+  cell_names = as.character(h5_ls[group == '/featuredata', name])
   z_names = h5_ls[grep('zIndex', name), unique(name)]
 
   dset_names = h5_ls[otype == 'H5I_DATASET' & name == 'coordinates',]
@@ -1753,35 +1752,39 @@ h5read_vizgen = function(h5File,
   # tag z_names
   dset_names[, z_name := gsub(pattern = '^.*/(zIndex_\\d*).*$', replacement = '\\1', x = group)]
   # subset by z_indices
-  dset_names[z_name %in% z_names[z_indices],]
+  dset_names = dset_names[z_name %in% z_names[z_indices],]
   # create full file location
-  dset_names[, d_name := paste0(c(group, name), collapse = '/')]
+  dset_names[, d_name := paste0(group, '/', name)]
 
   fid = rhdf5::H5Fopen(h5File, flags = H5Fopen_flags)
+  dapl = rhdf5::H5Pcreate('H5P_DATASET_ACCESS')
 
-  contents = lapply(cell_names, function(fid, cell_name) {
+  contents = lapply(cell_names, function(fid, dapl, cell_name) {
 
-    zD = .h5_read_bare(file = fid, name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'))
+    zD = .h5_read_bare(file = fid,
+                       name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'),
+                       dapl = dapl)
     names(zvals) = z_names
 
     # subset to datasets related to cell
     cell_dsets = dset_names[cell == cell_name,]
 
-    cell_data = lapply(nrow(cell_dsets), function(fid, zvals, d_i) {
+    cell_data = lapply(nrow(cell_dsets), function(fid, dapl, zvals, d_i) {
 
-      res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name])
+      res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name], dapl = dapl)
       res = t_flex(res[,,1L])
       res = cbind(res, zvals[cell_dsets[d_i, z_name]])
       colnames(res) = c('x', 'y', 'z')
       res
 
-    }, fid = fid, zvals = zvals)
+    }, fid = fid, dapl = dapl, zvals = zvals)
     cell_data = data.table::as.data.table(do.call('rbind', cell_data))
     cell_data[, cell_id := cell_name]
     cell_data
 
-  }, fid = fid)
+  }, fid = fid, dapl = dapl)
 
+  rhdf5::H5Pclose(dapl)
   rhdf5::H5Fclose(fid)
   contents = data.table::rbindlist(contents)
   contents
@@ -1794,9 +1797,10 @@ h5read_vizgen = function(h5File,
 #' @title Read dataset from opened HDF5 with C functions
 #' @param file opened HDF5 file
 #' @param name dataset name within
+#' @param dapl HDF5 property list (H5Pcreate('H5P_DATASET_ACCESS'))
 #' @keywords internal
-.h5_read_bare = function(file, name = "") {
-  did = .Call("_H5Dopen", file, name, NULL, PACKAGE = "rhdf5")
+.h5_read_bare = function(file, name = "", dapl) {
+  did = .Call("_H5Dopen", file@ID, name, dapl@ID, PACKAGE = "rhdf5")
   res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE,
               PACKAGE = "rhdf5")
   invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
