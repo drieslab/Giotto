@@ -1582,7 +1582,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   # append data from all FOVs to single list
   init = Sys.time()
   progressr::with_progress({
-    pb = progressr::progressor(length(hdf5_boundary_selected_list)/20)
+    pb = progressr::progressor(length(hdf5_boundary_selected_list)/5)
     read_list = lapply_flex(seq_along(hdf5_boundary_selected_list),
                             future.packages = c('rhdf5', 'Rhdf5lib'),
                             function(init, z_indices, segm_to_use, bound_i) {
@@ -1593,10 +1593,10 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
                               # update progress
                               print(basename(hdf5_boundary_selected_list[[bound_i]]))
-                              if(bound_i %% 20 == 0) {
+                              if(bound_i %% 5 == 0) {
                                 elapsed = as.numeric(Sys.time() - init)
-                                step_time = elapsed/bound_i/20
-                                est = (hdf5_list_length/20 * step_time) - elapsed
+                                step_time = elapsed/bound_i/5
+                                est = (hdf5_list_length/5 * step_time) - elapsed
                                 pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
                               }
 
@@ -1630,10 +1630,10 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
 
   # create Giotto polygons and add them to gobject
-  # smooth_cell_polygons_list = list()
+  # not possible to parallelize with external pointers
   progressr::with_progress({
     pb = progressr::progressor(along = z_read_DT)
-    smooth_cell_polygons_list = lapply_flex(seq_along(z_read_DT), cores = cores, function(i) {
+    smooth_cell_polygons_list = lapply(seq_along(z_read_DT), function(i) {
       dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
       cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
                                                   name = poly_names[i],
