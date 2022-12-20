@@ -1761,9 +1761,7 @@ h5read_vizgen = function(h5File,
 
   contents = lapply(cell_names, function(fid, cell_name) {
 
-    zD = .Call('_H5Dopen', fid, name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'), NULL, PACKAGE = 'rhdf5')
-    zvals = .Call("_H5Dread", zD, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE, PACKAGE = "rhdf5")
-    invisible(.Call("_H5Dclose", zD, PACKAGE = "rhdf5"))
+    zD = .h5_read_bare(file = fid, name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'))
     names(zvals) = z_names
 
     # subset to datasets related to cell
@@ -1772,9 +1770,6 @@ h5read_vizgen = function(h5File,
     cell_data = lapply(nrow(cell_dsets), function(fid, zvals, d_i) {
 
       res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name])
-      did = .Call("_H5Dopen", fid, name = cell_dsets[d_i, d_name], NULL, PACKAGE = "rhdf5")
-      res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE, PACKAGE = "rhdf5")
-      invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
       res = t_flex(res[,,1L])
       res = cbind(res, zvals[cell_dsets[d_i, z_name]])
       colnames(res) = c('x', 'y', 'z')
@@ -1798,7 +1793,7 @@ h5read_vizgen = function(h5File,
 #' @name .h5_read_bare
 #' @title Read dataset from opened HDF5 with C functions
 #' @param file opened HDF5 file
-#' @param name dataset name within HDF5
+#' @param name dataset name within
 #' @keywords internal
 .h5_read_bare = function(file, name = "") {
   did = .Call("_H5Dopen", file, name, NULL, PACKAGE = "rhdf5")
