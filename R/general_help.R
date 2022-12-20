@@ -1500,6 +1500,8 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param fovs subset of fovs to use
 #' @param z_indices z indices of polygons to use
+#' @param segm_to_use segmentation results to use (usually = 1. Depends on if
+#' alternative segmentations were generated)
 #' @param custom_polygon_names a character vector to provide custom polygon names
 #'   (optional)
 #' @param polygon_feat_types deprecated. Use \code{z_indices}
@@ -1517,16 +1519,17 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       fovs = NULL,
                                       z_indices = 1L:7L,
-                                      polygon_feat_types = NULL,
+                                      segm_to_use = 1L,
                                       custom_polygon_names = NULL,
                                       flip_x_axis = FALSE,
                                       flip_y_axis = TRUE,
                                       smooth_polygons = TRUE,
-                                      smooth_vertices = 60,
+                                      smooth_vertices = 60L,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
                                       cores = NA,
-                                      verbose = TRUE) {
+                                      verbose = TRUE,
+                                      polygon_feat_types = NULL) {
 
   # necessary pkgs
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
@@ -1534,10 +1537,12 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   cores = determine_cores(cores)
 
   # deprecation
-  if(!is.null(polygon_feat_names)) {
-    warning('polygon_feat_names is deprecated.\n Use z_indices instead')
+  if(!is.null(polygon_feat_types)) {
+    warning('polygon_feat_types is deprecated.\n Use z_indices instead')
     z_indices = polygon_feat_types + 1L
   }
+
+  segm_to_use = paste0('p_', (segm_to_use - 1L))
 
   # data.table vars
   x = y = z = cell_id = file_id = my_id = NULL
@@ -1549,10 +1554,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
       stop(wrap_txt('If custom_polygon_names are provided, it needs to be a character vector'))
     }
 
-    if(length(custom_polygon_names) != length(poly_feat_names)) {
-      stop(wrap_txt('length of custom names need to be same as polygon_feat_types'))
-    } else {
-      poly_feat_names = custom_polygon_names
+    if(length(custom_polygon_names) != length(z_indices)) {
+      stop(wrap_txt('length of custom names need to be same as z_indices'))
     }
   }
 
@@ -1577,25 +1580,30 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   hdf5_list_length = length(hdf5_boundary_selected_list)
 
   # append data from all FOVs to single list
-  init = proc.time()[[3L]]
+  init = Sys.time()
   progressr::with_progress({
     pb = progressr::progressor(along = hdf5_boundary_selected_list)
     read_list = lapply_flex(seq_along(hdf5_boundary_selected_list),
                             future.packages = c('rhdf5', 'Rhdf5lib'),
-                            function(init, z_indices, bound_i) {
+                            function(init, z_indices, segm_to_use, bound_i) {
                               read_file = h5read_vizgen(h5File = hdf5_boundary_selected_list[[bound_i]][[1]],
                                                         z_indices = z_indices,
+                                                        segm_to_use = segm_to_use,
                                                         H5Fopen_flags = H5Fopen_flags)
 
                               # update progress
                               print(basename(hdf5_boundary_selected_list[[bound_i]]))
-                              elapsed = proc.time()[[3L]] - init
+                              elapsed = as.numeric(Sys.time() - init)
                               step_time = elapsed/bound_i
                               est = (hdf5_list_length * step_time) - elapsed
                               pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
 
-                              return(fov_info)
-                            }, cores = cores, init = init, z_indices = z_indices)
+                              return(read_file)
+                            },
+                            cores = cores,
+                            init = init,
+                            z_indices = z_indices,
+                            segm_to_use = segm_to_use)
   })
 
   # combine to FOV data single list
@@ -1612,7 +1620,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     read_DT[z == zvals[z_idx],]
   })
   names(z_read_DT) = z_names
-
+  if(!is.null(custom_polygon_names)) poly_names = custom_polygon_names
+  else poly_names = z_names
 
   if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
                                start creating polygons')
@@ -1625,10 +1634,10 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     smooth_cell_polygons_list = lapply_flex(seq_along(z_read_DT), cores = cores, function(i) {
       dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
       cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
-                                                  name = poly_feat_names[i],
+                                                  name = poly_names[i],
                                                   verbose = verbose)
 
-      pb(message = poly_feat_names[i])
+      pb(message = poly_names[i])
 
       if(smooth_polygons == TRUE) {
         return(smoothGiottoPolygons(cell_polygons,
@@ -1723,45 +1732,81 @@ readPolygonFilesVizgen = function(gobject,
 #' @describeIn readPolygonFilesVizgen (internal) Optimized .hdf5 reading for vizgen
 #' merscope output. Returns a data.table of xyz coords and cell_id
 #' @keywords internal
-h5read_vizgen = function(h5File, z_indices = 1L:7L, H5Fopen_flags = "H5F_ACC_RDWR") {
+h5read_vizgen = function(h5File,
+                         z_indices = 1L:7L,
+                         segm_to_use = 'p_0',
+                         H5Fopen_flags = "H5F_ACC_RDWR") {
 
   # data.table vars
-  group = name = NULL
+  group = name = cell = z_name = NULL
 
-  dset_names = data.table::setDT(rhdf5::h5ls(h5File, recursive = 3, datasetinfo = FALSE))
-  cell_names = dset_names[group == '/featuredata', name]
-  z_names = dset_names[grep('zIndex', name), unique(name)]
+  h5_ls = data.table::setDT(rhdf5::h5ls(h5File, recursive = 5, datasetinfo = FALSE))
+  cell_names = h5_ls[group == '/featuredata', name]
+  cell_names = as.character(cell_names)
+  z_names = h5_ls[grep('zIndex', name), unique(name)]
 
+  dset_names = h5_ls[otype == 'H5I_DATASET' & name == 'coordinates',]
+  # subset by segm_to_use
+  dset_names = dset_names[grep(segm_to_use, group),]
+  # tag cellnames
+  dset_names[, cell := gsub(pattern = '/featuredata/|/zIndex.*$', replacement = '', x = group)]
+  # tag z_names
+  dset_names[, z_name := gsub(pattern = '^.*/(zIndex_\\d*).*$', replacement = '\\1', x = group)]
+  # subset by z_indices
+  dset_names[z_name %in% z_names[z_indices],]
+  # create full file location
+  dset_names[, d_name := paste0(c(group, name), collapse = '/')]
 
   fid = rhdf5::H5Fopen(h5File, flags = H5Fopen_flags)
+
   contents = lapply(cell_names, function(fid, cell_name) {
 
-    zD = rhdf5::H5Dopen(fid, name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'))
-    zvals = rhdf5::H5Dread(zD)
-    rhdf5::H5Dclose(zD)
+    zD = .Call('_H5Dopen', fid, name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'), NULL, PACKAGE = 'rhdf5')
+    zvals = .Call("_H5Dread", zD, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE, PACKAGE = "rhdf5")
+    invisible(.Call("_H5Dclose", zD, PACKAGE = "rhdf5"))
     names(zvals) = z_names
 
-    cell_data = lapply(z_names[z_indices], function(fid, zvals, z_idx) {
-      did = rhdf5::H5Dopen(fid, name = paste0(c('/featuredata', cell_name, z_idx, 'p_0', 'coordinates'), collapse = '/'))
-      res = t_flex(rhdf5::H5Dread(did)[,,1L])
-      res = cbind(res, zvals[z_idx], cell_name)
-      colnames(res) = c('x', 'y', 'z', 'cell_id')
-      rhdf5::H5Dclose(did)
+    # subset to datasets related to cell
+    cell_dsets = dset_names[cell == cell_name,]
+
+    cell_data = lapply(nrow(cell_dsets), function(fid, zvals, d_i) {
+
+      res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name])
+      did = .Call("_H5Dopen", fid, name = cell_dsets[d_i, d_name], NULL, PACKAGE = "rhdf5")
+      res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE, PACKAGE = "rhdf5")
+      invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
+      res = t_flex(res[,,1L])
+      res = cbind(res, zvals[cell_dsets[d_i, z_name]])
+      colnames(res) = c('x', 'y', 'z')
       res
 
     }, fid = fid, zvals = zvals)
     cell_data = data.table::as.data.table(do.call('rbind', cell_data))
-
+    cell_data[, cell_id := cell_name]
+    cell_data
 
   }, fid = fid)
+
   rhdf5::H5Fclose(fid)
   contents = data.table::rbindlist(contents)
+  contents
 
-  return(contents)
 }
 
 
 
+#' @name .h5_read_bare
+#' @title Read dataset from opened HDF5 with C functions
+#' @param file opened HDF5 file
+#' @param name dataset name within HDF5
+#' @keywords internal
+.h5_read_bare = function(file, name = "") {
+  did = .Call("_H5Dopen", file, name, NULL, PACKAGE = "rhdf5")
+  res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE,
+              PACKAGE = "rhdf5")
+  invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
+  res
+}
 
 
 

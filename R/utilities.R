@@ -182,7 +182,7 @@ lapply_flex = function(X,
 
 
   # future_lapply call
-  save_list = future.apply::future_lapply(X = X, FUN = FUN, ...)
+  save_list = future.apply::future_lapply(X = X, FUN = FUN, future.seed = TRUE, ...)
 
   #if(os == 'unix') {
   #  save_list = parallel::mclapply(X = X, mc.cores = cores,
