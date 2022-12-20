@@ -1582,7 +1582,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   # append data from all FOVs to single list
   init = Sys.time()
   progressr::with_progress({
-    pb = progressr::progressor(along = hdf5_boundary_selected_list)
+    pb = progressr::progressor(length(hdf5_boundary_selected_list)/20)
     read_list = lapply_flex(seq_along(hdf5_boundary_selected_list),
                             future.packages = c('rhdf5', 'Rhdf5lib'),
                             function(init, z_indices, segm_to_use, bound_i) {
@@ -1593,10 +1593,12 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
                               # update progress
                               print(basename(hdf5_boundary_selected_list[[bound_i]]))
-                              elapsed = as.numeric(Sys.time() - init)
-                              step_time = elapsed/bound_i
-                              est = (hdf5_list_length * step_time) - elapsed
-                              pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
+                              if(bound_i %% 20 == 0) {
+                                elapsed = as.numeric(Sys.time() - init)
+                                step_time = elapsed/bound_i/20
+                                est = (hdf5_list_length/20 * step_time) - elapsed
+                                pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
+                              }
 
                               return(read_file)
                             },
@@ -1761,9 +1763,9 @@ h5read_vizgen = function(h5File,
 
   contents = lapply(cell_names, function(fid, dapl, cell_name) {
 
-    zD = .h5_read_bare(file = fid,
-                       name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'),
-                       dapl = dapl)
+    zvals = .h5_read_bare(file = fid,
+                          name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'),
+                          dapl = dapl)
     names(zvals) = z_names
 
     # subset to datasets related to cell
