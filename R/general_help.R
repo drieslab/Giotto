@@ -1771,7 +1771,7 @@ h5read_vizgen = function(h5File,
     # subset to datasets related to cell
     cell_dsets = dset_names[cell == cell_name,]
 
-    cell_data = lapply(nrow(cell_dsets), function(fid, dapl, zvals, d_i) {
+    cell_data = lapply(seq(nrow(cell_dsets)), function(fid, dapl, zvals, d_i) {
 
       res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name], dapl = dapl)
       res = t_flex(res[,,1L])
