@@ -28,6 +28,7 @@ spatGenePlot2D(gobject, genes, default_save_name = "spatGenePlot2D", ...)
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
     \item{\code{expression_values}}{gene expression values to use}
+    \item{\code{order}}{order points according to feature expression}
     \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
     \item{\code{gradient_midpoint}}{midpoint for color gradient}
     \item{\code{gradient_limits}}{vector with lower and upper limits}
