@@ -4139,6 +4139,7 @@ spatDimPlot = function(...) {
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -4191,6 +4192,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   sdimy = 'sdimy',
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   feats,
+                                  order = TRUE,
                                   cell_color_gradient = c('blue', 'white', 'red'),
                                   gradient_midpoint = NULL,
                                   gradient_limits = NULL,
@@ -4358,6 +4360,13 @@ spatFeatPlot2D_single <- function(gobject,
   savelist <- list()
 
   for(feat in selected_feats) {
+
+
+    # order spatial units (e.g. cell IDs) based on expression of feature
+    if(isTRUE(order)) {
+      cell_locations_metadata_feats = cell_locations_metadata_feats[order(get(feat))]
+    }
+
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
@@ -4627,6 +4636,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -4681,6 +4691,7 @@ spatFeatPlot2D <- function(gobject,
                            sdimy = 'sdimy',
                            expression_values = c('normalized', 'scaled', 'custom'),
                            feats,
+                           order = TRUE,
                            cell_color_gradient = c('blue', 'white', 'red'),
                            gradient_midpoint = NULL,
                            gradient_limits = NULL,
@@ -4732,6 +4743,7 @@ spatFeatPlot2D <- function(gobject,
                           sdimy = sdimy,
                           expression_values = expression_values,
                           feats = feats,
+                          order = order,
                           cell_color_gradient = cell_color_gradient,
                           gradient_midpoint = gradient_midpoint,
                           gradient_limits = gradient_limits,
@@ -4839,6 +4851,7 @@ spatFeatPlot2D <- function(gobject,
                                  sdimy = sdimy,
                                  expression_values = expression_values,
                                  feats = feats,
+                                 order = order,
                                  cell_color_gradient = cell_color_gradient,
                                  gradient_midpoint = gradient_midpoint,
                                  gradient_limits = gradient_limits,
@@ -5558,6 +5571,7 @@ spatDimFeatPlot2D <- function(gobject,
                        sdimy = sdimy,
                        expression_values = expression_values,
                        feats = feats,
+                       order = order,
                        cell_color_gradient = cell_color_gradient,
                        gradient_midpoint = gradient_midpoint,
                        gradient_limits = gradient_limits,
