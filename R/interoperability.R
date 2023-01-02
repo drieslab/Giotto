@@ -977,8 +977,9 @@ seuratToGiotto = function(sobject,
 #' @param giottoObj Input Giotto object to convert to a SpatialExperiment object.
 #'
 #' @return A SpatialExperiment object that contains data from the input Giotto object.
-#' @example
-#' mini_gobject = GiottoData::loadGiottoMini('vizgen')
+#' @examples
+#' mini_gobject <- GiottoData::loadGiottoMini('vizgen')
+#' giottoToSpatialExperiment(mini_gobject)
 #'
 #' @export
 giottoToSpatialExperiment <- function(giottoObj){
@@ -1172,6 +1173,79 @@ giottoToSpatialExperiment <- function(giottoObj){
 
   # return list of spe objects
   return(speList)
+}
+
+
+#' Utility function to convert a SpatialExperiment object to a Giotto object
+#'
+#' @param spe Input SpatialExperiment object to convert to a Giotto object
+#'
+#' @return Output Giotto object
+#' @examples
+#' library(SpatialExperiment)
+#' example(read10xVisium, echo = FALSE)
+#' spatialExperimentToGiotto(spe)
+#' @export
+spatialExperimentToGiotto <- function(spe){
+  # save exp matrices
+  exprMats <- assays(spe)
+  exprMatsNames <- assayNames(spe)
+  firstMatrix <- exprMats[[1]]
+  #check unique colnames
+  if(length(unique(colnames(firstMatrix))) != length(colnames(firstMatrix))){
+    colnames(firstMatrix) <- make.names(colnames(firstMatrix), unique = TRUE)
+  }
+  giottoObj <- createGiottoObject(expression = firstMatrix)
+  exprMats[[1]] <- NULL
+  #rest of assays # how to figure out spat unit?
+  if(length(exprMats) > 0){
+    for(i in seq(exprMats)){
+      giottoObj <- set_expression_values(gobject = giottoObj, name = exprMatsNames[i], values = exprMats[[i]])
+    }
+  }
+
+  # save coldata
+  pData <- colData(spe)
+  if(nrow(pData) > 0){
+    giottoObj <- Giotto::addCellMetadata(gobject = giottoObj, new_metadata = as.data.table(pData))
+  }
+
+  # save rowdata
+  fData <- rowData(spe)
+  if(nrow(fData) > 0){
+    giottoObj <- Giotto::addFeatMetadata(gobject = giottoObj, new_metadata = as.data.table(fData))
+  }
+
+  # save reducedDims
+  redDims <- reducedDims(spe)
+  redDimsNames <- reducedDimNames(spe)
+  if(length(redDims) > 0){
+    for(i in seq(length(redDims))){
+      dimRedObj <- Giotto:::create_dimObject(name = redDimsNames[i],
+                                             coordinates = redDims[[i]],
+                                             reduction_method = redDimsNames[i])
+      giottoObj <- Giotto:::set_dimReduction(gobject = giottoObj, dimObject = dimRedObj)
+    }
+  }
+
+  # sp coordinates
+  spatialLocs <- spatialCoords(spe)
+  if(ncol(spatialLocs) > 0){
+    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
+    giottoObj <- Giotto:::set_spatial_locations(gobject = giottoObj, spatlocs = spatialLocsDT)
+  }
+
+  # TODO
+  # images
+  # giottoObj <- Giotto::addGiottoImage()
+
+  # TODO
+  # networks
+  # giottoObj <- Giotto:::set_spatialNetwork()
+  # giottoObj <- Giotto:::set_NearestNetwork()
+
+
+  return(giottoObj)
 }
 
 

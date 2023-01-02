@@ -15,3 +15,8 @@ A SpatialExperiment object that contains data from the input Giotto object.
 \description{
 Utility function to convert a Giotto object to a SpatialExperiment object.
 }
+\examples{
+mini_gobject <- GiottoData::loadGiottoMini('vizgen')
+giottoToSpatialExperiment(mini_gobject)
+
+}
