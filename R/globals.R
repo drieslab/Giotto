@@ -14,5 +14,5 @@ utils::globalVariables(names = c(":=", ".N", ".SD", ".", "cast",
                                  "extract_pca","extract_umap","extract_tsne",
                                  "parse_obsm_for_spat_locs","extract_cell_metadata",
                                  "extract_feat_metadata","extract_layer_names",
-                                 "extract_layered_data"))
+                                 "extract_layered_data","set_adg_nn"))
 

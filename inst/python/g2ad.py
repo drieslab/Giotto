@@ -1,6 +1,7 @@
 import anndata as ad
 import pandas as pd
 import numpy as np
+import scipy
 import os
 
 
@@ -148,6 +149,47 @@ def set_adg_tsne(adata = None, tsne_data = None):
     ad_guard(adata)
     if tsne_data is not None:
         adata.obsm['X_tsne'] = tsne_data
+    
+    return adata
+
+def set_adg_nn(adata = None, df_NN = None, net_name = None, n_neighbors = None, dim_red_used = None):
+    ad_guard(adata)
+    dim12 = len(set(df_NN['from']))
+    fill_arr = np.zeros((dim12,dim12))
+    w_fill_df = pd.DataFrame(fill_arr, columns = adata.obs_names, index = adata.obs_names)
+    d_fill_df = pd.DataFrame(fill_arr, columns = adata.obs_names, index = adata.obs_names)
+
+    for i in df_NN.index:
+        tar_row = df_NN.iloc[i,:]
+        f_id = tar_row["from"]
+        t_id = tar_row["to"]
+        weight = tar_row["weight"]
+        dist = tar_row["distance"]
+        w_fill_df.loc[f_id, t_id] = weight
+        d_fill_df.loc[f_id, t_id] = dist
+    
+    weights = scipy.sparse.csr_matrix(w_fill_df)
+    distances = scipy.sparse.csr_matrix(d_fill_df)
+    dim_red_used = net_name.split(".")[-1]
+    
+    if "kNN" in net_name:
+        adata.obsp['connectivities'] = weights
+        adata.obsp['distances'] = distances
+        adata.uns['neighbors'] = {'connectivities_key': 'connectivities',
+                                  'distances_key': 'distances',
+                                  'params': {'n_neighbors': n_neighbors,
+                                             'method': dim_red_used}
+                                  }
+    else:
+        cname = net_name + "_connectivities"
+        dname = net_name + "_distances"
+        adata.obsp[cname] = weights
+        adata.obsp[dname] = distances
+        adata.uns[net_name] = {'connectivities_key': net_name + '_connectivities',
+                               'distances_key': net_name + '_distances',
+                               'params': {'n_neighbors': n_neighbors,
+                                          'method': dim_red_used}
+                               }
     
     return adata
 
