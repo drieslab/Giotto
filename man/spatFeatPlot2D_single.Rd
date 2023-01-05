@@ -17,6 +17,7 @@ spatFeatPlot2D_single(
   sdimy = "sdimy",
   expression_values = c("normalized", "scaled", "custom"),
   feats,
+  order = TRUE,
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,
@@ -78,6 +79,8 @@ spatFeatPlot2D_single(
 \item{expression_values}{gene expression values to use}
 
 \item{feats}{features to show}
+
+\item{order}{order points according to feature expression}
 
 \item{cell_color_gradient}{vector with 3 colors for numeric data}
 
