@@ -541,7 +541,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   spatvector = dt_to_spatVector_polygon(input_dt,
                                         include_values = TRUE)
 
-  hopla = spatVector_to_dt(spatvector)
+  # hopla = spatVector_to_dt(spatvector)
 
   #pl = ggplot()
   #pl = pl + geom_polygon(data = hopla[100000:200000], aes(x = x, y = y, group = geom))
@@ -580,10 +580,12 @@ gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
                                            name = 'cell',
                                            calc_centroids = FALSE,
                                            smooth_polygons = FALSE,
+                                           vertices = 20L,
+                                           k = 3L,
+                                           set_neg_to_zero = TRUE,
                                            skip_eval_dfr = FALSE,
                                            copy_dt = TRUE,
-                                           verbose = TRUE,
-                                           ...) {
+                                           verbose = TRUE) {
 
   gpoly = createGiottoPolygonsFromDfr(segmdfr = segmdfr,
                                       name = name,
@@ -591,7 +593,10 @@ gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
                                       skip_eval_dfr = skip_eval_dfr,
                                       copy_dt = copy_dt,
                                       verbose = verbose)
-  if(isTRUE(smooth_polygons)) gpoly = smoothGiottoPolygons(gpolygon = gpoly, ...)
+  if(isTRUE(smooth_polygons)) gpoly = smoothGiottoPolygons(gpolygon = gpoly,
+                                                           vertices = vertices,
+                                                           k = k,
+                                                           set_neg_to_zero = set_neg_to_zero)
   if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly, append_gpolygon = TRUE)
 
   slot(gpoly, 'spatVector') = terra::wrap(slot(gpoly, 'spatVector'))

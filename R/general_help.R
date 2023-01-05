@@ -1655,7 +1655,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
             verbose = verbose
           )
 
-          pb(message = c(poly_names[i]), ' (', i, '/', length(z_read_DT), ')')
+          pb(message = c(poly_names[i], ' (', i, '/', length(z_read_DT), ')'))
           return(cell_polygons)
         }
       )
@@ -1663,9 +1663,9 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
     # unwrap results
     smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(x) {
-      slot(x, 'spatVector') = terra::unwrap(x, 'spatVector')
+      slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
       if(isTRUE(calc_centroids)) {
-        slot(x, 'spatVectorCentroids') = terra::unwrap(x, 'spatVectorCentroids')
+        slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
       }
       return(x)
     })
@@ -1714,7 +1714,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                 verbose = verbose
               )
 
-              pb(message = c(poly_names[i]), ' (', i, '/', length(dfr_subset), ')')
+              pb(message = c(poly_names[i], ' (', i, '/', length(dfr_subset), ')'))
               return(cell_polygons)
             }
           )
@@ -1723,15 +1723,16 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     })
 
     # unwrap results
-    smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(i) {
+    smooth_cell_polygons_list = lapply(seq_along(smooth_cell_polygons_list), function(i) {
       p_list = lapply(smooth_cell_polygons_list[[i]], function(x) {
-        slot(x, 'spatVector') = terra::unwrap(x, 'spatVector')
+        slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
         if(isTRUE(calc_centroids)) {
-          slot(x, 'spatVectorCentroids') = terra::unwrap(x, 'spatVectorCentroids')
+          slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
         }
         return(x)
       })
       # rbind results
+      names(p_list) = NULL
       return(do.call('rbind', p_list))
     })
 
