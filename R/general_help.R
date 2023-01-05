@@ -1510,8 +1510,11 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 #' @param smooth_polygons smooth polygons (default = TRUE)
 #' @param smooth_vertices number of vertices for smoothing
 #' @param set_neg_to_zero set negative values to zero when smoothing
+#' @param calc_centroids calculate centroids (default = FALSE)
 #' @param H5Fopen_flags see \code{\link[rhdf5]{H5Fopen}} for more details
 #' @param cores cores to use
+#' @param create_gpoly_bin (Optional, default is FALSE) Parallelization option.
+#' Accepts integer values as an binning size when generating giottoPolygon objects
 #' @param verbose be verbose
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
@@ -1523,11 +1526,13 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       custom_polygon_names = NULL,
                                       flip_x_axis = FALSE,
                                       flip_y_axis = TRUE,
+                                      calc_centroids = FALSE,
                                       smooth_polygons = TRUE,
                                       smooth_vertices = 60L,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
                                       cores = NA,
+                                      create_gpoly_bin = FALSE,
                                       verbose = TRUE,
                                       polygon_feat_types = NULL) {
 
@@ -1545,7 +1550,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   segm_to_use = paste0('p_', (segm_to_use - 1L))
 
   # data.table vars
-  x = y = z = cell_id = file_id = my_id = NULL
+  x = y = z = cell_id = poly_ID = file_id = my_id = NULL
 
   # provide your own custom names
   if(!is.null(custom_polygon_names)) {
@@ -1594,10 +1599,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                               # update progress
                               print(basename(hdf5_boundary_selected_list[[bound_i]]))
                               if(bound_i %% 5 == 0) {
-                                elapsed = as.numeric(Sys.time() - init)
-                                step_time = elapsed/bound_i/5
-                                est = (hdf5_list_length/5 * step_time) - elapsed
-                                pb(message = c('// E:', time_format(elapsed), '| R:', time_format(est)))
+                                pb()
                               }
 
                               return(read_file)
@@ -1630,30 +1632,111 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
 
   # create Giotto polygons and add them to gobject
-  # not possible to parallelize with external pointers
-  progressr::with_progress({
-    pb = progressr::progressor(along = z_read_DT)
-    smooth_cell_polygons_list = lapply(seq_along(z_read_DT), function(i) {
-      dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
-      cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
-                                                  name = poly_names[i],
-                                                  verbose = verbose)
+  # no binning
+  if(!is.numeric(create_gpoly_bin)) {
 
-      pb(message = poly_names[i])
+    progressr::with_progress({
+      pb = progressr::progressor(along = z_read_DT)
+      smooth_cell_polygons_list = lapply_flex(
+        seq_along(z_read_DT),
+        future.packages = c('terra', 'stats', 'data.table'),
+        function(i) {
+          dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
+          data.table::setnames(dfr_subset, old = 'cell_id', new = 'poly_ID')
+          cell_polygons = gpoly_from_dfr_smoothed_wrapped(
+            segmdfr = dfr_subset,
+            name = poly_names[i],
+            skip_eval_dfr = TRUE,
+            copy_dt = FALSE,
+            smooth_polygons = smooth_polygons,
+            vertices = smooth_vertices,
+            set_neg_to_zero = set_neg_to_zero,
+            calc_centroids = calc_centroids,
+            verbose = verbose
+          )
 
-      if(smooth_polygons == TRUE) {
-        return(smoothGiottoPolygons(cell_polygons,
-                                    vertices = smooth_vertices,
-                                    set_neg_to_zero = set_neg_to_zero))
-      } else {
-        return(cell_polygons)
-      }
+          pb(message = c(poly_names[i]), ' (', i, '/', length(z_read_DT), ')')
+          return(cell_polygons)
+        }
+      )
     })
-  })
 
+    # unwrap results
+    smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(x) {
+      slot(x, 'spatVector') = terra::unwrap(x, 'spatVector')
+      if(isTRUE(calc_centroids)) {
+        slot(x, 'spatVectorCentroids') = terra::unwrap(x, 'spatVectorCentroids')
+      }
+      return(x)
+    })
 
-  # TODO: add spatial centroids
-  # needs to happen after smoothing to be correct
+  } else {
+    # with binning
+
+    dfr_subset = lapply(z_read_DT, function(bin, DT) {
+
+      DT = DT[,.(x, y, cell_id)]
+      data.table::setnames(DT, old = 'cell_id', new = 'poly_ID')
+      pid = DT[, unique(poly_ID)]
+
+      bin_pid = data.table::data.table(
+        'poly_ID' = pid,
+        'bin_ID' = as.numeric(
+          cut(x = seq_along(pid),
+              breaks = ceiling(length(pid)/bin))
+        )
+      )
+      DT = data.table::merge.data.table(DT, bin_pid, by = 'poly_ID', all.x = TRUE)
+      DT = split(DT, DT$bin_ID)
+
+    }, bin = create_gpoly_bin)
+
+    bin_steps = sum(unlist(lapply(dfr_subset, length)))
+
+    progressr::with_progress({
+      pb = progressr::progressor(steps = bin_steps)
+      smooth_cell_polygons_list = lapply( # sequential across z index
+        seq_along(dfr_subset),
+        function(i) {
+          lapply_flex(                    # parallelize across bins
+            dfr_subset[[i]],
+            future.packages = c('terra', 'stats', 'data.table'),
+            function(bin_DT) {
+              cell_polygons = gpoly_from_dfr_smoothed_wrapped(
+                segmdfr = bin_DT,
+                name = poly_names[i],
+                skip_eval_dfr = TRUE,
+                copy_dt = FALSE,
+                smooth_polygons = smooth_polygons,
+                vertices = smooth_vertices,
+                set_neg_to_zero = set_neg_to_zero,
+                calc_centroids = calc_centroids,
+                verbose = verbose
+              )
+
+              pb(message = c(poly_names[i]), ' (', i, '/', length(dfr_subset), ')')
+              return(cell_polygons)
+            }
+          )
+        }
+      )
+    })
+
+    # unwrap results
+    smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(i) {
+      p_list = lapply(smooth_cell_polygons_list[[i]], function(x) {
+        slot(x, 'spatVector') = terra::unwrap(x, 'spatVector')
+        if(isTRUE(calc_centroids)) {
+          slot(x, 'spatVectorCentroids') = terra::unwrap(x, 'spatVectorCentroids')
+        }
+        return(x)
+      })
+      # rbind results
+      return(do.call('rbind', p_list))
+    })
+
+  }
+
 
   return(smooth_cell_polygons_list)
 

@@ -69,6 +69,52 @@ setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
 
 
+# rbind() generic ####
+
+#' @title Combine objects by rows (Giotto-related)
+#' @name rbind-generic
+#' @description row bind two objects
+#' @include classes.R
+#' @param x item 1 to rbind
+#' @param y item 2 to rbind
+#' @param add_list_ID whether to generate a list_ID column when giottoPolygons
+#' to append have different names
+#' @param \dots additional params to pass to methods
+NULL
+
+
+#' @describeIn rbind-generic Append giottoPolygon objects
+#' @importFrom methods rbind2
+#' @export
+setMethod('rbind2', signature(x = 'giottoPolygon', y = 'giottoPolygon'),
+          function(x, y, add_list_ID = TRUE, ...) {
+
+  # determine homo or hetero
+  poly_names = c(slot(x, 'name'), slot(y, 'name'))
+  homo = identical(poly_names[[1L]], poly_names[[2L]])
+  if(!isTRUE(homo)) {
+    new_name = paste0(sort(poly_names), collapse = '-')
+    return(rbind2_giotto_polygon_hetero(x = x, y = y, new_name = new_name, add_list_ID = add_list_ID))
+  } else {
+    return(rbind2_giotto_polygon_homo(x = x, y = y))
+  }
+})
+
+
+setGeneric('rbind', signature = '...')
+
+setMethod("rbind", "giottoPolygon", function(..., deparse.level = 1) {
+  if(nargs() <= 2L) {
+    rbind2(...)
+  } else {
+    xs = list(...)
+    rbind2(xs[[1L]], do.call(Recall, xs[-1L]))
+  }
+})
+
+
+
+
 # plot() S4 Generic ####
 
 #' @title Preview a Giotto spatial object
@@ -248,6 +294,30 @@ setMethod('featType<-', signature = 'featData', function(x, value) {
 })
 
 
+
+
+# objName() generic ####
+#' @title Giotto object name information
+#' @name objName-generic
+#' @description access and set name slot fo S4 subobject
+#' @param x a Giotto S4 class subobject with name data
+#' @param value value to set as object name
+#' @aliases objName objName<-
+#' @include classes.R
+#' @export
+setGeneric('objName', function(x) standardGeneric('objName'))
+setGeneric('objName<-', function(x, value) standardGeneric('objName<-'))
+
+#' @describeIn objName-generic Get name information
+#' @export
+setMethod('objName', signature = 'nameData', function(x) x@name)
+
+#' @describeIn objName-generic Set name information
+#' @export
+setMethod('objName<-', signature = 'nameData', function(x, value) {
+  x@name = value
+  x
+})
 
 
 

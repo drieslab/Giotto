@@ -468,6 +468,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
 ## segmDfrToPolygon
 
+
 #' @title Create giotto polygons from dataframe
 #' @name createGiottoPolygonsFromDfr
 #' @description Creates Giotto polygon object from a structured dataframe-like object.
@@ -478,6 +479,9 @@ createGiottoPolygonsFromMask = function(maskfile,
 #' for how columns are selected for coordinate and ID information.
 #' @param name name for the \code{giottoPolygon} object
 #' @param calc_centroids (default FALSE) calculate centroids for polygons
+#' @param skip_eval_dfr (default FALSE) skip evaluation of provided dataframe
+#' @param copy_dt (default TRUE) if segmdfr is provided as dt, this determines
+#' whether a copy is made
 #' @param verbose be verbose
 #' @return giotto polygon object
 #' @details When determining which column within the tabular data is intended to
@@ -492,55 +496,25 @@ createGiottoPolygonsFromMask = function(maskfile,
 createGiottoPolygonsFromDfr = function(segmdfr,
                                        name = 'cell',
                                        calc_centroids = FALSE,
-                                       verbose = TRUE) {
+                                       verbose = TRUE,
+                                       skip_eval_dfr = FALSE,
+                                       copy_dt = TRUE) {
 
   # define for data.table
   geom = NULL
 
-  input_dt = data.table::as.data.table(segmdfr)
-
-  # data.frame like object needs to have 2 coordinate columns and
-  # at least one other column as the feat_ID
-  if(ncol(input_dt) < 3) stop('At minimum, columns for xy coordinates and poly ID are needed.\n')
-  col_classes = sapply(input_dt, class)
-  ## find poly_ID as either first character col or named column
-  ## if neither exist, pick the 3rd column
-  if('poly_ID' %in%  colnames(input_dt)) {
-    poly_ID_col = which(colnames(input_dt) == 'poly_ID')
+  if(!inherits(segmdfr, 'data.table')) {
+    if(inherits(segmdfr, 'data.frame')) input_dt = data.table::setDT(segmdfr)
+    else input_dt = data.table::as.data.table(segmdfr)
   } else {
-    poly_ID_col = which(col_classes == 'character')
-    if(length(poly_ID_col) < 1) poly_ID_col = 3 # case if no char found: default to 3rd
-    else poly_ID_col = poly_ID_col[[1]] # case if char is found
+    if(isTRUE(copy_dt)) input_dt = data.table::copy(segmdfr)
+    else input_dt = segmdfr
   }
 
-  if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(input_dt[, poly_ID_col, with = FALSE]),'" as poly_ID column'))
-  colnames(input_dt)[poly_ID_col] = 'poly_ID'
-  if(!inherits(input_dt$poly_ID, 'character')) {
-    input_dt$poly_ID = as.character(input_dt$poly_ID) # ensure char
-  }
 
-  ## find first two numeric cols as x and y respectively or named column
-  ## if neither exist, pick the 1st and 2nd cols respectively for x and y
-  if(all(c('x','y') %in% colnames(input_dt))) {
-    x_col = which(colnames(input_dt) == 'x')
-    y_col = which(colnames(input_dt) == 'y')
-  } else {
-    x_col = which(col_classes == 'numeric')
-    if(length(x_col) < 2) x_col = 1 # case if no/too few num found: default to 1st
-    else x_col = x_col[[1]] # case if num found
-    y_col = which(col_classes == 'numeric')
-    if(length(y_col) < 2) y_col = 2 # case if no/too few num found: default to 2nd
-    else y_col = y_col[[2]] # case if num found
-  }
-
-  if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(input_dt[, x_col, with = FALSE]),'" and "', colnames(input_dt[, y_col, with = FALSE]),'" as x and y respectively'))
-  colnames(input_dt)[x_col] = 'x'
-  colnames(input_dt)[y_col] = 'y'
-  if(!inherits(input_dt$x, 'numeric')) {
-    input_dt$x = as.numeric(input_dt$x) # ensure numeric
-  }
-  if(!inherits(input_dt$y, 'numeric')) {
-    input_dt$y = as.numeric(input_dt$y) # ensure numeric
+  if(!isTRUE(skip_eval_dfr)) {
+    input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
+                                  verbose = verbose)
   }
 
   #pl = ggplot()
@@ -554,7 +528,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   input_dt[, geom := new_vec]
 
   input_dt[, c('part', 'hole') := list(1, 0)]
-  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with =F]
+  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
 
 
   #pl = ggplot()
@@ -592,9 +566,106 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
 
 
+
+
+# Parallelized giottoPolygon creation workflows #
+
+# Internal function to create a giottoPolygon object, smooth it, then wrap it so
+# that results are portable/possible to use with parallelization.
+# dotparams are passed to smoothGiottoPolygons
+gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
+                                           name = 'cell',
+                                           calc_centroids = FALSE,
+                                           smooth_polygons = FALSE,
+                                           skip_eval_dfr = FALSE,
+                                           copy_dt = TRUE,
+                                           verbose = TRUE,
+                                           ...) {
+
+  gpoly = createGiottoPolygonsFromDfr(segmdfr = segmdfr,
+                                      name = name,
+                                      calc_centroids = FALSE,
+                                      skip_eval_dfr = skip_eval_dfr,
+                                      copy_dt = copy_dt,
+                                      verbose = verbose)
+  if(isTRUE(smooth_polygons)) gpoly = smoothGiottoPolygons(gpolygon = gpoly, ...)
+  if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly, append_gpolygon = TRUE)
+
+  slot(gpoly, 'spatVector') = terra::wrap(slot(gpoly, 'spatVector'))
+  if(isTRUE(calc_centroids)) {
+    slot(gpoly, 'spatVectorCentroids') = terra::wrap(slot(gpoly, 'spatVectorCentroids'))
+  }
+  return(gpoly)
+}
+
+
+
+
+
+#' @describeIn createGiottoPolygonsFromDfr Examines provided data.frame type object
+#' for columns that should correspond to x/y vertices and the polygon ID. Returns
+#' a data.table with those key columns renamed to 'x', 'y', and 'poly_ID' if necessary.
+#' @keywords internal
+evaluate_gpoly_dfr = function(input_dt,
+                              verbose = TRUE) {
+
+  x = y = poly_ID = NULL
+
+  # data.frame like object needs to have 2 coordinate columns and
+  # at least one other column as the feat_ID
+  if(ncol(input_dt) < 3) stop('At minimum, columns for xy coordinates and poly ID are needed.\n')
+
+  col_classes = sapply(input_dt, class)
+
+
+  # 1. detect poly_ID
+  ## find poly_ID as either first character col or named column
+  ## if neither exist, pick the 3rd column
+  if('poly_ID' %in% colnames(input_dt)) {
+    poly_ID_col = which(colnames(input_dt) == 'poly_ID')
+  } else {
+    poly_ID_col = which(col_classes == 'character')
+    if(length(poly_ID_col) < 1) poly_ID_col = 3 # case if no char found: default to 3rd
+    else poly_ID_col = poly_ID_col[[1]] # case if char is found
+  }
+
+
+  # 2. detect x and y
+  ## find first two numeric cols as x and y respectively or named column
+  ## if neither exist, pick the 1st and 2nd cols respectively for x and y
+  if(all(c('x','y') %in% colnames(input_dt))) {
+    x_col = which(colnames(input_dt) == 'x')
+    y_col = which(colnames(input_dt) == 'y')
+  } else {
+    x_col = which(col_classes == 'numeric')
+    if(length(x_col) < 2) x_col = 1 # case if no/too few num found: default to 1st
+    else x_col = x_col[[1]] # case if num found
+    y_col = which(col_classes == 'numeric')
+    if(length(y_col) < 2) y_col = 2 # case if no/too few num found: default to 2nd
+    else y_col = y_col[[2]] # case if num found
+  }
+
+
+  # 3. print selections and ensure correct data type
+  if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(input_dt[, poly_ID_col, with = FALSE]),'" as poly_ID column'))
+  colnames(input_dt)[poly_ID_col] = 'poly_ID'
+  if(!input_dt[, inherits(poly_ID, 'character')]) input_dt[, poly_ID := as.character(poly_ID)]
+
+  if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(input_dt[, x_col, with = FALSE]),'" and "', colnames(input_dt[, y_col, with = FALSE]),'" as x and y respectively'))
+  colnames(input_dt)[x_col] = 'x'
+  colnames(input_dt)[y_col] = 'y'
+  if(!input_dt[, inherits(x, 'numeric')]) input_dt[, x := as.numeric(x)]
+  if(!input_dt[, inherits(y, 'numeric')]) input_dt[, y := as.numeric(y)]
+
+  input_dt
+}
+
+
+
+
 #' @title Extract list of polygons
 #' @name extract_polygon_list
-#' @description  to extract list of polygons
+#' @description to extract list of polygons
 #' @keywords internal
 extract_polygon_list = function(polygonlist,
                                 polygon_mask_list_params,
@@ -787,7 +858,6 @@ dt_to_spatVector_polygon = function(dt,
       other_values = other_values[other_values %in% specific_values]
     }
 
-
     spatVec = terra::vect(x = as.matrix(dt[,geom_values, with = FALSE]),
                           type = 'polygons', atts = unique(dt[,other_values, with = FALSE]))
 
@@ -851,7 +921,6 @@ smoothGiottoPolygons = function(gpolygon,
                                 vertices = 20,
                                 k = 3,
                                 set_neg_to_zero = TRUE,
-                                verbose = TRUE,
                                 ...) {
 
   # define for .()
@@ -919,6 +988,91 @@ smoothGiottoPolygons = function(gpolygon,
 }
 
 
+
+#' @title Append giotto polygons of the same name
+#' @name rbind2_giotto_polygon_homo
+#' @description Append two giotto polygons together of the same name.
+#' Performed recursively through \code{rbind2} and \code{rbind}
+#' @param x \code{giottoPolygon} 1
+#' @param y \code{giottoPolygon} 2
+#' @keywords internal
+rbind2_giotto_polygon_homo = function(x, y) {
+
+  if(is.null(slot(x, 'spatVector'))) slot(x, 'spatVector') = slot(y, 'spatVector')
+  else slot(x, 'spatVector') = rbind(slot(x,'spatVector'), slot(y, 'spatVector'))
+
+  if(is.null(slot(x, 'spatVectorCentroids'))) slot(x, 'spatVectorCentroids') = slot(y, 'spatVectorCentroids')
+  else slot(x, 'spatVectorCentroids') = rbind(slot(x, 'spatVectorCentroids'), slot(y, 'spatVectorCentroids'))
+
+  if(is.null(slot(x, 'overlaps'))) slot(x, 'overlaps') = slot(y, 'overlaps')
+  else slot(x, 'overlaps') = rbind(slot(x, 'overlaps'), slot(y, 'overlaps'))
+  x
+}
+
+
+#' @title Append giotto polygons of different names
+#' @name rbind2_giotto_polygon_hetero
+#' @description Append two giotto polygons together of different names
+#' Performed recursively through \code{rbind2} and \code{rbind}. Generates an
+#' additional list_ID attribute based on the original names. The object name
+#' also becomes a combination of both previous names
+#' @param x \code{giottoPolygon} 1
+#' @param y \code{giottoPolygon} 2
+#' @param poly_names sorted polygon names to be used in the combined \code{giottoPolygon}
+#' object
+#' @param add_list_ID whether to include the name of the origin \code{giottoPolygons}
+#' as a new 'list_ID' attribute
+#' @keywords internal
+rbind2_giotto_polygon_hetero = function(x, y, new_name, add_list_ID = TRUE) {
+
+  # handle as homo but different name if add_list_ID = FALSE
+  if(!isTRUE(add_list_ID)) {
+    gpoly = rbind2_giotto_polygon_homo(x, y)
+    slot(gpoly, 'name') = new_name
+    return(gpoly)
+  }
+
+  null_xsv = null_xsvc = null_xovlp = FALSE
+
+  # Add list_ID
+  if(!is.null(slot(x, 'spatVector'))) {
+    if(!'list_ID' %in% names(slot(x, 'spatVector'))) slot(x, 'spatVector')$list_ID = slot(x, 'name')
+  } else null_xsv = TRUE
+  if(!is.null(y@spatVector)) {
+    if(!'list_ID' %in% names(slot(y, 'spatVector'))) slot(y, 'spatVector')$list_ID = slot(y, 'name')
+  }
+
+  if(!is.null(slot(x, 'spatVectorCentroids'))) {
+    if(!'list_ID' %in% names(slot(x, 'spatVectorCentroids'))) slot(x, 'spatVectorCentroids')$list_ID = slot(x, 'name')
+  } else null_xsvc = TRUE
+  if(!is.null(y@spatVectorCentroids)) {
+    if(!'list_ID' %in% names(slot(y, 'spatVectorCentroids'))) slot(y, 'spatVectorCentroids')$list_ID = slot(y, 'name')
+  }
+
+  if(!is.null(slot(x, 'overlaps'))) {
+    if(!'list_ID' %in% names(slot(x, 'overlaps'))) slot(x, 'overlaps')$list_ID = slot(x, 'name')
+  } else null_xovlp = TRUE
+  if(!is.null(y@overlaps)) {
+    if(!'list_ID' %in% names(slot(y, 'overlaps'))) slot(y, 'overlaps')$list_ID = slot(y, 'name')
+  }
+
+  # Perform rbinds
+  if(isTRUE(null_xsv)) new_sv = slot(y, 'spatVector')
+  else new_sv = rbind(slot(x,'spatVector'), slot(y, 'spatVector'))
+
+  if(isTRUE(null_xsvc)) new_svc = slot(y, 'spatVectorCentroids')
+  else new_svc = rbind(slot(x, 'spatVectorCentroids'), slot(y, 'spatVectorCentroids'))
+
+  if(isTRUE(null_xovlp)) new_ovlp = slot(y, 'overlaps')
+  else new_ovlp = rbind(slot(x, 'overlaps'), slot(y, 'overlaps'))
+
+  new_poly = create_giotto_polygon_object(name = new_name,
+                                          spatVector = new_sv,
+                                          spatVectorCentroids = new_svc,
+                                          overlaps = new_ovlp)
+  new_poly
+
+}
 
 
 ### * simple polygon generation ####
@@ -2978,7 +3132,7 @@ combineFeatureOverlapData = function(gobject,
                                      sel_feats = NULL,
                                      poly_info = c('cell')) {
 
-  # define for data.table [] subsetting
+  # data.table vars
   feat_ID = NULL
 
   poly_info = set_default_spat_unit(gobject = gobject,
