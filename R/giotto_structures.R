@@ -573,6 +573,9 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 # Internal function to create a giottoPolygon object, smooth it, then wrap it so
 # that results are portable/possible to use with parallelization.
 # dotparams are passed to smoothGiottoPolygons
+#' @title Polygon creation and smoothing for parallel
+#' @name gpoly_from_dfr_smoothed_wrapped
+#' @keywords internal
 gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
                                            name = 'cell',
                                            calc_centroids = FALSE,
