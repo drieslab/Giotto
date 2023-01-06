@@ -1513,7 +1513,9 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 #' @param calc_centroids calculate centroids (default = FALSE)
 #' @param H5Fopen_flags see \code{\link[rhdf5]{H5Fopen}} for more details
 #' @param cores cores to use
-#' @param create_gpoly_bin (Optional, default is FALSE) Parallelization option.
+#' @param create_gpoly_parallel (default = TRUE) Whether to run gpoly creation in
+#' parallel
+#' @param create_gpoly_bin (Optional, default = FALSE) Parallelization option.
 #' Accepts integer values as an binning size when generating giottoPolygon objects
 #' @param verbose be verbose
 #' @seealso \code{\link{smoothGiottoPolygons}}
@@ -1532,6 +1534,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
                                       cores = NA,
+                                      create_gpoly_parallel = TRUE,
                                       create_gpoly_bin = FALSE,
                                       verbose = TRUE,
                                       polygon_feat_types = NULL) {
@@ -1630,8 +1633,36 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
                                start creating polygons')
 
-
   # create Giotto polygons and add them to gobject
+
+  # **** sequential method ****
+  if(!isTRUE(create_gpoly_parallel)) {
+    progressr::with_progress({
+      pb = progressr::progressor(along = z_read_DT)
+      smooth_cell_polygons_list = lapply(seq_along(z_read_DT), function(i) {
+        dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
+        data.table::setnames(dfr_subset, old = 'cell_id', new = 'poly_ID')
+        cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                    name = poly_names[i],
+                                                    calc_centroids = FALSE,
+                                                    skip_eval_dfr = TRUE,
+                                                    copy_dt = FALSE,
+                                                    verbose = verbose)
+        if(isTRUE(smooth_polygons)) cell_polygons = smoothGiottoPolygons(gpolygon = cell_polygons,
+                                                                         vertices = smooth_vertices,
+                                                                         k = 3L,
+                                                                         set_neg_to_zero = set_neg_to_zero)
+        if(isTRUE(calc_centroids)) cell_polygons = calculate_centroids_polygons(gpolygon = cell_polygons,
+                                                                                append_gpolygon = TRUE)
+        pb(message = c(poly_names[i], ' (', i, '/', length(z_read_DT), ')'))
+        return(cell_polygons)
+      })
+    })
+    return(smooth_cell_polygons_list)
+  }
+
+
+  # **** parallel methods ****
   # no binning
   if(!is.numeric(create_gpoly_bin)) {
 
