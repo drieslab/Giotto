@@ -6,18 +6,22 @@
 ## Added
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
-- Add `createGiottoMerscopeObject()` convenience function
+- New `createGiottoMerscopeObject()` convenience function
 - Add packages `exactextractr` and `sf` to "suggests" packages
 - Add package `progressr` to "imports" packages
 - Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
-- Add `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
+- New `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
 - Add `optional` and `custom_msg` params to `package_check()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
+- New `objName()` and `objName` generics for setting the names of relevant S4 subobjects
+- New `rbind()` generic to append `giottoPolygon` objects
 
 ## Changes
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
 - Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
+- Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
+- Optimize `readPolygonFilesVizgen()`
 
 
 # Giotto Suite 3.1.0 (2202-12-01)  

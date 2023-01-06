@@ -1323,7 +1323,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 
 #' @title readPolygonFilesVizgenHDF5
-#' @name readPolygonFilesVizgenHDF5
+#' @name readPolygonFilesVizgenHDF5_old
 #' @description Read and create polygons for all cells, or for only selected FOVs.
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param fovs subset of fovs to use
@@ -1341,7 +1341,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
 #' @export
-readPolygonFilesVizgenHDF5 = function(boundaries_path,
+readPolygonFilesVizgenHDF5_old = function(boundaries_path,
                                       fovs = NULL,
                                       polygon_feat_types = 0:6,
                                       custom_polygon_names = NULL,
@@ -1359,12 +1359,8 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
   cores = determine_cores(cores)
 
-  # define for .()
-  x = NULL
-  y = NULL
-  cell_id = NULL
-  file_id = NULL
-  my_id = NULL
+  # data.table vars
+  x = y = cell_id = file_id = my_id = NULL
 
   # prepare poly feat names
   poly_feat_names = paste0('z', polygon_feat_types)
@@ -1496,6 +1492,292 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 }
 
 
+
+
+#' @title readPolygonFilesVizgenHDF5
+#' @name readPolygonFilesVizgenHDF5
+#' @description Read and create polygons for all cells, or for only selected FOVs.
+#' @param boundaries_path path to the cell_boundaries folder
+#' @param fovs subset of fovs to use
+#' @param z_indices z indices of polygons to use
+#' @param segm_to_use segmentation results to use (usually = 1. Depends on if
+#' alternative segmentations were generated)
+#' @param custom_polygon_names a character vector to provide custom polygon names
+#'   (optional)
+#' @param polygon_feat_types deprecated. Use \code{z_indices}
+#' @param flip_x_axis flip x axis of polygon coordinates (multiply by -1)
+#' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
+#' @param smooth_polygons smooth polygons (default = TRUE)
+#' @param smooth_vertices number of vertices for smoothing
+#' @param set_neg_to_zero set negative values to zero when smoothing
+#' @param calc_centroids calculate centroids (default = FALSE)
+#' @param H5Fopen_flags see \code{\link[rhdf5]{H5Fopen}} for more details
+#' @param cores cores to use
+#' @param create_gpoly_parallel (default = TRUE) Whether to run gpoly creation in
+#' parallel
+#' @param create_gpoly_bin (Optional, default = FALSE) Parallelization option.
+#' Accepts integer values as an binning size when generating giottoPolygon objects
+#' @param verbose be verbose
+#' @seealso \code{\link{smoothGiottoPolygons}}
+#' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
+#' @export
+readPolygonFilesVizgenHDF5 = function(boundaries_path,
+                                      fovs = NULL,
+                                      z_indices = 1L:7L,
+                                      segm_to_use = 1L,
+                                      custom_polygon_names = NULL,
+                                      flip_x_axis = FALSE,
+                                      flip_y_axis = TRUE,
+                                      calc_centroids = FALSE,
+                                      smooth_polygons = TRUE,
+                                      smooth_vertices = 60L,
+                                      set_neg_to_zero = FALSE,
+                                      H5Fopen_flags = "H5F_ACC_RDWR",
+                                      cores = NA,
+                                      create_gpoly_parallel = TRUE,
+                                      create_gpoly_bin = FALSE,
+                                      verbose = TRUE,
+                                      polygon_feat_types = NULL) {
+
+  # necessary pkgs
+  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+
+  cores = determine_cores(cores)
+
+  # deprecation
+  if(!is.null(polygon_feat_types)) {
+    warning('polygon_feat_types is deprecated.\n Use z_indices instead')
+    z_indices = polygon_feat_types + 1L
+  }
+
+  segm_to_use = paste0('p_', (segm_to_use - 1L))
+
+  # data.table vars
+  x = y = z = cell_id = poly_ID = file_id = my_id = NULL
+
+  # provide your own custom names
+  if(!is.null(custom_polygon_names)) {
+
+    if(!is.character(custom_polygon_names)) {
+      stop(wrap_txt('If custom_polygon_names are provided, it needs to be a character vector'))
+    }
+
+    if(length(custom_polygon_names) != length(z_indices)) {
+      stop(wrap_txt('length of custom names need to be same as z_indices'))
+    }
+  }
+
+  if(isTRUE(verbose)) wrap_msg('Reading from:', boundaries_path)
+  # list all files in the folder
+  hdf5_boundary_list = list.files(full.names = TRUE, boundaries_path)
+  # only load subset of files if fov is given
+  if(!is.null(fovs)) {
+
+    selected_hdf5s = paste0('feature_data_', fovs, '.hdf5')
+    selected_hdf5s_concatenated = paste0(selected_hdf5s, collapse = '|')
+    hdf5_boundary_selected_list = grep(selected_hdf5s_concatenated, x = hdf5_boundary_list, value = TRUE)
+
+  } else {
+    hdf5_boundary_selected_list = hdf5_boundary_list
+  }
+
+  if(isTRUE(verbose)) wrap_msg('finished listing .hdf5 files
+                               start extracting .hdf5 information')
+
+  # open selected polygon files
+  hdf5_list_length = length(hdf5_boundary_selected_list)
+
+  # append data from all FOVs to single list
+  init = Sys.time()
+  progressr::with_progress({
+    pb = progressr::progressor(length(hdf5_boundary_selected_list)/5)
+    read_list = lapply_flex(seq_along(hdf5_boundary_selected_list),
+                            future.packages = c('rhdf5', 'Rhdf5lib'),
+                            function(init, z_indices, segm_to_use, bound_i) {
+                              read_file = h5read_vizgen(h5File = hdf5_boundary_selected_list[[bound_i]][[1]],
+                                                        z_indices = z_indices,
+                                                        segm_to_use = segm_to_use,
+                                                        H5Fopen_flags = H5Fopen_flags)
+
+                              # update progress
+                              print(basename(hdf5_boundary_selected_list[[bound_i]]))
+                              if(bound_i %% 5 == 0) {
+                                pb()
+                              }
+
+                              return(read_file)
+                            },
+                            cores = cores,
+                            init = init,
+                            z_indices = z_indices,
+                            segm_to_use = segm_to_use)
+  })
+
+  # combine to FOV data single list
+  read_DT = data.table::rbindlist(read_list)
+
+  # perform any necessary flips
+  if(flip_x_axis) read_DT[, x := -1 * x]
+  if(flip_y_axis) read_DT[, y := -1 * y]
+
+  # separate polygons by z index
+  zvals = read_DT[, unique(z)]
+  z_names = paste0('z', zvals)
+  z_read_DT = lapply(seq_along(zvals), function(z_idx) {
+    read_DT[z == zvals[z_idx],]
+  })
+  names(z_read_DT) = z_names
+  if(!is.null(custom_polygon_names)) poly_names = custom_polygon_names
+  else poly_names = z_names
+
+  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
+                               start creating polygons')
+
+  # create Giotto polygons and add them to gobject
+
+  # **** sequential method ****
+  if(!isTRUE(create_gpoly_parallel)) {
+    progressr::with_progress({
+      pb = progressr::progressor(along = z_read_DT)
+      smooth_cell_polygons_list = lapply(seq_along(z_read_DT), function(i) {
+        dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
+        data.table::setnames(dfr_subset, old = 'cell_id', new = 'poly_ID')
+        cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                    name = poly_names[i],
+                                                    calc_centroids = FALSE,
+                                                    skip_eval_dfr = TRUE,
+                                                    copy_dt = FALSE,
+                                                    verbose = verbose)
+        if(isTRUE(smooth_polygons)) cell_polygons = smoothGiottoPolygons(gpolygon = cell_polygons,
+                                                                         vertices = smooth_vertices,
+                                                                         k = 3L,
+                                                                         set_neg_to_zero = set_neg_to_zero)
+        if(isTRUE(calc_centroids)) cell_polygons = calculate_centroids_polygons(gpolygon = cell_polygons,
+                                                                                append_gpolygon = TRUE)
+        pb(message = c(poly_names[i], ' (', i, '/', length(z_read_DT), ')'))
+        return(cell_polygons)
+      })
+    })
+    return(smooth_cell_polygons_list)
+  }
+
+
+  # **** parallel methods ****
+  # no binning
+  if(!is.numeric(create_gpoly_bin)) {
+
+    progressr::with_progress({
+      pb = progressr::progressor(along = z_read_DT)
+      smooth_cell_polygons_list = lapply_flex(
+        seq_along(z_read_DT),
+        future.packages = c('terra', 'stats', 'data.table'),
+        function(i) {
+          dfr_subset = z_read_DT[[i]][,.(x, y, cell_id)]
+          data.table::setnames(dfr_subset, old = 'cell_id', new = 'poly_ID')
+          cell_polygons = gpoly_from_dfr_smoothed_wrapped(
+            segmdfr = dfr_subset,
+            name = poly_names[i],
+            skip_eval_dfr = TRUE,
+            copy_dt = FALSE,
+            smooth_polygons = smooth_polygons,
+            vertices = smooth_vertices,
+            set_neg_to_zero = set_neg_to_zero,
+            calc_centroids = calc_centroids,
+            verbose = verbose
+          )
+
+          pb(message = c(poly_names[i], ' (', i, '/', length(z_read_DT), ')'))
+          return(cell_polygons)
+        }
+      )
+    })
+
+    # unwrap results
+    smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(x) {
+      slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
+      if(isTRUE(calc_centroids)) {
+        slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
+      }
+      return(x)
+    })
+
+  } else {
+    # with binning
+
+    dfr_subset = lapply(z_read_DT, function(bin, DT) {
+
+      DT = DT[,.(x, y, cell_id)]
+      data.table::setnames(DT, old = 'cell_id', new = 'poly_ID')
+      pid = DT[, unique(poly_ID)]
+
+      bin_pid = data.table::data.table(
+        'poly_ID' = pid,
+        'bin_ID' = as.numeric(
+          cut(x = seq_along(pid),
+              breaks = ceiling(length(pid)/bin))
+        )
+      )
+      DT = data.table::merge.data.table(DT, bin_pid, by = 'poly_ID', all.x = TRUE)
+      DT = split(DT, DT$bin_ID)
+
+    }, bin = create_gpoly_bin)
+
+    bin_steps = sum(unlist(lapply(dfr_subset, length)))
+
+    progressr::with_progress({
+      pb = progressr::progressor(steps = bin_steps)
+      smooth_cell_polygons_list = lapply( # sequential across z index
+        seq_along(dfr_subset),
+        function(i) {
+          lapply_flex(                    # parallelize across bins
+            dfr_subset[[i]],
+            future.packages = c('terra', 'stats', 'data.table'),
+            function(bin_DT) {
+              cell_polygons = gpoly_from_dfr_smoothed_wrapped(
+                segmdfr = bin_DT,
+                name = poly_names[i],
+                skip_eval_dfr = TRUE,
+                copy_dt = FALSE,
+                smooth_polygons = smooth_polygons,
+                vertices = smooth_vertices,
+                set_neg_to_zero = set_neg_to_zero,
+                calc_centroids = calc_centroids,
+                verbose = verbose
+              )
+
+              pb(message = c(poly_names[i], ' (', i, '/', length(dfr_subset), ')'))
+              return(cell_polygons)
+            }
+          )
+        }
+      )
+    })
+
+    # unwrap results
+    smooth_cell_polygons_list = lapply(seq_along(smooth_cell_polygons_list), function(i) {
+      p_list = lapply(smooth_cell_polygons_list[[i]], function(x) {
+        slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
+        if(isTRUE(calc_centroids)) {
+          slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
+        }
+        return(x)
+      })
+      # rbind results
+      names(p_list) = NULL
+      return(do.call('rbind', p_list))
+    })
+
+  }
+
+
+  return(smooth_cell_polygons_list)
+
+}
+
+
+
+
+
 #' @title readPolygonFilesVizgen
 #' @name readPolygonFilesVizgen
 #' @description Read selected polygon files for the FOVs present in the Giotto
@@ -1560,6 +1842,90 @@ readPolygonFilesVizgen = function(gobject,
 
 
 }
+
+
+
+
+#' @describeIn readPolygonFilesVizgen (internal) Optimized .hdf5 reading for vizgen
+#' merscope output. Returns a data.table of xyz coords and cell_id
+#' @keywords internal
+h5read_vizgen = function(h5File,
+                         z_indices = 1L:7L,
+                         segm_to_use = 'p_0',
+                         H5Fopen_flags = "H5F_ACC_RDWR") {
+
+  # data.table vars
+  group = name = cell = z_name = NULL
+
+  h5_ls = data.table::setDT(rhdf5::h5ls(h5File, recursive = 5, datasetinfo = FALSE))
+  cell_names = as.character(h5_ls[group == '/featuredata', name])
+  z_names = h5_ls[grep('zIndex', name), unique(name)]
+
+  dset_names = h5_ls[otype == 'H5I_DATASET' & name == 'coordinates',]
+  # subset by segm_to_use
+  dset_names = dset_names[grep(segm_to_use, group),]
+  # tag cellnames
+  dset_names[, cell := gsub(pattern = '/featuredata/|/zIndex.*$', replacement = '', x = group)]
+  # tag z_names
+  dset_names[, z_name := gsub(pattern = '^.*/(zIndex_\\d*).*$', replacement = '\\1', x = group)]
+  # subset by z_indices
+  dset_names = dset_names[z_name %in% z_names[z_indices],]
+  # create full file location
+  dset_names[, d_name := paste0(group, '/', name)]
+
+  fid = rhdf5::H5Fopen(h5File, flags = H5Fopen_flags)
+  dapl = rhdf5::H5Pcreate('H5P_DATASET_ACCESS')
+
+  contents = lapply(cell_names, function(fid, dapl, cell_name) {
+
+    zvals = .h5_read_bare(file = fid,
+                          name = paste0(c('/featuredata', cell_name, 'z_coordinates'), collapse = '/'),
+                          dapl = dapl)
+    names(zvals) = z_names
+
+    # subset to datasets related to cell
+    cell_dsets = dset_names[cell == cell_name,]
+
+    cell_data = lapply(seq(nrow(cell_dsets)), function(fid, dapl, zvals, d_i) {
+
+      res = .h5_read_bare(file = fid, name = cell_dsets[d_i, d_name], dapl = dapl)
+      res = t_flex(res[,,1L])
+      res = cbind(res, zvals[cell_dsets[d_i, z_name]])
+      colnames(res) = c('x', 'y', 'z')
+      res
+
+    }, fid = fid, dapl = dapl, zvals = zvals)
+    cell_data = data.table::as.data.table(do.call('rbind', cell_data))
+    cell_data[, cell_id := cell_name]
+    cell_data
+
+  }, fid = fid, dapl = dapl)
+
+  rhdf5::H5Pclose(dapl)
+  rhdf5::H5Fclose(fid)
+  contents = data.table::rbindlist(contents)
+  contents
+
+}
+
+
+
+#' @name .h5_read_bare
+#' @title Read dataset from opened HDF5 with C functions
+#' @param file opened HDF5 file
+#' @param name dataset name within
+#' @param dapl HDF5 property list (H5Pcreate('H5P_DATASET_ACCESS'))
+#' @keywords internal
+.h5_read_bare = function(file, name = "", dapl) {
+  did = .Call("_H5Dopen", file@ID, name, dapl@ID, PACKAGE = "rhdf5")
+  res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE,
+              PACKAGE = "rhdf5")
+  invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
+  res
+}
+
+
+
 
 
 #' @title getGEFtxCoords
