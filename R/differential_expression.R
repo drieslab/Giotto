@@ -235,9 +235,8 @@ findScranMarkers_one_vs_all <- function(gobject,
   # save list
   progressr::with_progress({
     pb = progressr::progressor(along = uniq_clusters)
-    result_list = lapply_flex(
+    result_list = lapply(
       seq_along(uniq_clusters),
-      future.packages = c('scran', 'data.table'),
       function(clus_i) {
         selected_clus = uniq_clusters[clus_i]
         other_clus = uniq_clusters[uniq_clusters != selected_clus]
@@ -279,7 +278,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
         filtered_table = filtered_table[(p.value <= pval & logFC >= logFC) | (ranking <= min_feats)]
 
-        pb()
+        pb(message = c('cluster ', clus_i, '/', length(uniq_clusters)))
         return(filtered_table)
       }
     )
@@ -607,9 +606,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
   # GINI
   progressr::with_progress({
     pb = progressr::progressor(along = uniq_clusters)
-    result_list = lapply_flex(
+    result_list = lapply(
       seq_along(uniq_clusters),
-      future.packages = c('data.table', 'scales'),
       function(clus_i) {
         selected_clus = uniq_clusters[clus_i]
         other_clus = uniq_clusters[uniq_clusters != selected_clus]
@@ -639,7 +637,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
         filtered_table = markers[cluster == selected_clus]
 
-        pb()
+        pb(message = c('cluster ', clus_i, '/', length(uniq_clusters)))
         return(filtered_table)
       }
     )
