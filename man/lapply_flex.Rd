@@ -4,7 +4,7 @@
 \alias{lapply_flex}
 \title{lapply_flex}
 \usage{
-lapply_flex(X, FUN, cores = NA, fun = NULL, ...)
+lapply_flex(X, FUN, cores = NA, future.seed = TRUE, fun = NULL, ...)
 }
 \arguments{
 \item{X}{list to use}
@@ -12,6 +12,8 @@ lapply_flex(X, FUN, cores = NA, fun = NULL, ...)
 \item{FUN}{function to be performed}
 
 \item{cores}{cores to use}
+
+\item{future.seed}{whether to set a seed when using future_lapply}
 
 \item{fun}{deprecated. Backwards compatibility for FUN}
 

@@ -2446,6 +2446,7 @@ reconnect_image_object = function(image_object,
 #'   In such cases, use manual reconnection by setting \code{auto_reconnect = FALSE}.
 #' @param gobject giotto object
 #' @param auto_reconnect automatically reconnect images if TRUE. manual if FALSE
+#' @param reconnect_type type of image to reconnect when auto_reconnect = TRUE
 #' @param image_name names of images to reconnect
 #' @param largeImage_name name of large images to reconnect
 #' @param image_path named list of paths to images to reconnect to giottoImages
@@ -2456,6 +2457,7 @@ reconnect_image_object = function(image_object,
 #' @export
 reconnectGiottoImage = function(gobject,
                                 auto_reconnect = TRUE,
+                                reconnect_type = 'all',
                                 image_name = NULL,
                                 largeImage_name = NULL,
                                 image_path = NULL,
@@ -2468,7 +2470,13 @@ reconnectGiottoImage = function(gobject,
   if(is.null(gobject)) stop('Giotto object containing the giottoImages or giottoLargeImages to reconnect must be given \n')
 
   # 1. Find names and locations of image objects in gobject: ----------------------------#
-  availableImgs = list_images(gobject = gobject)
+  availableImgs = data.table::fcase(
+    reconnect_type == 'image', list_images(gobject = gobject, img_type = 'image'),
+    reconnect_type == 'largeImage', list_images(gobject = gobject, img_type = 'largeImage'),
+    reconnect_type == 'all', list_images(gobject = gobject),
+    default = stop('reconnect_type input unrecognized')
+  )
+
 
   # 2. Get reconnection info: -----------------------------------------------------------#
 
