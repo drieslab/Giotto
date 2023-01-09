@@ -9,7 +9,6 @@ smoothGiottoPolygons(
   vertices = 20,
   k = 3,
   set_neg_to_zero = TRUE,
-  verbose = TRUE,
   ...
 )
 }

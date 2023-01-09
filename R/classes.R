@@ -1307,16 +1307,15 @@ setMethod(
 #' @export
 giottoPolygon = setClass(
   Class = "giottoPolygon",
+  contains = c('nameData'),
 
   slots = c(
-    name = "ANY",
     spatVector = "ANY",
     spatVectorCentroids = "ANY",
     overlaps = "ANY"
   ),
 
   prototype = list(
-    name = NULL,
     spatVector = NULL,
     spatVectorCentroids = NULL,
     overlaps = NULL
@@ -1376,16 +1375,15 @@ giottoPoints <- setClass(
 #' @export
 featureNetwork <- setClass(
   Class = "featureNetwork",
+  contains = 'nameData',
 
   slots = c(
-    name = "ANY",
     network_datatable = "ANY",
     network_lookup_id = "ANY",
     full = "ANY"
   ),
 
   prototype = list(
-    name = NULL,
     network_datatable = NULL,
     network_lookup_id = NULL,
     full = NULL
@@ -1809,7 +1807,7 @@ create_spat_net_obj = function(name = 'test',
              name = name,
              method = method,
              parameters = parameters,
-             outputObj, outputObj,
+             outputObj = outputObj,
              networkDT = networkDT,
              networkDT_before_filter = networkDT_before_filter,
              cellShapeObj = cellShapeObj,
