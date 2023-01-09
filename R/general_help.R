@@ -920,6 +920,7 @@ loadGiotto = function(path_to_folder,
       gobject@largeImages[[image_name]]@raster_object = spatRaster
     }
   }
+  gobject = reconnectGiottoImage(gobject)
 
 
   identified_python_path = set_giotto_python_path(python_path = python_path)
