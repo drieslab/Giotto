@@ -10,6 +10,12 @@
 #' @name anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 #' @param anndata_path path to the .h5ad file
+#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors(). 
+#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
+#' @param spatial_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors(). 
+#'                    Cannot be "neighbors". This becomes the name of the spatial network in the gobjet.
+#' @param spat_unit desired spatial unit for conversion, default NULL
+#' @param feat_type desired feature type for conversion, default NULL
 #' @param python_path path to python executable within a conda/miniconda environment
 #' @return Giotto object
 #' @details Function in beta. Converts a .h5ad file into a Giotto object.
@@ -18,6 +24,10 @@
 #'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
 #' @export
 anndataToGiotto = function(anndata_path = NULL,
+                           n_key_added = NULL,
+                           spatial_key_added = NULL,
+                           spat_unit = NULL,
+                           feat_type = NULL,
                            python_path = NULL) {
 
   # Preliminary file checks and guard clauses
@@ -73,9 +83,6 @@ anndataToGiotto = function(anndata_path = NULL,
   ad2g_path <- system.file("python","ad2g.py",package="Giotto")
   reticulate::source_python(ad2g_path)
   adata <- read_anndata_from_path(anndata_path)
-
-  spat_unit = NULL
-  feat_type = NULL
 
   ### Set up expression matrix
   X <- extract_expression(adata)
@@ -183,6 +190,56 @@ anndataToGiotto = function(anndata_path = NULL,
                           reduction_method = 'tsne',
                           name = 'tsne.ad',
                           dimObject = dobj)
+  }
+
+  ### NN Network
+
+  # Need to create nnNetObj or igraph object to use with setter for NN
+
+  weights_ad = NULL
+  weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
+  if (!is.null(weights_ad)) {
+    distances_ad = extract_NN_distances(adata, key_added = n_key_added) 
+    ij_matrix = as(distances_ad, "TsparseMatrix")
+    from_idx = ij_matrix@i + 1 #zero index!!!
+    to_idx = ij_matrix@j + 1 #zero index!!!
+
+    #pre-allocate DT variables
+    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+    nn_dt = data.table::data.table(from = from_idx,
+                                  to = to_idx,
+                                  weight = weights_ad@x,
+                                  distance = distances_ad@x)
+    
+    nn_dt[, from_cell_ID := cID[from]]
+    nn_dt[, to_cell_ID := cID[to]]
+    nn_dt[, uniq_ID := paste0(from,to)]
+    nn_dt[order(uniq_ID)] 
+    nn_dt[,uniq_ID := NULL]
+    vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
+    nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
+    # og_nn = get_NearestNetwork(SS_seqfish, spat_unit = "cell", feat_type = "rna", nn_network_to_use = "kNN")
+    # as written, no difference found between original and above from igraph::difference()
+
+    nn_info = extract_NN_info(adata = adata, key_added = n_key_added)
+    browser()
+    net_type = "kNN" # anndata default
+    if(("sNN" %in% n_key_added) & !is.null(n_key_added)){
+      net_type = "sNN"
+      net_name = paste0(n_key_added, ".", nn_info["method"])
+    } else if (!("sNN" %in% n_key_added) & !is.null(n_key_added)) {
+      net_name = paste0(n_key_added, ".", nn_info["method"])
+    } else {
+      net_name = paste0(net_type, ".", nn_info["method"])
+    }
+
+    gobject = set_NearestNetwork(gobject = gobject,
+                                nn_network = nn_network_igraph,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                nn_network_to_use = net_type,
+                                network_name = net_name, 
+                                set_defaults = FALSE)
   }
 
   ### Layers
@@ -583,8 +640,6 @@ giottoToAnnData <- function(gobject = NULL,
                               output = "nnNetObj",
                               set_defaults = FALSE)
           
-          #weight_mat = igraph::as_data_frame(gob_NN[])$weight
-          #dist_mat = igraph::as_data_frame(gob_NN[])$distance
           pidx = grep("nn_network", names(gobject@parameters))
           for (p in pidx) {
             if (gobject@parameters[[p]]["type"] == nn_net_tu) {
@@ -595,7 +650,6 @@ giottoToAnnData <- function(gobject = NULL,
 
           df_gob_NN = igraph::as_data_frame(gob_NN[])
 
-          browser()
           adata_list[[adata_pos]] = set_adg_nn(adata = adata_list[[adata_pos]],
                                                df_NN = df_gob_NN,
                                                net_name = n_name,
@@ -609,7 +663,6 @@ giottoToAnnData <- function(gobject = NULL,
     }
   }
 
-  browser()
   # Reset indexing variable
   adata_pos = 1
 
