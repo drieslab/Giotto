@@ -18,6 +18,7 @@ readPolygonFilesVizgenHDF5(
   set_neg_to_zero = FALSE,
   H5Fopen_flags = "H5F_ACC_RDWR",
   cores = NA,
+  create_gpoly_parallel = TRUE,
   create_gpoly_bin = FALSE,
   verbose = TRUE,
   polygon_feat_types = NULL
@@ -52,7 +53,10 @@ alternative segmentations were generated)}
 
 \item{cores}{cores to use}
 
-\item{create_gpoly_bin}{(Optional, default is FALSE) Parallelization option.
+\item{create_gpoly_parallel}{(default = TRUE) Whether to run gpoly creation in
+parallel}
+
+\item{create_gpoly_bin}{(Optional, default = FALSE) Parallelization option.
 Accepts integer values as an binning size when generating giottoPolygon objects}
 
 \item{verbose}{be verbose}
