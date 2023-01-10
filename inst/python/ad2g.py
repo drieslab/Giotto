@@ -199,7 +199,6 @@ def extract_layered_data(adata = None, layer_name = None):
 ### Nearest Network
 
 def find_NN_keys(adata = None, key_added = None):
-    # No need to add to globals
     nn_key_list = []
 
     if key_added and key_added.casefold() != "spatial":
