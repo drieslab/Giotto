@@ -12,8 +12,6 @@
 #' @param anndata_path path to the .h5ad file
 #' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors(). 
 #'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
-#' @param spatial_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors(). 
-#'                    Cannot be "neighbors". This becomes the name of the spatial network in the gobjet.
 #' @param spat_unit desired spatial unit for conversion, default NULL
 #' @param feat_type desired feature type for conversion, default NULL
 #' @param python_path path to python executable within a conda/miniconda environment
