@@ -1139,32 +1139,32 @@ giottoToSpatialExperiment <- function(giottoObj){
       message("No spatial networks found in the input Giotto object")
     }
 
-    # SpatialImages - are these for each spatial unit?
-    giottoImages <- list_images(gobject = giottoObj)
-    if(!is.null(giottoImages)){
-      message("Copying spatial images")
-      for(i in seq(nrow(giottoImages))){
-        img <- get_giottoImage(
-          gobject = giottoObj,
-          image_type = giottoImages[i]$img_type,
-          name = giottoImages[i]$name)
-
-        if(!is.null(img@file_path)){
-          spe <- SpatialExperiment::addImg(spe,
-                                           sample_id = "sample01", #TODO? different samples get appended to cell_ids
-                                           image_id = img@name,
-                                           imageSource = img@file_path,
-                                           scaleFactor = NA_real_,
-                                           load = TRUE)
-        }
-        else{
-          message("\t - Skipping image with NULL file path")
-        }
-        S4Vectors::metadata(spe)[[img@name]] <- img
-      }
-    } else{
-      message("No spatial images found in the input Giotto object")
-    }
+    # SpatialImages - are these for each spatial unit? - PENDING George Updates
+    # giottoImages <- list_images(gobject = giottoObj)
+    # if(!is.null(giottoImages)){
+    #   message("Copying spatial images")
+    #   for(i in seq(nrow(giottoImages))){
+    #     img <- get_giottoImage(
+    #       gobject = giottoObj,
+    #       image_type = giottoImages[i]$img_type,
+    #       name = giottoImages[i]$name)
+    #
+    #     if(!is.null(img@file_path)){
+    #       spe <- SpatialExperiment::addImg(spe,
+    #                                        sample_id = "sample01", #TODO? different samples get appended to cell_ids
+    #                                        image_id = img@name,
+    #                                        imageSource = img@file_path,
+    #                                        scaleFactor = NA_real_,
+    #                                        load = TRUE)
+    #     }
+    #     else{
+    #       message("\t - Skipping image with NULL file path")
+    #     }
+    #     S4Vectors::metadata(spe)[[img@name]] <- img
+    #   }
+    # } else{
+    #   message("No spatial images found in the input Giotto object")
+    # }
 
     message("")
     # Add spe for current spatial unit to speList
@@ -1186,7 +1186,7 @@ giottoToSpatialExperiment <- function(giottoObj){
 #' example(read10xVisium, echo = FALSE)
 #' spatialExperimentToGiotto(spe)
 #' @export
-spatialExperimentToGiotto <- function(spe){
+spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL){
   # save exp matrices
   exprMats <- assays(spe)
   exprMatsNames <- assayNames(spe)
@@ -1232,7 +1232,7 @@ spatialExperimentToGiotto <- function(spe){
   spatialLocs <- spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
     spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
-    giottoObj <- Giotto:::set_spatial_locations(gobject = giottoObj, spatlocs = spatialLocsDT)
+    giottoObj <- Giotto:::set_spatial_locations(gobject = giottoObj, spatlocs = cbind(spatialLocsDT, cell_ID = colnames(spe)))
   }
 
   # TODO
@@ -1241,9 +1241,39 @@ spatialExperimentToGiotto <- function(spe){
 
   # TODO
   # networks
+  networks <- colPairs(spe)
   # giottoObj <- Giotto:::set_spatialNetwork()
   # giottoObj <- Giotto:::set_NearestNetwork()
 
+  if(!is.null(sp_network)){
+    if(sp_network %in% names(networks)){
+      for(i in seq(sp_network)){
+        giottoObj <- Giotto:::set_spatialNetwork(gobject = giottoObj,
+                                                 spatial_network = networks[[sp_network[i]]],
+                                                 name = sp_network[i])
+        networks[[sp_network[i]]] <- NULL
+      }
+    }
+  }
+
+  if(!is.null(nn_network)){
+    if(nn_network %in% names(networks)){
+      for(i in seq(nn_network)){
+        giottoObj <- Giotto:::set_NearestNetwork(gobject = giottoObj,
+                                                 nn_network = networks[[nn_network[i]]],
+                                                 network_name = nn_network[i])
+        networks[[nn_network[i]]] <- NULL
+      }
+    }
+  }
+
+  if(length(networks) > 0){
+    for(i in seq(networks)){
+      giottoObj <- Giotto:::set_NearestNetwork(gobject = giottoObj,
+                                               nn_network = networks[[i]],
+                                               network_name = names(networks)[i])
+    }
+  }
 
   return(giottoObj)
 }

@@ -4,7 +4,7 @@
 \alias{spatialExperimentToGiotto}
 \title{Utility function to convert a SpatialExperiment object to a Giotto object}
 \usage{
-spatialExperimentToGiotto(spe)
+spatialExperimentToGiotto(spe, nn_network = NULL, sp_network = NULL)
 }
 \arguments{
 \item{spe}{Input SpatialExperiment object to convert to a Giotto object}
