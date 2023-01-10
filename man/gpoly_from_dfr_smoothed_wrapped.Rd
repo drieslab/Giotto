@@ -9,10 +9,12 @@ gpoly_from_dfr_smoothed_wrapped(
   name = "cell",
   calc_centroids = FALSE,
   smooth_polygons = FALSE,
+  vertices = 20L,
+  k = 3L,
+  set_neg_to_zero = TRUE,
   skip_eval_dfr = FALSE,
   copy_dt = TRUE,
-  verbose = TRUE,
-  ...
+  verbose = TRUE
 )
 }
 \description{

@@ -10,6 +10,10 @@
 #' @name anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 #' @param anndata_path path to the .h5ad file
+#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors(). 
+#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
+#' @param spat_unit desired spatial unit for conversion, default NULL
+#' @param feat_type desired feature type for conversion, default NULL
 #' @param python_path path to python executable within a conda/miniconda environment
 #' @return Giotto object
 #' @details Function in beta. Converts a .h5ad file into a Giotto object.
@@ -18,6 +22,10 @@
 #'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
 #' @export
 anndataToGiotto = function(anndata_path = NULL,
+                           n_key_added = NULL,
+                           spatial_key_added = NULL,
+                           spat_unit = NULL,
+                           feat_type = NULL,
                            python_path = NULL) {
 
   # Preliminary file checks and guard clauses
@@ -73,9 +81,6 @@ anndataToGiotto = function(anndata_path = NULL,
   ad2g_path <- system.file("python","ad2g.py",package="Giotto")
   reticulate::source_python(ad2g_path)
   adata <- read_anndata_from_path(anndata_path)
-
-  spat_unit = NULL
-  feat_type = NULL
 
   ### Set up expression matrix
   X <- extract_expression(adata)
@@ -183,6 +188,56 @@ anndataToGiotto = function(anndata_path = NULL,
                           reduction_method = 'tsne',
                           name = 'tsne.ad',
                           dimObject = dobj)
+  }
+
+  ### NN Network
+
+  # Need to create nnNetObj or igraph object to use with setter for NN
+
+  weights_ad = NULL
+  weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
+  if (!is.null(weights_ad)) {
+    distances_ad = extract_NN_distances(adata, key_added = n_key_added) 
+    ij_matrix = as(distances_ad, "TsparseMatrix")
+    from_idx = ij_matrix@i + 1 #zero index!!!
+    to_idx = ij_matrix@j + 1 #zero index!!!
+
+    #pre-allocate DT variables
+    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+    nn_dt = data.table::data.table(from = from_idx,
+                                  to = to_idx,
+                                  weight = weights_ad@x,
+                                  distance = distances_ad@x)
+    
+    nn_dt[, from_cell_ID := cID[from]]
+    nn_dt[, to_cell_ID := cID[to]]
+    nn_dt[, uniq_ID := paste0(from,to)]
+    nn_dt[order(uniq_ID)] 
+    nn_dt[,uniq_ID := NULL]
+    vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
+    nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
+    # og_nn = get_NearestNetwork(SS_seqfish, spat_unit = "cell", feat_type = "rna", nn_network_to_use = "kNN")
+    # as written, no difference found between original and above from igraph::difference()
+
+    nn_info = extract_NN_info(adata = adata, key_added = n_key_added)
+    browser()
+    net_type = "kNN" # anndata default
+    if(("sNN" %in% n_key_added) & !is.null(n_key_added)){
+      net_type = "sNN"
+      net_name = paste0(n_key_added, ".", nn_info["method"])
+    } else if (!("sNN" %in% n_key_added) & !is.null(n_key_added)) {
+      net_name = paste0(n_key_added, ".", nn_info["method"])
+    } else {
+      net_name = paste0(net_type, ".", nn_info["method"])
+    }
+
+    gobject = set_NearestNetwork(gobject = gobject,
+                                nn_network = nn_network_igraph,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                nn_network_to_use = net_type,
+                                network_name = net_name, 
+                                set_defaults = FALSE)
   }
 
   ### Layers
@@ -400,23 +455,23 @@ giottoToAnnData <- function(gobject = NULL,
 
   # error hanldling wrapper to get_dimReduction
   try_get_dimReduction = function(gobject,
-                                spat_unit,
-                                feat_type,
-                                reduction,
-                                reduction_method,
-                                name,
-                                output,
-                                set_defaults) {
+                                  spat_unit,
+                                  feat_type,
+                                  reduction,
+                                  reduction_method,
+                                  name,
+                                  output,
+                                  set_defaults) {
   tryCatch(
     {
     dim_red = get_dimReduction(gobject = gobject,
-                                spat_unit = spat_unit,
-                                feat_type = feat_type,
-                                reduction = reduction,
-                                reduction_method = reduction_method,
-                                name = name,
-                                output = output,
-                                set_defaults = set_defaults)
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               reduction = reduction,
+                               reduction_method = reduction_method,
+                               name = name,
+                               output = output,
+                               set_defaults = set_defaults)
     return(dim_red)
     },
     error = function(e) {
@@ -428,7 +483,7 @@ giottoToAnnData <- function(gobject = NULL,
   ## PCA
 
   # pca on feats not supported by anndata because of dimensionality agreement reqs
-  reduction_options = c("cells", "feats")
+  reduction_options = names(gobject@dimension_reduction)
   dim_red = NULL
 
   for (ro in reduction_options) {
@@ -464,8 +519,8 @@ giottoToAnnData <- function(gobject = NULL,
                                               feats_used = feats_used)
         adata_pos = adata_pos + 1
       }
-    adata_pos = 1
     }
+    adata_pos = 1 
 
   }
 
@@ -538,6 +593,76 @@ giottoToAnnData <- function(gobject = NULL,
 
   # Nearest Neighbor Network
 
+  # error hanldling wrapper to get_NearestNetwork
+  try_get_NN = function(gobject,
+                        spat_unit,
+                        feat_type,
+                        nn_network_to_use,
+                        network_name,
+                        output,
+                        set_defaults) {
+  tryCatch(
+    {
+    nearest_net = get_NearestNetwork(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = output,
+                                     set_defaults = set_defaults)
+    return(nearest_net)
+    },
+    error = function(e) {
+      return(NULL)
+    }
+    )
+  }
+
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) {
+      nn_network_to_use = c("sNN","kNN")
+      for (nn_net_tu in nn_network_to_use) {
+        network_name = list_nearest_networks_names(gobject = gobject,
+                                                   spat_unit = su,
+                                                   feat_type = ft,
+                                                   nn_type = nn_net_tu)
+        if (is.null(network_name)) {
+          next
+        }
+        for (n_name in network_name) {
+          gob_NN = try_get_NN(gobject = gobject,
+                              spat_unit = su,
+                              feat_type = ft,
+                              nn_network_to_use = nn_net_tu,
+                              network_name = n_name,
+                              output = "nnNetObj",
+                              set_defaults = FALSE)
+          
+          pidx = grep("nn_network", names(gobject@parameters))
+          for (p in pidx) {
+            if (gobject@parameters[[p]]["type"] == nn_net_tu) {
+              kval = gobject@parameters[[p]]["k"]
+              dim_red_used = gobject@parameters[[p]]["dim_red_to_use"]
+            }
+          }
+
+          df_gob_NN = igraph::as_data_frame(gob_NN[])
+
+          adata_list[[adata_pos]] = set_adg_nn(adata = adata_list[[adata_pos]],
+                                               df_NN = df_gob_NN,
+                                               net_name = n_name,
+                                               n_neighbors = kval,
+                                               dim_red_used = dim_red_used)
+          
+        }
+
+      }
+      adata_pos = adata_pos + 1
+    }
+  }
+
+  # Reset indexing variable
+  adata_pos = 1
 
   # Pipe non-expression data into AnnData object
 
