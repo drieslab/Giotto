@@ -2,6 +2,7 @@ import anndata as ad
 import pandas as pd
 import numpy as np
 import scipy
+import warnings
 
 ### Imports and safeguards
 def read_anndata_from_path(ad_path = None):
@@ -195,3 +196,72 @@ def extract_layered_data(adata = None, layer_name = None):
         target_layer = pd.DataFrame(target_layer)
     return target_layer
 
+### Nearest Network
+
+def find_NN_keys(adata = None, key_added = None):
+    nn_key_list = []
+
+    if key_added and key_added.casefold() != "spatial":
+        map_keys = adata.uns[key_added].keys()
+        for i in map_keys:
+            #if type(adata.uns[key_added][i]) == type(dict()): continue
+            nn_key_list.append(adata.uns[key_added][i])
+    elif key_added and key_added.casefold() == "spatial":
+        s1 = "String 'spatial' cannot be used as n_key_added to retrieve a Nearest Neighbor Network. "
+        s2 = "This results from conflicting keys for nearest neighbor and spatial networks. "
+        s3 = "\nSee defaults here:\nhttps://scanpy.readthedocs.io/en/stable/generated/scanpy.pp.neighbors.html\nhttps://squidpy.readthedocs.io/en/stable/api/squidpy.gr.spatial_neighbors.html"
+        msg = s1+ s2 + s3
+        warnings.warn(msg)
+    else: 
+        param_keys = list(adata.uns.keys())
+        for pk in param_keys:
+            if "neighbors" in pk and "spatial" not in pk:
+                tmp_keys = adata.uns[pk].keys()
+                for i in tmp_keys:
+                    #if type(adata.uns[pk][i]) == type(dict()): continue
+                    nn_key_list.append(adata.uns[pk][i])
+                break # only return connectivity and distance keys for one network
+
+    if len(nn_key_list) == 0:
+        nn_key_list = None
+    return nn_key_list
+
+def extract_NN_connectivities(adata = None, key_added = None):
+    ad_guard(adata)
+    
+    connectivities = None
+    nn_key_list = find_NN_keys(adata=adata, key_added=key_added)
+
+    if type(nn_key_list) is type(None):
+        return connectivities
+    
+    for nk in nn_key_list:
+        if "connectivities" in nk:
+            connectivities = adata.obsp[nk]
+    
+    return connectivities
+
+
+def extract_NN_distances(adata = None, key_added = None):
+    ad_guard(adata)
+    
+    distances = None
+    nn_key_list = find_NN_keys(adata=adata, key_added=key_added)
+
+    if type(nn_key_list) is type(None):
+        return distances
+    
+    for nk in nn_key_list:
+        if "distances" in nk:
+            distances = adata.obsp[nk]
+    
+    return distances
+
+def extract_NN_info(adata = None, key_added = None):
+    ad_guard(adata)
+    nn_keys = find_NN_keys(adata, key_added=key_added)
+    nn_info = None
+    for nk in nn_keys:
+        if type(nk) is dict:
+            nn_info = pd.Series(nk)
+    return nn_info
