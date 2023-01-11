@@ -2471,7 +2471,7 @@ reconnectGiottoImage = function(gobject,
   reconnect_type = match.arg(reconnect_type, choices = c('all', 'image', 'largeImage'))
 
   # 1. Find names and locations of image objects in gobject: ----------------------------#
-  if(reconnect_type %in% c('image', largeImage)) {
+  if(reconnect_type %in% c('image', 'largeImage')) {
     availableImgs = list_images(gobject = gobject, img_type = reconnect_type)
   } else if(reconnect_type == 'all') {
     availableImgs = list_images(gobject = gobject)
