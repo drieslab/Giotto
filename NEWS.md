@@ -22,6 +22,7 @@
 - Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Optimize `readPolygonFilesVizgen()`
+- Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
 
 
 # Giotto Suite 3.1.0 (2202-12-01)  
