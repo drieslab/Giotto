@@ -68,6 +68,101 @@ setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
 
 
+# wrap() generic ####
+
+#' @title Wrap giotto terra pointer information
+#' @name wrap-generic
+#' @description Extension of wrap methods from terra for Giotto's terra-based S4
+#' objects. Allows pointer information to be packaged into memory so that it can
+#' be passed over a connection (e.g. nodes on a computer cluster)
+#' @param x giottoPolygon or giottoPoints
+NULL
+
+
+#' @describeIn wrap-generic Wrap giottoPolygon
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giottoPolygon'),
+          function(x) {
+            pgp = new('packedGiottoPolygon')
+            pgp@name = x@name
+            pgp@spatVector = terra::wrap(x@spatVector)
+            if(!is.null(x@spatVectorCentroids)) {
+              pgp@spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
+            }
+            if(!is.null(x@overlaps)) {
+              pgp@overlaps = lapply(x@overlaps, function(sv) {
+                if(inherits(sv, 'SpatVector')) {
+                  terra::wrap(sv)
+                } else {
+                  sv
+                }
+              })
+            }
+            return(pgp)
+          }
+)
+
+
+
+#' @describeIn wrap-generic Wrap giottoPoints
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giottoPoints'),
+          function(x) {
+            pgp = new('packedGiottoPoints')
+            pgp@feat_type = x@feat_type
+            pgp@spatVector = terra::unwrap(x@spatVector)
+            pgp@networks = x@networks
+            return(pgp)
+          }
+)
+
+
+
+#' @describeIn wrap-generic Unwrap giottoPolygon
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiottoPolygon'),
+          function(x) {
+            gp = new('giottoPolygon')
+            gp@name = x@name
+            gp@spatVector = terra::unwrap(x@spatVector)
+            if(!is.null(x@spatVectorCentroids)) {
+              gp@spatVectorCentroids = terra::unwrap(x@spatVectorCentroids)
+            }
+            if(!is.null(x@overlaps)) {
+              gp@overlaps = lapply(x@overlaps, function(sv) {
+                if(inherits(sv, 'PackedSpatVector')) {
+                  terra::unwrap(sv)
+                } else {
+                  sv
+                }
+              })
+            }
+            return(gp)
+          }
+)
+
+
+
+#' @describeIn wrap-generic Unwrap giottoPolygon
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiottoPoints'),
+          function(x) {
+            gp = new('giottoPoints')
+            gp@feat_type = x@feat_type
+            gp@spatVector = terra::unwrap(x@spatVector)
+            gp@networks = x@networks
+            return(gp)
+            }
+)
+
+
+
+
+
 
 # rbind() generic ####
 
