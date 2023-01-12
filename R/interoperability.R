@@ -10,7 +10,7 @@
 #' @name anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 #' @param anndata_path path to the .h5ad file
-#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors(). 
+#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
 #'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
 #' @param spat_unit desired spatial unit for conversion, default NULL
 #' @param feat_type desired feature type for conversion, default NULL
@@ -197,7 +197,7 @@ anndataToGiotto = function(anndata_path = NULL,
   weights_ad = NULL
   weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
   if (!is.null(weights_ad)) {
-    distances_ad = extract_NN_distances(adata, key_added = n_key_added) 
+    distances_ad = extract_NN_distances(adata, key_added = n_key_added)
     ij_matrix = as(distances_ad, "TsparseMatrix")
     from_idx = ij_matrix@i + 1 #zero index!!!
     to_idx = ij_matrix@j + 1 #zero index!!!
@@ -208,11 +208,11 @@ anndataToGiotto = function(anndata_path = NULL,
                                   to = to_idx,
                                   weight = weights_ad@x,
                                   distance = distances_ad@x)
-    
+
     nn_dt[, from_cell_ID := cID[from]]
     nn_dt[, to_cell_ID := cID[to]]
     nn_dt[, uniq_ID := paste0(from,to)]
-    nn_dt[order(uniq_ID)] 
+    nn_dt[order(uniq_ID)]
     nn_dt[,uniq_ID := NULL]
     vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
     nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
@@ -236,7 +236,7 @@ anndataToGiotto = function(anndata_path = NULL,
                                 spat_unit = spat_unit,
                                 feat_type = feat_type,
                                 nn_network_to_use = net_type,
-                                network_name = net_name, 
+                                network_name = net_name,
                                 set_defaults = FALSE)
   }
 
@@ -520,7 +520,7 @@ giottoToAnnData <- function(gobject = NULL,
         adata_pos = adata_pos + 1
       }
     }
-    adata_pos = 1 
+    adata_pos = 1
 
   }
 
@@ -637,7 +637,7 @@ giottoToAnnData <- function(gobject = NULL,
                               network_name = n_name,
                               output = "nnNetObj",
                               set_defaults = FALSE)
-          
+
           pidx = grep("nn_network", names(gobject@parameters))
           for (p in pidx) {
             if (gobject@parameters[[p]]["type"] == nn_net_tu) {
@@ -653,7 +653,7 @@ giottoToAnnData <- function(gobject = NULL,
                                                net_name = n_name,
                                                n_neighbors = kval,
                                                dim_red_used = dim_red_used)
-          
+
         }
 
       }
@@ -1320,7 +1320,8 @@ spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL)
   if(length(unique(colnames(firstMatrix))) != length(colnames(firstMatrix))){
     colnames(firstMatrix) <- make.names(colnames(firstMatrix), unique = TRUE)
   }
-  giottoObj <- createGiottoObject(expression = firstMatrix)
+  suppressWarnings(giottoObj <- createGiottoObject(expression = firstMatrix),
+                   classes = c("message", "warning"))
   exprMats[[1]] <- NULL
   #rest of assays # how to figure out spat unit?
   if(length(exprMats) > 0){
@@ -1367,20 +1368,21 @@ spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL)
   # TODO
   # networks
   networks <- colPairs(spe)
-  # giottoObj <- Giotto:::set_spatialNetwork()
-  # giottoObj <- Giotto:::set_NearestNetwork()
-
+  # Spatial Networks
   if(!is.null(sp_network)){
     if(sp_network %in% names(networks)){
       for(i in seq(sp_network)){
+        spatNetObj <- Giotto:::create_spat_net_obj(
+          networkDT = as.data.table(networks[[sp_network[i]]]))
         giottoObj <- Giotto:::set_spatialNetwork(gobject = giottoObj,
-                                                 spatial_network = networks[[sp_network[i]]],
+                                                 spatial_network = spatNetObj,
                                                  name = sp_network[i])
         networks[[sp_network[i]]] <- NULL
       }
     }
   }
 
+  # Nearest Neighbour Networks
   if(!is.null(nn_network)){
     if(nn_network %in% names(networks)){
       for(i in seq(nn_network)){
