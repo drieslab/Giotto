@@ -7,7 +7,7 @@
 reconnectGiottoImage(
   gobject,
   auto_reconnect = TRUE,
-  reconnect_type = "all",
+  reconnect_type = c("all", "image", "largeImage"),
   image_name = NULL,
   largeImage_name = NULL,
   image_path = NULL,
