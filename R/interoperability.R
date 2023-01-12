@@ -3,6 +3,76 @@
 
 
 
+## gef object ####
+#' @title Convert gef to Giotto
+#' @name gefToGiotto
+#' @description Converts .gef file (output stereo-seq pipeline) into
+#' giotto subcellular object
+#' @param gef_file path to .gef file
+#' @param bin_size bin size to select from .gef file
+#' @param verbose be verbose
+#' @details Function in beta. Converts .gef object to Giotto object.
+#'
+#' There are six possible choices for bin_size: 1, 10, 20, 50, 100, 200.
+#'
+#' See SAW pipeline for additional information about the gef file. 
+#' @export
+gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){ 
+   
+   # data.table vars
+   genes = NULL
+   
+   # package check
+   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+   
+   # check if proper bin_size is selected
+   bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
+   if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size, 
+                                              see details for choices.')
+   
+   # step 1: read expression and gene data from gef file
+   geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
+   exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
+   geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
+   if(isTRUE(verbose)) wrap_msg('read in .gef file')
+   
+   # step 2: combine gene information from the geneDT to the exprDT
+   exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+   
+   # step 3: bin coordinates according to selected bin_size
+   bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
+   #TODO: update bin_shift for other shapes, not just rect_vertices
+   bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
+   bincoord = unique(exprDT[,.(x,y)])
+   setorder(bincoord, x, y)
+   setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
+   bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
+   bincoord[, cell_ID := paste0('bin', 1:.N)]
+   tx_data = exprDT[,.(genes, x, y, count)]
+   tx_data[, c('x', 'y') := list(x+bin_shift, y+bin_shift)]
+   if(isTRUE(verbose)) wrap_msg('shift and bin coordinates')
+   
+   # step 4: create rectangular polygons (grid) starting from the bin centroids
+   x = polyStamp(stamp_dt = rectVertices(dims = c(x = (bin_size_int - 1), 
+                                                  y = (bin_size_int - 1))),
+                 spatlocs = bincoord[,.(cell_ID, sdimx, sdimy)])
+   pg = createGiottoPolygonsFromDfr(x)
+   if(isTRUE(verbose)) wrap_msg('create polygon stamp')
+   
+   # step 5: create giotto subcellular object
+   stereo = createGiottoObjectSubcellular(
+      gpoints = list(rna = tx_data),
+      gpolygons = list(cell = pg)
+   )
+   
+   stereo = addSpatialCentroidLocations(gobject = stereo)
+   if(isTRUE(verbose)) wrap_msg('giotto subcellular object created')
+   
+   return(stereo)
+}
+
+
 
 ## anndata object ####
 
