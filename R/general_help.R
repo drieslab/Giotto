@@ -799,6 +799,7 @@ saveGiotto = function(gobject,
 #' @description Saves a Giotto object to a specific folder structure
 #' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
 #' @param load_params additional parameters for loading or reading giotto object
+#' @param reconnect_giottoImage (default = TRUE) whether to attempt reconnection of magick based image objects
 #' @param python_path (optional) manually set your python path
 #' @param verbose be verbose
 #' @return Giotto object
@@ -811,6 +812,7 @@ saveGiotto = function(gobject,
 #' @export
 loadGiotto = function(path_to_folder,
                       load_params = list(),
+                      reconnect_giottoImage = TRUE,
                       python_path = NULL,
                       verbose = TRUE) {
 
@@ -938,8 +940,10 @@ loadGiotto = function(path_to_folder,
     }
   }
 
-  if(list_images(gobject)[img_type == 'image', .N] > 0) {
-    gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
+  if(isTRUE(reconnect_giottoImage)) {
+    if(list_images(gobject)[img_type == 'image', .N] > 0) {
+      gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
+    }
   }
 
 
