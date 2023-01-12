@@ -669,10 +669,10 @@ saveGiotto = function(gobject,
   feat_info_names = list_feature_info_names(gobject)
 
   if(!is.null(feat_info_names)) {
+    feat_dir = paste0(final_dir,'/','Features')
+    dir.create(feat_dir)
     for(feat in feat_info_names) {
       if(verbose) wrap_msg('For feature: ', feat, '\n')
-      feat_dir = paste0(final_dir,'/','Features')
-      dir.create(feat_dir)
 
       # original spatvector
       if(!is.null(gobject@feat_info[[feat]]@spatVector)) {
@@ -692,12 +692,11 @@ saveGiotto = function(gobject,
   spat_info_names = list_spatial_info_names(gobject)
 
   if(!is.null(spat_info_names)) {
+    spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
+    dir.create(spatinfo_dir)
     for(spatinfo in spat_info_names) {
 
       if(verbose) wrap_msg('For spatial information: ', spatinfo, '\n')
-
-      spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
-      dir.create(spatinfo_dir)
 
       # original spatVectors
       if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
@@ -730,11 +729,10 @@ saveGiotto = function(gobject,
   image_names = list_images_names(gobject, img_type = 'largeImage')
 
   if(!is.null(image_names)) {
+    image_dir = paste0(final_dir,'/','Images')
+    dir.create(image_dir)
     for(image in image_names) {
       if(verbose) wrap_msg('For image information: ', image, '\n')
-
-      image_dir = paste0(final_dir,'/','Images')
-      dir.create(image_dir)
 
       if(!is.null(gobject@largeImages[[image]]@raster_object)) {
         # save extent info just in case
