@@ -6,6 +6,7 @@
 ## Added
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
+- New `wrap()` and `unwrap()` generics for `giottoPoints` and `giottoPolygons`
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
 - New `createGiottoMerscopeObject()` convenience function
 - Add packages `exactextractr` and `sf` to "suggests" packages
@@ -23,6 +24,7 @@
 - Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Optimize `readPolygonFilesVizgen()`
+- Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
 
 
 # Giotto Suite 3.1.0 (2202-12-01)  

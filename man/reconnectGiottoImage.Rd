@@ -7,6 +7,7 @@
 reconnectGiottoImage(
   gobject,
   auto_reconnect = TRUE,
+  reconnect_type = c("all", "image", "largeImage"),
   image_name = NULL,
   largeImage_name = NULL,
   image_path = NULL,
@@ -18,6 +19,8 @@ reconnectGiottoImage(
 \item{gobject}{giotto object}
 
 \item{auto_reconnect}{automatically reconnect images if TRUE. manual if FALSE}
+
+\item{reconnect_type}{type of image to reconnect when auto_reconnect = TRUE}
 
 \item{image_name}{names of images to reconnect}
 

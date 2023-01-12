@@ -1323,6 +1323,28 @@ giottoPolygon = setClass(
 )
 
 
+setClass('packedGiottoPolygon',
+         contains = c('nameData'),
+
+         slots = c(
+           spatVector = 'ANY',
+           spatVectorCentroids = 'ANY',
+           overlaps = 'ANY'
+         ),
+         prototype = list(
+           spatVector = NULL,
+           spatVectorCentroids = NULL,
+           overlaps = NULL
+         ))
+
+
+setMethod("show", signature(object='packedGiottoPolygon'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
+)
+
+
 
 ## giottoPoints class ####
 
@@ -1354,6 +1376,29 @@ giottoPoints <- setClass(
     networks = NULL
   )
 )
+
+
+
+setClass('packedGiottoPoints',
+
+         slots = c(
+           feat_type = 'ANY',
+           spatVector = 'ANY',
+           networks = 'ANY'
+         ),
+         prototype = list(
+           feat_type = NULL,
+           spatVector = NULL,
+           networks = NULL
+         ))
+
+
+setMethod("show", signature(object='packedGiottoPoints'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
+)
+
 
 
 ## featureNetwork class ####

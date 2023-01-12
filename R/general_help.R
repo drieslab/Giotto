@@ -695,7 +695,7 @@ saveGiotto = function(gobject,
       dir.create(final_dir)
     }
   } else {
-    dir.create(final_dir)
+    dir.create(final_dir, recursive = TRUE)
   }
 
   ## save spatVector objects related to feature information
@@ -703,10 +703,10 @@ saveGiotto = function(gobject,
   feat_info_names = list_feature_info_names(gobject)
 
   if(!is.null(feat_info_names)) {
+    feat_dir = paste0(final_dir,'/','Features')
+    dir.create(feat_dir)
     for(feat in feat_info_names) {
       if(verbose) wrap_msg('For feature: ', feat, '\n')
-      feat_dir = paste0(final_dir,'/','Features')
-      dir.create(feat_dir)
 
       # original spatvector
       if(!is.null(gobject@feat_info[[feat]]@spatVector)) {
@@ -726,12 +726,11 @@ saveGiotto = function(gobject,
   spat_info_names = list_spatial_info_names(gobject)
 
   if(!is.null(spat_info_names)) {
+    spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
+    dir.create(spatinfo_dir)
     for(spatinfo in spat_info_names) {
 
       if(verbose) wrap_msg('For spatial information: ', spatinfo, '\n')
-
-      spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
-      dir.create(spatinfo_dir)
 
       # original spatVectors
       if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
@@ -764,13 +763,16 @@ saveGiotto = function(gobject,
   image_names = list_images_names(gobject, img_type = 'largeImage')
 
   if(!is.null(image_names)) {
+    image_dir = paste0(final_dir,'/','Images')
+    dir.create(image_dir)
     for(image in image_names) {
       if(verbose) wrap_msg('For image information: ', image, '\n')
 
-      image_dir = paste0(final_dir,'/','Images')
-      dir.create(image_dir)
-
       if(!is.null(gobject@largeImages[[image]]@raster_object)) {
+        # save extent info just in case
+        gobject@largeImages[[image]]@extent = terra::ext(gobject@largeImages[[image]]@raster_object)[]
+
+        # save raster
         filename = paste0(image_dir, '/', image, '_spatRaster')
         terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
       }
@@ -797,6 +799,7 @@ saveGiotto = function(gobject,
 #' @description Saves a Giotto object to a specific folder structure
 #' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
 #' @param load_params additional parameters for loading or reading giotto object
+#' @param reconnect_giottoImage (default = TRUE) whether to attempt reconnection of magick based image objects
 #' @param python_path (optional) manually set your python path
 #' @param verbose be verbose
 #' @return Giotto object
@@ -809,6 +812,7 @@ saveGiotto = function(gobject,
 #' @export
 loadGiotto = function(path_to_folder,
                       load_params = list(),
+                      reconnect_giottoImage = TRUE,
                       python_path = NULL,
                       verbose = TRUE) {
 
@@ -850,57 +854,72 @@ loadGiotto = function(path_to_folder,
   }
 
   ## 3. read in spatial polygons
-  if(verbose) wrap_msg('3. read Giotto spatial information \n')
-  ## 3.1. shapes
-  if(verbose) wrap_msg('3.1 read Giotto spatial shape information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp')
-  print(spat_files)
+  if(isTRUE(verbose)) wrap_msg('3. read Giotto spatial information \n')
+  spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
+  spat_files = basename(spat_paths)
   if(length(spat_files) != 0) {
+
+    ## 3.1. shapes
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.1 read Giotto spatial shape information \n')
+      print(spat_files)
+    }
     spat_names = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
     for(spat_i in 1:length(spat_names)) {
       spatVector = terra::vect(x = spat_paths[spat_i])
       spat_name = spat_names[spat_i]
-      if(verbose) spat_name
+      if(isTRUE(verbose)) message(spat_name)
       gobject@spatial_info[[spat_name]]@spatVector = spatVector
     }
-  }
 
-  ## 3.2. centroids
-  if(verbose) wrap_msg('3.2 read Giotto spatial centroid information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp')
-  print(spat_files)
+    ## 3.2. centroids
+    centroid_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorCentroids.shp')
+    centroid_paths = sapply(centroid_search_term, function(gp_centroid) {
+      list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = gp_centroid, full.names = TRUE)
+    }, USE.NAMES = FALSE)
+    centroid_files = basename(centroid_paths)
 
-  if(length(spat_files) != 0) {
-    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp', full.names = TRUE)
-    for(spat_i in 1:length(spat_names)) {
-      spatVector = terra::vect(x = spat_paths[spat_i])
-      spat_name = spat_names[spat_i]
-      if(verbose) spat_name
-      gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.2 read Giotto spatial centroid information \n')
+      print(centroid_files)
     }
-  }
-
-  ## 3.3. overlaps
-  if(verbose) wrap_msg('3.3 read Giotto spatial overlap information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
-  print(spat_files)
-
-  if(length(spat_files) != 0) {
-    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorOverlaps.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp', full.names = TRUE)
-
-    for(spat_i in 1:length(spat_names)) {
-      spatVector = terra::vect(x = spat_paths[spat_i])
-
-      feat_name = strsplit(spat_names[spat_i], split = '_')[[1]][1]
-      spat_name =  strsplit(spat_names[spat_i], split = '_')[[1]][2]
-
-      if(verbose) wrap_msg(spat_name, ' and ', feat_name)
-      gobject@spatial_info[[spat_name]]@overlaps[[feat_name]] = spatVector
+    if(length(centroid_files != 0)) {
+      spat_names = gsub(centroid_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+      for(spat_i in 1:length(spat_names)) {
+        spatVector = terra::vect(x = centroid_paths[spat_i])
+        spat_name = spat_names[spat_i]
+        if(isTRUE(verbose)) message(spat_name)
+        gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+      }
     }
 
+
+    ## 3.3. overlaps
+    overlap_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorOverlaps.shp')
+    overlap_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
+
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.3 read Giotto spatial overlap information \n')
+      print(overlap_files)
+    }
+    if(length(overlap_files != 0)) {
+      # find overlaps per spatVector
+      for(sv_i in seq_along(overlap_search_term)) {
+        overlap_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = overlap_search_term[sv_i], full.names = TRUE)
+        overlap_filenames = basename(overlap_paths)
+
+        for(spat_i in seq_along(overlap_filenames)) {
+          spatVector = terra::vect(x = overlap_paths[spat_i])
+
+          feat_name = gsub(overlap_filenames[spat_i], pattern = paste0('_', overlap_search_term[sv_i]), replacement = '')
+          spat_name = gsub(overlap_filenames[spat_i], pattern = paste0(feat_name, '_'), replacement = '')
+          spat_name = gsub(spat_name, pattern = '_spatInfo_spatVectorOverlaps.shp', replacement = '')
+
+          if(isTRUE(verbose)) wrap_msg(spat_name, ' and ', feat_name)
+          gobject@spatial_info[[spat_name]]@overlaps[[feat_name]] = spatVector
+        }
+      }
+    }
 
   }
 
@@ -908,7 +927,7 @@ loadGiotto = function(path_to_folder,
 
 
   ## 4. images
-  if(verbose) wrap_msg('3. read Giotto image information \n')
+  if(verbose) wrap_msg('\n3. read Giotto image information \n')
   image_files = list.files(path = paste0(path_to_folder, '/Images'))
   if(length(image_files) != 0) {
     image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))
@@ -918,6 +937,12 @@ loadGiotto = function(path_to_folder,
       new_path = paste0(path_to_folder, '/Images','/', image_name,'_spatRaster')
       spatRaster = terra::rast(x = new_path)
       gobject@largeImages[[image_name]]@raster_object = spatRaster
+    }
+  }
+
+  if(isTRUE(reconnect_giottoImage)) {
+    if(list_images(gobject)[img_type == 'image', .N] > 0) {
+      gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
     }
   }
 
