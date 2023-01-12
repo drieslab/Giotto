@@ -4876,8 +4876,8 @@ joinGiottoObjects = function(gobject_list,
 
           }
 
-
-
+          # save extent info
+          gobj@largeImages[[imname]]@extent = terra::ext(gobj@largeImages[[imname]]@raster_object)[]
         }
 
         all_largeImage_list[[imname]] = gobj@largeImages[[imname]]
