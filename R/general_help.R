@@ -737,6 +737,10 @@ saveGiotto = function(gobject,
       dir.create(image_dir)
 
       if(!is.null(gobject@largeImages[[image]]@raster_object)) {
+        # save extent info just in case
+        gobject@largeImages[[image]]@extent = terra::ext(gobject@largeImages[[image]]@raster_object)[]
+
+        # save raster
         filename = paste0(image_dir, '/', image, '_spatRaster')
         terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
       }
