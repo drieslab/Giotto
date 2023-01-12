@@ -1093,8 +1093,6 @@ seuratToGiotto = function(sobject,
 }
 
 
-
-
 ## SpatialExperiment object ####
 
 #' Utility function to convert a Giotto object to a SpatialExperiment object.
@@ -1309,50 +1307,69 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 
 #' Utility function to convert a SpatialExperiment object to a Giotto object
 #'
-#' @param spe Input SpatialExperiment object to convert to a Giotto object
-#'
-#' @return Output Giotto object
+#' @param spe Input SpatialExperiment object to convert to a Giotto object.
+#' @param nn_network Specify the name of the nearest neighbour network(s)
+#' in the input SpatialExperiment object. Default \code{NULL} will use
+#' all existing networks.
+#' @param sp_network Specify the name of the spatial network(s) in the input
+#' SpatialExperiment object. Default \code{NULL} will use all existing
+#' networks.
+#' @param verbose A boolean value specifying if progress messages should
+#' be displayed or not. Default \code{TRUE}.
+#' @return Giotto object
 #' @examples
 #' library(SpatialExperiment)
 #' example(read10xVisium, echo = FALSE)
 #' spatialExperimentToGiotto(spe)
 #' @export
-spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL){
-  # save exp matrices
+spatialExperimentToGiotto <- function(spe,
+                                      nn_network = NULL,
+                                      sp_network = NULL,
+                                      verbose = TRUE){
+
+  # Create Giotto object with first matrix
   exprMats <- assays(spe)
   exprMatsNames <- assayNames(spe)
   firstMatrix <- exprMats[[1]]
+
   #check unique colnames
   if(length(unique(colnames(firstMatrix))) != length(colnames(firstMatrix))){
     colnames(firstMatrix) <- make.names(colnames(firstMatrix), unique = TRUE)
   }
-  suppressWarnings(giottoObj <- createGiottoObject(expression = firstMatrix),
-                   classes = c("message", "warning"))
+
+  if(verbose) message("Creating Giotto object with ", exprMatsNames[1], " matrix")
+  suppressWarnings(suppressMessages(giottoObj <- createGiottoObject(expression = firstMatrix)))
   exprMats[[1]] <- NULL
-  #rest of assays # how to figure out spat unit?
+  exprMatsNames <- exprMatsNames[-1]
+
+  # Copying remaining matrices
   if(length(exprMats) > 0){
     for(i in seq(exprMats)){
+      if(verbose) message("Copying expression matrix: ", exprMatsNames[i])
       giottoObj <- set_expression_values(gobject = giottoObj, name = exprMatsNames[i], values = exprMats[[i]])
     }
   }
 
-  # save coldata
+  # Phenotype Data
   pData <- colData(spe)
   if(nrow(pData) > 0){
+    if(verbose) message("Copying phenotype data")
     giottoObj <- Giotto::addCellMetadata(gobject = giottoObj, new_metadata = as.data.table(pData))
   }
 
-  # save rowdata
+  # Feature Metadata
   fData <- rowData(spe)
   if(nrow(fData) > 0){
+    if(verbose) message("Copying feature metadata")
     giottoObj <- Giotto::addFeatMetadata(gobject = giottoObj, new_metadata = as.data.table(fData))
   }
 
-  # save reducedDims
+  # Reduced Dimensions
   redDims <- reducedDims(spe)
   redDimsNames <- reducedDimNames(spe)
   if(length(redDims) > 0){
     for(i in seq(length(redDims))){
+      if(verbose) message("Copying reduced dimensions")
       dimRedObj <- Giotto:::create_dimObject(name = redDimsNames[i],
                                              coordinates = redDims[[i]],
                                              reduction_method = redDimsNames[i])
@@ -1360,24 +1377,39 @@ spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL)
     }
   }
 
-  # sp coordinates
+  # Spatial Locations
   spatialLocs <- spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
+    if(verbose) message("Copying spatial locations")
     spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
     giottoObj <- Giotto:::set_spatial_locations(gobject = giottoObj, spatlocs = cbind(spatialLocsDT, cell_ID = colnames(spe)))
   }
 
-  # TODO
-  # images
-  # giottoObj <- Giotto::addGiottoImage()
+  # Spatial Images
+  spatialImages <- imgData(spe)
+  if(nrow(spatialImages) > 0){
+    for(i in seq(nrow(spatialImages))){
+      if(verbose) message("Copying spatial images")
+      spImg <- getImg(spe,
+                      spatialImages[i, "sample_id"],
+                      spatialImages[i, "image_id"])
+      mObject <- magick::image_read(as.raster(spImg))
+      giottoImage <- Giotto:::createGiottoImage(gobject = giottoObj,
+                                                mg_object = mObject,
+                                                scale_factor = spatialImages[i, "scaleFactor"])
+      giottoObj <- addGiottoImage(gobject = giottoObj,
+                                  images = list(giottoImage))
 
-  # TODO
-  # networks
+    }
+  }
+
+  # Networks
   networks <- colPairs(spe)
   # Spatial Networks
   if(!is.null(sp_network)){
     if(sp_network %in% names(networks)){
       for(i in seq(sp_network)){
+        if(verbose) message("Copying spatial networks")
         spatNetObj <- Giotto:::create_spat_net_obj(
           networkDT = as.data.table(networks[[sp_network[i]]]))
         giottoObj <- Giotto:::set_spatialNetwork(gobject = giottoObj,
@@ -1392,6 +1424,7 @@ spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL)
   if(!is.null(nn_network)){
     if(nn_network %in% names(networks)){
       for(i in seq(nn_network)){
+        if(verbose) message("Copying nearest neighbour networks")
         giottoObj <- Giotto:::set_NearestNetwork(gobject = giottoObj,
                                                  nn_network = networks[[nn_network[i]]],
                                                  network_name = nn_network[i])
@@ -1400,8 +1433,10 @@ spatialExperimentToGiotto <- function(spe, nn_network = NULL, sp_network = NULL)
     }
   }
 
+  # if not specified, storing remaining as NN
   if(length(networks) > 0){
     for(i in seq(networks)){
+      if(verbose) message("Copying additional networks")
       giottoObj <- Giotto:::set_NearestNetwork(gobject = giottoObj,
                                                nn_network = networks[[i]],
                                                network_name = names(networks)[i])
