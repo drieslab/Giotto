@@ -4,7 +4,6 @@
 
 
 ## gef object ####
-## gef object ####
 #' @title Convert gef to Giotto
 #' @name gefToGiotto
 #' @description Converts .gef file (output stereo-seq pipeline) into
