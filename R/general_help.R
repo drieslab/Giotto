@@ -661,7 +661,7 @@ saveGiotto = function(gobject,
       dir.create(final_dir)
     }
   } else {
-    dir.create(final_dir)
+    dir.create(final_dir, recursive = TRUE)
   }
 
   ## save spatVector objects related to feature information
