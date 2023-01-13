@@ -3,18 +3,24 @@
 \name{wrap-generic}
 \alias{wrap-generic}
 \alias{wrap,giottoPolygon-method}
+\alias{wrap,giotto-method}
 \alias{wrap,giottoPoints-method}
 \alias{unwrap,packedGiottoPolygon-method}
 \alias{unwrap,packedGiottoPoints-method}
+\alias{unwrap,packedGiotto-method}
 \title{Wrap giotto terra pointer information}
 \usage{
 \S4method{wrap}{giottoPolygon}(x)
+
+\S4method{wrap}{giotto}(x)
 
 \S4method{wrap}{giottoPoints}(x)
 
 \S4method{unwrap}{packedGiottoPolygon}(x)
 
 \S4method{unwrap}{packedGiottoPoints}(x)
+
+\S4method{unwrap}{packedGiotto}(x)
 }
 \arguments{
 \item{x}{giottoPolygon or giottoPoints}
@@ -28,10 +34,14 @@ be passed over a connection (e.g. nodes on a computer cluster)
 \itemize{
 \item \code{wrap(giottoPolygon)}: Wrap giottoPolygon
 
+\item \code{wrap(giotto)}: Wrap giotto
+
 \item \code{wrap(giottoPoints)}: Wrap giottoPoints
 
 \item \code{unwrap(packedGiottoPolygon)}: Unwrap giottoPolygon
 
 \item \code{unwrap(packedGiottoPoints)}: Unwrap giottoPolygon
+
+\item \code{unwrap(packedGiotto)}: Unwrap giotto
 
 }}

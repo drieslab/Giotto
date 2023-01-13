@@ -86,12 +86,12 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
           function(x) {
             pgp = new('packedGiottoPolygon')
             pgp@name = x@name
-            pgp@spatVector = terra::wrap(x@spatVector)
+            pgp@packed_spatVector = terra::wrap(x@spatVector)
             if(!is.null(x@spatVectorCentroids)) {
-              pgp@spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
+              pgp@packed_spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
             }
             if(!is.null(x@overlaps)) {
-              pgp@overlaps = lapply(x@overlaps, function(sv) {
+              pgp@packed_overlaps = lapply(x@overlaps, function(sv) {
                 if(inherits(sv, 'SpatVector')) {
                   terra::wrap(sv)
                 } else {
@@ -104,6 +104,22 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
 )
 
 
+#' @describeIn wrap-generic Wrap giotto
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giotto'),
+          function(x) {
+            pg = new('packedGiotto')
+            g_slots = slotNames('giotto')
+            g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
+            for(g_slot in g_slots) {
+              slot(pg, g_slot) = slot(x, g_slot)
+            }
+            pg@packed_spatial_info = lapply(x@spatial_info, wrap)
+            pg@packed_feat_info = lapply(x@feat_info, wrap)
+            return(pg)
+          })
+
 
 #' @describeIn wrap-generic Wrap giottoPoints
 #' @importMethodsFrom terra wrap
@@ -112,7 +128,7 @@ setMethod('wrap', signature(x = 'giottoPoints'),
           function(x) {
             pgp = new('packedGiottoPoints')
             pgp@feat_type = x@feat_type
-            pgp@spatVector = terra::unwrap(x@spatVector)
+            pgp@packed_spatVector = terra::wrap(x@spatVector)
             pgp@networks = x@networks
             return(pgp)
           }
@@ -127,12 +143,12 @@ setMethod('unwrap', signature(x = 'packedGiottoPolygon'),
           function(x) {
             gp = new('giottoPolygon')
             gp@name = x@name
-            gp@spatVector = terra::unwrap(x@spatVector)
-            if(!is.null(x@spatVectorCentroids)) {
-              gp@spatVectorCentroids = terra::unwrap(x@spatVectorCentroids)
+            gp@spatVector = terra::unwrap(x@packed_spatVector)
+            if(!is.null(x@packed_spatVectorCentroids)) {
+              gp@spatVectorCentroids = terra::unwrap(x@packed_spatVectorCentroids)
             }
-            if(!is.null(x@overlaps)) {
-              gp@overlaps = lapply(x@overlaps, function(sv) {
+            if(length(x@packed_overlaps) > 0) {
+              gp@overlaps = lapply(x@packed_overlaps, function(sv) {
                 if(inherits(sv, 'PackedSpatVector')) {
                   terra::unwrap(sv)
                 } else {
@@ -153,12 +169,28 @@ setMethod('unwrap', signature(x = 'packedGiottoPoints'),
           function(x) {
             gp = new('giottoPoints')
             gp@feat_type = x@feat_type
-            gp@spatVector = terra::unwrap(x@spatVector)
+            gp@spatVector = terra::unwrap(x@packed_spatVector)
             gp@networks = x@networks
             return(gp)
             }
 )
 
+
+#' @describeIn wrap-generic Unwrap giotto
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiotto'),
+          function(x) {
+            gobj = new('giotto')
+            g_slots = slotNames('giotto')
+            g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
+            for(g_slot in g_slots) {
+              slot(gobj, g_slot) = slot(x, g_slot)
+            }
+            gobj@spatial_info = lapply(x@packed_spatial_info, unwrap)
+            gobj@feat_info = lapply(x@packed_feat_info, unwrap)
+            return(gobj)
+          })
 
 
 
