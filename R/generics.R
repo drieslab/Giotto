@@ -112,7 +112,7 @@ setMethod('wrap', signature(x = 'giottoPoints'),
           function(x) {
             pgp = new('packedGiottoPoints')
             pgp@feat_type = x@feat_type
-            pgp@spatVector = terra::unwrap(x@spatVector)
+            pgp@spatVector = terra::wrap(x@spatVector)
             pgp@networks = x@networks
             return(pgp)
           }
