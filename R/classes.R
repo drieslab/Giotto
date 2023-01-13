@@ -369,6 +369,7 @@ setClass('spatFeatData',
 
 ##### * Definition ####
 # Giotto class
+# ! Any slot modifications should also be reflected in packedGiotto class !
 
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
@@ -499,7 +500,70 @@ setMethod(
 
 
 
+# for use with wrap() generic
+# not intended to be used until after unwrapped to giotto class
+# does not inherit giotto to avoid any method inheritance
+setClass(
+  "packedGiotto",
+  slots = c(
+    packed_spatial_info = "ANY",
+    packed_feat_info = "ANY",
 
+    expression = "nullOrList",
+    expression_feat = "ANY",
+    spatial_locs = "ANY",
+    cell_metadata = "ANY",
+    feat_metadata = "ANY",
+    cell_ID = "ANY",
+    feat_ID = "ANY",
+    spatial_network = "ANY",
+    spatial_grid = "ANY",
+    spatial_enrichment = "ANY",
+    dimension_reduction = 'ANY',
+    nn_network = "ANY",
+    images = "ANY",
+    largeImages = "ANY",
+    parameters = "ANY",
+    instructions = "ANY",
+    offset_file = "ANY",
+    OS_platform = "ANY",
+    join_info = "ANY",
+    multiomics = "ANY"
+
+  ),
+
+  prototype = list(
+    packed_spatial_info = NULL,
+    packed_feat_info = NULL,
+
+    expression = NULL,
+    expression_feat = NULL,
+    spatial_locs = NULL,
+    cell_metadata = NULL,
+    feat_metadata = NULL,
+    cell_ID = NULL,
+    feat_ID = NULL,
+    spatial_network = NULL,
+    spatial_grid = NULL,
+    spatial_enrichment = NULL,
+    dimension_reduction = NULL,
+    nn_network = NULL,
+    images = NULL,
+    largeImages = NULL,
+    parameters = NULL,
+    instructions = NULL,
+    offset_file = NULL,
+    OS_platform = NULL,
+    join_info = NULL,
+    multiomics = NULL
+  )
+)
+
+setMethod("show", signature(object='packedGiotto'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
+)
 
 
 
@@ -1323,18 +1387,19 @@ giottoPolygon = setClass(
 )
 
 
+# for use with wrap() generic
 setClass('packedGiottoPolygon',
          contains = c('nameData'),
 
          slots = c(
-           spatVector = 'ANY',
-           spatVectorCentroids = 'ANY',
-           overlaps = 'ANY'
+           packed_spatVector = 'ANY',
+           packed_spatVectorCentroids = 'ANY',
+           packed_overlaps = 'ANY'
          ),
          prototype = list(
-           spatVector = NULL,
-           spatVectorCentroids = NULL,
-           overlaps = NULL
+           packed_spatVector = NULL,
+           packed_spatVectorCentroids = NULL,
+           packed_overlaps = NULL
          ))
 
 
@@ -1379,18 +1444,21 @@ giottoPoints <- setClass(
 
 
 
-setClass('packedGiottoPoints',
+# for use with wrap() generic
+setClass(
+  'packedGiottoPoints',
 
-         slots = c(
-           feat_type = 'ANY',
-           spatVector = 'ANY',
-           networks = 'ANY'
-         ),
-         prototype = list(
-           feat_type = NULL,
-           spatVector = NULL,
-           networks = NULL
-         ))
+  slots = c(
+    feat_type = 'character',
+    packed_spatVector = 'ANY',
+    networks = 'ANY'
+  ),
+  prototype = list(
+    feat_type = NA_character_,
+    packed_spatVector = NULL,
+    networks = NULL
+  )
+)
 
 
 setMethod("show", signature(object='packedGiottoPoints'),
