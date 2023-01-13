@@ -4,13 +4,29 @@
 \alias{spatialExperimentToGiotto}
 \title{Utility function to convert a SpatialExperiment object to a Giotto object}
 \usage{
-spatialExperimentToGiotto(spe, nn_network = NULL, sp_network = NULL)
+spatialExperimentToGiotto(
+  spe,
+  nn_network = NULL,
+  sp_network = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{spe}{Input SpatialExperiment object to convert to a Giotto object}
+\item{spe}{Input SpatialExperiment object to convert to a Giotto object.}
+
+\item{nn_network}{Specify the name of the nearest neighbour network(s)
+in the input SpatialExperiment object. Default \code{NULL} will use
+all existing networks.}
+
+\item{sp_network}{Specify the name of the spatial network(s) in the input
+SpatialExperiment object. Default \code{NULL} will use all existing
+networks.}
+
+\item{verbose}{A boolean value specifying if progress messages should
+be displayed or not. Default \code{TRUE}.}
 }
 \value{
-Output Giotto object
+Giotto object
 }
 \description{
 Utility function to convert a SpatialExperiment object to a Giotto object

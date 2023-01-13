@@ -16,7 +16,7 @@ anndataToGiotto(
 \arguments{
 \item{anndata_path}{path to the .h5ad file}
 
-\item{n_key_added}{equivalent of "key_added" argument from scanpy.pp.neighbors(). 
+\item{n_key_added}{equivalent of "key_added" argument from scanpy.pp.neighbors().
 Cannot be "spatial". This becomes the name of the nearest network in the gobject.}
 
 \item{spat_unit}{desired spatial unit for conversion, default NULL}
