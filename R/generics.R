@@ -110,7 +110,7 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
 setMethod('wrap', signature(x = 'giotto'),
           function(x) {
             pg = new('packedGiotto')
-            g_slots = slotNames('giotto')
+            g_slots = methods::slotNames('giotto')
             g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
             for(g_slot in g_slots) {
               slot(pg, g_slot) = slot(x, g_slot)
@@ -182,7 +182,7 @@ setMethod('unwrap', signature(x = 'packedGiottoPoints'),
 setMethod('unwrap', signature(x = 'packedGiotto'),
           function(x) {
             gobj = new('giotto')
-            g_slots = slotNames('giotto')
+            g_slots = methods::slotNames('giotto')
             g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
             for(g_slot in g_slots) {
               slot(gobj, g_slot) = slot(x, g_slot)
