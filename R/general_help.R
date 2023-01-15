@@ -110,6 +110,137 @@ dt_to_matrix <- function(x) {
 }
 
 
+#' @title Over-allocation for giotto DT-based info
+#' @description Finds DT based objects, overallocates the data.tables, then sets
+#' the objects back in the giotto object
+#' @param gobject giotto object
+#' @keywords internal
+giotto_alloc_dt_slots = function(gobject) {
+
+  # data.table vars
+  spat_unit = feat_type = name = NULL
+
+  # metadata
+  avail_cm = list_cell_metadata(gobject)
+  if(!is.null(avail_cm)) {
+    for(cm_i in seq(nrow(avail_cm))) {
+      cm = get_cell_metadata(gobject = gobject,
+                             spat_unit = avail_cm[cm_i, spat_unit],
+                             feat_type = avail_cm[cm_i, feat_type],
+                             output = 'cellMetaObj',
+                             copy_obj = FALSE)
+      if(!is.null(cm[])) {
+        cm[] = data.table::setalloccol(cm[])
+        gobject = set_cell_metadata(gobject = gobject,
+                                    metadata = cm,
+                                    set_defaults = FALSE,
+                                    verbose = FALSE)
+      }
+    }
+  }
+
+  avail_fm = list_feat_metadata(gobject)
+  if(!is.null(avail_fm)) {
+    for(fm_i in seq(nrow(avail_fm))) {
+      fm = get_feature_metadata(gobject = gobject,
+                                spat_unit = avail_fm[fm_i, spat_unit],
+                                feat_type = avail_fm[fm_i, feat_type],
+                                output = 'featMetaObj',
+                                copy_obj = FALSE)
+      if(!is.null(fm[])) {
+        fm[] = data.table::setalloccol(fm[])
+        gobject = set_feature_metadata(gobject = gobject,
+                                       metadata = fm,
+                                       set_defaults = FALSE,
+                                       verbose = FALSE)
+      }
+    }
+  }
+
+  # spatlocs
+  avail_sl = list_spatial_locations(gobject)
+  if(!is.null(avail_sl)) {
+    for(sl_i in seq(nrow(avail_sl))) {
+      sl = get_spatial_locations(gobject = gobject,
+                                 spat_unit = avail_sl[sl_i, spat_unit],
+                                 spat_loc_name = avail_sl[sl_i, name],
+                                 output = 'spatLocsObj',
+                                 copy_obj = FALSE)
+      if(!is.null(sl[])) {
+        sl[] = data.table::setalloccol(sl[])
+        gobject = set_spatial_locations(gobject = gobject,
+                                        spatlocs = sl,
+                                        set_defaults = FALSE,
+                                        verbose = FALSE)
+      }
+    }
+  }
+
+  # spatial enrichment
+  avail_se = list_spatial_enrichments(gobject)
+  if(!is.null(avail_se)) {
+    for(se_i in seq(nrow(avail_se))) {
+      se = get_spatial_enrichment(gobject = gobject,
+                                  spat_unit = avail_se[se_i, spat_unit],
+                                  feat_type = avail_se[se_i, feat_type],
+                                  enrichm_name = avail_se[se_i, name],
+                                  output = 'spatEnrObj',
+                                  copy_obj = FALSE)
+      if(!is.null(se[])) {
+        se[] = data.table::setalloccol(se[])
+        gobject = set_spatial_enrichment(gobject = gobject,
+                                         spatenrichment = se,
+                                         set_defaults = FALSE,
+                                         verbose = FALSE)
+      }
+    }
+  }
+
+  # spatial network
+  avail_sn = list_spatial_networks(gobject)
+  if(!is.null(avail_sn)) {
+    for(sn_i in seq(nrow(avail_sn))) {
+      sn = get_spatialNetwork(gobject = gobject,
+                              spat_unit = avail_sn[sn_i, spat_unit],
+                              name = avail_sn[sn_i, name],
+                              output = 'spatialNetworkObj')
+      if(!is.null(slot(sn, 'networkDT_before_filter'))) {
+        slot(sn, 'networkDT_before_filter') = data.table::setalloccol(slot(sn, 'networkDT_before_filter'))
+      }
+      if(!is.null(sn[])) {
+        sn[] = data.table::setalloccol(sn[])
+        gobject = set_spatialNetwork(gobject = gobject,
+                                     spatial_network = sn,
+                                     verbose = FALSE,
+                                     set_defaults = FALSE)
+      }
+    }
+  }
+
+  # spatial grid
+  avail_sg = list_spatial_grids(gobject)
+  if(!is.null(avail_sg)) {
+    for(sg_i in seq(nrow(avail_sg))) {
+      sg = get_spatialGrid(gobject = gobject,
+                           spat_unit = avail_sg[sg_i, spat_unit],
+                           feat_type = avail_sg[sg_i, feat_type],
+                           name = avail_sg[sg_i, feat_type],
+                           return_grid_Obj = TRUE)
+      if(!is.null(sg[])) {
+        sg[] = data.table::setalloccol(sg[])
+        gobject = set_spatialGrid(gobject = gobject,
+                                  spatial_grid = sg,
+                                  verbose = FALSE,
+                                  set_defaults = FALSE)
+      }
+    }
+  }
+  return(gobject)
+}
+
+
+
+
 #' @title mygini_fun
 #' @description calculate gini coefficient
 #' @keywords internal
@@ -947,10 +1078,16 @@ loadGiotto = function(path_to_folder,
   }
 
 
+  ## 5. Update python path
   identified_python_path = set_giotto_python_path(python_path = python_path)
   gobject = changeGiottoInstructions(gobject = gobject,
                                      params = c('python_path'),
                                      new_values = c(identified_python_path))
+
+  ## 6. overallocate for data.tables
+  # (data.tables when read from disk have a truelength of 0)
+  gobject = giotto_alloc_dt_slots(gobject)
+
 
   return(gobject)
 

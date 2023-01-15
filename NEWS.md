@@ -2,6 +2,7 @@
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
+- Set incomplete classes in classes.R as virtual to prevent their instantiation
 
 ## Added
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
@@ -25,6 +26,7 @@
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Optimize `readPolygonFilesVizgen()`
 - Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
+- Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk
 
 
 # Giotto Suite 3.1.0 (2202-12-01)  
