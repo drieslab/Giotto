@@ -3442,9 +3442,9 @@ list_spatial_locations = function(gobject,
   }
 
   # check if a specific category is desired
-  if(!is.null(spat_unit)) {
-    availableSpatLocs = availableSpatLocs[availableSpatLocs$spat_unit == spat_unit,]
-  }
+  if(!is.null(spat_unit)) spat_unit_subset = availableSpatLocs$spat_unit == spat_unit else spat_unit_subset = TRUE
+
+  availableSpatLocs = availableSpatLocs[spat_unit_subset,]
 
   if(!isTRUE(return_uniques)) {
     if(nrow(availableSpatLocs) == 0) return(NULL)
