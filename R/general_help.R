@@ -947,6 +947,9 @@ loadGiotto = function(path_to_folder,
                       python_path = NULL,
                       verbose = TRUE) {
 
+  # data.table vars
+  img_type = NULL
+
   if(!file.exists(path_to_folder)) {
     stop('path_to_folder does not exist \n')
   }

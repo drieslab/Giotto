@@ -4,65 +4,74 @@
 
 
 #' @title Cell and feature names
-#' @name cells-generic
+#' @name spatIDs-generic
 #' @description Get the cells and feature names of a giotto object or subobject
+#' @aliases spatIDs featIDs
 #' @param x an object
 #' @param spat_unit (optional) specify which spatial unit
 #' @param feat_type (optional) specify which feature type
 #' @param ... additional parameters to pass
 #' @include classes.R
 #' @usage
-#' cells(x, spat_unit, ...)
+#' spatIDs(x, spat_unit, ...)
 #'
-#' features(x, feat_type, ...)
+#' featIDs(x, feat_type, ...)
 #'
 #' ## Default S4 method for signatures:
-#' 'giotto', 'exprObj', 'spatLocsObj', 'cellMetaObj', 'spatialNetworkObj' 'dimObj'
-setGeneric('cells', function(x, spat_unit, ...) standardGeneric('cells'))
-setGeneric('features', function(x, feat_type, ...) standardGeneric('features'))
+#' ## 'giotto', 'exprObj', 'spatLocsObj', 'cellMetaObj', 'spatialNetworkObj' 'dimObj'
+setGeneric('spatIDs', function(x, spat_unit, ...) standardGeneric('spatIDs'))
+setGeneric('featIDs', function(x, feat_type, ...) standardGeneric('featIDs'))
 
 
-setMethod('cells', signature(x = 'giotto', spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'missing'),
           function(x, ...) {
             get_cell_id(gobject = x, ...)
           })
-setMethod('cells', signature(x = 'giotto', spat_unit = 'character'),
+setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'character'),
           function(x, spat_unit, ...) {
             get_cell_id(gobject = x, spat_unit, ...)
           })
-setMethod('cells', signature(x = c('exprObj'), spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = c('exprObj'), spat_unit = 'missing'),
           function(x, ...) {
             colnames(x[])
           })
-setMethod('cells', signature(x = c('spatLocsObj'), spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = c('spatLocsObj'), spat_unit = 'missing'),
           function(x, ...) {
-            x[][, cell_ID]
+            x[]$cell_ID
           })
-setMethod('cells', signature(x = c('cellMetaObj'), spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = c('cellMetaObj'), spat_unit = 'missing'),
           function(x, ...) {
-            x[][, cell_ID]
+            x[]$cell_ID
           })
-setMethod('cells', signature(x = c('spatialNetworkObj'), spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = c('spatialNetworkObj'), spat_unit = 'missing'),
           function(x, ...) {
-            unique(c(sn[][, from], sn[][, to]))
+            unique(c(x[]$from, x[]$to))
           })
-setMethod('cells', signature(x = 'dimObj', spat_unit = 'missing'),
+setMethod('spatIDs', signature(x = 'dimObj', spat_unit = 'missing'),
           function(x, ...) {
             rownames(x@coordinates)
           })
+setMethod('spatIDs', signature(x = 'giottoPolygon', spat_unit = 'missing'),
+          function(x, ...) {
+            unique(x@spatVector$poly_ID)
+          })
 
 
-setMethod('features', signature(x = 'giotto', feat_type = 'missing'),
+setMethod('featIDs', signature(x = 'giotto', feat_type = 'missing'),
           function(x, ...) {
             get_feat_id(gobject = x, ...)
           })
-setMethod('features', signature(x = 'giotto', feat_type = 'character'),
+setMethod('featIDs', signature(x = 'giotto', feat_type = 'character'),
           function(x, feat_type, ...) {
             get_feat_id(gobject = x, feat_type, ...)
           })
-setMethod('features', signature(x = 'exprObj', feat_type = 'missing'),
+setMethod('featIDs', signature(x = 'exprObj', feat_type = 'missing'),
           function(x, ...) {
             rownames(x[])
+          })
+setMethod('featIDs', signature(x = 'giottoPoints', feat_type = 'missing'),
+          function(x, ...) {
+            unique(x@spatVector$feat_ID)
           })
 # no features generic for dimObj
 
@@ -135,7 +144,10 @@ setMethod('spin', signature(x = 'giottoPoints'),
           function(x, angle, x0 = NULL, y0 = NULL) {
             if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
             if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
-            x@spatVector = terra::spin(x@spatVector)
+            x@spatVector = terra::spin(x@spatVector,
+                                       angle = angle,
+                                       x0 = x0,
+                                       y0 = y0)
             return(x)
           })
 
@@ -169,6 +181,21 @@ setMethod('spin', signature(x = 'spatLocsObj'),
                                            rcenter = c(x = x0, y = y0, z = z0))
             return(x)
           })
+
+
+
+
+# t() S4 generic ####
+setMethod('t', signature(x = 'spatLocsObj'), function(x) {
+  sdimy = sdimx = NULL
+  x = data.table::copy(x)
+  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
+  return(x)
+})
+
+
+
+
 
 
 
@@ -482,7 +509,16 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
 #' @describeIn plot-generic Plot a spatLocsObj
 #' @export
 setMethod('plot', signature(x = 'spatLocsObj', y = 'missing'), function(x, ...) {
-  plot(x = x[]$sdimx, y = x[]$sdimy, asp = 1, ...)
+  l = list(...)
+  if(is.null(l$asp)) l$asp = 1
+  if(is.null(l$xlab)) l$xlab = ''
+  if(is.null(l$ylab)) l$ylab = ''
+  if(is.null(l$cex)) l$cex = 0.5
+  if(nrow(x) > 10000) {
+    if(is.null(l$pch)) l$pch = '.'
+  }
+
+  do.call('plot', append(l, list(x = x[]$sdimx, y = x[]$sdimy)))
 })
 
 
