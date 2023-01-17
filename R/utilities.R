@@ -671,7 +671,23 @@ time_format = function(secs) {
   }
 }
 
+# radians and degrees ####
+#' @title Radian/degree conversions
+#' @name degrees
+#' @description Convert radians to degrees and vice versa
+#' @param deg degrees
+#' @param rad radians
+#' @keywords internal
+NULL
 
+#' @describeIn degrees Degrees to radians
+radians = function(deg) {
+  deg * pi / 180
+}
 
-
+#' @describeIn degrees Radians to degrees
+#' @keywords internal
+degrees = function(rad) {
+  rad * 180 / pi
+}
 

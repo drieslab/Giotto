@@ -4,10 +4,14 @@
 \alias{giottoToSeurat}
 \title{Convert Giotto to Seurat}
 \usage{
-giottoToSeurat(obj_use = NULL, ...)
+giottoToSeurat(gobject, spat_unit = NULL, obj_use = NULL, ...)
 }
 \arguments{
-\item{obj_use}{Giotto object}
+\item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{obj_use}{Giotto object (deprecated, use gobject)}
 
 \item{...}{additional params to pass to \code{\link{get_spatial_locations}}}
 }
@@ -15,5 +19,7 @@ giottoToSeurat(obj_use = NULL, ...)
 Seurat object
 }
 \description{
-Converts Giotto object into a Seurat object
+Converts Giotto object into a Seurat object. This functions extracts
+specific sets of data belonging to specified spatial unit.
+The default values are 'cell' and 'rna' respectively.
 }
