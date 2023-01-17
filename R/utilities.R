@@ -116,6 +116,7 @@ colMeans_flex = function(mymatrix) {
 #' @title t_flex
 #' @name t_flex
 #' @param mymatrix matrix to use
+#' @include generics.R
 #' @keywords internal
 t_flex = function(mymatrix) {
 
@@ -125,6 +126,8 @@ t_flex = function(mymatrix) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::t(mymatrix))
+  } else if(inherits(mymatrix, 'spatLocsObj')){
+    return(t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)
     mymatrix = base::t(mymatrix)
@@ -132,6 +135,9 @@ t_flex = function(mymatrix) {
   }
 }
 
+t.spatLocsObj = function(mymatrix) {
+  t(mymatrix)
+}
 
 
 #' @title cor_flex
