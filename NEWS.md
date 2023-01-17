@@ -8,6 +8,7 @@
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
 - New `wrap()` and `unwrap()` generics for `giotto`, `giottoPoints`, and `giottoPolygons`
+- New `spatIDs()` and `featIDs()` generics
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
 - New `createGiottoMerscopeObject()` convenience function
 - Add packages `exactextractr` and `sf` to "suggests" packages
