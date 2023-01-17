@@ -110,6 +110,137 @@ dt_to_matrix <- function(x) {
 }
 
 
+#' @title Over-allocation for giotto DT-based info
+#' @description Finds DT based objects, overallocates the data.tables, then sets
+#' the objects back in the giotto object
+#' @param gobject giotto object
+#' @keywords internal
+giotto_alloc_dt_slots = function(gobject) {
+
+  # data.table vars
+  spat_unit = feat_type = name = NULL
+
+  # metadata
+  avail_cm = list_cell_metadata(gobject)
+  if(!is.null(avail_cm)) {
+    for(cm_i in seq(nrow(avail_cm))) {
+      cm = get_cell_metadata(gobject = gobject,
+                             spat_unit = avail_cm[cm_i, spat_unit],
+                             feat_type = avail_cm[cm_i, feat_type],
+                             output = 'cellMetaObj',
+                             copy_obj = FALSE)
+      if(!is.null(cm[])) {
+        cm[] = data.table::setalloccol(cm[])
+        gobject = set_cell_metadata(gobject = gobject,
+                                    metadata = cm,
+                                    set_defaults = FALSE,
+                                    verbose = FALSE)
+      }
+    }
+  }
+
+  avail_fm = list_feat_metadata(gobject)
+  if(!is.null(avail_fm)) {
+    for(fm_i in seq(nrow(avail_fm))) {
+      fm = get_feature_metadata(gobject = gobject,
+                                spat_unit = avail_fm[fm_i, spat_unit],
+                                feat_type = avail_fm[fm_i, feat_type],
+                                output = 'featMetaObj',
+                                copy_obj = FALSE)
+      if(!is.null(fm[])) {
+        fm[] = data.table::setalloccol(fm[])
+        gobject = set_feature_metadata(gobject = gobject,
+                                       metadata = fm,
+                                       set_defaults = FALSE,
+                                       verbose = FALSE)
+      }
+    }
+  }
+
+  # spatlocs
+  avail_sl = list_spatial_locations(gobject)
+  if(!is.null(avail_sl)) {
+    for(sl_i in seq(nrow(avail_sl))) {
+      sl = get_spatial_locations(gobject = gobject,
+                                 spat_unit = avail_sl[sl_i, spat_unit],
+                                 spat_loc_name = avail_sl[sl_i, name],
+                                 output = 'spatLocsObj',
+                                 copy_obj = FALSE)
+      if(!is.null(sl[])) {
+        sl[] = data.table::setalloccol(sl[])
+        gobject = set_spatial_locations(gobject = gobject,
+                                        spatlocs = sl,
+                                        set_defaults = FALSE,
+                                        verbose = FALSE)
+      }
+    }
+  }
+
+  # spatial enrichment
+  avail_se = list_spatial_enrichments(gobject)
+  if(!is.null(avail_se)) {
+    for(se_i in seq(nrow(avail_se))) {
+      se = get_spatial_enrichment(gobject = gobject,
+                                  spat_unit = avail_se[se_i, spat_unit],
+                                  feat_type = avail_se[se_i, feat_type],
+                                  enrichm_name = avail_se[se_i, name],
+                                  output = 'spatEnrObj',
+                                  copy_obj = FALSE)
+      if(!is.null(se[])) {
+        se[] = data.table::setalloccol(se[])
+        gobject = set_spatial_enrichment(gobject = gobject,
+                                         spatenrichment = se,
+                                         set_defaults = FALSE,
+                                         verbose = FALSE)
+      }
+    }
+  }
+
+  # spatial network
+  avail_sn = list_spatial_networks(gobject)
+  if(!is.null(avail_sn)) {
+    for(sn_i in seq(nrow(avail_sn))) {
+      sn = get_spatialNetwork(gobject = gobject,
+                              spat_unit = avail_sn[sn_i, spat_unit],
+                              name = avail_sn[sn_i, name],
+                              output = 'spatialNetworkObj')
+      if(!is.null(slot(sn, 'networkDT_before_filter'))) {
+        slot(sn, 'networkDT_before_filter') = data.table::setalloccol(slot(sn, 'networkDT_before_filter'))
+      }
+      if(!is.null(sn[])) {
+        sn[] = data.table::setalloccol(sn[])
+        gobject = set_spatialNetwork(gobject = gobject,
+                                     spatial_network = sn,
+                                     verbose = FALSE,
+                                     set_defaults = FALSE)
+      }
+    }
+  }
+
+  # spatial grid
+  avail_sg = list_spatial_grids(gobject)
+  if(!is.null(avail_sg)) {
+    for(sg_i in seq(nrow(avail_sg))) {
+      sg = get_spatialGrid(gobject = gobject,
+                           spat_unit = avail_sg[sg_i, spat_unit],
+                           feat_type = avail_sg[sg_i, feat_type],
+                           name = avail_sg[sg_i, feat_type],
+                           return_grid_Obj = TRUE)
+      if(!is.null(sg[])) {
+        sg[] = data.table::setalloccol(sg[])
+        gobject = set_spatialGrid(gobject = gobject,
+                                  spatial_grid = sg,
+                                  verbose = FALSE,
+                                  set_defaults = FALSE)
+      }
+    }
+  }
+  return(gobject)
+}
+
+
+
+
 #' @title mygini_fun
 #' @description calculate gini coefficient
 #' @keywords internal
@@ -695,7 +826,7 @@ saveGiotto = function(gobject,
       dir.create(final_dir)
     }
   } else {
-    dir.create(final_dir)
+    dir.create(final_dir, recursive = TRUE)
   }
 
   ## save spatVector objects related to feature information
@@ -703,10 +834,10 @@ saveGiotto = function(gobject,
   feat_info_names = list_feature_info_names(gobject)
 
   if(!is.null(feat_info_names)) {
+    feat_dir = paste0(final_dir,'/','Features')
+    dir.create(feat_dir)
     for(feat in feat_info_names) {
       if(verbose) wrap_msg('For feature: ', feat, '\n')
-      feat_dir = paste0(final_dir,'/','Features')
-      dir.create(feat_dir)
 
       # original spatvector
       if(!is.null(gobject@feat_info[[feat]]@spatVector)) {
@@ -726,12 +857,11 @@ saveGiotto = function(gobject,
   spat_info_names = list_spatial_info_names(gobject)
 
   if(!is.null(spat_info_names)) {
+    spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
+    dir.create(spatinfo_dir)
     for(spatinfo in spat_info_names) {
 
       if(verbose) wrap_msg('For spatial information: ', spatinfo, '\n')
-
-      spatinfo_dir = paste0(final_dir,'/','SpatialInfo')
-      dir.create(spatinfo_dir)
 
       # original spatVectors
       if(!is.null(gobject@spatial_info[[spatinfo]]@spatVector)) {
@@ -764,13 +894,16 @@ saveGiotto = function(gobject,
   image_names = list_images_names(gobject, img_type = 'largeImage')
 
   if(!is.null(image_names)) {
+    image_dir = paste0(final_dir,'/','Images')
+    dir.create(image_dir)
     for(image in image_names) {
       if(verbose) wrap_msg('For image information: ', image, '\n')
 
-      image_dir = paste0(final_dir,'/','Images')
-      dir.create(image_dir)
-
       if(!is.null(gobject@largeImages[[image]]@raster_object)) {
+        # save extent info just in case
+        gobject@largeImages[[image]]@extent = terra::ext(gobject@largeImages[[image]]@raster_object)[]
+
+        # save raster
         filename = paste0(image_dir, '/', image, '_spatRaster')
         terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
       }
@@ -797,6 +930,7 @@ saveGiotto = function(gobject,
 #' @description Saves a Giotto object to a specific folder structure
 #' @param path_to_folder path to folder where Giotto object was stored with \code{\link{saveGiotto}}
 #' @param load_params additional parameters for loading or reading giotto object
+#' @param reconnect_giottoImage (default = TRUE) whether to attempt reconnection of magick based image objects
 #' @param python_path (optional) manually set your python path
 #' @param verbose be verbose
 #' @return Giotto object
@@ -809,6 +943,7 @@ saveGiotto = function(gobject,
 #' @export
 loadGiotto = function(path_to_folder,
                       load_params = list(),
+                      reconnect_giottoImage = TRUE,
                       python_path = NULL,
                       verbose = TRUE) {
 
@@ -850,57 +985,72 @@ loadGiotto = function(path_to_folder,
   }
 
   ## 3. read in spatial polygons
-  if(verbose) wrap_msg('3. read Giotto spatial information \n')
-  ## 3.1. shapes
-  if(verbose) wrap_msg('3.1 read Giotto spatial shape information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp')
-  print(spat_files)
+  if(isTRUE(verbose)) wrap_msg('3. read Giotto spatial information \n')
+  spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
+  spat_files = basename(spat_paths)
   if(length(spat_files) != 0) {
+
+    ## 3.1. shapes
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.1 read Giotto spatial shape information \n')
+      print(spat_files)
+    }
     spat_names = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVector.shp', full.names = TRUE)
     for(spat_i in 1:length(spat_names)) {
       spatVector = terra::vect(x = spat_paths[spat_i])
       spat_name = spat_names[spat_i]
-      if(verbose) spat_name
+      if(isTRUE(verbose)) message(spat_name)
       gobject@spatial_info[[spat_name]]@spatVector = spatVector
     }
-  }
 
-  ## 3.2. centroids
-  if(verbose) wrap_msg('3.2 read Giotto spatial centroid information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp')
-  print(spat_files)
+    ## 3.2. centroids
+    centroid_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorCentroids.shp')
+    centroid_paths = sapply(centroid_search_term, function(gp_centroid) {
+      list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = gp_centroid, full.names = TRUE)
+    }, USE.NAMES = FALSE)
+    centroid_files = basename(centroid_paths)
 
-  if(length(spat_files) != 0) {
-    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids.shp', full.names = TRUE)
-    for(spat_i in 1:length(spat_names)) {
-      spatVector = terra::vect(x = spat_paths[spat_i])
-      spat_name = spat_names[spat_i]
-      if(verbose) spat_name
-      gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.2 read Giotto spatial centroid information \n')
+      print(centroid_files)
     }
-  }
-
-  ## 3.3. overlaps
-  if(verbose) wrap_msg('3.3 read Giotto spatial overlap information \n')
-  spat_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
-  print(spat_files)
-
-  if(length(spat_files) != 0) {
-    spat_names = gsub(spat_files, pattern = '_spatInfo_spatVectorOverlaps.shp', replacement = '')
-    spat_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp', full.names = TRUE)
-
-    for(spat_i in 1:length(spat_names)) {
-      spatVector = terra::vect(x = spat_paths[spat_i])
-
-      feat_name = strsplit(spat_names[spat_i], split = '_')[[1]][1]
-      spat_name =  strsplit(spat_names[spat_i], split = '_')[[1]][2]
-
-      if(verbose) wrap_msg(spat_name, ' and ', feat_name)
-      gobject@spatial_info[[spat_name]]@overlaps[[feat_name]] = spatVector
+    if(length(centroid_files != 0)) {
+      spat_names = gsub(centroid_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+      for(spat_i in 1:length(spat_names)) {
+        spatVector = terra::vect(x = centroid_paths[spat_i])
+        spat_name = spat_names[spat_i]
+        if(isTRUE(verbose)) message(spat_name)
+        gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+      }
     }
 
+
+    ## 3.3. overlaps
+    overlap_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorOverlaps.shp')
+    overlap_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
+
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.3 read Giotto spatial overlap information \n')
+      print(overlap_files)
+    }
+    if(length(overlap_files != 0)) {
+      # find overlaps per spatVector
+      for(sv_i in seq_along(overlap_search_term)) {
+        overlap_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = overlap_search_term[sv_i], full.names = TRUE)
+        overlap_filenames = basename(overlap_paths)
+
+        for(spat_i in seq_along(overlap_filenames)) {
+          spatVector = terra::vect(x = overlap_paths[spat_i])
+
+          feat_name = gsub(overlap_filenames[spat_i], pattern = paste0('_', overlap_search_term[sv_i]), replacement = '')
+          spat_name = gsub(overlap_filenames[spat_i], pattern = paste0(feat_name, '_'), replacement = '')
+          spat_name = gsub(spat_name, pattern = '_spatInfo_spatVectorOverlaps.shp', replacement = '')
+
+          if(isTRUE(verbose)) wrap_msg(spat_name, ' and ', feat_name)
+          gobject@spatial_info[[spat_name]]@overlaps[[feat_name]] = spatVector
+        }
+      }
+    }
 
   }
 
@@ -908,7 +1058,7 @@ loadGiotto = function(path_to_folder,
 
 
   ## 4. images
-  if(verbose) wrap_msg('3. read Giotto image information \n')
+  if(verbose) wrap_msg('\n3. read Giotto image information \n')
   image_files = list.files(path = paste0(path_to_folder, '/Images'))
   if(length(image_files) != 0) {
     image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))
@@ -921,11 +1071,23 @@ loadGiotto = function(path_to_folder,
     }
   }
 
+  if(isTRUE(reconnect_giottoImage)) {
+    if(list_images(gobject)[img_type == 'image', .N] > 0) {
+      gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
+    }
+  }
 
+
+  ## 5. Update python path
   identified_python_path = set_giotto_python_path(python_path = python_path)
   gobject = changeGiottoInstructions(gobject = gobject,
                                      params = c('python_path'),
                                      new_values = c(identified_python_path))
+
+  ## 6. overallocate for data.tables
+  # (data.tables when read from disk have a truelength of 0)
+  gobject = giotto_alloc_dt_slots(gobject)
+
 
   return(gobject)
 

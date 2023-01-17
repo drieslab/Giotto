@@ -2337,7 +2337,7 @@ calculateOverlapPolygonImages = function(gobject,
 
   image_vector_c = do.call('c', image_list)
 
-  # convert spatVectot to sf object
+  # convert spatVector to sf object
   if(!is.null(poly_subset)) {
     poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector[poly_subset])
   } else{
@@ -2905,11 +2905,11 @@ overlapImagesToMatrix = function(gobject,
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
                                         spat_unit = poly_info, feat_type = feat_info)
-    gobject = set_cell_metadata(gobject = gobject, S4_cell_meta)
+    gobject = set_cell_metadata(gobject = gobject, S4_cell_meta, set_defaults = FALSE)
 
     S4_feat_meta = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = feat_IDs),
                                         spat_unit = poly_info, feat_type = feat_info)
-    gobject = set_feature_metadata(gobject = gobject, S4_feat_meta)
+    gobject = set_feature_metadata(gobject = gobject, S4_feat_meta, set_defaults = FALSE)
 
 
     # add feat_ID and cell_ID

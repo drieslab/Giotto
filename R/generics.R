@@ -3,6 +3,174 @@
 # NOTE: initialize generics are in classes.R #
 
 
+#' @title Cell and feature names
+#' @name cells-generic
+#' @description Get the cells and feature names of a giotto object or subobject
+#' @param x an object
+#' @param spat_unit (optional) specify which spatial unit
+#' @param feat_type (optional) specify which feature type
+#' @param ... additional parameters to pass
+#' @include classes.R
+#' @usage
+#' cells(x, spat_unit, ...)
+#'
+#' features(x, feat_type, ...)
+#'
+#' ## Default S4 method for signatures:
+#' 'giotto', 'exprObj', 'spatLocsObj', 'cellMetaObj', 'spatialNetworkObj' 'dimObj'
+setGeneric('cells', function(x, spat_unit, ...) standardGeneric('cells'))
+setGeneric('features', function(x, feat_type, ...) standardGeneric('features'))
+
+
+setMethod('cells', signature(x = 'giotto', spat_unit = 'missing'),
+          function(x, ...) {
+            get_cell_id(gobject = x, ...)
+          })
+setMethod('cells', signature(x = 'giotto', spat_unit = 'character'),
+          function(x, spat_unit, ...) {
+            get_cell_id(gobject = x, spat_unit, ...)
+          })
+setMethod('cells', signature(x = c('exprObj'), spat_unit = 'missing'),
+          function(x, ...) {
+            colnames(x[])
+          })
+setMethod('cells', signature(x = c('spatLocsObj'), spat_unit = 'missing'),
+          function(x, ...) {
+            x[][, cell_ID]
+          })
+setMethod('cells', signature(x = c('cellMetaObj'), spat_unit = 'missing'),
+          function(x, ...) {
+            x[][, cell_ID]
+          })
+setMethod('cells', signature(x = c('spatialNetworkObj'), spat_unit = 'missing'),
+          function(x, ...) {
+            unique(c(sn[][, from], sn[][, to]))
+          })
+setMethod('cells', signature(x = 'dimObj', spat_unit = 'missing'),
+          function(x, ...) {
+            rownames(x@coordinates)
+          })
+
+
+setMethod('features', signature(x = 'giotto', feat_type = 'missing'),
+          function(x, ...) {
+            get_feat_id(gobject = x, ...)
+          })
+setMethod('features', signature(x = 'giotto', feat_type = 'character'),
+          function(x, feat_type, ...) {
+            get_feat_id(gobject = x, feat_type, ...)
+          })
+setMethod('features', signature(x = 'exprObj', feat_type = 'missing'),
+          function(x, ...) {
+            rownames(x[])
+          })
+# no features generic for dimObj
+
+
+
+
+
+
+
+# colnames and rownames generics ####
+setMethod('colnames', signature(x = 'exprObj'),
+          function(x) {
+            colnames(x[])
+          })
+setMethod('rownames', signature(x = 'exprObj'),
+          function(x) {
+            rownames(x[])
+          })
+
+
+
+
+# spin() S4 generic ####
+
+#' @title Spin an object
+#' @name spin-generic
+#' @description Spin (rotate) an object spatially (limited to xy rotations)
+#' @param x object
+#' @param angle numeric. Angle of rotation in degrees
+#' @param x0 numeric. x-coordinate of the center of rotation. Defaults to center x val if not given.
+#' @param y0 numeric. y-coordinate of the center of rotation. Defaults to center y val if not given.
+NULL
+
+#' @describeIn spin-generic Spin a giottoPolygon object
+#' @importMethodsFrom terra spin
+#' @export
+setMethod('spin', signature(x = 'giottoPolygon'),
+          function(x, angle, x0 = NULL, y0 = NULL) {
+            if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
+            if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
+            x@spatVector = terra::spin(x = x@spatVector,
+                                       angle = angle,
+                                       x0 = x0,
+                                       y0 = y0)
+            if(!is.null(x@spatVectorCentroids)) {
+              x@spatVectorCentroids = terra::spin(x = x@spatVectorCentroids,
+                                                  angle = angle,
+                                                  x0 = x0,
+                                                  y0 = y0)
+            }
+            if(!is.null(x@overlaps)) {
+              lapply(x@overlaps, function(overlap) {
+                if(inherits(overlap, 'SpatVector')) {
+                  terra::spin(x = overlap,
+                              angle = angle,
+                              x0 = x0,
+                              y0 = y0)
+                } else {
+                  overlap
+                }
+              })
+            }
+            return(x)
+          })
+
+#' @describeIn spin-generic Spin a giottoPoints object
+#' @importMethodsFrom terra spin
+#' @export
+setMethod('spin', signature(x = 'giottoPoints'),
+          function(x, angle, x0 = NULL, y0 = NULL) {
+            if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
+            if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
+            x@spatVector = terra::spin(x@spatVector)
+            return(x)
+          })
+
+#' @describeIn spin-generic Spin a spatLocsObj
+#' @importMethodsFrom terra spin
+#' @param z0 spatLocsObj specific. Numeric. z-coordinate of the center of rotation.
+#' Depending on if z data is present, defaults to either 0 or center z val if not given.
+#' @param xy_angle spatLocsObj specific. xy plane rotation in degrees.
+#' Overrides angle param
+#' @param zy_angle spatLocsObj specific. zy plane rotation
+#' @param xz_angle spatLocsObj specific. xz plane rotation
+#' @export
+setMethod('spin', signature(x = 'spatLocsObj'),
+          function(x, angle = NULL, x0 = NULL, y0 = NULL, z0 = NULL,
+                   xy_angle = NULL, zy_angle = NULL, xz_angle = NULL) {
+            if(!is.null(angle)) xy_angle = angle
+            if(is.null(xy_angle)) xy_angle = 0
+            if(is.null(zy_angle)) zy_angle = 0
+            if(is.null(xz_angle)) xz_angle = 0
+            angles = c(xy = xy_angle, zy = zy_angle, xz = xz_angle)
+            angles = radians(angles)
+
+            if(is.null(x0)) x0 = mean(c(min(x[]$sdimx), max(x[]$sdimx)))
+            if(is.null(y0)) y0 = mean(c(min(x[]$sdimy), max(x[]$sdimy)))
+            if('sdimz' %in% colnames(x[])) {
+              if(is.null(z0)) z0 = mean(c(min(x[]$sdimz), max(x[]$sdimz)))
+              else z0 = 0
+            }
+            x[] = rotate_spatial_locations(spatlocs = x[],
+                                           rotateradians = angles,
+                                           rcenter = c(x = x0, y = y0, z = z0))
+            return(x)
+          })
+
+
 
 #' @title Dimensions of giotto objects
 #' @name dims-generic
@@ -65,6 +233,133 @@ setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
 #' @describeIn dims-generic Find dimensions of giotto S4s with data.table based \code{metaDT} slots
 #' @export
 setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
+
+
+
+# wrap() generic ####
+
+#' @title Wrap giotto terra pointer information
+#' @name wrap-generic
+#' @description Extension of wrap methods from terra for Giotto's terra-based S4
+#' objects. Allows pointer information to be packaged into memory so that it can
+#' be passed over a connection (e.g. nodes on a computer cluster)
+#' @param x giottoPolygon or giottoPoints
+NULL
+
+
+#' @describeIn wrap-generic Wrap giottoPolygon
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giottoPolygon'),
+          function(x) {
+            pgp = new('packedGiottoPolygon')
+            pgp@name = x@name
+            pgp@packed_spatVector = terra::wrap(x@spatVector)
+            if(!is.null(x@spatVectorCentroids)) {
+              pgp@packed_spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
+            }
+            if(!is.null(x@overlaps)) {
+              pgp@packed_overlaps = lapply(x@overlaps, function(sv) {
+                if(inherits(sv, 'SpatVector')) {
+                  terra::wrap(sv)
+                } else {
+                  sv
+                }
+              })
+            }
+            return(pgp)
+          }
+)
+
+
+#' @describeIn wrap-generic Wrap giotto
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giotto'),
+          function(x) {
+            pg = new('packedGiotto')
+            g_slots = methods::slotNames('giotto')
+            g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
+            for(g_slot in g_slots) {
+              slot(pg, g_slot) = slot(x, g_slot)
+            }
+            pg@packed_spatial_info = lapply(x@spatial_info, wrap)
+            pg@packed_feat_info = lapply(x@feat_info, wrap)
+            return(pg)
+          })
+
+
+#' @describeIn wrap-generic Wrap giottoPoints
+#' @importMethodsFrom terra wrap
+#' @export
+setMethod('wrap', signature(x = 'giottoPoints'),
+          function(x) {
+            pgp = new('packedGiottoPoints')
+            pgp@feat_type = x@feat_type
+            pgp@packed_spatVector = terra::wrap(x@spatVector)
+            pgp@networks = x@networks
+            return(pgp)
+          }
+)
+
+
+
+#' @describeIn wrap-generic Unwrap giottoPolygon
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiottoPolygon'),
+          function(x) {
+            gp = new('giottoPolygon')
+            gp@name = x@name
+            gp@spatVector = terra::unwrap(x@packed_spatVector)
+            if(!is.null(x@packed_spatVectorCentroids)) {
+              gp@spatVectorCentroids = terra::unwrap(x@packed_spatVectorCentroids)
+            }
+            if(length(x@packed_overlaps) > 0) {
+              gp@overlaps = lapply(x@packed_overlaps, function(sv) {
+                if(inherits(sv, 'PackedSpatVector')) {
+                  terra::unwrap(sv)
+                } else {
+                  sv
+                }
+              })
+            }
+            return(gp)
+          }
+)
+
+
+
+#' @describeIn wrap-generic Unwrap giottoPolygon
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiottoPoints'),
+          function(x) {
+            gp = new('giottoPoints')
+            gp@feat_type = x@feat_type
+            gp@spatVector = terra::unwrap(x@packed_spatVector)
+            gp@networks = x@networks
+            return(gp)
+            }
+)
+
+
+#' @describeIn wrap-generic Unwrap giotto
+#' @importMethodsFrom terra unwrap
+#' @export
+setMethod('unwrap', signature(x = 'packedGiotto'),
+          function(x) {
+            gobj = new('giotto')
+            g_slots = methods::slotNames('giotto')
+            g_slots = g_slots[!g_slots %in% c('spatial_info', 'feat_info')]
+            for(g_slot in g_slots) {
+              slot(gobj, g_slot) = slot(x, g_slot)
+            }
+            gobj@spatial_info = lapply(x@packed_spatial_info, unwrap)
+            gobj@feat_info = lapply(x@packed_feat_info, unwrap)
+            return(gobj)
+          })
+
 
 
 
@@ -182,6 +477,14 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
     terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
   }
 })
+
+
+#' @describeIn plot-generic Plot a spatLocsObj
+#' @export
+setMethod('plot', signature(x = 'spatLocsObj', y = 'missing'), function(x, ...) {
+  plot(x = x[]$sdimx, y = x[]$sdimy, asp = 1, ...)
+})
+
 
 
 # copy() S4 generic ####

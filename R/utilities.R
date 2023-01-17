@@ -151,12 +151,14 @@ cor_flex = function(x, ...) {
 #' @param X list to use
 #' @param FUN function to be performed
 #' @param cores cores to use
+#' @param future.seed whether to set a seed when using future_lapply
 #' @param fun deprecated. Backwards compatibility for FUN
 #' @param ... other arguments to pass
 #' @keywords internal
 lapply_flex = function(X,
                        FUN,
                        cores = NA,
+                       future.seed = TRUE,
                        fun = NULL,
                        ...) {
 
@@ -182,7 +184,7 @@ lapply_flex = function(X,
 
 
   # future_lapply call
-  save_list = future.apply::future_lapply(X = X, FUN = FUN, future.seed = TRUE, ...)
+  save_list = future.apply::future_lapply(X = X, FUN = FUN, future.seed = future.seed, ...)
 
   #if(os == 'unix') {
   #  save_list = parallel::mclapply(X = X, mc.cores = cores,
@@ -669,7 +671,23 @@ time_format = function(secs) {
   }
 }
 
+# radians and degrees ####
+#' @title Radian/degree conversions
+#' @name degrees
+#' @description Convert radians to degrees and vice versa
+#' @param deg degrees
+#' @param rad radians
+#' @keywords internal
+NULL
 
+#' @describeIn degrees Degrees to radians
+radians = function(deg) {
+  deg * pi / 180
+}
 
-
+#' @describeIn degrees Radians to degrees
+#' @keywords internal
+degrees = function(rad) {
+  rad * 180 / pi
+}
 
