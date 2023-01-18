@@ -186,6 +186,7 @@ setMethod('spin', signature(x = 'spatLocsObj'),
 
 
 # t() S4 generic ####
+
 setMethod('t', signature(x = 'spatLocsObj'), function(x) {
   sdimy = sdimx = NULL
   x = data.table::copy(x)
@@ -193,6 +194,10 @@ setMethod('t', signature(x = 'spatLocsObj'), function(x) {
   return(x)
 })
 
+# S3 definition
+t.spatLocsObj = function(mymatrix) {
+  t(mymatrix)
+}
 
 
 

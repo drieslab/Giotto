@@ -1155,7 +1155,7 @@ seuratToGiotto = function(sobject,
 
     # Dimension Reduction
     if(sum(sapply(dim_reduction,function(x) length(sobject@reductions[[x]]))) == 0) {
-      dim_reduc = NULL
+      dimReduc_list = NULL
     } else {
       dimReduc_list = lapply(dim_reduction,function(x){
         dim_coord = as.matrix(Seurat::Embeddings(object = sobject,reduction = x))

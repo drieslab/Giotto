@@ -116,7 +116,6 @@ colMeans_flex = function(mymatrix) {
 #' @title t_flex
 #' @name t_flex
 #' @param mymatrix matrix to use
-#' @include generics.R
 #' @keywords internal
 t_flex = function(mymatrix) {
 
@@ -135,9 +134,6 @@ t_flex = function(mymatrix) {
   }
 }
 
-t.spatLocsObj = function(mymatrix) {
-  t(mymatrix)
-}
 
 
 #' @title cor_flex
