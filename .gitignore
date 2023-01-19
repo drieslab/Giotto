@@ -8,3 +8,4 @@ inst/doc
 merfish_preoptic/
 .vscode/*
 .Rprofile
+inst/python/.ipynb_checkpoints/
