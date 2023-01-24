@@ -473,6 +473,11 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     if (length(int_num) > 1){
       idx2 = which(colSums(dwls_int_cells) > 0)
       dwls_int_cells = dwls_int_cells[, idx2]
+      # all the inteacted cells dwls have same cell type with proportion=1
+      if (length(idx2) == 1){
+        dwls_int_cells = matrix(dwls_int_cells, ncol = 1,
+                                dimnames = list(spot_pairs$int_cell_IDS,names(idx2)))
+      }
     } else{
       # target cell only contain 1 inteacted cell
       idx2 = which(dwls_int_cells > 0)
