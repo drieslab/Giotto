@@ -1,3 +1,8 @@
+# Giotto Suite 3.1.1 (2023-01-25)  
+  
+## Added
+- Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
+
 # TBD RELEASE
 
 ## Breaking Changes
