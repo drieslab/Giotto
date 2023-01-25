@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 3.1
+Version: 3.1.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -11,6 +11,8 @@ Authors@R: c(
 	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut")),
     person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
+		 role = c("aut")),
+		 person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
 		 role = c("aut"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
@@ -142,6 +144,7 @@ Collate:
     'spatial_genes.R'
     'spatial_in_situ_visuals.R'
     'spatial_interaction.R'
+    'spatial_interaction_spot.R'
     'spatial_interaction_visuals.R'
     'spatial_structures.R'
     'spatial_visuals.R'
