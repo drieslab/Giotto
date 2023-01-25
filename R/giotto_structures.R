@@ -2,6 +2,33 @@
 
 ## ** cell shape polygons ####
 
+#' @title do_gpoly
+#' @name do_gpoly
+#' @description Perform function on all spatVector-based slots of giottoPolygon
+#' @param x giottoPolygon
+#' @param what a call to do
+#' @param args a \code{list} of additional args
+#' @keywords internal
+do_gpoly = function(x, what, args = NULL) {
+
+  x@spatVector = do.call(what, args = append(list(x@spatVector), args))
+  if(!is.null(x@spatVectorCentroids)) {
+    x@spatVectorCentroids = do.call(what, args = append(list(x@spatVectorCentroids), args))
+  }
+  if(!is.null(x@overlaps)) {
+    x@overlaps = lapply(x@overlaps, function(sv) {
+      if(inherits(sv, 'SpatVector')) {
+        do.call(what, args = append(list(sv), args))
+      } else {
+        sv
+      }
+    })
+  }
+  return(x)
+}
+
+
+
 
 
 #' @title Convert polygon to raster

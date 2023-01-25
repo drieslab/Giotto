@@ -8,6 +8,7 @@
 \alias{plot,giottoPolygon,missing-method}
 \alias{plot,giottoPoints,missing-method}
 \alias{plot,spatLocsObj,missing-method}
+\alias{plot,spatialNetworkObj,missing-method}
 \title{Preview a Giotto spatial object}
 \usage{
 \S4method{plot}{giottoImage,missing}(x, y, ...)
@@ -19,6 +20,8 @@
 \S4method{plot}{giottoPoints,missing}(x, y, point_size = 0.1, feats = NULL, ...)
 
 \S4method{plot}{spatLocsObj,missing}(x, y, ...)
+
+\S4method{plot}{spatialNetworkObj,missing}(x, y, ...)
 }
 \arguments{
 \item{x}{giotto image, giottoPolygon, or giottoPoints object}
@@ -47,6 +50,8 @@ S4 generic for previewing Giotto's image and subcellular objects.
 \item \code{plot(x = giottoPoints, y = missing)}: \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 
 \item \code{plot(x = spatLocsObj, y = missing)}: Plot a spatLocsObj
+
+\item \code{plot(x = spatialNetworkObj, y = missing)}: Plot a spatialNetworkObj
 
 }}
 \concept{plot}

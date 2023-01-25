@@ -13,6 +13,8 @@ select_spatialNetwork(...)
     \item{\code{name}}{name of spatial network}
     \item{\code{output}}{object type to return as. Options: 'spatialNetworkObj' (default),
 'networkDT' and 'networkDT_before_filter' for data.table outputs.}
+    \item{\code{copy_obj}}{whether to copy/duplicate when getting the object (default = TRUE)}
+    \item{\code{verbose}}{be verbose}
     \item{\code{gobject}}{giotto object}
     \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
     \item{\code{set_defaults}}{set default spat_unit and feat_type. Change to FALSE only when}

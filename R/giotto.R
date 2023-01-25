@@ -1292,23 +1292,52 @@ scale_spatial_locations = function(spatlocs,
 }
 
 
-# TODO deprecate in favor of name change since z axis can be involved$
-#' @title xy_translate_spatial_locations
-#' @name xy_translate_spatial_locations
-#' @description Translate given X Y coordinates by given x and y translation values
-#' @param spatlocs spatial locations to use
-#' @param xtranslate value to translate coordinates in the positive x direction
-#' @param ytranslate value to translate coordinates in the positive y direction
-#' @param ztranslate value to translate coordinates in the positive z direction
-#' @keywords internal
-xy_translate_spatial_locations = function(spatlocs,
-                                          xtranslate = 0,
-                                          ytranslate = 0,
-                                          ztranslate = 0) {
+# internal for deprecation
+xy_translate_spatial_locations = function(...) {
+  .Deprecated(new = 'shift_spatial_locations')
 
-  spatlocs$sdimx = spatlocs$sdimx + xtranslate
-  spatlocs$sdimy = spatlocs$sdimy + ytranslate
-  if('sdimz' %in% names(spatlocs)) spatlocs$sdimz = spatlocs$sdimz + ztranslate
+  shift_spatial_locations(...)
+}
+
+
+#' @title Shift spatial locations
+#' @name shift_spatial_locations
+#' @description Shift given coordinates by given translation values
+#' @param spatlocs spatial locations to use
+#' @param dx value to shift coordinates in the positive x direction
+#' @param dy value to shift coordinates in the positive y direction
+#' @param dz value to shift coordinates in the positive z direction
+#' @param xtranslate deprecated. use dx
+#' @param ytranslate deprecated. use dy
+#' @param ztranslate deprecated. use dz
+#' @param copy_obj copy/duplicate object (default = TRUE)
+#' @keywords internal
+shift_spatial_locations = function(spatlocs,
+                                   dx = 0,
+                                   dy = 0,
+                                   dz = 0,
+                                   xtranslate = NULL,
+                                   ytranslate = NULL,
+                                   ztranslate = NULL,
+                                   copy_obj = TRUE) {
+  sdimx = sdimy = sdimz = NULL
+
+  if(!is.null(xtranslate)) {
+    warning(wrap_txt('xtranslate is deprecated. use dx'))
+    dx = xtranslate
+  }
+  if(!is.null(ytranslate)) {
+    warning(wrap_txt('ytranslate is deprecated. use dy'))
+    dy = ytranslate
+  }
+  if(!is.null(ztranslate)) {
+    warning(wrap_txt('ztranslate is deprecated. use dz'))
+    dz = ztranslate
+  }
+
+  spatlocs[, sdimx := sdimx + dx]
+  spatlocs[, sdimy := sdimy + dy]
+  if('sdimz' %in% names(spatlocs)) spatlocs[, sdimz := sdimz + dz]
 
   return(spatlocs)
 }
@@ -1430,6 +1459,37 @@ read_spatial_networks = function(gobject,
 
   return(gobject)
 
+}
+
+
+# See function spatShift in generics.R
+#' @name shift_spatial_network
+#' @title Shift spatial network
+#' @description Shift spatial network coordinates
+#' @param spatnet spatial network data.table
+#' @param dx distance to shift on x axis
+#' @param dy distance to shift on y axis
+#' @param dz distance to shift on z axis
+#' @param copy_obj copy/duplicate object (default = TRUE)
+#' @keywords internal
+shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRUE) {
+  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = sdimz_begin = sdimz_end = NULL
+
+  # if 3D info present
+  is3D = FALSE
+  if(all(c('sdimz_begin', 'sdimz_end') %in% colnames(spatnet))) is3D = TRUE
+
+  if(copy_obj) spatnet = data.table::copy(spatnet)
+
+  spatnet[, `:=`(sdimx_begin = sdimx_begin + dx,
+                 sdimx_end = sdimx_end + dx,
+                 sdimy_begin = sdimy_begin + dy,
+                 sdimy_end = sdimy_end + dy)]
+  if(is3D) {
+    spatnet[, `:=`(sdimz_begin = sdimz_begin + dz,
+                   sdimz_end = sdimz_end + dz)]
+  }
+  return(spatnet)
 }
 
 

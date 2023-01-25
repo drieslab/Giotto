@@ -6,8 +6,6 @@
 \alias{copy,coordDataDT-method}
 \title{Copy an entire object}
 \usage{
-copy(x)
-
 \S4method{copy}{coordDataDT}(x)
 }
 \arguments{
