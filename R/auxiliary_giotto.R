@@ -3438,8 +3438,8 @@ addCellMetadata <- function(gobject,
 
 
   if(length(same_col_names) >= 1) {
-    cat('\n these column names were already used: ', same_col_names, '\n',
-        'and will be overwritten \n')
+    wrap_msg('\nThese column names were already used: ', same_col_names, '\n',
+             'and will be overwritten \n')
     cell_metadata[][, (same_col_names) := NULL]
   }
 
@@ -3479,7 +3479,8 @@ addCellMetadata <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @param new_metadata new metadata to use
+#' @param new_metadata new metadata to use)
+#' @param vector_name (optional) custom name if you provide a single vector
 #' @param by_column merge metadata based on \emph{feat_ID} column in \code{\link{fDataDT}}
 #' @param column_feat_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
@@ -3495,15 +3496,15 @@ addFeatMetadata <- function(gobject,
                             by_column = F,
                             column_feat_ID = NULL) {
 
+  # data.table variables
+  feat_ID = NULL
+
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-
-  # data.table variables
-  feat_ID = NULL
 
   feat_metadata = get_feature_metadata(gobject,
                                        spat_unit = spat_unit,
@@ -3512,6 +3513,36 @@ addFeatMetadata <- function(gobject,
                                        copy_obj = TRUE)
 
   ordered_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
+
+  if(is.vector(new_metadata) | is.factor(new_metadata)) {
+    original_name = deparse(substitute(new_metadata))
+    new_metadata = data.table::as.data.table(new_metadata)
+    if(!is.null(vector_name) & is.character(vector_name)) {
+      colnames(new_metadata) = vector_name
+    } else {
+      colnames(new_metadata) = original_name
+    }
+  } else {
+    new_metadata = data.table::as.data.table(new_metadata)
+  }
+
+  if(is.null(column_feat_ID)) {
+    column_feat_ID = 'feat_ID'
+  }
+
+  # overwrite columns with same name
+  new_col_names = colnames(new_metadata)
+  new_col_names = new_col_names[new_col_names != column_feat_ID]
+  old_col_names = colnames(feat_metadata[])
+  old_col_names = old_col_names[old_col_names != 'feat_ID']
+  same_col_names = new_col_names[new_col_names %in% old_col_names]
+
+  if(length(same_col_names) >= 1) {
+    wrap_msg('\nThese column names were already used: ', same_col_names, '\n',
+             'and will be overwritten \n')
+    feat_metadata[][, (same_col_names) := NULL]
+  }
+
 
   if(by_column == FALSE) {
     feat_metadata[] = cbind(feat_metadata[], new_metadata)
@@ -4742,84 +4773,6 @@ combineSpatialCellMetadataInfo = function(gobject,
 }
 
 
-
-#' @title Query Matrix with data.table syntax
-#' @name mat_queryDT
-#' @description Finds the rows of the Matrix needed to perform the query, converts
-#' first to matrix, transposes, then to data.table after which the query is performed
-#' just as if it had been a cell_ID (rows) by gene (cols) data.table. Only works
-#' when j param is provided.
-#' @param i select by row
-#' @param j select by column or expression to query
-#' @param by return results by which column
-#' @param mtx matrix to use
-#' @keywords internal
-mat_queryDT = function(i = NULL,
-                       j = NULL,
-                       by = cell_ID,
-                       mtx) {
-
-  # data.table vars
-  cell_ID = NULL
-
-  i_sub = deparse(substitute(i))
-  j_sub = deparse(substitute(j))
-  by_sub = deparse(substitute(by))
-
-  # only i
-  if(i_sub != 'NULL' & j_sub == 'NULL' & by_sub == 'NULL') {
-    warning('Only i not supported')
-    return(NULL)
-  }
-
-  # by only
-  # i,by
-  if(i_sub != 'NULL' & by_sub != 'NULL') {
-    warning(wrap_txt('Ignoring by= because j= is not supplied'))
-    return(NULL)
-  }
-
-  query_to_match = paste(i_sub, j_sub, by_sub)
-  print(query_to_match)
-
-  genes = rownames(mtx)
-  gene_matches = genes[sapply(genes, function(x) {grepl(x, query_to_match)})]
-  names(gene_matches) = NULL
-
-  print(gene_matches)
-
-  cell_IDs = colnames(mtx)
-  match_dt = data.table::as.data.table(t_flex(as.matrix(mtx[gene_matches,,drop = FALSE])))
-  match_dt[, cell_ID := cell_IDs]
-
-  print(match_dt)
-
-
-
-  # only j
-  if(i_sub == 'NULL' & j_sub != 'NULL' & by_sub == 'NULL') {
-    return(match_dt[,eval(parse(text = j_sub))])
-  }
-
-  # i,j
-  if(i_sub != 'NULL' & j_sub != 'NULL' & by_sub == 'NULL') {
-    return(match_dt[eval(parse(text = i_sub)),
-                    eval(parse(text = j_sub))])
-  }
-
-  # j,by
-  if(i_sub == 'NULL' & j_sub != 'NULL' & by_sub != 'NULL') {
-    return(match_dt[,eval(parse(text = j_sub)), c(by_sub)])
-  }
-
-  # i,j,by
-  if(i_sub != 'NULL' & j_sub != 'NULL' & by_sub != 'NULL') {
-    return(match_dt[eval(parse(text = i_sub)),
-                    eval(parse(text = j_sub)),
-                    c(by_sub)])
-  }
-
-}
 
 
 

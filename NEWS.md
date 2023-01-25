@@ -2,29 +2,37 @@
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
+- `createSpatialNetwork()` will now output a `spatialNetworkObj` by default when `return_gobject = FALSE`. It is possible to change this back to the data.table output by setting `output = 'data.table'`
 - Set incomplete classes in classes.R as virtual to prevent their instantiation
+- Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
 
 ## Added
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
-- New `wrap()` and `unwrap()` generics for `giotto`, `giottoPoints`, and `giottoPolygons`
-- New `spatIDs()` and `featIDs()` generics
-- Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
-- New `createGiottoMerscopeObject()` convenience function
-- Add packages `exactextractr` and `sf` to "suggests" packages
-- Add package `progressr` to "imports" packages
-- Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
+- New `spatialAutoCorLocal()` and `spatialAutoCorGlobal()` functions to find spatial autocorrelations from expression and cell metadata information
+- New `spatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
-- New `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
-- Add `optional` and `custom_msg` params to `package_check()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
+- Add `plot()` method for `spatialNetworkObj`
+- New `set_row_order_dt()` internal for setting `data.table` to a specific row order by reference
+- New `fread_colmatch()` internal for fread loading a subset of rows based on matches in a specified column
+- Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
+- Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
+- Add `optional` and `custom_msg` params to `package_check()`
+- New `wrap()` and `unwrap()` generics for `giotto`, `giottoPoints`, and `giottoPolygons`
+- New `rotate()`, `t()`, and `spatShift` generics for giotto subobject spatial manipulation
+- New `spatIDs()` and `featIDs()` generics
 - New `objName()` and `objName` generics for setting the names of relevant S4 subobjects
 - New `rbind()` generic to append `giottoPolygon` objects
+- Add packages `exactextractr` and `sf` to "suggests" packages
+- Add package `progressr` to "imports" packages
 
 ## Changes
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
-- Removed `createGiottoCosMxObject()` `aggregate` and `all` workflows until they are updated
+- Update `addFeatMetadata()` to handle replacement of existing columns
+- Update to `show()` method for `spatEnrObj`
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
+- Deprecate `xy_translate_spatial_locations()` in favor of `shift_spatial_locations()`
 - Optimize `readPolygonFilesVizgen()`
 - Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
 - Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk

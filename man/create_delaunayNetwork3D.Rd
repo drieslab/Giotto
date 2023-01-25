@@ -17,6 +17,7 @@ create_delaunayNetwork3D(
   minimum_k = 0,
   options = "Pp",
   return_gobject = TRUE,
+  output = c("spatialNetworkObj", "data.table"),
   ...
 )
 }

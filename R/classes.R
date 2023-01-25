@@ -1120,8 +1120,8 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
     if(!is.na(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
-    if(!is.na(object@spat_unit)) cat(paste0('for spatial unit: "', object@spat_unit, '"\n'))
-    if(!is.null(object@provenance)) cat(paste0('provenance: "', object@provenance, '"\n'))
+    if(!is.na(object@spat_unit)) cat('for spatial unit: "', object@spat_unit, '"\n', sep = '')
+    if(!is.null(object@provenance)) cat('provenance:', object@provenance, '\n')
 
     if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
     if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')
@@ -1353,10 +1353,20 @@ setMethod(
     if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
 
     cat('   ------------------------\n\npreview:\n')
-    if(!is.null(slot(object, 'enrichDT'))) show(slot(object, 'enrichDT')[1:4])
+    if(!is.null(slot(object, 'enrichDT'))) {
+      enr_cols = ncol(slot(object, 'enrichDT'))
+      if(enr_cols > 10L) {
+        show(slot(object, 'enrichDT')[1:4, 1:10])
+        cat(rep(' ', times = getOption('width')/2.5 - 10L), rep('.', 20L),'\n', sep = '')
+        show(slot(object, 'enrichDT')[1:4, 'cell_ID'])
+        cat('...', enr_cols - 11L, ' cols omitted\n', sep = '')
+      } else {
+        show(slot(object, 'enrichDT')[1:4])
+      }
+    }
 
-    cat('\n...remaining colnames:\n')
-    cat('\n', wrap_txt(colnames(slot(object, 'enrichDT'))[-c(1:4)], strWidth = 40), '\n')
+    cat('\n...first 20 remaining colnames:\n')
+    cat('\n', wrap_txt(head(colnames(slot(object, 'enrichDT'))[-c(1:10)], 20L), strWidth = 40L), '\n')
 
     cat('\n\n')
 

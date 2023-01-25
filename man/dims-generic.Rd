@@ -4,9 +4,10 @@
 \alias{dims-generic}
 \alias{nrow,giottoPoints-method}
 \alias{nrow,giottoPolygon-method}
-\alias{nrow,coordDataDT-method}
+\alias{nrow,spatLocsObj-method}
 \alias{nrow,exprData-method}
 \alias{nrow,metaData-method}
+\alias{nrow,spatialNetworkObj-method}
 \alias{ncol,exprData-method}
 \alias{ncol,metaData-method}
 \alias{dim,exprData-method}
@@ -17,11 +18,13 @@
 
 \S4method{nrow}{giottoPolygon}(x)
 
-\S4method{nrow}{coordDataDT}(x)
+\S4method{nrow}{spatLocsObj}(x)
 
 \S4method{nrow}{exprData}(x)
 
 \S4method{nrow}{metaData}(x)
+
+\S4method{nrow}{spatialNetworkObj}(x)
 
 \S4method{ncol}{exprData}(x)
 
@@ -43,11 +46,13 @@ Find the dimensions of an object
 
 \item \code{nrow(giottoPolygon)}: Find rows of giottoPolygon object
 
-\item \code{nrow(coordDataDT)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+\item \code{nrow(spatLocsObj)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
 \item \code{nrow(exprData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
 
 \item \code{nrow(metaData)}: Find rows of giotto S4s with data.table based \code{coordinates} slots
+
+\item \code{nrow(spatialNetworkObj)}: Find rows of spatialNetworkObj
 
 \item \code{ncol(exprData)}: Find cols of giotto S4s with Matrix based \code{exprMat} slots
 

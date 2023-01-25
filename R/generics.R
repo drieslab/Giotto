@@ -3,6 +3,8 @@
 # NOTE: initialize generics are in classes.R #
 
 
+
+# spatIDs and featIDs generic ####
 #' @title Cell and feature names
 #' @name spatIDs-generic
 #' @description Get the cells and feature names of a giotto object or subobject
@@ -55,6 +57,11 @@ setMethod('spatIDs', signature(x = 'giottoPolygon', spat_unit = 'missing'),
           function(x, ...) {
             unique(x@spatVector$poly_ID)
           })
+setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
+          function(x, ...) {
+            cell_ID = NULL
+            x@enrichDT[, cell_ID]
+          })
 
 
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'missing'),
@@ -72,6 +79,10 @@ setMethod('featIDs', signature(x = 'exprObj', feat_type = 'missing'),
 setMethod('featIDs', signature(x = 'giottoPoints', feat_type = 'missing'),
           function(x, ...) {
             unique(x@spatVector$feat_ID)
+          })
+setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
+          function(x, ...) {
+            colnames(x@enrichDT[, -'cell_ID'])
           })
 # no features generic for dimObj
 
@@ -107,34 +118,36 @@ NULL
 
 #' @describeIn spin-generic Spin a giottoPolygon object
 #' @importMethodsFrom terra spin
+#' @include giotto_structures.R
 #' @export
 setMethod('spin', signature(x = 'giottoPolygon'),
           function(x, angle, x0 = NULL, y0 = NULL) {
             if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
             if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
-            x@spatVector = terra::spin(x = x@spatVector,
-                                       angle = angle,
-                                       x0 = x0,
-                                       y0 = y0)
-            if(!is.null(x@spatVectorCentroids)) {
-              x@spatVectorCentroids = terra::spin(x = x@spatVectorCentroids,
-                                                  angle = angle,
-                                                  x0 = x0,
-                                                  y0 = y0)
-            }
-            if(!is.null(x@overlaps)) {
-              lapply(x@overlaps, function(overlap) {
-                if(inherits(overlap, 'SpatVector')) {
-                  terra::spin(x = overlap,
-                              angle = angle,
-                              x0 = x0,
-                              y0 = y0)
-                } else {
-                  overlap
-                }
-              })
-            }
-            return(x)
+            return(do_gpoly(x = x, what = 'terra'::'spin', args = list(angle = angle, x0 = x0, y0 = y0)))
+            # x@spatVector = terra::spin(x = x@spatVector,
+            #                            angle = angle,
+            #                            x0 = x0,
+            #                            y0 = y0)
+            # if(!is.null(x@spatVectorCentroids)) {
+            #   x@spatVectorCentroids = terra::spin(x = x@spatVectorCentroids,
+            #                                       angle = angle,
+            #                                       x0 = x0,
+            #                                       y0 = y0)
+            # }
+            # if(!is.null(x@overlaps)) {
+            #   lapply(x@overlaps, function(overlap) {
+            #     if(inherits(overlap, 'SpatVector')) {
+            #       terra::spin(x = overlap,
+            #                   angle = angle,
+            #                   x0 = x0,
+            #                   y0 = y0)
+            #     } else {
+            #       overlap
+            #     }
+            #   })
+            # }
+            # return(x)
           })
 
 #' @describeIn spin-generic Spin a giottoPoints object
@@ -185,16 +198,38 @@ setMethod('spin', signature(x = 'spatLocsObj'),
 
 
 
-# t() S4 generic ####
-setMethod('t', signature(x = 'spatLocsObj'), function(x) {
-  sdimy = sdimx = NULL
-  x = data.table::copy(x)
-  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
+# spatShift() S4 generic ####
+#' @name spatShift
+#' @title Spatially shift an object
+#' @param dx numeric. The shift on the x axis
+#' @param dy numeric. The shift on the y axis
+#' @param dz numeric. The shift on the z axis
+#' @param ... additional params to pass to methods
+#' @description Shift the spatial locations of an object
+#' @export
+NULL
+
+setGeneric('spatShift', function(x, ...) standardGeneric('spatShift'))
+
+#' @describeIn spatShift Shift the locations of a spatLocsObj
+#' @export
+setMethod('spatShift', signature('spatLocsObj'), function(x, dx = 0, dy = 0, dz = 0,
+                                                          copy_obj = TRUE, ...) {
+  x[] = shift_spatial_locations(spatlocs = x[], dx = dx, dy = dy, dz = dz, ...)
   return(x)
 })
-
-
-
+#' @describeIn spatShift Shift the locations of a spatialNetworkObj
+#' @export
+setMethod('spatShift', signature('spatialNetworkObj'), function(x, dx = 0, dy = 0, dz = 0,
+                                                                copy_obj = TRUE, ...) {
+  x@networkDT = shift_spatial_network(spatnet = x@networkDT,
+                                      dx = dx, dy = dy, dz = dz, ...)
+  if(!is.null(x@networkDT_before_filter)) {
+    x@networkDT_before_filter = shift_spatial_network(spatnet = x@networkDT_before_filter,
+                                                      dx = dx, dy = dy, dz = dz, ...)
+  }
+  return(x)
+})
 
 
 
@@ -208,6 +243,9 @@ NULL
 
 # nrow() S4 generic ####
 
+if(!isGeneric('nrow')) setOldClass('nrow')
+if(!isGeneric('ncol')) setOldClass('ncol')
+if(!isGeneric('dim')) setOldClass('dim')
 
 # setMethod('nrow', signature = 'giotto', function(x) {
 #   avail_exp = list_expression(x)
@@ -217,6 +255,7 @@ NULL
 #                         values = avail_exp$name[1]) %>%
 #     nrow()
 # })
+
 
 #' @describeIn dims-generic Find rows of giottoPoints object
 #' @export
@@ -228,7 +267,8 @@ setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVect
 
 #' @describeIn dims-generic Find rows of giotto S4s with data.table based \code{coordinates} slots
 #' @export
-setMethod('nrow', signature('coordDataDT'), function(x) x@coordinates[,.N])
+setMethod('nrow', signature('spatLocsObj'), function(x) nrow(x@coordinates))
+
 
 # TODO
 # setMethod('dims', signature('coordDataMT'), function(x) nrow(x@coordinates))
@@ -241,6 +281,12 @@ setMethod('nrow', signature('exprData'), function(x) nrow(x@exprMat))
 #' @export
 setMethod('nrow', signature('metaData'), function(x) nrow(x@metaDT))
 
+#' @describeIn dims-generic Find rows of spatialNetworkObj
+#' @export
+setMethod('nrow', signature('spatialNetworkObj'), function(x) nrow(x@networkDT))
+
+setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
+
 # ncol() generic ####
 
 #' @describeIn dims-generic Find cols of giotto S4s with Matrix based \code{exprMat} slots
@@ -250,6 +296,8 @@ setMethod('ncol', signature('exprData'), function(x) ncol(x@exprMat))
 #' @describeIn dims-generic Find cols of giotto S4s with data.table based \code{metaDT} slots
 #' @export
 setMethod('ncol', signature('metaData'), function(x) ncol(x@metaDT))
+
+setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
 
 # dim() generic ####
 
@@ -261,6 +309,57 @@ setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
 #' @export
 setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
+setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
+
+
+
+# t() generic ####
+
+# S4 methods
+#' @title Transpose
+#' @name transpose-generic
+#' @param x object to be transposed
+#' @importMethodsFrom Matrix t
+#' @importMethodsFrom terra t
+#' @aliases t
+if(!isGeneric('t')) setOldClass('t', where = as.environment("package:Giotto"))
+
+#' @describeIn transpose-generic Transpose a spatLocObj
+#' @export
+setMethod('t', signature('spatLocsObj'), function(x) {
+  sdimy = sdimx = NULL
+  x = data.table::copy(x)
+  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
+  return(x)
+})
+#' @describeIn transpose-generic Transpose a spatialNeworkObj
+#' @export
+setMethod('t', signature('spatialNetworkObj'), function(x) {
+  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
+  x = data.table::copy(x)
+  x@networkDT[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
+  if(!is.null(x@networkDT_before_filter)) {
+    x@networkDT_before_filter[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
+  }
+  return(x)
+})
+
+# s3 methods
+t.spatLocsObj = function(x) {
+  sdimy = sdimx = NULL
+  x = data.table::copy(x)
+  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
+  return(x)
+}
+t.spatialNetworkObj = function(x) {
+  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
+  x = data.table::copy(x)
+  x@networkDT[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
+  if(!is.null(x@networkDT_before_filter)) {
+    x@networkDT_before_filter[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
+  }
+  return(x)
+}
 
 
 # wrap() generic ####
@@ -423,7 +522,7 @@ setMethod('rbind2', signature(x = 'giottoPolygon', y = 'giottoPolygon'),
 })
 
 
-setGeneric('rbind', signature = '...')
+if(!isGeneric('rbind')) setGeneric('rbind', signature = '...')
 
 setMethod("rbind", "giottoPolygon", function(..., deparse.level = 1) {
   if(nargs() <= 2L) {
@@ -449,7 +548,7 @@ setMethod("rbind", "giottoPolygon", function(..., deparse.level = 1) {
 #' @aliases plot
 #' @family plot
 #' @exportMethod plot
-setOldClass('plot')
+if(!isGeneric('plot')) setOldClass('plot')
 
 #' @describeIn plot-generic Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
 #' @export
@@ -514,12 +613,54 @@ setMethod('plot', signature(x = 'spatLocsObj', y = 'missing'), function(x, ...) 
   if(is.null(l$xlab)) l$xlab = ''
   if(is.null(l$ylab)) l$ylab = ''
   if(is.null(l$cex)) l$cex = 0.5
-  if(nrow(x) > 10000) {
+  if(nrow(x@coordinates) > 10000L) {
     if(is.null(l$pch)) l$pch = '.'
   }
 
   do.call('plot', append(l, list(x = x[]$sdimx, y = x[]$sdimy)))
 })
+
+
+#' @describeIn plot-generic Plot a spatialNetworkObj
+#' @export
+setMethod('plot', signature(x = 'spatialNetworkObj', y = 'missing'), function(x, ...) {
+  l = list(...)
+  if(is.null(l$asp)) l$asp = 1
+  if(is.null(l$xlab)) l$xlab = ''
+  if(is.null(l$ylab)) l$ylab = ''
+  if(is.null(l$cex)) l$cex = 0.5
+  if(is.null(l$col)) {
+    line_col = 'red'
+  } else {
+    line_col = l$col
+    l$col = NULL
+  }
+  if(is.null(l$lwd)) {
+    line_width = 1L
+  } else {
+    line_width = l$lwd
+    l$lwd = NULL
+  }
+  if(is.null(l$lty)) {
+    line_type = 1L
+  } else {
+    line_type = l$lty
+    l$lty = NULL
+  }
+  # find nodes
+  nodes = unique(rbind(x[][, c('sdimx_begin', 'sdimy_begin')],
+                       x[][, c('sdimx_end', 'sdimy_end')],
+                       use.names = FALSE))
+  if(nrow(nodes) > 10000L) {
+    if(is.null(l$pch)) l$pch = '.'
+  }
+  do.call('plot', append(l, list(x = nodes$sdimx_begin, y = nodes$sdimy_begin)))
+  segments(x0 = x[]$sdimx_begin, y0 = x[]$sdimy_begin,
+           x1 = x[]$sdimx_end, y1 = x[]$sdimy_end,
+           col = line_col, lty = line_type, lwd = line_width)
+})
+
+
 
 
 
@@ -533,7 +674,7 @@ setMethod('plot', signature(x = 'spatLocsObj', y = 'missing'), function(x, ...) 
 #' @seealso \code{\link[data.table]{copy}} \code{\link[terra]{deepcopy}}
 #' @aliases copy
 #' @exportMethod copy
-setGeneric('copy', function(x) {
+if(!isGeneric('copy')) setGeneric('copy', function(x) {
   standardGeneric('copy')
 })
 

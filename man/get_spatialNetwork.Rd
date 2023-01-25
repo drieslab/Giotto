@@ -9,7 +9,9 @@ get_spatialNetwork(
   spat_unit = NULL,
   name = NULL,
   output = c("spatialNetworkObj", "networkDT", "networkDT_before_filter", "outputObj"),
-  set_defaults = TRUE
+  set_defaults = TRUE,
+  copy_obj = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -23,6 +25,10 @@ get_spatialNetwork(
 'networkDT' and 'networkDT_before_filter' for data.table outputs.}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+
+\item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
+
+\item{verbose}{be verbose}
 }
 \description{
 Function to get a spatial network
