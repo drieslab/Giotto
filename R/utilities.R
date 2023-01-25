@@ -128,6 +128,8 @@ t_flex = function(mymatrix) {
     return(Matrix::t(mymatrix))
   } else if(inherits(mymatrix, 'spatLocsObj')){
     return(t(mymatrix))
+  } else if(inherits(mymatrix, 'spatialNetworkObj')) {
+    return(t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)
     mymatrix = base::t(mymatrix)
@@ -135,9 +137,6 @@ t_flex = function(mymatrix) {
   }
 }
 
-t.spatLocsObj = function(mymatrix) {
-  t(mymatrix)
-}
 
 
 #' @title cor_flex
@@ -311,6 +310,26 @@ list_element_exists = function(x, index) {
     return(FALSE)
   })
 }
+
+
+
+# Based on https://stackoverflow.com/questions/37878620/reorder-rows-in-data-table-in-a-specific-order
+#' @title Set specific data.table row order
+#' @param x data.table
+#' @param neworder numerical vector to reorder rows
+#' @keywords internal
+set_row_order_dt = function(x, neworder) {
+  if('.r' %in% colnames(x)) {
+    temp_r = x[, .SD, .SDcols = '.r']
+    data.table::setorderv(temp_r[, eval(call(":=", as.name(".r_alt"), call("order", neworder)))], ".r_alt")[, ".r_alt" := NULL]
+    data.table::setorderv(x[, eval(call(":=", as.name(".r"), call("order", neworder)))], ".r")[, ".r" := NULL]
+    x[, eval(call(':=', as.name('.r'), temp_r$.r))]
+  } else {
+    data.table::setorderv(x[, eval(call(":=", as.name(".r"), call("order", neworder)))], ".r")[, ".r" := NULL]
+  }
+
+}
+
 
 
 
@@ -532,8 +551,14 @@ wrap_msg = function(..., sep = ' ') {
 #' @param ... additional params to pass
 #' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
+#' @param errWidth default = FALSE. Set strWidth to be compatible with error printout
 #' @keywords internal
-wrap_txt = function(..., sep = ' ', strWidth = 100) {
+wrap_txt = function(..., sep = ' ', strWidth = 100, errWidth = FALSE) {
+  custom_width = ifelse(is.null(match.call()$strWidth), yes = FALSE, no = TRUE)
+  if(!isTRUE(custom_width)) {
+    if(isTRUE(errWidth)) strWidth = getOption('width') - 6
+  }
+
   cat(..., sep = sep) %>%
     capture.output() %>%
     strwrap(., prefix =  ' ', initial = '', # indent later lines, no indent first line

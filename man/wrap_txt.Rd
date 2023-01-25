@@ -4,7 +4,7 @@
 \alias{wrap_txt}
 \title{Wrap text}
 \usage{
-wrap_txt(..., sep = " ", strWidth = 100)
+wrap_txt(..., sep = " ", strWidth = 100, errWidth = FALSE)
 }
 \arguments{
 \item{...}{additional params to pass}
@@ -12,6 +12,8 @@ wrap_txt(..., sep = " ", strWidth = 100)
 \item{sep}{how to join elements of string (default is one space)}
 
 \item{strWidth}{externally set wrapping width. (default value of 100 is not effected)}
+
+\item{errWidth}{default = FALSE. Set strWidth to be compatible with error printout}
 }
 \description{
 Wrap text

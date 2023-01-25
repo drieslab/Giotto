@@ -1420,6 +1420,654 @@ createSpatialEnrich <- function(...) {
 
 
 # * ####
+## spatial autocorrelation functions ####
+
+
+#' @title Spatial autocorrelation
+#' @name spatialAutoCor
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param feats features (expression) on which to run autocorrelation.
+#' (leaving as NULL means that all features will be tested)
+#' @param method method of autocorrelation. See details (default = 'moran')
+#' @param data_to_use if using data from gobject, whether to test using expression
+#' ('expression') or cell metadata ('cell_meta')
+#' @param expression_values name of expression information to use
+#' @param meta_cols columns in cell metadata to test
+#' @param spatial_network_to_use spatial network to use
+#' @param wm_method type of weight matrix to generate from spatial network if no
+#' weight matrix is found attached to the spatial network
+#' @param wm_name name of attached weight matrix to use
+#' @param node_values alternative method of directly supplying a set of node values
+#' @param weight_matrix alternative method of directly supplying a spatial weight
+#' matrix
+#' @param test_method method to test values for significance (default is no
+#' testing)
+#' @param verbose be verbose
+#' @description Find spatial autocorrelation. Note that \code{spatialAutoCorGlobal}
+#' will return values as a data.table instead of appending information to the gobject.
+#' \code{spatialAutoCorLocal} will append the results as a spatial enrichment object
+#' by default. \cr
+#' If providing external data using either the \code{node_values} and/or \code{weight_matrix}
+#' params, the order of values provided should be the same as the ordering of the
+#' columns and rows of the weight matrix.
+NULL
+
+
+# internals for spatial autocorrelation using terra
+#' @keywords internal
+spat_autocor_terra_numeric = function(x, w, method) {
+  return(terra::autocor(x = x, w = w, method = method))
+}
+
+#' @keywords internal
+spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
+  return(terra::autocor(x = x, w = w, global = global, method = method))
+}
+
+
+
+
+
+#' @describeIn spatialAutoCor Global autocorrelation (single value returned)
+#' @param mc_nsim when \code{test_method = 'monte_carlo'} this is number of simulations
+#' to perform
+#' @param cor_name name to assign the results in global autocorrelation output
+#' @param return_gobject (default = FALSE) whether to return results appended to
+#' metadata in the giotto object or as a data.table
+#' @details
+#' \strong{Global Methods:}
+#' \itemize{
+#'   \item{\emph{Moran's I} 'moran'}
+#'   \item{\emph{Geary's C} 'geary'}
+#' }
+#' @export
+spatialAutoCorGlobal = function(gobject = NULL,
+                                spat_unit = NULL,
+                                feat_type = NULL,
+                                feats = NULL,
+                                method = c('moran', 'geary'),
+                                data_to_use = c('expression', 'cell_meta'),
+                                expression_values = c('normalized', 'scaled', 'custom'),
+                                meta_cols = NULL,
+                                spatial_network_to_use = 'kNN_network',
+                                wm_method = c('distance', 'adjacency'),
+                                wm_name = 'spat_weights',
+                                node_values = NULL,
+                                weight_matrix = NULL,
+                                test_method = c('none', 'monte_carlo'),
+                                mc_nsim = 99,
+                                cor_name = NULL,
+                                return_gobject = FALSE,
+                                verbose = TRUE) {
+
+  # 0. determine inputs
+  method = match.arg(method, choices = c('moran', 'geary'))
+  test_method = match.arg(test_method, choices = c('none', 'monte_carlo'))
+  data_to_use = match.arg(data_to_use, choices = c('expression', 'cell_meta'))
+  if(is.null(cor_name)) cor_name = method
+  if(!is.null(node_values)) {
+    if(is.numeric(node_values)) stop(wrap_txt('External "node_values" must be type numeric.',
+                                              errWidth = TRUE))
+  }
+
+  use_ext_vals = data.table::fifelse(!is.null(node_values), yes = TRUE, no = FALSE)
+  use_sn = data.table::fifelse(!is.null(weight_matrix), yes = FALSE, no = TRUE)
+
+  use_expr = data.table::fcase(
+    isTRUE(use_ext_vals), FALSE,
+    data_to_use != 'expression', FALSE,
+    default = TRUE
+  )
+
+  use_meta = data.table::fcase(
+    isTRUE(use_ext_vals), FALSE,
+    data_to_use != 'cell_meta', FALSE,
+    default = TRUE
+  )
+
+  if(data_to_use == 'cell_meta') {
+    if(is.null(meta_cols)) {
+      stop(wrap_txt(
+        'If "data_to_use" is "cell_meta" then a character vector of cell metadata',
+        'columns to use must be provided in "meta_cols"',
+        errWidth = TRUE
+      ))
+    }
+  }
+  if(isTRUE(return_gobject)) {
+    if(data_to_use == 'cell_meta' | isTRUE(use_ext_vals)) {
+      stop(wrap_txt(
+        'Global spatial autocorrelations on cell_meta or external data should not',
+        'be returned to the gobject.
+         > Please set return_gobject = FALSE',
+         errWidth = TRUE
+      ))
+    }
+  }
+
+  # 1. setup
+  if(!is.null(gobject)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  } else { # if null
+    if(any(!use_ext_vals, use_sn, return_gobject)) {
+      stop('gobject has not been provided\n')
+    }
+  }
+
+  # select and format input
+  data_list = evaluate_autocor_input(gobject = gobject,
+                                     use_ext_vals = use_ext_vals,
+                                     use_sn = use_sn,
+                                     use_expr = use_expr,
+                                     use_meta = use_meta,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     feats = feats,
+                                     method = method,
+                                     data_to_use = data_to_use,
+                                     expression_values = expression_values,
+                                     meta_cols = meta_cols,
+                                     spatial_network_to_use = spatial_network_to_use,
+                                     wm_method = wm_method,
+                                     wm_name = wm_name,
+                                     node_values = node_values,
+                                     weight_matrix = weight_matrix,
+                                     verbose = verbose)
+  # unpack formatted data
+  use_values = data_list$use_values
+  feats = data_list$feats
+  weight_matrix = data_list$weight_matrix
+
+
+  # 2. perform autocor
+  res_dt = run_spat_autocor_global(use_values = use_values,
+                                   feats = feats,
+                                   weight_matrix = weight_matrix,
+                                   method = method,
+                                   test_method = test_method,
+                                   mc_nsim = mc_nsim,
+                                   cor_name = cor_name)
+
+
+
+  # if(method %in% local_methods) {
+  #   res_dt = do.call('cbind', res_list)
+  #   colnames(res_dt) = paste0(method, '_', colnames(res_dt))
+  #   res_dt[, cell_ID := wm_colnames]
+  # }
+
+
+
+  # return info
+  if(isTRUE(return_gobject)) {
+    if(isTRUE(verbose)) wrap_msg('Appending', method, 'results to feature metadata: fDataDT()')
+    gobject = addFeatMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              new_metadata = res_dt,
+                              by_column = TRUE,
+                              column_feat_ID = 'feat_ID')
+
+    return(gobject)
+  } else {
+    return(res_dt)
+  }
+
+}
+
+
+#' @describeIn spatialAutoCor Local autocorrelation (values generated for each spatial ID)
+#' @param enrich_name name to assign local autocorrelation spatial enrichment results
+#' @param return_gobject (default = FALSE) whether to return results appended to
+#' metadata in the giotto object or as a data.table
+#' @details
+#' \strong{Local Methods:}
+#' \itemize{
+#'   \item{\emph{Local Moran's I} 'moran'}
+#'   \item{\emph{Getis-Ord Gi} 'Gi'}
+#'   \item{\emph{Getis-Ord Gi*} 'Gi*'}
+#'   \item{\emph{Local mean} 'mean'}
+#' }
+#' @export
+spatialAutoCorLocal = function(gobject = NULL,
+                               spat_unit = NULL,
+                               feat_type = NULL,
+                               feats = NULL,
+                               method = c('moran', 'gi', 'gi*', 'mean'),
+                               data_to_use = c('expression', 'cell_meta'),
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               meta_cols = NULL,
+                               spatial_network_to_use = 'kNN_network',
+                               wm_method = c('distance', 'adjacency'),
+                               wm_name = 'spat_weights',
+                               node_values = NULL,
+                               weight_matrix = NULL,
+                               test_method = c('none'),
+                               # cor_name = NULL,
+                               enrich_name = NULL,
+                               return_gobject = TRUE,
+                               output = c('spatEnrObj', 'data.table'),
+                               verbose = TRUE) {
+
+  # 0. determine inputs
+  method_select = match.arg(method, choices = c('moran', 'gi', 'gi*', 'mean'))
+  data_to_use = match.arg(data_to_use, choices = c('expression', 'cell_meta'))
+  output = match.arg(output, choices = c('spatEnrObj', 'data.table'))
+  # if(is.null(cor_name)) cor_name = method
+
+  if(method_select == 'moran') method = 'locmor'
+  else method = method_select
+
+  if(!is.null(node_values)) {
+    if(is.numeric(node_values)) stop(wrap_txt('External "node_values" must be type numeric',
+                                              errWidth = TRUE))
+  }
+
+
+  use_ext_vals = data.table::fifelse(!is.null(node_values), yes = TRUE, no = FALSE)
+  use_sn = data.table::fifelse(!is.null(weight_matrix), yes = FALSE, no = TRUE)
+
+  use_expr = data.table::fcase(
+    isTRUE(use_ext_vals), FALSE,
+    data_to_use != 'expression', FALSE,
+    default = TRUE
+  )
+
+  use_meta = data.table::fcase(
+    isTRUE(use_ext_vals), FALSE,
+    data_to_use != 'cell_meta', FALSE,
+    default = TRUE
+  )
+
+  if(is.null(enrich_name)) { # name of spatEnrObj
+    enrich_name = data.table::fcase(
+      isTRUE(use_ext_vals), method_select,
+      data_to_use == 'expression', paste0('expr_', method_select),
+      data_to_use == 'cell_meta', paste0('meta_', method_select),
+      default = method_select
+    )
+  }
+
+
+
+  # 1. setup
+  if(!is.null(gobject)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  } else { # if null
+    if(any(!use_ext_vals, use_sn, return_gobject)) {
+      stop('gobject has not been provided\n')
+    }
+  }
+
+
+  # select and format input
+  data_list = evaluate_autocor_input(gobject = gobject,
+                                     use_ext_vals = use_ext_vals,
+                                     use_sn = use_sn,
+                                     use_expr = use_expr,
+                                     use_meta = use_meta,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     feats = feats,
+                                     method = method,
+                                     data_to_use = data_to_use,
+                                     expression_values = expression_values,
+                                     meta_cols = meta_cols,
+                                     spatial_network_to_use = spatial_network_to_use,
+                                     wm_method = wm_method,
+                                     wm_name = wm_name,
+                                     node_values = node_values,
+                                     weight_matrix = weight_matrix,
+                                     verbose = verbose)
+  # unpack formatted input
+  use_values = data_list$use_values
+  feats = data_list$feats
+  weight_matrix = data_list$weight_matrix
+  provenance = data_list$provenance
+  values = data_list$expr_values
+  IDs = data_list$IDs
+
+  # spatIDs to use when returning autocor results
+  # Provide default spatIDs if missing
+  if(is.null(IDs)) {
+    IDs = seq(nrow(use_values))
+  }
+
+  # 2. perform autocor
+  res_dt = run_spat_autocor_local(use_values = use_values,
+                                  feats = feats,
+                                  weight_matrix = weight_matrix,
+                                  method = method,
+                                  test_method = test_method,
+                                  IDs = IDs)
+
+  # create spatial enrichment object
+  enr = create_spat_enr_obj(name = enrich_name,
+                            method = method_select,
+                            enrichDT = res_dt,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            provenance = provenance,
+                            misc = if(use_expr) list(expr_values_used = values))
+
+
+  # return info
+  if(isTRUE(return_gobject)) {
+
+    if(isTRUE(verbose)) wrap_msg('Attaching ', method_select, ' results as spatial enrichment: "',
+                                 enrich_name, '"', sep = '')
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spatenrichment = enr)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    return(gobject)
+  } else {
+    if(output == 'spatEnrObj') return(enr)
+    if(output == 'data.table') return(res_dt)
+  }
+
+}
+
+
+
+
+
+
+
+run_spat_autocor_global = function(use_values,
+                                   feats,
+                                   weight_matrix,
+                                   method,
+                                   test_method,
+                                   mc_nsim,
+                                   cor_name) {
+  nfeats = length(feats)
+  if(test_method != 'none') step_size = ceiling(nfeats/100L)
+  else step_size = step_size = ceiling(nfeats/10L)
+
+  progressr::with_progress({
+    if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
+    res_list = lapply_flex(
+      seq_along(feats),
+      # future.packages = c('terra', 'data.table'),
+      function(feat_i) {
+        feat = feats[feat_i]
+        if(inherits(use_values, 'data.table')) {
+          feat_vals = eval(call('[', use_values, j = as.name(feat)))
+        } else {
+          feat_vals = use_values[, feat]
+        }
+
+
+        spat_ac = spat_autocor_terra_numeric(
+          x = feat_vals,
+          w = weight_matrix,
+          method = method)
+
+
+        # test
+        if(test_method != 'none') {
+          if(test_method == 'monte_carlo') {
+            mc = sapply(seq(mc_nsim), function(i) spat_autocor_terra_numeric(
+              x = sample(feat_vals),
+              w = weight_matrix,
+              method = method))
+            P = 1 - sum((spat_ac > mc) / (nsim + 1))
+          }
+          if(test_method == 'spdep') {
+            wrap_msg('spdep not yet implemented')
+          }
+        }
+        # increment progress
+        if(exists('pb')) if(feat_i %% step_size == 0) pb()
+
+
+        if(test_method == 'none') return(data.table::data.table(feat, spat_ac))
+        else return(data.table::data.table(feat, spat_ac, P))
+      }
+    )
+  })
+  res_dt = do.call('rbind', res_list)
+  if(test_method == 'none') colnames(res_dt) = c('feat_ID', cor_name)
+  else colnames(res_dt) = c('feat_ID', cor_name, paste0(cor_name, '_', test_method))
+  return(res_dt)
+
+}
+
+
+run_spat_autocor_local = function(use_values,
+                                  feats,
+                                  weight_matrix,
+                                  method,
+                                  test_method,
+                                  IDs) {
+  nfeats = length(feats)
+  if(test_method != 'none') step_size = ceiling(nfeats/100L)
+  else step_size = step_size = ceiling(nfeats/10L)
+
+  progressr::with_progress({
+    if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
+    res_list = lapply_flex(
+      seq_along(feats),
+      # future.packages = c('terra', 'data.table'),
+      function(feat_i) {
+        feat = feats[feat_i]
+        if(inherits(use_values, 'data.table')) {
+          feat_vals = eval(call('[', use_values, j = as.name(feat)))
+        } else {
+          feat_vals = use_values[, feat]
+        }
+
+        spat_ac = spat_autocor_terra_numeric(
+          x = feat_vals,
+          w = weight_matrix,
+          method = method)
+
+
+        # test
+        # if(test_method != 'none') {
+        # }
+
+        # increment progress
+        if(exists('pb')) if(feat_i %% step_size == 0) pb()
+
+
+        out_dt = data.table::data.table(spat_ac)
+        colnames(out_dt) = feat
+        return(out_dt)
+      }
+    )
+  })
+  res_dt = do.call('cbind', res_list)
+  # append cell_ID column
+  res_dt[, cell_ID := IDs]
+  return(res_dt)
+
+}
+
+
+
+# Determine which information to retrieve and how to format the information
+# Vars from upstream:
+# use_sn - if true, extracts spatial network from gobject. Otherwise use externally provided info
+# use_expr - if true, extracts expression information from gobject to use as node values
+# use_meta - if true, extracts cell metadata information from gobject to use as node values
+# use_ext_vals - directly use externally provided node value information
+
+# Expected input:
+# 1. source of data per spatial ID, whether that be expression information,
+# cell metadata annotations, or external data
+# 2. a spatial weight matrix for defining how important spatial interactions should
+# be considered. This information can either be extracted spatial networks in the
+# gobject with a pre-generated spatial weight matrix or generated during this call.
+
+# Expected output:
+# list of the following...
+# 1. use_values - data per spatial ID. Formatted to be spatial ID (rows) by feats (cols)
+# 2. feats - character vector of features in use_values to iterate through for autocor
+# 3. weight_matrix - weight matrix (ordering checked to match with use_values if possible)
+# 4, IDs - cell_IDs if available
+# Some additional information about information used in specific workflows are also returned
+evaluate_autocor_input = function(gobject,
+                                  use_ext_vals,
+                                  use_sn,
+                                  use_expr,
+                                  use_meta,
+                                  spat_unit,
+                                  feat_type,
+                                  feats,
+                                  method,
+                                  data_to_use,
+                                  expression_values,
+                                  meta_cols,
+                                  spatial_network_to_use,
+                                  wm_method,
+                                  wm_name,
+                                  node_values,
+                                  weight_matrix,
+                                  verbose = TRUE) {
+
+  cell_ID = NULL
+
+  # 1. Get spatial network to either get or generate a spatial weight matrix
+  # End output is weight_matrix
+  if(isTRUE(use_sn)) {
+    #SPATNET=================================================================#
+    sn = get_spatialNetwork(gobject = gobject,
+                            spat_unit = spat_unit,
+                            name = spatial_network_to_use,
+                            output = 'spatialNetworkObj')
+    weight_matrix = slot(sn, 'misc')$weight_matrix[[wm_name]]
+
+    # if no weight_matrix already generated...
+    if(is.null(weight_matrix)) {
+      wm_method = match.arg(wm_method, choices = c('distance', 'adjacency'))
+      if(isTRUE(verbose)) wrap_msg(
+        'No spatial weight matrix found in selected spatial network
+        Generating', wm_method, 'matrix from', spatial_network_to_use
+      )
+      weight_matrix = spatialWeightMatrix(gobject = gobject,
+                                          spat_unit = spat_unit,
+                                          spatial_network_to_use = spatial_network_to_use,
+                                          wm_name = wm_name,
+                                          method = wm_method,
+                                          return_gobject = FALSE,
+                                          verbose = FALSE)
+    }
+    wm_colnames = colnames(weight_matrix)
+    #SPATNET=================================================================#
+  }
+  if(!isTRUE(use_sn)) {
+    #EXTSPATNET==============================================================#
+    if(!is.null(colnames(weight_matrix))) {
+      wm_colnames = colnames(weight_matrix)
+      if(isTRUE(verbose)) wrap_msg(
+        'colnames of externally provided weight matrix will be matched to'
+      )
+    }
+    #EXTSPATNET==============================================================#
+  }
+
+
+  # 2. Get and format node values for use with autocorrelation function.
+  # End outputs are:
+  #  - use_values for a spatID (rows) by features (cols) table or matrix
+  #  - feats the names of selected features to use that will be iterated through downstream
+  if(isTRUE(use_expr)) {
+    #EXPR====================================================================#
+    values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+    use_values = get_expression_values(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       values = values,
+                                       output = 'matrix')
+    use_values = t_flex(use_values)
+
+    # ensure identical ordering with giotto weight matrix
+    if(exists('wm_colnames')) use_values = use_values[wm_colnames,]
+
+    if(is.null(feats)) feats = colnames(use_values)
+    IDs = rownames(use_values)
+    #EXPR====================================================================#
+  }
+  if(isTRUE(use_meta)) {
+    #META====================================================================#
+    if(is.null(meta_cols)) stop(wrap_txt('Metadata columns to autocorrelate must be given',
+                                         errWidth = TRUE))
+    use_values = get_cell_metadata(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   output = 'data.table',
+                                   copy_obj = TRUE)
+
+    # ensure identical ordering with giotto weight matrix
+    if(exists('wm_colnames')) {
+      new_order = data.table::chmatch(wm_colnames, use_values$cell_ID)
+      set_row_order_dt(use_values, new_order)
+    }
+
+    feats = meta_cols
+    IDs = use_values[, cell_ID]
+    #META====================================================================#
+  }
+  if(isTRUE(use_ext_vals)) {
+    #EXTDATA=================================================================#
+    use_values = data.table::as.data.table(values = node_values)
+
+    feats = 'values'
+    #EXTDATA=================================================================#
+  }
+
+
+  # 3. general formatting and checking
+  ## weight matrix type
+  if(!inherits(weight_matrix, c('Matrix', 'matrix'))) {
+    stop(wrap_txt('weight_matrix must be a matrix or Matrix',
+                  errWidth = TRUE))
+  }
+
+  ## terra autocor currently does not seem to work with sparse weight matrices
+  weight_matrix = as.matrix(weight_matrix)
+
+  ## check if weight matrix dimensions match use_values
+  if((nrow(use_values) != ncol(weight_matrix)) | (nrow(use_values) != nrow(weight_matrix))) {
+    stop(wrap_txt('Number of values to correlate do not match number of weight matrix entries',
+                  errWidth = TRUE))
+  }
+
+
+  # return formatted values
+  # provenance included if available
+  return(list(use_values = use_values,
+              feats = feats,
+              weight_matrix = weight_matrix,
+              # method specific items:
+              expr_values = if(use_expr) values else NULL,
+              provenance = if(use_sn) prov(sn) else NULL,
+              IDs = if(use_expr | use_meta) IDs else NULL))
+
+}
+
+
+
+
+
+
+
+
+
+# * ####
 ## spatial deconvolution functions ####
 
 
@@ -1746,7 +2394,7 @@ solve_OLS_internal <- function(S,
   A = cbind(diag(dim(S)[2]))
   bzero = c(rep(0,dim(S)[2]))
 
-  
+
   out = tryCatch(
     expr = {quadprog::solve.QP(Dmat = D,
                                dvec = d,

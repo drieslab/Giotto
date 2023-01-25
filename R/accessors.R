@@ -1476,6 +1476,8 @@ set_NearestNetwork = function(gobject,
 #' @param name name of spatial network
 #' @param output object type to return as. Options: 'spatialNetworkObj' (default),
 #' 'networkDT' and 'networkDT_before_filter' for data.table outputs.
+#' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
+#' @param verbose be verbose
 #' @family spatial network data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -1486,7 +1488,9 @@ get_spatialNetwork = function(gobject,
                                          'networkDT',
                                          'networkDT_before_filter',
                                          'outputObj'),
-                              set_defaults = TRUE) {
+                              set_defaults = TRUE,
+                              copy_obj = TRUE,
+                              verbose = TRUE) {
 
   output = match.arg(output, choices = c('spatialNetworkObj',
                                          'networkDT',
@@ -1505,9 +1509,9 @@ get_spatialNetwork = function(gobject,
 
   # check if given name is present
   if (!is.element(name, names(slot(gobject, 'spatial_network')[[spat_unit]]))){
-    message = sprintf("spatial network %s has not been created. Returning NULL.
-                      check which spatial networks exist with showGiottoSpatNetworks()\n", name)
-    warning(message)
+    if(isTRUE(verbose)) msg = wrap_txt('spatial network', name, 'has not been created. Returning NULL.
+                                       check which spatial networks exist with showGiottoSpatNetworks()')
+    warning(msg)
     return(NULL)
   }else{
     networkObj = slot(gobject, 'spatial_network')[[spat_unit]][[name]]
@@ -1516,6 +1520,13 @@ get_spatialNetwork = function(gobject,
     if(!isS4(networkObj)) networkObj = S3toS4spatNetObj(networkObj)
     silent = validObject(networkObj) # Variable used to hide TRUE print
 
+  }
+
+  if(copy_obj) {
+    networkObj@networkDT = data.table::copy(networkObj@networkDT)
+    if(!is.null(networkObj@networkDT_before_filter)) {
+      networkObj@networkDT_before_filter = data.table::copy(networkObj@networkDT_before_filter)
+    }
   }
 
   if (output == 'spatialNetworkObj'){

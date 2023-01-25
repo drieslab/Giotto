@@ -69,9 +69,9 @@ rigid_transform_spatial_locations = function(spatlocs,
     spatlocsXY = rotate_spatial_locations(spatlocsXY,
                                           transform_values$Theta)
 
-    spatlocsXY = xy_translate_spatial_locations(spatlocsXY,
-                                                 transform_values$XFinalTransform,
-                                                 transform_values$YFinalTransform)
+    spatlocsXY = shift_spatial_locations(spatlocs = spatlocsXY,
+                                         dx = transform_values$XFinalTransform,
+                                         dy = transform_values$YFinalTransform)
 
     spatlocs$sdimx = spatlocsXY$sdimx
     spatlocs$sdimy = -1 * spatlocsXY$sdimy
@@ -82,7 +82,9 @@ rigid_transform_spatial_locations = function(spatlocs,
 
     spatLocsXY = spatlocs[,c('sdimx','sdimy')]
     spatLocsXY = rotate_spatial_locations(spatLocsXY,acos(transform_values[1,1]))
-    spatLocsXY = xy_translate_spatial_locations(spatLocsXY,-transform_values[1,3],-transform_values[2,3])
+    spatLocsXY = shift_spatial_locations(spatlocs = spatLocsXY,
+                                         dx = -transform_values[1,3],
+                                         dy = -transform_values[2,3])
 
     spatlocs$sdimx = spatLocsXY[,1]
     spatlocs$sdimy = spatLocsXY[,2]
