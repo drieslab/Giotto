@@ -1612,7 +1612,7 @@ specific_CCCScores_spots = function(gobject,
   cell_direction_1 = paste0(cell_type_1,'--',cell_type_2)
   cell_direction_2 = paste0(cell_type_2,'--',cell_type_1)
 
-  print(paste0('Processing sepcific CCC Scores: ', cell_direction_1))
+  print(paste0('Processing specific CCC Scores: ', cell_direction_1))
 
   proxi_1 = proximityMat[cell_direction_1,]
   proxi_2 = proximityMat[cell_direction_2,]
@@ -1668,9 +1668,12 @@ specific_CCCScores_spots = function(gobject,
 
     total_bool = rep(0, nrow(comScore))
 
-    all_cell_ids = pDataDT(gobject = gobject,
-                           spat_unit = spat_unit,
-                           feat_type = feat_type)$cell_ID
+    # all_cell_ids = pDataDT(gobject = gobject,
+    #                        spat_unit = spat_unit,
+    #                        feat_type = feat_type)$cell_ID
+    
+    all_cell_ids = colnames(expr_residual)
+    
     ## simulations ##
     for(sim in 1:random_iter) {
 
@@ -1681,9 +1684,12 @@ specific_CCCScores_spots = function(gobject,
         seed_number = seed_number+sim
         set.seed(seed = seed_number)
       }
-      random_ids_1 = all_cell_ids[sample(length(all_cell_ids), size = length(ct1_cell_ids))]
-      random_ids_2 = all_cell_ids[sample(length(all_cell_ids), size = length(ct2_cell_ids))]
-
+      #random_ids_1 = all_cell_ids[sample(length(all_cell_ids), size = length(ct1_cell_ids))]
+      #random_ids_2 = all_cell_ids[sample(length(all_cell_ids), size = length(ct2_cell_ids))]
+      
+      random_ids_1 = sample(all_cell_ids, size = length(ct1_cell_ids), replace = FALSE)
+      random_ids_2 = sample(all_cell_ids, size = length(ct2_cell_ids), replace = FALSE)
+      
       # get gene expression residual for ligand and receptor
       random_expr_res_L = expr_residual[gene_set_1, random_ids_1]
       random_expr_res_R = expr_residual[gene_set_2, random_ids_2]
@@ -1826,16 +1832,17 @@ spatCellCellcomSpots = function(gobject,
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
   ## check if spatial network exists ##
-  spat_networks = showGiottoSpatNetworks(gobject = gobject)
+  spat_networks = names(gobject@spatial_network[[spat_unit]])
+  
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',
-         'use showNetworks() to see the available networks \n',
+         'use showGiottoSpatNetworks() to see the available networks \n',
          'or create a new spatial network with createSpatialNetwork() \n')
   }
 
 
   # expression data
-  values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
+  values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
   expr_residual = cal_expr_residual(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
@@ -1877,8 +1884,8 @@ spatCellCellcomSpots = function(gobject,
 
   ## get all combinations between cell types
   combn_DT = data.table::data.table(LR_cell_comb = rownames(proximityMat))
-  combn_DT = combn_DT[, V1 := strsplit(LR_cell_comb, '--')[[1]][1], by = 1:nrow(combn_DT)]
-  combn_DT = combn_DT[, V2 := strsplit(LR_cell_comb, '--')[[1]][2], by = 1:nrow(combn_DT)]
+  combn_DT[, V1 := strsplit(LR_cell_comb, '--')[[1]][1], by = 1:nrow(combn_DT)]
+  combn_DT[, V2 := strsplit(LR_cell_comb, '--')[[1]][2], by = 1:nrow(combn_DT)]
 
   ## parallel option ##
   if(do_parallel == TRUE) {
