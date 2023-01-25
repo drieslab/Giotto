@@ -286,11 +286,9 @@ anndataToGiotto = function(anndata_path = NULL,
     nn_dt[,uniq_ID := NULL]
     vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
     nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
-    # og_nn = get_NearestNetwork(SS_seqfish, spat_unit = "cell", feat_type = "rna", nn_network_to_use = "kNN")
-    # as written, no difference found between original and above from igraph::difference()
 
     nn_info = extract_NN_info(adata = adata, key_added = n_key_added)
-    browser()
+
     net_type = "kNN" # anndata default
     if(("sNN" %in% n_key_added) & !is.null(n_key_added)){
       net_type = "sNN"
