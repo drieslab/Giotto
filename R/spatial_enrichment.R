@@ -1957,13 +1957,13 @@ evaluate_autocor_input = function(gobject,
         'No spatial weight matrix found in selected spatial network
         Generating', wm_method, 'matrix from', spatial_network_to_use
       )
-      weight_matrix = spatialWeightMatrix(gobject = gobject,
-                                          spat_unit = spat_unit,
-                                          spatial_network_to_use = spatial_network_to_use,
-                                          wm_name = wm_name,
-                                          method = wm_method,
-                                          return_gobject = FALSE,
-                                          verbose = FALSE)
+      weight_matrix = createSpatialWeightMatrix(gobject = gobject,
+                                                spat_unit = spat_unit,
+                                                spatial_network_to_use = spatial_network_to_use,
+                                                wm_name = wm_name,
+                                                method = wm_method,
+                                                return_gobject = FALSE,
+                                                verbose = FALSE)
     }
     wm_colnames = colnames(weight_matrix)
     #SPATNET=================================================================#

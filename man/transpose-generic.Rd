@@ -5,11 +5,17 @@
 \alias{t}
 \alias{t,spatLocsObj-method}
 \alias{t,spatialNetworkObj-method}
+\alias{t.spatLocsObj}
+\alias{t.spatialNetworkObj}
 \title{Transpose}
 \usage{
 \S4method{t}{spatLocsObj}(x)
 
 \S4method{t}{spatialNetworkObj}(x)
+
+t.spatLocsObj(x)
+
+t.spatialNetworkObj(x)
 }
 \arguments{
 \item{x}{object to be transposed}
@@ -17,10 +23,3 @@
 \description{
 Transpose
 }
-\section{Functions}{
-\itemize{
-\item \code{t(spatLocsObj)}: Transpose a spatLocObj
-
-\item \code{t(spatialNetworkObj)}: Transpose a spatialNeworkObj
-
-}}

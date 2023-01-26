@@ -5,9 +5,10 @@
 
 
 # spatIDs and featIDs generic ####
-#' @title Cell and feature names
+#' @title Spatial and feature IDs
 #' @name spatIDs-generic
-#' @description Get the cells and feature names of a giotto object or subobject
+#' @description Get the cell IDs (termed spatial IDs to better reflect when not at
+#' the single-cell level) and feature IDs of a giotto object or subobject
 #' @aliases spatIDs featIDs
 #' @param x an object
 #' @param spat_unit (optional) specify which spatial unit
@@ -24,62 +25,88 @@
 setGeneric('spatIDs', function(x, spat_unit, ...) standardGeneric('spatIDs'))
 setGeneric('featIDs', function(x, feat_type, ...) standardGeneric('featIDs'))
 
-
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'missing'),
           function(x, ...) {
             get_cell_id(gobject = x, ...)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'character'),
           function(x, spat_unit, ...) {
             get_cell_id(gobject = x, spat_unit, ...)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = c('exprObj'), spat_unit = 'missing'),
           function(x, ...) {
             colnames(x[])
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = c('spatLocsObj'), spat_unit = 'missing'),
           function(x, ...) {
             x[]$cell_ID
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = c('cellMetaObj'), spat_unit = 'missing'),
           function(x, ...) {
             x[]$cell_ID
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = c('spatialNetworkObj'), spat_unit = 'missing'),
           function(x, ...) {
             unique(c(x[]$from, x[]$to))
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = 'dimObj', spat_unit = 'missing'),
           function(x, ...) {
             rownames(x@coordinates)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = 'giottoPolygon', spat_unit = 'missing'),
           function(x, ...) {
             unique(x@spatVector$poly_ID)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
           function(x, ...) {
             cell_ID = NULL
             x@enrichDT[, cell_ID]
           })
 
-
+#' @rdname spatIDs-generic
+#' @export
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'missing'),
           function(x, ...) {
             get_feat_id(gobject = x, ...)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'character'),
           function(x, feat_type, ...) {
             get_feat_id(gobject = x, feat_type, ...)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('featIDs', signature(x = 'exprObj', feat_type = 'missing'),
           function(x, ...) {
             rownames(x[])
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('featIDs', signature(x = 'giottoPoints', feat_type = 'missing'),
           function(x, ...) {
             unique(x@spatVector$feat_ID)
           })
+#' @rdname spatIDs-generic
+#' @export
 setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
           function(x, ...) {
             colnames(x@enrichDT[, -'cell_ID'])
@@ -93,14 +120,27 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 
 
 # colnames and rownames generics ####
-setMethod('colnames', signature(x = 'exprObj'),
-          function(x) {
-            colnames(x[])
-          })
-setMethod('rownames', signature(x = 'exprObj'),
-          function(x) {
-            rownames(x[])
-          })
+#' @title Row and column names
+#' @name row-plus-colnames-generic
+#' @aliases colnames rownames
+#' @description Retrieve or set the row or column names of an object
+#' @param x object
+#' @return A character vector of row or col names
+if(!isGeneric('colnames')) setOldClass('colnames')
+if(!isGeneric('rownames')) setOldClass('rownames')
+
+
+#' @rdname row-plus-colnames-generic
+#' @export
+setMethod('colnames', signature(x = 'exprObj'), function(x) colnames(x[]))
+
+#' @rdname row-plus-colnames-generic
+#' @export
+setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
+
+
+
+
 
 
 
@@ -238,6 +278,7 @@ setMethod('spatShift', signature('spatialNetworkObj'), function(x, dx = 0, dy = 
 #' @name dims-generic
 #' @description Find the dimensions of an object
 #' @include classes.R
+#' @importMethodsFrom terra nrow ncol
 #' @param x object to check dimensions of
 NULL
 
@@ -322,9 +363,10 @@ setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 #' @importMethodsFrom Matrix t
 #' @importMethodsFrom terra t
 #' @aliases t
-if(!isGeneric('t')) setOldClass('t', where = as.environment("package:Giotto"))
+NULL
+# if(!isGeneric('t')) setOldClass('t', where = as.environment("package:Giotto"))
 
-#' @describeIn transpose-generic Transpose a spatLocObj
+#' @rdname transpose-generic
 #' @export
 setMethod('t', signature('spatLocsObj'), function(x) {
   sdimy = sdimx = NULL
@@ -332,7 +374,7 @@ setMethod('t', signature('spatLocsObj'), function(x) {
   x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
   return(x)
 })
-#' @describeIn transpose-generic Transpose a spatialNeworkObj
+#' @rdname transpose-generic
 #' @export
 setMethod('t', signature('spatialNetworkObj'), function(x) {
   sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
@@ -345,12 +387,17 @@ setMethod('t', signature('spatialNetworkObj'), function(x) {
 })
 
 # s3 methods
+#' @rdname transpose-generic
+#' @export
 t.spatLocsObj = function(x) {
   sdimy = sdimx = NULL
   x = data.table::copy(x)
   x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
   return(x)
 }
+
+#' @rdname transpose-generic
+#' @export
 t.spatialNetworkObj = function(x) {
   sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
   x = data.table::copy(x)
@@ -547,8 +594,7 @@ setMethod("rbind", "giottoPolygon", function(..., deparse.level = 1) {
 #' @param \dots additional parameters to pass
 #' @aliases plot
 #' @family plot
-#' @exportMethod plot
-if(!isGeneric('plot')) setOldClass('plot')
+NULL
 
 #' @describeIn plot-generic Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
 #' @export
@@ -613,7 +659,7 @@ setMethod('plot', signature(x = 'spatLocsObj', y = 'missing'), function(x, ...) 
   if(is.null(l$xlab)) l$xlab = ''
   if(is.null(l$ylab)) l$ylab = ''
   if(is.null(l$cex)) l$cex = 0.5
-  if(nrow(x@coordinates) > 10000L) {
+  if(nrow(x) > 10000L) {
     if(is.null(l$pch)) l$pch = '.'
   }
 
@@ -659,7 +705,6 @@ setMethod('plot', signature(x = 'spatialNetworkObj', y = 'missing'), function(x,
            x1 = x[]$sdimx_end, y1 = x[]$sdimy_end,
            col = line_col, lty = line_type, lwd = line_width)
 })
-
 
 
 
