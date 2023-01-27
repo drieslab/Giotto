@@ -152,6 +152,7 @@ Collate:
     'utils-pipe.R'
     'variable_genes.R'
     'wnn.R'
+    'zzz.R'
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
