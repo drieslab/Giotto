@@ -15,7 +15,7 @@
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
 - New `spatialAutoCorLocal()` and `spatialAutoCorGlobal()` functions to find spatial autocorrelations from expression and cell metadata information
-- New `spatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
+- New `createSpatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 - Add `plot()` method for `spatialNetworkObj`

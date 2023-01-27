@@ -5,9 +5,9 @@
 \alias{wrap,giottoPolygon-method}
 \alias{wrap,giotto-method}
 \alias{wrap,giottoPoints-method}
-\alias{unwrap,packedGiottoPolygon-method}
-\alias{unwrap,packedGiottoPoints-method}
-\alias{unwrap,packedGiotto-method}
+\alias{vect,packedGiottoPolygon-method}
+\alias{vect,packedGiottoPoints-method}
+\alias{vect,packedGiotto-method}
 \title{Wrap giotto terra pointer information}
 \usage{
 \S4method{wrap}{giottoPolygon}(x)
@@ -16,11 +16,11 @@
 
 \S4method{wrap}{giottoPoints}(x)
 
-\S4method{unwrap}{packedGiottoPolygon}(x)
+\S4method{vect}{packedGiottoPolygon}(x)
 
-\S4method{unwrap}{packedGiottoPoints}(x)
+\S4method{vect}{packedGiottoPoints}(x)
 
-\S4method{unwrap}{packedGiotto}(x)
+\S4method{vect}{packedGiotto}(x)
 }
 \arguments{
 \item{x}{giottoPolygon or giottoPoints}
@@ -38,10 +38,10 @@ be passed over a connection (e.g. nodes on a computer cluster)
 
 \item \code{wrap(giottoPoints)}: Wrap giottoPoints
 
-\item \code{unwrap(packedGiottoPolygon)}: Unwrap giottoPolygon
+\item \code{vect(packedGiottoPolygon)}: Unwrap giottoPolygon
 
-\item \code{unwrap(packedGiottoPoints)}: Unwrap giottoPolygon
+\item \code{vect(packedGiottoPoints)}: Unwrap giottoPolygon
 
-\item \code{unwrap(packedGiotto)}: Unwrap giotto
+\item \code{vect(packedGiotto)}: Unwrap giotto
 
 }}

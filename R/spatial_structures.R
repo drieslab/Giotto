@@ -495,7 +495,7 @@ compatible_spatial_network = function(spatial_network,
 
 
 #' @title Create a spatial weight matrix
-#' @name spatialWeightMatrix
+#' @name createSpatialWeightMatrix
 #' @description Generate spatial weight matrix based on the strength of spatial
 #' interactions between nodes. Requires spatial networks to be first generated.
 #' @param gobject giotto object
@@ -513,13 +513,14 @@ compatible_spatial_network = function(spatial_network,
 #'   \item{\code{"adjacency"} method is a binary matrix with 1 signifying that two nodes
 #' are connected in the spatial network and 0 indicating that they are not.}
 #' }
-spatialWeightMatrix = function(gobject,
-                               spat_unit = NULL,
-                               spatial_network_to_use = 'kNN_network',
-                               method = c('distance', 'adjacency'),
-                               wm_name = 'spat_weights',
-                               return_gobject = TRUE,
-                               verbose = TRUE) {
+#' @export
+createSpatialWeightMatrix = function(gobject,
+                                     spat_unit = NULL,
+                                     spatial_network_to_use = 'kNN_network',
+                                     method = c('distance', 'adjacency'),
+                                     wm_name = 'spat_weights',
+                                     return_gobject = TRUE,
+                                     verbose = TRUE) {
 
   # 1. setup
   spat_unit = set_default_spat_unit(gobject = gobject,
