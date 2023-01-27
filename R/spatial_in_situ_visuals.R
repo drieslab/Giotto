@@ -273,6 +273,7 @@ plot_feature_points_layer = function(ggobject,
 
 
 
+  # manually set feature color code
   if(!is.null(feats_color_code)) {
     pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
   } else {
@@ -280,6 +281,11 @@ plot_feature_points_layer = function(ggobject,
     feats_color_code = getDistinctColors(length(feats_names))
     names(feats_color_code) = feats_names
     pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
+  }
+
+  # manually set feature shape color code
+  if(!is.null(feat_shape_code)) {
+    pl = pl + ggplot2::scale_shape_manual(values = feat_shape_code)
   }
 
   return(pl)
