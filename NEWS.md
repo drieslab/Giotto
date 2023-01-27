@@ -24,7 +24,7 @@
 - Add missing `create_nn_net_obj()` internal constructor function for S4 `nnNetObj`
 - Add `id_col`, `x_col`, `y_col` params to `polyStamp()` to make stamp location input more flexible
 - Add `optional` and `custom_msg` params to `package_check()`
-- New `wrap()` and `unwrap()` generics for `giotto`, `giottoPoints`, and `giottoPolygons`
+- New `wrap()` and `vect()` generics for `giotto`, `giottoPoints`, and `giottoPolygons`
 - New `rotate()`, `t()`, and `spatShift` generics for giotto subobject spatial manipulation
 - New `spatIDs()` and `featIDs()` generics
 - New `objName()` and `objName` generics for setting the names of relevant S4 subobjects
