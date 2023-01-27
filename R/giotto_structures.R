@@ -3190,7 +3190,7 @@ combineFeatureOverlapData = function(gobject,
                                        feat_type = feat,
                                        output = 'data.table')
 
-      print(feat_meta)
+      # print(feat_meta)
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -3222,7 +3222,7 @@ combineFeatureOverlapData = function(gobject,
 
     }
 
-    print(comb_dt)
+    # print(comb_dt)
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt
