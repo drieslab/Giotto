@@ -1,9 +1,4 @@
-# Giotto Suite 3.1.1 (2023-01-25)  
-  
-## Added
-- Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
-
-# TBD RELEASE
+# Giotto Suite 3.2 (RELEASE TBD)
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
@@ -14,8 +9,10 @@
 ## Added
 - New `gefToGiotto()` interoperability function to convert gef object from Stereo-seq to giotto
 - New `giottoToAnnData()` interoperability function to convert giotto object to squidpy flavor anndata .h5ad file(s)
+- New `giottoToSpatialExperiment()` and `spatialExperimentToGiotto()` to convert between Giotto and SpatialExperiment
 - New `spatialAutoCorLocal()` and `spatialAutoCorGlobal()` functions to find spatial autocorrelations from expression and cell metadata information
 - New `createSpatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
+- Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 - Add `plot()` method for `spatialNetworkObj`
