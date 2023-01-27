@@ -1859,9 +1859,9 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
     # unwrap results
     smooth_cell_polygons_list = lapply(smooth_cell_polygons_list, function(x) {
-      slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
+      slot(x, 'spatVector') = terra::vect(slot(x, 'spatVector'))
       if(isTRUE(calc_centroids)) {
-        slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
+        slot(x, 'spatVectorCentroids') = terra::vect(slot(x, 'spatVectorCentroids'))
       }
       return(x)
     })
@@ -1921,9 +1921,9 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     # unwrap results
     smooth_cell_polygons_list = lapply(seq_along(smooth_cell_polygons_list), function(i) {
       p_list = lapply(smooth_cell_polygons_list[[i]], function(x) {
-        slot(x, 'spatVector') = terra::unwrap(slot(x, 'spatVector'))
+        slot(x, 'spatVector') = terra::vect(slot(x, 'spatVector'))
         if(isTRUE(calc_centroids)) {
-          slot(x, 'spatVectorCentroids') = terra::unwrap(slot(x, 'spatVectorCentroids'))
+          slot(x, 'spatVectorCentroids') = terra::vect(slot(x, 'spatVectorCentroids'))
         }
         return(x)
       })

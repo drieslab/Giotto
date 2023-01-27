@@ -476,22 +476,24 @@ setMethod('wrap', signature(x = 'giottoPoints'),
 )
 
 
+# unwrap methods ####
+# For compatibility before terra 1.6.41, vect will be used
 
 #' @describeIn wrap-generic Unwrap giottoPolygon
-#' @importMethodsFrom terra unwrap
+#' @importMethodsFrom terra vect
 #' @export
-setMethod('unwrap', signature(x = 'packedGiottoPolygon'),
+setMethod('vect', signature(x = 'packedGiottoPolygon'),
           function(x) {
             gp = new('giottoPolygon')
             gp@name = x@name
-            gp@spatVector = terra::unwrap(x@packed_spatVector)
+            gp@spatVector = terra::vect(x@packed_spatVector)
             if(!is.null(x@packed_spatVectorCentroids)) {
-              gp@spatVectorCentroids = terra::unwrap(x@packed_spatVectorCentroids)
+              gp@spatVectorCentroids = terra::vect(x@packed_spatVectorCentroids)
             }
             if(length(x@packed_overlaps) > 0) {
               gp@overlaps = lapply(x@packed_overlaps, function(sv) {
                 if(inherits(sv, 'PackedSpatVector')) {
-                  terra::unwrap(sv)
+                  terra::vect(sv)
                 } else {
                   sv
                 }
@@ -504,13 +506,13 @@ setMethod('unwrap', signature(x = 'packedGiottoPolygon'),
 
 
 #' @describeIn wrap-generic Unwrap giottoPolygon
-#' @importMethodsFrom terra unwrap
+#' @importMethodsFrom terra vect
 #' @export
-setMethod('unwrap', signature(x = 'packedGiottoPoints'),
+setMethod('vect', signature(x = 'packedGiottoPoints'),
           function(x) {
             gp = new('giottoPoints')
             gp@feat_type = x@feat_type
-            gp@spatVector = terra::unwrap(x@packed_spatVector)
+            gp@spatVector = terra::vect(x@packed_spatVector)
             gp@networks = x@networks
             return(gp)
             }
@@ -518,9 +520,9 @@ setMethod('unwrap', signature(x = 'packedGiottoPoints'),
 
 
 #' @describeIn wrap-generic Unwrap giotto
-#' @importMethodsFrom terra unwrap
+#' @importMethodsFrom terra vect
 #' @export
-setMethod('unwrap', signature(x = 'packedGiotto'),
+setMethod('vect', signature(x = 'packedGiotto'),
           function(x) {
             gobj = new('giotto')
             g_slots = methods::slotNames('giotto')
@@ -528,8 +530,8 @@ setMethod('unwrap', signature(x = 'packedGiotto'),
             for(g_slot in g_slots) {
               slot(gobj, g_slot) = slot(x, g_slot)
             }
-            gobj@spatial_info = lapply(x@packed_spatial_info, unwrap)
-            gobj@feat_info = lapply(x@packed_feat_info, unwrap)
+            gobj@spatial_info = lapply(x@packed_spatial_info, vect)
+            gobj@feat_info = lapply(x@packed_feat_info, vect)
             return(gobj)
           })
 
