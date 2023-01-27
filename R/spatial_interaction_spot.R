@@ -1585,7 +1585,7 @@ specific_CCCScores_spots = function(gobject,
 
     total_bool = rep(0, nrow(comScore))
 
-    all_cell_ids = gobject@cell_metadata$cell_ID
+    all_cell_ids = colnames(expr_residual)
     ## simulations ##
     for(sim in 1:random_iter) {
 
