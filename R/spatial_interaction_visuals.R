@@ -2241,7 +2241,7 @@ plotCCcomHeatmap = function(gobject,
 #' @name plotCCcomDotplot
 #' @description Plots dotplot for ligand-receptor communication scores in cell-cell interactions
 #' @param gobject giotto object
-#' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
+#' @param comScores communication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
 #' @param selected_LR selected ligand-receptor combinations
 #' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
 #' @param show_LR_names show ligand-receptor names
