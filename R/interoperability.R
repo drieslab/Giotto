@@ -32,33 +32,33 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){
                                               see details for choices.')
 
    # step 1: read expression and gene data from gef file
+   if(isTRUE(verbose)) wrap_msg('reading in .gef file')
    geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
    exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
    geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
-   if(isTRUE(verbose)) wrap_msg('read in .gef file')
 
    # step 2: combine gene information from the geneDT to the exprDT
    exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
 
    # step 3: bin coordinates according to selected bin_size
-   bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
    #TODO: update bin_shift for other shapes, not just rect_vertices
+   bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
    bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
    bincoord = unique(exprDT[,.(x,y)])
+   if(isTRUE(verbose)) wrap_msg('shifting and binning coordinates')
    data.table::setorder(bincoord, x, y)
    data.table::setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
    bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
    bincoord[, cell_ID := paste0('bin', 1:.N)]
    tx_data = exprDT[,.(genes, x, y, count)]
    tx_data[, c('x', 'y') := list(x+bin_shift, y+bin_shift)]
-   if(isTRUE(verbose)) wrap_msg('shift and bin coordinates')
 
    # step 4: create rectangular polygons (grid) starting from the bin centroids
+   if(isTRUE(verbose)) wrap_msg('creating polygon stamp')
    x = polyStamp(stamp_dt = rectVertices(dims = c(x = (bin_size_int - 1),
                                                   y = (bin_size_int - 1))),
                  spatlocs = bincoord[,.(cell_ID, sdimx, sdimy)])
    pg = createGiottoPolygonsFromDfr(x)
-   if(isTRUE(verbose)) wrap_msg('create polygon stamp')
 
    # step 5: create giotto subcellular object
    stereo = createGiottoObjectSubcellular(
