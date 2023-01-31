@@ -1371,6 +1371,7 @@ read_xenium_folder = function(xenium_dir,
 load_merscope_folder = function(dir_items,
                                 data_to_use,
                                 fovs = NULL,
+                                poly_z_indices = 0:6,
                                 cores = NA,
                                 verbose = TRUE) {
 
@@ -1379,6 +1380,7 @@ load_merscope_folder = function(dir_items,
     data_list = load_merscope_folder_subcellular(dir_items = dir_items,
                                                  data_to_use = data_to_use,
                                                  fovs = fovs,
+                                                 poly_z_indices = poly_z_indices,
                                                  cores = cores,
                                                  verbose = verbose)
   } else if(data_to_use == 'aggregate') {
@@ -1429,6 +1431,7 @@ load_merscope_folder = function(dir_items,
 load_merscope_folder_subcellular = function(dir_items,
                                             data_to_use,
                                             cores = NA,
+                                            poly_z_indices = 0:6,
                                             verbose = TRUE,
                                             fovs = NULL) {
 
@@ -1448,7 +1451,7 @@ load_merscope_folder_subcellular = function(dir_items,
 
   if(isTRUE(verbose)) wrap_msg('Loading polygon info...')
   poly_info = readPolygonFilesVizgenHDF5(boundaries_path = dir_items$`boundary info`,
-                                         polygon_feat_types = c(0,6),
+                                         z_indices = poly_z_indices,
                                          flip_y_axis = TRUE,
                                          fovs = fovs)
 
