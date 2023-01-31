@@ -26,7 +26,7 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){
    package_check(pkg_name = 'rhdf5', repository = 'Bioc')
    if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
 
-   # check if proper bin_size is selected
+   # check if proper bin_size is selected. These are determined in SAW pipeline.
    bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
    if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size,
                                               see details for choices.')
@@ -45,8 +45,8 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){
    #TODO: update bin_shift for other shapes, not just rect_vertices
    bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
    bincoord = unique(exprDT[,.(x,y)])
-   setorder(bincoord, x, y)
-   setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
+   data.table::setorder(bincoord, x, y)
+   data.table::setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
    bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
    bincoord[, cell_ID := paste0('bin', 1:.N)]
    tx_data = exprDT[,.(genes, x, y, count)]
