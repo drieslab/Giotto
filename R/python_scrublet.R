@@ -66,7 +66,8 @@ doScrubletDetect = function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = expression_values)
+                                      values = expression_values,
+                                      output = 'matrix')
 
   # input is a sparse matrix with cells as rows and genes as columns   data.table::as.data.table()
   scr_input = expr_values
