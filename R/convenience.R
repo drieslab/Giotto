@@ -1371,7 +1371,7 @@ read_xenium_folder = function(xenium_dir,
 load_merscope_folder = function(dir_items,
                                 data_to_use,
                                 fovs = NULL,
-                                poly_z_indices = 0:6,
+                                poly_z_indices = 1L:7L,
                                 cores = NA,
                                 verbose = TRUE) {
 
@@ -1431,7 +1431,7 @@ load_merscope_folder = function(dir_items,
 load_merscope_folder_subcellular = function(dir_items,
                                             data_to_use,
                                             cores = NA,
-                                            poly_z_indices = 0:6,
+                                            poly_z_indices = 1L:7L,
                                             verbose = TRUE,
                                             fovs = NULL) {
 
