@@ -1,4 +1,4 @@
-# Giotto Suite 3.2 (RELEASE TBD)
+# Giotto Suite 3.2.0 (RELEASE TBD)
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
@@ -32,7 +32,8 @@
 ## Changes
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
 - Update `addFeatMetadata()` to handle replacement of existing columns
-- Update to `show()` method for `spatEnrObj`
+- Update `show()` method for `giotto`
+- Update `show()` method for `spatEnrObj`
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Deprecate `xy_translate_spatial_locations()` in favor of `shift_spatial_locations()`
 - Optimize `readPolygonFilesVizgen()`

@@ -1008,12 +1008,12 @@ select_spatial_locations = function(...) {
 #' @family functions to get data from giotto object
 #' @export
 getSpatialLocations = function(gobject,
-                                 spat_unit = NULL,
-                                 spat_loc_name = NULL,
-                                 output = c('spatLocsObj', 'data.table'),
-                                 copy_obj = TRUE,
-                                 verbose = TRUE,
-                                 set_defaults = TRUE) {
+                               spat_unit = NULL,
+                               spat_loc_name = NULL,
+                               output = c('spatLocsObj', 'data.table'),
+                               copy_obj = TRUE,
+                               verbose = TRUE,
+                               set_defaults = TRUE) {
 
   # Pass to internal function
   get_spatial_locations(gobject = gobject,
@@ -1542,7 +1542,7 @@ get_spatialNetwork = function(gobject,
                               set_defaults = TRUE,
                               copy_obj = TRUE,
                               verbose = TRUE) {
-  
+
   output = match.arg(output, choices = c('spatialNetworkObj',
                                          'networkDT',
                                          'networkDT_before_filter',
@@ -1739,7 +1739,7 @@ setSpatialNetwork = function(gobject,
                      name = name,
                      spatial_network = spatial_network,
                      verbose = verbose,
-                     set_defaults = set_defaults) 
+                     set_defaults = set_defaults)
 }
 
 ## spatial grid slot ####
@@ -1854,7 +1854,7 @@ getSpatialGrid = function(gobject,
                           set_defaults = TRUE) {
 
   # Pass to internal function
-  get_spatialGrid(gobject = gobject, 
+  get_spatialGrid(gobject = gobject,
                   spat_unit = spat_unit,
                   feat_type = feat_type,
                   name = name,
@@ -2251,7 +2251,7 @@ getSpatialEnrichment = function(gobject,
                          output = c('spatEnrObj', 'data.table'),
                          copy_obj = TRUE,
                          set_defaults = TRUE)
-                                  
+
 }
 
 #' @title Set spatial enrichment
