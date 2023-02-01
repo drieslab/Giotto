@@ -317,13 +317,6 @@ setClass('spatFeatData',
 #
 #
 #
-#   # Check for nesting issues (due to updates) - to be deprecated
-#   available_nn = list_nearest_networks(object)
-#   available_grids = list_spatial_grids(object)
-#
-#
-#
-#
 #   ## Match spatial units and feature types ##
 #
 #   # Find existing spat_units in source data
@@ -375,8 +368,28 @@ setClass('spatFeatData',
 #   if(length(errors) == 0) TRUE else errors
 # }
 
+## Test Functions
+# test_valid = function(object) {
+#   print('valid_run')
+#   return(TRUE)
+# }
+#
+# setMethod('initialize', signature = 'giotto',
+#           function(.Object, ...) {
+#             .Object = methods::callNextMethod()
+#             print('init_run')
+#             .Object
+#           })
 
-
+# TODO
+# updateGiottoObject = function(gobject) {
+#   if(is.null(attr(gobject, 'multiomics'))) {
+#     attr(gobject, 'multiomics') = NA
+#     gobject@multiomics = NULL
+#   }
+#
+#   return(gobject)
+# }
 
 ##### * Definition ####
 # Giotto class
@@ -488,23 +501,72 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
 
-    for(spat_unit in names(object@expression_feat)) {
-      cat('spatial units = ', spat_unit, '\n')
-      for(feat_type in unique(object@expression_feat)) {
-        cat("features = ", feat_type, "\n")
 
-        cat(
-          nrow(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
-          "features across",
-          ncol(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
-          "samples.\n \n"
-        )
+    cat('[SUBCELLULAR INFO]\n')
+    if(!is.null(object@spatial_info)) cat('polygons      :', wrap_txt(list_spatial_info_names(object)), '\n')
+    if(!is.null(object@feat_info)) cat('features      :', wrap_txt(list_feature_info_names(object)), '\n')
+
+
+    mini_avail_print = function(avail_dt) {
+      if(!'spat_unit' %in% colnames(avail_dt)) {
+        avail_dt[, spat_unit := '']
+      } else avail_dt[, spat_unit := paste0('[', spat_unit, ']')]
+      if(!'feat_type' %in% colnames(avail_dt)) {
+        avail_dt[, feat_type := '']
+      } else avail_dt[, feat_type := paste0('[', feat_type, ']')]
+      avail_dt[, prints := paste0(spat_unit, feat_type)]
+
+      unique_entry = avail_dt[, unique(prints)]
+      for(entry in unique_entry) {
+        cat('  ', entry, paste0(' ', wrap_txt(avail_dt[prints == entry, name])), '\n', sep = '')
       }
     }
 
 
-    cat('Steps and parameters used: \n \n')
-    print(object@parameters)
+    cat('[AGGREGATE INFO]\n')
+    avail_expr = list_expression(object)
+    if(!is.null(avail_expr)) {
+      cat('expression -----------------------\n')
+      mini_avail_print(avail_expr)
+    }
+
+    avail_sl = list_spatial_locations(object)
+    if(!is.null(avail_sl)) {
+      cat('spatial locations ----------------\n')
+      mini_avail_print(avail_sl)
+    }
+
+    avail_sn = list_spatial_networks(object)
+    if(!is.null(avail_sn)) {
+      cat('spatial networks -----------------\n')
+      mini_avail_print(avail_sn)
+    }
+
+    avail_dim = list_dim_reductions(object)
+    if(!is.null(avail_dim)) {
+      cat('dim reduction --------------------\n')
+      mini_avail_print(avail_dim)
+    }
+
+    avail_nn = list_nearest_networks(object)
+    if(!is.null(avail_nn)) {
+      cat('nearest neighbor networks --------\n')
+      mini_avail_print(avail_nn)
+    }
+
+    avail_im = list_images(object)
+    if(!is.null(avail_im)) {
+      cat('attached images ------------------\n')
+      if('image' %in% avail_im$img_type) {
+        cat('giottoImage      :', wrap_txt(avail_im[img_type == 'image', name]), '\n')
+      }
+      if('largeImage' %in% avail_im$img_type) {
+        cat(  'giottoLargeImage :', wrap_txt(avail_im[img_type == 'largeImage', name]), '\n')
+      }
+    }
+
+
+    cat(wrap_txt('\n\nUse objHistory() to see steps and params used\n\n'))
     invisible(x = NULL)
   }
 )
