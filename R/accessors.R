@@ -1016,13 +1016,15 @@ getSpatialLocations = function(gobject,
                                set_defaults = TRUE) {
 
   # Pass to internal function
-  get_spatial_locations(gobject = gobject,
-                        spat_unit = spat_unit,
-                        spat_loc_name = spat_loc_name,
-                        output = output,
-                        copy_obj = copy_obj,
-                        verbose = verbose,
-                        set_defaults = set_defaults)
+  spatloc = get_spatial_locations(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  spat_loc_name = spat_loc_name,
+                                  output = output,
+                                  copy_obj = copy_obj,
+                                  verbose = verbose,
+                                  set_defaults = set_defaults)
+
+  return(spatloc)
 }
 
 #' @title Set spatial locations
@@ -1145,13 +1147,15 @@ setSpatialLocations = function(gobject,
                                  set_defaults = TRUE) {
 
   # Pass to internal function
-  set_spatial_locations(gobject = gobject,
-                        spatlocs = spatlocs,
-                        spat_unit = spat_unit,
-                        spat_loc_name = spat_loc_name,
-                        provenance = provenance,
-                        verbose = verbose,
-                        set_defaults = set_defaults)
+  gobject = set_spatial_locations(gobject = gobject,
+                                  spatlocs = spatlocs,
+                                  spat_unit = spat_unit,
+                                  spat_loc_name = spat_loc_name,
+                                  provenance = provenance,
+                                  verbose = verbose,
+                                  set_defaults = set_defaults)
+
+  return(gobject)
 }
 
 ## dimension reduction slot ####
@@ -1616,24 +1620,26 @@ select_spatialNetwork = function(...) {
 #' @family functions to get data from giotto object
 #' @export
 getSpatialNetwork = function(gobject,
-                              spat_unit = NULL,
-                              name = NULL,
-                              output = c('spatialNetworkObj',
-                                         'networkDT',
-                                         'networkDT_before_filter',
-                                         'outputObj'),
-                              set_defaults = TRUE,
-                              copy_obj = TRUE,
-                              verbose = TRUE) {
+                             spat_unit = NULL,
+                             name = NULL,
+                             output = c('spatialNetworkObj',
+                                        'networkDT',
+                                        'networkDT_before_filter',
+                                        'outputObj'),
+                             set_defaults = TRUE,
+                             copy_obj = TRUE,
+                             verbose = TRUE) {
 
   # Pass to internal function
-  get_spatialNetwork(gobject = gobject,
-                    spat_unit = spat_unit,
-                    name = name,
-                    output = output,
-                    set_defaults = set_defaults,
-                    copy_obj = copy_obj,
-                    verbose = verbose)
+  network = get_spatialNetwork(gobject = gobject,
+                               spat_unit = spat_unit,
+                               name = name,
+                               output = output,
+                               set_defaults = set_defaults,
+                               copy_obj = copy_obj,
+                               verbose = verbose)
+
+  return(network)
 }
 
 #' @title Set spatial network
@@ -1734,12 +1740,14 @@ setSpatialNetwork = function(gobject,
                               set_defaults = TRUE) {
 
   # Pass to internal function
-  set_spatialNetwork(gobject = gobject,
-                     spat_unit = spat_unit,
-                     name = name,
-                     spatial_network = spatial_network,
-                     verbose = verbose,
-                     set_defaults = set_defaults)
+  gobject = set_spatialNetwork(gobject = gobject,
+                               spat_unit = spat_unit,
+                               name = name,
+                               spatial_network = spatial_network,
+                               verbose = verbose,
+                               set_defaults = set_defaults)
+
+  return(gobject)
 }
 
 ## spatial grid slot ####
@@ -1854,12 +1862,14 @@ getSpatialGrid = function(gobject,
                           set_defaults = TRUE) {
 
   # Pass to internal function
-  get_spatialGrid(gobject = gobject,
-                  spat_unit = spat_unit,
-                  feat_type = feat_type,
-                  name = name,
-                  return_grid_Obj = return_grid_Obj,
-                  set_defaults = set_defaults)
+  grid = get_spatialGrid(gobject = gobject,
+                         spat_unit = spat_unit,
+                         feat_type = feat_type,
+                         name = name,
+                         return_grid_Obj = return_grid_Obj,
+                         set_defaults = set_defaults)
+
+  return(grid)
 }
 
 #' @title Set spatial grid
@@ -1964,13 +1974,15 @@ setSpatialGrid = function(gobject,
                            set_defaults = TRUE) {
 
   # Pass to internal function
-  set_spatialGrid(gobject = gobject,
-                  spatial_grid = spatial_grid,
-                  spat_unit = spat_unit,
-                  feat_type = feat_type,
-                  name = name,
-                  verbose = verbose,
-                  set_defaults = set_defaults)
+  gobject = set_spatialGrid(gobject = gobject,
+                            spatial_grid = spatial_grid,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
+                            name = name,
+                            verbose = verbose,
+                            set_defaults = set_defaults)
+
+  return(gobject)
 }
 
 ## polygon cell info ####
@@ -2118,7 +2130,7 @@ setPolygonInfo = function(gobject = NULL,
     wrap_msg("Unable to set polygon spatVector to non-Giotto object.")
     stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
   }
-  
+
   if (!"giottoPolygon" %in% class(gpolygon)){
     wrap_msg("Unable to set non-spatVector object to Giotto object.")
     stop(wrap_msg("Please provide a giotto polygon to the gpolygon argument."))
@@ -2250,7 +2262,7 @@ setFeatureInfo = function(gobject = NULL,
     wrap_msg("Unable to set giotto points spatVector feature info to non-Giotto object.")
     stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
   }
-  
+
   if (!"giottoPolygon" %in% class(gpolygon)){
     wrap_msg("Unable to set non-giotto points spatVector feature info to Giotto object.")
     stop(wrap_msg("Please provide a giotto polygon to the gpolygon argument."))
@@ -2351,13 +2363,15 @@ getSpatialEnrichment = function(gobject,
                                 set_defaults = TRUE) {
 
   # Pass to internal function
-  get_spatial_enrichment(gobject,
-                         spat_unit = NULL,
-                         feat_type = NULL,
-                         enrichm_name = 'DWLS',
-                         output = c('spatEnrObj', 'data.table'),
-                         copy_obj = TRUE,
-                         set_defaults = TRUE)
+  enr_res = get_spatial_enrichment(gobject,
+                                   spat_unit = NULL,
+                                   feat_type = NULL,
+                                   enrichm_name = 'DWLS',
+                                   output = c('spatEnrObj', 'data.table'),
+                                   copy_obj = TRUE,
+                                   set_defaults = TRUE)
+
+  return(enr_res)
 
 }
 
@@ -2461,13 +2475,15 @@ setSpatialEnrichment = function(gobject,
                                   set_defaults = TRUE) {
 
   # Pass to internal function
-  set_spatial_enrichment(gobject = gobject,
-                         spatenrichment = spatenrichment,
-                         spat_unit = spat_unit,
-                         feat_type = feat_type,
-                         enrichm_name = enrichm_name,
-                         verbose = verbose,
-                         set_defaults = set_defaults)
+  gobject = set_spatial_enrichment(gobject = gobject,
+                                    spatenrichment = spatenrichment,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    enrichm_name = enrichm_name,
+                                    verbose = verbose,
+                                    set_defaults = set_defaults)
+
+  return(gobject)
 }
 
 ## MG image slot ####
@@ -2645,7 +2661,7 @@ get_giottoImage = function(gobject = NULL,
 #' @return a giotto image object
 #' @family image data accessor functions
 #' @family functions to get data from giotto object
-#' @export 
+#' @export
 getGiottoImage = function(gobject = NULL,
                           image_type = c('image','largeImage'),
                           name = NULL) {
