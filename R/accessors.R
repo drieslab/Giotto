@@ -2363,13 +2363,13 @@ getSpatialEnrichment = function(gobject,
                                 set_defaults = TRUE) {
 
   # Pass to internal function
-  enr_res = get_spatial_enrichment(gobject,
-                                   spat_unit = NULL,
-                                   feat_type = NULL,
-                                   enrichm_name = 'DWLS',
-                                   output = c('spatEnrObj', 'data.table'),
-                                   copy_obj = TRUE,
-                                   set_defaults = TRUE)
+  enr_res = get_spatial_enrichment(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   enrichm_name = enrichm_name,
+                                   output = output,
+                                   copy_obj = copy_obj,
+                                   set_defaults = set_defaults)
 
   return(enr_res)
                                   
