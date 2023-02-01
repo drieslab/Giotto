@@ -2024,6 +2024,32 @@ get_polygon_info = function(gobject,
   }
 }
 
+#' @title Get polygon info
+#' @name getPolygonInfo
+#' @description Get giotto polygon spatVector
+#' @param gobject giotto object
+#' @param polygon_name name of polygons. Default is "cell"
+#' @param polygon_overlap include polygon overlap information
+#' @param return_giottoPolygon (Defaults to FALSE) Return as giottoPolygon S4 object
+#' @family polygon info data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getPolygonInfo = function(gobject = NULL,
+                          polygon_name = NULL,
+                          polygon_overlap = NULL,
+                          return_giottoPolygon = FALSE){
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to get polygon spatVector from non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+
+  poly_info = get_polygon_info(gobject = gobject,
+                               polygon_name = polygon_name,
+                               polygon_overlap = polygon_overlap,
+                               return_giottoPolygon = return_giottoPolygon)
+
+  return (poly_info)
+}
 
 #' @title Select polygon info
 #' @name select_polygon_info
@@ -2073,12 +2099,60 @@ set_polygon_info = function(gobject,
 
 }
 
-
-
+#' @title Set polygon info
+#' @name setPolygonInfo
+#' @description Set giotto polygon spatVector
+#' @param gobject giotto object
+#' @param polygon_name name of polygons. Default "cell"
+#' @param gpolygon giotto polygon
+#' @param verbose verbosity
+#' @return giotto object
+#' @family polygon info data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setPolygonInfo = function(gobject = NULL,
+                          polygon_name = 'cell',
+                          gpolygon = NULL,
+                          verbose = TRUE) {
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to set polygon spatVector to non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+  
+  if (!"giottoPolygon" %in% class(gpolygon)){
+    wrap_msg("Unable to set non-spatVector object to Giotto object.")
+    stop(wrap_msg("Please provide a giotto polygon to the gpolygon argument."))
+  }
+  gobject = set_polygon_info(gobject = gobject,
+                             polygon_name = polygon_name,
+                             gpolygon = gpolygon,
+                             verbose = verbose)
+  return (gobject)
+}
 
 
 
 ## feature info ####
+
+#' @title Get feature info
+#' @name getFeatureInfo
+#' @description Get giotto points spatVector
+#' @inheritParams data_access
+#' @family feature info data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getFeatureInfo = function(gobject = gobject,
+                          feat_type = NULL,
+                          set_defaults = TRUE) {
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to get giotto points spatVector feature info from non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+  feat_info = get_feature_info(gobject = gobject,
+                               feat_type = feat_type,
+                               set_defaults = set_defaults)
+  return (feat_info)
+}
 
 #' @title Get feature info
 #' @name get_feature_info
@@ -2156,6 +2230,39 @@ set_feature_info = function(gobject,
 
 }
 
+#' @title Set feature info
+#' @name setFeatureInfo
+#' @description Set giotto polygon spatVector for features
+#' @inheritParams data_access
+#' @param gobject giotto object containing a the given giottopolygon
+#' @param gpolygon giotto polygon
+#' @param feat_type feature slot information (e.g. "rna")
+#' @param verbose be verbose
+#' @return giotto object
+#' @family feature info data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setFeatureInfo = function(gobject = NULL,
+                          feat_type = NULL,
+                          gpolygon = NULL,
+                          verbose = TRUE){
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to set giotto points spatVector feature info to non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+  
+  if (!"giottoPolygon" %in% class(gpolygon)){
+    wrap_msg("Unable to set non-giotto points spatVector feature info to Giotto object.")
+    stop(wrap_msg("Please provide a giotto polygon to the gpolygon argument."))
+  }
+
+  gobject = set_feature_info(gobject = gobject,
+                             feat_type = feat_type,
+                             gpolygon = gpolygon,
+                             verbose = verbose)
+  return (gobject)
+
+}
 
 
 ## spatial enrichment slot ####
@@ -2529,6 +2636,31 @@ get_giottoImage = function(gobject = NULL,
   return(g_img)
 }
 
+#' @title Get giotto image object
+#' @name getGiottoImage
+#' @description Get giotto image object from gobject
+#' @param gobject giotto object
+#' @param image_type type of giotto image object. Either "image" or "largeImage"
+#' @param name name of a giotto image object \code{\link{showGiottoImageNames}}
+#' @return a giotto image object
+#' @family image data accessor functions
+#' @family functions to get data from giotto object
+#' @export 
+getGiottoImage = function(gobject = NULL,
+                          image_type = c('image','largeImage'),
+                          name = NULL) {
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to get Giotto Image from non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+
+  g_img = get_giottoImage(gobject = gobject,
+                          image_type = image_type,
+                          name = name)
+
+  return (g_img)
+
+}
 
 
 #' @title Set giotto image object
@@ -2575,6 +2707,51 @@ set_giottoImage = function(gobject = NULL,
   return(gobject)
 }
 
+#' @title Set giotto image object
+#' @name setGiottoImage
+#' @description Directly attach a giotto image to giotto object
+#' @details \emph{\strong{Use with care!}} This function directly attaches giotto image
+#'   objects to the gobject without further modifications of spatial positioning values
+#'   within the image object that are generally needed in order for them to
+#'   plot in the correct location relative to the other modalities of spatial data. \cr
+#'   For the more general-purpose method of attaching image objects, see \code{\link{addGiottoImage}}
+#' @param gobject giotto object
+#' @param image giotto image object to be attached without modification to the
+#'   giotto object
+#' @param image_type type of giotto image object. Either "image" or "largeImage"
+#' @param name name of giotto image object
+#' @param verbose be verbose
+#' @return giotto object
+#' @family image data accessor functions
+#' @family functions to set data in giotto object
+#' @seealso \code{\link{addGiottoImage}}
+#' @export
+setGiottoImage = function(gobject = NULL,
+                          image = NULL,
+                          image_type = NULL,
+                          name = NULL,
+                          verbose = TRUE){
+
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to set Giotto Image to non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  } else if (is.null(image)) {
+    wrap_msg("Warning: image argument set to NULL. Replacing current image slot with NULL will remove the image.")
+  } else if( !"giottoImage" %in% image || !"giottoLargeImage" %in% image) {
+    wrap_msg("Unable to set non-giottoImage objects. Please ensure a giottoImage or giottoLargeImage is provided to this function.")
+    wrap_msg("See createGiottoImage or createGiottoLargeImage for more details.")
+    stop(wrap_msg("Unable to set non-giottoImage object."))
+  }
+
+  gobject = set_giottoImage(gobject = gobject,
+                          image = image,
+                          image_type = image_type,
+                          name = name,
+                          verbose = verbose)
+
+  return (gobject)
+
+}
 
 
 ## Show functions ####

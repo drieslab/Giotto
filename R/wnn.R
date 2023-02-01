@@ -599,6 +599,45 @@ set_multiomics = function(gobject,
 
 }
 
+#' @title Set multiomics integration results
+#' @name setMultiomics
+#' @description Set a multiomics integration result in a Giotto object
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type (e.g. 'rna_protein')
+#' @param result A matrix or result from multiomics integration (e.g. theta weighted values from runWNN)
+#' @param integration_method multiomics integration method used. Default = 'WNN'
+#' @param result_name Default = 'theta_weighted_matrix'
+#' @param verbose be verbose
+#'
+#' @return A giotto object
+#' @family multiomics accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setMultiomics = function(gobject = NULL,
+                         result,
+                         spat_unit = NULL,
+                         feat_type = NULL,
+                         integration_method = 'WNN',
+                         result_name = 'theta_weighted_matrix',
+                         verbose = TRUE){
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to set multiomics info to non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+
+  gobject = set_multiomics(gobject = gobject,
+                           result = result,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           result = result,
+                           integration_method = integration_method)
+
+  return (gobject)
+
+}
+
 #' @title Get multiomics integration results
 #' @name get_multiomics
 #' @description Get a multiomics integration result from a Giotto object
@@ -654,3 +693,33 @@ get_multiomics = function(gobject,
 
 }
 
+#' @title Get multiomics integration results
+#' @name getMultiomics
+#' @description Get a multiomics integration result from a Giotto object
+#'
+#' @param gobject A Giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type integrated feature type (e.g. 'rna_protein')
+#' @param integration_method multiomics integration method used. Default = 'WNN'
+#' @param result_name Default = 'theta_weighted_matrix'
+#'
+#' @return A multiomics integration result (e.g. theta_weighted_matrix from WNN)
+#' @family multiomics accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getMultiomics = function(gobject = NULL,
+                         spat_unit = NULL,
+                         feat_type = NULL,
+                         integration_method = "WNN",
+                         result_name = "theta_weighted_matrix") {
+  if (!"giotto" %in% class(gobject)){
+    wrap_msg("Unable to get multiomics info from non-Giotto object.")
+    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+  }
+  multiomics_result = get_multiomics(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     integration_method = integration_method,
+                                     result_name = result_name)
+  return (multiomics_result)
+}
