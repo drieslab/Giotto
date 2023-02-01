@@ -988,14 +988,42 @@ get_spatial_locations = function(gobject,
 #' @keywords internal
 select_spatial_locations = function(...) {
 
-  .Deprecated(new = "get_spatial_locations")
+  .Deprecated(new = "getSpatialLocations")
 
-  get_spatial_locations(...)
+  getSpatialLocations(...)
 
 }
 
+#' @title Get spatial locations
+#' @name getSpatialLocations
+#' @description Function to get a spatial location data.table
+#' @inheritParams data_access
+#' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
+#' @param output what object type to get the spatial locations as. Default is as
+#' a 'spatLocsObj'. Returning as 'data.table' is also possible.
+#' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
+#' @param verbose be verbose
+#' @return data.table with coordinates or spatLocsObj depending on \code{output}
+#' @family spatial location data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getSpatialLocations = function(gobject,
+                                 spat_unit = NULL,
+                                 spat_loc_name = NULL,
+                                 output = c('spatLocsObj', 'data.table'),
+                                 copy_obj = TRUE,
+                                 verbose = TRUE,
+                                 set_defaults = TRUE) {
 
-
+  # Pass to internal function
+  get_spatial_locations(gobject = gobject,
+                        spat_unit = spat_unit,
+                        spat_loc_name = spat_loc_name,
+                        output = output,
+                        copy_obj = copy_obj,
+                        verbose = verbose,
+                        set_defaults = set_defaults)
+}
 
 #' @title Set spatial locations
 #' @name set_spatial_locations
@@ -1086,10 +1114,45 @@ set_spatial_locations = function(gobject,
 
 }
 
+#' @title Set spatial locations
+#' @name setSpatialLocations
+#' @description Function to set a spatial location slot
+#' @inheritParams data_access
+#' @param spatlocs spatial locations (accepts either \code{data.table} or
+#' \code{spatLocsObj})
+#' @param spat_loc_name name of spatial locations, default "raw"
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @details If a \code{spatLocsObj} is provided to \code{spatlocs} param then any
+#' attached name and spat_unit info will be used for input to this function's
+#' \code{spat_loc_name} and \code{spat_unit}params, BUT will be overridden by any
+#' alternative specific inputs to those params. \cr
+#' ie: a \code{spatLocsObj} with spat_unit slot == 'cell' will be automatically
+#' nested by spat_unit 'cell' when using \code{setSpatialLocations} as long as
+#' param \code{spat_unit = NULL}. BUT if param \code{spat_unit = 'nucleus'} then
+#' the \code{spatLocsObj} will be nested by spat_unit 'nucleus' instead and
+#' its spat_unit slot will be changed to 'nucleus'
+#' @return giotto object
+#' @family spatial location data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setSpatialLocations = function(gobject,
+                                 spatlocs,
+                                 spat_unit = NULL,
+                                 spat_loc_name = 'raw',
+                                 provenance = NULL,
+                                 verbose = TRUE,
+                                 set_defaults = TRUE) {
 
-
-
-
+  # Pass to internal function
+  set_spatial_locations(gobject = gobject,
+                        spatlocs = spatlocs,
+                        spat_unit = spat_unit,
+                        spat_loc_name = spat_loc_name,
+                        provenance = provenance,
+                        verbose = verbose,
+                        set_defaults = set_defaults)
+}
 
 ## dimension reduction slot ####
 
@@ -1243,12 +1306,6 @@ set_dimReduction = function(gobject,
 
 }
 
-
-
-
-
-
-
 ## nearest neighbor network slot ####
 
 #' @title Get nearest network
@@ -1359,7 +1416,6 @@ select_NearestNetwork = function(...) {
 
 }
 
-
 #' @title Set nearest network
 #' @name set_NearestNetwork
 #' @description Set a NN-network for a Giotto object
@@ -1462,11 +1518,6 @@ set_NearestNetwork = function(gobject,
 
 }
 
-
-
-
-
-
 ## spatial network slot ####
 
 #' @title Get spatial network
@@ -1491,7 +1542,7 @@ get_spatialNetwork = function(gobject,
                               set_defaults = TRUE,
                               copy_obj = TRUE,
                               verbose = TRUE) {
-
+  
   output = match.arg(output, choices = c('spatialNetworkObj',
                                          'networkDT',
                                          'networkDT_before_filter',
@@ -1546,12 +1597,44 @@ get_spatialNetwork = function(gobject,
 #' @keywords internal
 select_spatialNetwork = function(...) {
 
-  .Deprecated(new = "get_spatialNetwork")
+  .Deprecated(new = "getSpatialNetwork")
 
-  get_spatialNetwork(...)
+  getSpatialNetwork(...)
 
 }
 
+#' @title Get spatial network
+#' @name getSpatialNetwork
+#' @description Function to get a spatial network
+#' @inheritParams data_access
+#' @param name name of spatial network
+#' @param output object type to return as. Options: 'spatialNetworkObj' (default),
+#' 'networkDT' and 'networkDT_before_filter' for data.table outputs.
+#' @param copy_obj whether to copy/duplicate when getting the object (default = TRUE)
+#' @param verbose be verbose
+#' @family spatial network data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getSpatialNetwork = function(gobject,
+                              spat_unit = NULL,
+                              name = NULL,
+                              output = c('spatialNetworkObj',
+                                         'networkDT',
+                                         'networkDT_before_filter',
+                                         'outputObj'),
+                              set_defaults = TRUE,
+                              copy_obj = TRUE,
+                              verbose = TRUE) {
+
+  # Pass to internal function
+  get_spatialNetwork(gobject = gobject,
+                    spat_unit = spat_unit,
+                    name = name,
+                    output = output,
+                    set_defaults = set_defaults,
+                    copy_obj = copy_obj,
+                    verbose = verbose)
+}
 
 #' @title Set spatial network
 #' @name set_spatialNetwork
@@ -1632,8 +1715,32 @@ set_spatialNetwork = function(gobject,
 
 }
 
+#' @title Set spatial network
+#' @name setSpatialNetwork
+#' @description Function to set a spatial network
+#' @inheritParams data_access
+#' @param name name of spatial network
+#' @param spatial_network spatial network
+#' @param verbose be verbose
+#' @return giotto object
+#' @family spatial network data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setSpatialNetwork = function(gobject,
+                              spat_unit = NULL,
+                              name = NULL,
+                              spatial_network,
+                              verbose = TRUE,
+                              set_defaults = TRUE) {
 
-
+  # Pass to internal function
+  set_spatialNetwork(gobject = gobject,
+                     spat_unit = spat_unit,
+                     name = name,
+                     spatial_network = spatial_network,
+                     verbose = verbose,
+                     set_defaults = set_defaults) 
+}
 
 ## spatial grid slot ####
 
@@ -1717,7 +1824,6 @@ get_spatialGrid = function(gobject,
   }
 }
 
-
 #' @title Select spatial grid
 #' @name select_spatialGrid
 #' @inheritDotParams get_spatialGrid
@@ -1725,12 +1831,36 @@ get_spatialGrid = function(gobject,
 #' @keywords internal
 select_spatialGrid = function(...) {
 
-  .Deprecated(new = "get_spatialGrid")
+  .Deprecated(new = "getSpatialGrid")
 
-  get_spatialGrid(...)
+  getSpatialGrid(...)
 
 }
 
+#' @title Get spatial grid
+#' @name getSpatialGrid
+#' @description Function to get spatial grid
+#' @inheritParams data_access
+#' @param name name of spatial grid
+#' @param return_grid_Obj return grid object (default = FALSE)
+#' @family spatial grid data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getSpatialGrid = function(gobject,
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          name = NULL,
+                          return_grid_Obj = FALSE,
+                          set_defaults = TRUE) {
+
+  # Pass to internal function
+  get_spatialGrid(gobject = gobject, 
+                  spat_unit = spat_unit,
+                  feat_type = feat_type,
+                  name = name,
+                  return_grid_Obj = return_grid_Obj,
+                  set_defaults = set_defaults)
+}
 
 #' @title Set spatial grid
 #' @name set_spatialGrid
@@ -1814,12 +1944,34 @@ set_spatialGrid = function(gobject,
 
 }
 
+#' @title Set spatial grid
+#' @name setSpatialGrid
+#' @description Function to set a spatial grid
+#' @inheritParams data_access
+#' @param spatial_grid spatial grid object
+#' @param name name of spatial grid
+#' @param verbose be verbose
+#' @return giotto object
+#' @family spatial grid data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setSpatialGrid = function(gobject,
+                           spatial_grid,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           name = NULL,
+                           verbose = TRUE,
+                           set_defaults = TRUE) {
 
-
-
-
-
-
+  # Pass to internal function
+  set_spatialGrid(gobject = gobject,
+                  spatial_grid = spatial_grid,
+                  spat_unit = spat_unit,
+                  feat_type = feat_type,
+                  name = name,
+                  verbose = verbose,
+                  set_defaults = set_defaults)
+}
 
 ## polygon cell info ####
 
@@ -2074,6 +2226,33 @@ get_spatial_enrichment = function(gobject,
   }
 }
 
+#' @title Get spatial enrichment
+#' @name getSpatialEnrichment
+#' @description Function to get a spatial enrichment data.table
+#' @inheritParams data_access
+#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
+#' @return data.table with fractions
+#' @family spatial enrichment data accessor functions
+#' @family functions to get data from giotto object
+#' @export
+getSpatialEnrichment = function(gobject,
+                                spat_unit = NULL,
+                                feat_type = NULL,
+                                enrichm_name = 'DWLS',
+                                output = c('spatEnrObj', 'data.table'),
+                                copy_obj = TRUE,
+                                set_defaults = TRUE) {
+
+  # Pass to internal function
+  get_spatial_enrichment(gobject,
+                         spat_unit = NULL,
+                         feat_type = NULL,
+                         enrichm_name = 'DWLS',
+                         output = c('spatEnrObj', 'data.table'),
+                         copy_obj = TRUE,
+                         set_defaults = TRUE)
+                                  
+}
 
 #' @title Set spatial enrichment
 #' @name set_spatial_enrichment
@@ -2155,11 +2334,36 @@ set_spatial_enrichment = function(gobject,
 
 }
 
+#' @title Set spatial enrichment
+#' @name setSpatialEnrichment
+#' @description Function to set a spatial enrichment slot
+#' @inheritParams data_access
+#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
+#' @param spatenrichment spatial enrichment results
+#' @param verbose be verbose
+#' @return giotto object
+#' @family spatial enrichment data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setSpatialEnrichment = function(gobject,
+                                  spatenrichment,
+                                  spat_unit = NULL,
+                                  feat_type = NULL,
+                                  enrichm_name = 'enrichment',
+                                  verbose = TRUE,
+                                  set_defaults = TRUE) {
 
+  # Pass to internal function
+  set_spatial_enrichment(gobject = gobject,
+                         spatenrichment = spatenrichment,
+                         spat_unit = spat_unit,
+                         feat_type = feat_type,
+                         enrichm_name = enrichm_name,
+                         verbose = verbose,
+                         set_defaults = set_defaults)
+}
 
 ## MG image slot ####
-
-
 
 #' @title Get \emph{magick}-based giotto \code{image}
 #' @name get_giottoImage_MG
