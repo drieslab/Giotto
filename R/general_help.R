@@ -696,12 +696,15 @@ sort_combine_two_DT_columns = function(DT,
 check_github_suite_ver = function() {
   current_ver = utils::packageVersion('Giotto')
   url = paste0('https://raw.githubusercontent.com/drieslab/Giotto/suite/DESCRIPTION')
-  x = readLines(url)
-  gh_ver = x[grep(pattern = 'Version:', x)]
-  gh_ver = gsub(pattern = 'Version: ', replacement = '', gh_ver)
-  ver_compare = utils::compareVersion(gh_ver, as.character(current_ver))
+  # suppress warnings and errors if inaccessible
+  x = suppressWarnings(try(readLines(url), silent = TRUE))
+  if(!inherits(x, 'try-error')) {
+    gh_ver = x[grep(pattern = 'Version:', x)]
+    gh_ver = gsub(pattern = 'Version: ', replacement = '', gh_ver)
+    ver_compare = utils::compareVersion(gh_ver, as.character(current_ver))
 
-  if(ver_compare == 1) wrap_msg('Newer devel version of Giotto on GitHub:', gh_ver)
+    if(ver_compare == 1) wrap_msg('Newer devel version of Giotto on GitHub:', gh_ver)
+  }
 }
 
 

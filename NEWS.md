@@ -14,6 +14,7 @@
 - New `createSpatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
 - Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
 - New exported accessors for slots (experimental)
+- New `multiomics` slot in `giotto`
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 - Add `plot()` method for `spatialNetworkObj`
