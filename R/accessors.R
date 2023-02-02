@@ -1,26 +1,9 @@
 
-# Commonly used params
-# Use @inheritParams data_access when documenting these parameters
-#' @title Giotto object data accessors
-#' @description Access or examine slots within the giotto object
-#' @name data_access
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
-#' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
-#' @param output what format in which to get information (e.g. "data.table")
-#' @param set_defaults set default spat_unit and feat_type. Change to FALSE only when
-#' @param copy_obj whether to deep copy/duplicate when getting the object (default = TRUE)
-#' expression and spat_info are not expected to exist.
-#' @keywords internal
-NULL
+
 
 ## Get and set functions to get and set values in one of the giotto class slots ##
 
 #%%%%% NOTE: python and instructions accessors are currently in giotto.R %%%%%#
-
-
-
 
 
 
@@ -192,6 +175,7 @@ set_feat_id = function(gobject,
     } else if(!is.null(fi_avail)) {
       feat_IDs = unique(featIDs(get_feature_info(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 return_giottoPoints = TRUE,
                                                  set_defaults = FALSE)))
     }
   }
@@ -747,8 +731,6 @@ get_expression_values = function(gobject,
                                  output = c('exprObj', 'matrix'),
                                  set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getExpression')
-
   output = match.arg(output, choices = c('exprObj', 'matrix'))
 
   # 1. Set feat_type and spat_unit
@@ -852,19 +834,6 @@ getExpression = function(gobject,
 
 
 
-#' @title select_expression_values
-#' @name select_expression_values
-#' @inheritDotParams get_expression_values
-#' @seealso \code{\link{get_expression_values}}
-#' @keywords internal
-select_expression_values = function(...) {
-
-  .Deprecated(new = "get_expression_values")
-
-  get_expression_values(...)
-
-}
-
 
 #' @title  Set expression values
 #' @name  set_expression_values
@@ -888,7 +857,6 @@ set_expression_values = function(gobject,
                                  verbose = TRUE,
                                  set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setExpression')
 
   if(!inherits(gobject, 'giotto')) stop('Only Giotto objects are supported for this function.')
 
@@ -1170,7 +1138,6 @@ get_spatial_locations = function(gobject,
                                  verbose = TRUE,
                                  set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getSpatialLocations')
 
   output = match.arg(output, choices = c('spatLocsObj', 'data.table'))
 
@@ -1241,18 +1208,7 @@ get_spatial_locations = function(gobject,
 
 
 
-#' @title select_spatial_locations
-#' @name select_spatial_locations
-#' @inheritDotParams get_spatial_locations
-#' @seealso \code{\link{get_spatial_locations}}
-#' @keywords internal
-select_spatial_locations = function(...) {
 
-  .Deprecated(new = "getSpatialLocations")
-
-  getSpatialLocations(...)
-
-}
 
 #' @title Get spatial locations
 #' @name getSpatialLocations
@@ -1317,7 +1273,6 @@ set_spatial_locations = function(gobject,
                                  verbose = TRUE,
                                  set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setSpatialLocations')
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -1447,7 +1402,6 @@ get_dimReduction = function(gobject,
                             output = c('dimObj', 'data.table'),
                             set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getDimReduction')
 
   output = match.arg(output, choices = c('dimObj', 'data.table'))
 
@@ -1539,18 +1493,7 @@ getDimReduction = function(gobject,
 
 
 
-#' @title select_dimReduction
-#' @name select_dimReduction
-#' @inheritDotParams get_dimReduction
-#' @seealso \code{\link{get_dimReduction}}
-#' @keywords internal
-select_dimReduction = function(...) {
 
-  .Deprecated(new = "get_dimReduction")
-
-  get_dimReduction(...)
-
-}
 
 
 #' @title Set dimension reduction
@@ -1579,7 +1522,6 @@ set_dimReduction = function(gobject,
                             set_defaults = TRUE) {
 
 
-  if(direct_call()) .Deprecated(new = 'setDimReduction')
 
   # Set feat_type and spat_unit
   # if(isTRUE(set_defaults)) {
@@ -1686,7 +1628,6 @@ get_NearestNetwork = function(gobject,
                               output = c('nnNetObj', 'igraph', 'data.table'),
                               set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getNearestNetwork')
 
   output = match.arg(arg = output, choices = c('nnNetObj', 'igraph', 'data.table'))
 
@@ -1800,18 +1741,7 @@ extractNearestNetwork = function(...) {
 }
 
 
-#' @title Select nearest network
-#' @name select_NearestNetwork
-#' @inheritDotParams get_NearestNetwork
-#' @seealso \code{\link{get_NearestNetwork}}
-#' @keywords internal
-select_NearestNetwork = function(...) {
 
-  .Deprecated(new = "get_NearestNetwork")
-
-  get_NearestNetwork(...)
-
-}
 
 #' @title Set nearest network
 #' @name set_NearestNetwork
@@ -1837,7 +1767,6 @@ set_NearestNetwork = function(gobject,
                               verbose = TRUE,
                               set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setNearestNetwork')
 
   # 1. determine user input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -1990,7 +1919,6 @@ get_spatialNetwork = function(gobject,
                               copy_obj = TRUE,
                               verbose = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getSpatialNetwork')
 
   output = match.arg(output, choices = c('spatialNetworkObj',
                                          'networkDT',
@@ -2039,18 +1967,7 @@ get_spatialNetwork = function(gobject,
 }
 
 
-#' @title Select spatial network
-#' @name select_spatialNetwork
-#' @inheritDotParams get_spatialNetwork
-#' @seealso \code{\link{get_spatialNetwork}}
-#' @keywords internal
-select_spatialNetwork = function(...) {
 
-  .Deprecated(new = "getSpatialNetwork")
-
-  getSpatialNetwork(...)
-
-}
 
 #' @title Get spatial network
 #' @name getSpatialNetwork
@@ -2106,7 +2023,6 @@ set_spatialNetwork = function(gobject,
                               verbose = TRUE,
                               set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setSpatialNetwork')
 
   # 1. determmine if input was supplied to spat_unit and name
   if(is.null(spat_unit)) {
@@ -2223,7 +2139,6 @@ get_spatialGrid = function(gobject,
                            return_grid_Obj = FALSE,
                            set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getSpatialGrid')
 
   # Set feat_type and spat_unit
   if(isTRUE(set_defaults)) {
@@ -2289,18 +2204,7 @@ get_spatialGrid = function(gobject,
   }
 }
 
-#' @title Select spatial grid
-#' @name select_spatialGrid
-#' @inheritDotParams get_spatialGrid
-#' @seealso \code{\link{get_spatialGrid}}
-#' @keywords internal
-select_spatialGrid = function(...) {
 
-  .Deprecated(new = "getSpatialGrid")
-
-  getSpatialGrid(...)
-
-}
 
 #' @title Get spatial grid
 #' @name getSpatialGrid
@@ -2348,7 +2252,6 @@ set_spatialGrid = function(gobject,
                            verbose = TRUE,
                            set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setSpatialGrid')
 
   # 1. check input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -2461,7 +2364,6 @@ get_polygon_info = function(gobject,
                             polygon_overlap = NULL,
                             return_giottoPolygon = FALSE) {
 
-  if(direct_call()) .Deprecated(new = 'getPolygonInfo')
 
   potential_names = names(slot(gobject, 'spatial_info'))
   if(is.null(potential_names)) stop('Giotto object contains no polygon information')
@@ -2525,18 +2427,7 @@ getPolygonInfo = function(gobject = NULL,
   return (poly_info)
 }
 
-#' @title Select polygon info
-#' @name select_polygon_info
-#' @inheritDotParams get_polygon_info
-#' @seealso \code{\link{get_polygon_info}}
-#' @keywords internal
-select_polygon_info = function(...) {
 
-  .Deprecated(new = "get_polygon_info")
-
-  get_polygon_info(...)
-
-}
 
 
 
@@ -2556,7 +2447,6 @@ set_polygon_info = function(gobject,
                             gpolygon,
                             verbose = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setPolygonInfo')
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_info)
@@ -2619,6 +2509,7 @@ setPolygonInfo = function(gobject = NULL,
 #' @export
 getFeatureInfo = function(gobject = gobject,
                           feat_type = NULL,
+                          return_giottoPoints = FALSE,
                           set_defaults = TRUE) {
   if (!inherits(gobject, 'giotto')){
     wrap_msg("Unable to get giotto points spatVector feature info from non-Giotto object.")
@@ -2627,22 +2518,26 @@ getFeatureInfo = function(gobject = gobject,
   }
   feat_info = get_feature_info(gobject = gobject,
                                feat_type = feat_type,
+                               return_giottoPoints = return_giottoPoints,
                                set_defaults = set_defaults)
   return(feat_info)
 }
 
 #' @title Get feature info
 #' @name get_feature_info
+#' @param return_giottoPoints return as a giottoPoints object
 #' @description Get giotto points spatVector
 #' @inheritParams data_access
 #' @family feature info data accessor functions
 #' @family functions to get data from giotto object
+#' @return a SpatVector (default) or giottoPoints object depending on value of
+#' return_giottoPoints
 #' @export
 get_feature_info = function(gobject,
                             feat_type = NULL,
-                            set_defaults = TRUE) {
+                            set_defaults = TRUE,
+                            return_giottoPoints = FALSE) {
 
-  if(direct_call()) .Deprecated(new = 'getFeatureInfo')
 
   # specify feat_type
   if(isTRUE(set_defaults)) {
@@ -2655,23 +2550,16 @@ get_feature_info = function(gobject,
   if(!feat_type %in% potential_names) {
     stop('There is no feature information with name ', feat_type, '\n')
   } else {
-    feat_info = gobject@feat_info[[feat_type]]@spatVector
-    return(feat_info)
+    feat_info = gobject@feat_info[[feat_type]]
+    if(return_giottoPoints) {
+      return(feat_info)
+    } else {
+      return(feat_info@spatVector)
+    }
   }
 }
 
-#' @title Select feature info
-#' @name select_feature_info
-#' @inheritDotParams get_feature_info
-#' @seealso \code{\link{get_feature_info}}
-#' @keywords internal
-select_feature_info = function(...) {
 
-  .Deprecated(new = "getFeatureInfo")
-
-  get_feature_info(...)
-
-}
 
 
 #' @title Set feature info
@@ -2691,7 +2579,7 @@ set_feature_info = function(gobject,
                             gpolygon = NULL,
                             verbose = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setFeatureInfo')
+
   if(!is.null(gpolygon)) { # deprecation
     warning(wrap_txt('do not use gpolygon param. Use gpoints'))
     if(is.null(gpoints)) gpoints = gpolygon
@@ -2773,7 +2661,6 @@ get_spatial_enrichment = function(gobject,
                                   copy_obj = TRUE,
                                   set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'getSpatialEnrichment')
 
   output = match.arg(output, choices = c('spatEnrObj', 'data.table'))
 
@@ -2871,7 +2758,6 @@ set_spatial_enrichment = function(gobject,
                                   verbose = TRUE,
                                   set_defaults = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setSpatialEnrichment')
 
   # 1. Check user input
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -3116,7 +3002,6 @@ get_giottoImage = function(gobject = NULL,
                            image_type = c('image','largeImage'),
                            name = NULL) {
 
-  if(direct_call()) .Deprecated(new = 'getGiottoImage')
 
   # Check image type
   image_type = match.arg(image_type, choices = c('image','largeImage'))
@@ -3186,7 +3071,6 @@ set_giottoImage = function(gobject = NULL,
                            name = NULL,
                            verbose = TRUE) {
 
-  if(direct_call()) .Deprecated(new = 'setGiottoImage')
 
   # Check image type
   image_type = match.arg(image_type, choices = c('image','largeImage'))

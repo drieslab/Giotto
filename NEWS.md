@@ -1,3 +1,16 @@
+
+
+# Giotto Suite 3.2.1 (release TBD)
+
+## Breaking Changes
+
+## Added
+- Option to return as `giottoPoints` from `getFeatureInfo`
+
+## Changes
+
+
+
 # Giotto Suite 3.2.0 (2023-02-02)
 
 ## Breaking Changes
