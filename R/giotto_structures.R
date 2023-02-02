@@ -3127,7 +3127,8 @@ combineFeatureData = function(gobject,
 
       # feature info
       feat_info_spatvec = get_feature_info(gobject = gobject,
-                                           feat_type = feat)
+                                           feat_type = feat,
+                                           return_giottoPoints = FALSE)
       feat_info = spatVector_to_dt(feat_info_spatvec)
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
