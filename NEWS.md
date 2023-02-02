@@ -1,4 +1,4 @@
-# Giotto Suite 3.2.0 (RELEASE TBD)
+# Giotto Suite 3.2.0 (2023-02-02)
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
