@@ -373,6 +373,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
+  if(data_to_use %in% c('all', 'aggregate')) {
+    stop(wrap_txt('Convenience workflows "all" and "aggregate" are not available yet'))
+  }
 
   # Define for data.table
   fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
