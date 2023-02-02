@@ -10,6 +10,7 @@ createGiottoMerscopeObject(
   merscope_dir,
   data_to_use = c("subcellular", "aggregate"),
   FOVs = NULL,
+  poly_z_indices = 1:7,
   calculate_overlap = TRUE,
   overlap_to_matrix = TRUE,
   aggregate_stack = TRUE,

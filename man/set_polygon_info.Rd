@@ -23,11 +23,24 @@ Set giotto polygon spatVector
 }
 \seealso{
 Other polygon info data accessor functions: 
-\code{\link{get_polygon_info}()}
+\code{\link{getPolygonInfo}()},
+\code{\link{get_polygon_info}()},
+\code{\link{setPolygonInfo}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},

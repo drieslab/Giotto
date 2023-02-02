@@ -1,4 +1,4 @@
-# Giotto Suite 3.2 (RELEASE TBD)
+# Giotto Suite 3.2.0 (2023-02-02)
 
 ## Breaking Changes
 - Removed support for deprecated nesting in `@nn_network` slot
@@ -13,6 +13,7 @@
 - New `spatialAutoCorLocal()` and `spatialAutoCorGlobal()` functions to find spatial autocorrelations from expression and cell metadata information
 - New `createSpatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
 - Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
+- New exported accessors for slots (experimental)
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 - Add `plot()` method for `spatialNetworkObj`
@@ -32,10 +33,13 @@
 ## Changes
 - Move giotto object method-specific creation functions from `giotto.R` to `convenience.R`
 - Update `addFeatMetadata()` to handle replacement of existing columns
-- Update to `show()` method for `spatEnrObj`
+- Update `show()` method for `giotto`
+- Update `show()` method for `spatEnrObj`
+- Deprecate older snake_case accessors
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Deprecate `xy_translate_spatial_locations()` in favor of `shift_spatial_locations()`
 - Optimize `readPolygonFilesVizgen()`
+- Fix bug in `replaceGiottoInstructions()` where instructions with more slots than previous are not allowed
 - Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
 - Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk
 

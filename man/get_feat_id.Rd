@@ -24,6 +24,17 @@ set_feat_id
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},

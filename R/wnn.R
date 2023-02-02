@@ -624,15 +624,17 @@ setMultiomics = function(gobject = NULL,
                          verbose = TRUE){
   if (!"giotto" %in% class(gobject)){
     wrap_msg("Unable to set multiomics info to non-Giotto object.")
-    stop(wrap_msg("Please provide a Giotto object to the gobject argument."))
+    stop(wrap_txt("Please provide a Giotto object to the gobject argument.",
+                  errWidth = TRUE))
   }
 
   gobject = set_multiomics(gobject = gobject,
                            result = result,
                            spat_unit = spat_unit,
                            feat_type = feat_type,
-                           result = result,
-                           integration_method = integration_method)
+                           result_name = result_name,
+                           integration_method = integration_method,
+                           verbose = verbose)
 
   return (gobject)
 

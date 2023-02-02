@@ -149,6 +149,7 @@ read_data_folder = function(spat_method = NULL,
 createGiottoMerscopeObject = function(merscope_dir,
                                       data_to_use = c('subcellular', 'aggregate'),
                                       FOVs = NULL,
+                                      poly_z_indices = 1:7,
                                       calculate_overlap = TRUE,
                                       overlap_to_matrix = TRUE,
                                       aggregate_stack = TRUE,
@@ -164,6 +165,12 @@ createGiottoMerscopeObject = function(merscope_dir,
   cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
+  poly_z_indices = as.integer(poly_z_indices)
+  if(any(poly_z_indices < 1)) stop(wrap_txt(
+    'poly_z_indices is a vector of one or more integers starting from 1.',
+    errWidth = TRUE
+  ))
+
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate'))
 
@@ -176,6 +183,7 @@ createGiottoMerscopeObject = function(merscope_dir,
   # 2. load in directory items
   data_list = load_merscope_folder(dir_items = dir_items,
                                    data_to_use = data_to_use,
+                                   poly_z_indices = poly_z_indices,
                                    fovs = fovs,
                                    cores = cores,
                                    verbose = verbose)
@@ -365,6 +373,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
+  if(data_to_use %in% c('all', 'aggregate')) {
+    stop(wrap_txt('Convenience workflows "all" and "aggregate" are not available yet'))
+  }
 
   # Define for data.table
   fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
@@ -1371,6 +1382,7 @@ read_xenium_folder = function(xenium_dir,
 load_merscope_folder = function(dir_items,
                                 data_to_use,
                                 fovs = NULL,
+                                poly_z_indices = 1L:7L,
                                 cores = NA,
                                 verbose = TRUE) {
 
@@ -1379,6 +1391,7 @@ load_merscope_folder = function(dir_items,
     data_list = load_merscope_folder_subcellular(dir_items = dir_items,
                                                  data_to_use = data_to_use,
                                                  fovs = fovs,
+                                                 poly_z_indices = poly_z_indices,
                                                  cores = cores,
                                                  verbose = verbose)
   } else if(data_to_use == 'aggregate') {
@@ -1429,6 +1442,7 @@ load_merscope_folder = function(dir_items,
 load_merscope_folder_subcellular = function(dir_items,
                                             data_to_use,
                                             cores = NA,
+                                            poly_z_indices = 1L:7L,
                                             verbose = TRUE,
                                             fovs = NULL) {
 
@@ -1448,7 +1462,7 @@ load_merscope_folder_subcellular = function(dir_items,
 
   if(isTRUE(verbose)) wrap_msg('Loading polygon info...')
   poly_info = readPolygonFilesVizgenHDF5(boundaries_path = dir_items$`boundary info`,
-                                         polygon_feat_types = c(0,6),
+                                         z_indices = poly_z_indices,
                                          flip_y_axis = TRUE,
                                          fovs = fovs)
 

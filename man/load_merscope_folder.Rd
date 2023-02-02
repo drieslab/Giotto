@@ -10,6 +10,7 @@ load_merscope_folder(
   dir_items,
   data_to_use,
   fovs = NULL,
+  poly_z_indices = 1L:7L,
   cores = NA,
   verbose = TRUE
 )
@@ -18,6 +19,7 @@ load_merscope_folder_subcellular(
   dir_items,
   data_to_use,
   cores = NA,
+  poly_z_indices = 1L:7L,
   verbose = TRUE,
   fovs = NULL
 )

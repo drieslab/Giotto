@@ -37,11 +37,24 @@ Set a multiomics integration result in a Giotto object
 }
 \seealso{
 Other multiomics accessor functions: 
-\code{\link{get_multiomics}()}
+\code{\link{getMultiomics}()},
+\code{\link{get_multiomics}()},
+\code{\link{setMultiomics}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},

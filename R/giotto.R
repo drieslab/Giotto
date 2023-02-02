@@ -261,15 +261,53 @@ createGiottoInstructions <- function(python_path =  NULL,
 
 
   # return instructions list
-  instructions_list = list(python_path, show_plot, return_plot,
-                           save_plot, save_dir, plot_format, dpi,
-                           units, height, width, is_docker)
-  names(instructions_list) = c('python_path', 'show_plot', 'return_plot',
-                               'save_plot', 'save_dir', 'plot_format', 'dpi',
-                               'units', 'height', 'width', 'is_docker')
+
+  instructions_list = create_giotto_instructions(
+    python_path = python_path,
+    show_plot = show_plot,
+    return_plot = return_plot,
+    save_plot = save_plot,
+    save_dir = save_dir,
+    plot_format = plot_format,
+    dpi = dpi,
+    units = units,
+    height = height,
+    width = width,
+    is_docker = is_docker
+  )
+
   return(instructions_list)
 
 }
+
+
+#' @keywords internal
+create_giotto_instructions = function(python_path = NULL,
+                                      show_plot = NULL,
+                                      return_plot = NULL,
+                                      save_plot = NULL,
+                                      save_dir = NULL,
+                                      plot_format = NULL,
+                                      dpi = NULL,
+                                      units = NULL,
+                                      height = NULL,
+                                      width = NULL,
+                                      is_docker = NULL) {
+  instructions_list = list(python_path = python_path,
+                           show_plot = show_plot,
+                           return_plot = return_plot,
+                           save_plot = save_plot,
+                           save_dir = save_dir,
+                           plot_format = plot_format,
+                           dpi = dpi,
+                           units = units,
+                           height = height,
+                           width = width,
+                           is_docker = is_docker)
+  class(instructions_list) = c('giottoInstructions', 'list')
+  return(instructions_list)
+}
+
 
 #' @title Read giotto instructions associated with giotto object
 #' @name readGiottoInstructions
@@ -378,11 +416,13 @@ changeGiottoInstructions = function(gobject,
 replaceGiottoInstructions = function(gobject,
                                      instructions = NULL) {
 
-  old_instrs_list = gobject@instructions
+  instrs_needed = names(create_giotto_instructions())
 
   # validate new instructions
-  if(!all(names(instructions) %in% names(old_instrs_list)) | is.null(instructions)) {
-    stop('\n You need to provide a named list for all instructions, like the outcome of createGiottoInstructions \n')
+  if(!all(instrs_needed %in% names(instructions)) | is.null(instructions)) {
+    stop(wrap_txt('You need to provide a named list for all instructions,',
+                  'like the outcome of createGiottoInstructions',
+                  errWidth = TRUE))
   } else {
     gobject@instructions = instructions
     return(gobject)
