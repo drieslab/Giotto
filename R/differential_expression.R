@@ -233,53 +233,56 @@ findScranMarkers_one_vs_all <- function(gobject,
 
 
   # save list
-  result_list = list()
+  progressr::with_progress({
+    pb = progressr::progressor(along = uniq_clusters)
+    result_list = lapply(
+      seq_along(uniq_clusters),
+      function(clus_i) {
+        selected_clus = uniq_clusters[clus_i]
+        other_clus = uniq_clusters[uniq_clusters != selected_clus]
 
+        if(verbose == TRUE) {
+          cat('\n start with cluster ', selected_clus, '\n')
+        }
 
-  for(clus_i in 1:length(uniq_clusters)) {
+        # one vs all markers
+        markers = findScranMarkers(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   expression_values = values,
+                                   cluster_column = cluster_column,
+                                   group_1 = selected_clus,
+                                   group_2 = other_clus,
+                                   verbose = FALSE)
 
-    selected_clus = uniq_clusters[clus_i]
-    other_clus = uniq_clusters[uniq_clusters != selected_clus]
+        # identify list to continue with
+        select_bool = unlist(lapply(markers, FUN = function(x) {
+          unique(x$cluster) == selected_clus
+        }))
+        selected_table = data.table::as.data.table(markers[select_bool])
 
-    if(verbose == TRUE) {
-      cat('\n start with cluster ', selected_clus, '\n')
-    }
+        # remove summary column from scran output if present
+        col_ind_keep = !grepl('summary', colnames(selected_table))
+        selected_table = selected_table[, col_ind_keep, with = F]
 
-    # one vs all markers
-    markers = findScranMarkers(gobject = gobject,
-                               spat_unit = spat_unit,
-                               feat_type = feat_type,
-                               expression_values = values,
-                               cluster_column = cluster_column,
-                               group_1 = selected_clus,
-                               group_2 = other_clus,
-                               verbose = FALSE)
+        # change logFC.xxx name to logFC
+        data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
+        data.table::setnames(selected_table, colnames(selected_table)[5], 'feats')
 
-    # identify list to continue with
-    select_bool = unlist(lapply(markers, FUN = function(x) {
-      unique(x$cluster) == selected_clus
-    }))
-    selected_table = data.table::as.data.table(markers[select_bool])
+        # filter selected table
+        filtered_table = selected_table[logFC > 0]
+        filtered_table[, 'ranking' := rank(-logFC)]
 
-    # remove summary column from scran output if present
-    col_ind_keep = !grepl('summary', colnames(selected_table))
-    selected_table = selected_table[, col_ind_keep, with = F]
+        # data.table variables
+        p.value = ranking = NULL
 
-    # change logFC.xxx name to logFC
-    data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
-    data.table::setnames(selected_table, colnames(selected_table)[5], 'feats')
+        filtered_table = filtered_table[(p.value <= pval & logFC >= logFC) | (ranking <= min_feats)]
 
-    # filter selected table
-    filtered_table = selected_table[logFC > 0]
-    filtered_table[, 'ranking' := rank(-logFC)]
-
-    # data.table variables
-    p.value = ranking = NULL
-
-    filtered_table = filtered_table[(p.value <= pval & logFC >= logFC) | (ranking <= min_feats)]
-
-    result_list[[clus_i]] = filtered_table
-  }
+        pb(message = c('cluster ', clus_i, '/', length(uniq_clusters)))
+        return(filtered_table)
+      }
+    )
+  })
 
 
   return(do.call('rbind', result_list))
@@ -600,42 +603,45 @@ findGiniMarkers_one_vs_all <- function(gobject,
   uniq_clusters = sort(unique(cell_metadata[[cluster_column]]))
 
 
-  # save list
-  result_list = list()
+  # GINI
+  progressr::with_progress({
+    pb = progressr::progressor(along = uniq_clusters)
+    result_list = lapply(
+      seq_along(uniq_clusters),
+      function(clus_i) {
+        selected_clus = uniq_clusters[clus_i]
+        other_clus = uniq_clusters[uniq_clusters != selected_clus]
 
-  ## GINI
-  for(clus_i in 1:length(uniq_clusters)) {
+        if(verbose == TRUE) {
+          cat('\n start with cluster ', selected_clus, '\n')
+        }
 
-    selected_clus = uniq_clusters[clus_i]
-    other_clus = uniq_clusters[uniq_clusters != selected_clus]
+        markers = findGiniMarkers(gobject = gobject,
+                                  feat_type = feat_type,
+                                  spat_unit = spat_unit,
+                                  expression_values = values,
+                                  cluster_column = cluster_column,
+                                  group_1 = selected_clus,
+                                  group_2 = other_clus,
+                                  min_expr_gini_score = min_expr_gini_score,
+                                  min_det_gini_score = min_det_gini_score,
+                                  detection_threshold = detection_threshold,
+                                  rank_score = rank_score,
+                                  min_feats = min_feats)
 
-    if(verbose == TRUE) {
-      cat('\n start with cluster ', selected_clus, '\n')
-    }
+        # filter steps
+        #clus_name = paste0('cluster_', selected_clus)
 
-    markers = findGiniMarkers(gobject = gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit,
-                              expression_values = values,
-                              cluster_column = cluster_column,
-                              group_1 = selected_clus,
-                              group_2 = other_clus,
-                              min_expr_gini_score = min_expr_gini_score,
-                              min_det_gini_score = min_det_gini_score,
-                              detection_threshold = detection_threshold,
-                              rank_score = rank_score,
-                              min_feats = min_feats)
+        # data.table variables
+        cluster = NULL
 
-    # filter steps
-    #clus_name = paste0('cluster_', selected_clus)
+        filtered_table = markers[cluster == selected_clus]
 
-    # data.table variables
-    cluster = NULL
-
-    filtered_table = markers[cluster == selected_clus]
-
-    result_list[[clus_i]] = filtered_table
-  }
+        pb(message = c('cluster ', clus_i, '/', length(uniq_clusters)))
+        return(filtered_table)
+      }
+    )
+  })
 
   return(do.call('rbind', result_list))
 

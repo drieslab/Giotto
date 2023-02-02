@@ -4,14 +4,22 @@
 \alias{giottoToSpatialExperiment}
 \title{Utility function to convert a Giotto object to a SpatialExperiment object.}
 \usage{
-giottoToSpatialExperiment(giottoObj)
+giottoToSpatialExperiment(giottoObj, verbose = TRUE)
 }
 \arguments{
 \item{giottoObj}{Input Giotto object to convert to a SpatialExperiment object.}
+
+\item{verbose}{A boolean value specifying if progress messages should be displayed
+or not. Default \code{TRUE}.}
 }
 \value{
 A SpatialExperiment object that contains data from the input Giotto object.
 }
 \description{
 Utility function to convert a Giotto object to a SpatialExperiment object.
+}
+\examples{
+mini_gobject <- GiottoData::loadGiottoMini('vizgen')
+giottoToSpatialExperiment(mini_gobject)
+
 }

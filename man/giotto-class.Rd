@@ -58,6 +58,8 @@ that are provided in the expression slot.
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 
 \item{\code{join_info}}{information about joined Giotto objects}
+
+\item{\code{multiomics}}{multiomics integration results}
 }}
 
 \concept{giotto object}

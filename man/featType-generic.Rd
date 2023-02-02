@@ -2,6 +2,8 @@
 % Please edit documentation in R/generics.R
 \name{featType-generic}
 \alias{featType-generic}
+\alias{featType}
+\alias{featType<-}
 \alias{featType,featData-method}
 \alias{featType<-,featData-method}
 \title{Feature type information}

@@ -9,7 +9,9 @@ get_spatialNetwork(
   spat_unit = NULL,
   name = NULL,
   output = c("spatialNetworkObj", "networkDT", "networkDT_before_filter", "outputObj"),
-  set_defaults = TRUE
+  set_defaults = TRUE,
+  copy_obj = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,22 +24,39 @@ get_spatialNetwork(
 \item{output}{object type to return as. Options: 'spatialNetworkObj' (default),
 'networkDT' and 'networkDT_before_filter' for data.table outputs.}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+
+\item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
+
+\item{verbose}{be verbose}
 }
 \description{
 Function to get a spatial network
 }
 \seealso{
 Other spatial network data accessor functions: 
+\code{\link{getSpatialNetwork}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_spatialNetwork}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
+\code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},
 \code{\link{get_spatialGrid}()},
 \code{\link{get_spatial_enrichment}()},

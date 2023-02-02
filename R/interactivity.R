@@ -205,6 +205,7 @@ getCellsFromPolygon <- function(gobject,
 #' @param polygon_name name of polygon selections
 #' @param feat_type feature name where metadata will be added
 #' @param spat_unit spatial unit
+#' @param spat_loc_name name of spatial locations to use
 #' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
 #'
 #' @return A Giotto object with a modified cell_metadata slot that includes the
@@ -411,7 +412,7 @@ compareCellAbundance <- function(gobject,
                                    output = 'data.table',
                                    copy_obj = TRUE)
   columns_to_select = c(polygon_name, cell_type_column)
-  my_metadata <- my_metadata[, ..columns_to_select]
+  my_metadata <- my_metadata[, columns_to_select, with = FALSE]
 
   # count cell_type per polygon
   my_cell_counts <- table(my_metadata)

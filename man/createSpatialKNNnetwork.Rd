@@ -17,6 +17,7 @@ createSpatialKNNnetwork(
   minimum_k = 0,
   verbose = F,
   return_gobject = TRUE,
+  output = c("spatialNetworkObj", "data.table"),
   ...
 )
 }
@@ -44,6 +45,8 @@ createSpatialKNNnetwork(
 \item{verbose}{verbose}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{output}{object type to return spatial network as when return_gobject = FALSE. (default: 'spatialNetworkObj')}
 
 \item{\dots}{additional arguments to the selected method function}
 }

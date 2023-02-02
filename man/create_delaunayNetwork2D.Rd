@@ -20,6 +20,7 @@ create_delaunayNetwork2D(
   S = 0,
   verbose = T,
   return_gobject = TRUE,
+  output = c("spatialNetworkObj", "data.table"),
   ...
 )
 }

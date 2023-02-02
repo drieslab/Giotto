@@ -25,7 +25,7 @@ plotCCcomDotplot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{comScores}{communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}}
+\item{comScores}{communication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}}
 
 \item{selected_LR}{selected ligand-receptor combinations}
 

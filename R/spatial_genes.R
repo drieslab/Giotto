@@ -3949,6 +3949,9 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
                                             seed = NA,
                                             verbose = TRUE) {
 
+  # data.table vars
+  feat_ID = variable = combo = spat_cor = rnk = feat_id = V1 = NULL
+
   rank = match.arg(rank, choices = c('weighted', 'random', 'informed'))
 
   clusters = spatCorObject$cor_clusters$spat_netw_clus

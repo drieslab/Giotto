@@ -11,7 +11,11 @@ runWNN(
   modality_2 = "protein",
   pca_name_modality_1 = "rna.pca",
   pca_name_modality_2 = "protein.pca",
-  k = 20
+  k = 20,
+  integrated_feat_type = NULL,
+  matrix_result_name = NULL,
+  w_name_modality_1 = NULL,
+  w_name_modality_2 = NULL
 )
 }
 \arguments{
@@ -23,7 +27,19 @@ runWNN(
 
 \item{modality_2}{modality 2 name. Default = "protein"}
 
+\item{pca_name_modality_1}{Default = 'rna.pca'}
+
+\item{pca_name_modality_2}{Default = 'protein.pca'}
+
 \item{k}{k number, default = 20}
+
+\item{integrated_feat_type}{integrated feature type (e.g. 'rna_protein')}
+
+\item{matrix_result_name}{Default = 'theta_weighted_matrix'}
+
+\item{w_name_modality_1}{name for modality 1 weights}
+
+\item{w_name_modality_2}{name for modality 2 weights}
 }
 \value{
 A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.

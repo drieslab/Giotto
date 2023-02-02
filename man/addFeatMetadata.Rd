@@ -20,11 +20,13 @@ addFeatMetadata(
 
 \item{spat_unit}{spatial unit}
 
-\item{new_metadata}{new metadata to use}
+\item{new_metadata}{new metadata to use)}
 
 \item{by_column}{merge metadata based on \emph{feat_ID} column in \code{\link{fDataDT}}}
 
 \item{column_feat_ID}{column name of new metadata to use if by_column = TRUE}
+
+\item{vector_name}{(optional) custom name if you provide a single vector}
 }
 \value{
 giotto object

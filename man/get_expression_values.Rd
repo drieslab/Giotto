@@ -26,8 +26,7 @@ get_expression_values(
 'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
 the exprObj itself are allowed.}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 expression matrix
@@ -37,13 +36,27 @@ Function to get expression values from giotto object
 }
 \seealso{
 Other expression accessor functions: 
+\code{\link{getExpression}()},
+\code{\link{setExpression}()},
 \code{\link{set_expression_values}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
+\code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},
 \code{\link{get_spatialGrid}()},
 \code{\link{get_spatialNetwork}()},

@@ -31,13 +31,21 @@ setOldClass('data.table')
 
 
 
-# BASIC CLASSES ####
+# VIRTUAL CLASSES ####
+
+# ** nameData Class ####
+#'
+setClass('nameData',
+         contains = 'VIRTUAL',
+         slots = list(name = 'character'),
+         prototype = prototype(name = NA_character_))
 
 # ** exprData Class ####
 #' Basic class for classes with expression information
 #'
 setClass('exprData',
-         representation = list(exprMat = 'ANY'),
+         contains = 'VIRTUAL',
+         slots = list(exprMat = 'ANY'),
          prototype = prototype(exprMat = NULL))
 
 
@@ -50,12 +58,13 @@ setClass('exprData',
 #' data.table when interacting with some basic generic operators for data
 #' retreival and setting.
 setClass('coordDataDT',
-         representation = list(coordinates = 'data.table'),
+         contains = 'VIRTUAL',
+         slots = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             if(!is.null(.Object@coordinates)) {
               .Object@coordinates = data.table::setalloccol(.Object@coordinates)
@@ -64,7 +73,7 @@ setMethod('initialize', 'coordDataDT',
           })
 
 # setClass('coordDataMT',
-#          representation = list(coordinates = 'matrix'),
+#          slots = list(coordinates = 'matrix'),
 #          prototype = prototype(coordinates = matrix()))
 
 
@@ -75,15 +84,16 @@ setMethod('initialize', 'coordDataDT',
 #' information in a data.table and should work similarly to data.table when interacting
 #' with some basic generic operators for data retrieval and setting
 setClass('metaData',
-         representation = list(metaDT = 'data.table',
-                               col_desc = 'character'),
+         contains = 'VIRTUAL',
+         slots = list(metaDT = 'data.table',
+                      col_desc = 'character'),
          prototype = prototype(metaDT = data.table::data.table(),
                                col_desc = NA_character_))
 
 
 setMethod('initialize', 'metaData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             if(!is.null(.Object@metaDT)) {
               .Object@metaDT = data.table::setalloccol(.Object@metaDT)
@@ -94,14 +104,15 @@ setMethod('initialize', 'metaData',
 
 # ** enrData ####
 setClass('enrData',
-         representation = list(method = 'character',
-                               enrichDT = 'nullOrDatatable'),
+         contains = 'VIRTUAL',
+         slots = list(method = 'character',
+                      enrichDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                enrichDT = NULL))
 
 setMethod('initialize', 'enrData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             if(!is.null(.Object@enrichDT)) {
               .Object@enrichDT = data.table::setalloccol(.Object@enrichDT)
@@ -113,20 +124,22 @@ setMethod('initialize', 'enrData',
 
 # ** nnData ####
 setClass('nnData',
-         representation = list(nn_type = 'character',
-                               igraph = 'ANY'),
+         contains = 'VIRTUAL',
+         slots = list(nn_type = 'character',
+                      igraph = 'ANY'),
          prototype = prototype(nn_type = NA_character_,
                                igraph = NULL))
 
 
 # ** spatNetData ####
 setClass('spatNetData',
-         representation = list(method = 'character',
-                               parameters = 'ANY',
-                               outputObj = 'ANY',
-                               networkDT = 'nullOrDatatable',
-                               networkDT_before_filter = 'nullOrDatatable',
-                               cellShapeObj = 'ANY'),
+         contains = 'VIRTUAL',
+         slots = list(method = 'character',
+                      parameters = 'ANY',
+                      outputObj = 'ANY',
+                      networkDT = 'nullOrDatatable',
+                      networkDT_before_filter = 'nullOrDatatable',
+                      cellShapeObj = 'ANY'),
          prototype = prototype(method = NA_character_,
                                parameters = NULL,
                                outputObj = NULL,
@@ -136,7 +149,7 @@ setClass('spatNetData',
 
 setMethod('initialize', 'spatNetData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             if(!is.null(.Object@networkDT)) {
               .Object@networkDT = data.table::setalloccol(.Object@networkDT)
@@ -150,9 +163,10 @@ setMethod('initialize', 'spatNetData',
 
 # ** spatGridData ####
 setClass('spatGridData',
-         representation = list(method = 'character',
-                               parameters = 'ANY',
-                               gridDT = 'nullOrDatatable'),
+         contains = 'VIRTUAL',
+         slots = list(method = 'character',
+                      parameters = 'ANY',
+                      gridDT = 'nullOrDatatable'),
          prototype = prototype(method = NA_character_,
                                parameters = NULL,
                                gridDT = NULL))
@@ -160,7 +174,7 @@ setClass('spatGridData',
 
 setMethod('initialize', 'spatGridData',
           function(.Object, ...) {
-            .Object = callNextMethod()
+            .Object = methods::callNextMethod()
             # prepare DT for set by reference
             if(!is.null(.Object@gridDT)) {
               .Object@gridDT = data.table::setalloccol(.Object@gridDT)
@@ -179,7 +193,8 @@ setMethod('initialize', 'spatGridData',
 #' is Giotto's method of mapping this aggregated information back to the original
 #' z layers that were used in its generation.
 setClass('provData',
-         representation = list(provenance = 'ANY'),
+         contains = 'VIRTUAL',
+         slots = list(provenance = 'ANY'),
          prototype = prototype(provenance = NULL))
 
 
@@ -194,8 +209,8 @@ setClass('provData',
 #' there is a nesting structure that first nests by spatial unit.
 #'
 setClass('spatData',
-         contains = c('provData'),
-         representation = list(spat_unit = 'character'), # not allowed to be NULL
+         contains = c('provData', 'VIRTUAL'),
+         slots = list(spat_unit = 'character'), # not allowed to be NULL
          prototype = prototype(spat_unit = NA_character_))
 
 
@@ -212,7 +227,8 @@ setClass('spatData',
 #' and then by feature type
 #'
 setClass('featData',
-         representation = list(feat_type = 'character'), # not allowed to be NULL
+         contains = 'VIRTUAL',
+         slots = list(feat_type = 'character'), # not allowed to be NULL
          prototype = prototype(feat_type = NA_character_))
 
 
@@ -225,7 +241,8 @@ setClass('featData',
 #' use the misc slot to hold additional information specific to each method.
 #' Information may be stored within as S3 structures.
 setClass('miscData',
-         representation = list(misc = 'ANY'),
+         contains = 'VIRTUAL',
+         slots = list(misc = 'ANY'),
          prototype = prototype(misc = NULL))
 
 
@@ -235,12 +252,12 @@ setClass('miscData',
 
 
 
-# SUPER CLASSES ####
+# SUBCLASSES ####
 
 # ** spatFeatData ####
 #' Superclass for classes that contain both spatial and feature data
 setClass('spatFeatData',
-         contains = c('spatData', 'featData'))
+         contains = c('spatData', 'featData', 'VIRTUAL'))
 
 
 
@@ -300,13 +317,6 @@ setClass('spatFeatData',
 #
 #
 #
-#   # Check for nesting issues (due to updates) - to be deprecated
-#   available_nn = list_nearest_networks(object)
-#   available_grids = list_spatial_grids(object)
-#
-#
-#
-#
 #   ## Match spatial units and feature types ##
 #
 #   # Find existing spat_units in source data
@@ -358,11 +368,32 @@ setClass('spatFeatData',
 #   if(length(errors) == 0) TRUE else errors
 # }
 
+## Test Functions
+# test_valid = function(object) {
+#   print('valid_run')
+#   return(TRUE)
+# }
+#
+# setMethod('initialize', signature = 'giotto',
+#           function(.Object, ...) {
+#             .Object = methods::callNextMethod()
+#             print('init_run')
+#             .Object
+#           })
 
-
+# TODO
+# updateGiottoObject = function(gobject) {
+#   if(is.null(attr(gobject, 'multiomics'))) {
+#     attr(gobject, 'multiomics') = NA
+#     gobject@multiomics = NULL
+#   }
+#
+#   return(gobject)
+# }
 
 ##### * Definition ####
 # Giotto class
+# ! Any slot modifications should also be reflected in packedGiotto class !
 
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
@@ -388,6 +419,7 @@ setClass('spatFeatData',
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @slot join_info information about joined Giotto objects
+#' @slot multiomics multiomics integration results
 #' @details
 #' [\strong{expression}] There are several ways to provide expression information:
 #'
@@ -419,7 +451,8 @@ giotto <- setClass(
     instructions = "ANY",
     offset_file = "ANY",
     OS_platform = "ANY",
-    join_info = "ANY"
+    join_info = "ANY",
+    multiomics = "ANY"
 
   ),
 
@@ -444,7 +477,8 @@ giotto <- setClass(
     instructions = NULL,
     offset_file = NULL,
     OS_platform = NULL,
-    join_info = NULL
+    join_info = NULL,
+    multiomics = NULL
   )
 )
 
@@ -467,30 +501,150 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
 
-    for(spat_unit in names(object@expression_feat)) {
-      cat('spatial units = ', spat_unit, '\n')
-      for(feat_type in unique(object@expression_feat)) {
-        cat("features = ", feat_type, "\n")
 
-        cat(
-          nrow(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
-          "features across",
-          ncol(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
-          "samples.\n \n"
-        )
+    cat('[SUBCELLULAR INFO]\n')
+    if(!is.null(object@spatial_info)) cat('polygons      :', wrap_txt(list_spatial_info_names(object)), '\n')
+    if(!is.null(object@feat_info)) cat('features      :', wrap_txt(list_feature_info_names(object)), '\n')
+
+
+    mini_avail_print = function(avail_dt) {
+      if(!'spat_unit' %in% colnames(avail_dt)) {
+        avail_dt[, spat_unit := '']
+      } else avail_dt[, spat_unit := paste0('[', spat_unit, ']')]
+      if(!'feat_type' %in% colnames(avail_dt)) {
+        avail_dt[, feat_type := '']
+      } else avail_dt[, feat_type := paste0('[', feat_type, ']')]
+      avail_dt[, prints := paste0(spat_unit, feat_type)]
+
+      unique_entry = avail_dt[, unique(prints)]
+      for(entry in unique_entry) {
+        cat('  ', entry, paste0(' ', wrap_txt(avail_dt[prints == entry, name])), '\n', sep = '')
       }
     }
 
 
-    cat('Steps and parameters used: \n \n')
-    print(object@parameters)
+    cat('[AGGREGATE INFO]\n')
+    avail_expr = list_expression(object)
+    if(!is.null(avail_expr)) {
+      cat('expression -----------------------\n')
+      mini_avail_print(avail_expr)
+    }
+
+    avail_sl = list_spatial_locations(object)
+    if(!is.null(avail_sl)) {
+      cat('spatial locations ----------------\n')
+      mini_avail_print(avail_sl)
+    }
+
+    avail_sn = list_spatial_networks(object)
+    if(!is.null(avail_sn)) {
+      cat('spatial networks -----------------\n')
+      mini_avail_print(avail_sn)
+    }
+
+    avail_dim = list_dim_reductions(object)
+    if(!is.null(avail_dim)) {
+      cat('dim reduction --------------------\n')
+      mini_avail_print(avail_dim)
+    }
+
+    avail_nn = list_nearest_networks(object)
+    if(!is.null(avail_nn)) {
+      cat('nearest neighbor networks --------\n')
+      mini_avail_print(avail_nn)
+    }
+
+    avail_im = list_images(object)
+    if(!is.null(avail_im)) {
+      cat('attached images ------------------\n')
+      if('image' %in% avail_im$img_type) {
+        if(sum(avail_im$img_type == 'image') > 3) {
+          cat(  'giottoLargeImage :', sum(avail_im$img_type == 'image'), 'items...\n')
+        } else {
+          cat('giottoImage      :', wrap_txt(avail_im[img_type == 'image', name]), '\n')
+        }
+      }
+      if('largeImage' %in% avail_im$img_type) {
+        if(sum(avail_im$img_type == 'largeImage') > 3) {
+          cat(  'giottoLargeImage :', sum(avail_im$img_type == 'largeImage'), 'items...\n')
+        } else {
+          cat(  'giottoLargeImage :', wrap_txt(avail_im[img_type == 'largeImage', name]), '\n')
+        }
+      }
+    }
+
+
+    cat(wrap_txt('\n\nUse objHistory() to see steps and params used\n\n'))
     invisible(x = NULL)
   }
 )
 
 
 
+# for use with wrap() generic
+# not intended to be used until after unwrapped to giotto class
+# does not inherit giotto to avoid any method inheritance
+setClass(
+  "packedGiotto",
+  slots = c(
+    packed_spatial_info = "ANY",
+    packed_feat_info = "ANY",
 
+    expression = "nullOrList",
+    expression_feat = "ANY",
+    spatial_locs = "ANY",
+    cell_metadata = "ANY",
+    feat_metadata = "ANY",
+    cell_ID = "ANY",
+    feat_ID = "ANY",
+    spatial_network = "ANY",
+    spatial_grid = "ANY",
+    spatial_enrichment = "ANY",
+    dimension_reduction = 'ANY',
+    nn_network = "ANY",
+    images = "ANY",
+    largeImages = "ANY",
+    parameters = "ANY",
+    instructions = "ANY",
+    offset_file = "ANY",
+    OS_platform = "ANY",
+    join_info = "ANY",
+    multiomics = "ANY"
+
+  ),
+
+  prototype = list(
+    packed_spatial_info = NULL,
+    packed_feat_info = NULL,
+
+    expression = NULL,
+    expression_feat = NULL,
+    spatial_locs = NULL,
+    cell_metadata = NULL,
+    feat_metadata = NULL,
+    cell_ID = NULL,
+    feat_ID = NULL,
+    spatial_network = NULL,
+    spatial_grid = NULL,
+    spatial_enrichment = NULL,
+    dimension_reduction = NULL,
+    nn_network = NULL,
+    images = NULL,
+    largeImages = NULL,
+    parameters = NULL,
+    instructions = NULL,
+    offset_file = NULL,
+    OS_platform = NULL,
+    join_info = NULL,
+    multiomics = NULL
+  )
+)
+
+setMethod("show", signature(object='packedGiotto'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
+)
 
 
 
@@ -564,9 +718,7 @@ check_expr_obj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('exprObj',
-         contains = c('exprData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'exprData', 'spatFeatData', 'miscData'),
          validity = check_expr_obj)
 
 ## * Show ####
@@ -655,7 +807,7 @@ check_cell_meta_obj = function(object) {
 # * Definition ####
 #' @title S4 cellMetaObj
 #' @description Framework to store cell metadata
-#' @slot metadata metadata info
+#' @slot metaDT metadata info
 #' @slot col_desc (optional) character vector describing columns of the metadata
 #' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
@@ -785,14 +937,12 @@ check_dim_obj = function(object) {
 #' @slot misc method-specific additional outputs
 #' @export
 setClass('dimObj',
-         contains = c('spatFeatData'),
-         slots = c(name = 'character',
-                   reduction = 'character',
+         contains = c('nameData', 'spatFeatData'),
+         slots = c(reduction = 'character',
                    reduction_method = 'character',
                    coordinates = 'ANY',
                    misc = 'ANY'),
-         prototype = list(name = NA_character_,
-                          reduction = NA_character_,
+         prototype = list(reduction = NA_character_,
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           misc = NULL),
@@ -857,10 +1007,21 @@ S3toS4dimObj = function(object) {
 
 ## nnNetObj ####
 
+### * Definition ####
+# nnNetObj Class
+
+#' @title S4 nnNetObj
+#' @description Framework to store nearest neighbor network information
+#' @slot name name of nnNetObj
+#' @slot nn_type type of nearest neighbor network
+#' @slot igraph igraph object containing network information
+#' @slot feat_type feature type of data
+#' @slot spat_unit spatial unit of data
+#' @slot provenance origin of aggregated information (if applicable)
+#' @slot misc misc
+#' @export
 setClass('nnNetObj',
-         contains = c('nnData', 'spatFeatData', 'miscData'),
-         representation = list(name = 'character'),
-         prototype = prototype(name = NA_character_))
+         contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
 
 
 
@@ -916,9 +1077,7 @@ check_spat_locs_obj = function(object) {
 #' @slot provenance origin of aggregated information (if applicable)
 #' @export
 setClass('spatLocsObj',
-         contains = c('coordDataDT', 'spatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'coordDataDT', 'spatData', 'miscData'),
          validity = check_spat_locs_obj)
 
 
@@ -1011,11 +1170,9 @@ check_spat_net_obj = function(object) {
 #' slot (filtered).
 #' @export
 setClass('spatialNetworkObj',
-         contains = c('spatNetData' ,'spatData', 'miscData'),
-         slots = c(name = 'character',
-                   crossSectionObjects = 'ANY'),
-         prototype = list(name = NA_character_,
-                          crossSectionObjects = NULL),
+         contains = c('nameData', 'spatNetData' ,'spatData', 'miscData'),
+         slots = c(crossSectionObjects = 'ANY'),
+         prototype = list(crossSectionObjects = NULL),
          validity = check_spat_net_obj)
 
 
@@ -1033,8 +1190,8 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
     if(!is.na(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
-    if(!is.na(object@spat_unit)) cat(paste0('for spatial unit: "', object@spat_unit, '"\n'))
-    if(!is.null(object@provenance)) cat(paste0('provenance: "', object@provenance, '"\n'))
+    if(!is.na(object@spat_unit)) cat('for spatial unit: "', object@spat_unit, '"\n', sep = '')
+    if(!is.null(object@provenance)) cat('provenance:', object@provenance, '\n')
 
     if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
     if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')
@@ -1140,9 +1297,7 @@ check_spat_grid_obj = function(object) {
 #' Grids can be annotated with both spatial and feature information
 #' @export
 setClass('spatialGridObj',
-         contains = c('spatGridData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_),
+         contains = c('nameData', 'spatGridData', 'spatFeatData', 'miscData'),
          validity = check_spat_grid_obj)
 
 
@@ -1231,7 +1386,7 @@ S3toS4spatialGridObj = function(object) {
 
 
 
-# * spatEnrObj class ####
+## spatEnrObj class ####
 
 # * definition ####
 # spatEnrObj class
@@ -1247,9 +1402,7 @@ S3toS4spatialGridObj = function(object) {
 #' @slot misc misc
 #' @export
 setClass('spatEnrObj',
-         contains = c('enrData', 'spatFeatData', 'miscData'),
-         slots = c(name = 'character'),
-         prototype = list(name = NA_character_))
+         contains = c('nameData', 'enrData', 'spatFeatData', 'miscData'))
 
 
 # * show ####
@@ -1270,10 +1423,20 @@ setMethod(
     if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
 
     cat('   ------------------------\n\npreview:\n')
-    if(!is.null(slot(object, 'enrichDT'))) show(slot(object, 'enrichDT')[1:4])
+    if(!is.null(slot(object, 'enrichDT'))) {
+      enr_cols = ncol(slot(object, 'enrichDT'))
+      if(enr_cols > 10L) {
+        show(slot(object, 'enrichDT')[1:4, 1:10])
+        cat(rep(' ', times = getOption('width')/2.5 - 10L), rep('.', 20L),'\n', sep = '')
+        show(slot(object, 'enrichDT')[1:4, 'cell_ID'])
+        cat('...', enr_cols - 11L, ' cols omitted\n', sep = '')
+      } else {
+        show(slot(object, 'enrichDT')[1:4])
+      }
+    }
 
-    cat('\n...remaining colnames:\n')
-    cat('\n', wrap_txt(colnames(slot(object, 'enrichDT'))[-c(1:4)], strWidth = 40), '\n')
+    cat('\n...first 20 remaining colnames:\n')
+    cat('\n', wrap_txt(head(colnames(slot(object, 'enrichDT'))[-c(1:10)], 20L), strWidth = 40L), '\n')
 
     cat('\n\n')
 
@@ -1299,20 +1462,42 @@ setMethod(
 #' @export
 giottoPolygon = setClass(
   Class = "giottoPolygon",
+  contains = c('nameData'),
 
   slots = c(
-    name = "ANY",
     spatVector = "ANY",
     spatVectorCentroids = "ANY",
     overlaps = "ANY"
   ),
 
   prototype = list(
-    name = NULL,
     spatVector = NULL,
     spatVectorCentroids = NULL,
     overlaps = NULL
   )
+)
+
+
+# for use with wrap() generic
+setClass('packedGiottoPolygon',
+         contains = c('nameData'),
+
+         slots = c(
+           packed_spatVector = 'ANY',
+           packed_spatVectorCentroids = 'ANY',
+           packed_overlaps = 'ANY'
+         ),
+         prototype = list(
+           packed_spatVector = NULL,
+           packed_spatVectorCentroids = NULL,
+           packed_overlaps = NULL
+         ))
+
+
+setMethod("show", signature(object='packedGiottoPolygon'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
 )
 
 
@@ -1349,6 +1534,32 @@ giottoPoints <- setClass(
 )
 
 
+
+# for use with wrap() generic
+setClass(
+  'packedGiottoPoints',
+
+  slots = c(
+    feat_type = 'character',
+    packed_spatVector = 'ANY',
+    networks = 'ANY'
+  ),
+  prototype = list(
+    feat_type = NA_character_,
+    packed_spatVector = NULL,
+    networks = NULL
+  )
+)
+
+
+setMethod("show", signature(object='packedGiottoPoints'),
+          function(object) {
+            print(paste("This is a", class(object), "object. Use 'Giotto::unwrap()' to unpack it"))
+          }
+)
+
+
+
 ## featureNetwork class ####
 
 
@@ -1368,16 +1579,15 @@ giottoPoints <- setClass(
 #' @export
 featureNetwork <- setClass(
   Class = "featureNetwork",
+  contains = 'nameData',
 
   slots = c(
-    name = "ANY",
     network_datatable = "ANY",
     network_lookup_id = "ANY",
     full = "ANY"
   ),
 
   prototype = list(
-    name = NULL,
     network_datatable = NULL,
     network_lookup_id = NULL,
     full = NULL
@@ -1713,6 +1923,35 @@ create_dim_obj = function(name = 'test',
 }
 
 
+#' @title Create S4 nnNetObj
+#' @name create_nn_net_obj
+#' @description Create an S4 nnNetObj
+#' @param name name of nnNetObj
+#' @param nn_type type of nearest neighbor network
+#' @param igraph igraph object containing nearest neighbor information
+#' @slot spat_unit spatial unit of data
+#' @slot feat_type feature type of data
+#' @slot provenance origin of aggregated information (if applicable)
+#' @param misc misc
+#' @keywords internal
+create_nn_net_obj = function(name = 'test',
+                             nn_type = NA_character_,
+                             igraph = NULL,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             misc = NULL) {
+  return(new('nnNetObj',
+             name = name,
+             nn_type = nn_type,
+             igraph = igraph,
+             spat_unit = spat_unit,
+             feat_type = feat_type,
+             provenance = provenance,
+             misc = misc))
+}
+
+
 #' @title Create S4 spatLocsObj
 #' @name create_spat_locs_obj
 #' @description Create an S4 spatLocsObj
@@ -1772,7 +2011,7 @@ create_spat_net_obj = function(name = 'test',
              name = name,
              method = method,
              parameters = parameters,
-             outputObj, outputObj,
+             outputObj = outputObj,
              networkDT = networkDT,
              networkDT_before_filter = networkDT_before_filter,
              cellShapeObj = cellShapeObj,
