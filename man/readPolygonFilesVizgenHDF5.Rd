@@ -7,15 +7,21 @@
 readPolygonFilesVizgenHDF5(
   boundaries_path,
   fovs = NULL,
-  polygon_feat_types = 0:6,
+  z_indices = 1L:7L,
+  segm_to_use = 1L,
   custom_polygon_names = NULL,
-  flip_x_axis = F,
-  flip_y_axis = F,
+  flip_x_axis = FALSE,
+  flip_y_axis = TRUE,
+  calc_centroids = FALSE,
   smooth_polygons = TRUE,
-  smooth_vertices = 60,
+  smooth_vertices = 60L,
   set_neg_to_zero = FALSE,
   H5Fopen_flags = "H5F_ACC_RDWR",
-  verbose = TRUE
+  cores = NA,
+  create_gpoly_parallel = TRUE,
+  create_gpoly_bin = FALSE,
+  verbose = TRUE,
+  polygon_feat_types = NULL
 )
 }
 \arguments{
@@ -23,7 +29,10 @@ readPolygonFilesVizgenHDF5(
 
 \item{fovs}{subset of fovs to use}
 
-\item{polygon_feat_types}{a vector containing the polygon feature types}
+\item{z_indices}{z indices of polygons to use}
+
+\item{segm_to_use}{segmentation results to use (usually = 1. Depends on if
+alternative segmentations were generated)}
 
 \item{custom_polygon_names}{a character vector to provide custom polygon names
 (optional)}
@@ -31,6 +40,8 @@ readPolygonFilesVizgenHDF5(
 \item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
 
 \item{flip_y_axis}{flip y axis of polygon coordinates (multiply by -1)}
+
+\item{calc_centroids}{calculate centroids (default = FALSE)}
 
 \item{smooth_polygons}{smooth polygons (default = TRUE)}
 
@@ -40,7 +51,17 @@ readPolygonFilesVizgenHDF5(
 
 \item{H5Fopen_flags}{see \code{\link[rhdf5]{H5Fopen}} for more details}
 
+\item{cores}{cores to use}
+
+\item{create_gpoly_parallel}{(default = TRUE) Whether to run gpoly creation in
+parallel}
+
+\item{create_gpoly_bin}{(Optional, default = FALSE) Parallelization option.
+Accepts integer values as an binning size when generating giottoPolygon objects}
+
 \item{verbose}{be verbose}
+
+\item{polygon_feat_types}{deprecated. Use \code{z_indices}}
 }
 \description{
 Read and create polygons for all cells, or for only selected FOVs.

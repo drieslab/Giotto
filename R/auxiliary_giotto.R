@@ -335,6 +335,9 @@ create_average_detection_DT <- function(gobject,
 init_cell_metadata = function(gobject,
                               provenance = NULL) {
 
+  # data.table vars
+  spat_unit = feat_type = NULL
+
   avail_expr = list_expression(gobject)
   avail_spat_info = list_spatial_info_names(gobject)
   avail_feat_info = list_feature_info_names(gobject)
@@ -387,6 +390,9 @@ init_cell_metadata = function(gobject,
 #' @keywords internal
 init_feat_metadata = function(gobject,
                               provenance = NULL) {
+
+  # data.table vars
+  spat_unit = feat_type = NULL
 
   avail_expr = list_expression(gobject)
   avail_spat_info = list_spatial_info_names(gobject)
@@ -1191,6 +1197,7 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_type feature type to use
 #' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
+#' @param gene_ids deprecated. Use \code{feat_ids}
 #' @param poly_info polygon information to use
 #' @param all_spat_units subset all spatial units with selected feature ids
 #' @param all_feat_types subset all feature type data with selected cell ids
@@ -1668,7 +1675,7 @@ subsetGiottoLocsMulti = function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param details
+#' @details
 #' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
 #' \itemize{
 #'   \item{1. threshold: calculate features that cross a thresold (default)}
@@ -1904,7 +1911,7 @@ filterCombinations <- function(gobject,
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
-                                      values = values)
+                                      values = values)[]
 
   # feat and cell minimums need to have the same length
   if(length(feat_det_in_min_cells) != length(min_det_feats_per_cell)) {
@@ -2032,6 +2039,11 @@ filterCombinations <- function(gobject,
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
+#' Please note that this function filters data in a predefined order, features, then cells. 
+#' After filtering in this order, certain features may be left over in the metadata with a 
+#' corresponding number of cells which is less than that of the threshold value of cells, 
+#' feat_det_in_min_cells. This behavior is explained in detail here: 
+#' \url{https://github.com/drieslab/Giotto/issues/500#issuecomment-1396083446}
 #' @export
 filterGiotto = function(gobject,
                         spat_unit = NULL,
@@ -2050,6 +2062,9 @@ filterGiotto = function(gobject,
                         tag_feats = FALSE,
                         tag_feats_name = 'tag',
                         verbose = TRUE) {
+
+  # data.table vars
+  cell_ID = feat_ID = NULL
 
   ## deprecated arguments
   if(!is.null(gene_det_in_min_cells)) {
@@ -2779,6 +2794,9 @@ processGiotto = function(gobject,
 combine_matrices = function(mat_list,
                             summarize = 'sum') {
 
+  # data.table vars
+  i = j = x = NULL
+
   feats_list = list()
   sample_list = list()
   DT_list = list()
@@ -2793,7 +2811,7 @@ combine_matrices = function(mat_list,
       stop('Matrix needs to be a base or sparse matrix from the Matrix package')
     }
 
-    if(inherits(mat, 'matrix')) mat = as(mat, 'dgCMatrix')
+    if(inherits(mat, 'matrix')) mat = methods::as(mat, 'dgCMatrix')
 
     mat_feats = mat@Dimnames[[1]]
     names(mat_feats) = 1:mat@Dim[[1]]
@@ -2920,6 +2938,9 @@ aggregateStacksExpression = function(gobject,
 combine_spatlocs = function(spatlocs_list,
                             summarize = 'mean') {
 
+  # data.table vars
+  sdimx = sdimy = sdimz = NULL
+
   newlocs = data.table::rbindlist(spatlocs_list)
 
   if(summarize == 'mean') {
@@ -2957,7 +2978,7 @@ aggregateStacksLocations = function(gobject,
   # aggregate locations
   locs_list = list()
   for(spat_unit in spat_units) {
-    locDT = get_spatial_locations(vizsubc,
+    locDT = get_spatial_locations(gobject = gobject,
                                   spat_unit = spat_unit,
                                   spat_loc_name = values,
                                   output = 'data.table')
@@ -2973,7 +2994,11 @@ aggregateStacksLocations = function(gobject,
                                           provenance = spat_units,
                                           misc = NULL)
 
-  gobject = set_spatial_locations(gobject = gobject, spatlocs = new_spatlocs_obj)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  gobject = set_spatial_locations(gobject = gobject,
+                                  spatlocs = new_spatlocs_obj,
+                                  set_defaults = FALSE)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   return(gobject)
 
@@ -3418,8 +3443,8 @@ addCellMetadata <- function(gobject,
 
 
   if(length(same_col_names) >= 1) {
-    cat('\n these column names were already used: ', same_col_names, '\n',
-        'and will be overwritten \n')
+    wrap_msg('\nThese column names were already used: ', same_col_names, '\n',
+             'and will be overwritten \n')
     cell_metadata[][, (same_col_names) := NULL]
   }
 
@@ -3459,7 +3484,8 @@ addCellMetadata <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @param new_metadata new metadata to use
+#' @param new_metadata new metadata to use)
+#' @param vector_name (optional) custom name if you provide a single vector
 #' @param by_column merge metadata based on \emph{feat_ID} column in \code{\link{fDataDT}}
 #' @param column_feat_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
@@ -3475,15 +3501,15 @@ addFeatMetadata <- function(gobject,
                             by_column = F,
                             column_feat_ID = NULL) {
 
+  # data.table variables
+  feat_ID = NULL
+
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-
-  # data.table variables
-  feat_ID = NULL
 
   feat_metadata = get_feature_metadata(gobject,
                                        spat_unit = spat_unit,
@@ -3492,6 +3518,36 @@ addFeatMetadata <- function(gobject,
                                        copy_obj = TRUE)
 
   ordered_feat_IDs = get_feat_id(gobject, feat_type = feat_type)
+
+  if(is.vector(new_metadata) | is.factor(new_metadata)) {
+    original_name = deparse(substitute(new_metadata))
+    new_metadata = data.table::as.data.table(new_metadata)
+    if(!is.null(vector_name) & is.character(vector_name)) {
+      colnames(new_metadata) = vector_name
+    } else {
+      colnames(new_metadata) = original_name
+    }
+  } else {
+    new_metadata = data.table::as.data.table(new_metadata)
+  }
+
+  if(is.null(column_feat_ID)) {
+    column_feat_ID = 'feat_ID'
+  }
+
+  # overwrite columns with same name
+  new_col_names = colnames(new_metadata)
+  new_col_names = new_col_names[new_col_names != column_feat_ID]
+  old_col_names = colnames(feat_metadata[])
+  old_col_names = old_col_names[old_col_names != 'feat_ID']
+  same_col_names = new_col_names[new_col_names %in% old_col_names]
+
+  if(length(same_col_names) >= 1) {
+    wrap_msg('\nThese column names were already used: ', same_col_names, '\n',
+             'and will be overwritten \n')
+    feat_metadata[][, (same_col_names) := NULL]
+  }
+
 
   if(by_column == FALSE) {
     feat_metadata[] = cbind(feat_metadata[], new_metadata)
@@ -4720,6 +4776,9 @@ combineSpatialCellMetadataInfo = function(gobject,
   return(res_list)
 
 }
+
+
+
 
 
 

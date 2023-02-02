@@ -7,6 +7,7 @@
 loadGiotto(
   path_to_folder,
   load_params = list(),
+  reconnect_giottoImage = TRUE,
   python_path = NULL,
   verbose = TRUE
 )
@@ -15,6 +16,8 @@ loadGiotto(
 \item{path_to_folder}{path to folder where Giotto object was stored with \code{\link{saveGiotto}}}
 
 \item{load_params}{additional parameters for loading or reading giotto object}
+
+\item{reconnect_giottoImage}{(default = TRUE) whether to attempt reconnection of magick based image objects}
 
 \item{python_path}{(optional) manually set your python path}
 

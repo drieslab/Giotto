@@ -4,10 +4,24 @@
 \alias{anndataToGiotto}
 \title{Convert anndata to Giotto}
 \usage{
-anndataToGiotto(anndata_path = NULL, python_path = NULL)
+anndataToGiotto(
+  anndata_path = NULL,
+  n_key_added = NULL,
+  spatial_key_added = NULL,
+  spat_unit = NULL,
+  feat_type = NULL,
+  python_path = NULL
+)
 }
 \arguments{
 \item{anndata_path}{path to the .h5ad file}
+
+\item{n_key_added}{equivalent of "key_added" argument from scanpy.pp.neighbors().
+Cannot be "spatial". This becomes the name of the nearest network in the gobject.}
+
+\item{spat_unit}{desired spatial unit for conversion, default NULL}
+
+\item{feat_type}{desired feature type for conversion, default NULL}
 
 \item{python_path}{path to python executable within a conda/miniconda environment}
 }

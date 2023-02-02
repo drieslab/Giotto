@@ -41,11 +41,24 @@ Directly attach a giotto image to giotto object
 \code{\link{addGiottoImage}}
 
 Other image data accessor functions: 
-\code{\link{get_giottoImage}()}
+\code{\link{getGiottoImage}()},
+\code{\link{get_giottoImage}()},
+\code{\link{setGiottoImage}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},
@@ -54,6 +67,7 @@ Other functions to set data in giotto object:
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_feature_metadata}()},
+\code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialGrid}()},
 \code{\link{set_spatialNetwork}()},

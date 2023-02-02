@@ -2,6 +2,8 @@
 % Please edit documentation in R/generics.R
 \name{spatUnit-generic}
 \alias{spatUnit-generic}
+\alias{spatUnit}
+\alias{spatUnit<-}
 \alias{spatUnit,spatData-method}
 \alias{spatUnit<-,spatData-method}
 \title{Spatial unit information}

@@ -27,8 +27,7 @@ set_spatialGrid(
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 giotto object
@@ -38,11 +37,24 @@ Function to set a spatial grid
 }
 \seealso{
 Other spatial grid data accessor functions: 
-\code{\link{get_spatialGrid}()}
+\code{\link{getSpatialGrid}()},
+\code{\link{get_spatialGrid}()},
+\code{\link{setSpatialGrid}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},
@@ -52,6 +64,7 @@ Other functions to set data in giotto object:
 \code{\link{set_feature_info}()},
 \code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
+\code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},
 \code{\link{set_spatialNetwork}()},
 \code{\link{set_spatial_enrichment}()},

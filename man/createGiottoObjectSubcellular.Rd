@@ -60,6 +60,8 @@ createGiottoObjectSubcellular(
 
 \item{largeImages}{list of large images}
 
+\item{largeImages_list_params}{image params when loading largeImages as list}
+
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}

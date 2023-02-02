@@ -10,8 +10,6 @@ showGiottoFeatMetadata(gobject, nrows = 4)
 \item{gobject}{giotto object}
 
 \item{nrows}{number of rows to print for each metadata}
-
-\item{ncols}{number of columns to print for each metadata}
 }
 \value{
 prints the name and small subset of available metadata

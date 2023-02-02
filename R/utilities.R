@@ -116,6 +116,7 @@ colMeans_flex = function(mymatrix) {
 #' @title t_flex
 #' @name t_flex
 #' @param mymatrix matrix to use
+#' @include generics.R
 #' @keywords internal
 t_flex = function(mymatrix) {
 
@@ -125,6 +126,10 @@ t_flex = function(mymatrix) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::t(mymatrix))
+  } else if(inherits(mymatrix, 'spatLocsObj')){
+    return(t(mymatrix))
+  } else if(inherits(mymatrix, 'spatialNetworkObj')) {
+    return(t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)
     mymatrix = base::t(mymatrix)
@@ -151,12 +156,14 @@ cor_flex = function(x, ...) {
 #' @param X list to use
 #' @param FUN function to be performed
 #' @param cores cores to use
+#' @param future.seed whether to set a seed when using future_lapply
 #' @param fun deprecated. Backwards compatibility for FUN
 #' @param ... other arguments to pass
 #' @keywords internal
 lapply_flex = function(X,
                        FUN,
                        cores = NA,
+                       future.seed = TRUE,
                        fun = NULL,
                        ...) {
 
@@ -182,7 +189,7 @@ lapply_flex = function(X,
 
 
   # future_lapply call
-  save_list = future.apply::future_lapply(X = X, FUN = FUN, ...)
+  save_list = future.apply::future_lapply(X = X, FUN = FUN, future.seed = future.seed, ...)
 
   #if(os == 'unix') {
   #  save_list = parallel::mclapply(X = X, mc.cores = cores,
@@ -303,6 +310,26 @@ list_element_exists = function(x, index) {
     return(FALSE)
   })
 }
+
+
+
+# Based on https://stackoverflow.com/questions/37878620/reorder-rows-in-data-table-in-a-specific-order
+#' @title Set specific data.table row order
+#' @param x data.table
+#' @param neworder numerical vector to reorder rows
+#' @keywords internal
+set_row_order_dt = function(x, neworder) {
+  if('.r' %in% colnames(x)) {
+    temp_r = x[, .SD, .SDcols = '.r']
+    data.table::setorderv(temp_r[, eval(call(":=", as.name(".r_alt"), call("order", neworder)))], ".r_alt")[, ".r_alt" := NULL]
+    data.table::setorderv(x[, eval(call(":=", as.name(".r"), call("order", neworder)))], ".r")[, ".r" := NULL]
+    x[, eval(call(':=', as.name('.r'), temp_r$.r))]
+  } else {
+    data.table::setorderv(x[, eval(call(":=", as.name(".r"), call("order", neworder)))], ".r")[, ".r" := NULL]
+  }
+
+}
+
 
 
 
@@ -488,6 +515,9 @@ abb_mat = function(exprObj, nrows, ncols, header = TRUE) {
 #' @description print abbreviated spatLocsObj
 #' @keywords internal
 abb_spatlocs = function(spatLocsObj, nrows) {
+  # data.table vars
+  sdimx = sdimy = NULL
+
   DT_rows = nrow(spatLocsObj[])
   spatlocs = spatLocsObj[][1:if(nrows <= DT_rows) nrows else DT_rows,]
 
@@ -509,10 +539,9 @@ abb_spatlocs = function(spatLocsObj, nrows) {
 
 #' @title Wrap message
 #' @name wrap_msg
-#' @param ... additional strings and/or elements to pass to cat
+#' @param ... additional strings and/or elements to pass to wrap_txt
 #' @param sep how to join elements of string (default is one space)
-#' @param strWidth externally set wrapping width. (default value of 100 is not effected)
-#' @param keywords internal
+#' @keywords internal
 wrap_msg = function(..., sep = ' ') {
   message(wrap_txt(..., sep = sep))
 }
@@ -522,8 +551,14 @@ wrap_msg = function(..., sep = ' ') {
 #' @param ... additional params to pass
 #' @param sep how to join elements of string (default is one space)
 #' @param strWidth externally set wrapping width. (default value of 100 is not effected)
+#' @param errWidth default = FALSE. Set strWidth to be compatible with error printout
 #' @keywords internal
-wrap_txt = function(..., sep = ' ', strWidth = 100) {
+wrap_txt = function(..., sep = ' ', strWidth = 100, errWidth = FALSE) {
+  custom_width = ifelse(is.null(match.call()$strWidth), yes = FALSE, no = TRUE)
+  if(!isTRUE(custom_width)) {
+    if(isTRUE(errWidth)) strWidth = getOption('width') - 6
+  }
+
   cat(..., sep = sep) %>%
     capture.output() %>%
     strwrap(., prefix =  ' ', initial = '', # indent later lines, no indent first line
@@ -646,6 +681,58 @@ emacs_version = function() {
   ver <- strsplit(ver, '.', fixed = TRUE)[[1]]
   as.numeric(ver)
 }
+
+
+# time formatting ####
+
+#' @title Format time for printing
+#' @name time_format
+#' @keywords internal
+#' @details Code from \code{\link[data.table]{timetaken}}
+time_format = function(secs) {
+  if(secs > 60) {
+    secs = as.integer(secs)
+    sprintf("%02d:%02d:%02d", secs%/%3600L, (secs%/%60L)%%60L,
+            secs%%60L)
+  }
+  else {
+    sprintf(if(secs >= 10)
+      "%.1fs"
+      else "%.3fs", secs)
+  }
+}
+
+# radians and degrees ####
+#' @title Radian/degree conversions
+#' @name degrees
+#' @description Convert radians to degrees and vice versa
+#' @param deg degrees
+#' @param rad radians
+#' @keywords internal
+NULL
+
+#' @describeIn degrees Degrees to radians
+radians = function(deg) {
+  deg * pi / 180
+}
+
+#' @describeIn degrees Radians to degrees
+#' @keywords internal
+degrees = function(rad) {
+  rad * 180 / pi
+}
+
+
+
+# deprecation helpers ####
+
+# determine if a function has been called directly
+direct_call = function() {
+  ifelse(sys.nframe() == 2L, yes = TRUE, no = FALSE)
+}
+
+
+
 
 
 

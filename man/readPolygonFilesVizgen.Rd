@@ -2,6 +2,7 @@
 % Please edit documentation in R/general_help.R
 \name{readPolygonFilesVizgen}
 \alias{readPolygonFilesVizgen}
+\alias{h5read_vizgen}
 \title{readPolygonFilesVizgen}
 \usage{
 readPolygonFilesVizgen(
@@ -16,6 +17,13 @@ readPolygonFilesVizgen(
   set_neg_to_zero = FALSE,
   return_gobject = TRUE,
   verbose = TRUE
+)
+
+h5read_vizgen(
+  h5File,
+  z_indices = 1L:7L,
+  segm_to_use = "p_0",
+  H5Fopen_flags = "H5F_ACC_RDWR"
 )
 }
 \arguments{
@@ -45,6 +53,13 @@ readPolygonFilesVizgen(
 Read selected polygon files for the FOVs present in the Giotto
 object and add the smoothed polygons to the object
 }
+\section{Functions}{
+\itemize{
+\item \code{h5read_vizgen()}: (internal) Optimized .hdf5 reading for vizgen
+merscope output. Returns a data.table of xyz coords and cell_id
+
+}}
 \seealso{
 \code{\link{smoothGiottoPolygons}}
 }
+\keyword{internal}

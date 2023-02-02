@@ -3,11 +3,13 @@
 on:
   push:
     branches:
-      - 'ci-unittest' 
+      - 'ci-unittest'
       - 'suite' # run workflow on push to branch
+      - 'suite_dev'
   pull_request:
     branches:
       - 'suite'
+      - 'suite_dev'
 
 name: R-CMD-check
 
@@ -36,9 +38,9 @@ jobs:
       - name: Remove vignettes dir
         run: rm -rf 'vignettes/'
         shell: bash
-      
+
       # checkout repo for workflow access
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v2
 
       # setup R
       - uses: r-lib/actions/setup-r@v2
@@ -46,7 +48,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-      
+
       # setup dependencies
       - uses: r-lib/actions/setup-r-dependencies@v2
         env:
@@ -61,7 +63,7 @@ jobs:
         with:
           upload-snapshots: true
           error-on: '"error"' # workflow errors on error only, can change to include warnings
-      
+
       # show testthat output for ease of access
       - name: Show testthat output
         if: always()

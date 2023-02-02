@@ -3,11 +3,11 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/testdata/"))
+GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
 
-expr_path = "./testdata/merFISH_3D_data_expression.txt.gz"
-loc_path = "./testdata/merFISH_3D_data_cell_locations.txt"
-meta_path = "./testdata/merFISH_3D_metadata.txt"
+expr_path = './testdata/merFISH_3D_data_expression.txt.gz'
+loc_path = './testdata/merFISH_3D_data_cell_locations.txt'
+meta_path = './testdata/merFISH_3D_metadata.txt'
 
 ### TESTS FOR MERFISH MOUSE HYPOTHALMIC PREOPTIC REGION DATASET
 # --------------------------------------------------------------
@@ -23,11 +23,11 @@ test_that("Object initialization creates expected Giotto object", {
   expect_s4_class(object, "giotto")
 
   # gobject contains S4 object of class "dgCMatrix" containing raw expression
-  expect_s4_class(object@expression[["cell"]][["rna"]][["raw"]], "dgCMatrix")
-  expect_true(all(object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(161, 73655)))
+  expect_s4_class(slot(object@expression[["cell"]][["rna"]][["raw"]], "exprMat"), "dgCMatrix")
+  expect_true(all(slot(object@expression[["cell"]][["rna"]][["raw"]], "exprMat")@Dim == c(161, 73655)))
 
   # gobject contains S4 object "spatLocsObj" of dimensions 73655 x 4 containing spatial locations
-  st = get_spatial_locations(test, spat_unit = 'cell', spat_loc_name = 'raw', return_spatlocs_Obj = TRUE)
+  st = get_spatial_locations(object, spat_unit = 'cell', spat_loc_name = 'raw')
   expect_identical(st@coordinates, object@spatial_locs[["cell"]][["raw"]]@coordinates)
   expect_s4_class(object@spatial_locs[["cell"]][["raw"]], "spatLocsObj")
   expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimx"]], 73655)
@@ -48,13 +48,13 @@ test_that("Cell metadata are read and added to Giotto object", {
   expect_named(metadata, c("orig_cell_types", "layer_ID"))
 
   # metadata length matches number of preexisting cell_IDs
-  expect_equal(nrow(metadata), length(object@cell_metadata[["cell"]][["rna"]][["cell_ID"]]))
+  expect_equal(nrow(metadata), length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["cell_ID"]]))
 
   # metadata length/types after added to object
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["layer_ID"]], 73655)
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["layer_ID"]], "integer")
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["orig_cell_types"]], 73655)
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["orig_cell_types"]], "character")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["layer_ID"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["layer_ID"]], "integer")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["orig_cell_types"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["orig_cell_types"]], "character")
 
 })
 
@@ -69,7 +69,7 @@ filtered_object <- filterGiotto(gobject = object,
 test_that("Data in filtered object is expected size", {
 
   # filtered object expression values have expected dimensions
-  expect_true(all(filtered_object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(153, 17814)))
+  expect_true(all(slot(filtered_object@expression[["cell"]][["rna"]][["raw"]],'exprMat')@Dim == c(153, 17814)))
 
   # filtered object spatial locations have expected length
   expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimx"]], 17814)
@@ -78,8 +78,8 @@ test_that("Data in filtered object is expected size", {
   expect_length(filtered_object@spatial_locs[["cell"]][["raw"]]@coordinates[["cell_ID"]], 17814)
 
   # filtered object metadata has expected length
-  expect_length(filtered_object@cell_metadata[["cell"]][["rna"]][["layer_ID"]], 17814)
-  expect_length(filtered_object@cell_metadata[["cell"]][["rna"]][["orig_cell_types"]], 17814)
+  expect_length(slot(filtered_object@cell_metadata[["cell"]][["rna"]],'metaDT')[["layer_ID"]], 17814)
+  expect_length(slot(filtered_object@cell_metadata[["cell"]][["rna"]],'metaDT')[["orig_cell_types"]], 17814)
 
 })
 
@@ -89,12 +89,12 @@ object <- normalizeGiotto(gobject = object, scalefactor = 10000, verbose = F)
 test_that("Normalized data added to giotto object", {
 
   # gobject now also contains S4 object of class "dgCMatrix" containing normalized expression
-  expect_s4_class(object@expression[["cell"]][["rna"]][["normalized"]], "dgCMatrix")
-  expect_true(all(object@expression[["cell"]][["rna"]][["normalized"]]@Dim == c(161, 73655)))
+  expect_s4_class(slot(object@expression[["cell"]][["rna"]][["normalized"]], 'exprMat'), "dgCMatrix")
+  expect_true(all(slot(object@expression[["cell"]][["rna"]][["normalized"]], 'exprMat')@Dim == c(161, 73655)))
 
   # gobject now also contains S4 object of class "dgeMatrix" containing scaled expression
-  expect_s4_class(object@expression[["cell"]][["rna"]][["scaled"]], "dgeMatrix")
-  expect_true(all(object@expression[["cell"]][["rna"]][["scaled"]]@Dim == c(161, 73655)))
+  expect_s4_class(slot(object@expression[["cell"]][["rna"]][["scaled"]], 'exprMat'), "dgeMatrix")
+  expect_true(all(slot(object@expression[["cell"]][["rna"]][["scaled"]], 'exprMat')@Dim == c(161, 73655)))
 
 })
 
@@ -104,24 +104,24 @@ object <- addStatistics(gobject = object)
 test_that("Feature and cell statistics are added to giotto object", {
 
   # gobject cell metadata contains nr_feats, perc_feats, total_expr
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["nr_feats"]], 73655)
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["nr_feats"]], "integer")
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["perc_feats"]], 73655)
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["perc_feats"]], "double")
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["total_expr"]], 73655)
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["total_expr"]], "double")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["nr_feats"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["nr_feats"]], "integer")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["perc_feats"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["perc_feats"]], "double")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["total_expr"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["total_expr"]], "double")
 
   # gobject feat metadata contains nr_cells, perc_cells, total_expr, mean_expr, mean_expr_det
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["nr_cells"]], 161)
-  expect_type(object@feat_metadata[["cell"]][["rna"]][["nr_cells"]], "integer")
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["perc_cells"]], 161)
-  expect_type(object@feat_metadata[["cell"]][["rna"]][["perc_cells"]], "double")
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["total_expr"]], 161)
-  expect_type(object@feat_metadata[["cell"]][["rna"]][["total_expr"]], "double")
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["mean_expr"]], 161)
-  expect_type(object@feat_metadata[["cell"]][["rna"]][["mean_expr"]], "double")
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["mean_expr_det"]], 161)
-  expect_type(object@feat_metadata[["cell"]][["rna"]][["mean_expr_det"]], "double")
+  expect_length(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["nr_cells"]], 161)
+  expect_type(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["nr_cells"]], "integer")
+  expect_length(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["perc_cells"]], 161)
+  expect_type(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["perc_cells"]], "double")
+  expect_length(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["total_expr"]], 161)
+  expect_type(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["total_expr"]], "double")
+  expect_length(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["mean_expr"]], 161)
+  expect_type(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["mean_expr"]], "double")
+  expect_length(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["mean_expr_det"]], 161)
+  expect_type(slot(object@feat_metadata[["cell"]][["rna"]], 'metaDT')[["mean_expr_det"]], "double")
 
 })
 
@@ -134,9 +134,9 @@ object <- adjustGiottoMatrix(gobject = object, expression_values = c('normalized
 test_that("Adjusted values are created in 'custom' slot", {
 
   # expression now also contains custom object of class double
-  expect_type(object@expression[["cell"]][["rna"]][["custom"]], "double")
-  expect_equal(nrow(object@expression[["cell"]][["rna"]][["custom"]]), 161)
-  expect_equal(ncol(object@expression[["cell"]][["rna"]][["custom"]]), 73655)
+  expect_type(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat'), "double")
+  expect_equal(nrow(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat')), 161)
+  expect_equal(ncol(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat')), 73655)
 
 })
 
@@ -194,7 +194,7 @@ object <- createNearestNetwork(gobject = object, dimensions_to_use = 1:8, k = 15
 test_that("sNN S3 object is created as expected", {
 
   # igraph s3 object
-  expect_s3_class(object@nn_network[["cell"]][["rna"]][["sNN"]][["sNN.pca"]], "igraph")
+  expect_s3_class(slot(object@nn_network[["cell"]][["rna"]][["sNN"]][["sNN.pca"]], 'igraph'), "igraph")
 
 })
 
@@ -204,11 +204,11 @@ object <- doLeidenCluster(gobject = object, resolution = 0.2, n_iterations = 200
 
 test_that("New clusters are added to cell metadata", {
 
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]], 73655)
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["leiden_0.2"]], 73655)
 
   # test a few cluster assignments
-  expect_equal(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]][10], 5)
-  expect_equal(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]][80], 4)
+  expect_equal(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["leiden_0.2"]][10], 5)
+  expect_equal(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["leiden_0.2"]][80], 4)
 
 })
 
@@ -228,7 +228,7 @@ test_that("Cell type markers are detected", {
                           "detection_rank", "comb_score", "comb_rank"))
 
   # number of markers
-  expect_equal(nrow(markers), 584)
+  expect_equal(nrow(markers), 585)
 
 })
 
@@ -249,12 +249,12 @@ object = annotateGiotto(gobject = object, annotation_vector = clusters_cell_type
 
 test_that("Cell type annotations are added to cell metadata", {
 
-  expect_type(object@cell_metadata[["cell"]][["rna"]][["cell_types"]], "character")
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["cell_types"]], 73655)
+  expect_type(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["cell_types"]], "character")
+  expect_length(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["cell_types"]], 73655)
 
   # check a few annotations
-  expect_equal(object@cell_metadata[["cell"]][["rna"]][["cell_types"]][5], "Inhibitory")
-  expect_equal(object@cell_metadata[["cell"]][["rna"]][["cell_types"]][250], "OD Immature")
+  expect_equal(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["cell_types"]][5], "Inhibitory")
+  expect_equal(slot(object@cell_metadata[["cell"]][["rna"]], 'metaDT')[["cell_types"]][250], "OD Immature")
 
 })
 

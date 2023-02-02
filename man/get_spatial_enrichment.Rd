@@ -25,8 +25,10 @@ get_spatial_enrichment(
 
 \item{output}{what format in which to get information (e.g. "data.table")}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)
 expression and spat_info are not expected to exist.}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 data.table with fractions
@@ -36,14 +38,28 @@ Function to get a spatial enrichment data.table
 }
 \seealso{
 Other spatial enrichment data accessor functions: 
+\code{\link{getSpatialEnrichment}()},
+\code{\link{setSpatialEnrichment}()},
 \code{\link{set_spatial_enrichment}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
+\code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},
 \code{\link{get_spatialGrid}()},
 \code{\link{get_spatialNetwork}()},

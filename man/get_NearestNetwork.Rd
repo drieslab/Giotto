@@ -27,8 +27,7 @@ get_NearestNetwork(
 
 \item{output}{return a igraph or data.table object. Default 'igraph'}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
 }
 \value{
 igraph or data.table object
@@ -38,13 +37,27 @@ Get a NN-network from a Giotto object
 }
 \seealso{
 Other expression space nearest network accessor functions: 
+\code{\link{getNearestNetwork}()},
+\code{\link{setNearestNetwork}()},
 \code{\link{set_NearestNetwork}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
+\code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},
 \code{\link{get_spatialGrid}()},
 \code{\link{get_spatialNetwork}()},

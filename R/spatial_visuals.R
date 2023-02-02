@@ -4139,6 +4139,7 @@ spatDimPlot = function(...) {
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -4156,6 +4157,7 @@ spatDimPlot = function(...) {
 #' @param point_alpha transparancy of points
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
+#' @param coord_fix_ratio fix ratio between x and y-axis (default = 1)
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -4190,6 +4192,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   sdimy = 'sdimy',
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   feats,
+                                  order = TRUE,
                                   cell_color_gradient = c('blue', 'white', 'red'),
                                   gradient_midpoint = NULL,
                                   gradient_limits = NULL,
@@ -4207,6 +4210,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   point_alpha = 1,
                                   point_border_col = 'black',
                                   point_border_stroke = 0.1,
+                                  coord_fix_ratio = 1,
                                   show_legend = T,
                                   legend_text = 8,
                                   background_color = 'white',
@@ -4356,6 +4360,13 @@ spatFeatPlot2D_single <- function(gobject,
   savelist <- list()
 
   for(feat in selected_feats) {
+
+
+    # order spatial units (e.g. cell IDs) based on expression of feature
+    if(isTRUE(order)) {
+      cell_locations_metadata_feats = cell_locations_metadata_feats[order(get(feat))]
+    }
+
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
@@ -4575,6 +4586,9 @@ spatFeatPlot2D_single <- function(gobject,
                               panel.grid = element_blank(),
                               panel.background = element_rect(fill = background_color))
 
+    if(!is.null(coord_fix_ratio)) {
+      pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+    }
 
     savelist[[feat]] <- pl
   }
@@ -4622,6 +4636,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -4639,6 +4654,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param point_alpha transparancy of points
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
+#' @param coord_fix_ratio fix ratio between x and y-axis (default = 1)
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -4675,6 +4691,7 @@ spatFeatPlot2D <- function(gobject,
                            sdimy = 'sdimy',
                            expression_values = c('normalized', 'scaled', 'custom'),
                            feats,
+                           order = TRUE,
                            cell_color_gradient = c('blue', 'white', 'red'),
                            gradient_midpoint = NULL,
                            gradient_limits = NULL,
@@ -4692,6 +4709,7 @@ spatFeatPlot2D <- function(gobject,
                            point_alpha = 1,
                            point_border_col = 'black',
                            point_border_stroke = 0.1,
+                           coord_fix_ratio = 1,
                            show_legend = T,
                            legend_text = 8,
                            background_color = 'white',
@@ -4725,6 +4743,7 @@ spatFeatPlot2D <- function(gobject,
                           sdimy = sdimy,
                           expression_values = expression_values,
                           feats = feats,
+                          order = order,
                           cell_color_gradient = cell_color_gradient,
                           gradient_midpoint = gradient_midpoint,
                           gradient_limits = gradient_limits,
@@ -4832,6 +4851,7 @@ spatFeatPlot2D <- function(gobject,
                                  sdimy = sdimy,
                                  expression_values = expression_values,
                                  feats = feats,
+                                 order = order,
                                  cell_color_gradient = cell_color_gradient,
                                  gradient_midpoint = gradient_midpoint,
                                  gradient_limits = gradient_limits,
@@ -4961,6 +4981,7 @@ spatGenePlot = function(...) {
 #' @param spat_unit spatial unit
 #' @param expression_values gene expression values to use
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5002,6 +5023,7 @@ dimFeatPlot2D <- function(gobject,
                           feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           feats = NULL,
+                          order = TRUE,
                           dim_reduction_to_use = 'umap',
                           dim_reduction_name = NULL,
                           dim1_to_use = 1,
@@ -5149,6 +5171,11 @@ dimFeatPlot2D <- function(gobject,
 
 
   for(feat in selected_feats) {
+
+    # order spatial units (e.g. cell IDs) based on expression of feature
+    if(isTRUE(order)) {
+      annotated_feat_DT = annotated_feat_DT[order(get(feat))]
+    }
 
 
     ## OLD need to be combined ##
@@ -5375,6 +5402,7 @@ dimGenePlot = function(...) {
 #' @param expression_values feat expression values to use
 #' @param plot_alignment direction to align plot
 #' @param feats features to show
+#' @param order order points according to feature expression
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5439,6 +5467,7 @@ spatDimFeatPlot2D <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               plot_alignment = c('vertical', 'horizontal'),
                               feats,
+                              order = TRUE,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -5498,6 +5527,7 @@ spatDimFeatPlot2D <- function(gobject,
                        spat_unit = spat_unit,
                        expression_values = expression_values,
                        feats = feats,
+                       order = order,
                        dim_reduction_to_use = dim_reduction_to_use,
                        dim_reduction_name = dim_reduction_name,
                        dim1_to_use = dim1_to_use,
@@ -5541,6 +5571,7 @@ spatDimFeatPlot2D <- function(gobject,
                        sdimy = sdimy,
                        expression_values = expression_values,
                        feats = feats,
+                       order = order,
                        cell_color_gradient = cell_color_gradient,
                        gradient_midpoint = gradient_midpoint,
                        gradient_limits = gradient_limits,

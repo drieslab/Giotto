@@ -9,6 +9,9 @@ runIntegratedUMAP(
   spat_unit = "cell",
   modality1 = "rna",
   modality2 = "protein",
+  integrated_feat_type = NULL,
+  integration_method = "WNN",
+  matrix_result_name = "theta_weighted_matrix",
   k = 20,
   spread = 5,
   min_dist = 0.01,
@@ -23,6 +26,12 @@ runIntegratedUMAP(
 \item{modality1}{modality 1 name. Default = "rna"}
 
 \item{modality2}{modality 2 name. Default = "protein"}
+
+\item{integrated_feat_type}{integrated feature type (e.g. 'rna_protein')}
+
+\item{integration_method}{multiomics integration method used. Default = 'WNN'}
+
+\item{matrix_result_name}{Default = 'theta_weighted_matrix'}
 
 \item{k}{k number}
 

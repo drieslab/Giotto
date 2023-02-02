@@ -13,6 +13,7 @@ flex_lapply(X, FUN, cores = NA, fun = NULL, ...)
     \item{\code{X}}{list to use}
     \item{\code{FUN}}{function to be performed}
     \item{\code{cores}}{cores to use}
+    \item{\code{future.seed}}{whether to set a seed when using future_lapply}
     \item{\code{fun}}{deprecated. Backwards compatibility for FUN}
   }}
 }

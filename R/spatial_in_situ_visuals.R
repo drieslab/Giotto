@@ -178,6 +178,8 @@ expand_feature_info = function(spatial_feat_info,
                                jitter = c(0,0),
                                verbose = TRUE) {
 
+  # data.table variables
+  feat_ID = x = y = feat = spat_unit = NULL
 
   # 1. expand feature locations with multiple counts (e.g. in seq-Scope or Stereo-seq)
   if(isTRUE(expand_counts)) {
@@ -238,12 +240,12 @@ plot_feature_points_layer = function(ggobject,
                                      jitter = c(0,0),
                                      verbose = TRUE) {
 
-  # data.table variables
+  # data.table vars
   feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
 
-  # expand feature coordinates and/or add jitter to coordiantes
+  # expand feature coordinates and/or add jitter to coordinates
   if(isTRUE(expand_counts) | !identical(c(0,0), jitter)) {
     spatial_feat_info_subset = expand_feature_info(spatial_feat_info = spatial_feat_info_subset,
                                                    expand_counts = expand_counts,
@@ -252,7 +254,7 @@ plot_feature_points_layer = function(ggobject,
                                                    verbose = verbose)
   }
 
-  cat(' --| Plotting ', nrow(spatial_feat_info_subset), ' feature points\n')
+  wrap_msg(' --| Plotting ', nrow(spatial_feat_info_subset), ' feature points')
 
   if(!is.null(ggobject) & inherits(ggobject, 'ggplot')) {
     pl = ggobject
@@ -271,6 +273,7 @@ plot_feature_points_layer = function(ggobject,
 
 
 
+  # manually set feature color code
   if(!is.null(feats_color_code)) {
     pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
   } else {
@@ -278,6 +281,11 @@ plot_feature_points_layer = function(ggobject,
     feats_color_code = getDistinctColors(length(feats_names))
     names(feats_color_code) = feats_names
     pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
+  }
+
+  # manually set feature shape color code
+  if(!is.null(feat_shape_code)) {
+    pl = pl + ggplot2::scale_shape_manual(values = feat_shape_code)
   }
 
   return(pl)
@@ -546,7 +554,7 @@ spatInSituPlotPoints = function(gobject,
     do.call('all_plots_save_function', c(list(gobject = gobject,
                                               plot_object = plot,
                                               default_save_name = default_save_name),
-                                         save_param))
+                                              save_param))
   }
 
   ## return plot

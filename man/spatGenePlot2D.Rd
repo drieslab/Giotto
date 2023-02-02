@@ -28,6 +28,7 @@ spatGenePlot2D(gobject, genes, default_save_name = "spatGenePlot2D", ...)
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
     \item{\code{expression_values}}{gene expression values to use}
+    \item{\code{order}}{order points according to feature expression}
     \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
     \item{\code{gradient_midpoint}}{midpoint for color gradient}
     \item{\code{gradient_limits}}{vector with lower and upper limits}
@@ -45,6 +46,7 @@ spatGenePlot2D(gobject, genes, default_save_name = "spatGenePlot2D", ...)
     \item{\code{point_alpha}}{transparancy of points}
     \item{\code{point_border_col}}{color of border around points}
     \item{\code{point_border_stroke}}{stroke size of border around points}
+    \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis (default = 1)}
     \item{\code{cow_n_col}}{cowplot param: how many columns}
     \item{\code{cow_rel_h}}{cowplot param: relative height}
     \item{\code{cow_rel_w}}{cowplot param: relative width}

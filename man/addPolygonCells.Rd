@@ -21,6 +21,8 @@ addPolygonCells(
 
 \item{spat_unit}{spatial unit}
 
+\item{spat_loc_name}{name of spatial locations to use}
+
 \item{feat_type}{feature name where metadata will be added}
 
 \item{na.label}{polygon label for cells located outside of polygons area. Default = "no_polygon"}
