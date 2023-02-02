@@ -1143,8 +1143,9 @@ read_spatial_location_data = function(gobject,
 
   # too much information
   if(list_depth > 2) {
-    stop('Depth of spatial location list is more than 2, only 2 levels are possible:
-         1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n')
+    stop(wrap_txt('Depth of spatial location list is more than 2, only 2 levels are possible:
+                  1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n',
+                  errWidth = TRUE))
   }
 
   # 2. Based on depth of nesting expect related info then eval, check, and assemble return list
@@ -1167,11 +1168,13 @@ read_spatial_location_data = function(gobject,
       if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
       # add default region == 'cell'
-      return_list = append(return_list, new('spatLocsObj',
-                                            name = coord,
-                                            coordinates = res_spatlocs,
-                                            spat_unit = 'cell',
-                                            provenance = if(is.null(provenance)) 'cell' else provenance))
+      return_list = append(return_list,
+                           create_spat_locs_obj(
+                             name = coord,
+                             coordinates = res_spatlocs,
+                             spat_unit = 'cell',
+                             provenance = if(is.null(provenance)) 'cell' else provenance
+                           ))
 
       # return_list[['cell']][[coord]] = res_spatlocs
 
@@ -1189,15 +1192,17 @@ read_spatial_location_data = function(gobject,
         res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[spat_unit]][[coord]],
                                                      cores = cores)
 
-        # set cell_ID col if missing to conform to spatialLocationsObj validity
+        # set cell_ID col if missing to conform to spatLocsObj validity
         if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
         # add default region == 'cell'
-        return_list = append(return_list, new('spatLocsObj',
-                                              name = coord,
-                                              coordinates = res_spatlocs,
-                                              spat_unit = spat_unit,
-                                              provenance = if(is.null(provenance)) spat_unit else provenance))
+        return_list = append(return_list,
+                             create_spat_locs_obj(
+                               name = coord,
+                               coordinates = res_spatlocs,
+                               spat_unit = spat_unit,
+                               provenance = if(is.null(provenance)) spat_unit else provenance
+                             ))
 
         # return_list[[spat_unit]][[coord]] = res_spatlocs
 
