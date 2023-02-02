@@ -381,15 +381,39 @@ setClass('spatFeatData',
 #             .Object
 #           })
 
-# TODO
-# updateGiottoObject = function(gobject) {
-#   if(is.null(attr(gobject, 'multiomics'))) {
-#     attr(gobject, 'multiomics') = NA
-#     gobject@multiomics = NULL
-#   }
-#
-#   return(gobject)
-# }
+
+
+
+
+#' @title Update giotto object
+#' @name updateGiottoObject
+#' @description Updates the giotto object for changes in structure for backwards
+#' compatibility with earlier versions
+#' @param gobject giotto object to update
+#' @details
+#' Supported updates:
+#' \itemize{
+#'   \item{3.2.0 update adding multiomics slot}
+#'   \item{master branch to suite - TODO}
+#' }
+#' @usage gobject = updateGiottoObject(gobject)
+#' @export
+updateGiottoObject = function(gobject) {
+
+  if(!inherits(gobject, 'giotto')) {
+    stop(wrap_txt('This function is intended for updating giotto objects'))
+  }
+
+  # 3.2.0 release adds multiomics slot
+  if(is.null(attr(gobject, 'multiomics'))) {
+    attr(gobject, 'multiomics') = NA
+    gobject@multiomics = NULL
+  }
+
+  return(gobject)
+}
+
+
 
 ##### * Definition ####
 # Giotto class
