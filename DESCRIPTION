@@ -140,6 +140,7 @@ Collate:
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
+    'rd_t.R'
     'spatial_enrichment.R'
     'spatial_genes.R'
     'spatial_in_situ_visuals.R'
