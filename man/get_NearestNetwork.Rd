@@ -37,9 +37,22 @@ Get a NN-network from a Giotto object
 }
 \seealso{
 Other expression space nearest network accessor functions: 
+\code{\link{getNearestNetwork}()},
+\code{\link{setNearestNetwork}()},
 \code{\link{set_NearestNetwork}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},

@@ -81,6 +81,12 @@ setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
             x@enrichDT[, cell_ID]
           })
 
+
+
+
+
+# feat IDs
+
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'missing'),

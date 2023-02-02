@@ -36,9 +36,22 @@ Function to get expression values from giotto object
 }
 \seealso{
 Other expression accessor functions: 
+\code{\link{getExpression}()},
+\code{\link{setExpression}()},
 \code{\link{set_expression_values}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
 \code{\link{get_feature_info}()},

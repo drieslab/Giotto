@@ -6,9 +6,10 @@
 \usage{
 set_spatialNetwork(
   gobject,
+  spatial_network,
   spat_unit = NULL,
   name = NULL,
-  spatial_network,
+  provenance = NULL,
   verbose = TRUE,
   set_defaults = TRUE
 )
@@ -16,11 +17,11 @@ set_spatialNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{spatial_network}{spatial network}
+
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{name}{name of spatial network}
-
-\item{spatial_network}{spatial network}
 
 \item{verbose}{be verbose}
 
@@ -34,11 +35,24 @@ Function to set a spatial network
 }
 \seealso{
 Other spatial network data accessor functions: 
-\code{\link{get_spatialNetwork}()}
+\code{\link{getSpatialNetwork}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{setSpatialNetwork}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},

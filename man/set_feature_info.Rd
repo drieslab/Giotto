@@ -4,14 +4,22 @@
 \alias{set_feature_info}
 \title{Set feature info}
 \usage{
-set_feature_info(gobject, feat_type = NULL, gpolygon, verbose = TRUE)
+set_feature_info(
+  gobject,
+  feat_type = NULL,
+  gpoints,
+  gpolygon = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{gpolygon}{giotto polygon}
+\item{gpoints}{giotto points object}
+
+\item{gpolygon}{typo do not use}
 
 \item{verbose}{be verbose}
 }
@@ -23,11 +31,24 @@ Set giotto polygon spatVector for features
 }
 \seealso{
 Other feature info data accessor functions: 
-\code{\link{get_feature_info}()}
+\code{\link{getFeatureInfo}()},
+\code{\link{get_feature_info}()},
+\code{\link{setFeatureInfo}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setDimReduction}()},
+\code{\link{setExpression}()},
+\code{\link{setFeatureInfo}()},
+\code{\link{setGiottoImage}()},
+\code{\link{setMultiomics}()},
+\code{\link{setNearestNetwork}()},
+\code{\link{setPolygonInfo}()},
+\code{\link{setSpatialEnrichment}()},
+\code{\link{setSpatialGrid}()},
+\code{\link{setSpatialLocations}()},
+\code{\link{setSpatialNetwork}()},
 \code{\link{set_NearestNetwork}()},
 \code{\link{set_cell_id}()},
 \code{\link{set_cell_metadata}()},

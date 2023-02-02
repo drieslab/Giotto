@@ -13,6 +13,7 @@
 - New `spatialAutoCorLocal()` and `spatialAutoCorGlobal()` functions to find spatial autocorrelations from expression and cell metadata information
 - New `createSpatialWeightMatrix()` function to generate spatial weight matrix from spatial networks for autocorrelation
 - Add spatial_interaction_spot.R with functions adapted from master branch for working with the Giotto suite object.
+- New exported accessors for slots (experimental)
 - Add `coord_fix_ratio` param to `spatFeatPlot2D()` and `spatFeatPlot2D_single()`
 - Add `order` parameter to `dimFeatPlot2D` and `spatDimFeatPlot2d` to plot and order cells according to the levels of the selected feature ([#477](https://github.com/drieslab/Giotto/issues/477))
 - Add `plot()` method for `spatialNetworkObj`
@@ -34,6 +35,7 @@
 - Update `addFeatMetadata()` to handle replacement of existing columns
 - Update `show()` method for `giotto`
 - Update `show()` method for `spatEnrObj`
+- Deprecate older snake_case accessors
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Deprecate `xy_translate_spatial_locations()` in favor of `shift_spatial_locations()`
 - Optimize `readPolygonFilesVizgen()`

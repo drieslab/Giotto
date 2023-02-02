@@ -722,3 +722,18 @@ degrees = function(rad) {
   rad * 180 / pi
 }
 
+
+
+# deprecation helpers ####
+
+# determine if a function has been called directly
+direct_call = function() {
+  ifelse(sys.nframe() == 2L, yes = TRUE, no = FALSE)
+}
+
+
+
+
+
+
+

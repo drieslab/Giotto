@@ -41,9 +41,22 @@ Function to get a dimension reduction object
 }
 \seealso{
 Other dimensional reduction data accessor functions: 
+\code{\link{getDimReduction}()},
+\code{\link{setDimReduction}()},
 \code{\link{set_dimReduction}()}
 
 Other functions to get data from giotto object: 
+\code{\link{getDimReduction}()},
+\code{\link{getExpression}()},
+\code{\link{getFeatureInfo}()},
+\code{\link{getGiottoImage}()},
+\code{\link{getMultiomics}()},
+\code{\link{getNearestNetwork}()},
+\code{\link{getPolygonInfo}()},
+\code{\link{getSpatialEnrichment}()},
+\code{\link{getSpatialGrid}()},
+\code{\link{getSpatialLocations}()},
+\code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
