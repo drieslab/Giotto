@@ -39,6 +39,7 @@
 - Deprecate `polygon_feat_names` param in favor of `z_indices` in `readPolygonFilesVizgenHDF5()`
 - Deprecate `xy_translate_spatial_locations()` in favor of `shift_spatial_locations()`
 - Optimize `readPolygonFilesVizgen()`
+- Fix bug in `replaceGiottoInstructions()` where instructions with more slots than previous are not allowed
 - Fix bug in `loadGiotto()` that prevents proper parsing of filenames when spat_unit or feat_type contains '_' characters
 - Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk
 
