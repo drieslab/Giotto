@@ -17,7 +17,7 @@
 #'
 #' See SAW pipeline for additional information about the gef file.
 #' @export
-gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){
+gefToGiotto = function(gef_file, bin_size = '100', verbose = TRUE){
 
    # data.table vars
    genes = NULL
@@ -27,7 +27,7 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = TRUE){
    if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
 
    # check if proper bin_size is selected. These are determined in SAW pipeline.
-   bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
+   bin_size_options = c('1', '10', '20', '50', '100', '200')
    if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size,
                                               see details for choices.')
 
