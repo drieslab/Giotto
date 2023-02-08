@@ -2092,6 +2092,7 @@ getSpatialNetwork = function(gobject,
 #' @description Function to set a spatial network
 #' @inheritParams data_access
 #' @param name name of spatial network
+#' @param provenance provenance name
 #' @param spatial_network spatial network
 #' @param verbose be verbose
 #' @return giotto object
@@ -2179,6 +2180,7 @@ set_spatialNetwork = function(gobject,
 #' @description Function to set a spatial network
 #' @inheritParams data_access
 #' @param name name of spatial network
+#' @param provenance provenance name
 #' @param spatial_network spatial network
 #' @param verbose be verbose
 #' @return giotto object

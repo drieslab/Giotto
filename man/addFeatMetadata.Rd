@@ -10,7 +10,8 @@ addFeatMetadata(
   spat_unit = NULL,
   new_metadata,
   by_column = F,
-  column_feat_ID = NULL
+  column_feat_ID = NULL,
+  vector_name = NULL
 )
 }
 \arguments{

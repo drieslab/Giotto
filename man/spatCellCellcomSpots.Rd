@@ -30,6 +30,12 @@ spatCellCellcomSpots(
 \arguments{
 \item{gobject}{giotto object to use}
 
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
+
+\item{ave_celltype_exp}{Matrix with average expression per cell type}
+
 \item{spatial_network_name}{spatial network to use for identifying interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
@@ -41,6 +47,8 @@ spatCellCellcomSpots(
 \item{gene_set_2}{second specific gene set from gene pairs}
 
 \item{min_observations}{minimum number of interactions needed to be considered}
+
+\item{expression_values}{(e.g. 'normalized', 'scaled', 'custom')}
 
 \item{detailed}{provide more detailed information (random variance and z-score)}
 
@@ -56,7 +64,7 @@ spatCellCellcomSpots(
 
 \item{seed_number}{seed number}
 
-\item{verbose}{verbose}
+\item{verbose}{verbose (e.g. 'a little', 'a lot', 'none')}
 }
 \value{
 Cell-Cell communication scores for gene pairs based on spatial interaction

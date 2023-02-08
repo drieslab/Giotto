@@ -159,6 +159,8 @@ createGiottoMerscopeObject = function(merscope_dir,
                                       instructions = NULL,
                                       cores = NA,
                                       verbose = TRUE) {
+  
+  fovs = NULL
 
   # 0. setup
   # set number of cores automatically, but with limit of 10
@@ -218,6 +220,7 @@ createGiottoMerscopeObject = function(merscope_dir,
 
 #' @describeIn createGiottoMerscopeObject Create giotto object with 'subcellular' workflow
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
+#' @import data.table
 #' @keywords internal
 createGiottoMerscopeObject_subcellular = function(data_list,
                                                   calculate_overlap = TRUE,
@@ -228,6 +231,8 @@ createGiottoMerscopeObject_subcellular = function(data_list,
                                                                                new_spat_unit = 'cell'),
                                                   cores = NA,
                                                   verbose = TRUE) {
+  
+  feat_coord = neg_coord = cellLabel_dir = instructions = NULL
 
   # unpack data_list
   poly_info = data_list$poly_info
@@ -324,6 +329,7 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #' coordinates only. \code{'aggregate'} loads the provided aggregated expression matrix.
 #' @param FOVs field of views to load (only affects subcellular data and images)
 #' @inheritParams createGiottoObjectSubcellular
+#' @import data.table
 #' @return a giotto object
 #' @export
 #' @details
@@ -444,7 +450,9 @@ createGiottoCosMxObject_subcellular = function(dir_items,
                                                cores,
                                                verbose = TRUE,
                                                instructions = NULL) {
-
+  
+  target = fov = NULL
+  
   # load tx detections and FOV offsets
   data_list = load_cosmx_folder_subcellular(dir_items = dir_items,
                                             FOVs = FOVs,
@@ -607,7 +615,7 @@ createGiottoCosMxObject_aggregate = function(dir_items,
                                              verbose = TRUE,
                                              instructions = NULL) {
 
-
+  data_to_use = fov = NULL
 
   data_list = load_cosmx_folder_aggregate(dir_items = dir_items,
                                           cores = cores,

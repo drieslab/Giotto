@@ -9,6 +9,10 @@ geneExpDWLS(gobject, spat_unit = NULL, feat_type = NULL, ave_celltype_exp)
 \arguments{
 \item{gobject}{gottio object}
 
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
+
 \item{ave_celltype_exp}{data.table of gene expression in each cell type}
 }
 \value{

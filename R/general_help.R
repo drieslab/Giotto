@@ -2045,7 +2045,7 @@ h5read_vizgen = function(h5File,
                          H5Fopen_flags = "H5F_ACC_RDWR") {
 
   # data.table vars
-  group = name = cell = z_name = NULL
+  group = name = cell = z_name = otype = d_name = cell_id = NULL
 
   h5_ls = data.table::setDT(rhdf5::h5ls(h5File, recursive = 5, datasetinfo = FALSE))
   cell_names = as.character(h5_ls[group == '/featuredata', name])
@@ -2111,6 +2111,12 @@ h5read_vizgen = function(h5File,
   res = .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE,
               PACKAGE = "rhdf5")
   invisible(.Call("_H5Dclose", did, PACKAGE = "rhdf5"))
+  # C_H5Dopen = C_H5Dread = C_H5Dclose = NULL
+  # 
+  # did = .Call(C_H5Dopen, file@ID, name, dapl@ID)
+  # res = .Call(C_H5Dread, did, NULL, NULL, NULL, TRUE, 0L, FALSE, FALSE)
+  # invisible(.Call(C_H5Dclose, did))
+  # 
   res
 }
 
