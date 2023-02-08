@@ -34,9 +34,15 @@ plotCellProximityGenesSpot(
 
 \item{min_cells}{minimum number of source cell type}
 
+\item{min_cells_expr_resi}{Default = 0.05}
+
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
+\item{min_int_cells_expr_resi}{Default = 0.05}
+
 \item{min_fdr}{minimum adjusted p-value}
+
+\item{min_pcc_diff}{Default = 0.05}
 
 \item{min_zscore}{minimum z-score change}
 
@@ -55,14 +61,6 @@ plotCellProximityGenesSpot(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{min_cells_expr}{minimum expression level for source cell type}
-
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
-
-\item{min_spat_diff}{minimum absolute spatial expression difference}
-
-\item{min_log2_fc}{minimum log2 fold-change}
 }
 \value{
 plot

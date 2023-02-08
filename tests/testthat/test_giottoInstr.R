@@ -3,24 +3,17 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-GiottoData::getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/testdata/"))
-
-expr_path = "./testdata/merFISH_3D_data_expression.txt.gz"
-loc_path = "./testdata/merFISH_3D_data_cell_locations.txt"
-meta_path = "./testdata/merFISH_3D_metadata.txt"
-
-
 ### TESTS FUNCTIONS FOR CREATING/CHANGING GIOTTO INSTRUCTIONS
 # --------------------------------------------------------------
-# createGiottoInstructions
+
 instrs = createGiottoInstructions(
-  python_path = NULL,
-  show_plot = NULL,
+  #python_path = NULL,
+  show_plot = TRUE,
   return_plot = NULL,
-  save_plot = NULL,
+  save_plot = FALSE,
   save_dir = NULL,
-  plot_format = NULL,
-  dpi = NULL,
+  plot_format = "png",
+  dpi = 300,
   units = NULL,
   height = NULL,
   width = NULL,
@@ -30,8 +23,17 @@ instrs = createGiottoInstructions(
 )
 
 test_that("Instructions are created", {
+  # createGiottoInstructions
+  
   expect_type(instrs, "list")
 })
+
+
+GiottoData::getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/testdata/"))
+
+expr_path = "./testdata/merFISH_3D_data_expression.txt.gz"
+loc_path = "./testdata/merFISH_3D_data_cell_locations.txt"
+meta_path = "./testdata/merFISH_3D_metadata.txt"
 
 # CREATE GIOTTO OBJECT FOR TESTING
 object <- createGiottoObject(expression = expr_path,
@@ -41,6 +43,7 @@ object <- createGiottoObject(expression = expr_path,
 
 # readGiottoInstructions
 test_that("readGiottoInstructions reads a few giotto object params correctly", {
+  
   expect_type(readGiottoInstructions(object, param = "show_plot"), "logical")
   expect_type(readGiottoInstructions(object, param = "plot_format"), "character")
   expect_type(readGiottoInstructions(object, param = "dpi"), "double")
@@ -50,6 +53,7 @@ test_that("readGiottoInstructions reads a few giotto object params correctly", {
 test_that("showGiottoInstructions returns expected list", {
   expect_type(showGiottoInstructions(object), "list")
 })
+
 
 # changeGiottoInstructions
 object = changeGiottoInstructions(
@@ -63,6 +67,7 @@ test_that("changeGiottoInstructions changes instruction params in object", {
   expect_false(readGiottoInstructions(object, param = "show_plot"))
   expect_true(readGiottoInstructions(object, param = "save_plot"))
 })
+
 
 # replaceGiottoInstructions
 object = replaceGiottoInstructions(object, instrs)

@@ -25,6 +25,8 @@ addPolygonCells(
 
 \item{feat_type}{feature name where metadata will be added}
 
+\item{polygons}{polygon names to plot (e.g. 'polygon_1'). If NULL, plots all available polygons}
+
 \item{na.label}{polygon label for cells located outside of polygons area. Default = "no_polygon"}
 }
 \value{
