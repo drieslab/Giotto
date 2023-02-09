@@ -1472,25 +1472,10 @@ spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
 
 #' @describeIn spatialAutoCor Global autocorrelation (single value returned)
 #'
-#' @param gobject A Giotto object
-#' @param spat_unit spatial unit (e.g. 'cell')
-#' @param feat_type feature type (e.g. 'rna', 'dna', 'protein')
-#' @param feats feature or gene names
-#' @param method (e.g. 'moran', 'geary')
-#' @param data_to_use (e.g. 'expression', 'cell_meta')
-#' @param expression_values (e.g. 'normalized', 'scaled', 'custom')
-#' @param meta_cols metadata columns
-#' @param spatial_network_to_use Default = 'kNN_network'
-#' @param wm_method (e.g. 'distance', 'adjacency')
-#' @param wm_name Default = 'spat_weights'
-#' @param node_values Default = NULL
-#' @param weight_matrix Default = NULL
-#' @param test_method (e.g. 'none', 'monte_carlo')
 #' @param mc_nsim when \code{test_method = 'monte_carlo'} this is number of simulations
 #' to perform
 #' @param cor_name name to assign the results in global autocorrelation output
 #' @param return_gobject (default = FALSE) whether to return results appended to
-#' @param verbose Default = TRUE
 #' metadata in the giotto object or as a data.table
 #' @details
 #' \strong{Global Methods:}
@@ -1640,24 +1625,9 @@ spatialAutoCorGlobal = function(gobject = NULL,
 
 #' @describeIn spatialAutoCor Local autocorrelation (values generated for each spatial ID)
 #'
-#' @param gobject A Giotto object
-#' @param spat_unit spatial unit (e.g. 'cell')
-#' @param feat_type feature type (e.g. 'rna', 'dna', 'protein')
-#' @param feats feature or gene names
-#' @param method (e.g. 'moran', 'gi', 'gi*', 'mean')
-#' @param data_to_use (e.g. 'expression', 'cell_meta')
-#' @param expression_values (e.g. 'normalized', 'scaled', 'custom')
-#' @param meta_cols metadata columns
-#' @param spatial_network_to_use Default = 'kNN_network'
-#' @param wm_method 'distance' or 'adjacency'
-#' @param wm_name Default = 'spat_weights'
-#' @param node_values Default = NULL
-#' @param weight_matrix Default = NULL
-#' @param test_method Default = 'none'
 #' @param enrich_name name to assign local autocorrelation spatial enrichment results
 #' @param return_gobject (default = FALSE) whether to return results appended to
 #' @param output 'spatEnrObj' or 'data.table'
-#' @param verbose Default = TRUE
 #' metadata in the giotto object or as a data.table
 #' @details
 #' \strong{Local Methods:}
