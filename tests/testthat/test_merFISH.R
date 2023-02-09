@@ -3,6 +3,10 @@
 #   installGiottoEnvironment()
 # }
 
+if(!require(GiottoData)){
+  remotes::install_github('drieslab/GiottoData')
+}
+
 GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
 
 expr_path = './testdata/merFISH_3D_data_expression.txt.gz'

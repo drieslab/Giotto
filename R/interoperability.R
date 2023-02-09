@@ -1256,7 +1256,7 @@ seuratToGiotto = function(sobject,
 #'
 #' @return A SpatialExperiment object that contains data from the input Giotto object.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' mini_gobject <- GiottoData::loadGiottoMini('vizgen')
 #' giottoToSpatialExperiment(mini_gobject)
 #' }
@@ -1475,7 +1475,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' @import data.table
 #' @return Giotto object
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(SpatialExperiment)
 #' example(read10xVisium, echo = FALSE)
 #' spatialExperimentToGiotto(spe)

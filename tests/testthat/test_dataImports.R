@@ -3,6 +3,10 @@
 #   installGiottoEnvironment()
 # }
 
+if(!require(GiottoData)){
+  remotes::install_github('drieslab/GiottoData')
+}
+
 ### TESTS FOR DATA IMPORT FUNCTIONS
 # ------------------------------------
 
