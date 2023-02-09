@@ -4,11 +4,12 @@
 # }
 
 if(!require(remotes)){
-  install.packages('remotes')
+  install.packages('remotes', repos = 'http://cran.us.r-project.org')
 }
 
 if(!require(GiottoData)){
-  remotes::install_github('drieslab/GiottoData')
+  library(remotes)
+  install_github('drieslab/GiottoData')
 }
 
 ### TESTS FOR DATA IMPORT FUNCTIONS
