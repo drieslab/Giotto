@@ -398,7 +398,7 @@ setClass('spatFeatData',
 #'   \item{master branch to suite - TODO}
 #' }
 #' @examples
-#' \donttest{ 
+#' \dontrun{ 
 #' gobject = updateGiottoObject(gobject)
 #' }
 #' @export
