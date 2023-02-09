@@ -3,6 +3,10 @@
 #   installGiottoEnvironment()
 # }
 
+if(!require(remotes)){
+  install.packages('remotes')
+}
+
 if(!require(GiottoData)){
   remotes::install_github('drieslab/GiottoData')
 }
