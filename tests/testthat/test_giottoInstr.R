@@ -1,7 +1,7 @@
-python_path = NULL
-if(is.null(python_path)) {
-  installGiottoEnvironment()
-}
+# python_path = NULL
+# if(is.null(python_path)) {
+#   installGiottoEnvironment()
+# }
 
 ### TESTS FUNCTIONS FOR CREATING/CHANGING GIOTTO INSTRUCTIONS
 # --------------------------------------------------------------
