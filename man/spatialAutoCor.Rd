@@ -49,33 +49,38 @@ spatialAutoCorLocal(
 )
 }
 \arguments{
-\item{gobject}{A Giotto object}
+\item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit (e.g. 'cell')}
+\item{spat_unit}{spatial unit}
 
-\item{feat_type}{feature type (e.g. 'rna', 'dna', 'protein')}
+\item{feat_type}{feature type}
 
-\item{feats}{feature or gene names}
+\item{feats}{features (expression) on which to run autocorrelation.
+(leaving as NULL means that all features will be tested)}
 
-\item{method}{(e.g. 'moran', 'gi', 'gi*', 'mean')}
+\item{method}{method of autocorrelation. See details (default = 'moran')}
 
-\item{data_to_use}{(e.g. 'expression', 'cell_meta')}
+\item{data_to_use}{if using data from gobject, whether to test using expression
+('expression') or cell metadata ('cell_meta')}
 
-\item{expression_values}{(e.g. 'normalized', 'scaled', 'custom')}
+\item{expression_values}{name of expression information to use}
 
-\item{meta_cols}{metadata columns}
+\item{meta_cols}{columns in cell metadata to test}
 
-\item{spatial_network_to_use}{Default = 'kNN_network'}
+\item{spatial_network_to_use}{spatial network to use}
 
-\item{wm_method}{'distance' or 'adjacency'}
+\item{wm_method}{type of weight matrix to generate from spatial network if no
+weight matrix is found attached to the spatial network}
 
-\item{wm_name}{Default = 'spat_weights'}
+\item{wm_name}{name of attached weight matrix to use}
 
-\item{node_values}{Default = NULL}
+\item{node_values}{alternative method of directly supplying a set of node values}
 
-\item{weight_matrix}{Default = NULL}
+\item{weight_matrix}{alternative method of directly supplying a spatial weight
+matrix}
 
-\item{test_method}{Default = 'none'}
+\item{test_method}{method to test values for significance (default is no
+testing)}
 
 \item{mc_nsim}{when \code{test_method = 'monte_carlo'} this is number of simulations
 to perform}
@@ -84,12 +89,12 @@ to perform}
 
 \item{return_gobject}{(default = FALSE) whether to return results appended to}
 
-\item{verbose}{Default = TRUE
-metadata in the giotto object or as a data.table}
+\item{verbose}{be verbose}
 
 \item{enrich_name}{name to assign local autocorrelation spatial enrichment results}
 
-\item{output}{'spatEnrObj' or 'data.table'}
+\item{output}{'spatEnrObj' or 'data.table'
+metadata in the giotto object or as a data.table}
 }
 \description{
 Find spatial autocorrelation. Note that \code{spatialAutoCorGlobal}

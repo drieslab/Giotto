@@ -1575,25 +1575,6 @@ plotCellProximityGenesSpot = function(gobject,
 # * ####
 # cell communication spots ####
 
-#' @title rowMeans_giotto
-#' @description rowMeans function that works with multiple matrix representations
-#' @param mymatrix matrix object
-#' @return numeric vector
-#' @keywords internal
-rowMeans_giotto = function(mymatrix) {
-  
-  if(methods::is(mymatrix, 'dgCMatrix')) {
-    return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
-    return(Matrix::rowMeans(mymatrix))
-  } else {
-    temp_matrix = as.matrix(mymatrix)
-    temp_res = matrixStats::rowMeans2(temp_matrix)
-    names(temp_res) = rownames(temp_matrix)
-    return(temp_res)
-    
-  }
-}
 
 #' @title specific_CCCScores_spots
 #' @name specific_CCCScores_spots
@@ -1794,7 +1775,7 @@ specific_CCCScores_spots = function(gobject,
     comScore[, rand_expr := total_av/random_iter]
 
     if(detailed == TRUE) {
-      av_difference_scores = rowMeans_giotto(total_sum)
+      av_difference_scores = rowMeans_flex(total_sum)
       sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
 
       comScore[, av_diff := av_difference_scores]
