@@ -4,7 +4,7 @@
 \alias{gefToGiotto}
 \title{Convert gef to Giotto}
 \usage{
-gefToGiotto(gef_file, bin_size = "bin100", verbose = TRUE)
+gefToGiotto(gef_file, bin_size = "100", verbose = TRUE)
 }
 \arguments{
 \item{gef_file}{path to .gef file}

@@ -35,7 +35,6 @@ Imports:
     dbscan (>= 1.1-3),
     DelayedArray,
     DelayedMatrixStats,
-    future,
     future.apply,
     ggplot2 (>= 3.1.1),
     grDevices,
@@ -55,12 +54,11 @@ Imports:
     RColorBrewer (>= 1.1-2),
     reshape2,
     reticulate (>= 1.25),
-    rmarkdown,
-    R.utils,
     Rtsne (>= 0.15),
     scales (>= 1.0.0),
     sp,
     sparseMatrixStats,
+    stats,
     terra (>= 1.5-12),
     uwot (>= 0.0.0.9010)
 Suggests:

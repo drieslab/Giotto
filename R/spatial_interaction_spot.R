@@ -14,6 +14,9 @@
 #' @keywords internal
 cell_proximity_spots_internal = function(cell_IDs,
                                          dwls_values){
+  
+  # data.table variables
+  value = unified_int = Var1 = Var2 = internal = NULL
 
   proximity_dt = data.table::data.table()
   # calculate proximity for each spot
@@ -122,7 +125,10 @@ cell_proximity_spots_external = function(pairs,
 cell_proximity_spots = function(cell_IDs,
                                 pairs_external,
                                 dwls_values){
-
+  
+  # data.table variables
+  V1 =  internal = external = s1 = s2 = unified_int = type_int = NULL
+  
   # compute cell-type/cell-type interactions in each spot (internal)
   if (length(cell_IDs) > 0){
     proximity_in = cell_proximity_spots_internal(cell_IDs = cell_IDs,
@@ -153,14 +159,18 @@ cell_proximity_spots = function(cell_IDs,
 #' @title cellProximityEnrichmentSpots
 #' @name cellProximityEnrichmentSpots
 #' @description Compute cell-cell interaction enrichment for spots (observed vs expected)
+#'
 #' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param cells_in_spot cell number in each spot
 #' @param number_of_simulations number of simulations to create expected observations
-#' @param adjust_method method to adjust p.values
-#' @param set_seed use of seed
-#' @param seed_number seed number to use
+#' @param adjust_method method to adjust p.values (e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")
+#' @param set_seed use of seed. Default = TRUE
+#' @param seed_number seed number to use. Default = 1234
+#'
 #' @return List of cell Proximity scores (CPscores) in data.table format. The first
 #' data.table (raw_sim_table) shows the raw observations of both the original and
 #' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
@@ -196,7 +206,7 @@ cellProximityEnrichmentSpots <- function(gobject,
                                                  cluster_column = cluster_column)
 
   # data.table variables
-  unified_cells = type_int = N = NULL
+  orig = from = to = unified_int = unified_cells = type_int = N = V1 = original = enrichm = simulations = NULL
 
   spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
@@ -352,8 +362,12 @@ cellProximityEnrichmentSpots <- function(gobject,
 #' @name geneExpDWLS
 #' @description Compute predicted gene expression value by spatialDWSL results and
 #' average gene expression for cell type
+#'
 #' @param gobject gottio object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
 #' @param ave_celltype_exp data.table of gene expression in each cell type
+#'
 #' @return matrix
 #' @export
 geneExpDWLS = function(gobject,
@@ -403,9 +417,13 @@ geneExpDWLS = function(gobject,
 #' @title cal_expr_residual
 #' @name cal_expr_residual
 #' @description Calculate gene expression residual (observed_exp - DWLS_predicted)
+#'
 #' @param gobject giotto object
-#' @param expression_values expression values to use
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
+#' @param expression_values expression values to use (e.g. 'normalized', 'scaled', 'custom')
 #' @param ave_celltype_exp average expression matrix in cell types
+#'
 #' @keywords internal
 cal_expr_residual <- function(gobject,
                               spat_unit = NULL,
@@ -439,10 +457,13 @@ cal_expr_residual <- function(gobject,
 #' @name cellProximityEnrichmentEachSpot
 #' @description Compute cell-cell interaction enrichment for each spot with its
 #' interacted spots (observed)
+#'
 #' @param gobject giotto object
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
+#'
 #' @return matrix that rownames are cell-cell interaction pairs and colnames are cell_IDs
 #' @export
 cellProximityEnrichmentEachSpot <- function(gobject,
@@ -450,8 +471,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
                                             feat_type = NULL,
                                             spatial_network_name = 'spatial_network',
                                             cluster_column = 'cell_ID') {
-
-
+  
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
@@ -459,7 +479,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
                                                  cluster_column = cluster_column)
 
   # data.table variables
-  unified_cells = type_int = N = NULL
+  V1 = V2 = from = to = int_cell_IDS = Var1 = Var2 = unified_cells = type_int = N = NULL
 
   spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
@@ -560,6 +580,8 @@ cal_diff_per_interaction <- function(sel_int,
                                      other_ind,
                                      proximityMat,
                                      expr_residual){
+  
+  pcc_diff <- sel <- other <- NULL
 
   # get data
 
@@ -572,9 +594,9 @@ cal_diff_per_interaction <- function(sel_int,
   expr_other = expr_residual[, other_ind]
 
   # calculate pcc between expresidiual and proximity
-  pcc_sel = cor(t(expr_sel), prox_sel)
+  pcc_sel = stats::cor(t(expr_sel), prox_sel)
 
-  pcc_other = cor(t(expr_other), t(prox_other))
+  pcc_other = stats::cor(t(expr_other), t(prox_other))
   pcc_other = rowMeans(pcc_other)
 
   genes = rownames(pcc_sel)
@@ -723,10 +745,13 @@ do_permuttest_spot = function(sel_int,
                               cores = 2,
                               set_seed = TRUE,
                               seed_number = 1234) {
+  
+  
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
-  perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
+  perm_other = perm_log2fc = perm_diff = p.value = p.adj = pcc_sel = pcc_diff = NULL
+  perm_pcc_sel = perm_pcc_diff = pcc_other = NULL
 
   ## original data
   original = do_permuttest_original_spot(sel_int = sel_int,
@@ -835,6 +860,9 @@ findICG_per_interaction_spot <- function(sel_int,
                                          cores = 2,
                                          set_seed = TRUE,
                                          seed_number = 1234){
+  
+  # data.table variables
+  cell_type = int_cell_type = nr_select = int_nr_select = unif_int = unified_int = NULL
 
   sel_ct = strsplit(sel_int, '--')[[1]][1]
   int_ct = strsplit(sel_int, '--')[[1]][2]
@@ -852,6 +880,7 @@ findICG_per_interaction_spot <- function(sel_int,
   other_IDs = setdiff(all_IDs, spec_IDs)
 
   other_ints = all_ints[cell_type == sel_ct]$unified_int
+
   other_ints = other_ints[-which(other_ints == sel_int)]
 
   ## do not continue if too few cells ##
@@ -914,7 +943,10 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 #' @name findICGSpot
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG) for spots,
 #' i.e. genes expression residual that are different due to proximity to other cell types.
-#' @param gobject giotto object
+#'
+#' @param gobject A giotto object
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
 #' @param expression_values expression values to use
 #' @param ave_celltype_exp averege gene expression in each cell type
 #' @param selected_genes subset of selected genes (optional)
@@ -930,6 +962,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
+#'
 #' @return cpgObject that contains the differential gene scores
 #' @details Function to calculate if genes expreesion residual are differentially expressed in cell types
 #'  when they interact (approximated by physical proximity) with other cell types.
@@ -970,6 +1003,9 @@ findICGSpot <- function(gobject,
                         cores = 2,
                         set_seed = TRUE,
                         seed_number = 1234) {
+  
+  # data.table variables
+  unified_int = NULL
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -1092,6 +1128,7 @@ findICGSpot <- function(gobject,
 #' @title filterICGSpot
 #' @name filterICGSpot
 #' @description Filter Interaction Changed Gene scores for spots.
+#'
 #' @param cpgObject ICG (interaction changed gene) score object
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr_resi minimum expression residual level for source cell type
@@ -1102,6 +1139,7 @@ findICGSpot <- function(gobject,
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
+#'
 #' @return cpgObject that contains the filtered differential gene scores
 #' @export
 filterICGSpot = function(cpgObject,
@@ -1117,6 +1155,7 @@ filterICGSpot = function(cpgObject,
 
   # data.table variables
   nr_select = int_nr_select = zscores = pcc_diff = sel = other = p.adj = NULL
+  log2fc = min_log2_fc = NULL
 
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
@@ -1164,6 +1203,7 @@ filterICGSpot = function(cpgObject,
 #' @title plotICGSpot
 #' @name plotICGSpot
 #' @description Create barplot to visualize interaction changed genes
+#'
 #' @param gobject giotto object
 #' @param cpgObject ICG (interaction changed gene) score object
 #' @param source_type cell type of the source cell
@@ -1175,6 +1215,7 @@ filterICGSpot = function(cpgObject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#'
 #' @return plot
 #' @export
 plotICGSpot <- function(gobject,
@@ -1265,16 +1306,16 @@ plotICGSpot <- function(gobject,
 #' @title plotCellProximityGenesSpot
 #' @name plotCellProximityGenesSpot
 #' @description Create visualization for cell proximity gene scores
+#'
 #' @param gobject giotto object
 #' @param cpgObject ICG (interaction changed gene) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type
+#' @param min_cells_expr_resi Default = 0.05
 #' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
+#' @param min_int_cells_expr_resi Default = 0.05
+#' @param min_pcc_diff Default = 0.05
 #' @param min_fdr minimum adjusted p-value
-#' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum log2 fold-change
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
@@ -1284,6 +1325,7 @@ plotICGSpot <- function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#'
 #' @return plot
 #' @export
 plotCellProximityGenesSpot = function(gobject,
@@ -1533,10 +1575,14 @@ plotCellProximityGenesSpot = function(gobject,
 # * ####
 # cell communication spots ####
 
+
 #' @title specific_CCCScores_spots
 #' @name specific_CCCScores_spots
 #' @description Specific Cell-Cell communication scores based on spatial expression of interacting cells at spots resulation
+#'
 #' @param gobject giotto object to use
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
 #' @param expr_residual spatial network to use for identifying interacting cells
 #' @param dwls_values dwls matrix
 #' @param proximityMat cell cell communication score matrix
@@ -1552,6 +1598,7 @@ plotCellProximityGenesSpot = function(gobject,
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
+#'
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 #' are expressed at higher levels than expected based on a reshuffled null distribution
@@ -1591,8 +1638,8 @@ specific_CCCScores_spots = function(gobject,
                                     gene_set_2,
                                     min_observations = 2,
                                     detailed = FALSE,
-                                    adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
-                                                      "BY", "none"),
+                                    adjust_method = c('fdr', 'bonferroni',' BH', 'holm', 'hochberg', 'hommel',
+                                                      'BY','none'),
                                     adjust_target = c('genes', 'cells'),
                                     set_seed = FALSE,
                                     seed_number = 1234,
@@ -1601,7 +1648,7 @@ specific_CCCScores_spots = function(gobject,
   # data.table variables
   from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
   av_diff = log2fc = LR_expr = pvalue = LR_cell_comb = p.adj = LR_comb = PI = NULL
-  sd_diff = z_score = NULL
+  sd_diff = z_score = ligand = receptor = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -1728,7 +1775,7 @@ specific_CCCScores_spots = function(gobject,
     comScore[, rand_expr := total_av/random_iter]
 
     if(detailed == TRUE) {
-      av_difference_scores = rowMeans_giotto(total_sum)
+      av_difference_scores = rowMeans_flex(total_sum)
       sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
 
       comScore[, av_diff := av_difference_scores]
@@ -1765,7 +1812,12 @@ specific_CCCScores_spots = function(gobject,
 #' @title spatCellCellcomSpots
 #' @name spatCellCellcomSpots
 #' @description Spatial Cell-Cell communication scores based on spatial expression of interacting cells at spots resolution
+#'
 #' @param gobject giotto object to use
+#' @param spat_unit spatial unit (e.g. 'cell')
+#' @param feat_type feature type (e.g. 'rna')
+#' @param ave_celltype_exp Matrix with average expression per cell type
+#' @param expression_values (e.g. 'normalized', 'scaled', 'custom')
 #' @param spatial_network_name spatial network to use for identifying interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -1779,7 +1831,8 @@ specific_CCCScores_spots = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @param verbose verbose
+#' @param verbose verbose (e.g. 'a little', 'a lot', 'none')
+#'
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 #' are expressed at higher levels than expected based on a reshuffled null distribution
@@ -1818,15 +1871,17 @@ spatCellCellcomSpots = function(gobject,
                                 min_observations = 2,
                                 expression_values = c('normalized', 'scaled', 'custom'),
                                 detailed = FALSE,
-                                adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
-                                                  "BY", "none"),
+                                adjust_method = c('fdr', 'bonferroni', 'BH', 'holm', 'hochberg', 'hommel',
+                                                  'BY', 'none'),
                                 adjust_target = c('genes', 'cells'),
                                 do_parallel = TRUE,
                                 cores = NA,
                                 set_seed = TRUE,
                                 seed_number = 1234,
                                 verbose = c('a little', 'a lot', 'none')){
-
+  
+  # data.table vars
+  V1 = V2 = LR_cell_comb = NULL
 
   # code start
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))

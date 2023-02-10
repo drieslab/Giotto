@@ -247,14 +247,14 @@ setMethod('spin', signature(x = 'spatLocsObj'),
 # spatShift() S4 generic ####
 #' @name spatShift
 #' @title Spatially shift an object
+#' @param x spatLocsObj
 #' @param dx numeric. The shift on the x axis
 #' @param dy numeric. The shift on the y axis
 #' @param dz numeric. The shift on the z axis
+#' @param copy_obj Default = TRUE
 #' @param ... additional params to pass to methods
 #' @description Shift the spatial locations of an object
 #' @export
-NULL
-
 setGeneric('spatShift', function(x, ...) standardGeneric('spatShift'))
 
 #' @describeIn spatShift Shift the locations of a spatLocsObj
@@ -394,6 +394,7 @@ setMethod('t', signature('spatialNetworkObj'), function(x) {
 
 # s3 methods
 #' @rdname transpose-generic
+#' @method t spatLocsObj
 #' @export
 t.spatLocsObj = function(x) {
   sdimy = sdimx = NULL
@@ -402,7 +403,9 @@ t.spatLocsObj = function(x) {
   return(x)
 }
 
+
 #' @rdname transpose-generic
+#' @method t spatialNetworkObj
 #' @export
 t.spatialNetworkObj = function(x) {
   sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL

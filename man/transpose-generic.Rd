@@ -13,9 +13,9 @@
 
 \S4method{t}{spatialNetworkObj}(x)
 
-t.spatLocsObj(x)
+\method{t}{spatLocsObj}(x)
 
-t.spatialNetworkObj(x)
+\method{t}{spatialNetworkObj}(x)
 }
 \arguments{
 \item{x}{object to be transposed}
