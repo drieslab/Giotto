@@ -76,50 +76,19 @@ gefToGiotto = function(gef_file, bin_size = '100', verbose = TRUE){
 
 ## anndata object ####
 
-#' @title Convert anndata to Giotto
-#' @name anndataToGiotto
-#' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
-#'
-#' @param anndata_path path to the .h5ad file
-#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
-#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
-#' @param spat_unit desired spatial unit for conversion, default NULL
-#' @param feat_type desired feature type for conversion, default NULL
-#' @param spatial_key_added Default = NULL
-#' @param python_path path to python executable within a conda/miniconda environment
-#'
-#' @return Giotto object
-#' @details Function in beta. Converts a .h5ad file into a Giotto object.
-#'    The returned Giotto Object will take default insructions with the
-#'    exception of the python path, which may be customized.
-#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
-#' @export
-anndataToGiotto = function(anndata_path = NULL,
-                           n_key_added = NULL,
-                           spatial_key_added = NULL,
-                           spat_unit = NULL,
-                           feat_type = NULL,
-                           python_path = NULL) {
-  
-  # Preliminary file checks and guard clauses
-  if (is.null(anndata_path)) {
-    stop("Please provide a path to an AnnData .h5ad file for conversion.\n")
-  }
-  
-  if(!file.exists(anndata_path)) {
-    stop("The provided path to the AnnData .h5ad file does not exist.\n")
-  }
-  
-  # Required step to properly initialize reticualte
-  instrs = createGiottoInstructions(python_path = python_path)
-  
+
+#' @title Check Scanpy Installation 
+#' @name check_py_for_scanpy
+#' @description checks current python environment for scanpy 1.9.0
+#' @keywords internal
+check_py_for_scanpy = function(){
   # test if scanpy is found
   module_test = reticulate::py_module_available('scanpy')
   py_path = reticulate::py_config()$python
   genv_in_use = grepl(pattern = "giotto_env", x = py_path)
   
   if(module_test == FALSE && !genv_in_use) {
-    warning("scanpy python module is not installed:
+    stop(wrap_txt("scanpy python module is not installed:
             install in the environment or python path with:
 
             'pip install scanpy==1.9.0'
@@ -130,7 +99,7 @@ anndataToGiotto = function(anndata_path = NULL,
             reticulate::py_install(packages = 'scanpy==1.9.0',
                                    pip = TRUE)
             \n
-            ")
+            ",errWidth = TRUE))
   } else if (module_test == FALSE && genv_in_use) {
     cat ("Python module scanpy is required for conversion.
           Installing scanpy now in the Giotto Miniconda Environment.\n")
@@ -149,6 +118,45 @@ anndataToGiotto = function(anndata_path = NULL,
                            pip = TRUE,
                            python_version = py_ver)
   } else cat ("Required Python module scanpy has been previously installed. Proceeding with conversion.\n")
+
+}
+
+
+#' @title Convert anndata to Giotto
+#' @name anndataToGiotto
+#' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
+#' @param anndata_path path to the .h5ad file
+#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
+#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
+#' @param spat_unit desired spatial unit for conversion, default NULL
+#' @param feat_type desired feature type for conversion, default NULL
+#' @param python_path path to python executable within a conda/miniconda environment
+#' @return Giotto object
+#' @details Function in beta. Converts a .h5ad file into a Giotto object.
+#'    The returned Giotto Object will take default insructions with the
+#'    exception of the python path, which may be customized.
+#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
+#' @export
+anndataToGiotto = function(anndata_path = NULL,
+                           n_key_added = NULL,
+                           spatial_key_added = NULL,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           python_path = NULL) {
+
+  # Preliminary file checks and guard clauses
+  if (is.null(anndata_path)) {
+    stop("Please provide a path to an AnnData .h5ad file for conversion.\n")
+  }
+
+  if(!file.exists(anndata_path)) {
+    stop("The provided path to the AnnData .h5ad file does not exist.\n")
+  }
+
+  # Required step to properly initialize reticualte
+  instrs = createGiottoInstructions(python_path = python_path)
+
+  check_py_for_scanpy()
   
   # Import ad2g, a python module for parsing anndata
   ad2g_path <- system.file("python","ad2g.py",package="Giotto")

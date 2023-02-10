@@ -16,8 +16,6 @@ checkGiottoEnvironment =  function(mini_install_path = NULL, verbose = TRUE) {
 
   ## get operating system
   os_specific_system = get_os()
-  #option() #getOption(, default = )
-  # LOADGIOTTO with instruction parsing for python path
 
   ## check if giotto environment is already installed
   if (is.null(mini_install_path)){
@@ -116,7 +114,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
   ## install Giotto environment
   if(verbose) message('\n |---- install giotto environment ----| \n')
   conda_path = mini_install_path
-  browser()
+
   ## 3. identify operating system and adjust the necessary packages
   os_specific_system = get_os()
 
@@ -131,11 +129,14 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
 
   # python-louvain must be installed with pip, not with conda-forge
   packages_to_install = packages_to_install[!grepl(pattern = 'python-louvain',x = packages_to_install)]
-  browser()
+
   ## for unix-like systems ##
   if(.Platform[['OS.type']] == 'unix') {
 
     conda_full_path = paste0(conda_path,'/','bin/conda')
+    # If this does not exist, check for alternative conda config
+    # i.e. an env created through .condarc config
+    if (!file.exists(conda_full_path)) conda_full_path = paste0(conda_path,"/conda.exe")
     reticulate::conda_create(envname = 'giotto_env',
                              conda = conda_full_path,
                              python_version = python_version)
@@ -220,6 +221,9 @@ install_giotto_environment = function(force_environment = FALSE,
     # reinstall giotto if force required
     if(.Platform[['OS.type']] == 'unix') {
       conda_full_path = paste0(mini_install_path,'/','bin/conda')
+      # If this does not exist, check for alternative conda config
+      # i.e. an env created through .condarc config
+      if (!file.exists(conda_full_path)) conda_full_path = paste0(mini_install_path,"/conda.exe")
     } else if(.Platform[['OS.type']] == 'windows') {
       conda_full_path = paste0(mini_install_path,'/','condabin/conda.bat')
     }
@@ -325,8 +329,27 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas==1.5.1',
     stop(wrap_msg(paste0(" Unable to install miniconda in ", mini_install_path, "\nPlease ensure the directory has been created and provided as a string.")))
   } else {
     conda_path = mini_install_path
+    
+    wrap_msg("NOTICE: Attempting to install the Giotto Environment at a custom path.",
+    "Please note that a .yml file is provided in the repository for advanced installation and convenience.",
+    "To utilize this .yml file for installation, open a shell",
+    " compatible with conda/miniconda and navigate to the directory containing Giotto.",
+     "Run the following to create your environment in one step:\n",
+    "conda env create -n giotto_env -f genv.yml")
+
+    manual_install = as.character(readline("Would you prefer to install manually? [y/n] "))
+
+    if(!manual_install %in% c("y","Y","n","N")) stop("Invalid input. Please try again.")
+
+    if (manual_install %in% c("y","Y")) stop(wrap_txt("There is no error; this just stops function execution. Please follow the instructions above for manual installation. Thank you!"))
+    else wrap_msg("Continuing with automatic installation...\n")
+
+    
     if(.Platform[['OS.type']] == 'unix') {
       conda_full_path = paste0(conda_path,'/','bin/conda')
+      # If this does not exist, check for alternative conda config
+      # i.e. an env created through .condarc config
+      if (!file.exists(conda_full_path)) conda_full_path = paste0(conda_path,"/conda.exe")
     } else if(.Platform[['OS.type']] == 'windows') {
       conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
     }
