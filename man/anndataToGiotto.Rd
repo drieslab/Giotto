@@ -19,8 +19,6 @@ anndataToGiotto(
 \item{n_key_added}{equivalent of "key_added" argument from scanpy.pp.neighbors().
 Cannot be "spatial". This becomes the name of the nearest network in the gobject.}
 
-\item{spatial_key_added}{Default = NULL}
-
 \item{spat_unit}{desired spatial unit for conversion, default NULL}
 
 \item{feat_type}{desired feature type for conversion, default NULL}

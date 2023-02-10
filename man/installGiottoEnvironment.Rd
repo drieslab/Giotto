@@ -8,6 +8,7 @@ installGiottoEnvironment(
   packages_to_install = c("pandas==1.5.1", "networkx==2.8.8", "python-igraph==0.10.2",
     "leidenalg==0.9.0", "python-louvain==0.16", "python.app==1.4", "scikit-learn==1.1.3"),
   python_version = "3.10.2",
+  mini_install_path = NULL,
   force_miniconda = FALSE,
   force_environment = FALSE,
   verbose = TRUE
@@ -17,6 +18,12 @@ installGiottoEnvironment(
 \item{packages_to_install}{all python modules (packages) that should be installed for Giotto to work}
 
 \item{python_version}{python version to use within the giotto conda environment}
+
+\item{mini_install_path}{(optional) desired location miniconda installation.
+If not provided, it is chosen by reticulate::install_miniconda()
+Note the required input format:
+Correct format --> mini_install_path = "C:/my/conda/lives/here" OR "C:\\my\\conda\\lives\\here"
+INCORRECT formats --> mini_install_path = "C:/my/conda/lives/here/" AND "C:\\my\\conda\\lives\\here\\"}
 
 \item{force_miniconda}{force reinstallation of miniconda}
 
