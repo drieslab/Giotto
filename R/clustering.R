@@ -189,6 +189,8 @@ doLeidenCluster = function(gobject,
 #' @name doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
 #' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name for cluster, default to "louvain_clus"
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
 #' @param network_name name of NN network to use, default to "sNN.pca"
@@ -211,6 +213,8 @@ doLeidenCluster = function(gobject,
 #' @keywords internal
 #'
 doLouvainCluster_community <- function(gobject,
+                                       spat_unit = NULL,
+                                       feat_type = NULL,
                                        name = 'louvain_clus',
                                        nn_network_to_use = 'sNN',
                                        network_name = 'sNN.pca',
@@ -223,13 +227,25 @@ doLouvainCluster_community <- function(gobject,
                                        seed_number = 1234) {
 
 
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+
   ## get cell IDs ##
-  cell_ID_vec = gobject@cell_ID
+  cell_ID_vec = gobject@cell_ID[[spat_unit]]
 
   ## select network to use
-  igraph_object = get_NearestNetwork(gobject,
-                                        nn_network_to_use = nn_network_to_use,
-                                        network_name = network_name)
+  igraph_object = get_NearestNetwork(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = 'igraph')
 
   ## check or make paths
   # python path
@@ -284,32 +300,55 @@ doLouvainCluster_community <- function(gobject,
   ## return
   if(isTRUE(return_gobject)) {
 
-    cluster_names = names(gobject@cell_metadata)
+    # get cell metadata names
+    cluster_names = names(pDataDT(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type))
+
+
+    # set name/cluster results to NULL if already exist
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata
-      cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata = cell_metadata
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+
+    # add new metadata information
+    gobject = addCellMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
                               by_column = TRUE, column_cell_ID = 'cell_ID')
 
-
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cluster')
 
+    # 1. get parent function name
+    cl = sys.call(-1)
 
-    parameters_list[[update_name]] = c('cluster algorithm' = 'louvain_community',
-                                       'nn network' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'name for clusters' = name,
-                                       'louvain resolution' = resolution,
-                                       'louvain weight' = weight_col)
+    # 2. check if this function call is within doLouvainCluster
+    if(is.null(cl)) {
+      gobject = update_giotto_params(gobject, description = '_cluster')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'doLouvainCluster') {
+        gobject = update_giotto_params(gobject, description = '_cluster', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cluster')
+      }
+    }
 
-    gobject@parameters = parameters_list
     return(gobject)
 
 
@@ -327,6 +366,8 @@ doLouvainCluster_community <- function(gobject,
 #' @name doLouvainCluster_multinet
 #' @description cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
 #' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name for cluster, default to "louvain_clus"
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
 #' @param network_name name of NN network to use, default to "sNN.pca"
@@ -341,6 +382,8 @@ doLouvainCluster_community <- function(gobject,
 #'
 #' @keywords internal
 doLouvainCluster_multinet <- function(gobject,
+                                      spat_unit = NULL,
+                                      feat_type = NULL,
                                       name = 'louvain_clus',
                                       nn_network_to_use = 'sNN',
                                       network_name = 'sNN.pca',
@@ -358,14 +401,23 @@ doLouvainCluster_multinet <- function(gobject,
     )
   }
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## get cell IDs ##
-  cell_ID_vec = gobject@cell_ID
+  cell_ID_vec = gobject@cell_ID[[spat_unit]]
 
   ## select network to use
-  igraph_object = get_NearestNetwork(gobject,
-                                        nn_network_to_use = nn_network_to_use,
-                                        network_name = network_name)
+  igraph_object = get_NearestNetwork(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = 'igraph')
 
   # create mlnetworkobject
   mln_object <- multinet::ml_empty()
@@ -394,33 +446,53 @@ doLouvainCluster_multinet <- function(gobject,
   ## return
   if(return_gobject == TRUE) {
 
-    cluster_names = names(gobject@cell_metadata)
+    # get cell metadata names
+    cluster_names = names(pDataDT(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type))
+
+
+    # set name/cluster results to NULL if already exist
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata
-      cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata = cell_metadata
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
 
+    # add new metadata information
+    gobject = addCellMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cluster')
+    # 1. get parent function name
+    cl = sys.call(-1)
 
-
-    parameters_list[[update_name]] = c('cluster algorithm' = 'louvain_multinet',
-                                       'nn network' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'name for clusters' = name,
-                                       'louvain gamma' = gamma,
-                                       'louvain omega' = omega,
-                                       'louvain weight' = weight_col)
-
-    gobject@parameters = parameters_list
+    # 2. check if this function call is within doLouvainCluster
+    if(is.null(cl)) {
+      gobject = update_giotto_params(gobject, description = '_cluster')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'doLouvainCluster') {
+        gobject = update_giotto_params(gobject, description = '_cluster', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cluster')
+      }
+    }
     return(gobject)
 
 
@@ -439,6 +511,8 @@ doLouvainCluster_multinet <- function(gobject,
 #' @description cluster cells using a NN-network and the Louvain algorithm.
 #'
 #' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param version implemented version of Louvain clustering to use
 #' @param name name for cluster, default to "louvain_clus"
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
@@ -460,6 +534,8 @@ doLouvainCluster_multinet <- function(gobject,
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 #' @export
 doLouvainCluster = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
                             version = c('community', 'multinet'),
                             name = 'louvain_clus',
                             nn_network_to_use = 'sNN',
@@ -475,14 +551,25 @@ doLouvainCluster = function(gobject,
                             seed_number = 1234,
                             ...) {
 
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+
+
   ## louvain clustering version to use
   version = match.arg(version, c('community', 'multinet'))
-
 
   # python community implementation
   if(version == 'community') {
 
     result = doLouvainCluster_community(gobject = gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
                                         name = name,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name,
@@ -501,6 +588,8 @@ doLouvainCluster = function(gobject,
   } else if(version == 'multinet') {
 
     result = doLouvainCluster_multinet(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
