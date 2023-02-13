@@ -333,7 +333,22 @@ doLouvainCluster_community <- function(gobject,
                               by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
-    gobject = update_giotto_params(gobject, description = '_cluster')
+
+    # 1. get parent function name
+    cl = sys.call(-1)
+
+    # 2. check if this function call is within doLouvainCluster
+    if(is.null(cl)) {
+      gobject = update_giotto_params(gobject, description = '_cluster')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'doLouvainCluster') {
+        gobject = update_giotto_params(gobject, description = '_cluster', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cluster')
+      }
+    }
+
     return(gobject)
 
 
@@ -464,7 +479,20 @@ doLouvainCluster_multinet <- function(gobject,
                               by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
-    gobject = update_giotto_params(gobject, description = '_cluster')
+    # 1. get parent function name
+    cl = sys.call(-1)
+
+    # 2. check if this function call is within doLouvainCluster
+    if(is.null(cl)) {
+      gobject = update_giotto_params(gobject, description = '_cluster')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'doLouvainCluster') {
+        gobject = update_giotto_params(gobject, description = '_cluster', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cluster')
+      }
+    }
     return(gobject)
 
 
