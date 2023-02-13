@@ -6,6 +6,8 @@
 \usage{
 doLouvainCluster(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   version = c("community", "multinet"),
   name = "louvain_clus",
   nn_network_to_use = "sNN",
@@ -24,6 +26,10 @@ doLouvainCluster(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{version}{implemented version of Louvain clustering to use}
 
