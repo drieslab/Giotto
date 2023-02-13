@@ -1,3 +1,11 @@
+
+
+## Giotto Suite 3.2.1 (2023-02-13)
+
+### Changes
+- Fix `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
+
+
 # Giotto Suite 3.2.0 (2023-02-02)
 
 ## Breaking Changes
