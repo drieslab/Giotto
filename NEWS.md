@@ -8,6 +8,7 @@
 - Update `checkGiottoEnvironment()` to account for custom python installations with a new argument, `mini_install_path`.
 - Update `removeGiottoEnvironment()` to account for custom python installations with a new argument, `mini_path`.
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
+- Fix bug in `gefToGiotto()` bin_size arguments.
 
 # Giotto Suite 3.2.0 (2023-02-02)
 
