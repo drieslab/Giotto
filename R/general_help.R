@@ -1040,6 +1040,7 @@ loadGiotto = function(path_to_folder,
       if(verbose) print(feat_paths[feat_i])
       spatVector = terra::vect(x = feat_paths[feat_i])
 
+      # read in original column names and assign to spatVector
       spatVector_names = fread(input = vector_names_paths[feat_i], header = FALSE)[['V1']]
       names(spatVector) = spatVector_names
 
@@ -1070,6 +1071,7 @@ loadGiotto = function(path_to_folder,
     for(spat_i in 1:length(spat_names)) {
       spatVector = terra::vect(x = spat_paths[spat_i])
 
+      # read in original column names and assign to spatVector
       spatVector_names = fread(input = vector_names_paths[spat_i], header = FALSE)[['V1']]
       names(spatVector) = spatVector_names
 
@@ -1094,8 +1096,16 @@ loadGiotto = function(path_to_folder,
 
     if(length(centroid_files != 0)) {
       spat_names = gsub(centroid_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+
+      vector_names_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids_names.txt', full.names = TRUE)
+
       for(spat_i in 1:length(spat_names)) {
         spatVector = terra::vect(x = centroid_paths[spat_i])
+
+        # read in original column names and assign to spatVector
+        spatVector_names = fread(input = vector_names_paths[spat_i], header = FALSE)[['V1']]
+        names(spatVector) = spatVector_names
+
         spat_name = spat_names[spat_i]
         if(isTRUE(verbose)) message(spat_name)
         gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
@@ -1112,13 +1122,28 @@ loadGiotto = function(path_to_folder,
       print(overlap_files)
     }
     if(length(overlap_files != 0)) {
+
+
+
       # find overlaps per spatVector
       for(sv_i in seq_along(overlap_search_term)) {
         overlap_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = overlap_search_term[sv_i], full.names = TRUE)
         overlap_filenames = basename(overlap_paths)
 
+        # get matching names files for the spatVector.shp files
+        overlap_column_names = gsub(overlap_filenames,
+                                    pattern = 'spatVectorOverlaps.shp',
+                                    replacement = 'spatVectorOverlaps_names.txt')
+        overlap_paths_colnames = paste0(dirname(overlap_paths),'/', overlap_column_names)
+
         for(spat_i in seq_along(overlap_filenames)) {
+
           spatVector = terra::vect(x = overlap_paths[spat_i])
+
+          # read in original column names and assign to spatVector
+          spatVector_names = fread(input = overlap_paths_colnames[spat_i], header = FALSE)[['V1']]
+          print(spatVector_names)
+          names(spatVector) = spatVector_names
 
           feat_name = gsub(overlap_filenames[spat_i], pattern = paste0('_', overlap_search_term[sv_i]), replacement = '')
           spat_name = gsub(overlap_filenames[spat_i], pattern = paste0(feat_name, '_'), replacement = '')
