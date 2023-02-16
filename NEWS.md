@@ -13,6 +13,7 @@
 - Add `centroids()` method for `giottoPolygon` to get centroid info
 - Add `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
 - Add `[` and `[<-` access generics to main slots of `giottoPolygon` and `giottoPoints`
+- Add cores detection to run on package attach
 - New `dd.R` as a file with dummy documentation to inherit commonly used documentation from
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
