@@ -31,7 +31,8 @@ will be removed.}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object
@@ -48,7 +49,6 @@ for this spatial unit and feature type.
 \seealso{
 Other expression accessor functions: 
 \code{\link{getExpression}()},
-\code{\link{get_expression_values}()},
 \code{\link{set_expression_values}()}
 
 Other functions to set data in giotto object: 

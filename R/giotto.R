@@ -508,9 +508,19 @@ evaluate_expr_matrix = function(inputmatrix,
     }
 
   } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
+
     mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
-  } else {
-    stop("expression input needs to be a path to matrix-like data or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
+
+  } else if(inherits(inputmatrix, 'exprObj')) {
+
+    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores)
+    mymatrix = inputmatrix
+
+  }
+  else {
+    stop(wrap_txt("expression input needs to be a path to matrix-like data or an",
+                  "object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'",
+                  errWidth = TRUE))
   }
 
 
@@ -621,12 +631,12 @@ read_expression_data = function(expr_list = NULL,
   list_depth = depth(expr_list)
 
   # no expression information
-  if(list_depth == 0) {
+  if(list_depth == 0L) {
     stop('Depth of expression list is 0, no expression information is provided \n')
   }
 
   # too much information
-  if(list_depth > 3) {
+  if(list_depth > 3L) {
     stop('Depth of expression list is more than 3, only 3 levels are possible:
        0)', ch$s, '.
        1)', ch$s, ch$b, 'spatial unit (e.g. cell)
@@ -639,9 +649,14 @@ read_expression_data = function(expr_list = NULL,
 
 
   # 2. for list with 1 depth
-  if(list_depth == 1) {
+  if(list_depth == 1L) {
 
-    cat('list depth of 1 \n')
+    if(isTRUE(verbose)) message('list depth of 1')
+
+
+    # assign exprObj tagged name info if not named
+    expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
+    expr_list = assign_listnames_2_obj(expr_list)
 
 
     for(data in names(expr_list)) {
@@ -652,60 +667,91 @@ read_expression_data = function(expr_list = NULL,
                                      cores = cores)
       # add default feat == 'rna'
       # add default region == 'cell'
-      exprObj = create_expr_obj(name = data,
-                                exprMat = res_mat,
-                                spat_unit = 'cell',
-                                provenance = if(is.null(provenance)) 'cell' else provenance,
-                                feat_type = default_feat_type,
-                                misc = NULL)
+      if(!inherits(res_mat, 'exprObj')) {
+        exprObj = create_expr_obj(name = data,
+                                  exprMat = res_mat,
+                                  spat_unit = 'cell',
+                                  provenance = if(is.null(provenance)) 'cell' else provenance,
+                                  feat_type = default_feat_type,
+                                  misc = NULL)
+      } else {
+        exprObj = res_mat
+      }
 
       return_list = append(return_list, exprObj)
 
     }
 
 
-  } else if(list_depth == 2) {
+  } else if(list_depth == 2L) {
 
     cat('list depth of 2 \n')
     # add default region == 'cell'
 
     for(feat in names(expr_list)) {
+
+
+      # assign exprObj tagged name info if not named
+      expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
+      expr_list = assign_listnames_2_obj(expr_list)
+
+
       for(data in names(expr_list[[feat]])) {
 
         res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[feat]][[data]],
                                        sparse = sparse,
                                        cores = cores)
         # add default region == 'cell'
-        exprObj = create_expr_obj(name = data,
-                                  exprMat = res_mat,
-                                  spat_unit = 'cell',
-                                  provenance = if(is.null(provenance)) 'cell' else provenance,
-                                  feat_type = feat,
-                                  misc = NULL)
+        if(!inherits(res_mat, 'exprObj')) {
+          exprObj = create_expr_obj(name = data,
+                                    exprMat = res_mat,
+                                    spat_unit = 'cell',
+                                    provenance = if(is.null(provenance)) 'cell' else provenance,
+                                    feat_type = feat,
+                                    misc = NULL)
+        } else {
+          exprObj = res_mat
+          featType(exprObj) = feat
+        }
+
 
         return_list = append(return_list, exprObj)
 
       }
     }
 
-  } else if(list_depth == 3) {
+  } else if(list_depth == 3L) {
 
     cat('list depth of 3 \n')
 
     for(region in names(expr_list)) {
       for(feat in names(expr_list[[region]])) {
+
+
+        # assign exprObj tagged name info if not named
+        expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
+        expr_list = assign_listnames_2_obj(expr_list)
+
+
         for(data in names(expr_list[[region]][[feat]])) {
 
           res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[region]][[feat]][[data]],
                                          sparse = sparse,
                                          cores = cores)
           # add default region == 'cell'
-          exprObj = create_expr_obj(name = data,
-                                    exprMat = res_mat,
-                                    spat_unit = region,
-                                    provenance = if(is.null(provenance)) region else provenance,
-                                    feat_type = feat,
-                                    misc = NULL)
+          if(!inherits(res_mat, 'exprObj')) {
+            exprObj = create_expr_obj(name = data,
+                                      exprMat = res_mat,
+                                      spat_unit = region,
+                                      provenance = if(is.null(provenance)) region else provenance,
+                                      feat_type = feat,
+                                      misc = NULL)
+          } else {
+            exprObj = res_mat
+            featType(exprObj) = feat
+            spatUnit(exprObj) = region
+          }
+
 
           return_list = append(return_list, exprObj)
 
@@ -1143,8 +1189,9 @@ read_spatial_location_data = function(gobject,
 
   # too much information
   if(list_depth > 2) {
-    stop('Depth of spatial location list is more than 2, only 2 levels are possible:
-         1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n')
+    stop(wrap_txt('Depth of spatial location list is more than 2, only 2 levels are possible:
+                  1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n',
+                  errWidth = TRUE))
   }
 
   # 2. Based on depth of nesting expect related info then eval, check, and assemble return list
@@ -1167,11 +1214,13 @@ read_spatial_location_data = function(gobject,
       if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
       # add default region == 'cell'
-      return_list = append(return_list, new('spatLocsObj',
-                                            name = coord,
-                                            coordinates = res_spatlocs,
-                                            spat_unit = 'cell',
-                                            provenance = if(is.null(provenance)) 'cell' else provenance))
+      return_list = append(return_list,
+                           create_spat_locs_obj(
+                             name = coord,
+                             coordinates = res_spatlocs,
+                             spat_unit = 'cell',
+                             provenance = if(is.null(provenance)) 'cell' else provenance
+                           ))
 
       # return_list[['cell']][[coord]] = res_spatlocs
 
@@ -1189,15 +1238,17 @@ read_spatial_location_data = function(gobject,
         res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[spat_unit]][[coord]],
                                                      cores = cores)
 
-        # set cell_ID col if missing to conform to spatialLocationsObj validity
+        # set cell_ID col if missing to conform to spatLocsObj validity
         if(!'cell_ID' %in% colnames(res_spatlocs)) res_spatlocs[, cell_ID := NA_character_]
 
         # add default region == 'cell'
-        return_list = append(return_list, new('spatLocsObj',
-                                              name = coord,
-                                              coordinates = res_spatlocs,
-                                              spat_unit = spat_unit,
-                                              provenance = if(is.null(provenance)) spat_unit else provenance))
+        return_list = append(return_list,
+                             create_spat_locs_obj(
+                               name = coord,
+                               coordinates = res_spatlocs,
+                               spat_unit = spat_unit,
+                               provenance = if(is.null(provenance)) spat_unit else provenance
+                             ))
 
         # return_list[[spat_unit]][[coord]] = res_spatlocs
 

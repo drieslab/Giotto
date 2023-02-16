@@ -53,7 +53,7 @@ set_default_feat_type = function(gobject,
     if(is.null(feat_type)) {
       if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
         feat_type = names(gobject@expression[[spat_unit]])[[1]]
-        if(is.null(feat_type)) stop('valid spat_unit input needed \n')
+        if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
       } else if(!is.null(gobject@feat_info)){
         feat_type = names(gobject@feat_info)[[1]]
       } else {
@@ -2039,10 +2039,10 @@ filterCombinations <- function(gobject,
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
-#' Please note that this function filters data in a predefined order, features, then cells. 
-#' After filtering in this order, certain features may be left over in the metadata with a 
-#' corresponding number of cells which is less than that of the threshold value of cells, 
-#' feat_det_in_min_cells. This behavior is explained in detail here: 
+#' Please note that this function filters data in a predefined order, features, then cells.
+#' After filtering in this order, certain features may be left over in the metadata with a
+#' corresponding number of cells which is less than that of the threshold value of cells,
+#' feat_det_in_min_cells. This behavior is explained in detail here:
 #' \url{https://github.com/drieslab/Giotto/issues/500#issuecomment-1396083446}
 #' @export
 filterGiotto = function(gobject,
@@ -4779,6 +4779,72 @@ combineSpatialCellMetadataInfo = function(gobject,
 }
 
 
+
+#' @noRd
+#' @name assign_objnames_2_list
+#' @title Assign object names to list names
+#' @param obj_list list including giotto S4 objects
+#' @param force_replace boolean, default = FALSE. Whether to replace the names of objects
+#' for which the name already has a name for
+#' @examples
+#' \dontrun{
+#' e = new('exprObj')
+#' t_l = replicate(3L, e)
+#' t_l = assign_objnames_2_list(t_l)
+#' }
+#' @keywords internal
+assign_objnames_2_list = function(obj_list, force_replace = FALSE) {
+
+  # find list items with no names
+  list_names = names(obj_list)
+  if(is.null(list_names)) {
+    list_names = rep(NA_character_, length(obj_list))
+    obj_missing_names = rep(TRUE, length(obj_list))
+  } else {
+    obj_missing_names = is.na(names(obj_list)) | names(obj_list) == ''
+  }
+
+  # find and subset to list items that can contain nameData
+  is_obj = sapply(obj_list, inherits, 'nameData')
+
+  if(isTRUE(force_replace)) obj_missing_names = is_obj
+  else obj_missing_names = obj_missing_names & is_obj
+
+  # get object names info
+  obj_names = lapply(obj_list[obj_missing_names], objName)
+  list_names[obj_missing_names] = obj_names
+
+  names(obj_list) = list_names
+
+  return(obj_list)
+
+}
+
+
+#' @noRd
+#' @name assign_listnames_2_obj
+#' @title Assign list names to objects
+#' @param obj_list list including giotto S4 objects
+#' @examples
+#' \dontrun{
+#' t_l = list('name_to_set' = new('exprObj'))
+#' t_l = assign_listnames_2_obj(t_l)
+#' }
+#' @keywords internal
+assign_listnames_2_obj = function(obj_list) {
+
+  list_names = names(obj_list)
+  if(is.null(list_names)) stop('List has no names\n')
+  obj_index = which(sapply(obj_list, inherits, 'nameData'))
+  list_obj_names = list_names[obj_index]
+
+  for(obj_i in seq_along(obj_index)) {
+    objName(obj_list[[obj_index[[obj_i]]]]) = list_obj_names[obj_i]
+  }
+
+  return(obj_list)
+
+}
 
 
 

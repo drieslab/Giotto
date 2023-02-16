@@ -13,7 +13,7 @@ spatShift(x, ...)
 \S4method{spatShift}{spatialNetworkObj}(x, dx = 0, dy = 0, dz = 0, copy_obj = TRUE, ...)
 }
 \arguments{
-\item{x}{spatLocsObj}
+\item{x}{object}
 
 \item{...}{additional params to pass to methods}
 

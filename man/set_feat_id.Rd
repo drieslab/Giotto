@@ -11,7 +11,8 @@ set_feat_id(gobject, feat_type = NULL, feat_IDs, set_defaults = TRUE)
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object with set cell_ID slot

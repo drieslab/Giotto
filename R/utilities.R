@@ -333,19 +333,9 @@ set_row_order_dt = function(x, neworder) {
 
 
 
-# methods/operator imports ####
 
 
-# Additional methods functions that might also be imported later...
 
-#  getSlots slotNames .hasSlot
-# Usage tag content:
-
-#' .hasSlot(object, name)
-#'
-#' slotNames(x)
-#' getSlots(x)
-#' slot(object, name, check = TRUE) <- value
 
 
 #' See \code{methods::\link[methods]{slot}} for details.
@@ -722,14 +712,6 @@ degrees = function(rad) {
   rad * 180 / pi
 }
 
-
-
-# deprecation helpers ####
-
-# determine if a function has been called directly
-direct_call = function() {
-  ifelse(sys.nframe() == 2L, yes = TRUE, no = FALSE)
-}
 
 
 

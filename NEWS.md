@@ -1,14 +1,31 @@
+
+
+
 # Giotto Suite 3.2.1 (2023-02-13)
 
-## Added
-- New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`.
+## Breaking Changes
+- Removed all deprecated accessors from `accessors.R`
+- `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 
-## Changes 
+## Added
+- New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
+- Add `initialize()` method for `exprObj` to automatically format matrix info
+- Add `centroids()` method for `giottoPolygon` to get centroid info
+- Add `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
+- Add `[` and `[<-` access generics to main slots of `giottoPolygon` and `giottoPoints`
+- New `dd.R` as a file with dummy documentation to inherit commonly used documentation from
+- Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
+- New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
+
+## Changes
 - Update `installGiottoEnvironment()` and downstream internal functions to allow custom python installation with a new argument, `mini_install_path`.
 - Update `checkGiottoEnvironment()` to account for custom python installations with a new argument, `mini_install_path`.
 - Update `removeGiottoEnvironment()` to account for custom python installations with a new argument, `mini_path`.
+- Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
+
+
 
 # Giotto Suite 3.2.0 (2023-02-02)
 

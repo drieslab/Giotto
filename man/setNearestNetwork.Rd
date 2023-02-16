@@ -9,8 +9,8 @@ setNearestNetwork(
   nn_network,
   spat_unit = NULL,
   feat_type = NULL,
-  nn_network_to_use = "sNN",
-  network_name = "sNN.pca",
+  nn_type = "sNN",
+  name = "sNN.pca",
   provenance = NULL,
   verbose = TRUE,
   set_defaults = TRUE
@@ -26,15 +26,16 @@ yet supported.}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{nn_network_to_use}{"kNN" or "sNN"}
+\item{nn_type}{"kNN" or "sNN"}
 
-\item{network_name}{name of NN network to be used}
+\item{name}{name of NN network to be used}
 
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object

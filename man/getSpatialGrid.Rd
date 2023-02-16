@@ -24,7 +24,8 @@ getSpatialGrid(
 
 \item{return_grid_Obj}{return grid object (default = FALSE)}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Function to get spatial grid
@@ -48,7 +49,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},

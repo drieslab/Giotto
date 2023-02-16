@@ -8,7 +8,7 @@ getSpatialEnrichment(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  enrichm_name = "DWLS",
+  name = "DWLS",
   output = c("spatEnrObj", "data.table"),
   copy_obj = TRUE,
   set_defaults = TRUE
@@ -21,14 +21,14 @@ getSpatialEnrichment(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
-
 \item{output}{what format in which to get information (e.g. "data.table")}
 
-\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)
+\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 }
 \value{
 data.table with fractions
@@ -55,7 +55,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},
