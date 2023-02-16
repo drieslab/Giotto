@@ -13,7 +13,7 @@
 
 
 
-#' @name data_access
+#' @name data_access_params
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
@@ -25,6 +25,50 @@
 #' @keywords internal
 NULL
 
+
+#' @name plot_params
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color for not selected cells
+#' @param other_point_size point size for not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param center_point_border_col border color of center points
+#' @param center_point_border_stroke border stroke size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
+#' @param point_size size of point (cell)
+#' @param point_alpha transparency of points
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative heights of rows (e.g. c(1,2))
+#' @param cow_rel_w cowplot param: relative widths of columns (e.g. c(1,2))
+#' @param cow_align cowplot param: how to align
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @keywords internal
+NULL
 
 
 

@@ -76,3 +76,4 @@ Other functions to set data in giotto object:
 }
 \concept{expression accessor functions}
 \concept{functions to set data in giotto object}
+\keyword{internal}
