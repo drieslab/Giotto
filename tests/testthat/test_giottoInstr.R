@@ -37,7 +37,7 @@ instrs = createGiottoInstructions(
 
 test_that("Instructions are created", {
   # createGiottoInstructions
-  
+
   expect_type(instrs, "list")
 })
 
@@ -56,7 +56,7 @@ object <- createGiottoObject(expression = expr_path,
 
 # readGiottoInstructions
 test_that("readGiottoInstructions reads a few giotto object params correctly", {
-  
+
   expect_type(readGiottoInstructions(object, param = "show_plot"), "logical")
   expect_type(readGiottoInstructions(object, param = "plot_format"), "character")
   expect_type(readGiottoInstructions(object, param = "dpi"), "double")

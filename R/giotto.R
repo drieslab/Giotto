@@ -2035,7 +2035,8 @@ createGiottoObject <- function(expression,
                                            verbose = verbose)
     for(expr_i in seq_along(expression_data)) {
       gobject = set_expression_values(gobject = gobject,
-                                      values = expression_data[[expr_i]])
+                                      values = expression_data[[expr_i]],
+                                      set_defaults = FALSE)
     }
 
 

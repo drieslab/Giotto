@@ -876,22 +876,6 @@ getExpression = function(gobject,
 
   if(is.null(values)) values = potential_values[[1]]
 
-  ## special cases for giotto standard pipeline
-  if(values == 'scaled' & !'scaled' %in% potential_values) {
-    stop('run first scaling (& normalization) step')
-  } else if(values == 'normalized' & !'normalized' %in% potential_values) {
-    stop('run first normalization step')
-  } else if(values == 'custom' & !'custom' %in% potential_values) {
-    stop('first add custom expression matrix')
-  }
-
-  if(!values %in% potential_values) stop(wrap_txt(
-    'Requested expression info not found in "', substitute(gobject), '"
-    [spat_unit:', spat_unit, '] [feat_type:', feat_type, '] [values:', values, ']',
-    sep = '',
-    errWidth = TRUE
-  ))
-
 
   # 3. Get object in desired format
   expr_values = get_expression_values(gobject = gobject,
@@ -922,6 +906,7 @@ get_expression_values = function(gobject,
 
   output = match.arg(output, choices = c('exprObj', 'matrix'))
 
+  # 1. Set feat_type and spat_unit
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
@@ -930,6 +915,29 @@ get_expression_values = function(gobject,
                                       feat_type = feat_type)
   }
 
+  # 2. Find object
+  potential_values = list_expression_names(gobject = gobject,
+                                           spat_unit = spat_unit,
+                                           feat_type = feat_type)
+
+  if(is.null(values)) values = potential_values[[1]]
+
+
+  ## special checks/cases for giotto standard pipeline
+  if(values == 'scaled' & !'scaled' %in% potential_values) {
+    stop('run first scaling (& normalization) step')
+  } else if(values == 'normalized' & !'normalized' %in% potential_values) {
+    stop('run first normalization step')
+  } else if(values == 'custom' & !'custom' %in% potential_values) {
+    stop('first add custom expression matrix')
+  }
+
+  if(!values %in% potential_values) stop(wrap_txt(
+    'Requested expression info not found in "', substitute(gobject), '"
+    [spat_unit:', spat_unit, '] [feat_type:', feat_type, '] [values:', values, ']',
+    sep = '',
+    errWidth = TRUE
+  ))
 
 
   # Get info from slot nesting
