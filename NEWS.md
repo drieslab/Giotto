@@ -10,6 +10,7 @@
 ## Added
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
 - Add `initialize()` method for `exprObj` to automatically format matrix info
+- Add `instructions()` generic for `giotto` to access and edit `giottoInstructions`
 - Add `centroids()` method for `giottoPolygon` to get centroid info
 - Add `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
 - Add `[` and `[<-` access generics to main slots of `giottoPolygon` and `giottoPoints`
