@@ -103,6 +103,7 @@ setMethod('initialize', 'metaData',
 
 
 # ** enrData ####
+#' enrData
 setClass('enrData',
          contains = 'VIRTUAL',
          slots = list(method = 'character',
@@ -396,7 +397,10 @@ setClass('spatFeatData',
 #'   \item{3.2.0 update adding multiomics slot}
 #'   \item{master branch to suite - TODO}
 #' }
-#' @usage gobject = updateGiottoObject(gobject)
+#' @examples
+#' \dontrun{ 
+#' gobject = updateGiottoObject(gobject)
+#' }
 #' @export
 updateGiottoObject = function(gobject) {
 
@@ -522,6 +526,7 @@ setMethod(
   f = "show",
   signature = "giotto",
   definition = function(object) {
+    spat_unit = feat_type = prints = name = img_type = name = NULL
 
     cat("An object of class",  class(object), "\n")
 
@@ -1200,6 +1205,8 @@ setClass('spatialNetworkObj',
 #' @aliases show,spatialNetworkObj-method
 #' @docType methods
 #' @importFrom methods show
+#' @importFrom graphics segments
+
 #' @rdname show-methods
 setMethod(
   f = "show", signature('spatialNetworkObj'), function(object) {

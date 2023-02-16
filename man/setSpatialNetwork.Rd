@@ -23,6 +23,8 @@ setSpatialNetwork(
 
 \item{name}{name of spatial network}
 
+\item{provenance}{provenance name}
+
 \item{verbose}{be verbose}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when

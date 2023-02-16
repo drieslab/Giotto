@@ -6,18 +6,24 @@
 \alias{spatShift,spatialNetworkObj-method}
 \title{Spatially shift an object}
 \usage{
+spatShift(x, ...)
+
 \S4method{spatShift}{spatLocsObj}(x, dx = 0, dy = 0, dz = 0, copy_obj = TRUE, ...)
 
 \S4method{spatShift}{spatialNetworkObj}(x, dx = 0, dy = 0, dz = 0, copy_obj = TRUE, ...)
 }
 \arguments{
+\item{x}{object}
+
+\item{...}{additional params to pass to methods}
+
 \item{dx}{numeric. The shift on the x axis}
 
 \item{dy}{numeric. The shift on the y axis}
 
 \item{dz}{numeric. The shift on the z axis}
 
-\item{...}{additional params to pass to methods}
+\item{copy_obj}{Default = TRUE}
 }
 \description{
 Shift the spatial locations of an object

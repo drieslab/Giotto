@@ -12,29 +12,6 @@
 #'
 #' @import data.table magrittr ggplot2
 #'
-#' @examples
-#' \dontrun{
-#' # Using a ggplot2 plot
-#' library(ggplot2)
-#' df <- data.frame(x = 1:5, y = 1:5)
-#' my_plot <- ggplot(df, aes(x,y)) + geom_point()
-#' plotInteractivePolygons(my_plot)
-#'
-#' # Using a terra rast image
-#' library(terra)
-#' r = rast(system.file("ex/elev.tif", package="terra"))
-#' plotInteractivePolygons(r)
-#' plotInteractivePolygons(r, border = "red", lwd = 2)
-#'
-#' # Using an image contained in Giotto object
-#' library(Giotto)
-#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
-#'                           show_image = TRUE,
-#'                           point_alpha = 0.75,
-#'                           save_plot = FALSE)
-#' plotInteractivePolygons(my_spatPlot, height = 500)
-#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
-#' }
 #' @export
 plotInteractivePolygons <- function(x,
                                     width = "auto",
@@ -56,15 +33,15 @@ plotInteractivePolygons <- function(x,
       miniUI::miniContentPanel(
         shiny::textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
         shiny::sliderInput("xrange", label = "x coordinates",
-                    min = min(terra::ext(r))[1],
-                    max = max(terra::ext(r))[1],
-                    value = c(min(terra::ext(r))[1],
-                              max(terra::ext(r))[1])) ,
+                    min = min(terra::ext(x))[1],
+                    max = max(terra::ext(x))[1],
+                    value = c(min(terra::ext(x))[1],
+                              max(terra::ext(x))[1])) ,
         shiny::sliderInput("yrange", label = "y coordinates",
-                    min = min(terra::ext(r))[2],
-                    max = max(terra::ext(r))[2],
-                    value = c(min(terra::ext(r))[2],
-                              max(terra::ext(r))[2])) ,
+                    min = min(terra::ext(x))[2],
+                    max = max(terra::ext(x))[2],
+                    value = c(min(terra::ext(x))[2],
+                              max(terra::ext(x))[2])) ,
         shiny::plotOutput("plot", click = "plot_click")
       )
     )
@@ -206,6 +183,7 @@ getCellsFromPolygon <- function(gobject,
 #' @param feat_type feature name where metadata will be added
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to use
+#' @param polygons polygon names to plot (e.g. 'polygon_1'). If NULL, plots all available polygons
 #' @param na.label polygon label for cells located outside of polygons area. Default = "no_polygon"
 #'
 #' @return A Giotto object with a modified cell_metadata slot that includes the
@@ -443,6 +421,7 @@ compareCellAbundance <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param polygons character. Vector of polygon names to plot. If NULL, all polygons are plotted
 #' @param ... Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon
+#' @import ggplot2
 #'
 #' @return A ggplot2 image
 #' @export
@@ -458,6 +437,8 @@ plotPolygons <- function(gobject,
   if (!inherits(gobject, "giotto")) {
     stop("gobject must be a Giotto object")
   }
+  
+  y = geom = NULL
 
   ## verify plot exists
   if(is.null(x)) stop('A plot object must be provided')

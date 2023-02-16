@@ -18,7 +18,7 @@ specific_CCCScores_spots(
   gene_set_2,
   min_observations = 2,
   detailed = FALSE,
-  adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
+  adjust_method = c("fdr", "bonferroni", " BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
   set_seed = FALSE,
@@ -28,6 +28,10 @@ specific_CCCScores_spots(
 }
 \arguments{
 \item{gobject}{giotto object to use}
+
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
 
 \item{expr_residual}{spatial network to use for identifying interacting cells}
 
