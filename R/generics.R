@@ -151,6 +151,55 @@ setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
 
 
 
+# centroids() S4 generic ####
+#' @title centroids-generic
+#' @name centroids-generic
+#' @description Access centroids information from polygon objects
+#' @param x object
+#' @aliases centroids
+#' @details For giottoPolygon, if centroids already exist, pulls from
+#' \code{spatVectorCentroids} slot. Otherwise, generates from
+#' \code{spatVector} slot de novo
+#' @importMethodsFrom terra centroids
+#' @export
+setMethod('centroids', signature(x = 'giottoPolygon'),
+          function(x) {
+            if(!is.null(x@spatVectorCentroids)) {
+              return(x@spatVectorCentroids)
+            } else {
+              return(terra::centroids(x@spatVector))
+            }
+          })
+
+
+
+#' @title overlaps-generic
+#' @name overlaps-generic
+#' @description Access list of overlaps information from object
+#' @param x object
+#' @aliases overlaps
+setGeneric('overlaps', function(x, ...) standardGeneric('overlaps'))
+# setGeneric('overlaps<-', function(x, value, ...) standardGeneric('overlaps<-'))
+
+#' @describeIn overlaps-generic Get overlaps information from giottoPolygon
+#' @export
+setMethod('overlaps', signature(x = 'giottoPolygon'),
+          function(x, name = NULL) {
+            if(is.null(name)) {
+              # return entire list
+              return(x@overlaps)
+            } else {
+              # return named entry
+              return(x@overlaps[[name]])
+            }
+          })
+
+
+
+
+
+
+
 # spin() S4 generic ####
 
 #' @title Spin an object
@@ -1198,7 +1247,47 @@ setMethod('[<-', signature(x = 'spatGridData', i = 'missing', j = 'missing', val
             x
           })
 
+# * giottoPoints ####
+#' @rdname extract-methods
+#' @section \code{`[`} methods:
+#'   Return \code{giottoPoints} spatVector slot
+#' @export
+setMethod('[', signature(x = 'giottoPoints', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@spatVector
+          })
 
+#' @rdname extract-methods
+#' @aliases [<-,giottoPoints,missing,missing,ANY-method [<-,giottoPoints,missing,missing-method
+#' @docType methods
+#' @section \code{`[<-`} methods:
+#'   Assign to \code{spatVector} slot in giotto S4
+#' @export
+setMethod('[<-', signature(x = 'giottoPoints', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@spatVector = value
+            x
+          })
 
+# * giottoPolygon ####
+#' @rdname extract-methods
+#' @section \code{`[`} methods:
+#'   Return \code{giottoPolygon} spatVector slot
+#' @export
+setMethod('[', signature(x = 'giottoPolygon', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@spatVector
+          })
 
+#' @rdname extract-methods
+#' @aliases [<-,giottoPolygon,missing,missing,ANY-method [<-,giottoPolygon,missing,missing-method
+#' @docType methods
+#' @section \code{`[<-`} methods:
+#'   Assign to \code{spatVector} slot in giottoPolygon
+#' @export
+setMethod('[<-', signature(x = 'giottoPolygon', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@spatVector = value
+            x
+          })
 

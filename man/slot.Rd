@@ -2,14 +2,11 @@
 % Please edit documentation in R/utilities.R
 \name{slot}
 \alias{slot}
-\title{.hasSlot(object, name)}
+\title{See \code{methods::\link[methods]{slot}} for details.}
 \usage{
 slot(object, name)
 }
 \description{
-slotNames(x)
-getSlots(x)
-slot(object, name, check = TRUE) <- value
 See \code{methods::\link[methods]{slot}} for details.
 }
 \keyword{internal}

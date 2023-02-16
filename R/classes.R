@@ -703,27 +703,6 @@ check_expr_obj = function(object) {
     errors = c(errors, msg)
   }
 
-  # TODO Check expr matrix class
-  # if(!inherits(slot(object, 'exprMat'), c('dgeMatrix', 'dgCMatrix'))) {
-  #   msg = paste0(obj_info, 'Expression matrix should be provided as either dgCmatrix (sparse)',
-  #                ' or dgeMatrix (dense) from the Matrix package.\n')
-  #   errors = c(errors, msg)
-  # }
-  #
-  # if(inherits(slot(object, 'exprMat'), 'dgCMatrix')) {
-  #   if(!isTRUE(slot(object, 'sparse'))) {
-  #     msg = paste0(obj_info, 'Contains a dgCmatrix. Slot sparse should be TRUE')
-  #     errors = c(errors, msg)
-  #   }
-  # }
-  #
-  # if(inherits(slot(object, 'exprMat'), 'dgeMatrix')) {
-  #   if(isTRUE(slot(object, 'sparse'))) {
-  #     msg = paste0(obj_info, 'Contains a dgematrix. Slot sparse should be FALSE')
-  #     errors = c(errors, msg)
-  #   }
-  # }
-
   if(length(errors) == 0) TRUE else errors
 }
 
@@ -744,6 +723,19 @@ check_expr_obj = function(object) {
 setClass('exprObj',
          contains = c('nameData', 'exprData', 'spatFeatData', 'miscData'),
          validity = check_expr_obj)
+
+
+## * Initialize ####
+setMethod('initialize', 'exprObj',
+          function(.Object, ...) {
+            .Object = methods::callNextMethod()
+            if(!is.null(.Object[])) {
+              # Convert matrix input to preferred format
+              .Object[] = evaluate_expr_matrix(.Object[])
+            }
+            .Object
+          })
+
 
 ## * Show ####
 # exprObj Class

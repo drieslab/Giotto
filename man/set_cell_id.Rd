@@ -15,7 +15,8 @@ set_cell_id(gobject, spat_unit = NULL, cell_IDs, set_defaults = TRUE)
 reset the slot based on in order of preference: spatial_info then expression
 slots}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object with set cell_ID slot

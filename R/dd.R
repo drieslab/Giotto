@@ -5,6 +5,13 @@
 # Use @inheritParams data_access when documenting these parameters
 # ------------------------------------------------------------------------- #
 
+# No @title to prevent .Rd generation
+# No @noRd so @inheritParams can be used
+
+# Note that these dummy documentations will be flagged with warnings when building
+# the documentation
+
+
 
 #' @name data_access
 #' @param gobject giotto object

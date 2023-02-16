@@ -27,7 +27,8 @@ get_NearestNetwork(
 
 \item{output}{return a igraph or data.table object. Default 'igraph'}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 igraph or data.table object
@@ -54,7 +55,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialLocations}()},
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},

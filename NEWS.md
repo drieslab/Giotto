@@ -3,12 +3,20 @@
 # Giotto Suite 3.2.1 (release TBD)
 
 ## Breaking Changes
+- Removed all deprecated accessors from `accessors.R`
+- `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 
 ## Added
-- Option to return as `giottoPoints` from `getFeatureInfo`
+- Added `initialize()` method for `exprObj` to automatically format matrix info
+- Added `centroids()` method for `giottoPolygon` to get centroid info
+- Added `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
+- Added `[` and `[<-` access generics to main slots of `giottoPolygon` and `giottoPoints`
+- Added `dd.R` as a file with dummy documentation to inherit commonly used documentation from
+- Added option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
+- Added `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
 
 ## Changes
-
+- Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 
 
 # Giotto Suite 3.2.0 (2023-02-02)
