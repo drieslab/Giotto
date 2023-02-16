@@ -161,6 +161,9 @@ setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
 #' \code{spatVectorCentroids} slot. Otherwise, generates from
 #' \code{spatVector} slot de novo
 #' @importMethodsFrom terra centroids
+NULL
+
+#' @rdname centroids-generic
 #' @export
 setMethod('centroids', signature(x = 'giottoPolygon'),
           function(x) {
@@ -182,6 +185,7 @@ setGeneric('overlaps', function(x, ...) standardGeneric('overlaps'))
 # setGeneric('overlaps<-', function(x, value, ...) standardGeneric('overlaps<-'))
 
 #' @describeIn overlaps-generic Get overlaps information from giottoPolygon
+#' @param name (optional) name of overlaps information to retrieve
 #' @export
 setMethod('overlaps', signature(x = 'giottoPolygon'),
           function(x, name = NULL) {
@@ -381,6 +385,8 @@ setMethod('nrow', signature('metaData'), function(x) nrow(x@metaDT))
 #' @export
 setMethod('nrow', signature('spatialNetworkObj'), function(x) nrow(x@networkDT))
 
+#' @rdname dims-generic
+#' @export
 setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
 
 # ncol() generic ####
@@ -405,6 +411,8 @@ setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
 #' @export
 setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
+#' @rdname dims-generic
+#' @export
 setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 
 

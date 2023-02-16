@@ -21,14 +21,14 @@ getNearestNetwork(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
+\item{nn_type}{"kNN" or "sNN"}
+
+\item{name}{name of NN network to be used}
+
 \item{output}{return a igraph or data.table object. Default 'igraph'}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
-
-\item{nn_network_to_use}{"kNN" or "sNN"}
-
-\item{network_name}{name of NN network to be used}
 }
 \value{
 igraph or data.table object

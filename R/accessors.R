@@ -1770,8 +1770,8 @@ get_NearestNetwork = function(gobject,
 #' @name getNearestNetwork
 #' @description Get a NN-network from a Giotto object
 #' @inheritParams data_access_params
-#' @param nn_network_to_use "kNN" or "sNN"
-#' @param network_name name of NN network to be used
+#' @param nn_type "kNN" or "sNN"
+#' @param name name of NN network to be used
 #' @param output return a igraph or data.table object. Default 'igraph'
 #' @return igraph or data.table object
 #' @family expression space nearest network accessor functions
@@ -2581,6 +2581,7 @@ setPolygonInfo = function(gobject = NULL,
 #' @name getFeatureInfo
 #' @description Get giotto points spatVector
 #' @inheritParams data_access_params
+#' @param return_giottoPoints return as a giottoPoints object
 #' @family feature info data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -2791,7 +2792,7 @@ get_spatial_enrichment = function(gobject,
 #' @name getSpatialEnrichment
 #' @description Function to get a spatial enrichment data.table
 #' @inheritParams data_access_params
-#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
+#' @param name name of spatial enrichment results. Default "DWLS"
 #' @return data.table with fractions
 #' @family spatial enrichment data accessor functions
 #' @family functions to get data from giotto object
@@ -2906,7 +2907,7 @@ set_spatial_enrichment = function(gobject,
 #' @name setSpatialEnrichment
 #' @description Function to set a spatial enrichment slot
 #' @inheritParams data_access_params
-#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
+#' @param name name of spatial enrichment results. Default "DWLS"
 #' @param spatenrichment spatial enrichment results
 #' @param verbose be verbose
 #' @return giotto object

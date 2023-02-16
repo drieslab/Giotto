@@ -3,6 +3,7 @@
 \name{centroids-generic}
 \alias{centroids-generic}
 \alias{centroids}
+\alias{centroids,giottoPolygon-method}
 \title{centroids-generic}
 \usage{
 \S4method{centroids}{giottoPolygon}(x)
