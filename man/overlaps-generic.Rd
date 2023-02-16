@@ -12,6 +12,8 @@ overlaps(x, ...)
 }
 \arguments{
 \item{x}{object}
+
+\item{name}{(optional) name of overlaps information to retrieve}
 }
 \description{
 Access list of overlaps information from object

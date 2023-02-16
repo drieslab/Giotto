@@ -8,10 +8,12 @@
 \alias{nrow,exprData-method}
 \alias{nrow,metaData-method}
 \alias{nrow,spatialNetworkObj-method}
+\alias{nrow,enrData-method}
 \alias{ncol,exprData-method}
 \alias{ncol,metaData-method}
 \alias{dim,exprData-method}
 \alias{dim,metaData-method}
+\alias{dim,enrData-method}
 \title{Dimensions of giotto objects}
 \usage{
 \S4method{nrow}{giottoPoints}(x)
@@ -26,6 +28,8 @@
 
 \S4method{nrow}{spatialNetworkObj}(x)
 
+\S4method{nrow}{enrData}(x)
+
 \S4method{ncol}{exprData}(x)
 
 \S4method{ncol}{metaData}(x)
@@ -33,6 +37,8 @@
 \S4method{dim}{exprData}(x)
 
 \S4method{dim}{metaData}(x)
+
+\S4method{dim}{enrData}(x)
 }
 \arguments{
 \item{x}{object to check dimensions of}

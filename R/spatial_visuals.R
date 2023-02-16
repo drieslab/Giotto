@@ -9057,9 +9057,7 @@ spatGenePlot3D <- function(gobject,
 #' @title dimGenePlot3D
 #' @name dimGenePlot3D
 #' @description Visualize cells and gene expression according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
 #' @param dim_reduction_to_use dimension reduction to use
@@ -9169,11 +9167,11 @@ dimGenePlot3D <- function(gobject,
 
 
   ## dimension reduction ##
-  dim_dfr = select_dimReduction(gobject,
-                                reduction = 'cells',
-                                reduction_method = dim_reduction_to_use,
-                                name = dim_reduction_name,
-                                output = 'data.table')
+  dim_dfr = get_dimReduction(gobject,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -9549,11 +9547,11 @@ spatDimGenePlot3D <- function(gobject,
 
 
   ## dimension reduction ##
-  dim_dfr = select_dimReduction(gobject,
-                                reduction = 'cells',
-                                reduction_method = dim_reduction_to_use,
-                                name = dim_reduction_name,
-                                output = 'data.table')
+  dim_dfr = get_dimReduction(gobject,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             output = 'data.table')
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)

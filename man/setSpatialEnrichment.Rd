@@ -23,12 +23,12 @@ setSpatialEnrichment(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
+\item{name}{name of spatial enrichment results. Default "DWLS"}
+
 \item{verbose}{be verbose}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
-
-\item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 }
 \value{
 giotto object

@@ -336,7 +336,7 @@ set_row_order_dt = function(x, neworder) {
 
 
 
-
+# Import from methods ####
 
 #' See \code{methods::\link[methods]{slot}} for details.
 #'
@@ -358,6 +358,17 @@ NULL
 #' @importFrom methods validObject
 #' @usage validObject(object, test = FALSE, complete = FALSE)
 NULL
+
+
+#' See \code{methods::\link[methods]{slotNames}} for details.
+#'
+#' @rdname slotNames
+#' @name slotNames
+#' @keywords internal
+#' @importFrom methods slotNames
+#' @usage slotNames(object)
+NULL
+
 
 
 

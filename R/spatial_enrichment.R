@@ -350,7 +350,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # check parameters
   if(is.null(name)) name = 'PAGE'
@@ -1800,7 +1800,7 @@ run_spat_autocor_global = function(use_values,
                                    cor_name) {
   # data.table vars
   cell_ID = nsim = NULL
-  
+
   nfeats = length(feats)
   if(test_method != 'none') step_size = ceiling(nfeats/100L)
   else step_size = step_size = ceiling(nfeats/10L)
@@ -1855,7 +1855,7 @@ run_spat_autocor_global = function(use_values,
 }
 
 #' run_spat_autocor_local
-#' 
+#'
 #' @import data.table
 #' @keywords internal
 run_spat_autocor_local = function(use_values,
@@ -1864,9 +1864,9 @@ run_spat_autocor_local = function(use_values,
                                   method,
                                   test_method,
                                   IDs) {
-  
+
   cell_ID = NULL
-  
+
   nfeats = length(feats)
   if(test_method != 'none') step_size = ceiling(nfeats/100L)
   else step_size = step_size = ceiling(nfeats/10L)

@@ -132,10 +132,11 @@ createNearestNetwork <- function(gobject,
     ## using original matrix ##
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject,
-                                           feat_type = feat_type,
-                                           spat_unit = spat_unit,
-                                           values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
+                                        values = values,
+                                        output = 'matrix')
 
     # subset expression matrix
     if(!is.null(feats_to_use)) {
