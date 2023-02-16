@@ -948,8 +948,8 @@ get_expression_values = function(gobject,
 
 
 
-#' @title  Set expression values
-#' @name  set_expression_values
+#' @title Set expression values
+#' @name set_expression_values
 #' @description Function to set expression values for giotto object
 #' @inheritParams data_access_params
 #' @param name name for the expression slot
@@ -960,7 +960,7 @@ get_expression_values = function(gobject,
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
-#' @keywords internal
+#' @export
 set_expression_values = function(gobject,
                                  values,
                                  spat_unit = NULL,
