@@ -70,7 +70,7 @@ read_s4_nesting = function(x) {
 
   p = parent.frame()
 
-  s_names = slotNames(x)
+  s_names = methods::slotNames(x)
 
 
   # Determine nesting element to use. If parent frame variables are edited, it
