@@ -712,9 +712,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @title dimPlot2D_single
 #' @name dimPlot2D_single
 #' @description Visualize cells according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
+#' @inheritParams plot_params
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -723,40 +722,6 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param edge_alpha column to use for alpha of the edges
-#' @param point_shape point with border or not (border or no_border)
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
-#' @param title title for plot, defaults to cell_color parameter
-#' @param show_legend show legend
-#' @param legend_text size of legend text
-#' @param legend_symbol_size size of legend symbols
-#' @param background_color color of plot background
-#' @param axis_text size of axis text
-#' @param axis_title size of axis title
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @keywords internal
@@ -1106,9 +1071,8 @@ dimPlot2D_single <- function(gobject,
 #' @title Plot dimension reduction 2D
 #' @name dimPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
+#' @inheritParams plot_params
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
@@ -1119,46 +1083,6 @@ dimPlot2D_single <- function(gobject,
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param center_point_border_col border color of center points
-#' @param center_point_border_stroke border stroke size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param edge_alpha column to use for alpha of the edges
-#' @param point_shape point with border or not (border or no_border)
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
-#' @param title title for plot, defaults to cell_color parameter
-#' @param show_legend show legend
-#' @param legend_text size of legend text
-#' @param legend_symbol_size size of legend symbols
-#' @param background_color color of plot background
-#' @param axis_text size of axis text
-#' @param axis_title size of axis title
-#' @param cow_n_col cowplot param: how many columns
-#' @param cow_rel_h cowplot param: relative heights of rows (e.g. c(1,2))
-#' @param cow_rel_w cowplot param: relative widths of columns (e.g. c(1,2))
-#' @param cow_align cowplot param: how to align
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @family reduced dimension visualizations
@@ -1599,32 +1523,12 @@ plotPCA = function(gobject,
 #' @title plot_spat_point_layer_ggplot
 #' @name plot_spat_point_layer_ggplot
 #' @description creat ggplot point layer for spatial coordinates
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_params
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param cell_locations_metadata_selected annotated location from selected cells
 #' @param cell_locations_metadata_other annotated location from non-selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color for not selected cells
-#' @param other_point_size point size for not selected cells
-#' @param show_legend show legend
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
@@ -1660,8 +1564,8 @@ plot_spat_point_layer_ggplot = function(ggobject,
   ## specify spatial dimensions first
   if(is.null(sdimx) | is.null(sdimy)) {
 
-    warning("plot_method = ggplot, but spatial dimensions for sdimx and/or sdimy are not specified. \n
-            It will default to the 'sdimx' and 'sdimy' ")
+    warning(wrap_txt("plot_method = ggplot, but spatial dimensions for sdimx and/or sdimy are not specified.
+            It will default to the 'sdimx' and 'sdimy' "))
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }

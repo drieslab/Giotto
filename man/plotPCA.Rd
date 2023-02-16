@@ -16,8 +16,6 @@ plotPCA(gobject, dim_reduction_name = NULL, default_save_name = "PCA", ...)
 \item{...}{
   Arguments passed on to \code{\link[=dimPlot2D]{dimPlot2D}}
   \describe{
-    \item{\code{spat_unit}}{spatial unit}
-    \item{\code{feat_type}}{feature type}
     \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}
@@ -26,6 +24,8 @@ plotPCA(gobject, dim_reduction_name = NULL, default_save_name = "PCA", ...)
     \item{\code{show_NN_network}}{show underlying NN network}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
     \item{\code{cell_color}}{color for cells (see details)}
     \item{\code{color_as_factor}}{convert color column to factor}
     \item{\code{cell_color_code}}{named vector with colors}
@@ -35,8 +35,8 @@ plotPCA(gobject, dim_reduction_name = NULL, default_save_name = "PCA", ...)
     \item{\code{select_cell_groups}}{select subset of cells/clusters based on cell_color parameter}
     \item{\code{select_cells}}{select subset of cells based on cell IDs}
     \item{\code{show_other_cells}}{display not selected cells}
-    \item{\code{other_cell_color}}{color of not selected cells}
-    \item{\code{other_point_size}}{size of not selected cells}
+    \item{\code{other_cell_color}}{color for not selected cells}
+    \item{\code{other_point_size}}{point size for not selected cells}
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
@@ -47,7 +47,7 @@ plotPCA(gobject, dim_reduction_name = NULL, default_save_name = "PCA", ...)
     \item{\code{edge_alpha}}{column to use for alpha of the edges}
     \item{\code{point_shape}}{point with border or not (border or no_border)}
     \item{\code{point_size}}{size of point (cell)}
-    \item{\code{point_alpha}}{transparancy of point}
+    \item{\code{point_alpha}}{transparency of points}
     \item{\code{point_border_col}}{color of border around points}
     \item{\code{point_border_stroke}}{stroke size of border around points}
     \item{\code{title}}{title for plot, defaults to cell_color parameter}

@@ -5,8 +5,7 @@
 
 #' @title set_default_spat_unit
 #' @name set_default_spat_unit
-#' @param gobject gobject
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
 #' @keywords internal
 set_default_spat_unit = function(gobject,
                                  spat_unit = NULL) {
@@ -36,9 +35,7 @@ set_default_spat_unit = function(gobject,
 
 #' @title set_default_feat_type
 #' @name set_default_feat_type
-#' @param gobject gobject
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
 #' @keywords internal
 set_default_feat_type = function(gobject,
                                  feat_type = NULL,
@@ -118,9 +115,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @title pDataDT
 #' @name pDataDT
 #' @description show cell metadata
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
 #' @param ... additional params to pass
 #' @return data.table with cell metadata
 #' @export
@@ -164,9 +159,7 @@ pDataDT = function(gobject,
 #' @title fDataDT
 #' @name fDataDT
 #' @description show feature metadata
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
 #' @param ... additional params to pass
 #' @return data.table with feature metadata
 #' @export
@@ -445,6 +438,7 @@ init_feat_metadata = function(gobject,
 #' @name subset_expression_data
 #' @description Subset expression data from giotto object
 #' @keywords internal
+#' @noRd
 subset_expression_data = function(gobject,
                                   cell_ids,
                                   feat_ids,
@@ -584,6 +578,7 @@ subset_expression_data = function(gobject,
 #' @name subset_spatial_locations
 #' @description Subset location data from giotto object
 #' @keywords internal
+#' @noRd
 subset_spatial_locations = function(gobject,
                                     cell_ids,
                                     spat_unit) {
@@ -625,9 +620,7 @@ subset_spatial_locations = function(gobject,
 #' @title Subset cell metadata
 #' @name subset_cell_metadata
 #' @description Subset cell metadata from giotto object
-#' @param gobject giotto object
-#' @param feat_type feature type (e.g. 'rna', 'protein')
-#' @param spat_unit spatial unit (e.g. 'cell')
+#' @inheritParams data_access_params
 #' @param cell_ids cell ids to keep
 #' @param all_feat_types (boolean) applies subset operation across the whole gobject
 #' (ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.
@@ -687,9 +680,7 @@ subset_cell_metadata = function(gobject,
 #' @title Subset feature metadata
 #' @name subset_feature_metadata
 #' @description Subset feature metadata from giotto object
-#' @param gobject giotto object
-#' @param feat_type feature type (e.g. 'rna', 'protein')
-#' @param spat_unit spatial unit (e.g. 'cell')
+#' @inheritParams data_access_params
 #' @param feat_ids feature ids to keep
 #' @param all_spat_units (boolean) applies subset operation across the whole gobject
 #' (ALL spat_units), ignoring the \code{spat_unit} input param. Defaults to TRUE.
@@ -751,6 +742,7 @@ subset_feature_metadata = function(gobject,
 #' @description subset ALL spatial networks from giotto object of the given
 #' spat_unit
 #' @keywords internal
+#' @noRd
 subset_spatial_network = function(gobject,
                                   spat_unit,
                                   cell_ids) {
@@ -791,6 +783,7 @@ subset_spatial_network = function(gobject,
 #' @name subset_dimension_reduction
 #' @description Subset dimension reduction results from giotto object
 #' @keywords internal
+#' @noRd
 subset_dimension_reduction = function(gobject,
                                       spat_unit,
                                       feat_type,
@@ -833,6 +826,7 @@ subset_dimension_reduction = function(gobject,
 #' @name subset_nearest_network
 #' @description Subset nearest network results from giotto object
 #' @keywords internal
+#' @noRd
 subset_nearest_network = function(gobject,
                                   spat_unit,
                                   feat_type,
@@ -941,6 +935,7 @@ subset_nearest_network = function(gobject,
 #' @name subset_spatial_enrichment
 #' @description Subset spatial enrichment results from giotto object
 #' @keywords internal
+#' @noRd
 subset_spatial_enrichment = function(gobject,
                                      spat_unit,
                                      feat_type,
@@ -999,6 +994,7 @@ subset_spatial_enrichment = function(gobject,
 #' @name subset_giotto_polygon_object
 #' @description Subset a single giotto polygon object
 #' @keywords internal
+#' @noRd
 subset_giotto_polygon_object = function(gpolygon,
                                         cell_ids,
                                         feat_ids,
@@ -1041,6 +1037,7 @@ subset_giotto_polygon_object = function(gpolygon,
 #' @name subset_spatial_info_data
 #' @description Subset  all spatial info (polygon) data
 #' @keywords internal
+#' @noRd
 subset_spatial_info_data = function(spatial_info,
                                     cell_ids,
                                     poly_info = 'cell',
@@ -1100,6 +1097,7 @@ subset_spatial_info_data = function(spatial_info,
 #' @description Subset a single giotto points object
 #' @details Subset on feature ids and on x,y coordinates
 #' @keywords internal
+#' @noRd
 subset_giotto_points_object = function(gpoints,
                                        feat_ids = NULL,
                                        x_min = NULL,
@@ -1145,8 +1143,9 @@ subset_giotto_points_object = function(gpoints,
 
 #' @title Subset feature info data
 #' @name subset_feature_info_data
-#' @description Subset  all spatial feature (points) data
+#' @description Subset all spatial feature (points) data
 #' @keywords internal
+#' @noRd
 subset_feature_info_data = function(feat_info,
                                     feat_ids,
                                     feat_type = 'rna',
@@ -1192,9 +1191,7 @@ subset_feature_info_data = function(feat_info,
 
 #' @title subsetGiotto
 #' @description Subsets Giotto object including previous analyses.
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type to use
+#' @inheritParams data_access_params
 #' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
 #' @param gene_ids deprecated. Use \code{feat_ids}
@@ -1435,9 +1432,7 @@ subsetGiotto <- function(gobject,
 #' @title Subset by spatial locations
 #' @name subsetGiottoLocs
 #' @description Subsets Giotto object based on spatial locations
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type to use
+#' @inheritParams data_access_params
 #' @param spat_loc_name name of spatial locations to use
 #' @param x_max,x_min,y_max,y_min,z_max,z_min minimum and maximum x, y, and z coordinates
 #'   to subset to
@@ -1844,9 +1839,7 @@ filterDistributions <- function(gobject,
 #' @title filterCombinations
 #' @name filterCombinations
 #' @description Shows how many genes and cells are lost with combinations of thresholds.
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
 #' @param expression_values expression values to use
 #' @param expression_thresholds all thresholds to consider a gene expressed
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
@@ -2596,9 +2589,7 @@ normalizeGiotto = function(gobject,
 #' @title Adjust expression values
 #' @name adjustGiottoMatrix
 #' @description Adjust expression values to account for known batch effects or technological covariates.
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
 #' @param expression_values expression values to use
 #' @param batch_columns metadata columns that represent different batch (max = 2)
 #' @param covariate_columns metadata columns that represent covariates to regress out

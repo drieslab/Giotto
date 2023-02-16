@@ -7,9 +7,9 @@
 set_default_spat_unit(gobject, spat_unit = NULL)
 }
 \arguments{
-\item{gobject}{gobject}
+\item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 }
 \description{
 set_default_spat_unit

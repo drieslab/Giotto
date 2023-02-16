@@ -62,7 +62,7 @@ plot_spat_point_layer_ggplot(
 
 \item{point_size}{size of point (cell)}
 
-\item{point_alpha}{transparancy of point}
+\item{point_alpha}{transparency of points}
 
 \item{point_border_col}{color of border around points}
 
@@ -73,6 +73,10 @@ plot_spat_point_layer_ggplot(
 \item{show_center_label}{plot label of selected clusters}
 
 \item{center_point_size}{size of center points}
+
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
 
 \item{label_size}{size of labels}
 
@@ -85,8 +89,6 @@ plot_spat_point_layer_ggplot(
 \item{other_point_size}{point size for not selected cells}
 
 \item{show_legend}{show legend}
-
-\item{gobject}{giotto object}
 }
 \value{
 ggplot

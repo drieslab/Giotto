@@ -28,9 +28,9 @@ filterCombinations(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{expression_values}{expression values to use}
 

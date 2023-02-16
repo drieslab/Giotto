@@ -154,7 +154,7 @@ read_s4_nesting = function(x) {
 
 #' @title Get cell IDs for a given spatial unit
 #' @name get_cell_id
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @description Data for each spatial unit is expected to agree on a single set of cell_IDs
 #' that are shared across any feature types. These cell_IDs are stored within the
 #' giotto object's \code{cell_ID} slot. Getters and setters for this slot directly
@@ -180,7 +180,7 @@ get_cell_id = function(gobject,
 
 #' @title Set cell IDs for a given spatial unit
 #' @name set_cell_id
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param cell_IDs character vector of cell IDs to set. Passing 'initialize' will
 #' reset the slot based on in order of preference: spatial_info then expression
 #' slots
@@ -244,7 +244,7 @@ set_cell_id = function(gobject,
 
 #' @title Get feat IDs for a given feature type
 #' @name get_feat_id
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @description Across a single modality/feature type, all feature information is
 #' expected to share a single set of feat_IDs. These feat_IDs are stored within
 #' the giotto object's \code{feat_ID} slot. Getters and setters for this slot
@@ -271,7 +271,7 @@ get_feat_id = function(gobject,
 
 #' @title Set feat IDs for a given feature type
 #' @name set_feat_id
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @description Across a single modality/feature type, all feature information is
 #' expected to share a single set of feat_IDs. These feat_IDs are stored within
 #' the giotto object's \code{feat_ID} slot. Getters and setters for this slot
@@ -432,7 +432,7 @@ set_feat_id = function(gobject,
 
 #' @title Get cell metadata
 #' @name get_cell_metadata
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param output return as either 'data.table' or 'cellMetaObj'
 #' @description Get cell metadata from giotto object
 #' @seealso pDataDT
@@ -485,7 +485,7 @@ get_cell_metadata = function(gobject,
 #' @title Set cell metadata
 #' @name set_cell_metadata
 #' @description Function to set cell metadata information into giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param provenance provenance information to set
 #' @param metadata cellMetaObj or data.table containing cell metadata. Setting NULL will remove
 #' the object. Passing 'initialize' will reset the object.
@@ -650,7 +650,7 @@ set_cell_metadata = function(gobject,
 
 #' @title Get feature metadata
 #' @name get_feature_metadata
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param output return as either 'data.table' or 'featMetaObj'
 #' @param copy_obj whether to perform a deepcopy of the data.table information
 #' @description Get feature metadata from giotto object
@@ -694,7 +694,7 @@ get_feature_metadata = function(gobject,
 #' @title Set feature metadata
 #' @name set_feature_metadata
 #' @description Function to set feature metadata into giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param metadata featMetaObj or data.table object containing feature metadata.
 #' Setting NULL will remove the object.
 #' @param provenance provenance information (optional)
@@ -836,7 +836,7 @@ set_feature_metadata = function(gobject,
 #' @title Get expression values
 #' @name getExpression
 #' @description Function to get expression values from giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param values expression values to extract (e.g. "raw", "normalized", "scaled")
 #' @param output what object type to retrieve the expression as. Currently either
 #' 'matrix' for the matrix object contained in the exprObj or 'exprObj' (default) for
@@ -948,10 +948,10 @@ get_expression_values = function(gobject,
 
 
 
-#' @title  Set expression values
-#' @name  set_expression_values
+#' @title Set expression values
+#' @name set_expression_values
 #' @description Function to set expression values for giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name for the expression slot
 #' @param provenance provenance information (optional)
 #' @param values exprObj or matrix of expression values. If NULL, then the object
@@ -1036,7 +1036,7 @@ set_expression_values = function(gobject,
 #' @title Set expression values
 #' @name setExpression
 #' @description Function to set expression values for giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name for the expression slot
 #' @param provenance provenance information (optional)
 #' @param values exprObj or matrix of expression values. If NULL, then the object
@@ -1189,7 +1189,7 @@ setExpression = function(gobject,
 #' @title Get spatial locations
 #' @name get_spatial_locations
 #' @description Function to get a spatial location data.table
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
 #' @param output what object type to get the spatial locations as. Default is as
 #' a 'spatLocsObj'. Returning as 'data.table' is also possible.
@@ -1282,7 +1282,7 @@ get_spatial_locations = function(gobject,
 #' @title Get spatial locations
 #' @name getSpatialLocations
 #' @description Function to get a spatial location data.table
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")
 #' @param output what object type to get the spatial locations as. Default is as
 #' a 'spatLocsObj'. Returning as 'data.table' is also possible.
@@ -1315,7 +1315,7 @@ getSpatialLocations = function(gobject,
 #' @title Set spatial locations
 #' @name set_spatial_locations
 #' @description Function to set a spatial location slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spatlocs spatial locations (accepts either \code{data.table} or
 #' \code{spatLocsObj})
 #' @param spat_loc_name name of spatial locations, default "raw"
@@ -1408,7 +1408,7 @@ set_spatial_locations = function(gobject,
 #' @title Set spatial locations
 #' @name setSpatialLocations
 #' @description Function to set a spatial location slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spatlocs spatial locations (accepts either \code{data.table} or
 #' \code{spatLocsObj})
 #' @param spat_loc_name name of spatial locations, default "raw"
@@ -1451,7 +1451,7 @@ setSpatialLocations = function(gobject,
 
 #' @title Get dimension reduction
 #' @name get_dimReduction
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param reduction reduction on cells or features (e.g. "cells", "feats")
 #' @param reduction_method reduction method (e.g. "pca", "umap", "tsne")
 #' @param name name of reduction results
@@ -1524,7 +1524,7 @@ get_dimReduction = function(gobject,
 
 #' @title Get dimension reduction
 #' @name getDimReduction
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param reduction reduction on cells or features (e.g. "cells", "feats")
 #' @param reduction_method reduction method (e.g. "pca", "umap", "tsne")
 #' @param name name of reduction results
@@ -1568,7 +1568,7 @@ getDimReduction = function(gobject,
 #' @title Set dimension reduction
 #' @name set_dimReduction
 #' @description Function to set a dimension reduction slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param reduction reduction on cells or features
 #' @param reduction_method reduction method (e.g. "pca")
 #' @param name name of reduction results
@@ -1641,7 +1641,7 @@ set_dimReduction = function(gobject,
 #' @title Set dimension reduction
 #' @name setDimReduction
 #' @description Function to set a dimension reduction slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param reduction reduction on cells or features
 #' @param reduction_method reduction method (e.g. "pca")
 #' @param name name of reduction results
@@ -1685,7 +1685,7 @@ setDimReduction = function(gobject,
 #' @title Get nearest network
 #' @name get_NearestNetwork
 #' @description Get a NN-network from a Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_network_to_use "kNN" or "sNN"
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object. Default 'igraph'
@@ -1769,7 +1769,7 @@ get_NearestNetwork = function(gobject,
 #' @title Get nearest neighbor network
 #' @name getNearestNetwork
 #' @description Get a NN-network from a Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_network_to_use "kNN" or "sNN"
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object. Default 'igraph'
@@ -1808,7 +1808,7 @@ getNearestNetwork = function(gobject,
 #' @title Set nearest network
 #' @name set_NearestNetwork
 #' @description Set a NN-network for a Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_network_to_use "kNN" or "sNN"
 #' @param network_name name of NN network to be used
 #' @param nn_network nnNetObj or igraph nearest network object. Data.table not
@@ -1923,7 +1923,7 @@ set_NearestNetwork = function(gobject,
 #' @title Set nearest neighbor network
 #' @name setNearestNetwork
 #' @description Set a NN-network for a Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_type "kNN" or "sNN"
 #' @param name name of NN network to be used
 #' @param nn_network nnNetObj or igraph nearest network object. Data.table not
@@ -1968,7 +1968,7 @@ setNearestNetwork = function(gobject,
 #' @title Get spatial network
 #' @name get_spatialNetwork
 #' @description Function to get a spatial network
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial network
 #' @param output object type to return as. Options: 'spatialNetworkObj' (default),
 #' 'networkDT' and 'networkDT_before_filter' for data.table outputs.
@@ -2041,7 +2041,7 @@ get_spatialNetwork = function(gobject,
 #' @title Get spatial network
 #' @name getSpatialNetwork
 #' @description Function to get a spatial network
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial network
 #' @param output object type to return as. Options: 'spatialNetworkObj' (default),
 #' 'networkDT' and 'networkDT_before_filter' for data.table outputs.
@@ -2076,7 +2076,7 @@ getSpatialNetwork = function(gobject,
 #' @title Set spatial network
 #' @name set_spatialNetwork
 #' @description Function to set a spatial network
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial network
 #' @param provenance provenance name
 #' @param spatial_network spatial network
@@ -2167,7 +2167,7 @@ set_spatialNetwork = function(gobject,
 #' @title Set spatial network
 #' @name setSpatialNetwork
 #' @description Function to set a spatial network
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial network
 #' @param provenance provenance name
 #' @param spatial_network spatial network
@@ -2201,7 +2201,7 @@ setSpatialNetwork = function(gobject,
 #' @title Get spatial grid
 #' @name get_spatialGrid
 #' @description Function to get spatial grid
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial grid
 #' @param return_grid_Obj return grid object (default = FALSE)
 #' @family spatial grid data accessor functions
@@ -2284,7 +2284,7 @@ get_spatialGrid = function(gobject,
 #' @title Get spatial grid
 #' @name getSpatialGrid
 #' @description Function to get spatial grid
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param name name of spatial grid
 #' @param return_grid_Obj return grid object (default = FALSE)
 #' @family spatial grid data accessor functions
@@ -2311,7 +2311,7 @@ getSpatialGrid = function(gobject,
 #' @title Set spatial grid
 #' @name set_spatialGrid
 #' @description Function to set a spatial grid
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spatial_grid spatial grid object
 #' @param name name of spatial grid
 #' @param verbose be verbose
@@ -2396,7 +2396,7 @@ set_spatialGrid = function(gobject,
 #' @title Set spatial grid
 #' @name setSpatialGrid
 #' @description Function to set a spatial grid
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param spatial_grid spatial grid object
 #' @param name name of spatial grid
 #' @param verbose be verbose
@@ -2580,7 +2580,7 @@ setPolygonInfo = function(gobject = NULL,
 #' @title Get feature info
 #' @name getFeatureInfo
 #' @description Get giotto points spatVector
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @family feature info data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -2604,7 +2604,7 @@ getFeatureInfo = function(gobject = gobject,
 #' @name get_feature_info
 #' @param return_giottoPoints return as a giottoPoints object
 #' @description Get giotto points spatVector
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @family feature info data accessor functions
 #' @family functions to get data from giotto object
 #' @return a SpatVector (default) or giottoPoints object depending on value of
@@ -2642,7 +2642,7 @@ get_feature_info = function(gobject,
 #' @title Set feature info
 #' @name set_feature_info
 #' @description Set giotto polygon spatVector for features
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param gpoints giotto points object
 #' @param gpolygon typo do not use
 #' @param verbose be verbose
@@ -2685,7 +2685,7 @@ set_feature_info = function(gobject,
 #' @title Set feature info
 #' @name setFeatureInfo
 #' @description Set giotto polygon spatVector for features
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param gpoints giotto points object
 #' @param verbose be verbose
 #' @return giotto object
@@ -2724,7 +2724,7 @@ setFeatureInfo = function(gobject = NULL,
 #' @title Get spatial enrichment
 #' @name get_spatial_enrichment
 #' @description Function to get a spatial enrichment data.table
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @return data.table with fractions
 #' @family spatial enrichment data accessor functions
@@ -2790,7 +2790,7 @@ get_spatial_enrichment = function(gobject,
 #' @title Get spatial enrichment
 #' @name getSpatialEnrichment
 #' @description Function to get a spatial enrichment data.table
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @return data.table with fractions
 #' @family spatial enrichment data accessor functions
@@ -2819,7 +2819,7 @@ getSpatialEnrichment = function(gobject,
 #' @title Set spatial enrichment
 #' @name set_spatial_enrichment
 #' @description Function to set a spatial enrichment slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @param spatenrichment spatial enrichment results
 #' @param verbose be verbose
@@ -2905,7 +2905,7 @@ set_spatial_enrichment = function(gobject,
 #' @title Set spatial enrichment
 #' @name setSpatialEnrichment
 #' @description Function to set a spatial enrichment slot
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @param spatenrichment spatial enrichment results
 #' @param verbose be verbose
@@ -4086,7 +4086,7 @@ list_giotto_data = function(gobject = NULL,
 #' @title list_expression
 #' @name list_expression
 #' @description lists the available matrices
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return names and locations of available matrices as data.table. col order matters.
 list_expression = function(gobject,
                            spat_unit = NULL,
@@ -4120,7 +4120,7 @@ list_expression = function(gobject,
 #' @title list_expression_names
 #' @name list_expression_names
 #' @description lists the available matrices names for a given spatial unit and feature type
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector with names of available matrices
 list_expression_names = function(gobject,
                                  spat_unit = NULL,
@@ -4140,7 +4140,7 @@ list_expression_names = function(gobject,
 #' @name list_cell_id_names
 #' @description lists the available cell id names. In effect, these names are the
 #' spat_units and poly info in the gobject
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector with names of available sets of cell_IDs
 list_cell_id_names = function(gobject) {
   return(names(gobject@cell_ID))
@@ -4151,7 +4151,7 @@ list_cell_id_names = function(gobject) {
 #' @name list_feat_id_names
 #' @description lists the available feat id names In effect, these names are the
 #' feat_types and feature info in the gobject
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector with names of available sets of feat_IDs
 list_feat_id_names = function(gobject) {
   return(names(gobject@feat_ID))
@@ -4161,7 +4161,7 @@ list_feat_id_names = function(gobject) {
 #' @title list_cell_metadata
 #' @name list_cell_metadata
 #' @description lists the available cell metadata.
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return names and locations of available cell metadata as data.table
 list_cell_metadata = function(gobject,
                               spat_unit = NULL,
@@ -4200,7 +4200,7 @@ list_cell_metadata = function(gobject,
 #' @title list_feat_metadata
 #' @name list_feat_metadata
 #' @description lists the available feature metadata
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return names and locations of available feature metadata as data.table
 list_feat_metadata = function(gobject,
                               spat_unit = NULL,
@@ -4239,7 +4239,7 @@ list_feat_metadata = function(gobject,
 #' @title list_spatial_locations
 #' @name list_spatial_locations
 #' @description shows the available spatial locations
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return names and locations of available data.table as data.table
 list_spatial_locations = function(gobject,
                                   spat_unit = NULL,
@@ -4278,7 +4278,7 @@ list_spatial_locations = function(gobject,
 #' @title list_spatial_locations_names
 #' @name list_spatial_locations_names
 #' @description lists the available spatial location names for a given spatial unit
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector with names of available spatial locations
 list_spatial_locations_names = function(gobject,
                                         spat_unit = NULL) {
@@ -4295,7 +4295,7 @@ list_spatial_locations_names = function(gobject,
 #' @title list_spatial_enrichments
 #' @name list_spatial_enrichments
 #' @description return the available spatial enrichment results
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return names and locations of available data as data.table
 list_spatial_enrichments = function(gobject,
                                     spat_unit = NULL,
@@ -4336,7 +4336,7 @@ list_spatial_enrichments = function(gobject,
 #' @title list_spatial_enrichments_names
 #' @name list_spatial_enrichments_names
 #' @description returns the available spatial enrichment names for a given spatial unit
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector of names for available spatial enrichments
 list_spatial_enrichments_names = function(gobject,
                                           spat_unit = NULL,
@@ -4357,7 +4357,7 @@ list_spatial_enrichments_names = function(gobject,
 #' @title list_dim_reductions
 #' @name list_dim_reductions
 #' @description return the available dimension reductions
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param data_type "cells" or "feats" data used in dim reduction
 #' @param dim_type dimensional reduction method (e.g. "pca", "umap")
 #' @return names and locations of dimension reduction as a data.table
@@ -4405,7 +4405,7 @@ list_dim_reductions = function(gobject,
 #' @title list_dim_reductions_names
 #' @name list_dim_reductions_names
 #' @description return the available dimension reductions object names
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param data_type cells or feats dim reduction
 #' @param dim_type dimensional reduction type (method)
 #' @return names of dimension reduction object
@@ -4430,7 +4430,7 @@ list_dim_reductions_names = function(gobject,
 #' @title list_nearest_networks
 #' @name list_nearest_networks
 #' @description return the available nearest neighbor network information
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_type nearest neighbor method (e.g. "sNN", "kNN")
 #' @return names and locations of nearest neighbor networks as a data.table
 list_nearest_networks = function(gobject,
@@ -4522,7 +4522,7 @@ list_nearest_networks = function(gobject,
 #' @title list_nearest_networks_names
 #' @name list_nearest_networks_names
 #' @description return the available nearest neighbor network object names
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param nn_type nearest neighbor method (e.g. "sNN", "kNN")
 #' @return names of nearest neighbor network object
 #' @details function that can be used to find which names have been used
@@ -4611,7 +4611,7 @@ list_feature_info_names = function(gobject) {
 #' @title list_spatial_networks
 #' @name list_spatial_networks
 #' @description return the available spatial networks that are attached to the Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return data.table of names and locations of available spatial networks, col order matters or list of unique nestings
 list_spatial_networks = function(gobject,
                                  spat_unit = NULL,
@@ -4648,7 +4648,7 @@ list_spatial_networks = function(gobject,
 #' @title list_spatial_networks_names
 #' @name list_spatial_networks_names
 #' @description return the available names for giotto feature information
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return vector with names of available feature information
 list_spatial_networks_names = function(gobject,
                                        spat_unit = NULL) {
@@ -4666,7 +4666,7 @@ list_spatial_networks_names = function(gobject,
 #' @title list_spatial_grids
 #' @name list_spatial_grids
 #' @description return the available spatial grids that are attached to the Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @return data.table of names and locations of available spatial grids. col order matters
 list_spatial_grids = function(gobject,
                               spat_unit = NULL,
@@ -4749,7 +4749,7 @@ list_spatial_grids = function(gobject,
 #' @title list_spatial_grids_names
 #' @name list_spatial_grids_names
 #' @description return the available spatial grids name for a given spatial unit that are attached to the Giotto object
-#' @inheritParams data_access
+#' @inheritParams data_access_params
 #' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
 #' @return vector with names of available spatial grids names
 list_spatial_grids_names = function(gobject,
