@@ -214,13 +214,13 @@ plot_auto_largeImage_resample = function(gobject,
 #' @title plot_network_layer_ggplot
 #' @name plot_network_layer_ggplot
 #' @description Visualize cells in network layer according to dimension reduction coordinates
-#' @param gobject giotto object
+#' @param ggobject ggplot object
 #' @param annotated_network_DT annotated network data.table of selected cells
-#' @param edge_alpha alpha of network edges
-#' @param show_legend show legend
+#' @inheritParams plot_params
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
+#' @noRd
 plot_network_layer_ggplot = function(ggobject,
                                      annotated_network_DT,
                                      edge_alpha = NULL,
@@ -264,34 +264,12 @@ plot_network_layer_ggplot = function(ggobject,
 #' @title plot_point_layer_ggplot
 #' @name plot_point_layer_ggplot
 #' @description Visualize cells in point layer according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param annotated_DT_selected annotated data.table of selected cells
-#' @param annotated_DT_other annotated data.table of not selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param point_size size of point (cell)
-#' @param point_alpha transparency of point
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param edge_alpha column to use for alpha of the edges
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
-#' @param show_legend show legend
+#' @param ggobject ggplot object
+#' @inheritParams plot_params
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
+#' @noRd
 plot_point_layer_ggplot = function(ggobject,
                                    annotated_DT_selected,
                                    annotated_DT_other,
@@ -500,32 +478,12 @@ plot_point_layer_ggplot = function(ggobject,
 #' @title plot_point_layer_ggplot_noFILL
 #' @name plot_point_layer_ggplot_noFILL
 #' @description Visualize cells in point layer according to dimension reduction coordinates without borders
-#' @param gobject giotto object
-#' @param annotated_DT_selected annotated data.table of selected cells
-#' @param annotated_DT_other annotated data.table of not selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param edge_alpha column to use for alpha of the edges
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
-#' @param show_legend show legend
+#' @param ggobject ggplot object
+#' @inheritParams plot_params
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
+#' @noRd
 plot_point_layer_ggplot_noFILL = function(ggobject,
                                    annotated_DT_selected,
                                    annotated_DT_other,
@@ -714,14 +672,6 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @description Visualize cells according to dimension reduction coordinates
 #' @inheritParams data_access_params
 #' @inheritParams plot_params
-#' @param dim_reduction_to_use dimension reduction to use
-#' @param dim_reduction_name dimension reduction name
-#' @param dim1_to_use dimension to use on x-axis
-#' @param dim2_to_use dimension to use on y-axis
-#' @param spat_enr_names names of spatial enrichment results to include
-#' @param show_NN_network show underlying NN network
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use, if show_NN_network = TRUE
 #' @return ggplot
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @keywords internal
@@ -774,6 +724,7 @@ dimPlot2D_single <- function(gobject,
                              default_save_name = 'dimPlot2D_single'
 ){
 
+  guard_against_notgiotto(gobject)
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1141,6 +1092,7 @@ dimPlot2D = function(gobject,
                      save_param = list(),
                      default_save_name = 'dimPlot2D') {
 
+  guard_against_notgiotto(gobject)
 
   ## check group_by
   if(is.null(group_by)) {
@@ -1368,7 +1320,7 @@ dimPlot = function(...) {
 #' @title plotUMAP_2D
 #' @name plotUMAP_2D
 #' @description Short wrapper for UMAP visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of UMAP
 #' @param default_save_name default save name of UMAP plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1380,6 +1332,8 @@ plotUMAP_2D = function(gobject,
                        dim_reduction_name = NULL,
                        default_save_name = 'UMAP_2D',
                        ...) {
+
+  guard_against_notgiotto(gobject)
 
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'umap',
@@ -1393,7 +1347,7 @@ plotUMAP_2D = function(gobject,
 #' @title plotUMAP
 #' @name plotUMAP
 #' @description Short wrapper for UMAP visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of UMAP
 #' @param default_save_name default save name of UMAP plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1405,6 +1359,8 @@ plotUMAP = function(gobject,
                     dim_reduction_name = NULL,
                     default_save_name = 'UMAP',
                     ...) {
+
+  guard_against_notgiotto(gobject)
 
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'umap',
@@ -1421,7 +1377,7 @@ plotUMAP = function(gobject,
 #' @title plotTSNE_2D
 #' @name plotTSNE_2D
 #' @description Short wrapper for tSNE visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of TSNE
 #' @param default_save_name default save name of TSNE plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1434,6 +1390,8 @@ plotTSNE_2D = function(gobject,
                        default_save_name = 'tSNE_2D',
                        ...) {
 
+  guard_against_notgiotto(gobject)
+
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'tsne',
             dim_reduction_name = dim_reduction_name,
@@ -1445,7 +1403,7 @@ plotTSNE_2D = function(gobject,
 #' @title plotTSNE
 #' @name plotTSNE
 #' @description Short wrapper for tSNE visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of TSNE
 #' @param default_save_name default save name of TSNE plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1457,6 +1415,8 @@ plotTSNE = function(gobject,
                     dim_reduction_name = NULL,
                     default_save_name = 'tSNE',
                     ...) {
+
+  guard_against_notgiotto(gobject)
 
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'tsne',
@@ -1471,7 +1431,7 @@ plotTSNE = function(gobject,
 #' @title plotPCA_2D
 #' @name plotPCA_2D
 #' @description Short wrapper for PCA visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of PCA
 #' @param default_save_name default save name of PCA plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1483,6 +1443,8 @@ plotPCA_2D = function(gobject,
                       dim_reduction_name = NULL,
                       default_save_name = 'PCA_2D',
                       ...) {
+
+  guard_against_notgiotto(gobject)
 
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'pca',
@@ -1497,7 +1459,7 @@ plotPCA_2D = function(gobject,
 #' @title plotPCA
 #' @name plotPCA
 #' @description Short wrapper for PCA visualization
-#' @param gobject giotto object
+#' @inheritParams data_access_params
 #' @param dim_reduction_name name of PCA
 #' @param default_save_name default save name of PCA plot
 #' @inheritDotParams dimPlot2D -gobject -dim_reduction_to_use -dim_reduction_name -default_save_name
@@ -1509,6 +1471,8 @@ plotPCA = function(gobject,
                    dim_reduction_name = NULL,
                    default_save_name = 'PCA',
                    ...) {
+
+  guard_against_notgiotto(gobject)
 
   dimPlot2D(gobject = gobject,
             dim_reduction_to_use = 'pca',
@@ -1522,8 +1486,8 @@ plotPCA = function(gobject,
 
 #' @title plot_spat_point_layer_ggplot
 #' @name plot_spat_point_layer_ggplot
-#' @description creat ggplot point layer for spatial coordinates
-#' @inheritParams data_access_params
+#' @description create ggplot point layer for spatial coordinates
+#' @param ggobject ggplot object
 #' @inheritParams plot_params
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
@@ -1532,6 +1496,7 @@ plotPCA = function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
+#' @noRd
 plot_spat_point_layer_ggplot = function(ggobject,
                                         sdimx = NULL,
                                         sdimy = NULL,
@@ -1752,34 +1717,17 @@ plot_spat_point_layer_ggplot = function(ggobject,
 
 #' @title plot_spat_point_layer_ggplot_noFILL
 #' @name plot_spat_point_layer_ggplot_noFILL
-#' @description creat ggplot point layer for spatial coordinates without borders
-#' @param gobject giotto object
+#' @description create ggplot point layer for spatial coordinates without borders
+#' @param ggobject ggplot object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param cell_locations_metadata_selected annotated location from selected cells
 #' @param cell_locations_metadata_other annotated location from non-selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color for not selected cells
-#' @param other_point_size point size for not selected cells
-#' @param show_legend show legend
+#' @inheritParams plot_params
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
+#' @noRd
 plot_spat_point_layer_ggplot_noFILL = function(ggobject,
                                                sdimx = NULL,
                                                sdimy = NULL,
@@ -1979,38 +1927,19 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
 #' @title plot_spat_voronoi_layer_ggplot
 #' @name plot_spat_voronoi_layer_ggplot
 #' @description creat ggplot point layer for spatial coordinates without borders
-#' @param gobject giotto object
+#' @param ggobject ggplot object
+#' @inheritParams plot_params
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param cell_locations_metadata_selected annotated location from selected cells
 #' @param cell_locations_metadata_other annotated location from non-selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param cell_color_gradient vector with 3 colors for numeric data
-#' @param gradient_midpoint midpoint for color gradient
-#' @param gradient_limits vector with lower and upper limits
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color for not selected cells
-#' @param other_point_size point size for not selected cells
-#' @param background_color background color
 #' @param vor_border_color borde colorr of voronoi plot
 #' @param vor_max_radius maximum radius for voronoi 'cells'
 #' @param vor_alpha transparancy of voronoi 'cells'
-#' @param show_legend show legend
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @export
+#' @noRd
 plot_spat_voronoi_layer_ggplot = function(ggobject,
                                           sdimx = NULL,
                                           sdimy = NULL,
@@ -2337,6 +2266,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @return ggplot
 #' @keywords internal
+#' @noRd
 plot_spat_image_layer_ggplot = function(gg_obj,
                                         gobject,
                                         gimage,
@@ -2510,7 +2440,7 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 #' @title plot_spat_scatterpie_layer_ggplot
 #' @name plot_spat_scatterpie_layer_ggplot
 #' @description create scatterpie in ggplot
-#' @param gobject giotto object
+#' @param ggobject ggplot object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spatial_locations spatial locations
@@ -2520,6 +2450,7 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 #' @param cell_color_code color code for the cell types
 #' @return ggplot
 #' @keywords internal
+#' @noRd
 plot_spat_scatterpie_layer_ggplot = function(ggobject,
                                              sdimx = 'sdimx',
                                              sdimy = 'sdimy',
@@ -2694,6 +2625,7 @@ spatPlot2D_single = function(gobject,
                              save_param = list(),
                              default_save_name = 'spatPlot2D_single') {
 
+  guard_against_notgiotto(gobject)
 
   if(verbose == TRUE) {
     cat('\n verbose == TRUE \n')
@@ -3188,6 +3120,7 @@ spatPlot2D = function(gobject,
                       save_param =  list(),
                       default_save_name = 'spatPlot2D') {
 
+  guard_against_notgiotto(gobject)
 
   ## check group_by
   if(is.null(group_by)) {
