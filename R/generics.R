@@ -136,7 +136,7 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 #' @param param Specific param in instructions to access or modify
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, value, param, ...) standardGeneric('instructions<-'))
 
 
 
@@ -151,7 +151,7 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'missing'),
 # Set instructions object
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'missing', value = 'ANY'),
+setMethod('instructions<-', signature(gobject = 'giotto', value = 'ANY', param = 'missing'),
           function(gobject, value) {
             gobject = replaceGiottoInstructions(gobject, instructions = value)
             return(initialize(gobject))
@@ -169,8 +169,8 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'character'),
 # Set specific field
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'character', value = 'ANY'),
-          function(gobject, param, value) {
+setMethod('instructions<-', signature(gobject = 'giotto', value = 'ANY', param = 'character'),
+          function(gobject, value, param) {
             gobject = changeGiottoInstructions(gobject = gobject,
                                                params = param,
                                                new_values = value,

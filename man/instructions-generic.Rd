@@ -5,20 +5,20 @@
 \alias{instructions}
 \alias{instructions<-}
 \alias{instructions,giotto,missing-method}
-\alias{instructions<-,giotto,missing-method}
+\alias{instructions<-,giotto,ANY,missing-method}
 \alias{instructions,giotto,character-method}
-\alias{instructions<-,giotto,character-method}
+\alias{instructions<-,giotto,ANY,character-method}
 \title{Access giotto instructions}
 \usage{
 instructions(gobject, param, ...)
 
 \S4method{instructions}{giotto,missing}(gobject)
 
-\S4method{instructions}{giotto,missing}(gobject) <- value
+\S4method{instructions}{giotto,ANY,missing}(gobject) <- value
 
 \S4method{instructions}{giotto,character}(gobject, param)
 
-\S4method{instructions}{giotto,character}(gobject, param) <- value
+\S4method{instructions}{giotto,ANY,character}(gobject, param) <- value
 }
 \arguments{
 \item{gobject}{giotto object}
