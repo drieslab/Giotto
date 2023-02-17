@@ -841,7 +841,7 @@ saveGiotto = function(gobject,
 
 
   ## set directory path and folder
-  final_dir = paste0(dir,'/', foldername)
+  final_dir = paste0(path.expand(dir),'/', foldername)
 
   if(dir.exists(final_dir)) {
     if(overwrite == FALSE) {
@@ -1003,6 +1003,8 @@ loadGiotto = function(path_to_folder,
 
   # data.table vars
   img_type = NULL
+
+  path_to_folder = path.expand(path_to_folder)
 
   if(!file.exists(path_to_folder)) {
     stop('path_to_folder does not exist \n')
