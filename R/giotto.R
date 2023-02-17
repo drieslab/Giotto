@@ -489,6 +489,7 @@ evaluate_expr_matrix = function(inputmatrix,
 
 
   if(inherits(inputmatrix, 'character')) {
+    inputmatrix = path.expand(inputmatrix)
     mymatrix = readExprMatrix(inputmatrix, cores = cores)
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
@@ -2441,6 +2442,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
     ## check arguments
     if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
+    visium_dir = path.expand(visium_dir)
     if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
     expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
 

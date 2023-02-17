@@ -159,13 +159,11 @@ createGiottoMerscopeObject = function(merscope_dir,
                                       instructions = NULL,
                                       cores = NA,
                                       verbose = TRUE) {
-  
+
   fovs = NULL
 
   # 0. setup
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
+  merscope_dir = path.expand(merscope_dir)
 
   poly_z_indices = as.integer(poly_z_indices)
   if(any(poly_z_indices < 1)) stop(wrap_txt(
@@ -231,7 +229,7 @@ createGiottoMerscopeObject_subcellular = function(data_list,
                                                                                new_spat_unit = 'cell'),
                                                   cores = NA,
                                                   verbose = TRUE) {
-  
+
   feat_coord = neg_coord = cellLabel_dir = instructions = NULL
 
   # unpack data_list
@@ -373,9 +371,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
                                    verbose = TRUE) {
 
   # 0. setup
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
+  cosmx_dir = path.expand(cosmx_dir)
 
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
@@ -450,9 +446,9 @@ createGiottoCosMxObject_subcellular = function(dir_items,
                                                cores,
                                                verbose = TRUE,
                                                instructions = NULL) {
-  
+
   target = fov = NULL
-  
+
   # load tx detections and FOV offsets
   data_list = load_cosmx_folder_subcellular(dir_items = dir_items,
                                             FOVs = FOVs,
@@ -864,6 +860,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                     verbose = TRUE) {
 
   # 0. setup
+  xenium_dir = path.expand(xenium_dir)
 
   # Determine data to load
   data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate'))
