@@ -18,8 +18,7 @@ set_expression_values(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{values}{exprObj or matrix of expression values. If NULL, then the object
-will be removed.}
+\item{values}{exprObj If NULL, then the object will be removed.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 

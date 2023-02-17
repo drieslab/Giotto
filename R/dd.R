@@ -1,16 +1,27 @@
 
 
 # ------------------------------------------------------------------------- #
-# This script contains reusable dummy documentation for commonly used params
-# Use @inheritParams data_access when documenting these parameters
+# This script contains reusable dummy documentation / templates for
+# commonly used params.
+#
+# Use the @inheritParams tag to use these templates in documentation
 # ------------------------------------------------------------------------- #
 
 # No @title to prevent .Rd generation
-# No @noRd so @inheritParams can be used
+# No @noRd tags can be used on these dummy documentations, otherwise @inheritParams
+# cannot be used
 
-# Note that these dummy documentations will be flagged with warnings when building
-# the documentation
+# Note that these dummy documentations WILL be flagged with warnings when building
+# the documentation, but this should be fine.
 
+
+
+
+
+
+
+
+# Data Access ####
 
 
 #' @name data_access_params
@@ -24,6 +35,14 @@
 #' @param copy_obj whether to deep copy/duplicate when getting the object (default = TRUE)
 #' @keywords internal
 NULL
+
+
+
+
+
+
+
+# Plotting ####
 
 
 #' @name plot_params
@@ -48,6 +67,17 @@ NULL
 #' @param center_point_size size of center points
 #' @param center_point_border_col border color of center points
 #' @param center_point_border_stroke border stroke size of center points
+#'
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#'
+#' @param spat_enr_names names of spatial enrichment results to include
+#'
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
 #'
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
