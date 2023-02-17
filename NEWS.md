@@ -6,6 +6,7 @@
 ## Breaking Changes
 - Removed all deprecated accessors from `accessors.R`
 - `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
+- update `loadGiotto()` and `saveGiotto()` to allow using long strings as column names in the spatVector objects
 
 ## Added
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
@@ -24,7 +25,7 @@
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
-
+- Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths
 
 
 # Giotto Suite 3.2.0 (2023-02-02)
