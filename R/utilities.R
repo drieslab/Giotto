@@ -725,6 +725,28 @@ degrees = function(rad) {
 
 
 
+# guard functions ####
+
+guard_against_notgiotto = function(gobject, ...) {
+  fn_name = deparse(sys.calls()[[sys.nframe()-1]])
+  orig_name = deparse(eval(call('substitute', as.name(substitute(gobject)), parent.frame())))
+  if(!inherits(gobject, 'giotto')) {
+    stop(wrap_txt(fn_name, ':\n', orig_name, 'is not a giotto object',
+                  errWidth = TRUE),
+         call. = FALSE)
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
