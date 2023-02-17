@@ -21,7 +21,7 @@ Supported updates:
 }
 }
 \examples{
-\dontrun{ 
+\dontrun{
 gobject = updateGiottoObject(gobject)
 }
 }

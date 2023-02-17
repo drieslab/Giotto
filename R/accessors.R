@@ -70,7 +70,7 @@ read_s4_nesting = function(x) {
 
   p = parent.frame()
 
-  s_names = slotNames(x)
+  s_names = methods::slotNames(x)
 
 
   # Determine nesting element to use. If parent frame variables are edited, it
@@ -167,7 +167,7 @@ get_cell_id = function(gobject,
                        spat_unit = NULL,
                        set_defaults = TRUE) {
 
-  if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
+  guard_against_notgiotto(gobject)
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
@@ -197,7 +197,7 @@ set_cell_id = function(gobject,
                        spat_unit = NULL,
                        cell_IDs,
                        set_defaults = TRUE) {
-  if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
+  guard_against_notgiotto(gobject)
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
@@ -255,7 +255,7 @@ set_cell_id = function(gobject,
 get_feat_id = function(gobject,
                        feat_type = NULL,
                        set_defaults = TRUE) {
-  if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
+  guard_against_notgiotto(gobject)
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = NULL)
@@ -284,7 +284,7 @@ set_feat_id = function(gobject,
                        feat_type = NULL,
                        feat_IDs,
                        set_defaults = TRUE) {
-  if(!inherits(gobject, 'giotto')) stop('Only Giotto Objects are supported for this function.')
+  guard_against_notgiotto(gobject)
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = NULL)
@@ -504,7 +504,7 @@ set_cell_metadata = function(gobject,
   # data.table vars
   cell_ID = NULL
 
-  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+  guard_against_notgiotto(gobject)
 
   # 1. determine if user input was supplied
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -713,7 +713,7 @@ set_feature_metadata = function(gobject,
   # data.table vars
   feat_ID = NULL
 
-  if(!inherits(gobject, 'giotto')) stop("Only Giotto Objects are supported for this function.")
+  guard_against_notgiotto(gobject)
 
   # 1. determine if user input was supplied
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -853,7 +853,7 @@ getExpression = function(gobject,
                          set_defaults = TRUE) {
 
   # 0. Check input
-  if(!inherits(gobject, 'giotto')) stop(('gobject must be a giotto object\n'))
+  guard_against_notgiotto(gobject)
   output = match.arg(output, choices = c('exprObj', 'matrix'))
 
 
@@ -962,8 +962,7 @@ get_expression_values = function(gobject,
 #' @inheritParams data_access_params
 #' @param name name for the expression slot
 #' @param provenance provenance information (optional)
-#' @param values exprObj or matrix of expression values. If NULL, then the object
-#' will be removed.
+#' @param values exprObj If NULL, then the object will be removed.
 #' @param verbose be verbose
 #' @return giotto object
 #' @family expression accessor functions
@@ -979,8 +978,11 @@ set_expression_values = function(gobject,
                                  set_defaults = TRUE) {
 
 
-  if(!inherits(gobject, 'giotto')) stop(substitute(gobject), ' is not a gobject')
-  if(!inherits(values, c('exprObj', 'NULL'))) stop(substitute(values), ' is not an exprObj')
+  guard_against_notgiotto(gobject)
+  if(!inherits(values, c('exprObj', 'NULL'))) {
+    if(verbose) wrap_msg(deparse(substitute(values)), 'is not exprObj
+                         passing to setExpression()...')
+  }
 
   # 1. Determine user inputs
   p = parent.frame() # Get values if called from external
@@ -1067,7 +1069,7 @@ setExpression = function(gobject,
                          verbose = TRUE,
                          set_defaults = TRUE) {
 
-  if(!inherits(gobject, 'giotto')) stop(substitute(gobject), ' is not a gobject')
+  guard_against_notgiotto(gobject)
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)

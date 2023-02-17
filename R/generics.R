@@ -125,6 +125,71 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 
 
 
+
+# instructions ####
+#' @title Access giotto instructions
+#' @name instructions-generic
+#' @aliases instructions instructions<-
+#' @description Retrieve or set giotto instructions. Specific instructions can
+#' be replaced using the \code{field} param
+#' @inheritParams data_access_params
+#' @param param Specific param in instructions to access or modify
+#' @param value value to set
+setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
+setGeneric('instructions<-', function(gobject, param, value, ...) standardGeneric('instructions<-'))
+
+
+
+# Get instructions object
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions', signature(gobject = 'giotto', param = 'missing'),
+          function(gobject) {
+            return(showGiottoInstructions(gobject))
+          })
+
+# Set instructions object
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-', signature(gobject = 'giotto', param = 'missing', value = 'ANY'),
+          function(gobject, value) {
+            gobject = replaceGiottoInstructions(gobject, instructions = value)
+            return(initialize(gobject))
+          })
+
+# Get specific field
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions', signature(gobject = 'giotto', param = 'character'),
+          function(gobject, param) {
+            instrs = showGiottoInstructions(gobject = gobject)
+            return(readGiottoInstructions(giotto_instructions = instrs, param = param))
+          })
+
+# Set specific field
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-', signature(gobject = 'giotto', param = 'character', value = 'ANY'),
+          function(gobject, param, value) {
+            gobject = changeGiottoInstructions(gobject = gobject,
+                                               params = param,
+                                               new_values = value,
+                                               return_gobject = TRUE)
+            return(initialize(gobject))
+          })
+
+
+
+
+
+
+
+
+
+
+
+
+
 # colnames and rownames generics ####
 #' @title Row and column names
 #' @name row-plus-colnames-generic
@@ -1301,4 +1366,15 @@ setMethod('[<-', signature(x = 'giottoPolygon', i = 'missing', j = 'missing', va
             x@spatVector = value
             x
           })
+
+
+
+
+
+
+
+
+
+
+
 
