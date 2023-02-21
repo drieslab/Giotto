@@ -5,29 +5,39 @@
 \alias{instructions}
 \alias{instructions<-}
 \alias{instructions,giotto,missing-method}
-\alias{instructions<-,giotto,missing-method}
+\alias{instructions<-,giotto,missing,missing-method}
+\alias{instructions<-,giotto,missing,logical-method}
 \alias{instructions,giotto,character-method}
-\alias{instructions<-,giotto,character-method}
+\alias{instructions<-,giotto,character,missing-method}
+\alias{instructions<-,giotto,character,logical-method}
 \title{Access giotto instructions}
 \usage{
 instructions(gobject, param, ...)
 
 \S4method{instructions}{giotto,missing}(gobject)
 
-\S4method{instructions}{giotto,missing}(gobject) <- value
+\S4method{instructions}{giotto,missing,missing}(gobject, initialize) <- value
+
+\S4method{instructions}{giotto,missing,logical}(gobject, initialize) <- value
 
 \S4method{instructions}{giotto,character}(gobject, param)
 
-\S4method{instructions}{giotto,character}(gobject, param) <- value
+\S4method{instructions}{giotto,character,missing}(gobject, param, initialize) <- value
+
+\S4method{instructions}{giotto,character,logical}(gobject, param, initialize) <- value
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{param}{Specific param in instructions to access or modify}
 
+\item{initialize}{(boolean, default = TRUE) whether to initialize the giotto object}
+
 \item{value}{value to set}
 }
 \description{
 Retrieve or set giotto instructions. Specific instructions can
-be replaced using the \code{field} param
+be replaced using the \code{field} param. Additionally, when using
+instructions<-, \code{initialize()} will be called on the giotto object if
+initialize param is TRUE
 }

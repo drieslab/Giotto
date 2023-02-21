@@ -276,111 +276,79 @@ setClass('spatFeatData',
 ## * Check ####
 # Giotto class
 
-#TODO
-# @title Check Giotto Object
-# @name check_giottoObj
-# @description check function for S4 giotto object
-# @param object giotto object to check
-# @keywords internal
-# checkGiottoObj = function(object) {
-#
-#   # !!! (validity check still under construction) !!!
-#   # Add check class definition when finished
-#
-#   errors = character()
-#   ch = box_chars()
-#
-#   gDataSlots = list(expression = 'expression',
-#                     expression_feat = 'expression_feat',
-#                     spatial_locs = 'spatial_locs',
-#                     spatial_info = 'spatial_info',
-#                     feat_info = 'feat_info',
-#                     cell_metadata = 'cell_metadata',
-#                     feat_metadata = 'feat_metadata',
-#                     cell_ID = 'cell_ID',
-#                     feat_ID = 'feat_ID',
-#                     spatial_network = 'spatial_network',
-#                     spatial_grid = 'spatial_grid',
-#                     spatial_enrichment = 'spatial_enrichment',
-#                     dimension_reduction = 'dimension_reduction',
-#                     nn_network = 'nn_network')
-#
-#
-#   if(!is.null(slot(object, 'expression'))) {
-#     avail_expr = list_expression(object)
-#     for(expr in seq(nrow(avail_expr)))
-#     if(!inherits(slot(object, 'expression')[[avail_expr[[expr]]]][[avail_expr[[expr]]]][[avail_expr[[expr]]]], 'data.table')) {
-#       TODO
-#     }
-#   }
-#
-#
-#
-#
-#
-#   ## Match spatial units and feature types ##
-#
-#   # Find existing spat_units in source data
-#   uniqueSrcSU = list_expression(object)$spat_unit
-#   uniqueSrcSU = unique(uniqueSrcSU, list_spatial_info_names(object))
-#
-#   # Find existing feat_types in source data
-#   uniqueSrcFT = list_expression(object)$feat_type
-#   uniqueSrcFT = unique(uniqueSrcFT, list_feature_info_names(object))
-#
-#   # Find existing spat_units and feat_types within other data slots
-#   uniqueDatSU = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$spat_unit)
-#   uniqueDatFT = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$feat_type)
-#
-#   # # If any spat_units exist, ensure that associated objects have identical cell_IDs
-#   # if(length(uniqueSU) > 0) {
-#   #   for(SU in seq_along(uniqueSU)) {
-#   #
-#   #     all(lapply(gDataSlots, function(x) {
-#   #       list_giotto_data(gobject = object,
-#   #                        slot = x)
-#   #     }))
-#   #   }
-#   # }
-#
-#
-#   # cell_ID slot
-#   slot_cell_ID = slot(object, 'cell_ID')
-#
-#   ## check nesting depth
-#   if(depth(slot_cell_ID) != 1) {
-#     msg = paste0('Nesting depth of cell_ID is ', depth(slot_cell_ID), '.
-#         Should be 1. Ex:
-#         \t.
-#         \t', ch$b,'spat_unit
-#         \t', ch$s, ch$b,'cell IDs\n')
-#     errors = c(errors, msg)
-#   }
-#
-#   for(spat_unit in names(slot_cell_ID)) {
-#     if(!inherits(slot_cell_ID[[spat_unit]], 'character')) {
-#       msg = paste0('cell_ID slot info for spat_unit "', spat_unit,'" is of class "',
-#                    class(slot_cell_ID[[spat_unit]]), '".\n    Should be "character"\n')
-#       errors = c(errors, msg)
-#     }
-#   }
-#
-#
-#   if(length(errors) == 0) TRUE else errors
-# }
 
-## Test Functions
-# test_valid = function(object) {
-#   print('valid_run')
-#   return(TRUE)
-# }
-#
-# setMethod('initialize', signature = 'giotto',
-#           function(.Object, ...) {
-#             .Object = methods::callNextMethod()
-#             print('init_run')
-#             .Object
-#           })
+#' @title Check Giotto Object
+#' @name check_giottoObj
+#' @description check function for S4 giotto object
+#' @param object giotto object to check
+#' @keywords internal
+#' @noRd
+check_giotto_obj = function(object) {
+
+
+  errors = character()
+  ch = box_chars()
+
+
+  ## Validate Nesting ##
+  ## ---------------- ##
+
+  slot_depths = giotto_slot_depths()
+  for(slot_i in seq(nrow(slot_depths))) {
+
+    slot_data = slot(object, slot_depths$slot[[slot_i]])
+    if(!is.null(slot_data)) {
+      if(depth(slot_data, method = 'min') != slot_depths$depth[[slot_i]]) {
+        msg = wrap_txt('Invalid nesting discovered for',
+                       slot_depths$slot[[slot_i]],
+                       'slot')
+        errors = c(errors, msg)
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+  # ## Match spatial units and feature types ##
+  #
+  # # Find existing spat_units in source data
+  # uniqueSrcSU = list_expression(object)$spat_unit
+  # uniqueSrcSU = unique(uniqueSrcSU, list_spatial_info_names(object))
+  #
+  # # Find existing feat_types in source data
+  # uniqueSrcFT = list_expression(object)$feat_type
+  # uniqueSrcFT = unique(uniqueSrcFT, list_feature_info_names(object))
+  #
+  # # Find existing spat_units and feat_types within other data slots
+  # uniqueDatSU = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$spat_unit)
+  # uniqueDatFT = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$feat_type)
+
+  # # If any spat_units exist, ensure that associated objects have identical cell_IDs
+  # if(length(uniqueSU) > 0) {
+  #   for(SU in seq_along(uniqueSU)) {
+  #
+  #     all(lapply(gDataSlots, function(x) {
+  #       list_giotto_data(gobject = object,
+  #                        slot = x)
+  #     }))
+  #   }
+  # }
+
+
+
+
+
+
+
+  if(length(errors) == 0) TRUE else errors
+}
+
+
 
 
 
@@ -398,7 +366,7 @@ setClass('spatFeatData',
 #'   \item{master branch to suite - TODO}
 #' }
 #' @examples
-#' \dontrun{ 
+#' \dontrun{
 #' gobject = updateGiottoObject(gobject)
 #' }
 #' @export
@@ -501,14 +469,301 @@ giotto <- setClass(
     nn_network = NULL,
     images = NULL,
     largeImages = NULL,
-    parameters = NULL,
+    parameters = list(),
     instructions = NULL,
     offset_file = NULL,
     OS_platform = NULL,
     join_info = NULL,
     multiomics = NULL
-  )
+  ),
+
+  validity = check_giotto_obj
 )
+
+
+
+
+
+
+
+
+##### * Initialize ####
+#' @noRd
+#' @keywords internal
+setMethod('initialize', signature('giotto'), function(.Object, ...) {
+
+  .Object = methods::callNextMethod()
+
+  # message('initialize Giotto run\n\n')  # debug
+
+
+  ## set instructions ##
+  ## ---------------- ##
+
+  # set default instructions (no recursive initialize)
+  if(is.null(instructions(.Object))) {
+    instructions(.Object, initialize = FALSE) = createGiottoInstructions()
+  }
+
+  ## test python module availability ##
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
+  my_python_path = instructions(.Object, 'python_path')
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
+  }
+
+
+
+  ## Slot Detection ##
+  ## -------------- ##
+
+  # detect expression and subcellular data
+  avail_expr = list_expression(.Object)
+  avail_si = list_spatial_info(.Object)
+  avail_fi = list_feature_info(.Object)
+
+  used_spat_units = unique(c(avail_expr$spat_unit, avail_si$spat_info))
+  used_feat_types = unique(c(avail_expr$feat_type, avail_fi$feat_info))
+
+  # detect ID slots
+  avail_cid = list_cell_id_names(.Object)
+  avail_fid = list_cell_id_names(.Object)
+
+  # detect metadata slots
+  avail_cm = list_cell_metadata(.Object)
+  avail_fm = list_feat_metadata(.Object)
+
+  # detect spatial location slot
+  avail_sl = list_spatial_locations(.Object)
+
+
+
+
+  ## Set active/default spat_unit and feat_type ##
+  ## ------------------------------------------ ##
+
+  # detect if actives are set in giotto instructions
+  active_su = try(instructions(.Object, 'active_spat_unit'), silent = TRUE)
+  active_ft = try(instructions(.Object, 'active_feat_type'), silent = TRUE)
+
+  # determine actives using defaults if data exists then set
+  if(inherits(active_su, 'try-error')) {
+    if(!is.null(avail_expr) | !is.null(avail_si)) {
+      active_su = set_default_spat_unit(gobject = .Object)
+      instructions(.Object, 'active_spat_unit', initialize = FALSE) = active_su
+    }
+  }
+  if(inherits(active_ft, 'try-error')) {
+    if(!is.null(avail_expr) | !is.null(avail_fi)) {
+      active_ft = set_default_feat_type(gobject = .Object,
+                                        spat_unit = active_su)
+      instructions(.Object, 'active_feat_type', initialize = FALSE) = active_ft
+    }
+  }
+
+
+
+
+
+
+
+
+
+  ## Ensure Consistent IDs ##
+  ## --------------------- ##
+
+  # cell IDs can be expected to be constant across a spatial unit
+
+  # expression
+  if(!is.null(avail_expr)) {
+    unique_expr_sets = unique(avail_expr[, .(spat_unit, feat_type)])
+
+    for(set_i in nrow(unique_expr_sets)) {
+      exp_list = get_expression_values_list(
+        gobject = .Object,
+        spat_unit = unique_expr_sets$spat_unit[[set_i]],
+        feat_type = unique_expr_sets$feat_type[[set_i]],
+        output = 'exprObj',
+        set_defaults = FALSE
+      )
+
+      exp_list_names = lapply(exp_list, spatIDs)
+      list_match = sapply(exp_list_names, setequal, exp_list_names[[1L]])
+      if(!all(list_match)) {
+        print(list_match)
+        warning(wrap_text(
+          'spat_unit:', unique_expr_sets$spat_unit[[set_i]], '/',
+          'feat_type:', unique_expr_sets$feat_type[[set_i]],
+          '\nNot all expression matrices share the same cell_IDs'
+        ))
+      }
+    }
+  }
+
+
+
+
+  # MIGHT BE CHANGED IN THE FUTURE
+  # feat_IDs cannot be expected to be constant across spat units.
+
+
+
+
+
+
+
+  ## ID initialization ##
+  ## ----------------- ##
+
+  # Must be after default spat_unit/feat_type are set.
+  # feat_ID initialization depends on active spat_unit
+
+
+  # Initialization of cell_ID and feat_ID slots. These slots hold their     #
+  # respective IDs for each spatial unit and feature type respectively.     #
+  #                                                                         #
+  # cell_metadata and feat_metadata slots are initialized off these slots.  #
+  #                                                                         #
+  # expression information is PREFERRED for ID initialization.              #
+  # subcellular information, being raw data may also be used.               #
+
+  .Object = init_cell_and_feat_IDs(gobject = .Object)
+
+
+
+
+
+  ## Metadata initialization ##
+  ## ----------------------- ##
+
+  # Initialization of all spat_unit/feat_type combinations if the metadata  #
+  # does not currently exist.                                               #
+
+  # provenance is always updated from matched expression info if existing
+
+
+
+  for(spatial_unit in used_spat_units) {
+    for(feature_type in used_feat_types) {
+
+      provenance = NULL
+      # get expression for provenance info
+      if(!is.null(avail_expr)) {
+        if(nrow(avail_expr[spat_unit == spatial_unit &
+                           feat_type == feature_type]) != 0L) {
+          provenance = prov(get_expression_values(
+            gobject = .Object,
+            spat_unit = spatial_unit,
+            feat_type = feature_type,
+            output = 'exprObj',
+            set_defaults = FALSE
+          ))
+        }
+      }
+
+      # initialize if no metadata exists OR none for this spat/feat
+
+      # cell metadata
+      if(is.null(avail_cm)) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_cell_metadata(
+            gobject = .Object,
+            metadata = 'initialize',
+            spat_unit = spatial_unit,
+            feat_type = feature_type,
+            verbose = FALSE,
+            set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      } else if(nrow(avail_cm[spat_unit == spatial_unit &
+                              feat_type == feature_type]) == 0L) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_cell_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
+
+      # feature metadata
+      if(is.null(avail_fm)) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_feature_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      } else if(nrow(avail_fm[spat_unit == spatial_unit &
+                              feat_type == feature_type]) == 0L) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_feature_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
+
+
+      # update provenance (always happens for all metadata objects)
+      if(is.null(provenance)) next() # skip if no provenance info
+
+      cm = get_cell_metadata(gobject = .Object,
+                             spat_unit = spatial_unit,
+                             feat_type = feature_type,
+                             output = 'cellMetaObj',
+                             copy_obj = FALSE,
+                             set_defaults = FALSE)
+      fm = get_feature_metadata(gobject = .Object,
+                                spat_unit = spatial_unit,
+                                feat_type = feature_type,
+                                output = 'featMetaObj',
+                                copy_obj = FALSE,
+                                set_defaults = FALSE)
+      prov(cm) = provenance
+      prov(fm) = provenance
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      .Object = set_cell_metadata(gobject = .Object, metadata = cm, verbose = FALSE)
+      .Object = set_feature_metadata(gobject = .Object, metadata = fm, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+  }
+
+
+
+
+  ## Spatial locations ##
+  ## ----------------- ##
+
+  if(!is.null(avail_expr) & !is.null(avail_sl)) {
+    # 1. ensure spatial locations and expression matrices have the same cell IDs
+    # 2. give cell IDs if not provided
+    check_spatial_location_data(gobject = .Object) # modifies by reference
+  }
+
+
+
+
+
+  .Object
+
+})
+
+
 
 
 
@@ -529,6 +784,17 @@ setMethod(
     spat_unit = feat_type = prints = name = img_type = name = NULL
 
     cat("An object of class",  class(object), "\n")
+
+
+    # active spat_unit and feat_type
+    active_su = try(instructions(object, 'active_spat_unit'), silent = TRUE)
+    active_ft = try(instructions(object, 'active_feat_type'), silent = TRUE)
+    if(!inherits(active_su, 'try-error')) {
+      cat('>Active spat_unit: ', active_su, '\n')
+    }
+    if(!inherits(active_ft, 'try-error')) {
+      cat('>Active feat_type: ', active_ft, '\n')
+    }
 
 
     cat('[SUBCELLULAR INFO]\n')
@@ -1078,10 +1344,11 @@ check_spat_locs_obj = function(object) {
     errors = c(errors, msg)
   }
 
-  if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
-    msg = 'Column "cell_ID" for cell ID was not found'
-    errors = c(errors, msg)
-  }
+  # Allow check_spatial_location_data() to compensate for missing cell_ID
+  # if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
+  #   msg = 'Column "cell_ID" for cell ID was not found'
+  #   errors = c(errors, msg)
+  # }
 
   if(length(errors) == 0) TRUE else errors
 }

@@ -4,16 +4,19 @@
 \alias{replaceGiottoInstructions}
 \title{Replace all giotto instructions in giotto object}
 \usage{
-replaceGiottoInstructions(gobject, instructions = NULL)
+replaceGiottoInstructions(gobject, instructions = NULL, init_gobject = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{instructions}{new instructions (e.g. result from createGiottoInstructions)}
+
+\item{init_gobject}{(boolean, default = TRUE) initialize gobject when returning}
 }
 \value{
 giotto object with replaces instructions
 }
 \description{
-Function to replace all instructions from giotto object
+Function to replace all instructions from giotto object. Does
+not call \code{initialize} on the giotto object
 }

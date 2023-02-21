@@ -11,7 +11,7 @@ get_dimReduction(
   reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
-  output = c("dimObj", "data.table"),
+  output = c("dimObj", "matrix"),
   set_defaults = TRUE
 )
 }
@@ -28,7 +28,7 @@ get_dimReduction(
 
 \item{name}{name of reduction results}
 
-\item{output}{object type to return as. Either 'dimObj' (default) or 'data.table
+\item{output}{object type to return as. Either 'dimObj' (default) or 'matrix'
 of the embedding coordinates.}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
