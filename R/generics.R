@@ -131,12 +131,15 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 #' @name instructions-generic
 #' @aliases instructions instructions<-
 #' @description Retrieve or set giotto instructions. Specific instructions can
-#' be replaced using the \code{field} param
+#' be replaced using the \code{field} param. Additionally, when using
+#' instructions<-, \code{initialize()} will be called on the giotto object if
+#' initialize param is TRUE
 #' @inheritParams data_access_params
 #' @param param Specific param in instructions to access or modify
+#' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
 
 
 
@@ -151,10 +154,23 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'missing'),
 # Set instructions object
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'missing', value = 'ANY'),
-          function(gobject, value) {
-            gobject = replaceGiottoInstructions(gobject, instructions = value)
-            return(initialize(gobject))
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'missing', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'logical', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = initialize)
+            return(gobject)
           })
 
 # Get specific field
@@ -169,13 +185,27 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'character'),
 # Set specific field
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'character', value = 'ANY'),
-          function(gobject, param, value) {
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'missing', value = 'ANY'),
+          function(gobject, param, initialize, value) {
             gobject = changeGiottoInstructions(gobject = gobject,
                                                params = param,
                                                new_values = value,
-                                               return_gobject = TRUE)
-            return(initialize(gobject))
+                                               return_gobject = TRUE,
+                                               init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'logical', value = 'ANY'),
+          function(gobject, param, initialize, value) {
+            gobject = changeGiottoInstructions(gobject = gobject,
+                                               params = param,
+                                               new_values = value,
+                                               return_gobject = TRUE,
+                                               init_gobject = initialize)
+            return(gobject)
           })
 
 

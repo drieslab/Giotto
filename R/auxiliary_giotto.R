@@ -14,8 +14,10 @@ set_default_spat_unit = function(gobject,
   # set spatial unit
   if(is.null(spat_unit)) {
 
-    spat_unit = getOption('giotto.spat_unit')
-    if(is.null(spat_unit)) {
+    # spat_unit = getOption('giotto.spat_unit')
+    spat_unit = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+
+    if(inherits(spat_unit, 'try-error')) {
       if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
         spat_unit = names(gobject@expression)[[1]]
       } else if(!is.null(gobject@spatial_info)){
@@ -45,9 +47,10 @@ set_default_feat_type = function(gobject,
   # set spatial unit
   if(is.null(feat_type)) {
 
-    feat_type = getOption('giotto.feat_type')
+    # feat_type = getOption('giotto.feat_type')
+    feat_type = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
 
-    if(is.null(feat_type)) {
+    if(inherits(feat_type, 'try-error')) {
       if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
         feat_type = names(gobject@expression[[spat_unit]])[[1]]
         if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
@@ -62,6 +65,10 @@ set_default_feat_type = function(gobject,
 
   return(feat_type)
 }
+
+
+
+
 
 
 #' @title mean_expr_det_test
@@ -318,6 +325,8 @@ create_average_detection_DT <- function(gobject,
 
 
 
+
+# TODO DEPRECATE now that this functionality is covered in initialize()
 #' @title Initialize cell metadata slot
 #' @name init_cell_metadata
 #' @description Generate cellMetaObjs to hold cell metadata for each spatial unit
@@ -374,6 +383,9 @@ init_cell_metadata = function(gobject,
 }
 
 
+
+
+# TODO DEPRECATE now that this functionality is covered in initialize()
 #' @title Initialize feature metadata slot
 #' @name init_feat_metadata
 #' @description Generate featMetaObjs to hold all feature metadata for each spatial unit
@@ -1292,11 +1304,11 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 3: subset spatial locations \n')
 
+  # update ID slots now performed by intialization
 
 
-
-  gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
-  gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
+  # gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
+  # gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
 
 
   if(verbose) cat('completed 4: subset cell (spatial units) and feature IDs \n')
@@ -1422,7 +1434,7 @@ subsetGiotto <- function(gobject,
   gobject@parameters = parameters_list
 
 
-  return(gobject)
+  return(initialize(gobject))
 
 }
 

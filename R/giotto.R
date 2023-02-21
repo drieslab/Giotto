@@ -328,7 +328,7 @@ readGiottoInstructions <- function(giotto_instructions,
   if(is.null(param)) {
     stop('\t readGiottoInstructions needs a parameter to work \t')
   } else if(!param %in% names(giotto_instructions)) {
-    stop('\t parameter ', param, ' is not part of Giotto parameters \t')
+    stop('\t parameter ', param, ' is not in Giotto instructions \t')
   } else {
     specific_instruction = giotto_instructions[[param]]
   }
@@ -351,17 +351,21 @@ showGiottoInstructions = function(gobject) {
 
 #' @title Change giotto instruction(s) associated with giotto object
 #' @name changeGiottoInstructions
-#' @description Function to change one or more instructions from giotto object
+#' @description Function to change one or more instructions from giotto object.
+#' If more than one item is supplied to \code{params} and \code{new_values}, use
+#' a vector of values. Does not call \code{initialize} on the giotto object
 #' @param gobject giotto object
 #' @param params parameter(s) to change
 #' @param new_values new value(s) for parameter(s)
-#' @param return_gobject (boolean) return giotto object
+#' @param return_gobject (boolean, default = TRUE) return giotto object
+#' @param init_gobject (boolean, default = TRUE) initialize gobject if returning
 #' @return giotto object with one or more changed instructions
 #' @export
 changeGiottoInstructions = function(gobject,
                                     params = NULL,
                                     new_values = NULL,
-                                    return_gobject = TRUE) {
+                                    return_gobject = TRUE,
+                                    init_gobject = TRUE) {
 
   instrs = gobject@instructions
 
@@ -373,9 +377,9 @@ changeGiottoInstructions = function(gobject,
     stop('\t length of params need to be the same as new values \t')
   }
 
-  if(!all(params %in% names(instrs))) {
-    stop('\t all params need to be part of Giotto instructions \t')
-  }
+  # if(!all(params %in% names(instrs))) {
+  #   stop('\t all params need to be part of Giotto instructions \t')
+  # }
 
   ## swap with new values
   instrs[params] = new_values
@@ -385,6 +389,10 @@ changeGiottoInstructions = function(gobject,
 
     if(names(instrs[x]) %in% c('dpi', 'height', 'width')) {
       instrs[[x]] = as.numeric(instrs[[x]])
+    } else if(names(instrs[x]) %in% c('show_plot', 'return_plot', 'save_plot', 'is_docker')) {
+      instrs[[x]] = as.logical(instrs[[x]])
+    } else if(names(instrs[x]) %in% c('active_spat_unit', 'active_feat_type', 'plot_format', 'units')) {
+      instrs[[x]] = as.character(instrs[[x]])
     } else {
       instrs[[x]] = instrs[[x]]
     }
@@ -395,8 +403,9 @@ changeGiottoInstructions = function(gobject,
 
 
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
     gobject@instructions = new_instrs
+    if(isTRUE(init_gobject)) gobject = initialize(gobject)
     return(gobject)
   } else {
     return(new_instrs)
@@ -408,13 +417,16 @@ changeGiottoInstructions = function(gobject,
 
 #' @title Replace all giotto instructions in giotto object
 #' @name replaceGiottoInstructions
-#' @description Function to replace all instructions from giotto object
+#' @description Function to replace all instructions from giotto object. Does
+#' not call \code{initialize} on the giotto object
 #' @param gobject giotto object
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
+#' @param init_gobject (boolean, default = TRUE) initialize gobject when returning
 #' @return giotto object with replaces instructions
 #' @export
 replaceGiottoInstructions = function(gobject,
-                                     instructions = NULL) {
+                                     instructions = NULL,
+                                     init_gobject = TRUE) {
 
   instrs_needed = names(create_giotto_instructions())
 
@@ -425,6 +437,7 @@ replaceGiottoInstructions = function(gobject,
                   errWidth = TRUE))
   } else {
     gobject@instructions = instructions
+    if(isTRUE(init_gobject)) gobject = initialize(gobject)
     return(gobject)
   }
 
@@ -545,8 +558,9 @@ evaluate_expr_matrix = function(inputmatrix,
 #' @param this object to evaluate
 #' @param method max (default) or min nesting to detect
 #' @param sig signature or class to check for. Default is 'data.frame'
-#' @description Determines how many max or min layers of subnesting there is, with the end
-#' object (defined by param sig or a list of length 0) being layer 0
+#' @description Recursively determines how many max or min layers of subnesting
+#' there is, with the end object (defined by param sig or a list of length 0)
+#' being layer 0
 #' @details https://stackoverflow.com/questions/13432863/determine-level-of-nesting-in-r
 #' @keywords internal
 depth <- function(this,
@@ -555,12 +569,18 @@ depth <- function(this,
 
   method = match.arg(arg = method, choices = c('max', 'min'))
 
+  # Stop conditions:
+
+  # Stop if matches signature to search for
   if(inherits(this, sig)) {
-    return(0)
+    return(0L)
   }
-  if(is.list(this) && length(this) == 0) {
-    return(0)
+  # Stop if an empty list is discovered
+  if(is.list(this) && length(this) == 0L) {
+    return(0L)
   }
+  # Stop if object is not a list AND recurse if it is.
+  # Report minimum or maximum depth depending on method
   if(method == 'max') {
     ifelse(is.list(this), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
   } else if(method == 'min') {
@@ -772,66 +792,69 @@ read_expression_data = function(expr_list = NULL,
 
 
 
-#' @title Set cell and feature IDs
-#' @name set_cell_and_feat_IDs
-#' @description sets cell and feature IDs based on provided expression data
+#' @title Initialize cell and feature IDs
+#' @name init_cell_and_feat_IDs
+#' @description sets cell and feature IDs based on provided expression data.
+#' Enforces that across a single spatial unit, all expression matrices MUST
+#' have the same set of cell_IDs
 #' @keywords internal
-set_cell_and_feat_IDs = function(gobject) {
+#' @noRd
+init_cell_and_feat_IDs = function(gobject) {
 
   spat_unit = feat_type = name = NULL
 
-  # find available expr
+  # wipe values
+  slot(gobject, 'cell_ID') = NULL
+  slot(gobject, 'feat_ID') = NULL
+
+  # find available expr and info
   avail_expr = list_expression(gobject)
+  avail_si = list_spatial_info(gobject)
+  avail_fi = list_feature_info(gobject)
+
+  used_spat_units = unique(c(avail_expr$spat_unit, avail_si$spat_info))
+  used_feat_types = unique(c(avail_expr$feat_type, avail_fi$feat_info))
 
   # 1. set cell_ID for each region
   # each regions can have multiple features, but the cell_IDs (spatial units) should be the same
-  for(spatial_unit in avail_expr[, unique(spat_unit)]) {
-    expr_cell_ID = colnames(get_expression_values(gobject,
-                                                  spat_unit = spatial_unit,
-                                                  output = 'matrix'))
-    gobject = set_cell_id(gobject,
+  # Select spatial unit to initialize then pass to set_cell_id
+  # set_cell_id decides which data to initialize from
+  for(spatial_unit in used_spat_units) {
+    gobject = set_cell_id(gobject = gobject,
                           spat_unit = spatial_unit,
-                          cell_IDs = expr_cell_ID)
+                          cell_IDs = 'initialize',
+                          verbose = FALSE,
+                          set_defaults = TRUE)
   }
 
   # 2. ensure cell_ID and colnames for each matrix are the same
-  for(expr_i in seq(avail_expr[, .N])) {
-    spatial_unit = avail_expr[expr_i, spat_unit]
-    feature_type = avail_expr[expr_i, feat_type]
-    data = avail_expr[expr_i, name]
-
-    colnames_matrix = colnames(get_expression_values(gobject,
-                                                     spat_unit = spatial_unit,
-                                                     feat_type = feature_type,
-                                                     values = data,
-                                                     output = 'matrix'))
-    gobj_cell_ID = get_cell_id(gobject,
-                               spat_unit = spatial_unit)
-    if(!identical(colnames_matrix, gobj_cell_ID)) {
-      stop('Colnames are not the same for feat: ', feature_type,', spatial unit: ', spatial_unit ,', and data: ', data)
-    }
-  }
-
-
-  # 3. set feat_ID for each feature
-  for(feature_type in avail_expr[, unique(feat_type)]) {
-    expr_feat_ID = rownames(get_expression_values(gobject,
-                                                  feat_type = feature_type,
-                                                  output = 'matrix'))
-    gobject = set_feat_id(gobject,
-                          feat_type = feature_type,
-                          feat_IDs = expr_feat_ID)
-  }
-
-  # for(spatial_unit in avail_expr[, spat_unit]) {
-  #   feat_types_covered = list()
-  #   for(feat_type in names(gobject@expression[[spat_unit]])) {
-  #     if(!feat_type %in% feat_types_covered) {
-  #       gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
-  #       feat_types_covered[[feat_type]] = feat_type
-  #     }
+  # for(expr_i in seq(avail_expr[, .N])) {
+  #   spatial_unit = avail_expr[expr_i, spat_unit]
+  #   feature_type = avail_expr[expr_i, feat_type]
+  #   data = avail_expr[expr_i, name]
+  #
+  #   colnames_matrix = colnames(get_expression_values(gobject,
+  #                                                    spat_unit = spatial_unit,
+  #                                                    feat_type = feature_type,
+  #                                                    values = data,
+  #                                                    output = 'matrix'))
+  #   gobj_cell_ID = get_cell_id(gobject,
+  #                              spat_unit = spatial_unit)
+  #   if(!identical(colnames_matrix, gobj_cell_ID)) {
+  #     stop('Colnames are not the same for feat: ', feature_type,', spatial unit: ', spatial_unit ,', and data: ', data)
   #   }
   # }
+
+
+  # 2. set feat_ID for each feature
+  for(feature_type in used_feat_types) {
+    gobject = set_feat_id(gobject = gobject,
+                          feat_type = feat_type,
+                          feat_IDs = 'initialize',
+                          verbose = FALSE,
+                          set_defaults = TRUE)
+  }
+
 
   return(gobject)
 
@@ -2042,7 +2065,7 @@ createGiottoObject <- function(expression,
 
 
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
-    gobject = set_cell_and_feat_IDs(gobject)
+    gobject = init_cell_and_feat_IDs(gobject)
 
   }
 
@@ -3084,14 +3107,28 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
 
 #### logging of giotto functions ####
 
+
+# Determine the name of the function n levels above the current evaluation frame,
+# where n is toplevel - 1
+#' @keywords internal
+#' @noRd
+get_prev_fname = function(toplevel = 3L, verbose = FALSE) {
+  as.character(sys.call(-toplevel)[[1]])
+}
+
+
+
+
+
 #' @title Log args used
 #' @name get_args
 #' @keywords internal
-get_args <- function(toplevel = 2, verbose = FALSE) {
+#' @noRd
+get_args <- function(toplevel = 2L, verbose = FALSE) {
 
   nframes = sys.nframe()
 
-  if(verbose == TRUE) {
+  if(isTRUE(verbose)) {
     cat('\n number of frames: ')
     print(nframes)
     cat('\n')
@@ -3100,7 +3137,7 @@ get_args <- function(toplevel = 2, verbose = FALSE) {
 
   cl = sys.call(-toplevel)
 
-  if(verbose == TRUE) {
+  if(isTRUE(verbose)) {
     cat('\n system call: ')
     print(cl)
     cat('\n')
@@ -3114,7 +3151,7 @@ get_args <- function(toplevel = 2, verbose = FALSE) {
     fname = fname[[3]]
   }
 
-  if(verbose == TRUE) {
+  if(isTRUE(verbose)) {
     cat('\n function name: ')
     print(fname)
     cat('\n')
@@ -3160,6 +3197,7 @@ get_args <- function(toplevel = 2, verbose = FALSE) {
 #' @title Update giotto parameters
 #' @name update_giotto_params
 #' @keywords internal
+#' @noRd
 update_giotto_params = function(gobject,
                                 description = '_test',
                                 return_gobject = TRUE,
@@ -3231,6 +3269,7 @@ prov_match = function(..., verbose = FALSE) {
 #' @title join_expression_matrices
 #' @name join_expression_matrices
 #' @keywords internal
+#' @noRd
 join_expression_matrices = function(matrix_list) {
 
   # find all features
@@ -3270,6 +3309,7 @@ join_expression_matrices = function(matrix_list) {
 #' @title join_spatlocs
 #' @name join_spatlocs
 #' @keywords internal
+#' @noRd
 join_spatlocs = function(dt_list) {
 
   final_list = do.call('rbind', dt_list) # breaks DT reference
@@ -3279,6 +3319,7 @@ join_spatlocs = function(dt_list) {
 #' @title join_cell_meta
 #' @name join_cell_meta
 #' @keywords internal
+#' @noRd
 join_cell_meta = function(dt_list) {
 
   final_list = do.call('rbind', dt_list)
@@ -3289,6 +3330,7 @@ join_cell_meta = function(dt_list) {
 #' @title join_feat_meta
 #' @name join_feat_meta
 #' @keywords internal
+#' @noRd
 join_feat_meta = function(dt_list) {
 
   feat_ID = NULL

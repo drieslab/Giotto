@@ -7,10 +7,16 @@
 - Removed all deprecated accessors from `accessors.R`
 - `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 - update `loadGiotto()` and `saveGiotto()` to allow using long strings as column names in the spatVector objects
+- `'active_spat_unit'` and `'active_feat_type'` params that can be set through `instructions()` are now used instead of 'giotto.spat_unit' and 'giotto.feat_type' global options
+
+
 
 ## Added
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
+- Add `initialize()` method for `giotto`
+- Add validity check for `giotto` that checks for correct slot nesting
 - Add `initialize()` method for `exprObj` to automatically format matrix info
+- New `get_*_list()` internal functions for retrieving list of all objects of a particular class for a spat_unit and feat_type
 - Add `instructions()` generic for `giotto` to access and edit `giottoInstructions`
 - Add `centroids()` method for `giottoPolygon` to get centroid info
 - Add `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
@@ -20,11 +26,15 @@
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
 
+
+
 ## Changes
 - Update `installGiottoEnvironment()` and downstream internal functions to allow custom python installation with a new argument, `mini_install_path`.
 - Update `checkGiottoEnvironment()` to account for custom python installations with a new argument, `mini_install_path`.
 - Update `removeGiottoEnvironment()` to account for custom python installations with a new argument, `mini_path`.
+- Modify `cell_ID`, `feat_ID`, `cell_metadata`, `feat_metadata` slot initialization
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
+- Change `changeGiottoInstructions()` to allow addition of new params and enforce logical class of known params
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
 - Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths
