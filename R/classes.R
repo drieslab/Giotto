@@ -62,6 +62,8 @@ setClass('coordDataDT',
          slots = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
+
+# * Initialize ####
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
@@ -71,6 +73,7 @@ setMethod('initialize', 'coordDataDT',
             }
             .Object
           })
+
 
 # setClass('coordDataMT',
 #          slots = list(coordinates = 'matrix'),
@@ -998,12 +1001,37 @@ setClass('exprObj',
 
 ## * Initialize ####
 setMethod('initialize', 'exprObj',
-          function(.Object, ...) {
-            .Object = methods::callNextMethod()
-            if(!is.null(.Object[])) {
+          function(.Object,
+                   name = 'test',
+                   exprMat = NULL,
+                   spat_unit = 'cell',
+                   feat_type = 'rna',
+                   provenance = NULL,
+                   misc = NULL,
+                   ...) {
+
+            # evaluate data
+            if(is.null(exprMat)) exprMat = matrix()
+            else {
               # Convert matrix input to preferred format
-              .Object[] = evaluate_expr_matrix(.Object[])
+              exprMat = evaluate_expr_matrix(exprMat)
             }
+
+            # populate slots
+            .Object@name = name
+            .Object@exprMat = exprMat
+            .Object@spat_unit = spat_unit
+            .Object@feat_type = feat_type
+            .Object@provenance = provenance
+            .Object@misc = misc
+
+            .Object = methods::callNextMethod(.Object,
+                                              exprMat = exprMat,
+                                              spat_unit = spat_unit,
+                                              feat_type = feat_type,
+                                              misc = misc,
+                                              ...)
+            validObject(.Object)
             .Object
           })
 
@@ -1345,10 +1373,10 @@ check_spat_locs_obj = function(object) {
   }
 
   # Allow check_spatial_location_data() to compensate for missing cell_ID
-  # if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
-  #   msg = 'Column "cell_ID" for cell ID was not found'
-  #   errors = c(errors, msg)
-  # }
+  if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
+    msg = 'Column "cell_ID" for cell ID was not found'
+    errors = c(errors, msg)
+  }
 
   if(length(errors) == 0) TRUE else errors
 }
@@ -1367,6 +1395,49 @@ check_spat_locs_obj = function(object) {
 setClass('spatLocsObj',
          contains = c('nameData', 'coordDataDT', 'spatData', 'miscData'),
          validity = check_spat_locs_obj)
+
+
+
+
+## * Initialize ####
+setMethod('initialize', 'spatLocsObj',
+          function(.Object,
+                   name = 'test',
+                   coordinates = NULL,
+                   spat_unit = 'cell',
+                   provenance = NULL,
+                   misc = NULL,
+                   ...) {
+
+            # evaluate data
+            if(is.null(coordinates)) {
+              coordinates = data.table::data.table(
+                sdimx = NA_real_,
+                sdimy = NA_real_,
+                cell_ID = NA_character_
+              )
+            } else {
+              coordinates = evaluate_spatial_locations(coordinates)
+            }
+
+            # populate slots
+            .Object@name = name
+            .Object@coordinates = coordinates
+            .Object@spat_unit = spat_unit
+            .Object@provenance = provenance
+            .Object@misc = misc
+
+
+            .Object = methods::callNextMethod(.Object,
+                                              name = name,
+                                              coordinates = coordinates,
+                                              spat_unit = spat_unit,
+                                              provenance = provenance,
+                                              misc = misc,
+                                              ...)
+            validObject(.Object)
+            .Object
+          })
 
 
 
@@ -2107,8 +2178,6 @@ create_expr_obj = function(name = 'test',
                            provenance = NULL,
                            misc = NULL) {
 
-  if(is.null(exprMat)) exprMat = matrix()
-
   return(new('exprObj',
              name = name,
              exprMat = exprMat,
@@ -2256,10 +2325,6 @@ create_spat_locs_obj = function(name = 'test',
                                 spat_unit = 'cell',
                                 provenance = NULL,
                                 misc = NULL) {
-
-  if(is.null(coordinates)) coordinates = data.table::data.table(sdimx = NA_real_,
-                                                                sdimy = NA_real_,
-                                                                cell_ID = NA_character_)
 
   return(new('spatLocsObj',
              name = name,

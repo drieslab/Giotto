@@ -1102,7 +1102,7 @@ evaluate_spatial_locations_OLD = function(spatial_locs,
 #' @return data.table
 #' @keywords internal
 evaluate_spatial_locations = function(spatial_locs,
-                                      cores = 1) {
+                                      cores = getOption('giotto.cores')) {
 
   # data.table variables
   cell_ID = NULL
@@ -1178,7 +1178,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @keywords internal
 read_spatial_location_data = function(gobject,
                                       spat_loc_list,
-                                      cores = 1,
+                                      cores = getOption('giotto.cores'),
                                       provenance = NULL,
                                       verbose = TRUE) {
 

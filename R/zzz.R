@@ -19,6 +19,7 @@
   if(isTRUE(check_core)) {
     cores = determine_cores(cores = NA)
     data.table::setDTthreads(threads = cores)
+    options('giotto.cores' = cores)
     options('giotto.check_core' = FALSE)
   }
 
