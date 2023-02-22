@@ -3046,8 +3046,8 @@ combine_polygons = function(polygon_list) {
 
 
 
-#' @title aggregateStacksPolygons
-#' @name aggregateStacksPolygons
+#' @title aggregateStacksPolygonsOLD
+#' @name aggregateStacksPolygonsOLD
 #' @description aggregate polygons from different z-stacks
 #' @param gobject giotto object
 #' @param spat_units spatial units to aggregate
@@ -3056,7 +3056,7 @@ combine_polygons = function(polygon_list) {
 #' @family aggregate stacks
 #' @export
 #'
-aggregateStacksPolygons = function(gobject,
+aggregateStacksPolygonsOLD = function(gobject,
                                    spat_units,
                                    new_spat_unit = 'aggregate') {
 
@@ -3078,6 +3078,84 @@ aggregateStacksPolygons = function(gobject,
 
   gpolygon = create_giotto_polygon_object(name = new_spat_unit,
                                           spatVector = combined_polygons,
+                                          spatVectorCentroids = NULL,
+                                          overlaps = NULL)
+
+  gobject = set_polygon_info(gobject = gobject,
+                             polygon_name = new_spat_unit,
+                             gpolygon = gpolygon,
+                             verbose = F)
+
+  return(gobject)
+
+}
+
+
+#' @title combine_stack_spatVectors
+#' @keywords internal
+combine_stack_spatVectors = function(gobject,
+                                     spat_units) {
+
+
+  # 1. combine all spatVectors across all stacks
+  stack_list = list()
+  for(spat_i in 1:length(spat_units)) {
+    spat = spat_units[[spat_i]]
+    stackspatvector = get_polygon_info(gobject = gobject,
+                                       polygon_name = spat,
+                                       polygon_overlap = NULL,
+                                       return_giottoPolygon = FALSE)
+    #stackspatvector = gobject@spatial_info[[spat]]@spatVector
+    stackspatvector[['stack']] = spat
+    stack_list[[spat_i]] = stackspatvector
+  }
+  stack_spatvector = do.call('rbind', stack_list)
+
+  # 2. make sure spatvectors are valid
+  stack_spatvector = terra::makeValid(stack_spatvector)
+
+
+  # 3. aggregate individual cells/polys
+  all_poly_ids = unique(stack_spatvector$poly_ID)
+  poly_list = list()
+  for(selected_poly_i in 1:length(all_poly_ids)) {
+    selected_poly_id = all_poly_ids[[selected_poly_i]]
+    selected_poly = stack_spatvector[stack_spatvector$poly_ID == selected_poly_id]
+    selected_poly_aggr = terra::aggregate(selected_poly, by = 'poly_ID', dissolve = TRUE)
+    poly_list[[selected_poly_i]] = selected_poly_aggr
+  }
+  aggr_spatvectors = do.call('rbind', poly_list)
+
+  # 4. add valid information to aggregated spatvector
+  aggr_spatvectors[['valid']] = terra::is.valid(aggr_spatvectors)
+
+  return(aggr_spatvectors)
+
+}
+
+
+
+#' @title aggregateStacksPolygons
+#' @name aggregateStacksPolygons
+#' @description aggregate polygons from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygons = function(gobject,
+                                   spat_units,
+                                   new_spat_unit = 'aggregate') {
+
+
+  # aggregate spatvectors
+  aggregated_spatVec = combine_stack_spatVectors(gobject = gobject,
+                                                 spat_units = spat_units)
+
+  gpolygon = create_giotto_polygon_object(name = new_spat_unit,
+                                          spatVector = aggregated_spatVec,
                                           spatVectorCentroids = NULL,
                                           overlaps = NULL)
 
