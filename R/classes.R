@@ -495,7 +495,24 @@ giotto <- setClass(
 #' @keywords internal
 setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
-  .Object = methods::callNextMethod()
+
+  a = list(...)
+
+
+
+  ## set slots ##
+  ## --------- ##
+
+  if('spatial_info' %in% names(a)) {
+    .Object = setPolygonInfo(.Object, gpolygon = a$spatial_info)
+  }
+  if('expression' %in% names(a)) {
+    .Object = setExpression(.Object, values = a$expression)
+  }
+
+
+
+
 
   # message('initialize Giotto run\n\n')  # debug
 
@@ -770,6 +787,11 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
 
 
+
+
+
+
+
 ##### * Show ####
 # Giotto class
 
@@ -1001,37 +1023,25 @@ setClass('exprObj',
 
 ## * Initialize ####
 setMethod('initialize', 'exprObj',
-          function(.Object,
-                   name = 'test',
-                   exprMat = NULL,
-                   spat_unit = 'cell',
-                   feat_type = 'rna',
-                   provenance = NULL,
-                   misc = NULL,
-                   ...) {
+          function(.Object, ...) {
+
+            # expand args
+            a = list(.Object = .Object, ...)
 
             # evaluate data
-            if(is.null(exprMat)) exprMat = matrix()
-            else {
-              # Convert matrix input to preferred format
-              exprMat = evaluate_expr_matrix(exprMat)
+            if('exprMat' %in% names(a)) {
+              exprMat = a$exprMat
+              if(is.null(exprMat)) exprMat = matrix()
+              else {
+                # Convert matrix input to preferred format
+                exprMat = evaluate_expr_matrix(exprMat)
+              }
+
+              # return to arg list
+              a$exprMat = exprMat
             }
 
-            # populate slots
-            .Object@name = name
-            .Object@exprMat = exprMat
-            .Object@spat_unit = spat_unit
-            .Object@feat_type = feat_type
-            .Object@provenance = provenance
-            .Object@misc = misc
-
-            .Object = methods::callNextMethod(.Object,
-                                              exprMat = exprMat,
-                                              spat_unit = spat_unit,
-                                              feat_type = feat_type,
-                                              misc = misc,
-                                              ...)
-            validObject(.Object)
+            .Object = do.call('methods'::'callNextMethod', a)
             .Object
           })
 
@@ -1401,41 +1411,29 @@ setClass('spatLocsObj',
 
 ## * Initialize ####
 setMethod('initialize', 'spatLocsObj',
-          function(.Object,
-                   name = 'test',
-                   coordinates = NULL,
-                   spat_unit = 'cell',
-                   provenance = NULL,
-                   misc = NULL,
-                   ...) {
+          function(.Object, ...) {
+
+            # expand args
+            a = list(.Object = .Object, ...)
 
             # evaluate data
-            if(is.null(coordinates)) {
-              coordinates = data.table::data.table(
-                sdimx = NA_real_,
-                sdimy = NA_real_,
-                cell_ID = NA_character_
-              )
-            } else {
-              coordinates = evaluate_spatial_locations(coordinates)
+            if('coordinates' %in% names(a)) {
+              coordinates = a$coordinates
+              if(is.null(coordinates)) {
+                coordinates = data.table::data.table(
+                  sdimx = NA_real_,
+                  sdimy = NA_real_,
+                  cell_ID = NA_character_
+                )
+              } else {
+                coordinates = evaluate_spatial_locations(coordinates)
+              }
+
+              # return to arg list
+              a$coordinates = coordinates
             }
 
-            # populate slots
-            .Object@name = name
-            .Object@coordinates = coordinates
-            .Object@spat_unit = spat_unit
-            .Object@provenance = provenance
-            .Object@misc = misc
-
-
-            .Object = methods::callNextMethod(.Object,
-                                              name = name,
-                                              coordinates = coordinates,
-                                              spat_unit = spat_unit,
-                                              provenance = provenance,
-                                              misc = misc,
-                                              ...)
-            validObject(.Object)
+            .Object = do.call('methods'::'callNextMethod', a)
             .Object
           })
 

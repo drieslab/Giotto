@@ -7,7 +7,7 @@
 read_spatial_location_data(
   gobject,
   spat_loc_list,
-  cores = 1,
+  cores = determine_cores(),
   provenance = NULL,
   verbose = TRUE
 )

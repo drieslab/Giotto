@@ -4,7 +4,7 @@
 \alias{evaluate_spatial_info}
 \title{Evaluate spatial info}
 \usage{
-evaluate_spatial_info(spatial_info, cores = 1, spatial_locs)
+evaluate_spatial_info(spatial_info, cores = determine_cores(), spatial_locs)
 }
 \arguments{
 \item{spatial_info}{spatial information to evaluate}
