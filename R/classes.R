@@ -2244,15 +2244,17 @@ create_feat_meta_obj = function(metaDT = NULL,
 #' @name create_dim_obj
 #' @description Create an S4 dimObj
 #' @param name name of dimObj
+#' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
 #' @param reduction_method method used to generate dimension reduction
 #' @param coordinates embedding coordinates
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @param my_rownames (optional) if needed, set coordinates rowname values here
 #' @keywords internal
 create_dim_obj = function(name = 'test',
-                          reduction = NA_character_,
+                          reduction = 'cells',
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           spat_unit = 'cell',
@@ -2262,7 +2264,7 @@ create_dim_obj = function(name = 'test',
                           my_rownames = NULL) {
 
   number_of_dimensions = ncol(coordinates)
-  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
+  colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
 
   if(!is.null(my_rownames)) {
     rownames(coordinates) = my_rownames
@@ -2275,7 +2277,7 @@ create_dim_obj = function(name = 'test',
              coordinates = coordinates,
              spat_unit = spat_unit,
              feat_type = feat_type,
-             provenance = provenance,
+             provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
              misc = misc))
 }
 
