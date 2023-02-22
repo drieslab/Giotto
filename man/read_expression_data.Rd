@@ -7,7 +7,7 @@
 read_expression_data(
   expr_list = NULL,
   sparse = TRUE,
-  cores = NA,
+  cores = determine_cores(),
   default_feat_type = NULL,
   verbose = TRUE,
   provenance = NULL

@@ -8,6 +8,7 @@
 - `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 - update `loadGiotto()` and `saveGiotto()` to allow using long strings as column names in the spatVector objects
 - `'active_spat_unit'` and `'active_feat_type'` params that can be set through `instructions()` are now used instead of 'giotto.spat_unit' and 'giotto.feat_type' global options
+- removed duplicate `create_dimObject()` internal function. Keeping `create_dim_obj()`
 
 
 

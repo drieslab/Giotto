@@ -24,6 +24,7 @@ set_default_spat_unit = function(gobject,
         spat_unit = names(gobject@spatial_info)[[1]]
       } else {
         warning('No default for spat_unit could be set \n')
+        spat_unit = NULL
       }
     }
 
@@ -58,6 +59,7 @@ set_default_feat_type = function(gobject,
         feat_type = names(gobject@feat_info)[[1]]
       } else {
         warning('No default for feat_type could be set \n')
+        feat_type = NULL
       }
     }
 

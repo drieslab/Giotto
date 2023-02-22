@@ -495,7 +495,24 @@ giotto <- setClass(
 #' @keywords internal
 setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
-  .Object = methods::callNextMethod()
+
+  a = list(...)
+
+
+
+  ## set slots ##
+  ## --------- ##
+
+  if('spatial_info' %in% names(a)) {
+    .Object = setPolygonInfo(.Object, gpolygon = a$spatial_info)
+  }
+  if('expression' %in% names(a)) {
+    .Object = setExpression(.Object, values = a$expression)
+  }
+
+
+
+
 
   # message('initialize Giotto run\n\n')  # debug
 
@@ -770,6 +787,11 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
 
 
+
+
+
+
+
 ##### * Show ####
 # Giotto class
 
@@ -1001,37 +1023,25 @@ setClass('exprObj',
 
 ## * Initialize ####
 setMethod('initialize', 'exprObj',
-          function(.Object,
-                   name = 'test',
-                   exprMat = NULL,
-                   spat_unit = 'cell',
-                   feat_type = 'rna',
-                   provenance = NULL,
-                   misc = NULL,
-                   ...) {
+          function(.Object, ...) {
+
+            # expand args
+            a = list(.Object = .Object, ...)
 
             # evaluate data
-            if(is.null(exprMat)) exprMat = matrix()
-            else {
-              # Convert matrix input to preferred format
-              exprMat = evaluate_expr_matrix(exprMat)
+            if('exprMat' %in% names(a)) {
+              exprMat = a$exprMat
+              if(is.null(exprMat)) exprMat = matrix()
+              else {
+                # Convert matrix input to preferred format
+                exprMat = evaluate_expr_matrix(exprMat)
+              }
+
+              # return to arg list
+              a$exprMat = exprMat
             }
 
-            # populate slots
-            .Object@name = name
-            .Object@exprMat = exprMat
-            .Object@spat_unit = spat_unit
-            .Object@feat_type = feat_type
-            .Object@provenance = provenance
-            .Object@misc = misc
-
-            .Object = methods::callNextMethod(.Object,
-                                              exprMat = exprMat,
-                                              spat_unit = spat_unit,
-                                              feat_type = feat_type,
-                                              misc = misc,
-                                              ...)
-            validObject(.Object)
+            .Object = do.call('methods'::'callNextMethod', a)
             .Object
           })
 
@@ -1401,41 +1411,29 @@ setClass('spatLocsObj',
 
 ## * Initialize ####
 setMethod('initialize', 'spatLocsObj',
-          function(.Object,
-                   name = 'test',
-                   coordinates = NULL,
-                   spat_unit = 'cell',
-                   provenance = NULL,
-                   misc = NULL,
-                   ...) {
+          function(.Object, ...) {
+
+            # expand args
+            a = list(.Object = .Object, ...)
 
             # evaluate data
-            if(is.null(coordinates)) {
-              coordinates = data.table::data.table(
-                sdimx = NA_real_,
-                sdimy = NA_real_,
-                cell_ID = NA_character_
-              )
-            } else {
-              coordinates = evaluate_spatial_locations(coordinates)
+            if('coordinates' %in% names(a)) {
+              coordinates = a$coordinates
+              if(is.null(coordinates)) {
+                coordinates = data.table::data.table(
+                  sdimx = NA_real_,
+                  sdimy = NA_real_,
+                  cell_ID = NA_character_
+                )
+              } else {
+                coordinates = evaluate_spatial_locations(coordinates)
+              }
+
+              # return to arg list
+              a$coordinates = coordinates
             }
 
-            # populate slots
-            .Object@name = name
-            .Object@coordinates = coordinates
-            .Object@spat_unit = spat_unit
-            .Object@provenance = provenance
-            .Object@misc = misc
-
-
-            .Object = methods::callNextMethod(.Object,
-                                              name = name,
-                                              coordinates = coordinates,
-                                              spat_unit = spat_unit,
-                                              provenance = provenance,
-                                              misc = misc,
-                                              ...)
-            validObject(.Object)
+            .Object = do.call('methods'::'callNextMethod', a)
             .Object
           })
 
@@ -2246,15 +2244,17 @@ create_feat_meta_obj = function(metaDT = NULL,
 #' @name create_dim_obj
 #' @description Create an S4 dimObj
 #' @param name name of dimObj
+#' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
 #' @param reduction_method method used to generate dimension reduction
 #' @param coordinates embedding coordinates
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @param my_rownames (optional) if needed, set coordinates rowname values here
 #' @keywords internal
 create_dim_obj = function(name = 'test',
-                          reduction = NA_character_,
+                          reduction = 'cells',
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           spat_unit = 'cell',
@@ -2264,7 +2264,7 @@ create_dim_obj = function(name = 'test',
                           my_rownames = NULL) {
 
   number_of_dimensions = ncol(coordinates)
-  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
+  colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
 
   if(!is.null(my_rownames)) {
     rownames(coordinates) = my_rownames
@@ -2277,7 +2277,7 @@ create_dim_obj = function(name = 'test',
              coordinates = coordinates,
              spat_unit = spat_unit,
              feat_type = feat_type,
-             provenance = provenance,
+             provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
              misc = misc))
 }
 

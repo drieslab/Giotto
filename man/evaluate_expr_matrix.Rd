@@ -4,7 +4,7 @@
 \alias{evaluate_expr_matrix}
 \title{Evaluate expression matrix}
 \usage{
-evaluate_expr_matrix(inputmatrix, sparse = TRUE, cores = NA)
+evaluate_expr_matrix(inputmatrix, sparse = TRUE, cores = determine_cores())
 }
 \arguments{
 \item{inputmatrix}{inputmatrix to evaluate}

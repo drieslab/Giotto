@@ -9,12 +9,13 @@ set_dimReduction(
   dimObject,
   spat_unit = NULL,
   feat_type = NULL,
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  set_defaults = TRUE,
+  initialize = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,9 @@ set_dimReduction(
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

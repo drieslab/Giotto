@@ -1143,8 +1143,7 @@ setExpression = function(gobject,
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
   .external_accessor = TRUE # checked by internal setter to determine if called by external
-  # Note that when this is true, spat_unit, feat_type, and name values may be updated
-  # from the internal
+
 
   if(inherits(values, 'exprObj') &
      !is.na(spatUnit(values)) &
@@ -1167,7 +1166,8 @@ setExpression = function(gobject,
   # NATIVE INPUT TYPES
   # 3. if input is exprObj or NULL, pass to internal
   if(is.null(values) | inherits(values, 'exprObj')) {
-    # pass to internal (also updates spat_unit/feat_type/name for downstream)
+
+    # pass to internal
     gobject = set_expression_values(
       gobject = gobject,
       values = values,
@@ -1176,10 +1176,11 @@ setExpression = function(gobject,
       name = name,
       provenance = provenance,
       verbose = verbose,
-      set_defaults = FALSE
+      set_defaults = FALSE,
+      initialize = TRUE
     )
-    # directly return if NULL
-    if(is.null(values)) return(gobject)
+    return(gobject)
+
   } else {
 
     # OTHER INPUT TYPES
@@ -1187,11 +1188,10 @@ setExpression = function(gobject,
     # 4.1 if nested list structure, extract spat_unit/feat_type
     if(inherits(values, 'list')) {
 
-      cores = determine_cores(NA)
       exprObj_list = read_expression_data(
         expr_list = values,
         sparse = TRUE,
-        cores = cores,
+        cores = determine_cores(),
         default_feat_type = feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance
       )
@@ -1200,6 +1200,7 @@ setExpression = function(gobject,
         # provenance info set during prev. step
         gobject = setExpression(gobject,
                                 values = exprObj_list[[obj_i]],
+                                verbose = verbose,
                                 set_defaults = FALSE)
       }
       return(gobject)
@@ -1214,32 +1215,15 @@ setExpression = function(gobject,
         provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
         misc = NULL
       )
-      # pass to internal (also updates spat_unit/feat_type/name for downstream)
+      # pass to internal
       gobject = set_expression_values(gobject,
                                       values = values,
-                                      set_defaults = FALSE)
+                                      set_defaults = FALSE,
+                                      verbose = verbose,
+                                      initialize = TRUE)
+      return(gobject)
     }
   }
-
-  # GOBJECT COMPATIBILITY
-  # 5. Initialize ID and metadata slots if needed
-  spatID_exist = spat_unit %in% list_cell_id_names(gobject)
-  featID_exist = feat_type %in% list_feat_id_names(gobject)
-
-  cm_avail = !is.null(list_cell_metadata(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type))
-  fm_avail = !is.null(list_feat_metadata(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type))
-
-  if(!isTRUE(spatID_exist)) gobject = set_cell_id(gobject = gobject,
-                                                  spat_unit = spat_unit,
-                                                  cell_IDs = 'initialize',
-                                                  set_defaults = TRUE)
-  if(!isTRUE(featID_exist)) gobject = set_feat_id(gobject = gobject,
-                                                  feat_type = feat_type,
-                                                  feat_IDs = 'initialize',
-                                                  set_defaults = TRUE)
-
-
-  return(gobject)
 
 }
 
@@ -1259,6 +1243,8 @@ setExpression = function(gobject,
 #' @param provenance provenance information (optional)
 #' @param values exprObj If NULL, then the object will be removed.
 #' @param verbose be verbose
+#' @param initialize (default = FALSE) whether to initialize the gobject before
+#' returning. Will be set to TRUE when called by the external
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
@@ -1270,7 +1256,8 @@ set_expression_values = function(gobject,
                                  name = 'test',
                                  provenance = NULL,
                                  verbose = TRUE,
-                                 set_defaults = TRUE) {
+                                 set_defaults = TRUE,
+                                 initialize = FALSE) {
 
   guard_against_notgiotto(gobject)
 
@@ -1326,19 +1313,14 @@ set_expression_values = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to values param.
                                  Removing specified expression')
     gobject@expression[[spat_unit]][[feat_type]][[name]] = NULL
-    return(initialize(gobject))
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
 
   # 4 import data from S4 if available
-  # NOTE: modifies spat_unit/feat_type/name/values
+  # NOTE: modifies spat_unit/feat_type/name/provenance/data slots
   values = read_s4_nesting(values)
-  # pass info back to external as well if called from there
-  if(call_from_external) {
-    p$spat_unit = spat_unit
-    p$feat_type = feat_type
-    p$name = name
-  }
 
   # 5. check if specified name has already been used
   potential_names = list_expression_names(gobject, spat_unit = spat_unit, feat_type = feat_type)
@@ -1348,7 +1330,8 @@ set_expression_values = function(gobject,
 
   ## 6. update and return giotto object
   gobject@expression[[spat_unit]][[feat_type]][[name]] = values
-  return(initialize(gobject))
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
@@ -1564,21 +1547,86 @@ get_spatial_locations_list = function(gobject,
 setSpatialLocations = function(gobject,
                                spatlocs,
                                spat_unit = NULL,
-                               spat_loc_name = 'raw',
+                               name = 'raw',
                                provenance = NULL,
                                verbose = TRUE,
                                set_defaults = TRUE) {
 
-  # Pass to internal function
-  gobject = set_spatial_locations(gobject = gobject,
-                                  spatlocs = spatlocs,
-                                  spat_unit = spat_unit,
-                                  spat_loc_name = spat_loc_name,
-                                  provenance = provenance,
-                                  verbose = verbose,
-                                  set_defaults = set_defaults)
+  guard_against_notgiotto(gobject)
 
-  return(gobject)
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
+  .external_accessor = TRUE # checked by internal setter to determine if called by external
+
+  # 2. Set spat_unit
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
+
+
+  # NATIVE INPUT TYPES
+  # 3. If input is spatLocsObj or NULL, pass to internal
+  if(is.null(spatlocs) | inherits(spatlocs, 'spatLocsObj')) {
+
+    # pass to internal
+    gobject = set_spatial_locations(
+      gobject = gobject,
+      spatlocs = spatlocs,
+      spat_unit = spat_unit,
+      spat_loc_name = name,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+
+  } else {
+
+    # OTHER INPUT TYPES
+    # 4. Parse input for nesting info
+    # 4.1 If nested list structure, extract spat_unit
+    if(inherits(spatlocs, 'list')) {
+
+      spatLocs_list = read_spatial_location_data(
+        gobject = gobject, # TODO remove this from read fx (it's not used)
+        spat_loc_list = spatlocs,
+        cores = determine_cores(),
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        verbose = verbose
+      )
+      # recursively call external so checking is also done per iteration
+      for(obj_i in seq_along(spatLocs_list)) {
+        # provenance info set during prev. step
+        gobject = setSpatialLocations(gobject = gobject,
+                                      spatlocs = spatLocs_list[[obj_i]],
+                                      verbose = verbose,
+                                      set_defaults = FALSE)
+      }
+      return(gobject)
+
+    } else {
+
+      # 4.2 Otherwise assume evaluatable class, and create S4
+      spatlocs = create_spat_locs_obj(
+        name = name,
+        coordinates = spatlocs,
+        spat_unit = spat_unit,
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        misc = NULL
+      )
+      # pass to internal
+      gobject = set_spatial_locations(gobject = gobject,
+                                      spatlocs = spatlocs,
+                                      set_defaults = FALSE,
+                                      verbose = verbose,
+                                      initialize = TRUE)
+      return(gobject)
+    }
+  }
+
 }
 
 
@@ -1617,14 +1665,39 @@ set_spatial_locations = function(gobject,
                                  spat_loc_name = 'raw',
                                  provenance = NULL,
                                  verbose = TRUE,
-                                 set_defaults = TRUE) {
+                                 set_defaults = TRUE,
+                                 initialize = FALSE) {
 
+  guard_against_notgiotto(gobject)
+
+  # 0. pass to external if not native formats
+  if(!inherits(spatlocs, c('spatLocsObj', 'NULL'))) {
+    if(isTRUE(verbose)) wrap_msg(deparse(substitute(spatlocs)), 'is not spatLocsObj
+                                 passing to setSpatialLocations...')
+    gobject = setSpatialLocations(gobject = gobject,
+                                  spatlocs = spatlocs,
+                                  spat_unit = spat_unit,
+                                  name = spat_loc_name,
+                                  provenance = provenance,
+                                  verbose = verbose,
+                                  set_defaults = set_defaults)
+    return(gobject) # initialize done already
+  }
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
-  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-  nospec_name = ifelse(is.null(match.call()$spat_loc_name), yes = TRUE, no = FALSE)
+  p = parent.frame() # Get values if called from external
+  call_from_external = exists('.external_accessor', where = p)
 
-  # 2. spatial locations
+  if(isTRUE(call_from_external)) {
+    nospec_unit = p$nospec_unit
+    nospec_name = p$nospec_name
+  } else {
+    nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+    nospec_name = ifelse(is.null(match.call()$spat_loc_name), yes = TRUE, no = FALSE)
+  }
+
+
+  # 2. set spat_unit
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
@@ -1632,41 +1705,16 @@ set_spatial_locations = function(gobject,
 
   # 3. remove if input is NULL
   if(is.null(spatlocs)) {
-    if(isTRUE(verbose)) message('NULL passed to spatlocs.\n Removing specified spatial locations.')
-    gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
-    return(gobject)
+    if(isTRUE(verbose)) wrap_msg('NULL passed to spatlocs.
+                                 Removing specified spatial locations.')
+    gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = NULL
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
-  # 4. import data
-  # if is spatLocsObj, decide if to use tagged spat_unit and name info
-  if(inherits(spatlocs, 'spatLocsObj')) {
-
-    if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
-      if(!is.na(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
-      else slot(spatlocs, 'spat_unit') = spat_unit
-    } else { # case if input given - use input
-      slot(spatlocs, 'spat_unit') = spat_unit
-    }
-    if(isTRUE(nospec_name)) { # case if no input - prioritize tagged info
-      if(!is.na(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
-      else slot(spatlocs, 'name') = spat_loc_name
-    } else { # case if input given - use input
-      slot(spatlocs, 'name') = spat_loc_name
-    }
-    if(is.null(provenance)) {
-      if(!is.null(prov(spatlocs))) provenance = prov(spatlocs)
-    } else {
-      prov(spatlocs) = provenance
-    }
-
-  } else {
-    spatlocs = create_spat_locs_obj(
-      name = spat_loc_name,
-      spat_unit = spat_unit,
-      coordinates = spatlocs,
-      provenance = if(is.null(provenance)) spat_unit else provenance
-    )
-  }
+  # 4. import data from S4 if available
+  # NOTE: modifies spat_unit/name/provenance
+  spatlocs = read_s4_nesting(spatlocs)
 
   # 5. check if specified name has already been used
   potential_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
@@ -1678,7 +1726,8 @@ set_spatial_locations = function(gobject,
 
   # 6. update and return giotto object
   gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
-  return(gobject)
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
@@ -1859,6 +1908,126 @@ get_dim_reduction_list = function(gobject,
 
 
 
+#' @title Set dimension reduction
+#' @name setDimReduction
+#' @description Function to set a dimension reduction slot
+#' @inheritParams data_access_params
+#' @param reduction reduction on cells or features
+#' @param reduction_method reduction method (e.g. "pca")
+#' @param name name of reduction results
+#' @param dimObject dimension object result to set
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @return giotto object
+#' @family dimensional reduction data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setDimReduction = function(gobject,
+                           dimObject,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           reduction = c('cells', 'feats'),
+                           reduction_method = c('pca', 'umap', 'tsne'),
+                           name = 'pca',
+                           provenance = NULL,
+                           verbose = TRUE,
+                           set_defaults = TRUE) {
+
+  guard_against_notgiotto(gobject)
+  reduction = match.arg(reduction, choices = c('cells', 'feats'))
+  # reduction_method = match.arg(reduction_method, choices = c('pca', 'umap', 'tsne'))
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
+  nospec_red = ifelse(is.null(match.call()$reduction), yes = TRUE, no = FALSE)
+  nospec_red_method = ifelse(is.null(match.call()$reduction_method), yes = TRUE, no = FALSE)
+  .external_accessor = TRUE # checked by internal setter to determine if called by external
+
+  # 2. Set default spat_unit/feat_type
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
+
+
+  # NATIVE INPUT TYPES
+  # 3. If input is dimObj or NULL, pass to internal
+  if(is.null(dimObject) | inherits(dimObject, 'dimObj')) {
+
+    # pass to internal
+    gobject = set_dimReduction(
+      gobject = gobject,
+      dimObject = dimObject,
+      reduction = reduction,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      reduction_method = reduction_method,
+      name = name,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+
+  } else {
+
+    # OTHER INPUT TYPES
+    # 4. Parse input for nesting info
+    # 4.1 If nested list structure, extract spat_unit and feat_type
+    if(inherits(dimObject, 'list')) {
+
+      dimObj_list = read_dimension_reduction(
+        gobject = gobject, # TODO remove this param?
+        dimension_reduction = dimObject # TODO update
+      )
+      # recursively call external so checking is done per iteration
+      for(obj_i in seq_along(dimObj_list)) {
+
+        gobject = setDimReduction(
+          gobject = gobject,
+          dimObject = dimObj_list[[obj_i]],
+          verbose = verbose,
+          set_defaults = FALSE,
+          provenance = if(is.null(provenance)) spat_unit else provenance # assumed
+        )
+      }
+      return(gobject)
+    } else {
+
+      # 4.2 Otherwise assume evaluatable class and create S4
+      dimObject = create_dim_obj(
+        name = name,
+        reduction = reduction,
+        reduction_method = reduction_method,
+        coordinates = dimObject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        misc = NULL
+      )
+      # pass to internal
+      gobject = set_dimReduction(gobject,
+                                 dimObject = dimObject,
+                                 set_defaults = FALSE,
+                                 verbose = verbose,
+                                 initialize = TRUE)
+      return(gobject)
+    }
+  }
+
+}
+
+
+
+
+
+
 
 #' @title Set dimension reduction
 #' @name set_dimReduction
@@ -1878,20 +2047,55 @@ set_dimReduction = function(gobject,
                             dimObject,
                             spat_unit = NULL,
                             feat_type = NULL,
-                            reduction = c('cells', 'genes'),
+                            reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
                             provenance = NULL,
                             verbose = TRUE,
-                            set_defaults = TRUE) {
+                            set_defaults = TRUE,
+                            initialize = FALSE) {
 
-  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
-  nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  nospec_red = ifelse(is.null(match.call()$reduction), yes = TRUE, no = FALSE)
-  nospec_red_method = ifelse(is.null(match.call()$reduction_method), yes = TRUE, no = FALSE)
+  guard_against_notgiotto(gobject)
+  reduction = match.arg(reduction, choices = c('cells', 'feats'))
+  # reduction_method = match.arg(reduction_method, choices = c('pca', 'umap', 'tsne'))
 
-  # Set feat_type and spat_unit
+  # 0. pass to external if not native format
+  if(!inherits(dimObject, c('dimObj', 'NULL'))) {
+    if(isTRUE(verbose)) wrap_msg(deparse(substitute(dimObject)), 'is not dimObj
+                                 passing to setDimReduction()...')
+    gobject = setDimReduction(gobject = gobject,
+                              dimObject = dimObject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              reduction = reduction,
+                              reduction_method = reduction_method,
+                              name = name,
+                              provenance = provenance,
+                              verbose = verbose,
+                              set_defaults = set_defaults)
+    return(gobject) # initialize done already
+  }
+
+  # 1. Determine user inputs
+  p = parent.frame() # Get values if called from external
+  call_from_external = exists('.external_accessor', where = p)
+
+  if(call_from_external) {
+    nospec_unit = p$nospec_unit
+    nospec_feat = p$nospec_feat
+    nospec_name = p$nospec_name
+    nospec_red = p$nospec_red
+    nospec_red_method = p$nospec_red_method
+  } else {
+    nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+    nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+    nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
+    nospec_red = ifelse(is.null(match.call()$reduction), yes = TRUE, no = FALSE)
+    nospec_red_method = ifelse(is.null(match.call()$reduction_method), yes = TRUE, no = FALSE)
+  }
+
+
+  # 2. Set feat_type and spat_unit
   if(isTRUE(set_defaults)) {
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
@@ -1900,78 +2104,41 @@ set_dimReduction = function(gobject,
                                       feat_type = feat_type)
   }
 
-  # get set location from S4
-  name = slot(dimObject, 'name')
-  reduction = slot(dimObject, 'reduction')
-  spat_unit = slot(dimObject, 'spat_unit')
-  feat_type = slot(dimObject, 'feat_type')
-  reduction_method = slot(dimObject, 'reduction_method')
+  # 3. if input is NULL, remove object
+  if(is.null(dimObject)) {
+    if(isTRUE(verbose)) wrap_msg('NULL passed to dimObject param.
+                                 Removing specified expression')
+    slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = NULL
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
+  }
+
+  # 4. import data from S4 if available
+  # NOTE: modifies spat_unit/feat_type/name/provenance/reduction/reduction_method/data slots
+  dimObject = read_s4_nesting(dimObject)
 
 
-  ## 1. check if specified name has already been used
-  potential_names = names(slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
+  ## 5. check if specified name has already been used
+  potential_names = list_dim_reductions_names(gobject,
+                                              spat_unit = spat_unit,
+                                              feat_type = feat_type,
+                                              data_type = reduction,
+                                              dim_type = reduction_method)
   if(name %in% potential_names) {
     if(isTRUE(verbose)) wrap_msg('> ', name, ' already exists and will be replaced with new dimension reduction object \n')
   }
 
-  ## TODO: 2. check input for dimension reduction object
-  if(!inherits(dimObject, 'dimObj')) stop('Object to set must be a giotto S4 "dimObj"\n')
-  silent = validObject(dimObject) # variable hides TRUE print
 
-  # set provenance information if given
-  if(is.null(provenance)) {
-    if(!is.null(prov(dimObject))) provenance = prov(dimObject)
-  } else {
-    prov(dimObject) = provenance
-  }
 
-  ## 3. update and return giotto object
+  ## 6. update and return giotto object
   slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
-
-  return(gobject)
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
 
-#' @title Set dimension reduction
-#' @name setDimReduction
-#' @description Function to set a dimension reduction slot
-#' @inheritParams data_access_params
-#' @param reduction reduction on cells or features
-#' @param reduction_method reduction method (e.g. "pca")
-#' @param name name of reduction results
-#' @param dimObject dimension object result to set
-#' @param provenance provenance information (optional)
-#' @param verbose be verbose
-#' @return giotto object
-#' @family dimensional reduction data accessor functions
-#' @family functions to set data in giotto object
-#' @export
-setDimReduction = function(gobject,
-                           dimObject,
-                           spat_unit = NULL,
-                           feat_type = NULL,
-                           reduction = c('cells', 'genes'),
-                           reduction_method = c('pca', 'umap', 'tsne'),
-                           name = 'pca',
-                           provenance = NULL,
-                           verbose = TRUE,
-                           set_defaults = TRUE) {
 
-  # pass to internal
-  gobject = set_dimReduction(gobject = gobject,
-                             dimObject = dimObject,
-                             spat_unit = spat_unit,
-                             feat_type = feat_type,
-                             reduction = reduction,
-                             reduction_method = reduction_method,
-                             name = name,
-                             provenance = provenance,
-                             verbose = verbose,
-                             set_defaults = set_defaults)
-
-  return(gobject)
-}
 
 
 
