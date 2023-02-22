@@ -80,6 +80,12 @@ setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
             cell_ID = NULL
             x@enrichDT[, cell_ID]
           })
+#' @rdname spatIDs-generic
+#' @export
+setMethod('spatIDs', signature(x = 'nnNetObj', spat_unit = 'missing'),
+          function(x, ...) {
+            unique(names(igraph::V(x@igraph)))
+          })
 
 
 

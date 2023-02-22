@@ -495,20 +495,21 @@ giotto <- setClass(
 #' @keywords internal
 setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
+  .Object = callNextMethod()
 
-  a = list(...)
+  # a = list(...)
 
 
-
+# TODO
   ## set slots ##
   ## --------- ##
 
-  if('spatial_info' %in% names(a)) {
-    .Object = setPolygonInfo(.Object, gpolygon = a$spatial_info)
-  }
-  if('expression' %in% names(a)) {
-    .Object = setExpression(.Object, values = a$expression)
-  }
+  # if('spatial_info' %in% names(a)) {
+  #   .Object = setPolygonInfo(.Object, gpolygon = a$spatial_info)
+  # }
+  # if('expression' %in% names(a)) {
+  #   .Object = setExpression(.Object, values = a$expression)
+  # }
 
 
 
@@ -557,6 +558,9 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   # detect spatial location slot
   avail_sl = list_spatial_locations(.Object)
+
+  # detect nearest network slot
+  avail_nn = list_nearest_networks(.Object)
 
 
 
@@ -775,6 +779,14 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
     check_spatial_location_data(gobject = .Object) # modifies by reference
   }
 
+
+
+  ## Nearest networks ##
+  ## ---------------- ##
+
+  if(!is.null(avail_expr) & !is.null(avail_nn)) {
+    check_nearest_networks(gobject = .Object)
+  }
 
 
 
@@ -1332,7 +1344,7 @@ S3toS4dimObj = function(object) {
 
 ## nnNetObj ####
 
-### * Definition ####
+## * Definition ####
 # nnNetObj Class
 
 #' @title S4 nnNetObj
@@ -1347,6 +1359,70 @@ S3toS4dimObj = function(object) {
 #' @export
 setClass('nnNetObj',
          contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
+
+
+
+
+
+## * Initialize ####
+setMethod('initialize', 'nnNetObj',
+          function(.Object, ...) {
+
+            # expand args
+            a = list(.Object = .Object, ...)
+
+            # evaluate data
+            if('igraph' %in% names(a)) {
+              igraph = a$igraph
+              if(is.null(igraph)) igraph = NULL
+              else {
+                # Convert matrix input to preferred format
+                igraph = evaluate_nearest_networks(igraph)
+              }
+
+              # return to arg list
+              a$igraph = igraph
+            }
+
+            .Object = do.call('methods'::'callNextMethod', a)
+            .Object
+          })
+
+
+
+
+
+## * Show ####
+#' show method for nnNetObj class
+#' @param object nearest neigbor network object
+#' @aliases show,nnNetObj-method
+#' @docType methods
+#' @importFrom methods show
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('nnNetObj'), function(object) {
+
+    cat("An object of class",  class(object), ':', object@name, '\n')
+    if(!is.null(object@nn_type)) cat('--| Contains nearest neighbor network generated with:', object@nn_type, '\n')
+    if(!is.null(object@feat_type) & !is.null(object@spat_unit)) {
+      cat('----| for feat_type:', object@feat_type, '\n')
+      cat('----|     spat_unit:', object@spat_unit, '\n')
+    }
+    if(!is.null(object@provenance)) cat('----|     provenance:', object@provenance, '\n\n')
+
+    if(!is.null(object@igraph)) {
+      print(object@igraph)
+      cat('\n\n')
+    }
+
+    if(!is.null(object@misc)) {
+      cat('Additional included info:\n')
+      print(names(object@misc))
+      cat('\n')
+    }
+
+  })
+
 
 
 
@@ -1909,6 +1985,7 @@ setClass(
     networks = NULL
   )
 )
+
 
 
 setMethod("show", signature(object='packedGiottoPoints'),

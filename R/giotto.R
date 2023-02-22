@@ -1707,47 +1707,114 @@ read_dimension_reduction <- function(gobject,
 
 #### Giotto nearest network ####
 
+
+
+
+#' @title Evalutate nearest networks
+#' @name evaluate_nearest_networks
+#' @description Evaluate nearest networks input
+#' @keywords internal
+#' @noRd
+evaluate_nearest_networks = function(nn_network) {
+
+  if(inherits(nn_network, 'nnNetObj')) {
+    nn_network[] = evaluate_nearest_networks(nn_network = nn_network[])
+    return(nn_network)
+  } else if(inherits(nn_network, 'igraph')) {
+    return(nn_network)
+  } else if(inherits(nn_network, 'data.frame')) {
+    if(all(c('from', 'to', 'weight', 'distance', 'shared', 'rank') %in% colnames(nn_network))) {
+      nn_network = igraph::graph_from_data_frame(nn_network)
+    } else {
+      stop(wrap_txt('Unable to coerce data.frame type object to nnNetObj igraph
+                    Needed columns: from, to, weight, distance, shared, rank'))
+    }
+  }
+
+}
+
+
+
+
+
+
 #' @title Read nearest neighbor networks
 #' @name read_nearest_networks
 #' @description read nearest network results from list
 #' @keywords internal
-read_nearest_networks = function(gobject,
-                                 nn_network) {
+#' @noRd
+read_nearest_networks = function(nn_network) {
 
   if(is.null(nn_network)) {
     message('No nearest network results are provided')
-    return(gobject)
+    return(NULL)
 
   } else {
 
-    for(nn_i in 1:length(nn_network)) {
 
-      nn_netw = nn_network[[nn_i]]
+    return_list = list()
 
-      if(all(c('spat_unit', 'type', 'name', 'igraph') %in% names(nn_netw))) {
+    nn_names = names(nn_network)
+    for(nn_i in seq_along(nn_network)) {
 
-        igraph_data = nn_netw[['igraph']]
-        spat_unit = nn_netw[['spat_unit']]
-
-        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID[[spat_unit]])) {
-
-          type_value = nn_netw[['type']] # sNN or kNN
-          name_value = nn_netw[['name']]  # uniq name
-
-          gobject@nn_network[[spat_unit]][[type_value]][[name_value]][['igraph']] = igraph_data
-        } else {
-          stop('\n igraph vertex names are not found in gobject IDs \n')
-        }
-
+      if(inherits(nn_network[[nn_i]], 'nnNetObj')) {
+        nnNetObj = nn_network[[nn_i]]
       } else {
-        stop('\n each nn network list must contain all required slots, see details. \n')
+        warning(wrap_txt('Please provide nearest network information as nnNetObj
+                         Applying default values'))
+        nnNetObj = create_nn_net_obj(
+          name = if(is.null(nn_names[[nn_i]])) paste0('nn_', nn_i) else nn_names[[nn_i]],
+          nn_type = if(is.null(nn_names[[nn_i]])) paste0('nn_', nn_i) else nn_names[[nn_i]],
+          igraph = nn_network[[nn_i]],
+          spat_unit = 'cell',
+          feat_type = 'rna',
+          provenance = 'cell',
+          misc = NULL
+        )
       }
 
+      return_list = append(return_list, nnNetObj)
     }
-
   }
+  return(return_list)
+}
 
-  return(gobject)
+
+
+
+
+#' @keywords internal
+#' @noRd
+check_nearest_networks = function(gobject) {
+
+  avail_nn = list_nearest_networks(gobject = gobject)
+  used_su = unique(avail_nn$spat_unit)
+
+  if(!is.null(used_su)) {
+
+    for(su_i in used_su) {
+      IDs = spatIDs(gobject, spat_unit = su_i)
+
+      su_nn = avail_nn[spat_unit == su_i,]
+      lapply(seq(nrow(avail_nn)), function(obj_i) {
+        nn_obj = get_NearestNetwork(gobject = gobject,
+                                    spat_unit = su_i,
+                                    feat_type = su_nn$feat_type[[obj_i]],
+                                    nn_network_to_use = su_nn$nn_type[[obj_i]],
+                                    network_name = su_nn$name[[obj_i]],
+                                    output = 'nnNetObj',
+                                    set_defaults = FALSE)
+        if(!all(spatIDs(nn_obj) %in% IDs)) {
+          warning(wrap_txt('spat_unit:', su_i,
+                           'feat_type:', su_nn$feat_type[[obj_i]],
+                           'nn_type:', su_nn$nn_type[[obj_i]],
+                           'name:', su_nn$name[[obj_i]], '\n',
+                           'Nearest network vertex names are not all found in gobject IDs'))
+        }
+        # print(paste(su_i, su_nn$name[[obj_i]])) # debug
+      })
+    }
+  }
 
 }
 
@@ -2259,8 +2326,14 @@ createGiottoObject <- function(expression,
 
 
   # NN network
-  gobject = read_nearest_networks(gobject = gobject,
-                                  nn_network = nn_network)
+  nn_network = read_nearest_networks(nn_network = nn_network)
+  for(nn_i in seq_along(nn_network)) {
+    gobject = set_NearestNetwork(gobject = gobject,
+                                 nn_network = nn_network[[nn_i]],
+                                 set_defaults = FALSE)
+  }
+
+
 
 
   ## images ##

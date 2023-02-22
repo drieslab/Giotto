@@ -176,9 +176,9 @@ read_s4_nesting = function(x) {
 
   if('nn_type' %in% s_names) {
     if(isTRUE(p$nospec_net)) {
-      if(!is.na(slot(x, 'nn_type'))) p$nn_network_to_use = slot(x, 'nn_type')
+      if(!is.na(slot(x, 'nn_type'))) p$nn_type = slot(x, 'nn_type')
     } else {
-      slot(x, 'nn_type') = p$nn_network_to_use
+      slot(x, 'nn_type') = p$nn_type
     }
   }
 
@@ -2001,6 +2001,10 @@ setDimReduction = function(gobject,
     } else {
 
       # 4.2 Otherwise assume evaluatable class and create S4
+      if(identical(reduction_method, c('pca', 'umap', 'tsne'))) {
+        reduction_method = name
+      }
+
       dimObject = create_dim_obj(
         name = name,
         reduction = reduction,
@@ -2310,119 +2314,6 @@ get_nearest_network_list = function(gobject,
 
 
 
-#' @title Set nearest network
-#' @name set_NearestNetwork
-#' @description Set a NN-network for a Giotto object
-#' @inheritParams data_access_params
-#' @param nn_network_to_use "kNN" or "sNN"
-#' @param network_name name of NN network to be used
-#' @param nn_network nnNetObj or igraph nearest network object. Data.table not
-#' yet supported.
-#' @param provenance provenance information (optional)
-#' @param verbose be verbose
-#' @return giotto object
-#' @family expression space nearest network accessor functions
-#' @family functions to set data in giotto object
-#' @export
-set_NearestNetwork = function(gobject,
-                              nn_network,
-                              spat_unit = NULL,
-                              feat_type = NULL,
-                              nn_network_to_use = 'sNN',
-                              network_name = 'sNN.pca',
-                              provenance = NULL,
-                              verbose = TRUE,
-                              set_defaults = TRUE) {
-
-
-  # 1. determine user input
-  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
-  nospec_net = ifelse(is.null(match.call()$nn_network_to_use), yes = TRUE, no = FALSE)
-  nospec_name = ifelse(is.null(match.call()$network_name), yes = TRUE, no = FALSE)
-
-  # change var name for use with read_s4_nesting()
-  name = network_name
-  nn_type = nn_network_to_use
-
-
-  # 2. Set feat_type and spat_unit
-  if(isTRUE(set_defaults)) {
-    spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit)
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
-  }
-
-  # 3. If input is null, remove object
-  if(is.null(nn_network)) {
-    if(isTRUE(verbose)) message('NULL passed to nn_network.\n Removing specified nearest neighbor network.')
-    gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]][[name]] = nn_network
-    return(gobject)
-  }
-
-  # 4. import data from S4 if available
-  if(inherits(nn_network, 'nnNetObj')) {
-
-    nn_network = read_s4_nesting(nn_network)
-
-    # if(isTRUE(nospec_unit)) {
-    #   if(!is.na(slot(nn_network, 'spat_unit'))) spat_unit = slot(nn_network, 'spat_unit')
-    # } else {
-    #   slot(nn_network, 'spat_unit') = spat_unit
-    # }
-    # if(isTRUE(nospec_feat)) {
-    #   if(!is.na(slot(nn_network, 'feat_type'))) feat_type = slot(nn_network, 'feat_type')
-    # } else {
-    #   slot(nn_network, 'feat_type') = feat_type
-    # }
-    # if(isTRUE(nospec_net)) {
-    #   if(!is.na(slot(nn_network, 'nn_type'))) nn_network_to_use = slot(nn_network, 'nn_type')
-    # } else {
-    #   slot(nn_network, 'nn_type') = nn_network_to_use
-    # }
-    # if(isTRUE(nospec_name)) {
-    #   if(!is.na(slot(nn_network, 'name'))) network_name = slot(nn_network, 'name')
-    # } else {
-    #   slot(nn_network, 'name') = network_name
-    # }
-    # if(is.null(provenance)) {
-    #   if(!is.null(prov(nn_network))) provenance = prov(nn_network)
-    # } else {
-    #   prov(nn_network) = provenance
-    # }
-
-  } else {
-
-    nn_network = create_nn_net_obj(
-      name = name,
-      nn_type = nn_type,
-      igraph = nn_network,
-      spat_unit = spat_unit,
-      feat_type = feat_type,
-      provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-      misc = NULL
-    )
-  }
-
-
-  ## 5. check if specified name has already been used
-  potential_names = list_nearest_networks_names(gobject,
-                                                spat_unit = spat_unit,
-                                                feat_type = feat_type,
-                                                nn_type = nn_type)
-  if(name %in% potential_names) {
-    if(isTRUE(verbose)) wrap_msg('> "', name, '" already exists and will be replaced with new nearest neighbor network')
-  }
-
-  ## 6. update and return giotto object
-  gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]][[name]] = nn_network
-  return(gobject)
-
-}
-
-
 
 
 #' @title Set nearest neighbor network
@@ -2448,20 +2339,211 @@ setNearestNetwork = function(gobject,
                              provenance = NULL,
                              verbose = TRUE,
                              set_defaults = TRUE) {
-#TODO convert to igraph if data.table
-  # pass to internal
-  gobject = set_NearestNetwork(gobject = gobject,
-                               nn_network = nn_network,
-                               spat_unit = spat_unit,
-                               feat_type = feat_type,
-                               nn_network_to_use = nn_type,
-                               network_name = name,
-                               provenance = provenance,
-                               verbose = verbose,
-                               set_defaults = set_defaults)
 
-  return(gobject)
+  guard_against_notgiotto(gobject)
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  nospec_net = ifelse(is.null(match.call()$nn_type), yes = TRUE, no = FALSE)
+  nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
+  .external_accessor = TRUE # checked by internal setter to determine if called by external
+
+  # 2. Set spat_unit/feat_type
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
+
+
+  # NATIVE INPUT TYPES
+  # 3. If input is nnNetObj or NULL, pass to internal
+  if(is.null(nn_network) | inherits(nn_network, 'nnNetObj')) {
+
+    # pass to internal
+    gobject = set_NearestNetwork(
+      gobject = gobject,
+      nn_network = nn_network,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      nn_network_to_use = nn_type,
+      network_name = name,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+
+  } else {
+
+    # OTHER INPUT TYPES
+    # 4. Parse input if list
+    # 4.1 if list structure
+    if(inherits(nn_network, 'list')) {
+
+      nn_list = read_nearest_networks(nn_network = nn_network)
+      # recursively call external so gobj checking is also done per iteration
+      for(obj_i in seq_along(nn_list)) {
+        gobject = setNearestNetwork(gobject = gobject,
+                                    nn_network = nn_list[[obj_i]],
+                                    verbose = verbose,
+                                    provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+                                    set_defaults = FALSE)
+      }
+      return(gobject)
+    } else {
+
+      # 4.2 Otherwise assume evaluatable class and create S4
+
+      if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
+        'Add expression or polygon info first
+        Alternatively, specify expected spat_unit and feat_type using "active_spat_unit" and "active_feat_type" instructions',
+        errWidth = TRUE
+      ))
+
+      nn_network = create_nn_net_obj(
+        name = name,
+        nn_type = nn_type,
+        igraph = nn_network,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        misc = NULL
+      )
+      # pass to internal
+      gobject = set_NearestNetwork(gobject = gobject,
+                                   nn_network = nn_network,
+                                   set_defaults = FALSE,
+                                   verbose = verbose,
+                                   initialize = TRUE)
+      return(gobject)
+    }
+  }
+
 }
+
+
+
+
+
+
+
+
+#' @title Set nearest network
+#' @name set_NearestNetwork
+#' @description Set a NN-network for a Giotto object
+#' @inheritParams data_access_params
+#' @param nn_network_to_use "kNN" or "sNN"
+#' @param network_name name of NN network to be used
+#' @param nn_network nnNetObj or igraph nearest network object. Data.table not
+#' yet supported.
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @return giotto object
+#' @family expression space nearest network accessor functions
+#' @family functions to set data in giotto object
+#' @export
+set_NearestNetwork = function(gobject,
+                              nn_network,
+                              spat_unit = NULL,
+                              feat_type = NULL,
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              provenance = NULL,
+                              verbose = TRUE,
+                              set_defaults = TRUE,
+                              initialize = FALSE) {
+
+  guard_against_notgiotto(gobject)
+
+  # 0. pass to external if not native formats
+  if(!inherits(nn_network, c('nnNetObj', 'NULL'))) {
+    if(isTRUE(verbose)) wrap_msg(deparse(substitute(nn_network)), 'is not nnNetObj
+                                 passing to setNearestNetwork()...')
+    gobject = setNearestNetwork(gobject = gobject,
+                                nn_network = nn_network,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                name = network_name,
+                                nn_type = nn_network_to_use,
+                                provenance = provenance,
+                                verbose = verbose,
+                                set_defaults = set_defaults)
+    return(gobject) # initialize done already
+  }
+
+
+  # 1. determine user input
+  p = parent.frame() # Get values if called from external
+  call_from_external = exists('.external_accessor', where = p)
+
+  if(isTRUE(call_from_external)) {
+    nospec_unit = p$nospec_unit
+    nospec_feat = p$nospec_feat
+    nospec_net = p$nospec_net
+    nospec_name = p$nospec_name
+  } else {
+    nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+    nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+    nospec_net = ifelse(is.null(match.call()$nn_network_to_use), yes = TRUE, no = FALSE)
+    nospec_name = ifelse(is.null(match.call()$network_name), yes = TRUE, no = FALSE)
+  }
+
+  # change var name for use with read_s4_nesting()
+  name = network_name
+  nn_type = nn_network_to_use
+
+
+  # 2. Set feat_type and spat_unit
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
+
+  # 3. If input is null, remove object
+  if(is.null(nn_network)) {
+    if(isTRUE(verbose)) wrap_msg('NULL passed to nn_network.
+                                 Removing specified nearest neighbor network.')
+    gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]][[name]] = NULL
+    if(isTRUE(initialize)) return(initialize(gobject))
+    return(gobject)
+  }
+
+
+  # 4. import data from S4 if available
+  # NOTE: modifies spat_unit/feat_type/name/nn_type/nn_network/provenance
+  if(inherits(nn_network, 'nnNetObj')) {
+
+    nn_network = read_s4_nesting(nn_network)
+    # Use updated values in nn_type and name instead of network_name and nn_network_to_use
+
+  }
+
+
+  ## 5. check if specified name has already been used
+  potential_names = list_nearest_networks_names(gobject,
+                                                spat_unit = spat_unit,
+                                                feat_type = feat_type,
+                                                nn_type = nn_type)
+  if(name %in% potential_names) {
+    if(isTRUE(verbose)) wrap_msg('> "', name, '" already exists and will be replaced with new nearest neighbor network')
+  }
+
+  ## 6. update and return giotto object
+  gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]][[name]] = nn_network
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
+
+}
+
+
 
 
 
@@ -3106,39 +3188,6 @@ get_polygon_info_list = function(gobject,
 
 
 
-
-#' @title Set polygon info
-#' @name set_polygon_info
-#' @description Set giotto polygon spatVector
-#' @param gobject giotto object
-#' @param polygon_name name of polygons. Default "cell"
-#' @param gpolygon giotto polygon
-#' @param verbose verbosity
-#' @return giotto object
-#' @family polygon info data accessor functions
-#' @family functions to set data in giotto object
-#' @export
-set_polygon_info = function(gobject,
-                            polygon_name = 'cell',
-                            gpolygon,
-                            verbose = TRUE) {
-
-
-  ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_info)
-  if(polygon_name %in% potential_names) {
-     if(verbose) wrap_msg('> "', polygon_name, '" already exists and will be replaced with new giotto polygon \n')
-  }
-
-  ## TODO: 2. check input for giotto polygon
-
-
-  ## 3. update and return giotto object
-  gobject@spatial_info[[polygon_name]] = gpolygon
-  return(gobject)
-
-}
-
 #' @title Set polygon info
 #' @name setPolygonInfo
 #' @description Set giotto polygon spatVector
@@ -3154,23 +3203,78 @@ setPolygonInfo = function(gobject = NULL,
                           polygon_name = 'cell',
                           gpolygon = NULL,
                           verbose = TRUE) {
-  if (!inherits(gobject, 'giotto')){
-    wrap_msg("Unable to set polygon spatVector to non-Giotto object.")
-    stop(wrap_txt("Please provide a Giotto object to the gobject argument.",
-                  errWidth = TRUE))
+
+  guard_against_notgiotto(gobject)
+
+
+  # NATIVE INPUT TYPES
+  # 3. If input is spatLocObj or NULL, pass to internal
+  if(is.null(gpolygon) | inherits(gpolygon, 'giottoPolygon')) {
+    # pass to internal
+    gobject = set_polygon_info(
+      gobject = gobject,
+      polygon_name = polygon_name,
+      gpolygon = gpolygon,
+      verbose = verbose,
+      initialize = TRUE
+    )
+    return(gobject)
   }
 
-  if (!inherits(gpolygon, 'giottoPolygon')){
-    wrap_msg("Unable to set non-spatVector object to Giotto object.")
-    stop(wrap_txt("Please provide a giotto polygon to the gpolygon argument.",
-                  errWidth = TRUE))
-  }
-  gobject = set_polygon_info(gobject = gobject,
-                             polygon_name = polygon_name,
-                             gpolygon = gpolygon,
-                             verbose = verbose)
-  return (gobject)
+
 }
+
+
+
+
+
+
+
+#' @title Set polygon info
+#' @name set_polygon_info
+#' @description Set giotto polygon spatVector
+#' @param gobject giotto object
+#' @param polygon_name name of polygons. Default "cell"
+#' @param gpolygon giotto polygon
+#' @param verbose verbosity
+#' @return giotto object
+#' @family polygon info data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+set_polygon_info = function(gobject,
+                            polygon_name = 'cell',
+                            gpolygon,
+                            verbose = TRUE,
+                            initialize = FALSE) {
+
+  guard_against_notgiotto(gobject)
+
+  ## 1. check if specified name has already been used
+  potential_names = names(gobject@spatial_info)
+  if(polygon_name %in% potential_names) {
+     if(verbose) wrap_msg('> "', polygon_name, '" already exists and will be replaced with new giotto polygon \n')
+  }
+
+  ## TODO: 2. check input for giotto polygon
+
+  ## remove if input is NULL
+  if(is.null(gpolygon)) {
+    if(isTRUE(verbose)) wrap_msg('NULL passed to gpolygon.
+                                 Removing specified giottoPolygon...')
+    gobject@spatial_info[[polygon_name]] = NULL
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
+  }
+
+
+  ## 3. update and return giotto object
+  gobject@spatial_info[[polygon_name]] = gpolygon
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
+
+}
+
+
 
 
 
