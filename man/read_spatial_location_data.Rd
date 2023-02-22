@@ -7,7 +7,11 @@
 read_spatial_location_data(
   gobject,
   spat_loc_list,
+<<<<<<< HEAD
+  cores = getOption("giotto.cores"),
+=======
   cores = determine_cores(),
+>>>>>>> upstream/gobject_initialize
   provenance = NULL,
   verbose = TRUE
 )
