@@ -1201,6 +1201,7 @@ setExpression = function(gobject,
         # provenance info set during prev. step
         gobject = setExpression(gobject,
                                 values = exprObj_list[[obj_i]],
+                                verbose = verbose,
                                 set_defaults = FALSE)
       }
       return(gobject)
@@ -1219,6 +1220,7 @@ setExpression = function(gobject,
       gobject = set_expression_values(gobject,
                                       values = values,
                                       set_defaults = FALSE,
+                                      verbose = verbose,
                                       initialize = TRUE)
       return(gobject)
     }
@@ -1551,21 +1553,81 @@ setSpatialLocations = function(gobject,
                                verbose = TRUE,
                                set_defaults = TRUE) {
 
+  guard_against_notgiotto(gobject)
+
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
   .external_accessor = TRUE # checked by internal setter to determine if called by external
 
-  # Pass to internal function
-  gobject = set_spatial_locations(gobject = gobject,
-                                  spatlocs = spatlocs,
-                                  spat_unit = spat_unit,
-                                  spat_loc_name = name,
-                                  provenance = provenance,
-                                  verbose = verbose,
-                                  set_defaults = set_defaults)
+  # 2. Set spat_unit
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+  }
 
-  return(gobject)
+
+  # NATIVE INPUT TYPES
+  # 3. If input is spatLocsObj or NULL, pass to internal
+  if(is.null(spatlocs) | inherits(spatlocs, 'spatLocsObj')) {
+
+    # pass to internal
+    gobject = set_spatial_locations(
+      gobject = gobject,
+      spatlocs = spatlocs,
+      spat_unit = spat_unit,
+      spat_loc_name = name,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+
+  } else {
+
+    # OTHER INPUT TYPES
+    # 4. Parse input for nesting info
+    # 4.1 If nested list structure, extract spat_unit
+    if(inherits(spatlocs, list)) {
+
+      spatLocs_list = read_spatial_location_data(
+        gobject = gobject, # TODO remove this from read fx (it's not used)
+        spat_loc_list = spatlocs,
+        cores = determine_cores(),
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        verbose = verbose
+      )
+      # recursively call external so checking is also done per iteration
+      for(obj_i in seq_along(spatLocs_list)) {
+        # provenance info set during prev. step
+        gobject = setSpatialLocations(gobject = gobject,
+                                      spatlocs = spatLocs_list[[obj_i]],
+                                      verbose = verbose,
+                                      set_defaults = FALSE)
+      }
+      return(gobject)
+
+    } else {
+
+      # 4.2 Otherwise assume evaluatable class, and create S4
+      spatlocs = create_spat_locs_obj(
+        name = name,
+        coordinates = spatlocs,
+        spat_unit = spat_unit,
+        provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+        misc = NULL
+      )
+      # pass to internal
+      gobject = set_spatial_locations(gobject = gobject,
+                                      spatlocs = spatlocs,
+                                      set_defaults = FALSE,
+                                      verbose = verbose,
+                                      initialize = TRUE)
+      return(gobject)
+    }
+  }
+
 }
 
 
@@ -1610,7 +1672,7 @@ set_spatial_locations = function(gobject,
   guard_against_notgiotto(gobject)
 
   # 0. pass to external if not native formats
-  if(!inherits(spatlocs, c('exprObj', 'NULL'))) {
+  if(!inherits(spatlocs, c('spatLocsObj', 'NULL'))) {
     if(isTRUE(verbose)) wrap_msg(deparse(substitute(spatlocs)), 'is not spatLocsObj
                                  passing to setSpatialLocations...')
     gobject = setSpatialLocations(gobject = gobject,
@@ -1653,34 +1715,7 @@ set_spatial_locations = function(gobject,
 
   # 4. import data from S4 if available
   # NOTE: modifies spat_unit/name/provenance
-  if(inherits(spatlocs, 'spatLocsObj')) {
-
-    if(isTRUE(nospec_unit)) { # case if no input - prioritize tagged info
-      if(!is.na(slot(spatlocs, 'spat_unit'))) spat_unit = slot(spatlocs, 'spat_unit')
-      else slot(spatlocs, 'spat_unit') = spat_unit
-    } else { # case if input given - use input
-      slot(spatlocs, 'spat_unit') = spat_unit
-    }
-    if(isTRUE(nospec_name)) { # case if no input - prioritize tagged info
-      if(!is.na(slot(spatlocs, 'name'))) spat_loc_name = slot(spatlocs, 'name')
-      else slot(spatlocs, 'name') = spat_loc_name
-    } else { # case if input given - use input
-      slot(spatlocs, 'name') = spat_loc_name
-    }
-    if(is.null(provenance)) {
-      if(!is.null(prov(spatlocs))) provenance = prov(spatlocs)
-    } else {
-      prov(spatlocs) = provenance
-    }
-
-  } else {
-    spatlocs = create_spat_locs_obj(
-      name = spat_loc_name,
-      spat_unit = spat_unit,
-      coordinates = spatlocs,
-      provenance = if(is.null(provenance)) spat_unit else provenance
-    )
-  }
+  spatlocs = read_s4_nesting(spatlocs)
 
   # 5. check if specified name has already been used
   potential_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
