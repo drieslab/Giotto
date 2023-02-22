@@ -9,7 +9,7 @@ set_dimReduction(
   dimObject,
   spat_unit = NULL,
   feat_type = NULL,
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
   provenance = NULL,

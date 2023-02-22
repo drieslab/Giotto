@@ -6,7 +6,7 @@
 \usage{
 create_dim_obj(
   name = "test",
-  reduction = NA_character_,
+  reduction = "cells",
   reduction_method = NA_character_,
   coordinates = NULL,
   spat_unit = "cell",
@@ -19,6 +19,8 @@ create_dim_obj(
 \arguments{
 \item{name}{name of dimObj}
 
+\item{reduction}{reduction on columns (e.g. cells) or rows (e.g. features)}
+
 \item{reduction_method}{method used to generate dimension reduction}
 
 \item{coordinates}{embedding coordinates}
@@ -30,6 +32,8 @@ create_dim_obj(
 \item{provenance}{origin data of aggregated expression information (if applicable)}
 
 \item{misc}{misc}
+
+\item{my_rownames}{(optional) if needed, set coordinates rowname values here}
 }
 \description{
 Create an S4 dimObj
