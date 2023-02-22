@@ -23,7 +23,7 @@ createGiottoObject(
   largeImages = NULL,
   offset_file = NULL,
   instructions = NULL,
-  cores = NA,
+  cores = determine_cores(),
   verbose = TRUE
 )
 }

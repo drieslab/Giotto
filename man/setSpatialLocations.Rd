@@ -8,7 +8,7 @@ setSpatialLocations(
   gobject,
   spatlocs,
   spat_unit = NULL,
-  spat_loc_name = "raw",
+  name = "raw",
   provenance = NULL,
   verbose = TRUE,
   set_defaults = TRUE
@@ -22,14 +22,14 @@ setSpatialLocations(
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{spat_loc_name}{name of spatial locations, default "raw"}
-
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
+
+\item{spat_loc_name}{name of spatial locations, default "raw"}
 }
 \value{
 giotto object

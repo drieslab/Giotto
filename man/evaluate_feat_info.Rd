@@ -4,7 +4,12 @@
 \alias{evaluate_feat_info}
 \title{Evaluate feature info}
 \usage{
-evaluate_feat_info(spatial_feat_info, feat_type, cores = 1, feat_ID)
+evaluate_feat_info(
+  spatial_feat_info,
+  feat_type,
+  cores = determine_cores(),
+  feat_ID
+)
 }
 \arguments{
 \item{spatial_feat_info}{spatial feature information to evaluate}

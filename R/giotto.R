@@ -460,15 +460,13 @@ replaceGiottoInstructions = function(gobject,
 #' @details The expression matrix needs to have both unique column names and row names
 #' @export
 readExprMatrix = function(path,
-                          cores = NA,
+                          cores = determine_cores(),
                           transpose = FALSE) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
   if(!file.exists(path)) stop('the path: ', path, ' does not exist')
 
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
   # read and convert
@@ -498,7 +496,7 @@ readExprMatrix = function(path,
 #' @keywords internal
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
-                                cores = NA) {
+                                cores = determine_cores()) {
 
 
   if(inherits(inputmatrix, 'character')) {
@@ -619,7 +617,7 @@ depth <- function(this,
 #' @keywords internal
 read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
-                                cores = NA,
+                                cores = determine_cores(),
                                 default_feat_type = NULL,
                                 verbose = TRUE,
                                 provenance = NULL) {
@@ -1178,7 +1176,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @keywords internal
 read_spatial_location_data = function(gobject,
                                       spat_loc_list,
-                                      cores = getOption('giotto.cores'),
+                                      cores = determine_cores(),
                                       provenance = NULL,
                                       verbose = TRUE) {
 
@@ -1772,7 +1770,7 @@ read_nearest_networks = function(gobject,
 #' @return data.table
 #' @keywords internal
 evaluate_spatial_info = function(spatial_info,
-                                 cores = 1,
+                                 cores = determine_cores(),
                                  spatial_locs) {
 
 
@@ -1841,7 +1839,7 @@ evaluate_spatial_info = function(spatial_info,
 #' @keywords internal
 evaluate_feat_info = function(spatial_feat_info,
                               feat_type,
-                              cores = 1,
+                              cores = determine_cores(),
                               feat_ID) {
 
 
@@ -1981,7 +1979,7 @@ createGiottoObject <- function(expression,
                                largeImages = NULL,
                                offset_file = NULL,
                                instructions = NULL,
-                               cores = NA,
+                               cores = determine_cores(),
                                verbose = TRUE) {
 
   # create minimum giotto
@@ -2036,7 +2034,6 @@ createGiottoObject <- function(expression,
 
 
   ## if cores is not set, then set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
 

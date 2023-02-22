@@ -4,7 +4,7 @@
 \alias{evaluate_spatial_locations}
 \title{Evaluate spatial locations}
 \usage{
-evaluate_spatial_locations(spatial_locs, cores = 1)
+evaluate_spatial_locations(spatial_locs, cores = getOption("giotto.cores"))
 }
 \arguments{
 \item{spatial_locs}{spatial locations to evaluate}
