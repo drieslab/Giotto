@@ -115,14 +115,17 @@ createNearestNetwork <- function(gobject,
 
     # use only available dimensions if dimensions < dimensions_to_use
 
-    dim_coord = get_dimReduction(gobject = gobject,
+    dim_obj = get_dimReduction(gobject = gobject,
                                  spat_unit = spat_unit,
                                  feat_type = feat_type,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
                                  name = dim_reduction_name,
-                                 output = 'data.table')
+                                 output = 'dimObj')
 
+    provenance = prov(dim_obj)
+
+    dim_coord = dim_obj[]
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]
 
@@ -132,11 +135,14 @@ createNearestNetwork <- function(gobject,
     ## using original matrix ##
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = get_expression_values(gobject = gobject,
+    expr_obj = get_expression_values(gobject = gobject,
                                         feat_type = feat_type,
                                         spat_unit = spat_unit,
                                         values = values,
-                                        output = 'matrix')
+                                        output = 'exprObj')
+
+    provenance = prov(expr_obj)
+    expr_values = expr_obj[] # extract matrix
 
     # subset expression matrix
     if(!is.null(feats_to_use)) {
@@ -204,6 +210,7 @@ createNearestNetwork <- function(gobject,
   }
 
 
+print(nn_network_igraph)
 
 
   if(return_gobject == TRUE) {
@@ -215,12 +222,20 @@ createNearestNetwork <- function(gobject,
 
     }
 
+    nnObj = create_nn_net_obj(name = name,
+                              nn_type = type,
+                              igraph = nn_network_igraph,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              provenance = provenance,
+                              misc = NULL)
+
     gobject = set_NearestNetwork(gobject = gobject,
                                  spat_unit = spat_unit,
                                  feat_type = feat_type,
                                  nn_network_to_use = type,
                                  network_name = name,
-                                 nn_network = nn_network_igraph)
+                                 nn_network = nnObj)
 
     #gobject@nn_network[[spat_unit]][[type]][[name]][['igraph']] = nn_network_igraph
 
