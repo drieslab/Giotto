@@ -1033,29 +1033,29 @@ setClass('exprObj',
          validity = check_expr_obj)
 
 
-## * Initialize ####
-setMethod('initialize', 'exprObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('exprMat' %in% names(a)) {
-              exprMat = a$exprMat
-              if(is.null(exprMat)) exprMat = matrix()
-              else {
-                # Convert matrix input to preferred format
-                exprMat = evaluate_expr_matrix(exprMat)
-              }
-
-              # return to arg list
-              a$exprMat = exprMat
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'exprObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('exprMat' %in% names(a)) {
+#               exprMat = a$exprMat
+#               if(is.null(exprMat)) exprMat = matrix()
+#               else {
+#                 # Convert matrix input to preferred format
+#                 exprMat = evaluate_expr_matrix(exprMat)
+#               }
+#
+#               # return to arg list
+#               a$exprMat = exprMat
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 ## * Show ####
@@ -1364,29 +1364,29 @@ setClass('nnNetObj',
 
 
 
-## * Initialize ####
-setMethod('initialize', 'nnNetObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('igraph' %in% names(a)) {
-              igraph = a$igraph
-              if(is.null(igraph)) igraph = NULL
-              else {
-                # Convert matrix input to preferred format
-                igraph = evaluate_nearest_networks(igraph)
-              }
-
-              # return to arg list
-              a$igraph = igraph
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'nnNetObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('igraph' %in% names(a)) {
+#               igraph = a$igraph
+#               if(is.null(igraph)) igraph = NULL
+#               else {
+#                 # Convert igraph input to preferred format
+#                 igraph = evaluate_nearest_networks(igraph)
+#               }
+#
+#               # return to arg list
+#               a$igraph = igraph
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 
@@ -1485,33 +1485,33 @@ setClass('spatLocsObj',
 
 
 
-## * Initialize ####
-setMethod('initialize', 'spatLocsObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('coordinates' %in% names(a)) {
-              coordinates = a$coordinates
-              if(is.null(coordinates)) {
-                coordinates = data.table::data.table(
-                  sdimx = NA_real_,
-                  sdimy = NA_real_,
-                  cell_ID = NA_character_
-                )
-              } else {
-                coordinates = evaluate_spatial_locations(coordinates)
-              }
-
-              # return to arg list
-              a$coordinates = coordinates
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'spatLocsObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('coordinates' %in% names(a)) {
+#               coordinates = a$coordinates
+#               if(is.null(coordinates)) {
+#                 coordinates = data.table::data.table(
+#                   sdimx = NA_real_,
+#                   sdimy = NA_real_,
+#                   cell_ID = NA_character_
+#                 )
+#               } else {
+#                 coordinates = evaluate_spatial_locations(coordinates)
+#               }
+#
+#               # return to arg list
+#               a$coordinates = coordinates
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 
@@ -2253,6 +2253,13 @@ create_expr_obj = function(name = 'test',
                            provenance = NULL,
                            misc = NULL) {
 
+  if(is.null(exprMat)) {
+    exprMat = matrix()
+  } else {
+    # Convert matrix input to preferred format
+    exprMat = evaluate_expr_matrix(exprMat)
+  }
+
   return(new('exprObj',
              name = name,
              exprMat = exprMat,
@@ -2377,6 +2384,13 @@ create_nn_net_obj = function(name = 'test',
                              feat_type = 'rna',
                              provenance = NULL,
                              misc = NULL) {
+
+  if(is.null(igraph)) igraph = NULL
+  else {
+    # convert igraph input to preferred format
+    igraph = evaluate_nearest_networks(igraph)
+  }
+
   return(new('nnNetObj',
              name = name,
              nn_type = nn_type,
@@ -2402,6 +2416,17 @@ create_spat_locs_obj = function(name = 'test',
                                 spat_unit = 'cell',
                                 provenance = NULL,
                                 misc = NULL) {
+
+  if(is.null(coordinates)) {
+    coordinates = data.table::data.table(
+      sdimx = NA_real_,
+      sdimy = NA_real_,
+      cell_ID = NA_character_
+    )
+  } else {
+    # convert coordinates input to preferred format
+    coordinates = evaluate_spatial_locations(coordinates)
+  }
 
   return(new('spatLocsObj',
              name = name,
