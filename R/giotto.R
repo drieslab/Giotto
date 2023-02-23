@@ -1288,7 +1288,8 @@ read_spatial_location_data = function(gobject,
 
 #' @title Check spatial location data
 #' @name check_spatial_location_data
-#' @description check cell ID (spatial unit) names between spatial location and expression data
+#' @description check cell ID (spatial unit) names between spatial location and expression data.
+#' It will look for identical IDs after sorting.
 #' @keywords internal
 check_spatial_location_data = function(gobject) {
 
@@ -1317,6 +1318,9 @@ check_spatial_location_data = function(gobject) {
       if(!isTRUE(missing_cell_IDs)) {
 
         spatial_cell_id_names = spatlocsDT[['cell_ID']]
+
+        spatial_cell_id_names = sort(spatial_cell_id_names)
+        expected_cell_ID_names = sort(expected_cell_ID_names)
 
         if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
           message('spatloc cell_IDs: ')
