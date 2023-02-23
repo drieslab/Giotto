@@ -1329,16 +1329,19 @@ runUMAP <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = get_dimReduction(gobject = gobject,
+      dimObj_to_use = get_dimReduction(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       output = 'data.table')
+                                       output = 'dimObj')
+
+      provenance = prov(dimObj_to_use)
+      matrix_to_use = dimObj_to_use[]
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      print(matrix_to_use[1:2,1:2])
+      #print(matrix_to_use[1:2,1:2])
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
@@ -1557,15 +1560,17 @@ runtSNE <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = get_dimReduction(gobject = gobject,
+      dimObj_to_use = get_dimReduction(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       output = 'data.table')
-      matrix_to_use = matrix_to_use[, dimensions_to_use]
+                                       output = 'dimObj')
 
+      provenance = prov(dimObj_to_use)
+      matrix_to_use = dimObj_to_use[]
+      matrix_to_use = matrix_to_use[, dimensions_to_use]
 
     } else {
       ## using original matrix ##

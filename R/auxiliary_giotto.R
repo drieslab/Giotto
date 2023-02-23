@@ -3092,6 +3092,7 @@ aggregateStacksPolygonsOLD = function(gobject,
 
 
 #' @title combine_stack_spatVectors
+#' @description combines/aggregates polygons with the same cell ID from different z-stacks
 #' @keywords internal
 combine_stack_spatVectors = function(gobject,
                                      spat_units) {
@@ -3116,7 +3117,7 @@ combine_stack_spatVectors = function(gobject,
 
 
   # 3. aggregate individual cells/polys
-  all_poly_ids = unique(stack_spatvector$poly_ID)
+  all_poly_ids = sort(unique(stack_spatvector$poly_ID))
   poly_list = list()
   for(selected_poly_i in 1:length(all_poly_ids)) {
     selected_poly_id = all_poly_ids[[selected_poly_i]]
