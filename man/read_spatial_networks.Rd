@@ -4,7 +4,7 @@
 \alias{read_spatial_networks}
 \title{Read spatial networks}
 \usage{
-read_spatial_networks(gobject, spatial_network)
+read_spatial_networks(spatial_network, provenance = NULL)
 }
 \description{
 read spatial networks from list

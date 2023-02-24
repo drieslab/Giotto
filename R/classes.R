@@ -562,6 +562,9 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
   # detect nearest network slot
   avail_nn = list_nearest_networks(.Object)
 
+  # detect dimension reduction slot
+  avail_dr = list_dim_reductions(.Object)
+
 
 
 
@@ -786,6 +789,15 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   if(!is.null(avail_expr) & !is.null(avail_nn)) {
     check_nearest_networks(gobject = .Object)
+  }
+
+
+
+  ## Dimension reduction ##
+  ## ------------------- ##
+
+  if(!is.null(avail_dr)) {
+    .Object = check_dimension_reduction(gobject = .Object)
   }
 
 
@@ -1033,29 +1045,29 @@ setClass('exprObj',
          validity = check_expr_obj)
 
 
-## * Initialize ####
-setMethod('initialize', 'exprObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('exprMat' %in% names(a)) {
-              exprMat = a$exprMat
-              if(is.null(exprMat)) exprMat = matrix()
-              else {
-                # Convert matrix input to preferred format
-                exprMat = evaluate_expr_matrix(exprMat)
-              }
-
-              # return to arg list
-              a$exprMat = exprMat
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'exprObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('exprMat' %in% names(a)) {
+#               exprMat = a$exprMat
+#               if(is.null(exprMat)) exprMat = matrix()
+#               else {
+#                 # Convert matrix input to preferred format
+#                 exprMat = evaluate_expr_matrix(exprMat)
+#               }
+#
+#               # return to arg list
+#               a$exprMat = exprMat
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 ## * Show ####
@@ -1254,6 +1266,12 @@ check_dim_obj = function(object) {
     errors = c(errors, msg)
   }
 
+  # This check applied using check_dimension_reduction()
+  # if(!inherits(rownames(object@coordinates, 'character'))) {
+  #   msg = 'Dim reduction coordinate rownames must be character'
+  #   errors = c(errors, msg)
+  # }
+
   if(length(errors) == 0) TRUE else errors
 }
 
@@ -1364,29 +1382,29 @@ setClass('nnNetObj',
 
 
 
-## * Initialize ####
-setMethod('initialize', 'nnNetObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('igraph' %in% names(a)) {
-              igraph = a$igraph
-              if(is.null(igraph)) igraph = NULL
-              else {
-                # Convert matrix input to preferred format
-                igraph = evaluate_nearest_networks(igraph)
-              }
-
-              # return to arg list
-              a$igraph = igraph
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'nnNetObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('igraph' %in% names(a)) {
+#               igraph = a$igraph
+#               if(is.null(igraph)) igraph = NULL
+#               else {
+#                 # Convert igraph input to preferred format
+#                 igraph = evaluate_nearest_networks(igraph)
+#               }
+#
+#               # return to arg list
+#               a$igraph = igraph
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 
@@ -1485,33 +1503,33 @@ setClass('spatLocsObj',
 
 
 
-## * Initialize ####
-setMethod('initialize', 'spatLocsObj',
-          function(.Object, ...) {
-
-            # expand args
-            a = list(.Object = .Object, ...)
-
-            # evaluate data
-            if('coordinates' %in% names(a)) {
-              coordinates = a$coordinates
-              if(is.null(coordinates)) {
-                coordinates = data.table::data.table(
-                  sdimx = NA_real_,
-                  sdimy = NA_real_,
-                  cell_ID = NA_character_
-                )
-              } else {
-                coordinates = evaluate_spatial_locations(coordinates)
-              }
-
-              # return to arg list
-              a$coordinates = coordinates
-            }
-
-            .Object = do.call('methods'::'callNextMethod', a)
-            .Object
-          })
+## * Initialize
+# setMethod('initialize', 'spatLocsObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('coordinates' %in% names(a)) {
+#               coordinates = a$coordinates
+#               if(is.null(coordinates)) {
+#                 coordinates = data.table::data.table(
+#                   sdimx = NA_real_,
+#                   sdimy = NA_real_,
+#                   cell_ID = NA_character_
+#                 )
+#               } else {
+#                 coordinates = evaluate_spatial_locations(coordinates)
+#               }
+#
+#               # return to arg list
+#               a$coordinates = coordinates
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 
@@ -2253,6 +2271,13 @@ create_expr_obj = function(name = 'test',
                            provenance = NULL,
                            misc = NULL) {
 
+  if(is.null(exprMat)) {
+    exprMat = matrix()
+  } else {
+    # Convert matrix input to preferred format
+    exprMat = evaluate_expr_matrix(exprMat)
+  }
+
   return(new('exprObj',
              name = name,
              exprMat = exprMat,
@@ -2340,11 +2365,13 @@ create_dim_obj = function(name = 'test',
                           misc = NULL,
                           my_rownames = NULL) {
 
+  coordinates = evaluate_dimension_reduction(coordinates)
+
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
 
   if(!is.null(my_rownames)) {
-    rownames(coordinates) = my_rownames
+    rownames(coordinates) = as.character(my_rownames)
   }
 
   return(new('dimObj',
@@ -2377,6 +2404,13 @@ create_nn_net_obj = function(name = 'test',
                              feat_type = 'rna',
                              provenance = NULL,
                              misc = NULL) {
+
+  if(is.null(igraph)) igraph = NULL
+  else {
+    # convert igraph input to preferred format
+    igraph = evaluate_nearest_networks(igraph)
+  }
+
   return(new('nnNetObj',
              name = name,
              nn_type = nn_type,
@@ -2402,6 +2436,20 @@ create_spat_locs_obj = function(name = 'test',
                                 spat_unit = 'cell',
                                 provenance = NULL,
                                 misc = NULL) {
+
+  if(is.null(coordinates)) {
+    coordinates = data.table::data.table(
+      sdimx = NA_real_,
+      sdimy = NA_real_,
+      cell_ID = NA_character_
+    )
+  } else {
+    # convert coordinates input to preferred format
+    coordinates = evaluate_spatial_locations(coordinates)
+    # set cell_ID col if missing to conform to spatialLocationsObj validity
+    # should already never be the case after evaluation
+    if(!'cell_ID' %in% colnames(coordinates)) coordinates[, cell_ID := NA_character_]
+  }
 
   return(new('spatLocsObj',
              name = name,
@@ -2438,6 +2486,10 @@ create_spat_net_obj = function(name = 'test',
                                spat_unit = 'cell',
                                provenance = NULL,
                                misc = NULL ) {
+
+  if(!is.null(networkDT)) {
+    networkDT = evaluate_spatial_network(networkDT)
+  }
 
   return(new('spatialNetworkObj',
              name = name,

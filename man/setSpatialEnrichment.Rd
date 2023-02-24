@@ -10,6 +10,7 @@ setSpatialEnrichment(
   spat_unit = NULL,
   feat_type = NULL,
   name = "enrichment",
+  provenance = NULL,
   verbose = TRUE,
   set_defaults = TRUE
 )

@@ -4,7 +4,13 @@
 \alias{set_polygon_info}
 \title{Set polygon info}
 \usage{
-set_polygon_info(gobject, polygon_name = "cell", gpolygon, verbose = TRUE)
+set_polygon_info(
+  gobject,
+  polygon_name = "cell",
+  gpolygon,
+  verbose = TRUE,
+  initialize = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
