@@ -13,6 +13,7 @@
 \alias{spatIDs,dimObj,missing-method}
 \alias{spatIDs,giottoPolygon,missing-method}
 \alias{spatIDs,spatEnrObj,missing-method}
+\alias{spatIDs,nnNetObj,missing-method}
 \alias{featIDs,giotto,missing-method}
 \alias{featIDs,giotto,character-method}
 \alias{featIDs,exprObj,missing-method}
@@ -44,6 +45,8 @@ featIDs(x, feat_type, ...)
 \S4method{spatIDs}{giottoPolygon,missing}(x, spat_unit, ...)
 
 \S4method{spatIDs}{spatEnrObj,missing}(x, spat_unit, ...)
+
+\S4method{spatIDs}{nnNetObj,missing}(x, spat_unit, ...)
 
 \S4method{featIDs}{giotto,missing}(x, feat_type, ...)
 

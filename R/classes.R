@@ -562,6 +562,9 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
   # detect nearest network slot
   avail_nn = list_nearest_networks(.Object)
 
+  # detect dimension reduction slot
+  avail_dr = list_dim_reductions(.Object)
+
 
 
 
@@ -786,6 +789,15 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   if(!is.null(avail_expr) & !is.null(avail_nn)) {
     check_nearest_networks(gobject = .Object)
+  }
+
+
+
+  ## Dimension reduction ##
+  ## ------------------- ##
+
+  if(!is.null(avail_dr)) {
+    .Object = check_dimension_reduction(gobject = .Object)
   }
 
 
@@ -1253,6 +1265,12 @@ check_dim_obj = function(object) {
     msg = 'Dim reduction coordinates should be provided with dimensions ("Dim.#") as columns and samples as rows\n'
     errors = c(errors, msg)
   }
+
+  # This check applied using check_dimension_reduction()
+  # if(!inherits(rownames(object@coordinates, 'character'))) {
+  #   msg = 'Dim reduction coordinate rownames must be character'
+  #   errors = c(errors, msg)
+  # }
 
   if(length(errors) == 0) TRUE else errors
 }
@@ -2347,11 +2365,13 @@ create_dim_obj = function(name = 'test',
                           misc = NULL,
                           my_rownames = NULL) {
 
+  coordinates = evaluate_dimension_reduction(coordinates)
+
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
 
   if(!is.null(my_rownames)) {
-    rownames(coordinates) = my_rownames
+    rownames(coordinates) = as.character(my_rownames)
   }
 
   return(new('dimObj',
@@ -2426,6 +2446,9 @@ create_spat_locs_obj = function(name = 'test',
   } else {
     # convert coordinates input to preferred format
     coordinates = evaluate_spatial_locations(coordinates)
+    # set cell_ID col if missing to conform to spatialLocationsObj validity
+    # should already never be the case after evaluation
+    if(!'cell_ID' %in% colnames(coordinates)) coordinates[, cell_ID := NA_character_]
   }
 
   return(new('spatLocsObj',
@@ -2463,6 +2486,10 @@ create_spat_net_obj = function(name = 'test',
                                spat_unit = 'cell',
                                provenance = NULL,
                                misc = NULL ) {
+
+  if(!is.null(networkDT)) {
+    networkDT = evaluate_spatial_network(networkDT)
+  }
 
   return(new('spatialNetworkObj',
              name = name,

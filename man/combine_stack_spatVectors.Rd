@@ -7,6 +7,6 @@
 combine_stack_spatVectors(gobject, spat_units)
 }
 \description{
-combine_stack_spatVectors
+combines/aggregates polygons with the same cell ID from different z-stacks
 }
 \keyword{internal}

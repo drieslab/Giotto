@@ -1339,6 +1339,7 @@ runUMAP <- function(gobject,
 
       provenance = prov(dimObj_to_use)
       matrix_to_use = dimObj_to_use[]
+
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
       #print(matrix_to_use[1:2,1:2])
@@ -1778,7 +1779,10 @@ runGiottoHarmony = function(gobject,
                                      reduction = reduction, # set to spat_unit?
                                      reduction_method = dim_reduction_to_use,
                                      name = dim_reduction_name,
-                                     output = 'data.table')
+                                     output = 'dimObj')
+    provenance = prov(matrix_to_use)
+    matrix_to_use = matrix_to_use[]
+
     matrix_to_use = matrix_to_use[, dimensions_to_use]
 
   } else {

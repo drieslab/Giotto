@@ -4,7 +4,7 @@
 \alias{read_spatial_enrichment}
 \title{Read spatial enrichment}
 \usage{
-read_spatial_enrichment(gobject, spatial_enrichment)
+read_spatial_enrichment(spatial_enrichment, provenance = NULL)
 }
 \description{
 read spatial enrichment results from list
