@@ -4,7 +4,7 @@
 \alias{setFeatureInfo}
 \title{Set feature info}
 \usage{
-setFeatureInfo(gobject = NULL, gpoints, feat_type = NULL, verbose = TRUE)
+setFeatureInfo(gobject, gpoints, feat_type = NULL, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}

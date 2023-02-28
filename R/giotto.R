@@ -847,7 +847,7 @@ init_cell_and_feat_IDs = function(gobject) {
   # 2. set feat_ID for each feature
   for(feature_type in used_feat_types) {
     gobject = set_feat_id(gobject = gobject,
-                          feat_type = feat_type,
+                          feat_type = feature_type,
                           feat_IDs = 'initialize',
                           verbose = FALSE,
                           set_defaults = TRUE)
@@ -876,6 +876,19 @@ read_cell_metadata = function(gobject,
 
   # data.table vars
   cell_ID = NULL
+
+  if(is.null(metadata)) {
+    return(NULL)
+  }
+
+  if(inherits(metadata, 'cellMetaObj')) {
+    return(list(metadata))
+  }
+
+
+  # list reading
+
+
 
   cellMetaObj_list = list()
 
@@ -911,9 +924,7 @@ read_cell_metadata = function(gobject,
       }
 
       # put cell_ID first
-      all_colnames = colnames(metaDT)
-      other_colnames = grep('cell_ID', all_colnames, invert = TRUE, value = TRUE)
-      metaDT = metaDT[, c('cell_ID', other_colnames), with = FALSE]
+      setcolorder(metaDT, 'cell_ID')
 
       metaObj = new('cellMetaObj',
                     metaDT = metaDT,
@@ -1335,14 +1346,24 @@ check_spatial_location_data = function(gobject) {
   cell_ID = spat_unit = name = NULL
 
   # find available spatial locations
-  available = list_spatial_locations(gobject)
+  avail_sl = list_spatial_locations(gobject)
+  avail_ex = list_expression(gobject)
+  avail_si = list_spatial_info(gobject)
 
-  for(spat_unit_i in available[['spat_unit']]) {
+  missing_unit = !(avail_sl$spat_unit) %in% c(avail_ex$spat_unit, avail_si$spat_info)
+  if(any(missing_unit)) {
+    stop(wrap_txt('No expression or polygon information discovered for spat_unit:',
+                  avail_sl$spat_unit[missing_unit],
+                  'Please add expression or polygon information for this spatial',
+                  'unit first'))
+  }
+
+  for(spat_unit_i in avail_sl[['spat_unit']]) {
 
     expected_cell_ID_names = get_cell_id(gobject = gobject,
                                          spat_unit = spat_unit_i)
 
-    for(coord_i in available[spat_unit == spat_unit_i, name]) {
+    for(coord_i in avail_sl[spat_unit == spat_unit_i, name]) {
 
       # 1. get colnames
       spatlocsDT = get_spatial_locations(gobject,
@@ -2279,65 +2300,160 @@ check_nearest_networks = function(gobject) {
 
 #' @title Evaluate spatial info
 #' @name evaluate_spatial_info
-#' @description Evaluate spatial information input
+#' @description Evaluate spatial information input into a SpatVector for
+#' giottoPolygon creation
 #' @param spatial_info spatial information to evaluate
+#' @param skip_eval_dfr (default FALSE) skip evaluation of data.frame like input
+#' @param copy_dt (default TRUE) if segmdfr is provided as dt, this determines
+#' whether a copy is made
 #' @param cores how many cores to use
-#' @param spatial_locs spatial location data.table to compare the cell IDs with
-#' @return data.table
+#' @param verbose be verbose
+#' @return SpatVector
 #' @keywords internal
 evaluate_spatial_info = function(spatial_info,
+                                 skip_eval_dfr = FALSE,
+                                 copy_dt = TRUE,
                                  cores = determine_cores(),
-                                 spatial_locs) {
+                                 verbose = TRUE) {
 
+  # data.table vars
+  geom = NULL
 
   ## 1. load or read spatial information data ##
+  ## 1.1 read from file
   if(inherits(spatial_info, 'character')) {
-
-    if(!file.exists(spatial_info)) stop('path to spatial information does not exist')
+    if(!file.exists(path.expand(spatial_info))) stop('path to spatial information does not exist')
     spatial_info = data.table::fread(input = spatial_info, nThread = cores)
 
+  ## 1.2 data.frame-like input
+  } else if (inherits(spatial_info, 'data.table')) {
+    if(isTRUE(copy_dt)) spatial_info = data.table::copy(spatial_info)
   } else if(inherits(spatial_info, 'data.frame')) {
+    spatial_info = data.table::setDT(spatial_info)
 
-    spatial_info = data.table::as.data.table(spatial_info)
-
-  } else {
-
-    stop('If spatial information is provided then it needs to be a file path or a data.frame-like object')
-
-  }
-
-  ## 2. check and name columns ##
-  nr_cols = ncol(spatial_info)
-
-  if(nr_cols < 4) stop('Spatial information needs to have at least 4 columns: \n',
-                       'x, y, (z) information columns \n',
-                       'cell ID and polygon point column \n')
-
-  column_classes = lapply(spatial_info, FUN = class)
-
-  # 3D or 2D data
-  if(all(column_classes[1:3] == 'numeric')) {
-    colnames(spatial_info)[1:5] = c('sdimx', 'sdimy', 'sdimz', 'cell_ID', 'point')
-  } else if(all(column_classes[1:2] == 'numeric')){
-    colnames(spatial_info)[1:4] = c('sdimx', 'sdimy', 'cell_ID', 'point')
-  } else {
-    stop('First 3 or 2 columns need to be numeric for 3D and 2D data respectively')
-  }
-
-
-
-  ## 3. check cell ID ##
-  spatial_locs_cell_IDs = spatial_locs[['cell_ID']]
-
-  spatial_info_cell_IDs = spatial_info[['cell_ID']]
-
-  if(all(spatial_info_cell_IDs %in% spatial_locs_cell_IDs)) {
+  ## 1.3 SpatVector input
+  } else if(inherits(spatial_info, 'SpatVector')) {
+    if(!'poly_ID' %in% names(spatial_info)) {
+      stop(wrap_txt('SpatVector input requires the poly_ID attribute'))
+    }
     return(spatial_info)
+
+  ## 1.4 Other inputs
   } else {
-    stop('cell IDs in spatial information are missing in the spatial locations slot')
+    spatial_info = try(data.table::as.data.table(spatial_info), silent = TRUE)
+    if(inherits(spatial_info, 'try-error')) {
+      stop(wrap_txt('If spatial information is provided then it needs to be a',
+                    'file path or a data.frame-like object',
+                    errWidth = TRUE))
+    }
+  }
+  # TODO add compatibility for HDF5s from specific outputs?
+
+
+  # 2. data.frame info evaluation
+  if(!isTRUE(skip_eval_dfr)) {
+    spatial_info = evaluate_gpoly_dfr(input_dt = spatial_info,
+                                      verbose = verbose)
+  }
+
+
+  # 3. add other necessary cols for the input data.table
+  nr_of_cells_vec = seq_along(unique(spatial_info$poly_ID))
+  names(nr_of_cells_vec) = unique(spatial_info$poly_ID)
+  new_vec = nr_of_cells_vec[as.character(spatial_info$poly_ID)]
+  spatial_info[, geom := new_vec]
+
+  spatial_info[, c('part', 'hole') := list(1, 0)]
+  spatial_info = spatial_info[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
+
+
+  # 4. create spatvector
+  spatial_info = dt_to_spatVector_polygon(spatial_info,
+                                          include_values = TRUE)
+
+
+  return(spatial_info)
+
+
+  # ## 2. check and name columns ##
+  # nr_cols = ncol(spatial_info)
+  #
+  # if(nr_cols < 4) stop('Spatial information needs to have at least 4 columns: \n',
+  #                      'x, y, (z) information columns \n',
+  #                      'cell ID and polygon point column \n')
+  #
+  # column_classes = lapply(spatial_info, FUN = class)
+  #
+  # # 3D or 2D data
+  # if(all(column_classes[1:3] == 'numeric')) {
+  #   colnames(spatial_info)[1:5] = c('sdimx', 'sdimy', 'sdimz', 'cell_ID', 'point')
+  # } else if(all(column_classes[1:2] == 'numeric')){
+  #   colnames(spatial_info)[1:4] = c('sdimx', 'sdimy', 'cell_ID', 'point')
+  # } else {
+  #   stop('First 3 or 2 columns need to be numeric for 3D and 2D data respectively')
+  # }
+
+
+
+  # ## 3. check cell ID ##
+  # spatial_locs_cell_IDs = spatial_locs[['cell_ID']]
+  #
+  # spatial_info_cell_IDs = spatial_info[['cell_ID']]
+  #
+  # if(all(spatial_info_cell_IDs %in% spatial_locs_cell_IDs)) {
+  #   return(spatial_info)
+  # } else {
+  #   stop('cell IDs in spatial information are missing in the spatial locations slot')
+  # }
+
+}
+
+
+
+
+
+
+#' @name check_spatial_info
+#' @keywords internal
+#' @noRd
+check_spatial_info = function(gobject) {
+
+  avail_sinfo = list_spatial_info(gobject)
+  avail_slocs = list_spatial_locations(gobject)
+
+  common_su = intersect(avail_sinfo$spat_info, avail_slocs$spat_unit)
+
+  # If there are any shared spatial units, match IDs
+  if(length(common_su) != 0) {
+
+    for(su_i in common_su) {
+
+      # get spat_info
+      sinfo = get_polygon_info(gobject = gobject,
+                               polygon_name = su_i,
+                               return_giottoPolygon = TRUE)
+
+      # get spatlocs
+      su_sloc = avail_slocs[spat_unit == su_i]
+      lapply(seq(nrow(su_sloc)), function(obj_i) {
+        spatlocs = get_spatial_locations(gobject = gobject,
+                                         spat_unit = su_i,
+                                         spat_loc_name = su_sloc$name,
+                                         output = 'spatLocsObj',
+                                         set_defaults = FALSE,
+                                         copy_obj = FALSE)
+        if(!all(spatIDs(sinfo) %in% spatIDs(spatlocs))) {
+          warning(wrap_txt('spat_unit:', su_i,
+                           'spatloc name:', su_sloc[[obj_i]], '\n',
+                           'cell IDs in spatial information are missing in the spatial locations slot'))
+        }
+        # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
+      })
+    }
   }
 
 }
+
 
 
 

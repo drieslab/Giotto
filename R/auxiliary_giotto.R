@@ -3492,6 +3492,18 @@ addCellMetadata <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type)
+  if(is.null(avail_ex))
+    stop(wrap_txt('No matching expression information discovered for:
+                  spat_unit:', spat_unit,
+                  '\nfeature type:', feat_type,
+                  '\nPlease add expression information first'))
+
+
   cell_metadata = get_cell_metadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
@@ -3595,6 +3607,18 @@ addFeatMetadata <- function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type)
+  if(is.null(avail_ex))
+    stop(wrap_txt('No matching expression information discovered for:
+                  spat_unit:', spat_unit,
+                  '\nfeature type:', feat_type,
+                  '\nPlease add expression information first'))
+
 
   feat_metadata = get_feature_metadata(gobject,
                                        spat_unit = spat_unit,

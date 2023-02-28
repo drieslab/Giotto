@@ -385,10 +385,19 @@ set_feat_id = function(gobject,
                        feat_IDs,
                        set_defaults = TRUE,
                        verbose = TRUE) {
+
   guard_against_notgiotto(gobject)
+
   if(isTRUE(set_defaults)) {
-    spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = NULL)
+    if(identical(feat_IDs, 'initialize')) {
+      spat_unit = suppressWarnings( # expected to be missing sometimes with init
+        set_default_spat_unit(gobject = gobject,
+                              spat_unit = NULL)
+      )
+    } else {
+      spat_unit = set_default_spat_unit(gobject = gobject,
+                                        spat_unit = NULL)
+    }
     feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
@@ -622,6 +631,7 @@ set_cell_metadata = function(gobject,
   cell_ID = NULL
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(metadata)) stop(wrap_txt('metadata param must be given'))
 
   # 1. determine if user input was supplied
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -694,6 +704,14 @@ set_cell_metadata = function(gobject,
     }
 
     # 4.3 otherwise assume data.frame type object
+
+    if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
+      'Add expression or polygon info first
+        Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
+      errWidth = TRUE
+    ))
+
+
     metadata = data.table::as.data.table(metadata)
 
     # if cell ID col is missing, try to automatically set
@@ -831,6 +849,7 @@ set_feature_metadata = function(gobject,
   feat_ID = NULL
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(metadata)) stop(wrap_txt('metaadata param must be given'))
 
   # 1. determine if user input was supplied
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -903,6 +922,14 @@ set_feature_metadata = function(gobject,
     }
 
     # 4.3 otherwise assume data.frame type object
+
+    if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
+      'Add expression or polygon info first
+        Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
+      errWidth = TRUE
+    ))
+
+
     metadata = data.table::as.data.table(metadata)
 
     # if feat ID col is missing, try to automatically set
@@ -1114,16 +1141,12 @@ get_expression_values_list = function(gobject,
 #' @name setExpression
 #' @description Function to set expression values for giotto object
 #' @inheritParams data_access_params
-#' @param name name for the expression slot
+#' @param name name for the expression information
 #' @param provenance provenance information (optional)
 #' @param values exprObj or matrix of expression values. If NULL, then the object
 #' will be removed.
 #' @param verbose be verbose
 #' @return giotto object
-#' @details If cell_ID, feat_ID, cell_metadata, or feat_metadata objects have not
-#' been initialized yet, they will be initialized by this function. Note that
-#' initialization based on feature info or spatial info is preferred if they exist
-#' for this spatial unit and feature type.
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
 #' @export
@@ -1131,36 +1154,50 @@ setExpression = function(gobject,
                          values,
                          spat_unit = NULL,
                          feat_type = NULL,
-                         name = 'test',
+                         name = 'raw',
                          provenance = NULL,
                          verbose = TRUE,
                          set_defaults = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(values)) stop(wrap_txt('values param must be given'))
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_expr = list(nospec_unit = nospec_unit,
+                                 nospec_feat = nospec_feat,
+                                 nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
 
 
-  if(inherits(values, 'exprObj') &
-     !is.na(spatUnit(values)) &
-     !is.na(featType(values)) &
-     isTRUE(nospec_unit) &
-     isTRUE(nospec_feat)) {
-    set_defaults = FALSE
+  if(inherits(values, 'exprObj')) {
+    if(!is.na(spatUnit(values)) &
+       !is.na(featType(values)) &
+       isTRUE(nospec_unit) &
+       isTRUE(nospec_feat)) {
+      set_defaults = FALSE
+    }
   }
 
-  # 2. Set feat_type and spat_unit
+  # 2. Set feat_type and spat_unit (suppressed) returns NULL when it fails
   if(isTRUE(set_defaults)) {
-    spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit)
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
+    spat_unit = suppressWarnings(
+      set_default_spat_unit(gobject = gobject,
+                            spat_unit = spat_unit)
+    )
+    feat_type = suppressWarnings(
+      set_default_feat_type(gobject = gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type)
+    )
   }
+
+  # Extra defaults: expression, feature_info, spat_info specific
+  default_unit = 'cell'
+  default_feat = if(is.null(gobject@expression_feat)) 'rna' else gobject@expression_feat[[1L]]
+
 
 
   # NATIVE INPUT TYPES
@@ -1192,7 +1229,7 @@ setExpression = function(gobject,
         expr_list = values,
         sparse = TRUE,
         cores = determine_cores(),
-        default_feat_type = feat_type,
+        default_feat_type = if(is.null(feat_type)) default_feat else feat_type,
         provenance = provenance # do not assume spat_unit
       )
       # recursively call external so gobj checking is also done per iteration
@@ -1210,8 +1247,8 @@ setExpression = function(gobject,
       values = create_expr_obj(
         name = name,
         exprMat = values,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
+        spat_unit = if(is.null(spat_unit)) default_unit else spat_unit,
+        feat_type = if(is.null(feat_type)) default_feat else feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
         misc = NULL
       )
@@ -1268,24 +1305,25 @@ set_expression_values = function(gobject,
 
   # 1. Determine user inputs
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_expr', where = p)
 
   if(call_from_external) {
-    nospec_unit = p$nospec_unit
-    nospec_feat = p$nospec_feat
-    nospec_name = p$nospec_name
+    nospec_unit = p$.external_accessor_expr$nospec_unit
+    nospec_feat = p$.external_accessor_expr$nospec_feat
+    nospec_name = p$.external_accessor_expr$nospec_name
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
     nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
     nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
   }
 
-  if(inherits(values, 'exprObj') &
-     !is.na(spatUnit(values)) &
-     !is.na(featType(values)) &
-     isTRUE(nospec_unit) &
-     isTRUE(nospec_feat)) {
-    set_defaults = FALSE
+  if(inherits(values, 'exprObj')) {
+    if(!is.na(spatUnit(values)) &
+       !is.na(featType(values)) &
+       isTRUE(nospec_unit) &
+       isTRUE(nospec_feat)) {
+      set_defaults = FALSE
+    }
   }
 
 
@@ -1304,6 +1342,12 @@ set_expression_values = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to values param.
                                  Removing specified expression')
     gobject@expression[[spat_unit]][[feat_type]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@expression[[spat_unit]][[feat_type]]) == 0) {
+      gobject@expression = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }
@@ -1353,7 +1397,7 @@ set_expression_values = function(gobject,
 #' @export
 getSpatialLocations = function(gobject,
                                spat_unit = NULL,
-                               spat_loc_name = NULL,
+                               name = NULL,
                                output = c('spatLocsObj', 'data.table'),
                                copy_obj = TRUE,
                                verbose = TRUE,
@@ -1362,7 +1406,7 @@ getSpatialLocations = function(gobject,
   # Pass to internal function
   spatloc = get_spatial_locations(gobject = gobject,
                                   spat_unit = spat_unit,
-                                  spat_loc_name = spat_loc_name,
+                                  spat_loc_name = name,
                                   output = output,
                                   copy_obj = copy_obj,
                                   verbose = verbose,
@@ -1544,11 +1588,22 @@ setSpatialLocations = function(gobject,
                                set_defaults = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatlocs)) stop(wrap_txt('spatlocs param must be given'))
+
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject)
+  avail_si = list_spatial_info(gobject)
+  if(is.null(avail_ex) & is.null(avail_si))
+    stop(wrap_txt('Add expression or spatial (polygon) information first'))
+
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_spatloc = list(nospec_unit = nospec_unit,
+                                    nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
 
   # 2. Set spat_unit
   if(isTRUE(set_defaults)) {
@@ -1601,6 +1656,14 @@ setSpatialLocations = function(gobject,
     } else {
 
       # 4.2 Otherwise assume evaluatable class, and create S4
+
+      if(is.null(spat_unit)) stop(wrap_txt(
+        'Add expression or polygon info first
+        Alternatively, specify expected spat_unit using activeSpatUnit()',
+        errWidth = TRUE
+      ))
+
+
       spatlocs = create_spat_locs_obj(
         name = name,
         coordinates = spatlocs,
@@ -1660,6 +1723,7 @@ set_spatial_locations = function(gobject,
                                  initialize = FALSE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatlocs)) stop(wrap_txt('spatlocs param must be given'))
 
   # 0. pass to external if not native formats
   if(!inherits(spatlocs, c('spatLocsObj', 'NULL'))) {
@@ -1677,16 +1741,18 @@ set_spatial_locations = function(gobject,
 
   # 1. determine if input was supplied to spat_unit and spat_loc_name
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_spatloc', where = p)
 
   if(isTRUE(call_from_external)) {
-    nospec_unit = p$nospec_unit
-    nospec_name = p$nospec_name
+    nospec_unit = p$.external_accessor_spatloc$nospec_unit
+    nospec_name = p$.external_accessor_spatloc$nospec_name
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-    nospec_name = ifelse(is.null(match.call()$spat_loc_name), yes = TRUE, no = FALSE)
+    nospec_name = methods::hasArg(spat_loc_name)
   }
 
+  # use name from now on for compatiblity with S4 reading
+  name = spat_loc_name
 
   # 2. set spat_unit
   if(isTRUE(set_defaults)) {
@@ -1698,7 +1764,13 @@ set_spatial_locations = function(gobject,
   if(is.null(spatlocs)) {
     if(isTRUE(verbose)) wrap_msg('NULL passed to spatlocs.
                                  Removing specified spatial locations.')
-    gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = NULL
+    gobject@spatial_locs[[spat_unit]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@spatial_locs[[spat_unit]]) == 0) {
+      gobject@spatial_locs = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }
@@ -1709,14 +1781,14 @@ set_spatial_locations = function(gobject,
 
   # 5. check if specified name has already been used
   potential_names = list_spatial_locations_names(gobject, spat_unit = spat_unit)
-  if(spat_loc_name %in% potential_names) {
+  if(name %in% potential_names) {
     if(isTRUE(verbose)) {
-      wrap_msg('> ', spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
+      wrap_msg('> ', name, ' already exists and will be replaced with new spatial locations \n')
     }
   }
 
   # 6. update and return giotto object
-  gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
+  gobject@spatial_locs[[spat_unit]][[name]] = spatlocs
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
 
@@ -1927,6 +1999,14 @@ setDimReduction = function(gobject,
   guard_against_notgiotto(gobject)
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
   # reduction_method = match.arg(reduction_method, choices = c('pca', 'umap', 'tsne'))
+  if(!methods::hasArg(dimObject)) stop(wrap_txt('dimObject param must be given'))
+
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject)
+  if(is.null(avail_ex)) stop(wrap_txt('Add expression information first'))
+
+
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
@@ -1934,7 +2014,12 @@ setDimReduction = function(gobject,
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
   nospec_red = ifelse(is.null(match.call()$reduction), yes = TRUE, no = FALSE)
   nospec_red_method = ifelse(is.null(match.call()$reduction_method), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_dimred = list(nospec_unit = nospec_unit,
+                                   nospec_feat = nospec_feat,
+                                   nospec_name = nospec_name,
+                                   nospec_red = nospec_red,
+                                   nospec_red_method = nospec_red_method)
+  # checked by internal setter to determine if called by external
 
   # 2. Set default spat_unit/feat_type
   if(isTRUE(set_defaults)) {
@@ -1989,6 +2074,14 @@ setDimReduction = function(gobject,
     } else {
 
       # 4.2 Otherwise assume evaluatable class and create S4
+
+      if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
+        'Add expression or polygon info first
+        Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
+        errWidth = TRUE
+      ))
+
+
       if(identical(reduction_method, c('pca', 'umap', 'tsne'))) {
         reduction_method = name
       }
@@ -2050,6 +2143,7 @@ set_dimReduction = function(gobject,
   guard_against_notgiotto(gobject)
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
   # reduction_method = match.arg(reduction_method, choices = c('pca', 'umap', 'tsne'))
+  if(!methods::hasArg(dimObject)) stop(wrap_txt('dimObject param must be given'))
 
   # 0. pass to external if not native format
   if(!inherits(dimObject, c('dimObj', 'NULL'))) {
@@ -2059,14 +2153,14 @@ set_dimReduction = function(gobject,
 
   # 1. Determine user inputs
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_dimred', where = p)
 
   if(call_from_external) {
-    nospec_unit = p$nospec_unit
-    nospec_feat = p$nospec_feat
-    nospec_name = p$nospec_name
-    nospec_red = p$nospec_red
-    nospec_red_method = p$nospec_red_method
+    nospec_unit = p$.external_accessor_dimred$nospec_unit
+    nospec_feat = p$.external_accessor_dimred$nospec_feat
+    nospec_name = p$.external_accessor_dimred$nospec_name
+    nospec_red = p$.external_accessor_dimred$nospec_red
+    nospec_red_method = p$.external_accessor_dimred$nospec_red_method
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
     nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
@@ -2090,6 +2184,12 @@ set_dimReduction = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to dimObject param.
                                  Removing specified expression')
     slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]]) == 0L) {
+      gobject@dimension_reduction = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }
@@ -2318,13 +2418,25 @@ setNearestNetwork = function(gobject,
                              set_defaults = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(nn_network)) stop(wrap_txt('nn_network param must be given'))
+
+
+  # check hierarchical slots
+  avail_dr = list_dim_reductions(gobject)
+  if(is.null(avail_dr))
+    stop(wrap_txt('Add dimension reduction information first'))
+
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
   nospec_net = ifelse(is.null(match.call()$nn_type), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_nn = list(nospec_unit = nospec_unit,
+                               nospec_feat = nospec_feat,
+                               nospec_net = nospec_net,
+                               nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
 
   # 2. Set spat_unit/feat_type
   if(isTRUE(set_defaults)) {
@@ -2378,7 +2490,7 @@ setNearestNetwork = function(gobject,
 
       if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
         'Add expression or polygon info first
-        Alternatively, specify expected spat_unit and feat_type using "active_spat_unit" and "active_feat_type" instructions',
+        Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
         errWidth = TRUE
       ))
 
@@ -2436,6 +2548,7 @@ set_NearestNetwork = function(gobject,
                               initialize = FALSE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(nn_network)) stop(wrap_txt('nn_network param must be given'))
 
   # 0. stop if not native formats
   if(!inherits(nn_network, c('nnNetObj', 'NULL'))) {
@@ -2446,13 +2559,13 @@ set_NearestNetwork = function(gobject,
 
   # 1. determine user input
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_nn', where = p)
 
   if(isTRUE(call_from_external)) {
-    nospec_unit = p$nospec_unit
-    nospec_feat = p$nospec_feat
-    nospec_net = p$nospec_net
-    nospec_name = p$nospec_name
+    nospec_unit = p$.external_accessor_nn$nospec_unit
+    nospec_feat = p$.external_accessor_nn$nospec_feat
+    nospec_net = p$.external_accessor_nn$nospec_net
+    nospec_name = p$.external_accessor_nn$nospec_name
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
     nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
@@ -2479,6 +2592,12 @@ set_NearestNetwork = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to nn_network.
                                  Removing specified nearest neighbor network.')
     gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]]) == 0L) {
+      gobject@nn_network = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     return(gobject)
   }
@@ -2704,11 +2823,22 @@ setSpatialNetwork = function(gobject,
                              set_defaults = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatial_network)) stop(wrap_txt('spatial_network param must be given'))
+
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject)
+  avail_sl = list_spatial_locations(gobject)
+  if(is.null(avail_ex)) stop(wrap_txt('Add expression and spatial location information first'))
+  if(is.null(avail_sl)) stop(wrap_txt('Add spatial location information first'))
+
 
   # 1. Determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_sn = list(nospec_unit = nospec_unit,
+                               nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
 
   # 2. Set spat_unit/feat_type
   if(isTRUE(set_defaults)) {
@@ -2760,7 +2890,7 @@ setSpatialNetwork = function(gobject,
 
       if(is.null(spat_unit)) stop(wrap_txt(
         'Add expression or polygon info first
-        Alternatively, specify expected spat_unit using "active_spat_unit" instructions',
+        Alternatively, specify expected spat_unit using activeSpatUnit()',
         errWidth = TRUE
       ))
 
@@ -2817,6 +2947,7 @@ set_spatialNetwork = function(gobject,
                               initialize = FALSE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatial_network)) stop(wrap_txt('spatial_network param must be given'))
 
   # 0. stop if not native formats
   if(!inherits(spatial_network, c('spatialNetworkObj', 'NULL'))) {
@@ -2826,11 +2957,11 @@ set_spatialNetwork = function(gobject,
 
   # 1. determine if input was supplied to spat_unit and name
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_sn', where = p)
 
   if(isTRUE(call_from_external)) {
-    nospec_unit = p$nospec_unit
-    nospec_name = p$nospec_name
+    nospec_unit = p$.external_accessor_sn$nospec_unit
+    nospec_name = p$.external_accessor_sn$nospec_name
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
     nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
@@ -2848,6 +2979,12 @@ set_spatialNetwork = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to spatial_network.
                                  Removing specified spatial network.')
     gobject@spatial_network[[spat_unit]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@spatial_network[[spat_unit]]) == 0L) {
+      gobject@spatial_network = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }
@@ -3226,37 +3363,153 @@ get_polygon_info_list = function(gobject,
 
 #' @title Set polygon info
 #' @name setPolygonInfo
-#' @description Set giotto polygon spatVector
-#' @param gobject giotto object
-#' @param polygon_name name of polygons. Default "cell"
-#' @param gpolygon giotto polygon
-#' @param verbose verbosity
+#' @description Set polygon information into Giotto object
+#' @inheritParams data_access_params
+#' @param gpolygon single object or named list of objects to set as polygon
+#' information (see details)
+#' @param polygon_name (optional, character) When setting a single giottoPolygon
+#' object, this param is ignored in favor of a default spatial unit if available
+#' unless polygon_name is explicitly used in the call.
+#' In all other cases, this param is the name to assign the generated polygon
+#' information. If \code{gpolygon} is a single object then it is directly applied.
+#' If \code{gpolygon} is an unnamed list then it will be used as the base of a
+#' template for generating indexed default names for the polygon objects.
+#' @param input (default = 'table') whether \code{gpolygon} is tabular data or
+#' image ('mask') type information
+#' @param polygon_dfr_list_params list parameters for
+#' \code{\link{createGiottoPolygonsFromDfr}}. Used when \code{input} is 'table'
+#' @param polygon_mask_list_params list parameters for
+#' \code{\link{createGiottoPolygonsFromMask}}. Used when \code{input} is 'mask'
+#' @param calc_centroids whether to generate centroids for the polygon(s)
 #' @return giotto object
+#' @details Inputs can be provided as either single objects or named lists of
+#' objects. If the list is not named, then a generic name of the template
+#' 'cell_i' will be applied. \cr
+#' If an input is a character string, then it is assumed that it is a
+#' filepath. \cr
+#' For required formatting when reading tabular data or objects, see
+#' \code{\link{createGiottoPolygonsFromDfr}} details.
 #' @family polygon info data accessor functions
 #' @family functions to set data in giotto object
 #' @export
-setPolygonInfo = function(gobject = NULL,
+setPolygonInfo = function(gobject,
+                          gpolygon,
                           polygon_name = 'cell',
-                          gpolygon = NULL,
+                          input = c('table', 'mask'),
+                          polygon_dfr_list_params = NULL,
+                          polygon_mask_list_params = NULL,
+                          calc_centroids = FALSE,
                           verbose = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(gpolygon)) stop(wrap_txt('gpolygon input must be given'))
+
+  input = match.arg(input, choices = c('table', 'mask'))
+
+  # 1. determine user inputs
+  nospec_name = !methods::hasArg(polygon_name)
+  .external_accessor_poly = list(nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
+
+  # 2. set defaults not needed when general default exists ('cell')
 
 
   # NATIVE INPUT TYPES
-  # 3. If input is spatLocObj or NULL, pass to internal
-  if(is.null(gpolygon) | inherits(gpolygon, 'giottoPolygon')) {
+  # 3. If input is giottoPolygon or NULL, pass to internal
+  if(inherits(gpolygon, c('giottoPolygon', 'NULL'))) {
     # pass to internal
     gobject = set_polygon_info(
       gobject = gobject,
       polygon_name = polygon_name,
       gpolygon = gpolygon,
       verbose = verbose,
-      initialize = TRUE
+      initialize = FALSE
     )
+
+    # Attach centroids if found
+    if(inherits(gpolygon, 'giottoPolygon')) {
+      if(!is.null(gpolygon@spatVectorCentroids)) {
+
+        centroids = gpolygon@spatVectorCentroids
+        centroidsDT = spatVector_to_dt(centroids)
+        centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
+        colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
+
+        locsObj = create_spat_locs_obj(name = 'raw',
+                                       coordinates = centroidsDT_loc,
+                                       spat_unit = gpolygon@name, # tag same spat_unit as poly
+                                       provenance = gpolygon@name,
+                                       misc = NULL)
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .external_accessor_spatloc = list(
+          # set spatlocs 'spat_unit' using 'polygon_name' if it was EXPLICITLY
+          # supplied to setPolygonInfo
+          # otherwise, set spatlocs 'spat_unit' as gpolygon@name
+          nospec_unit = nospec_name,
+          # set spatlocs name based on locsObj@name
+          nospec_name = TRUE
+        )
+        gobject = set_spatial_locations(gobject,
+                                        spatlocs = locsObj,
+                                        spat_unit = polygon_name, # useif explicit here
+                                        verbose = verbose,
+                                        set_defaults = FALSE,
+                                        initialize = TRUE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
+    }
+    return(gobject)
+
+  } else {
+
+    # 4. OTHER INPUT TYPES
+
+    # Setup gpolygon creation settings
+    if(is.null(polygon_mask_list_params)) {
+      polygon_mask_list_params = list(mask_method = 'guess',
+                                      remove_background_polygon = TRUE,
+                                      background_algo = c('range'),
+                                      fill_holes = TRUE,
+                                      poly_IDs = NULL,
+                                      flip_vertical = TRUE,
+                                      shift_vertical_step = TRUE,
+                                      flip_horizontal = TRUE,
+                                      shift_horizontal_step = TRUE,
+                                      fix_multipart = TRUE)
+    }
+
+    # gpoly creation settings
+    if(is.null(polygon_dfr_list_params)) {
+      polygon_dfr_list_params = list()
+    }
+
+    # set centroids param
+    polygon_mask_list_params$calc_centroids = calc_centroids
+    polygon_dfr_list_params$calc_centroids = calc_centroids
+
+
+    # gpolygon should always be list at this point
+    # returns list of giottoPolygon objects
+    if(verbose) wrap_msg("Start extracting polygon information")
+    gpoly_list = extract_polygon_list(
+      polygonlist = gpolygon,
+      input = input,
+      default_name = polygon_name,
+      polygon_mask_list_params = polygon_mask_list_params,
+      polygon_dfr_list_params = polygon_dfr_list_params,
+      verbose = verbose
+    )
+
+    if(verbose) wrap_msg("Finished extracting polygon information")
+
+    # send object list to internal (different from most other accessors)
+    gobject = set_polygon_info(gobject = gobject,
+                               gpolygon = gpoly_list,
+                               verbose = verbose,
+                               initialize = TRUE)
     return(gobject)
   }
-
 
 }
 
@@ -3269,42 +3522,114 @@ setPolygonInfo = function(gobject = NULL,
 #' @title Set polygon info
 #' @name set_polygon_info
 #' @description Set giotto polygon spatVector
-#' @param gobject giotto object
-#' @param polygon_name name of polygons. Default "cell"
-#' @param gpolygon giotto polygon
-#' @param verbose verbosity
+#' @inheritParams data_access_params
+#' @param polygon_name name of polygons. Default "cell" (only used when gpolygon
+#' is length of 1)
+#' @param gpolygon giottoPolygon object
 #' @return giotto object
 #' @family polygon info data accessor functions
 #' @family functions to set data in giotto object
 #' @export
 set_polygon_info = function(gobject,
-                            polygon_name = 'cell',
                             gpolygon,
+                            polygon_name = 'cell',
                             verbose = TRUE,
                             initialize = FALSE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(gpolygon)) stop(wrap_txt('gpolygon param must be given'))
 
-  ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_info)
-  if(polygon_name %in% potential_names) {
-     if(verbose) wrap_msg('> "', polygon_name, '" already exists and will be replaced with new giotto polygon \n')
+  # 0. stop if not native formats
+  if(is.list(gpolygon)) {
+    if(!all(sapply(gpolygon, class) == 'giottoPolygon')) {
+      stop(wrap_txt('If providing a list to internal setter, only lists of',
+                    'giottoPolygon objects are permitted',
+                    errWidth = TRUE))
+    }
+  }
+  if(!inherits(gpolygon, c('giottoPolygon', 'NULL', 'list'))) {
+    stop(wrap_txt(deparse(substitute(gpolygon)), 'is not a giottoPolygon (set),
+                  list of giottoPolygons (set),
+                  or NULL (remove)'))
   }
 
-  ## TODO: 2. check input for giotto polygon
+  # 1. determine user input
+  p = parent.frame() # get values if called from external
+  call_from_external = exists('.external_accessor_poly', where = p)
 
-  ## remove if input is NULL
+  if(isTRUE(call_from_external)) {
+    nospec_name = p$.external_accessor_poly$nospec_name
+  } else {
+    nospec_name = !methods::hasArg(polygon_name)
+  }
+
+
+  # use name instead of polygon_name for compatibility with S4 reading
+  name = polygon_name
+
+  # 2. set default spat_unit
+  # not needed when general default exists ('cell')
+
+  # 3.1 if input is NULL, remove object
   if(is.null(gpolygon)) {
     if(isTRUE(verbose)) wrap_msg('NULL passed to gpolygon.
-                                 Removing specified giottoPolygon...')
-    gobject@spatial_info[[polygon_name]] = NULL
+                                 Removing specified polygon information')
+    gobject@spatial_info[[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@spatial_info[[name]]) == 0L) {
+      gobject@spatial_info = NULL
+    }
+
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
+  }
+
+  # 3.2 if input is list, set list
+  if(is.list(gpolygon)) {
+    # ensure list names are accurate
+    gp_names = names(gpolygon)
+    if(is.null(gp_names)) stop(wrap_txt('if "gpolygon" is a list, then it must be a named list',
+                                        errWidth = TRUE))
+    if(any(is.na(gp_names))) stop(wrap_txt('No NA values allowed in "gpolygon" list names'))
+    dup_bool = duplicated(gp_names)
+    if(any(dup_bool)) stop(wrap_txt('Duplicated list names:', gp_names[dup_bool],
+                                      '\nAll gpolygon list names must be unique'))
+
+    # iterate through list
+    for(gp_name in gp_names) {
+      gpolygon[[gp_name]]@name = gp_name
+
+      ## check if specified name has already been used
+      potential_names = names(gobject@spatial_info)
+      if(gp_name %in% potential_names) {
+        if(verbose) wrap_msg('> "', gp_name, '" already exists and will be replaced with new giotto polygon \n')
+      }
+
+      # set items
+      gobject@spatial_info[[gp_name]] = gpolygon[[gp_name]]
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }
 
 
-  ## 3. update and return giotto object
-  gobject@spatial_info[[polygon_name]] = gpolygon
+
+  # 4. import data from S4 if available (for single objects)
+  # NOTE: modifies name/gpolygon
+  gpolygon = read_s4_nesting(gpolygon)
+
+
+  # 5. check if specified name has already been used
+  potential_names = names(gobject@spatial_info)
+  if(name %in% potential_names) {
+    if(verbose) wrap_msg('> "', name, '" already exists and will be replaced with new giotto polygon \n')
+  }
+
+
+  ## 6. update and return giotto object
+  gobject@spatial_info[[name]] = gpolygon
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
 
@@ -3407,6 +3732,104 @@ get_feature_info_list = function(gobject,
 
 
 
+#' @title Set feature info
+#' @name setFeatureInfo
+#' @description Set giotto polygon spatVector for features
+#' @inheritParams data_access_params
+#' @param gpoints giotto points object
+#' @param verbose be verbose
+#' @return giotto object
+#' @family feature info data accessor functions
+#' @family functions to set data in giotto object
+#' @export
+setFeatureInfo = function(gobject,
+                          gpoints,
+                          feat_type = NULL,
+                          verbose = TRUE) {
+
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(gpoints)) stop(wrap_txt('gpoints param must be given'))
+
+  # 1. Determine user inputs
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  .external_accessor_point = list(nospec_feat = nospec_feat)
+  # checked by internal setter to determine if called by external
+
+
+  # 2. set default feat_type (suppressed) returns NULL when it fails
+  spat_unit = suppressWarnings(
+    set_default_spat_unit(gobject = gobject,
+                          spat_unit = NULL)
+  )
+  feat_type = suppressWarnings(
+    set_default_feat_type(gobject = gobject,
+                          spat_unit = spat_unit,
+                          feat_type = feat_type)
+  )
+
+  # Extra defaults: expression, feature_info, spat_info specific
+  default_feat = if(is.null(gobject@expression_feat)) 'rna' else gobject@expression_feat[[1L]]
+
+
+  # NATIVE INPUT TYPES
+  # 3. if input is giottoPoints or NULL, pass to internal
+  if(is.null(gpoints) | inherits(gpoints, 'giottoPoints')) {
+
+    # pass to internal
+    gobject = set_feature_info(
+      gobject = gobject,
+      gpoints = gpoints,
+      feat_type = feat_type,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+
+  } else {
+
+    # OTHER INPUT TYPES
+    # 4. parse input for nesting info
+    # 4.1 read if list
+    if(inherits(gpoints, 'list')) {
+
+      # returns list of giottoPoints objects
+      gpoints_list = extract_points_list(
+        pointslist = gpoints,
+        verbose = verbose
+      )
+      # send object list to internal (different from most other accessors)
+      gobject = set_feature_info(gobject = gobject,
+                                 gpoints = gpoints_list,
+                                 verbose = verbose,
+                                 set_defaults = FALSE,
+                                 initialize = TRUE)
+      return(gobject)
+    } else {
+
+      # 4.2 otherwise assume evaluatable class and create S4
+      gpoints = create_giotto_points_object(
+        feat_type = if(is.null(feat_type)) default_feat else feat_type,
+        spatVector = gpoints,
+        networks = NULL
+      )
+      # pass to internal
+      gobject = set_feature_info(gobject = gobject,
+                                 gpoints = gpoints,
+                                 verbose = verbose,
+                                 set_defaults = FALSE,
+                                 initialize = TRUE)
+      return(gobject)
+    }
+  }
+
+}
+
+
+
+
+
+
 
 
 #' @title Set feature info
@@ -3421,71 +3844,116 @@ get_feature_info_list = function(gobject,
 #' @family functions to set data in giotto object
 #' @export
 set_feature_info = function(gobject,
-                            feat_type = NULL,
                             gpoints,
-                            gpolygon = NULL,
-                            verbose = TRUE) {
+                            feat_type = NULL,
+                            verbose = TRUE,
+                            set_defaults = TRUE,
+                            initialize = FALSE,
+                            gpolygon = NULL) {
 
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(gpoints) & !methods::hasArg(gpolygon)) stop(wrap_txt('gpoints param must be given'))
 
   if(!is.null(gpolygon)) { # deprecation
-    warning(wrap_txt('do not use gpolygon param. Use gpoints'))
+    warning(wrap_txt('do not use gpolygon param. Use gpoints instead'))
     if(is.null(gpoints)) gpoints = gpolygon
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
+
+  # 0. stop if not native formats
+  if(is.list(gpoints)) {
+    if(!all(sapply(gpoints, class) == 'giottoPoints')) {
+      stop(wrap_txt('If providing a list to internal setter, only lists of',
+                    'giottoPoints objects are permitted',
+                    errWidth = TRUE))
+    }
+  }
+  if(!inherits(gpoints, c('giottoPoints', 'NULL', 'list'))) {
+    stop(wrap_txt(deparse(substitute(gpoints)), 'is not giottoPoints (set),
+                  list of giottoPoints (set),
+                  or NULL (remove)'))
   }
 
-  ## 1. check if specified name has already been used
+
+  # 1. determine user input
+  p = parent.frame() # get values if called from external
+  call_from_external = exists('.external_accessor_point', where = p)
+
+  if(isTRUE(call_from_external)) {
+    nospec_feat = p$.external_accessor_point$nospec_feat
+  } else {
+    nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  }
+
+
+  # 2. set default feat_type
+  if(isTRUE(set_defaults)) {
+    spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type)
+  }
+
+  # 3.1 if input is NULL, remove object
+  if(is.null(gpoints)) {
+    if(isTRUE(verbose)) wrap_msg('NULL passed to gpoints.
+                                 Removing specified feature information.')
+    gobject@feat_info[[feat_type]] = NULL
+
+    # prune if empty
+    if(length(gobject@feat_info[[feat_type]]) == 0L) {
+      gobject@feat_info = NULL
+    }
+
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
+  }
+
+  # 3.2 if input is list, set list
+  if(is.list(gpoints)) {
+    # ensure list names are accurate
+    gp_names = names(gpoints)
+    if(is.null(gp_names)) stop(wrap_txt('If "gpoints" is a list, then it must be a named list',
+                                        errWidth = TRUE))
+    if(any(is.na(gp_names))) stop(wrap_txt('No NA values allowed in "gpoints" list names"'))
+    dup_bool = duplicated(gp_names)
+    if(any(dup_bool)) stop(wrap_txt('Duplicated list names:', gp_names[dup_bool],
+                                    '\nAll gpoints list names must be unique'))
+    for(gp_name in gp_names) {
+      featType(gpoints[[gp_name]]) = gp_name
+    }
+
+    # replacements warning already given during extract points list (external setter)
+    # remove items to replace
+    for(gp_name in gp_names) {
+      gobject@feat_info[[gp_name]] = gpoints[[gp_name]]
+    }
+
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
+  }
+
+
+  # 4. import data from S4 if available
+  # NOTE: modifies feat_type/gpoints
+  gpoints = read_s4_nesting(gpoints)
+
+
+  ## 5. check if specified name has already been used
   potential_names = names(gobject@feat_info)
   if(feat_type %in% potential_names) {
-    if(isTRUE(verbose)) wrap_msg('> "', feat_type, '" already exists and will be replaced with new giotto polygon \n')
+    if(isTRUE(verbose)) wrap_msg('> "', feat_type, '" already exists and will be replaced with new giotto points \n')
   }
 
-  ## TODO: 2. check input for giotto polygon
-
-
-  ## 3. update and return giotto object
-  gobject@feat_info[[feat_type]] = gpolygon
-  return(gobject)
+  ## 6. update and return giotto object
+  gobject@feat_info[[feat_type]] = gpoints
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
-#' @title Set feature info
-#' @name setFeatureInfo
-#' @description Set giotto polygon spatVector for features
-#' @inheritParams data_access_params
-#' @param gpoints giotto points object
-#' @param verbose be verbose
-#' @return giotto object
-#' @family feature info data accessor functions
-#' @family functions to set data in giotto object
-#' @export
-setFeatureInfo = function(gobject = NULL,
-                          gpoints,
-                          feat_type = NULL,
-                          verbose = TRUE) {
 
-  if (!inherits(gobject, 'giotto')){
-    wrap_msg("Unable to set giotto points spatVector feature info to non-Giotto object.")
-    stop(wrap_txt("Please provide a Giotto object to the gobject argument.",
-                  errWidth = TRUE))
-  }
-
-  if (!inherits(gpoints, 'giottoPoints')){
-    wrap_msg("Unable to set non-giotto points spatVector feature info to Giotto object.")
-    stop(wrap_txt("Please provide a giotto polygon to the gpolygon argument.",
-                  errWidth = TRUE))
-  }
-
-  gobject = set_feature_info(gobject = gobject,
-                             feat_type = feat_type,
-                             gpoints = gpoints,
-                             verbose = verbose)
-  return (gobject)
-
-}
 
 
 
@@ -3660,12 +4128,22 @@ setSpatialEnrichment = function(gobject,
                                 set_defaults = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatenrichment)) stop(wrap_txt('spatenrichment param must be given'))
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject)
+  avail_sl = list_spatial_locations(gobject)
+  if(is.null(avail_ex)) stop(wrap_txt('Add expression and spatial information first'))
+  if(is.null(avail_sl)) stop(wrap_txt('Add spatial location information first'))
 
   # 1. determine user inputs
   nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
   nospec_name = ifelse(is.null(match.call()$name), yes = TRUE, no = FALSE)
-  .external_accessor = TRUE # checked by internal setter to determine if called by external
+  .external_accessor_spatenr = list(nospec_unit = nospec_unit,
+                                    nospec_feat = nospec_feat,
+                                    nospec_name = nospec_name)
+  # checked by internal setter to determine if called by external
 
   # 2. set spat_unit/feat_type
   if(isTRUE(set_defaults)) {
@@ -3716,6 +4194,13 @@ setSpatialEnrichment = function(gobject,
     } else {
 
       # 4.2 otherwise assume evaluatable class and create S4
+
+      if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
+        'Add expression or polygon info first
+        Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
+        errWidth = TRUE
+      ))
+
       spatEnr = create_spat_enr_obj(
         name = name,
         method = name, # assumed
@@ -3766,6 +4251,7 @@ set_spatial_enrichment = function(gobject,
                                   initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
+  if(!methods::hasArg(spatenrichment)) stop(wrap_txt('spatenrichment param must be given'))
 
   # 0. stop if not native formats
   if(!inherits(spatenrichment, c('spatEnrObj', 'NULL'))) {
@@ -3775,12 +4261,12 @@ set_spatial_enrichment = function(gobject,
 
   # 1. Check user input
   p = parent.frame() # Get values if called from external
-  call_from_external = exists('.external_accessor', where = p)
+  call_from_external = exists('.external_accessor_spatenr', where = p)
 
   if(isTRUE(call_from_external)) {
-    nospec_unit = p$nospec_unit
-    nospec_feat = p$nospec_feat
-    nospec_name = p$nospec_name
+    nospec_unit = p$.external_accessor_spatenr$nospec_unit
+    nospec_feat = p$.external_accessor_spatenr$nospec_feat
+    nospec_name = p$.external_accessor_spatenr$nospec_name
   } else {
     nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
     nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
@@ -3805,6 +4291,12 @@ set_spatial_enrichment = function(gobject,
     if(isTRUE(verbose)) wrap_msg('NULL passed to spatenrichment.
                                  Removing specified spatial enrichment.')
     gobject@spatial_enrichment[[spat_unit]][[feat_type]][[name]] = NULL
+
+    # prune if empty
+    if(length(gobject@spatial_enrichment[[spat_unit]][[feat_type]]) == 0L) {
+      gobject@spatial_enrichment = NULL
+    }
+
     if(isTRUE(initialize)) return(initialize(gobject))
     else return(gobject)
   }

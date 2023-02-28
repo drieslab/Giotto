@@ -5,26 +5,55 @@
 \title{Set polygon info}
 \usage{
 setPolygonInfo(
-  gobject = NULL,
+  gobject,
+  gpolygon,
   polygon_name = "cell",
-  gpolygon = NULL,
+  input = c("table", "mask"),
+  polygon_dfr_list_params = NULL,
+  polygon_mask_list_params = NULL,
+  calc_centroids = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons. Default "cell"}
+\item{gpolygon}{single object or named list of objects to set as polygon
+information (see details)}
 
-\item{gpolygon}{giotto polygon}
+\item{polygon_name}{(optional, character) When setting a single giottoPolygon
+object, this param is ignored in favor of a default spatial unit if available
+unless polygon_name is explicitly used in the call.
+In all other cases, this param is the name to assign the generated polygon
+information. If \code{gpolygon} is a single object then it is directly applied.
+If \code{gpolygon} is an unnamed list then it will be used as the base of a
+template for generating indexed default names for the polygon objects.}
 
-\item{verbose}{verbosity}
+\item{input}{(default = 'table') whether \code{gpolygon} is tabular data or
+image ('mask') type information}
+
+\item{polygon_dfr_list_params}{list parameters for
+\code{\link{createGiottoPolygonsFromDfr}}. Used when \code{input} is 'table'}
+
+\item{polygon_mask_list_params}{list parameters for
+\code{\link{createGiottoPolygonsFromMask}}. Used when \code{input} is 'mask'}
+
+\item{calc_centroids}{whether to generate centroids for the polygon(s)}
 }
 \value{
 giotto object
 }
 \description{
-Set giotto polygon spatVector
+Set polygon information into Giotto object
+}
+\details{
+Inputs can be provided as either single objects or named lists of
+objects. If the list is not named, then a generic name of the template
+'cell_i' will be applied. \cr
+If an input is a character string, then it is assumed that it is a
+filepath. \cr
+For required formatting when reading tabular data or objects, see
+\code{\link{createGiottoPolygonsFromDfr}} details.
 }
 \seealso{
 Other polygon info data accessor functions: 
