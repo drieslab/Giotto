@@ -1138,3 +1138,63 @@ spatInSituPlotDensity = function(gobject,
 
 }
 
+
+
+# subobject plotting ####
+
+
+#' @name plot_giotto_points
+#' @title Plot a giotto points object
+#' @param x giottoPoints object
+#' @param point_size (default = 0.1) size of plotted points
+#' @param feats (default is all) which features to plot
+#' @param ... additional params to pass to plot function
+#' @keywords internal
+#' @noRd
+plot_giotto_points = function(x, point_size = 0.1, feats = NULL, ...) {
+
+  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
+  else if(length(feats) == 1) {
+    gp = x@spatVector
+    x_feat_subset = gp[gp$feat_ID %in% feats]
+    terra::plot(x = x_feat_subset, cex = point_size, ...)
+  }
+  else {
+    gp = x@spatVector
+    x_feat_subset = gp[gp$feat_ID %in% feats]
+    terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
+  }
+}
+
+
+#' @name plot_giotto_points
+#' @title Plot a giotto polygon object
+#' @param x giottoPolygon object
+#' @param point_size (default = 0.1) size of plotted points when plotting centroids
+#' @param type (default is poly) plot the 'polygon' or its 'centroid'
+#' @param ... additional params to pass to plot function
+#' @keywords internal
+#' @noRd
+plot_giotto_polygon = function(x, point_size = 0.1,
+                               type = c('poly', 'centroid'), ...) {
+
+  type = match.arg(type, choices = c('poly', 'centroid'))
+  if(type == 'poly') {
+    terra::plot(x = x@spatVector, ...)
+  }
+  if(type == 'centroid') {
+    if(!is.null(x@spatVectorCentroids)) {
+      terra::plot(x = x@spatVectorCentroids, cex = point_size, ...)
+    } else {
+      cat('no centroids calculated\n')
+    }
+  }
+
+}
+
+
+
+
+
+
+

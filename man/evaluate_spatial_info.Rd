@@ -4,19 +4,31 @@
 \alias{evaluate_spatial_info}
 \title{Evaluate spatial info}
 \usage{
-evaluate_spatial_info(spatial_info, cores = determine_cores(), spatial_locs)
+evaluate_spatial_info(
+  spatial_info,
+  skip_eval_dfr = FALSE,
+  copy_dt = TRUE,
+  cores = determine_cores(),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{spatial_info}{spatial information to evaluate}
 
+\item{skip_eval_dfr}{(default FALSE) skip evaluation of data.frame like input}
+
+\item{copy_dt}{(default TRUE) if segmdfr is provided as dt, this determines
+whether a copy is made}
+
 \item{cores}{how many cores to use}
 
-\item{spatial_locs}{spatial location data.table to compare the cell IDs with}
+\item{verbose}{be verbose}
 }
 \value{
-data.table
+SpatVector
 }
 \description{
-Evaluate spatial information input
+Evaluate spatial information input into a SpatVector for
+giottoPolygon creation
 }
 \keyword{internal}

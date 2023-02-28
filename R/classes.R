@@ -595,6 +595,16 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
 
 
+  ## Set expression_feat ##
+  ## ------------------- ##
+  e_feat = used_feat_types
+  if('rna' %in% e_feat) {
+    rna_idx = which(e_feat == 'rna')
+    e_feat = c(e_feat[rna_idx], e_feat[-rna_idx])
+  }
+  .Object@expression_feat = e_feat
+
+
 
 
 
@@ -800,6 +810,26 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
     .Object = check_dimension_reduction(gobject = .Object)
   }
 
+
+
+  ## Spatial info ##
+  ## ------------ ##
+
+  if(!is.null(avail_si) & !is.null(avail_sl)) {
+    check_spatial_info(gobject = .Object)
+  }
+
+
+
+
+
+  ## validity check ##
+  ## -------------- ##
+  obj_valid = try(validObject(.Object), silent = TRUE)
+  if(inherits(obj_valid, 'try-error')) {
+    .Object = updateGiottoObject(.Object)
+    validObject(.Object)
+  }
 
 
 
@@ -1972,15 +2002,14 @@ setMethod("show", signature(object='packedGiottoPolygon'),
 #' @export
 giottoPoints <- setClass(
   Class = "giottoPoints",
+  contains = c('featData'),
 
   slots = c(
-    feat_type = "ANY",
     spatVector = "ANY",
     networks = "ANY"
   ),
 
   prototype = list(
-    feat_type = NULL,
     spatVector = NULL,
     networks = NULL
   )
@@ -2567,6 +2596,150 @@ create_spat_grid_obj = function(name = 'test',
              feat_type = feat_type,
              provenance = provenance,
              misc = misc))
+}
+
+
+
+
+
+
+
+#' @title Create feature network object
+#' @name create_featureNetwork_object
+#' @param name name to assign the created feature network object
+#' @param network_datatable network data.table object
+#' @param network_lookup_id network lookup id
+#' @param full fully connected status
+#' @keywords internal
+create_featureNetwork_object = function(name = 'feat_network',
+                                        network_datatable = NULL,
+                                        network_lookup_id = NULL,
+                                        full = NULL) {
+
+
+  # create minimum giotto points object
+  f_network = featureNetwork(name = name,
+                             network_datatable = NULL,
+                             network_lookup_id = NULL,
+                             full = NULL)
+
+  ## 1. check network data.table object
+  if(!methods::is(network_datatable, 'data.table')) {
+    stop("network_datatable needs to be a network data.table object")
+  }
+  f_network@network_datatable = network_datatable
+
+  ## 2. provide network fully connected status
+  f_network@full = full
+
+  ## 3. provide feature network name
+  f_network@name = name
+
+  ## 4. network lookup id
+  f_network@network_lookup_id = network_lookup_id
+
+  # giotoPoints object
+  return(f_network)
+
+}
+
+
+
+
+#' @title Create giotto points object
+#' @name create_giotto_points_object
+#' @param feat_type feature type
+#' @param spatVector terra spatVector object containing point data
+#' @param networks feature network object
+#' @keywords internal
+create_giotto_points_object = function(feat_type = 'rna',
+                                       spatVector = NULL,
+                                       networks = NULL) {
+
+  if(is.null(feat_type)) feat_type = NA # compliance with featData class
+
+  # create minimum giotto points object
+  g_points = giottoPoints(feat_type = feat_type,
+                          spatVector = NULL,
+                          networks = NULL)
+
+  ## 1. check terra spatVector object
+  if(!inherits(spatVector, 'SpatVector')) {
+    stop("spatVector needs to be a spatVector object from the terra package")
+  }
+
+  g_points@spatVector = spatVector
+
+  ## 2. provide feature id
+  g_points@feat_type = feat_type
+
+  ## 3. feature_network object
+  g_points@networks = networks
+
+  # giottoPoints object
+  return(g_points)
+
+}
+
+
+
+
+
+
+
+
+## extension of spatVector object
+## name should match the cellular structure
+
+#' @title Create a giotto polygon object
+#' @name create_giotto_polygon_object
+#' @keywords internal
+create_giotto_polygon_object = function(name = 'cell',
+                                        spatVector = NULL,
+                                        spatVectorCentroids = NULL,
+                                        overlaps = NULL) {
+
+
+  # create minimum giotto
+  g_polygon = giottoPolygon(name = name,
+                            spatVector = NULL,
+                            spatVectorCentroids = NULL,
+                            overlaps = NULL)
+
+  ## 1. check spatVector object
+  if(!methods::is(spatVector, 'SpatVector')) {
+    stop("spatVector needs to be a SpatVector object from the terra package")
+  }
+
+  g_polygon@spatVector = spatVector
+
+
+  ## 2. centroids need to be of similar length as polygons
+  if(!is.null(spatVectorCentroids)) {
+    if(!methods::is(spatVectorCentroids, 'SpatVector')) {
+      stop("spatVectorCentroids needs to be a spatVector object from the terra package")
+    }
+
+    l_centroids = nrow(terra::values(spatVectorCentroids))
+    l_polygons = nrow(terra::values(spatVector))
+
+    if(l_centroids == l_polygons) {
+      g_polygon@spatVectorCentroids = spatVectorCentroids
+    } else {
+      stop('number of centroids does not equal number of polygons')
+    }
+
+  }
+
+  ## 3. overlaps info
+  g_polygon@overlaps = overlaps
+
+
+  # provide name
+  g_polygon@name = name
+
+  # giotto polygon object
+  return(g_polygon)
 }
 
 

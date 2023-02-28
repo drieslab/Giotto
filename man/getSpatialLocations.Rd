@@ -7,7 +7,7 @@
 getSpatialLocations(
   gobject,
   spat_unit = NULL,
-  spat_loc_name = NULL,
+  name = NULL,
   output = c("spatLocsObj", "data.table"),
   copy_obj = TRUE,
   verbose = TRUE,
@@ -19,8 +19,6 @@ getSpatialLocations(
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
-
 \item{output}{what object type to get the spatial locations as. Default is as
 a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 
@@ -30,6 +28,8 @@ a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 
 \item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
 expression and spat_info are not expected to exist.}
+
+\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
 }
 \value{
 data.table with coordinates or spatLocsObj depending on \code{output}

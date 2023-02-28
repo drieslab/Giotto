@@ -6,8 +6,8 @@
 \usage{
 set_polygon_info(
   gobject,
-  polygon_name = "cell",
   gpolygon,
+  polygon_name = "cell",
   verbose = TRUE,
   initialize = FALSE
 )
@@ -15,11 +15,13 @@ set_polygon_info(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons. Default "cell"}
+\item{gpolygon}{giottoPolygon object}
 
-\item{gpolygon}{giotto polygon}
+\item{polygon_name}{name of polygons. Default "cell" (only used when gpolygon
+is length of 1)}
 
-\item{verbose}{verbosity}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

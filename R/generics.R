@@ -132,6 +132,65 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 
 
 
+# default spat unit ####
+#' @title Active spatial unit
+#' @name activeSpatUnit-generic
+#' @aliases activeSpatUnit activeSpatUnit<-
+#' @description Retrieve or set the active spatial unit. This value will be the
+#' default spatial unit that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
+setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit', signature(gobject = 'giotto'), function(gobject) {
+  su_try = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+  if(inherits(su_try, 'try-error')) su_try = NULL
+  return(su_try)
+})
+
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_spat_unit') = value
+            return(gobject)
+          })
+
+
+# default feature type ####
+#' @title Active feature type
+#' @name activeFeatType-generic
+#' @aliases activeFeatType activeFeatType<-
+#' @description Retrieve or set the active feature type. This value will be the
+#' default feature type that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
+setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType', signature(gobject = 'giotto'), function(gobject) {
+  ft_try = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
+  if(inherits(ft_try, 'try-error')) ft_try = NULL
+  return(ft_try)
+})
+
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_feat_type') = value
+            return(gobject)
+          })
+
+
+
+
+
 # instructions ####
 #' @title Access giotto instructions
 #' @name instructions-generic
@@ -779,47 +838,19 @@ setMethod('plot', signature(x = 'giottoLargeImage', y = 'missing'), function(x,y
 #' @param point_size size of points when plotting giottoPolygon object centroids
 #' @param type what to plot: either 'poly' (default) or polygon 'centroid'
 #' @export
-setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'), function(x,
-                                                                          y,
-                                                                          point_size = 0.1,
-                                                                          type = c('poly', 'centroid'),
-                                                                          ...) {
-  type = match.arg(type, choices = c('poly', 'centroid'))
-  if(type == 'poly') {
-    terra::plot(x = x@spatVector, ...)
-  }
-  if(type == 'centroid') {
-    if(!is.null(x@spatVectorCentroids)) {
-      terra::plot(x = x@spatVectorCentroids, cex = point_size, ...)
-    } else {
-      cat('no centroids calculated\n')
-    }
-  }
-
-})
+setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
+          function(x, point_size = 0.1, type = c('poly', 'centroid'), ...) {
+            plot_giotto_polygon(x = x, point_size = point_size, type = type, ...)
+          })
 
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
 #' @export
-setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
-                                                                         y,
-                                                                         point_size = 0.1,
-                                                                         feats = NULL,
-                                                                         ...) {
-
-  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
-  else if(length(feats) == 1) {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, ...)
-  }
-  else {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
-  }
-})
+setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
+          function(x, point_size = 0.1, feats = NULL, ...) {
+            plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
+          })
 
 
 #' @describeIn plot-generic Plot a spatLocsObj

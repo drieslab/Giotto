@@ -53,59 +53,7 @@ polygon_to_raster = function(polygon, field = NULL) {
 
 
 
-## extension of spatVector object
-## name should match the cellular structure
 
-#' @title Create a giotto polygon object
-#' @name create_giotto_polygon_object
-#' @keywords internal
-create_giotto_polygon_object = function(name = 'cell',
-                                        spatVector = NULL,
-                                        spatVectorCentroids = NULL,
-                                        overlaps = NULL) {
-
-
-  # create minimum giotto
-  g_polygon = giottoPolygon(name = name,
-                            spatVector = NULL,
-                            spatVectorCentroids = NULL,
-                            overlaps = NULL)
-
-  ## 1. check spatVector object
-  if(!methods::is(spatVector, 'SpatVector')) {
-    stop("spatVector needs to be a SpatVector object from the terra package")
-  }
-
-  g_polygon@spatVector = spatVector
-
-
-  ## 2. centroids need to be of similar length as polygons
-  if(!is.null(spatVectorCentroids)) {
-    if(!methods::is(spatVectorCentroids, 'SpatVector')) {
-      stop("spatVectorCentroids needs to be a spatVector object from the terra package")
-    }
-
-    l_centroids = nrow(terra::values(spatVectorCentroids))
-    l_polygons = nrow(terra::values(spatVector))
-
-    if(l_centroids == l_polygons) {
-      g_polygon@spatVectorCentroids = spatVectorCentroids
-    } else {
-      stop('number of centroids does not equal number of polygons')
-    }
-
-  }
-
-  ## 3. overlaps info
-  g_polygon@overlaps = overlaps
-
-
-  # provide name
-  g_polygon@name = name
-
-  # giotto polygon object
-  return(g_polygon)
-}
 
 
 
@@ -351,16 +299,14 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         fix_multipart = TRUE,
                                         remove_unvalid_polygons = TRUE) {
 
-  # define for .()
-  x = NULL
-  y = NULL
-  geom = NULL
-  part = NULL
+  # data.table vars
+  x = y = geom = part = NULL
 
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
 
   # check if mask file exists
+  maskfile = path.expand(maskfile)
   if(!file.exists(maskfile)) {
     stop('path : ', maskfile, ' does not exist \n')
   }
@@ -527,35 +473,40 @@ createGiottoPolygonsFromDfr = function(segmdfr,
                                        skip_eval_dfr = FALSE,
                                        copy_dt = TRUE) {
 
-  # define for data.table
-  geom = NULL
 
-  if(!inherits(segmdfr, 'data.table')) {
-    if(inherits(segmdfr, 'data.frame')) input_dt = data.table::setDT(segmdfr)
-    else input_dt = data.table::as.data.table(segmdfr)
-  } else {
-    if(isTRUE(copy_dt)) input_dt = data.table::copy(segmdfr)
-    else input_dt = segmdfr
-  }
+  # if(!inherits(segmdfr, 'data.table')) {
+  #   if(inherits(segmdfr, 'data.frame')) input_dt = data.table::setDT(segmdfr)
+  #   else input_dt = data.table::as.data.table(segmdfr)
+  # } else {
+  #   if(isTRUE(copy_dt)) input_dt = data.table::copy(segmdfr)
+  #   else input_dt = segmdfr
+  # }
 
 
-  if(!isTRUE(skip_eval_dfr)) {
-    input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
-                                  verbose = verbose)
-  }
+  spatvector = evaluate_spatial_info(spatial_info = segmdfr,
+                                     skip_eval_dfr = skip_eval_dfr,
+                                     copy_dt = copy_dt,
+                                     verbose = verbose)
+
+  # if(!isTRUE(skip_eval_dfr)) {
+  #   input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
+  #                                 verbose = verbose)
+  # } else {
+  #   input_dt = segmdfr
+  # }
 
   #pl = ggplot()
   #pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = poly_ID))
   #print(pl)
 
-  # add other colnames for the input data.table
-  nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
-  names(nr_of_cells_vec) = unique(input_dt$poly_ID)
-  new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
-  input_dt[, geom := new_vec]
-
-  input_dt[, c('part', 'hole') := list(1, 0)]
-  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
+  # # add other colnames for the input data.table
+  # nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
+  # names(nr_of_cells_vec) = unique(input_dt$poly_ID)
+  # new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
+  # input_dt[, geom := new_vec]
+  #
+  # input_dt[, c('part', 'hole') := list(1, 0)]
+  # input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
 
 
   #pl = ggplot()
@@ -565,8 +516,8 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
 
   # create spatvector
-  spatvector = dt_to_spatVector_polygon(input_dt,
-                                        include_values = TRUE)
+  # spatvector = dt_to_spatVector_polygon(input_dt,
+  #                                       include_values = TRUE)
 
   # hopla = spatVector_to_dt(spatvector)
 
@@ -700,9 +651,24 @@ evaluate_gpoly_dfr = function(input_dt,
 
 #' @title Extract list of polygons
 #' @name extract_polygon_list
-#' @description to extract list of polygons
+#' @description Function extract list of polygons when given raw input as either
+#' mask or tabular data. Calls the respective createGiottoPolygons functions. \cr
+#' If a \code{giottoPolygon} object is passed then no edits will be made other
+#' than updating the \code{name} slot if the list is named.
+#' @param input what type of input is being used. When set to 'guess', uses
+#' 'mask' if \code{polygonlist} is of type character and 'table' when
+#' \code{polygonlist} is dataframe-like
+#' @param default_name default name to assign if \code{polygonlist} is not a
+#' list. If \code{polygonlist} is an unnamed list then \code{default_name} will
+#' be used as part of the template for generating indexed default names.
+#' @param polygon_mask_list_params parameters for when using 'mask' workflow
+#' @param polygon_dfr_list_params parameters for when using 'table' workflow
+#' @param verbose be verbose
 #' @keywords internal
+#' @noRd
 extract_polygon_list = function(polygonlist,
+                                input = 'guess',
+                                default_name = 'cell',
                                 polygon_mask_list_params,
                                 polygon_dfr_list_params,
                                 verbose = TRUE) {
@@ -713,28 +679,27 @@ extract_polygon_list = function(polygonlist,
   # try to make list and give default names
   if(!is.list(polygonlist)) {
 
-    if(isTRUE(verbose)) (wrap_msg('polygonlist is not a list'))
-
     try_val = try(as.list(polygonlist), silent = TRUE)
     if(inherits(try_val, 'try-error')) {
+      if(isTRUE(verbose)) (wrap_msg('polygonlist is not a list'))
       polygonlist = list(polygonlist)
     } else polygonlist = try_val
-    if(length(polygonlist) == 1) {
-      names(polygonlist) = 'cell'
+    if(length(polygonlist) == 1L) {
+      names(polygonlist) = default_name
     } else {
       polygonlist_l = length(polygonlist)
-      names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
+      names(polygonlist) = c(default_name, paste0('info', 1:(polygonlist_l-1)))
     }
   } else if(is.null(names(polygonlist))) {
     # if it is list
     # test if it has names
     if(isTRUE(verbose)) wrap_msg('polygonlist is a list without names')
 
-    if(length(polygonlist) == 1) {
-      names(polygonlist) = 'cell'
+    if(length(polygonlist) == 1L) {
+      names(polygonlist) = default_name
     } else {
       polygonlist_l = length(polygonlist)
-      names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
+      names(polygonlist) = c(default_name, paste0('info', 1:(polygonlist_l-1)))
 
     }
   } else {
@@ -760,7 +725,7 @@ extract_polygon_list = function(polygonlist,
 
     if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
 
-    if(is.character(polyinfo)) {
+    if(is.character(polyinfo) | input == 'mask') {
 
       parameters = c(list(name = name_polyinfo,
                           maskfile = polyinfo),
@@ -769,7 +734,7 @@ extract_polygon_list = function(polygonlist,
 
       poly_results = do.call(what = 'createGiottoPolygonsFromMask', args = parameters)
 
-    } else if(inherits(polyinfo, 'data.frame')) {
+    } else if(inherits(polyinfo, 'data.frame') | input == 'table') {
 
       parameters = c(list(name = name_polyinfo,
                           segmdfr = polyinfo),
@@ -1245,81 +1210,7 @@ hexVertices = function(radius, major_axis = c('v', 'h')) {
 
 
 
-#' @title Create feature network object
-#' @name create_featureNetwork_object
-#' @param name name to assign the created feature network object
-#' @param network_datatable network data.table object
-#' @param network_lookup_id network lookup id
-#' @param full fully connected status
-#' @keywords internal
-create_featureNetwork_object = function(name = 'feat_network',
-                                        network_datatable = NULL,
-                                        network_lookup_id = NULL,
-                                        full = NULL) {
 
-
-  # create minimum giotto points object
-  f_network = featureNetwork(name = name,
-                             network_datatable = NULL,
-                             network_lookup_id = NULL,
-                             full = NULL)
-
-  ## 1. check network data.table object
-  if(!methods::is(network_datatable, 'data.table')) {
-    stop("network_datatable needs to be a network data.table object")
-  }
-  f_network@network_datatable = network_datatable
-
-  ## 2. provide network fully connected status
-  f_network@full = full
-
-  ## 3. provide feature network name
-  f_network@name = name
-
-  ## 4. network lookup id
-  f_network@network_lookup_id = network_lookup_id
-
-  # giotoPoints object
-  return(f_network)
-
-}
-
-
-
-
-#' @title Create giotto points object
-#' @name create_giotto_points_object
-#' @param feat_type feature type
-#' @param spatVector terra spatVector object containing point data
-#' @param networks feature network object
-#' @keywords internal
-create_giotto_points_object = function(feat_type = 'rna',
-                                       spatVector = NULL,
-                                       networks = NULL) {
-
-
-  # create minimum giotto points object
-  g_points = giottoPoints(feat_type = feat_type,
-                          spatVector = NULL,
-                          networks = NULL)
-
-  ## 1. check terra spatVector object
-  if(!inherits(spatVector, 'SpatVector')) {
-    stop("spatVector needs to be a spatVector object from the terra package")
-  }
-
-  g_points@spatVector = spatVector
-
-  ## 2. provide feature id
-  g_points@feat_type = feat_type
-
-  ## 3. feature_network object
-  g_points@networks = networks
-
-  # giotoPoints object
-  return(g_points)
-
-}
 
 
 

@@ -6,22 +6,30 @@
 \usage{
 set_feature_info(
   gobject,
-  feat_type = NULL,
   gpoints,
-  gpolygon = NULL,
-  verbose = TRUE
+  feat_type = NULL,
+  verbose = TRUE,
+  set_defaults = TRUE,
+  initialize = FALSE,
+  gpolygon = NULL
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
-
 \item{gpoints}{giotto points object}
 
-\item{gpolygon}{typo do not use}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
+
+\item{gpolygon}{typo do not use}
 }
 \value{
 giotto object

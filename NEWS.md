@@ -17,6 +17,7 @@
 - Add `initialize()` method for `giotto`
 - Add validity check for `giotto` that checks for correct slot nesting
 - Add `initialize()` method for `exprObj` to automatically format matrix info
+- Add `activeSpatUnit()` and `activeFeatType()` for getting and setting active defaults on gobject
 - New `get_*_list()` internal functions for retrieving list of all objects of a particular class for a spat_unit and feat_type
 - Add `instructions()` generic for `giotto` to access and edit `giottoInstructions`
 - Add `centroids()` method for `giottoPolygon` to get centroid info
@@ -26,6 +27,7 @@
 - New `dd.R` as a file with dummy documentation to inherit commonly used documentation from
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
+- New test_that scripts for gobject consistency and S4 subobject creation (in progress)
 
 
 
@@ -39,6 +41,7 @@
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
 - Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths
+- Moved `create_featureNetwork_object()`, `create_giotto_points_object()`, `create_giotto_polygon_object()` to classes.R
 
 
 # Giotto Suite 3.2.0 (2023-02-02)

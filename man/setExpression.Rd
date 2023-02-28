@@ -9,7 +9,7 @@ setExpression(
   values,
   spat_unit = NULL,
   feat_type = NULL,
-  name = "test",
+  name = "raw",
   provenance = NULL,
   verbose = TRUE,
   set_defaults = TRUE
@@ -25,7 +25,7 @@ will be removed.}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{name}{name for the expression slot}
+\item{name}{name for the expression information}
 
 \item{provenance}{provenance information (optional)}
 
@@ -39,12 +39,6 @@ giotto object
 }
 \description{
 Function to set expression values for giotto object
-}
-\details{
-If cell_ID, feat_ID, cell_metadata, or feat_metadata objects have not
-been initialized yet, they will be initialized by this function. Note that
-initialization based on feature info or spatial info is preferred if they exist
-for this spatial unit and feature type.
 }
 \seealso{
 Other expression accessor functions: 
