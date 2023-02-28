@@ -26,6 +26,7 @@
 - New `dd.R` as a file with dummy documentation to inherit commonly used documentation from
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
+- New test_that scripts for gobject consistency and S4 subobject creation (in progress)
 
 
 
