@@ -2692,6 +2692,8 @@ createGiottoObject <- function(expression,
                                       set_defaults = FALSE)
     }
 
+    print('test 1')
+
 
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
     gobject = init_cell_and_feat_IDs(gobject)

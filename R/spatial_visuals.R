@@ -2739,12 +2739,12 @@ spatPlot2D_single = function(gobject,
   }
 
   cell_metadata = try(
-    combineMetadata(gobject = gobject,
-                    feat_type = feat_type,
-                    spat_unit = spat_unit,
-                    spat_loc_name = spat_loc_name,
-                    spat_enr_names = spat_enr_names,
-                    verbose = verbose),
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names,
+                           verbose = verbose),
     silent = TRUE
   )
 
@@ -4032,7 +4032,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   gimage = NULL,
                                   image_name = NULL,
                                   largeImage_name = NULL,
-                                  spat_loc_name = NULL,
+                                  spat_loc_name = 'raw',
                                   sdimx = 'sdimx',
                                   sdimy = 'sdimy',
                                   expression_values = c('normalized', 'scaled', 'custom'),
@@ -4187,13 +4187,13 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract cell metadata
   cell_metadata = try(
-    cell_metadata = combineMetadata(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    spat_loc_name = spat_loc_name,
-                                    feat_type = feat_type),
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
     silent = TRUE
   )
-
 
   if(inherits(cell_metadata, 'try-error')) {
     cell_locations_metadata = cell_locations
@@ -7184,7 +7184,7 @@ plotPCA_3D = function(gobject,
 spatPlot_2D_plotly = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
-                              spat_loc_name = NULL,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               spat_enr_names = NULL,
@@ -7250,10 +7250,11 @@ spatPlot_2D_plotly = function(gobject,
 
   ## get cell metadata
   cell_metadata = try(
-    combineMetadata(gobject = gobject,
-                    feat_type = feat_type,
-                    spat_unit = spat_unit,
-                    spat_enr_names = spat_enr_names),
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
     silent = TRUE
   )
 
@@ -7434,7 +7435,7 @@ spatPlot_2D_plotly = function(gobject,
 spatPlot_3D_plotly = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
-                              spat_loc_name = NULL,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               sdimz = NULL,
@@ -7500,10 +7501,11 @@ spatPlot_3D_plotly = function(gobject,
 
   ## get cell metadata
   cell_metadata = try(
-    combineMetadata(gobject = gobject,
-                    feat_type = feat_type,
-                    spat_unit = spat_unit,
-                    spat_enr_names = spat_enr_names),
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
     silent = TRUE
   )
 
@@ -8791,11 +8793,11 @@ spatGenePlot3D <- function(gobject,
 
   ## extract cell metadata
   cell_metadata = try(
-    combineMetadata(gobject = gobject,
-                    feat_type = feat_type,
-                    spat_unit = spat_unit,
-                    spat_loc_name = spat_loc_name,
-                    spat_enr_names = spat_enr_names),
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
     silent = TRUE
   )
 
