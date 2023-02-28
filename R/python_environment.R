@@ -330,12 +330,16 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas==1.5.1',
   } else {
     conda_path = mini_install_path
     
-    wrap_msg("NOTICE: Attempting to install the Giotto Environment at a custom path.",
-    "Please note that a .yml file is provided in the repository for advanced installation and convenience.",
-    "To utilize this .yml file for installation, open a shell",
+    wrap_msg("NOTICE: Attempting to install the Giotto Environment at a custom path.\n",
+    "Please note that multiple .yml files are provided in the repository for advanced installation and convenience.",
+    "To install the most up-to-date Giotto environment using a .yml file, open a shell",
     " compatible with conda/miniconda and navigate to the directory containing Giotto.",
-     "Run the following to create your environment in one step:\n",
-    "conda env create -n giotto_env -f genv.yml")
+    "If you are unsure where Giotto lives on your machine, run the R function",
+    " `.libPaths()`, which will return the path(s) at which R packages install on your machine.",
+    "Once in the directory containing Giotto, run the following to create your environment in one step:\n\n",
+    "conda env create -n giotto_env -f ./python/configuration/genv.yml\n\n",
+    "Alternatively, Giotto environment configurations are stored in",
+    " the directory Giotto/inst/python/configuration/ on the github repository.")
 
     manual_install = as.character(readline("Would you prefer to install manually? [y/n] "))
 
