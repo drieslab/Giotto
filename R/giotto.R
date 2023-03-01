@@ -2442,10 +2442,10 @@ check_spatial_info = function(gobject) {
                                          output = 'spatLocsObj',
                                          set_defaults = FALSE,
                                          copy_obj = FALSE)
-        if(!all(spatIDs(sinfo) %in% spatIDs(spatlocs))) {
+        if(!all(spatIDs(spatlocs) %in% spatIDs(sinfo))) {
           warning(wrap_txt('spat_unit:', su_i,
                            'spatloc name:', su_sloc[[obj_i]], '\n',
-                           'cell IDs in spatial information are missing in the spatial locations slot'))
+                           'cell IDs in spatial locations are missing from '))
         }
         # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
       })
@@ -2616,7 +2616,6 @@ createGiottoObject <- function(expression,
 
   # create minimum giotto
   gobject = new('giotto',
-                expression = list(),
                 expression_feat = expression_feat,
                 offset_file = offset_file,
                 instructions = instructions,

@@ -276,43 +276,39 @@ setClass('spatFeatData',
 ## Giotto class ####
 
 
-## * Check ####
+## * Check ###
 # Giotto class
 
 
-#' @title Check Giotto Object
-#' @name check_giottoObj
-#' @description check function for S4 giotto object
-#' @param object giotto object to check
-#' @keywords internal
-#' @noRd
-check_giotto_obj = function(object) {
-
-
-  errors = character()
-  ch = box_chars()
-
-
-  ## Validate Nesting ##
-  ## ---------------- ##
-
-  slot_depths = giotto_slot_depths()
-  for(slot_i in seq(nrow(slot_depths))) {
-
-    slot_data = slot(object, slot_depths$slot[[slot_i]])
-    if(!is.null(slot_data)) {
-      if(depth(slot_data, method = 'min') != slot_depths$depth[[slot_i]]) {
-        msg = wrap_txt('Invalid nesting discovered for',
-                       slot_depths$slot[[slot_i]],
-                       'slot')
-        errors = c(errors, msg)
-      }
-    }
-  }
-
-
-
-
+# #' @title Check Giotto Object
+# #' @name check_giottoObj
+# #' @description check function for S4 giotto object
+# #' @param object giotto object to check
+# #' @keywords internal
+# #' @noRd
+# check_giotto_obj = function(object) {
+#
+#
+#   errors = character()
+#   ch = box_chars()
+#
+#
+#   ## Validate Nesting ##
+#   ## ---------------- ##
+#
+#   slot_depths = giotto_slot_depths()
+#   for(slot_i in seq(nrow(slot_depths))) {
+#
+#     slot_data = slot(object, slot_depths$slot[[slot_i]])
+#     if(!is.null(slot_data)) {
+#       if(depth(slot_data, method = 'min') != slot_depths$depth[[slot_i]]) {
+#         msg = wrap_txt('Invalid nesting discovered for',
+#                        slot_depths$slot[[slot_i]],
+#                        'slot')
+#         errors = c(errors, msg)
+#       }
+#     }
+#   }
 
 
 
@@ -341,15 +337,15 @@ check_giotto_obj = function(object) {
   #     }))
   #   }
   # }
-
-
-
-
-
-
-
-  if(length(errors) == 0) TRUE else errors
-}
+#
+#
+#
+#
+#
+#
+#
+#   if(length(errors) == 0) TRUE else errors
+# }
 
 
 
@@ -478,9 +474,9 @@ giotto <- setClass(
     OS_platform = NULL,
     join_info = NULL,
     multiomics = NULL
-  ),
+  )
 
-  validity = check_giotto_obj
+  # validity = check_giotto_obj
 )
 
 
