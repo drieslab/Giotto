@@ -113,15 +113,18 @@ test_that('exprObj is created from dgCMatrix', {
 # Nearest Network ####
 
 
+
+
+
 # SETUP
 ig = nn[]
 nnDT = nnDT_min = data.table::setDT(igraph::as_data_frame(nn[]))
 nnDT_min[, c('weight', 'shared', 'rank') := NULL]
 
 
-# nnNetObj ####
+## nnNetObj ####
 
-## input evaluation ####
+### input evaluation ####
 
 test_that('Eval of nnNetObj returns nnNetObj', {
   expect_identical(evaluate_nearest_networks(nn), nn)
@@ -132,9 +135,9 @@ test_that('Eval of nnNetObj returns nnNetObj', {
 
 
 
-# data.table ####
+## data.table ####
 
-## input evaluation ####
+### input evaluation ####
 
 test_that('Eval with missing info throws error', {
   nnDT_min = data.table::copy(nnDT_min)
@@ -154,9 +157,9 @@ test_that('Eval with minimum info works', {
 
 
 
-# igraph ####
+## igraph ####
 
-## input evaluation ####
+### input evaluation ####
 test_that('Eval of igraph returns igraph', {
   expect_s3_class(evaluate_nearest_networks(ig), 'igraph')
 })
@@ -179,6 +182,63 @@ test_that('Eval of minimal igraph adds weight attr', {
   expect_true('name' %in% igraph::list.vertex.attributes(ig_min))
   expect_true('weight' %in% igraph::list.edge.attributes(ig_min))
 })
+
+
+
+
+
+
+## list reading ####
+
+
+test_that('Read returns nnNetObj list directly', {
+  read_list = read_nearest_networks(nn_network = list(nn, nn))
+  expect_true(all(sapply(read_list, class) == 'nnNetObj'))
+})
+
+
+test_that('Depth 1 works', {
+  read_list = read_nearest_networks(list(ig, ig))
+  expect_true(all(sapply(read_list, featType) == 'rna'))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = read_nearest_networks(list(test_feat = list(ig,ig),
+                                         list(test = ig)))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
+  expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
+  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2', 'test'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2', 'test'))
+})
+
+test_that('Depth 3 works', {
+  read_list = read_nearest_networks(list(test_unit = list(test_feat = list(a = ig, ig),
+                                                          list(ig)),
+                                         list(list(b = ig))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'nn_2', 'nn_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('a', 'nn_2', 'nn_1', 'b'))
+})
+
+test_that('Depth 4 works', {
+  read_list = read_nearest_networks(list(test_unit = list(test_feat = list(list(a = ig),
+                                                                           test_meth2 = list(x = ig)),
+                                                          list(test_meth = list(ig))),
+                                         list(list(list(b = ig)))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'x', 'nn_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('method_1', 'test_meth2', 'test_meth', 'method_1'))
+})
+
+
+
+
 
 
 
