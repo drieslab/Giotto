@@ -2033,7 +2033,12 @@ read_dimension_reduction = function(dimension_reduction,
 
   # if not list, return directly
   if(!inherits(dimension_reduction, 'list')) {
-    return(list(dimension_reduction))
+    try_val = try(as.list(dimension_reduction), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      return(list(dimension_reduction))
+    } else {
+      dimension_reduction = try_val
+    }
   }
 
 
@@ -2053,7 +2058,7 @@ read_dimension_reduction = function(dimension_reduction,
     for(obj_i in seq_along(dimension_reduction)) {
 
       dr = dimension_reduction[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+      name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
       method = name # assume
 
       obj_list = append(obj_list, dr)
@@ -2074,7 +2079,7 @@ read_dimension_reduction = function(dimension_reduction,
 
         dr = dimension_reduction[[feat_i]][[obj_i]]
         feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+        name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
         method = name # assume
 
         obj_list = append(obj_list, dr)
@@ -2100,7 +2105,7 @@ read_dimension_reduction = function(dimension_reduction,
           dr = dimension_reduction[[unit_i]][[feat_i]][[obj_i]]
           feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
           spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-          name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+          name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
           method = name # assume
 
           obj_list = append(obj_list, dr)
@@ -2130,7 +2135,7 @@ read_dimension_reduction = function(dimension_reduction,
             dr = dimension_reduction[[unit_i]][[feat_i]][[method_i]][[obj_i]]
             feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
             spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-            name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+            name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
             method = if(is.null(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
 
             obj_list = append(obj_list, dr)
@@ -2308,11 +2313,41 @@ read_nearest_networks = function(nn_network,
 
   # return directly if not list
   if(!inherits(nn_network, 'list')) {
-    return(list(nn_network))
+    try_val = try(as.list(nn_network), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      return(list(nn_network))
+    } else {
+      nn_network = try_val
+    }
   }
 
 
   # list reading
+  # obj_list = list()
+  # spat_unit_list = c()
+  # feat_type_list = c()
+  # method_list = c()
+  # name_list = c()
+  #
+  # # read nesting
+  # if(depth(nn_network) == 1L) {
+  #   obj_names = names(nn_network)
+  #
+  #   for(obj_i in seq_along(nn_network)) {
+  #
+  #     nn = nn_network[[obj_i]]
+  #     name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+  #
+  #   }
+  #
+  #
+  # }
+
+
+
+
+
+
   return_list = list()
 
   nn_names = names(nn_network)
