@@ -4,14 +4,13 @@
 #' @title createNearestNetwork
 #' @name createNearestNetwork
 #' @description create a nearest neighbour (NN) network
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
 #' @param type sNN or kNN
 #' @param dim_reduction_to_use dimension reduction method to use
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
-#' @param name arbitrary name for NN network
+#' @param name arbitrary name for NN network. Defaults to
+#' [type].[dim_reduction_to_use]
 #' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
 #' @param genes_to_use deprecated, use feats_to_use
 #' @param expression_values expression values to use
@@ -63,7 +62,7 @@ createNearestNetwork <- function(gobject,
                                  feats_to_use = NULL,
                                  genes_to_use = NULL,
                                  expression_values = c('normalized', 'scaled', 'custom'),
-                                 name = 'sNN.pca',
+                                 name = NULL,
                                  return_gobject = TRUE,
                                  k = 30,
                                  minimum_shared = 5,
@@ -210,8 +209,10 @@ createNearestNetwork <- function(gobject,
   }
 
 
-print(nn_network_igraph)
+print(nn_network_igraph) # debug
 
+  # set default name
+  if(is.null(name)) name = paste0(type, '.', dim_reduction_to_use)
 
   if(return_gobject == TRUE) {
 
