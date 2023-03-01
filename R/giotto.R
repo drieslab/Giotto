@@ -1663,21 +1663,20 @@ read_spatial_networks = function(spatial_network,
 
 
   # read nesting
-  if(depth(spatial_network == 1L)) {
-    obj_names = names(spatial_network)
-    spat_unit_list = rep('cell', length(spatial_network)) # assume
+  if(depth(spatial_network) == 1L) {
 
+    obj_names = names(spatial_network)
     for(obj_i in seq_along(spatial_network)) {
 
       network = spatial_network[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('sn_', obj_i) else obj_names[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('sn_', obj_i) else obj_names[[obj_i]]
 
-      obj_list = append(obj_list, network)
+      obj_list[[length(obj_list) + 1L]] = network
       name_list = c(name_list, name)
-
     }
+    spat_unit_list = rep('cell', length(obj_list)) # assumed
 
-  } else if(depth(spatial_network == 2L)) {
+  } else if(depth(spatial_network) == 2L) {
 
     spat_unit_names = names(spatial_network)
     for(unit_i in seq_along(spatial_network)) {
@@ -1686,10 +1685,10 @@ read_spatial_networks = function(spatial_network,
       for(obj_i in seq_along(spatial_network[[unit_i]])) {
 
         network = spatial_network[[unit_i]][[obj_i]]
-        spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('sn_', obj_i) else obj_names[[obj_i]]
+        spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('sn_', obj_i) else obj_names[[obj_i]]
 
-        obj_list = append(obj_list, network)
+        obj_list[[length(obj_list) + 1L]] = network
         spat_unit_list = c(spat_unit_list, spat_unit)
         name_list = c(name_list, name)
 
@@ -1702,7 +1701,7 @@ read_spatial_networks = function(spatial_network,
 
 
   # create spatialNetworkObj return list
-  if(length(obj_list > 0)) {
+  if(length(obj_list) > 0) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
@@ -1715,7 +1714,7 @@ read_spatial_networks = function(spatial_network,
             name = name_list[[obj_i]],
             method = name_list[[obj_i]], # assumed
             spat_unit = spat_unit_list[[obj_i]],
-            provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
             networkDT = obj_list[[obj_i]],
             networkDT_before_filter = NULL,
             cellShapeObj = NULL,

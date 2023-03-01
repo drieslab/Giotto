@@ -359,3 +359,43 @@ test_that('Depth 4 works', {
 
 
 
+
+
+
+
+# spatial network ####
+
+
+## list reading
+
+snDT = sn[]
+
+test_that('Read returns spatialNetworkObj list directly', {
+  read_list = read_spatial_networks(list(sn, sn))
+  expect_true(all(sapply(read_list, class) == 'spatialNetworkObj'))
+})
+
+
+test_that('Depth 1 works', {
+  read_list = read_spatial_networks(list(snDT, snDT))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('sn_1', 'sn_2'))
+  expect_identical(sapply(read_list, function(x) x@method), c('sn_1', 'sn_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = read_spatial_networks(list(test_unit = list(snDT,snDT),
+                                         list(test = snDT)))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, objName), c('sn_1', 'sn_2', 'test'))
+  expect_identical(sapply(read_list, function(x) x@method), c('sn_1', 'sn_2', 'test'))
+})
+
+
+
+
+
+
+
+
