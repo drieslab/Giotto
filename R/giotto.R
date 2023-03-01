@@ -2071,10 +2071,10 @@ read_dimension_reduction = function(dimension_reduction,
     for(obj_i in seq_along(dimension_reduction)) {
 
       dr = dimension_reduction[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
       method = name # assume
 
-      obj_list = append(obj_list, dr)
+      obj_list[[length(obj_list) + 1]] = dr
       name_list = c(name_list, name)
       method_list = c(method_list, method)
 
@@ -2091,11 +2091,11 @@ read_dimension_reduction = function(dimension_reduction,
       for(obj_i in seq_along(dimension_reduction[[feat_i]])) {
 
         dr = dimension_reduction[[feat_i]][[obj_i]]
-        feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
         method = name # assume
 
-        obj_list = append(obj_list, dr)
+        obj_list[[length(obj_list) + 1]] = dr
         feat_type_list = c(feat_type_list, feat_type)
         name_list = c(name_list, name)
         method_list = c(method_list, method)
@@ -2116,12 +2116,12 @@ read_dimension_reduction = function(dimension_reduction,
         for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]])) {
 
           dr = dimension_reduction[[unit_i]][[feat_i]][[obj_i]]
-          feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-          spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-          name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
+          feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+          name = if(is_empty_char(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
           method = name # assume
 
-          obj_list = append(obj_list, dr)
+          obj_list[[length(obj_list) + 1]] = dr
           feat_type_list = c(feat_type_list, feat_type)
           spat_unit_list = c(spat_unit_list, spat_unit)
           name_list = c(name_list, name)
@@ -2146,12 +2146,12 @@ read_dimension_reduction = function(dimension_reduction,
           for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]][[method_i]])) {
 
             dr = dimension_reduction[[unit_i]][[feat_i]][[method_i]][[obj_i]]
-            feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-            spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-            name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
-            method = if(is.null(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
+            feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+            spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+            name = if(is_empty_char(obj_names[[obj_i]])) paste0('dimRed_', obj_i) else obj_names[[obj_i]]
+            method = if(is_empty_char(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
 
-            obj_list = append(obj_list, dr)
+            obj_list[[length(obj_list) + 1]] = dr
             feat_type_list = c(feat_type_list, feat_type)
             spat_unit_list = c(spat_unit_list, spat_unit)
             name_list = c(name_list, name)
@@ -2166,7 +2166,7 @@ read_dimension_reduction = function(dimension_reduction,
   }
 
 
-  if(length(obj_list > 0L)) {
+  if(length(obj_list) > 0L) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
@@ -2181,7 +2181,7 @@ read_dimension_reduction = function(dimension_reduction,
                          reduction_method = method_list[[obj_i]],
                          spat_unit = spat_unit_list[[obj_i]],
                          feat_type = feat_type_list[[obj_i]],
-                         provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+                         provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
                          misc = NULL)
         )
       }
