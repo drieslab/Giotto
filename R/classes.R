@@ -2551,6 +2551,8 @@ create_spat_enr_obj = function(name = 'test',
                                provenance = NULL,
                                misc = NULL) {
 
+  enrichDT = evaluate_spatial_enrichment(enrichDT)
+
   return(new('spatEnrObj',
              name = name,
              method = method,

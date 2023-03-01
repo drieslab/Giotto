@@ -1806,10 +1806,91 @@ shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRU
 #### Giotto spatial enrichment ####
 
 
+
+
+#' @name evaluate_spatial_enrichment
+#' @description evaluate spatial enrichment input into data.table format
+#' compatible with spatEnrObj
+#' @keywords internal
+#' @noRd
+evaluate_spatial_enrichment = function(spatial_enrichment,
+                                       provenance = NULL,
+                                       cores = determine_cores()) {
+
+  # data.table vars
+  cell_ID = NULL
+
+  if(!any(class(unlist(spatial_enrichment)) %in%
+          c('data.table', 'data.frame', 'matrix', 'character'))) {
+    stop(wrap_txt('spatial enrichment needss to be a data.table or data.frame-like',
+                  'object or a path to one of these', errWidth = TRUE))
+  }
+  if(inherits(spatial_enrichment, 'character')) {
+    if(!file.exists(path.expand(spatial_enrichment))) {
+      stop(wrap_txt('path to spatial enrichment info does not exist'))
+    }
+
+    spatial_enrichment = data.table::fread(input = spatial_enrichment,
+                                           nThread = cores)
+  } else {
+    spatial_enrichment = tryCatch(
+      data.table::setDT(spatial_enrichment),
+      error = function(e) data.table::as.data.table(spatial_enrichment)
+    )
+  }
+
+  # check which columns are numeric (contain enrichment info)
+  column_classes = lapply(spatial_enrichment, FUN = class)
+  non_numeric_classes = column_classes[!column_classes %in% c('numeric', 'integer')]
+
+
+  potential_cell_IDs = NULL
+
+  # find non-numeric cols (possible cell_ID col)
+  if(length(non_numeric_classes) > 0L) {
+
+    non_numeric_indices = which(!column_classes %in% c('numeric', 'integer'))
+
+    wrap_msg('There are non numeric or integer columsn for the spatial location',
+             'input at column position(s):', non_numeric_indices,
+             '\nThe first non-numeric column will be considered as a cell ID to',
+             'test for consistency with the expression matrix.
+             Other non-numeric columns will be removed.')
+
+    potential_cell_IDs = spatial_enrichment[[names(non_numeric_classes)[[1L]]]]
+
+    # subset to only numeric cols for testing
+    spatial_enrichment = spatial_enrichment[, -non_numeric_indices, with = FALSE]
+
+  }
+
+  # check number of columns: too few
+  if(ncol(spatial_enrichment) < 1L) {
+    stop(wrap_txt('There has to be at least 2 columns (1 for cell IDs, and',
+                  'at least one other for enrichment data', errWidth = TRUE))
+  }
+
+  # Assign first non-numeric as cell_ID
+  if(!is.null(potential_cell_IDs)) {
+    spatial_enrichment[, cell_ID := potential_cell_IDs]
+  }
+
+  return(spatial_enrichment)
+
+}
+
+
+
+
+
+
+
+
 #' @title Read spatial enrichment
 #' @name read_spatial_enrichment
 #' @description read spatial enrichment results from list
 #' @keywords internal
+#' @noRd
 read_spatial_enrichment = function(spatial_enrichment,
                                    provenance = NULL) {
 
@@ -1819,7 +1900,7 @@ read_spatial_enrichment = function(spatial_enrichment,
   }
 
   # return directly if not list
-  if(!inherit(spatial_enrichment, 'list')) {
+  if(!inherits(spatial_enrichment, 'list')) {
     try_val = try(as.list(spatial_enrichment), silent = TRUE)
     if(inherits(try_val, 'try-error')) {
       return(list(spatial_enrichment))
@@ -1833,6 +1914,7 @@ read_spatial_enrichment = function(spatial_enrichment,
   spat_unit_list = c()
   feat_type_list = c()
   name_list = c()
+  method_list = c()
 
 
 
@@ -1842,10 +1924,12 @@ read_spatial_enrichment = function(spatial_enrichment,
     for(obj_i in seq_along(spatial_enrichment)) {
 
       enr = spatial_enrichment[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+      method = name # assume
 
-      obj_list = append(obj_list, enr)
+      obj_list[[length(obj_list) + 1L]] = enr
       name_list = c(name_list, name)
+      method_list = c(method_list, method)
 
     }
     feat_type_list = rep('rna', length(obj_list)) # assume
@@ -1860,12 +1944,14 @@ read_spatial_enrichment = function(spatial_enrichment,
       for(obj_i in seq_along(spatial_enrichment[[feat_i]])) {
 
         enr = spatial_enrichment[[feat_i]][[obj_i]]
-        feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+        method = name # assume
 
-        obj_list = append(obj_list, enr)
+        obj_list[[length(obj_list) + 1L]] = enr
         feat_type_list = c(feat_type_list, feat_type)
         name_list = c(name_list, name)
+        method_list = c(method_list, method)
 
       }
     }
@@ -1883,15 +1969,47 @@ read_spatial_enrichment = function(spatial_enrichment,
         for(obj_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]])) {
 
           enr = spatial_enrichment[[unit_i]][[feat_i]][[obj_i]]
-          spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-          feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-          name = if(is.null(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+          spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+          feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          name = if(is_empty_char(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+          method = name # assume
 
-          obj_list = append(obj_list, enr)
+          obj_list[[length(obj_list) + 1L]] = enr
           spat_unit_list = c(spat_unit_list, spat_unit)
           feat_type_list = c(feat_type_list, feat_type)
           name_list = c(name_list, name)
+          method_list = c(method_list, method)
 
+        }
+      }
+    }
+
+  } else if(depth(spatial_enrichment) == 4L) { # ------------------------ 4 #
+
+    spat_unit_names = names(spatial_enrichment)
+    for(unit_i in seq_along(spatial_enrichment)) {
+
+      feat_type_names = names(spatial_enrichment[[unit_i]])
+      for(feat_i in seq_along(spatial_enrichment[[unit_i]])) {
+
+        method_names = names(spatial_enrichment[[unit_i]][[feat_i]])
+        for(method_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]])) {
+
+          obj_names = names(spatial_enrichment[[unit_i]][[feat_i]][[method_i]])
+          for(obj_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]][[method_i]])) {
+
+            enr = spatial_enrichment[[unit_i]][[feat_i]][[method_i]][[obj_i]]
+            feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+            spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+            name = if(is_empty_char(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
+            method = if(is_empty_char(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
+
+            obj_list[[length(obj_list) + 1L]] = enr
+            feat_type_list = c(feat_type_list, feat_type)
+            spat_unit_list = c(spat_unit_list, spat_unit)
+            name_list = c(name_list, name)
+            method_list = c(method_list, method)
+          }
         }
       }
     }
@@ -1903,7 +2021,7 @@ read_spatial_enrichment = function(spatial_enrichment,
 
 
   # create spatEnrObj return list
-  if(length(obj_list > 0)) {
+  if(length(obj_list) > 0) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
@@ -1914,11 +2032,11 @@ read_spatial_enrichment = function(spatial_enrichment,
         return(
           create_spat_enr_obj(
             name = name_list[[obj_i]],
-            method = name_list[[obj_i]], # assumed
+            method = method_list[[obj_i]],
             enrichDT = obj_list[[obj_i]],
             spat_unit = spat_unit_list[[obj_i]],
             feat_type = feat_type_list[[obj_i]],
-            provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
             misc = NULL
           )
         )
