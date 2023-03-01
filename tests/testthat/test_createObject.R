@@ -94,6 +94,22 @@ test_that('exprObj is created from dgCMatrix', {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Nearest Network ####
 
 
@@ -121,6 +137,7 @@ test_that('Eval of nnNetObj returns nnNetObj', {
 ## input evaluation ####
 
 test_that('Eval with missing info throws error', {
+  nnDT_min = data.table::copy(nnDT_min)
   nnDT_min[, distance := NULL]
   expect_error(evaluate_nearest_networks(nnDT_min), regexp = 'Unable to coerce')
 })
