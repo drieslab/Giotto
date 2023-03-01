@@ -2285,23 +2285,60 @@ check_dimension_reduction = function(gobject) {
 
 #' @title Evaluate nearest networks
 #' @name evaluate_nearest_networks
-#' @description Evaluate nearest networks input
+#' @description Evaluate nearest networks input into igraph for input into
+#' nnNetObj
 #' @keywords internal
+#' @details Minimal input is a data.frame-like input containing 'from', 'to',
+#' and 'distance' information
 #' @noRd
 evaluate_nearest_networks = function(nn_network) {
+
+  # data.table vars
+  weight = distance = NULL
 
   if(inherits(nn_network, 'nnNetObj')) {
     nn_network[] = evaluate_nearest_networks(nn_network = nn_network[])
     return(nn_network)
+
   } else if(inherits(nn_network, 'igraph')) {
-    return(nn_network)
-  } else if(inherits(nn_network, 'data.frame')) {
-    if(all(c('from', 'to', 'weight', 'distance', 'shared', 'rank') %in% colnames(nn_network))) {
-      nn_network = igraph::graph_from_data_frame(nn_network)
-    } else {
-      stop(wrap_txt('Unable to coerce data.frame type object to nnNetObj igraph
-                    Needed columns: from, to, weight, distance, shared, rank'))
+    v_attr = igraph::list.vertex.attributes(nn_network)
+    e_attr = igraph::list.edge.attributes(nn_network)
+
+    if(!'name' %in% v_attr) stop(wrap_txt(
+      'nearest network igraph input MUST have vertex attribute "name".
+      Discovered vertex attributes:', v_attr, errWidth = TRUE
+    ))
+
+    if(!'distance' %in% e_attr) stop(wrap_txt(
+      'nearest network igraph input MUST have edge attribute "distance".
+      Discovered edge attributes:', e_attr, errWidth = TRUE
+    ))
+
+    if(!'weight' %in% e_attr) {
+      igDT = data.table::setDT(igraph::as_data_frame(nn_network))
+      igDT[, weight := 1/(1 + distance)]
+      data.table::setcolorder(igDT, neworder = c('from', 'to', 'weight', 'distance'))
+      nn_network = igraph::graph_from_data_frame(igDT)
     }
+
+    return(nn_network)
+
+  } else if(inherits(nn_network, 'data.frame')) {
+    if(!inherits(nn_network, 'data.table')) nn_network = data.table::setDT(nn_network)
+
+    # if minimal input not given, throw error
+    if(!all(c('from', 'to', 'distance') %in% colnames(nn_network))) {
+      stop(wrap_txt('Unable to coerce data.frame type object to nnNetObj igraph
+                    Needed columns: from, to, distance', errWidth = TRUE))
+    }
+
+    # generate weights
+    nn_network[, weight := 1/(1 + distance)]
+    data.table::setcolorder(nn_network, neworder = c('from', 'to', 'weight', 'distance'))
+
+    nn_network = igraph::graph_from_data_frame(nn_network)
+    return(nn_network)
+
   }
 
 }
