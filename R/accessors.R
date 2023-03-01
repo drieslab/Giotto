@@ -2059,6 +2059,7 @@ setDimReduction = function(gobject,
     if(inherits(dimObject, 'list')) {
 
       dimObj_list = read_dimension_reduction(dimension_reduction = dimObject,
+                                             reduction = reduction,
                                              provenance = provenance)
       # recursively call external so checking is done per iteration
       for(obj_i in seq_along(dimObj_list)) {

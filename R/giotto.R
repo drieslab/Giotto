@@ -1199,8 +1199,11 @@ read_spatial_location_data = function(gobject,
 
   if(is.null(spat_loc_list)) return(NULL)
 
-  if(inherits(spat_loc_list, 'spatLocsObj')) {
+  try_val = try(as.list(spat_loc_list), silent = TRUE)
+  if(inherits(try_val, 'try-error')) {
     return(list(spat_loc_list))
+  } else {
+    spat_loc_list = try_val
   }
 
   ## to make it compatible with previous version
@@ -1644,7 +1647,12 @@ read_spatial_networks = function(spatial_network,
 
   # if not a list, return directly
   if(!inherits(spatial_network, 'list')) {
-    return(list(spatial_network))
+    try_val = try(as.list(spatial_network), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      return(list(spatial_network))
+    } else {
+      spatial_network = try_val
+    }
   }
 
 
@@ -1812,7 +1820,12 @@ read_spatial_enrichment = function(spatial_enrichment,
 
   # return directly if not list
   if(!inherit(spatial_enrichment, 'list')) {
-    return(list(spatial_enrichment))
+    try_val = try(as.list(spatial_enrichment), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      return(list(spatial_enrichment))
+    } else {
+      spatial_enrichment = try_val
+    }
   }
 
   # list reading
@@ -2176,7 +2189,7 @@ read_dimension_reduction = function(dimension_reduction,
     return(return_list)
 
   } else {
-    warning('No objects found in dimension reduction input list')
+    warning(wrap_txt('No objects found in dimension reduction input list'))
   }
 
 }
@@ -2323,56 +2336,135 @@ read_nearest_networks = function(nn_network,
 
 
   # list reading
-  # obj_list = list()
-  # spat_unit_list = c()
-  # feat_type_list = c()
-  # method_list = c()
-  # name_list = c()
-  #
-  # # read nesting
-  # if(depth(nn_network) == 1L) {
-  #   obj_names = names(nn_network)
-  #
-  #   for(obj_i in seq_along(nn_network)) {
-  #
-  #     nn = nn_network[[obj_i]]
-  #     name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
-  #
-  #   }
-  #
-  #
-  # }
+  obj_list = list()
+  spat_unit_list = c()
+  feat_type_list = c()
+  method_list = c()
+  name_list = c()
 
+  # read nesting
+  if(depth(nn_network) == 1L) {       # ------------------------ 1 #
 
+    obj_names = names(nn_network)
+    for(obj_i in seq_along(nn_network)) {
 
+      nn = nn_network[[obj_i]]
+      name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+      method = name # assume
 
+      obj_list = append(obj_list, nn)
+      name_list = c(name_list, name)
+      method_list = c(method_list, method)
+    }
+    spat_unit_list = rep('cell', length(obj_list)) # assume
+    feat_type_list = rep('rna', length(obj_list)) # assume
 
+  } else if(depth(nn_network) == 2L) { # ------------------------ 2 #
 
-  return_list = list()
+    feat_type_names = names(nn_network)
+    for(feat_i in seq_along(nn_network)) {
 
-  nn_names = names(nn_network)
-  for(nn_i in seq_along(nn_network)) {
+      obj_names = names(nn_network[[feat_i]])
+      for(obj_i in seq_along(nn_network[[feat_i]])) {
 
-    if(inherits(nn_network[[nn_i]], 'nnNetObj')) {
-      nnNetObj = nn_network[[nn_i]]
-    } else {
-      warning(wrap_txt('Please provide nearest network information as nnNetObj
-                       Applying default values'))
-      nnNetObj = create_nn_net_obj(
-        name = if(is.null(nn_names[[nn_i]])) paste0('nn_', nn_i) else nn_names[[nn_i]],
-        nn_type = if(is.null(nn_names[[nn_i]])) paste0('nn_', nn_i) else nn_names[[nn_i]],
-        igraph = nn_network[[nn_i]],
-        spat_unit = 'cell',
-        feat_type = 'rna',
-        provenance = if(is.null(provenance)) 'cell' else provenance,
-        misc = NULL
-      )
+        nn = nn_network[[feat_i]][[obj_i]]
+        feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+        name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+        method = name # assume
+
+        obj_list = append(obj_list, nn)
+        name_list = c(name_list, name)
+        feat_type_list = c(feat_type_list, feat_type)
+        method_list = c(method_list, method)
+      }
+    }
+    spat_unit_list = rep('cell', length(obj_list)) # assume
+
+  } else if(depth(nn_network) == 3L) { # ------------------------ 3 #
+
+    spat_unit_names = names(nn_network)
+    for(unit_i in seq_along(nn_network)) {
+
+      feat_type_names = names(nn_network[[unit_i]])
+      for(feat_i in seq_along(nn_network[[unit_i]])) {
+
+        obj_names = names(nn_network[[unit_i]][[feat_i]])
+        for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
+
+          nn = nn_network[[unit_i]][[feat_i]][[obj_i]]
+          spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+          feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+          method = name # assume
+
+          obj_list = append(obj_list, nn)
+          name_list = c(name_list, name)
+          feat_type_list = c(feat_type_list, feat_type)
+          spat_unit_list = c(spat_unit_list, spat_unit)
+          method_list = c(method_list, method)
+        }
+      }
     }
 
-    return_list = append(return_list, nnNetObj)
-  }
-  return(return_list)
+  } else if(depth(nn_network) == 4L) { # ------------------------ 4 #
 
+    spat_unit_names = names(nn_network)
+    for(unit_i in seq_along(nn_network)) {
+
+      feat_type_names = names(nn_network[[unit_i]])
+      for(feat_i in seq_along(nn_network[[unit_i]])) {
+
+        method_name = names(nn_network[[unit_i]][[feat_i]])
+        for(method_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
+
+          obj_name = names(nn_network[[unit_i]][[feat_i]][[method_i]])
+          for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]][[method_i]])) {
+
+            nn = nn_network[[unit_i]][[feat_i]][[method_i]][[obj_i]]
+            spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+            feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+            name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+            method = if(is.null(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
+
+            obj_list = append(obj_list, nn)
+            spat_unit_list = c(spat_unit_list, spat_unit)
+            feat_type_list = c(feat_type_list, feat_type)
+            method_list = c(method_list, method)
+            name_list = c(name_list, name)
+          }
+        }
+      }
+    }
+
+  } else {
+    stop(wrap_txt('Unexpected list depth', errWidth = TRUE))
+  }
+
+
+  if(length(obj_list > 0L)) {
+
+    return_list = lapply(seq_along(obj_list), function(obj_i) {
+
+      if(inherits(obj_list[[obj_i]], 'nnNetObj')) {
+        return(obj_list[[obj_i]])
+      } else {
+
+        return(
+          create_nn_net_obj(name = name_list[[obj_i]],
+                            nn_type = method_list[[obj_i]],
+                            igraph = obj_list[[obj_i]],
+                            spat_unit = spat_unit_list[[obj_i]],
+                            feat_type = feat_type_list[[obj_i]],
+                            provenance = provenance,
+                            misc = NULL)
+        )
+      }
+    })
+    return(return_list)
+
+  } else {
+    warning(wrap_txt('No objects found in nearest neighbor network input list'))
+  }
 
 }
 
