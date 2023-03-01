@@ -395,6 +395,33 @@ test_that('Depth 2 works', {
 
 
 
+# spatial locations ####
+
+
+## list reading
+
+slDT = sl[]
+
+test_that('Read returns spatLocsObj list directly', {
+  read_list = read_spatial_location_data(list(sl, sl))
+  expect_true(all(sapply(read_list, class) == 'spatLocsObj'))
+})
+
+test_that('Depth 1 works', {
+  read_list = read_spatial_location_data(list(slDT, slDT))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('coord_1', 'coord_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = read_spatial_location_data(list(test_unit = list(slDT,slDT),
+                                         list(test = slDT)))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, objName), c('coord_1', 'coord_2', 'test'))
+})
+
+
 
 
 
