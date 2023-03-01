@@ -246,13 +246,14 @@ test_that('Depth 4 works', {
 
 
 
-# dimension reduction
+# dimension reduction ####
 
 
-## dimObj ####
+
 
 
 ### list reading ####
+drm = dr[]
 
 test_that('Read returns dimObj list directly', {
   read_list = read_dimension_reduction(list(dr, dr))
@@ -261,45 +262,100 @@ test_that('Read returns dimObj list directly', {
 
 
 test_that('Depth 1 works', {
-  read_list = read_dimension_reduction(list(dr, dr))
+  read_list = read_dimension_reduction(list(drm, drm))
   expect_true(all(sapply(read_list, featType) == 'rna'))
   expect_true(all(sapply(read_list, spatUnit) == 'cell'))
-  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2'))
-  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2'))
+  expect_identical(sapply(read_list, objName), c('dimRed_1', 'dimRed_2'))
+  expect_identical(sapply(read_list, function(x) x@reduction_method), c('dimRed_1', 'dimRed_2'))
 })
 
 
 test_that('Depth 2 works', {
-  read_list = read_dimension_reduction(list(test_feat = list(dr,dr),
-                                         list(test = dr)))
+  read_list = read_dimension_reduction(list(test_feat = list(drm,drm),
+                                         list(test = drm)))
   expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
   expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
-  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2', 'test'))
-  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2', 'test'))
+  expect_identical(sapply(read_list, objName), c('dimRed_1', 'dimRed_2', 'test'))
+  expect_identical(sapply(read_list, function(x) x@reduction_method), c('dimRed_1', 'dimRed_2', 'test'))
 })
 
 test_that('Depth 3 works', {
-  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(a = dr, dr),
-                                                          list(dr)),
-                                         list(list(b = dr))))
+  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(a = drm, drm),
+                                                          list(drm)),
+                                         list(list(b = drm))))
   expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
   expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
-  expect_identical(sapply(read_list, objName), c('a', 'nn_2', 'nn_1', 'b'))
-  expect_identical(sapply(read_list, function(x) x@nn_type), c('a', 'nn_2', 'nn_1', 'b'))
+  expect_identical(sapply(read_list, objName), c('a', 'dimRed_2', 'dimRed_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@reduction_method), c('a', 'dimRed_2', 'dimRed_1', 'b'))
 })
 
 test_that('Depth 4 works', {
-  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(list(a = dr),
-                                                                           test_meth2 = list(x = dr)),
-                                                          list(test_meth = list(dr))),
-                                         list(list(list(b = dr)))))
+  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(list(a = drm),
+                                                                           test_meth2 = list(x = drm)),
+                                                          list(test_meth = list(drm))),
+                                         list(list(list(b = drm)))))
   expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
   expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
-  expect_identical(sapply(read_list, objName), c('a', 'x', 'nn_1', 'b'))
-  expect_identical(sapply(read_list, function(x) x@nn_type), c('method_1', 'test_meth2', 'test_meth', 'method_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'x', 'dimRed_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@reduction_method), c('method_1', 'test_meth2', 'test_meth', 'method_1'))
 })
 
 
+
+
+# spatial enrichment ####
+
+
+
+## list reading ####
+
+enrDT = enr[]
+
+test_that('Read returns spatEnrObj list directly', {
+  read_list = read_spatial_enrichment(list(enr, enr))
+  expect_true(all(sapply(read_list, class) == 'spatEnrObj'))
+})
+
+
+test_that('Depth 1 works', {
+  read_list = read_spatial_enrichment(list(enrDT, enrDT))
+  expect_true(all(sapply(read_list, featType) == 'rna'))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('enr_1', 'enr_2'))
+  expect_identical(sapply(read_list, function(x) x@method), c('enr_1', 'enr_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = read_spatial_enrichment(list(test_feat = list(enrDT,enrDT),
+                                            list(test = enrDT)))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
+  expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
+  expect_identical(sapply(read_list, objName), c('enr_1', 'enr_2', 'test'))
+  expect_identical(sapply(read_list, function(x) x@method), c('enr_1', 'enr_2', 'test'))
+})
+
+test_that('Depth 3 works', {
+  read_list = read_spatial_enrichment(list(test_unit = list(test_feat = list(a = enrDT, enrDT),
+                                                             list(enrDT)),
+                                            list(list(b = enrDT))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'enr_2', 'enr_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@method), c('a', 'enr_2', 'enr_1', 'b'))
+})
+
+
+test_that('Depth 4 works', {
+  read_list = read_spatial_enrichment(list(test_unit = list(test_feat = list(list(a = enrDT),
+                                                                              test_meth2 = list(x = enrDT)),
+                                                             list(test_meth = list(enrDT))),
+                                            list(list(list(b = enrDT)))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'x', 'enr_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@method), c('method_1', 'test_meth2', 'test_meth', 'method_1'))
+})
 
 
 
