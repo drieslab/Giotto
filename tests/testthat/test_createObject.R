@@ -22,6 +22,7 @@ fm = GiottoData::loadSubObjectMini('featMetaObj')
 sn = GiottoData::loadSubObjectMini('spatialNetworkObj')
 enr = GiottoData::loadSubObjectMini('spatEnrObj')
 nn = GiottoData::loadSubObjectMini('nnNetObj')
+dr = GiottoData::loadSubObjectMini('dimObj')
 gpoly = GiottoData::loadSubObjectMini('giottoPolygon')
 gpoints = GiottoData::loadSubObjectMini('giottoPoints')
 
@@ -240,6 +241,63 @@ test_that('Depth 4 works', {
 
 
 
+
+
+
+
+
+# dimension reduction
+
+
+## dimObj ####
+
+
+### list reading ####
+
+test_that('Read returns dimObj list directly', {
+  read_list = read_dimension_reduction(list(dr, dr))
+  expect_true(all(sapply(read_list, class) == 'dimObj'))
+})
+
+
+test_that('Depth 1 works', {
+  read_list = read_dimension_reduction(list(dr, dr))
+  expect_true(all(sapply(read_list, featType) == 'rna'))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = read_dimension_reduction(list(test_feat = list(dr,dr),
+                                         list(test = dr)))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
+  expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
+  expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2', 'test'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('nn_1', 'nn_2', 'test'))
+})
+
+test_that('Depth 3 works', {
+  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(a = dr, dr),
+                                                          list(dr)),
+                                         list(list(b = dr))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'nn_2', 'nn_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('a', 'nn_2', 'nn_1', 'b'))
+})
+
+test_that('Depth 4 works', {
+  read_list = read_dimension_reduction(list(test_unit = list(test_feat = list(list(a = dr),
+                                                                           test_meth2 = list(x = dr)),
+                                                          list(test_meth = list(dr))),
+                                         list(list(list(b = dr)))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'x', 'nn_1', 'b'))
+  expect_identical(sapply(read_list, function(x) x@nn_type), c('method_1', 'test_meth2', 'test_meth', 'method_1'))
+})
 
 
 
