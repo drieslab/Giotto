@@ -1180,7 +1180,6 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @title Read spatial location data
 #' @name read_spatial_location_data
 #' @description read spatial locations
-#' @param gobject giotto object
 #' @param spat_loc_list list of spatial locations
 #' @param cores how many cores to use
 #' @param provenance provenance information (optional)
@@ -1188,8 +1187,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @return updated giotto object
 #' @keywords internal
 #' @noRd
-read_spatial_location_data = function(gobject,
-                                      spat_loc_list,
+read_spatial_location_data = function(spat_loc_list,
                                       cores = determine_cores(),
                                       provenance = NULL,
                                       verbose = TRUE) {
@@ -1253,23 +1251,14 @@ read_spatial_location_data = function(gobject,
 
     obj_names = names(spat_loc_list)
     for(obj_i in seq_along(spat_loc_list)) {
-      spat_unit_list = rep('cell', length(spat_loc_list)) # add default region = 'cell'
 
       spatlocs = spat_loc_list[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('coord_', obj_i) else obj_names[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('coord_', obj_i) else obj_names[[obj_i]]
 
-      obj_list = append(obj_list, spatlocs)
+      obj_list[[length(obj_list) + 1L]] = spatlocs
       name_list = c(name_list, name)
-
-      # # add default region == 'cell'
-      # return_list = append(return_list,
-      #                      create_spat_locs_obj(
-      #                        name = coord,
-      #                        coordinates = res_spatlocs,
-      #                        spat_unit = 'cell',
-      #                        provenance = if(is.null(provenance)) 'cell' else provenance
-      #                      ))
     }
+    spat_unit_list = rep('cell', length(obj_list)) # add default region = 'cell'
 
     # for list with 2 depth, expect name info and spat_unit info
   } else if(list_depth == 2L) {
@@ -1282,21 +1271,14 @@ read_spatial_location_data = function(gobject,
       obj_names = names(spat_loc_list[[unit_i]])
       for(obj_i in seq_along(spat_loc_list[[unit_i]])) {
 
-        spatlocs = spat_loc_list[[obj_i]]
-        spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('coord_', obj_i) else obj_names[[obj_i]]
+        spatlocs = spat_loc_list[[unit_i]][[obj_i]]
+        spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('coord_', obj_i) else obj_names[[obj_i]]
 
-        obj_list = append(obj_list, spatlocs)
+        obj_list[[length(obj_list) + 1L]] = spatlocs
         spat_unit_list = c(spat_unit_list, spat_unit)
         name_list = c(name_list, name)
 
-        # return_list = append(return_list,
-        #                      create_spat_locs_obj(
-        #                        name = coord,
-        #                        coordinates = res_spatlocs,
-        #                        spat_unit = spat_unit,
-        #                        provenance = if(is.null(provenance)) spat_unit else provenance
-        #                      ))
       }
     }
 
@@ -1306,7 +1288,7 @@ read_spatial_location_data = function(gobject,
 
 
   # create spatLocObj return lst
-  if(length(obj_list > 0)) {
+  if(length(obj_list) > 0) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
@@ -1319,7 +1301,7 @@ read_spatial_location_data = function(gobject,
             name = name_list[[obj_i]],
             coordinates = obj_list[[obj_i]],
             spat_unit = spat_unit_list[[obj_i]],
-            provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
             misc = NULL
           )
         )
