@@ -1791,11 +1791,9 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             init_metadata = TRUE,
                                             return_gobject = TRUE) {
 
-  # define for .()
-  x = NULL
-  y = NULL
-  poly_ID = NULL
-
+  # data.table vars
+  x = y = poly_ID = NULL
+browser()
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
@@ -1921,6 +1919,17 @@ addSpatialCentroidLocations = function(gobject,
                                        init_metadata = TRUE,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
+
+  if(length(poly_info) > 1) {
+    if(!is.list(provenance) | length(provenance) != length(unique(poly_info))) {
+      stop(wrap_txt(
+        'poly_info:', unique(poly_info), '(', length(unique(poly_info)), ')',
+        'provenance: (', length(provenance), ')',
+        'If more than one poly_info is supplied at a time, then provenance must',
+        'be a list of equal length',
+        errWidth = TRUE))
+    }
+  }
 
 
   potential_polygon_names = list_spatial_info_names(gobject)

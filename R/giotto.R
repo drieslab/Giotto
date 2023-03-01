@@ -1823,10 +1823,8 @@ read_spatial_enrichment = function(spatial_enrichment,
 
 
 
-  if(depth(spatial_enrichment) == 1L) {
+  if(depth(spatial_enrichment) == 1L) {        # ------------------------ 1 #
     obj_names = names(spatial_enrichment)
-    feat_type_list = rep('rna', length(spatial_enrichment)) # assume
-    spat_unit_list = rep('cell', length(spatial_enrichment)) # assume
 
     for(obj_i in seq_along(spatial_enrichment)) {
 
@@ -1837,17 +1835,18 @@ read_spatial_enrichment = function(spatial_enrichment,
       name_list = c(name_list, name)
 
     }
+    feat_type_list = rep('rna', length(obj_list)) # assume
+    spat_unit_list = rep('cell', length(obj_list)) # assume
 
-  } else if(depth(spatial_enrichment == 2L)) {
+  } else if(depth(spatial_enrichment) == 2L) { # ------------------------ 2 #
 
     feat_type_names = names(spatial_enrichment)
     for(feat_i in seq_along(spatial_enrichment)) {
 
       obj_names = names(spatial_enrichment[[feat_i]])
-      spat_unit_list = rep('cell', length(spatial_enrichment)) # assume
       for(obj_i in seq_along(spatial_enrichment[[feat_i]])) {
 
-        enr = spatial_enrichment[[obj_i]]
+        enr = spatial_enrichment[[feat_i]][[obj_i]]
         feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
         name = if(is.null(obj_names[[obj_i]])) paste0('enr_', obj_i) else obj_names[[obj_i]]
 
@@ -1857,8 +1856,9 @@ read_spatial_enrichment = function(spatial_enrichment,
 
       }
     }
+    spat_unit_list = rep('cell', length(obj_list)) # assume
 
-  } else if(depth(spatial_enrichment == 3L)) {
+  } else if(depth(spatial_enrichment) == 3L) { # ------------------------ 3 #
 
     spat_unit_names = names(spatial_enrichment)
     for(unit_i in seq_along(spatial_enrichment)) {
@@ -1902,7 +1902,7 @@ read_spatial_enrichment = function(spatial_enrichment,
           create_spat_enr_obj(
             name = name_list[[obj_i]],
             method = name_list[[obj_i]], # assumed
-            enrichDT = spatial_enrichment,
+            enrichDT = obj_list[[obj_i]],
             spat_unit = spat_unit_list[[obj_i]],
             feat_type = feat_type_list[[obj_i]],
             provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
@@ -2021,8 +2021,10 @@ evaluate_dimension_reduction = function(dimension_reduction) {
 #' @keywords internal
 #' @noRd
 read_dimension_reduction = function(dimension_reduction,
-                                    provenance = provenance) {
+                                    reduction = c('cells', 'feats'),
+                                    provenance = NULL) {
 
+  reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
   if(is.null(dimension_reduction)) {
     message('No dimension reduction results are provided')
@@ -2036,52 +2038,142 @@ read_dimension_reduction = function(dimension_reduction,
 
 
   # list reading
-  return_list = list()
+  obj_list = list()
+  spat_unit_list = c()
+  feat_type_list = c()
+  method_list = c()
+  name_list = c()
 
-  dim_names = names(dimension_reduction)
-  for(dim_i in seq_along(dimension_reduction)) {
 
-    dim_red = dimension_reduction[[dim_i]]
+  # read nesting
+  if(depth(dimension_reduction) == 1L) {        # ------------------------ 1 #
+    obj_names = names(dimension_reduction)
 
-    if(inherits(dim_red, 'dimObj')) {
-      return_list = append(return_list, dim_red)
-      next()
-    } else {
 
-      req_cols = c('type', 'spat_unit', 'name', 'reduction_method', 'coordinates', 'misc', 'feat_type')
+    for(obj_i in seq_along(dimension_reduction)) {
 
-      # S3 object input
-      if(all(req_cols %in% names(dim_red))) {
+      dr = dimension_reduction[[obj_i]]
+      name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+      method = name # assume
 
-        coord_data = dim_red[['coordinates']]
-        spat_unit = dim_red[['spat_unit']]
-        type_value = dim_red[['type']] # cells or genes
-        reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
-        name_value = dim_red[['name']]  # unique name
-        misc_value = dim_red[['misc']]  # additional data
-        feat_type = dim_red[['feat_type']]
+      obj_list = append(obj_list, dr)
+      name_list = c(name_list, name)
+      method_list = c(method_list, method)
 
-        # create S4
-        dim_obj = create_dim_obj(
-          name = name_value,
-          reduction = type_value,
-          reduction_method = reduction_meth_value,
-          coordinates = coord_data,
-          spat_unit = spat_unit,
-          feat_type = feat_type,
-          provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-          misc = NULL
-        )
+    }
+    feat_type_list = rep('rna', length(obj_list)) # assume
+    spat_unit_list = rep('cell', length(obj_list)) # assume
 
-        return_list = append(return_list, dim_obj)
-        next()
+  } else if(depth(dimension_reduction) == 2L) { # ------------------------ 2 #
 
-      } else {
-        stop('\n each dimension reduction list must contain all required slots, see details. \n')
+    feat_type_names = names(dimension_reduction)
+    for(feat_i in seq_along(dimension_reduction)) {
+
+      obj_names = names(dimension_reduction[[feat_i]])
+      for(obj_i in seq_along(dimension_reduction[[feat_i]])) {
+
+        dr = dimension_reduction[[feat_i]][[obj_i]]
+        feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+        name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+        method = name # assume
+
+        obj_list = append(obj_list, dr)
+        feat_type_list = c(feat_type_list, feat_type)
+        name_list = c(name_list, name)
+        method_list = c(method_list, method)
+
       }
     }
+    spat_unit_list = rep('cell', length(obj_list)) # assume
+
+  } else if(depth(dimension_reduction) == 3L) { # ------------------------ 3 #
+
+    spat_unit_names = names(dimension_reduction)
+    for(unit_i in seq_along(dimension_reduction)) {
+
+      feat_type_names = names(dimension_reduction[[unit_i]])
+      for(feat_i in seq_along(dimension_reduction[[unit_i]])) {
+
+        obj_names = names(dimension_reduction[[unit_i]][[feat_i]])
+        for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]])) {
+
+          dr = dimension_reduction[[unit_i]][[feat_i]][[obj_i]]
+          feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+          name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+          method = name # assume
+
+          obj_list = append(obj_list, dr)
+          feat_type_list = c(feat_type_list, feat_type)
+          spat_unit_list = c(spat_unit_list, spat_unit)
+          name_list = c(name_list, name)
+          method_list = c(method_list, method)
+
+        }
+      }
+    }
+
+  } else if(depth(dimension_reduction) == 4L) { # ------------------------ 4 #
+
+    spat_unit_names = names(dimension_reduction)
+    for(unit_i in seq_along(dimension_reduction)) {
+
+      feat_type_names = names(dimension_reduction[[unit_i]])
+      for(feat_i in seq_along(dimension_reduction[[unit_i]])) {
+
+        method_names = names(dimension_reduction[[unit_i]][[feat_i]])
+        for(method_i in seq_along(dimension_reduction[[unit_i]][[feat_i]])) {
+
+          obj_names = names(dimension_reduction[[unit_i]][[feat_i]][[method_i]])
+          for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]][[method_i]])) {
+
+            dr = dimension_reduction[[unit_i]][[feat_i]][[method_i]][[obj_i]]
+            feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+            spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+            name = if(is.null(obj_names[[obj_i]])) paste0('dimRed_' obj_i) else obj_names[[obj_i]]
+            method = if(is.null(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
+
+            obj_list = append(obj_list, dr)
+            feat_type_list = c(feat_type_list, feat_type)
+            spat_unit_list = c(spat_unit_list, spat_unit)
+            name_list = c(name_list, name)
+            method_list = c(method_list, method)
+          }
+        }
+      }
+    }
+
+  } else {
+    stop(wrap_txt('Unexpected list depth', errWidth = TRUE))
   }
-  return(return_list)
+
+
+  if(length(obj_list > 0L)) {
+
+    return_list = lapply(seq_along(obj_list), function(obj_i) {
+
+      if(inherits(obj_list[[obj_i]], 'dimObj')) {
+        return(obj_list[[obj_i]])
+      } else {
+
+        return(
+          create_dim_obj(name = name_list[[obj_i]],
+                         reduction = reduction,
+                         coordinates = obj_list[[obj_i]],
+                         reduction_method = method_list[[obj_i]],
+                         spat_unit = spat_unit_list[[obj_i]],
+                         feat_type = feat_type_list[[obj_i]],
+                         provenance = if(is.null(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+                         misc = NULL)
+        )
+      }
+    })
+    return(return_list)
+
+  } else {
+    warning('No objects found in dimension reduction input list')
+  }
+
 }
 
 
@@ -2438,14 +2530,14 @@ check_spatial_info = function(gobject) {
       lapply(seq(nrow(su_sloc)), function(obj_i) {
         spatlocs = get_spatial_locations(gobject = gobject,
                                          spat_unit = su_i,
-                                         spat_loc_name = su_sloc$name,
+                                         spat_loc_name = su_sloc$name[[obj_i]],
                                          output = 'spatLocsObj',
                                          set_defaults = FALSE,
                                          copy_obj = FALSE)
         if(!all(spatIDs(spatlocs) %in% spatIDs(sinfo))) {
           warning(wrap_txt('spat_unit:', su_i,
                            'spatloc name:', su_sloc[[obj_i]], '\n',
-                           'cell IDs in spatial locations are missing from '))
+                           'cell IDs in spatial locations are missing from spatial polygon info'))
         }
         # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
       })
