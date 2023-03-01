@@ -302,6 +302,7 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
 #' @param index element index
 #' @keywords internal
 #' @return boolean
+#' @noRd
 list_element_exists = function(x, index) {
   tryCatch({
     if(length(x[[index]]) > -1)
@@ -318,6 +319,7 @@ list_element_exists = function(x, index) {
 #' @param x data.table
 #' @param neworder numerical vector to reorder rows
 #' @keywords internal
+#' @noRd
 set_row_order_dt = function(x, neworder) {
   if('.r' %in% colnames(x)) {
     temp_r = x[, .SD, .SDcols = '.r']
@@ -328,6 +330,18 @@ set_row_order_dt = function(x, neworder) {
     data.table::setorderv(x[, eval(call(":=", as.name(".r"), call("order", neworder)))], ".r")[, ".r" := NULL]
   }
 
+}
+
+
+
+# Determine if character is missing, NULL or an empty string.
+# Returns TRUE for all cases
+is_empty_char = function(x) {
+  if(is.null(x)) return(TRUE)
+  if(is.na(x)) return(TRUE)
+  if(x == '') return(TRUE)
+
+  FALSE
 }
 
 

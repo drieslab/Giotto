@@ -2380,23 +2380,23 @@ read_nearest_networks = function(nn_network,
   name_list = c()
 
   # read nesting
-  if(depth(nn_network) == 1L) {       # ------------------------ 1 #
+  if(depth(nn_network, sig = 'igraph') == 1L) {       # ------------------------ 1 #
 
     obj_names = names(nn_network)
     for(obj_i in seq_along(nn_network)) {
 
       nn = nn_network[[obj_i]]
-      name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
       method = name # assume
 
-      obj_list = append(obj_list, nn)
+      obj_list[[length(obj_list) + 1L]] = nn
       name_list = c(name_list, name)
       method_list = c(method_list, method)
     }
     spat_unit_list = rep('cell', length(obj_list)) # assume
     feat_type_list = rep('rna', length(obj_list)) # assume
 
-  } else if(depth(nn_network) == 2L) { # ------------------------ 2 #
+  } else if(depth(nn_network, sig = 'igraph') == 2L) { # ------------------------ 2 #
 
     feat_type_names = names(nn_network)
     for(feat_i in seq_along(nn_network)) {
@@ -2405,11 +2405,11 @@ read_nearest_networks = function(nn_network,
       for(obj_i in seq_along(nn_network[[feat_i]])) {
 
         nn = nn_network[[feat_i]][[obj_i]]
-        feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-        name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
         method = name # assume
 
-        obj_list = append(obj_list, nn)
+        obj_list[[length(obj_list) + 1L]] = nn
         name_list = c(name_list, name)
         feat_type_list = c(feat_type_list, feat_type)
         method_list = c(method_list, method)
@@ -2417,7 +2417,7 @@ read_nearest_networks = function(nn_network,
     }
     spat_unit_list = rep('cell', length(obj_list)) # assume
 
-  } else if(depth(nn_network) == 3L) { # ------------------------ 3 #
+  } else if(depth(nn_network, sig = 'igraph') == 3L) { # ------------------------ 3 #
 
     spat_unit_names = names(nn_network)
     for(unit_i in seq_along(nn_network)) {
@@ -2429,12 +2429,12 @@ read_nearest_networks = function(nn_network,
         for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
 
           nn = nn_network[[unit_i]][[feat_i]][[obj_i]]
-          spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-          feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-          name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+          spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+          feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          name = if(is_empty_char(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
           method = name # assume
 
-          obj_list = append(obj_list, nn)
+          obj_list[[length(obj_list) + 1L]] = nn
           name_list = c(name_list, name)
           feat_type_list = c(feat_type_list, feat_type)
           spat_unit_list = c(spat_unit_list, spat_unit)
@@ -2443,7 +2443,7 @@ read_nearest_networks = function(nn_network,
       }
     }
 
-  } else if(depth(nn_network) == 4L) { # ------------------------ 4 #
+  } else if(depth(nn_network, sig = 'igraph') == 4L) { # ------------------------ 4 #
 
     spat_unit_names = names(nn_network)
     for(unit_i in seq_along(nn_network)) {
@@ -2451,19 +2451,19 @@ read_nearest_networks = function(nn_network,
       feat_type_names = names(nn_network[[unit_i]])
       for(feat_i in seq_along(nn_network[[unit_i]])) {
 
-        method_name = names(nn_network[[unit_i]][[feat_i]])
+        method_names = names(nn_network[[unit_i]][[feat_i]])
         for(method_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
 
-          obj_name = names(nn_network[[unit_i]][[feat_i]][[method_i]])
+          obj_names = names(nn_network[[unit_i]][[feat_i]][[method_i]])
           for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]][[method_i]])) {
 
             nn = nn_network[[unit_i]][[feat_i]][[method_i]][[obj_i]]
-            spat_unit = if(is.null(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
-            feat_type = if(is.null(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
-            name = if(is.null(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
-            method = if(is.null(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
+            spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+            feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+            name = if(is_empty_char(obj_names[[obj_i]])) paste0('nn_', obj_i) else obj_names[[obj_i]]
+            method = if(is_empty_char(method_names[[method_i]])) paste0('method_', method_i) else method_names[[method_i]]
 
-            obj_list = append(obj_list, nn)
+            obj_list[[length(obj_list) + 1L]] = nn
             spat_unit_list = c(spat_unit_list, spat_unit)
             feat_type_list = c(feat_type_list, feat_type)
             method_list = c(method_list, method)
@@ -2478,7 +2478,7 @@ read_nearest_networks = function(nn_network,
   }
 
 
-  if(length(obj_list > 0L)) {
+  if(length(obj_list) > 0L) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
