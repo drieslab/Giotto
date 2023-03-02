@@ -559,7 +559,7 @@ evaluate_expr_matrix = function(inputmatrix,
 #' @name readExprData
 #' @description Read a nested list of expression data inputs in order to
 #' generate a list of giotto-native exprObj
-#' @param expr_list (nested) list with expression data
+#' @param expr_list (nested) list of expression input data
 #' @param sparse (boolean, default = TRUE) read matrix data in a sparse manner
 #' @param cores number of cores to use
 #' @param default_feat_type default feature type to use
@@ -582,7 +582,7 @@ evaluate_expr_matrix = function(inputmatrix,
 #' mymatD = matrix(data = 1:4)
 #'
 #' @export
-readExprData = function(expr_list,
+readExprData = function(data_list,
                         sparse = TRUE,
                         cores = determine_cores(),
                         default_feat_type = NULL,
@@ -590,7 +590,7 @@ readExprData = function(expr_list,
                         provenance = NULL) {
 
   read_expression_data(
-    expr_list = expr_list,
+    expr_list = data_list,
     sparse = sparse,
     cores = cores,
     default_feat_type = default_feat_type,
@@ -614,6 +614,7 @@ readExprData = function(expr_list,
 read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
                                 cores = determine_cores(),
+                                default_spat_unit = NULL,
                                 default_feat_type = NULL,
                                 verbose = TRUE,
                                 provenance = NULL) {
@@ -635,6 +636,7 @@ read_expression_data = function(expr_list = NULL,
 
 
   # Set default feature type if missing
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
   if(is.null(default_feat_type)) default_feat_type = 'rna'
 
 
@@ -678,8 +680,8 @@ read_expression_data = function(expr_list = NULL,
       obj_list[[length(obj_list) + 1L]] = ex
       name_list = c(name_list, name)
     }
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
     feat_type_list = rep(default_feat_type, length(obj_list)) # assume
-    spat_unit_list = rep('cell', length(obj_list)) # assume
 
   } else if(list_depth == 2L) {
     if(isTRUE(verbose)) message('list depth of 2')
@@ -705,7 +707,7 @@ read_expression_data = function(expr_list = NULL,
         feat_type_list = c(feat_type_list, feat_type)
       }
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(list_depth == 3L) {
     if(isTRUE(verbose)) message('list depth of 3')
@@ -760,7 +762,6 @@ read_expression_data = function(expr_list = NULL,
         exprMat = obj_list[[obj_i]]
         spat_unit = spat_unit_list[[obj_i]]
         feat_type = feat_type_list[[obj_i]]
-        provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance
 
         if(isTRUE(verbose)) {
           wrap_msg('\nList item [', obj_i, ']:',
@@ -772,12 +773,14 @@ read_expression_data = function(expr_list = NULL,
         }
 
         return(
-          create_expr_obj(name = name,
-                          exprMat = exprMat,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type,
-                          provenance = provenance, # assumed
-                          misc = NULL)
+          create_expr_obj(
+            name = name,
+            exprMat = exprMat,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            misc = NULL
+          )
         )
       }
     })
@@ -1188,19 +1191,21 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @name readSpatLocData
 #' @description read spatial locations/coordinates from nested list and generate
 #' list of Giotto spatLocsObj
-#' @param spat_loc_list (nested) list of spatial locations
+#' @param data_list (nested) list of spatial locations input data
 #' @param cores how many cores to use
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return list of spatLocsObj
 #' @export
-readSpatLocData = function(spat_loc_list,
-                           cores = determine_cores(),
+readSpatLocData = function(data_list,
+                           default_spat_unit = NULL,
                            provenance = NULL,
+                           cores = determine_cores(),
                            verbose = TRUE) {
 
   spatLocsObj_list = read_spatial_location_data(
-    spat_loc_list = spat_loc_list,
+    spat_loc_list = data_list,
+    default_spat_unit = default_spat_unit,
     cores = cores,
     provenance = provenance,
     verbose = verbose
@@ -1216,8 +1221,9 @@ readSpatLocData = function(spat_loc_list,
 
 #' @noRd
 read_spatial_location_data = function(spat_loc_list,
-                                      cores = determine_cores(),
+                                      default_spat_unit = NULL,
                                       provenance = NULL,
+                                      cores = determine_cores(),
                                       verbose = TRUE) {
 
   # data.table vars
@@ -1232,6 +1238,7 @@ read_spatial_location_data = function(spat_loc_list,
     spat_loc_list = try_val
   }
 
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
 
 
   # 1. get depth of list
@@ -1262,10 +1269,12 @@ read_spatial_location_data = function(spat_loc_list,
 
   # for list with 1 depth, expect name info
   if(list_depth == 1L) {
-
     if(isTRUE(verbose)) (message('list depth of 1'))
 
     obj_names = names(spat_loc_list)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for objects. Setting defaults.')
+
     for(obj_i in seq_along(spat_loc_list)) {
 
       spatlocs = spat_loc_list[[obj_i]]
@@ -1274,17 +1283,22 @@ read_spatial_location_data = function(spat_loc_list,
       obj_list[[length(obj_list) + 1L]] = spatlocs
       name_list = c(name_list, name)
     }
-    spat_unit_list = rep('cell', length(obj_list)) # add default region = 'cell'
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # add default region = 'cell'
 
     # for list with 2 depth, expect name info and spat_unit info
   } else if(list_depth == 2L) {
-
     if(isTRUE(verbose)) message('list depth of 2')
 
     spat_unit_names = names(spat_loc_list)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(spat_loc_list)) {
 
       obj_names = names(spat_loc_list[[unit_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for object. Setting defaults.')
+
       for(obj_i in seq_along(spat_loc_list[[unit_i]])) {
 
         spatlocs = spat_loc_list[[unit_i]][[obj_i]]
@@ -1314,10 +1328,10 @@ read_spatial_location_data = function(spat_loc_list,
         return(obj_list[[obj_i]])
       } else {
 
+        # Get data from collection lists
         name = name_list[[obj_i]]
         coordinates = obj_list[[obj_i]]
         spat_unit = spat_unit_list[[obj_i]]
-        provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance # assumed
 
         if(isTRUE(verbose)) {
           wrap_msg('\nList item [', obj_i, ']:',
@@ -1332,7 +1346,7 @@ read_spatial_location_data = function(spat_loc_list,
             name = name,
             coordinates = coordinates,
             spat_unit = spat_unit,
-            provenance = provenance,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
             misc = NULL
           )
         )
@@ -1645,13 +1659,35 @@ evaluate_spatial_network = function(spatial_network) {
 
 
 
+#' @title Read spatial networks
+#' @name readSpatNetData
+#' @description read spatial networks data from list
+#' @param data_list (nested) list of spatial network input data
+#' @export
+readSpatNetData = function(data_list,
+                           default_spat_unit = NULL,
+                           provenance = NULL,
+                           verbose = TRUE) {
+  read_spatial_networks(spatial_network = data_list,
+                        default_spat_unit = default_spat_unit,
+                        provenance = provenance,
+                        verbose = verbose)
+}
+
+
+
+
+
+
 
 #' @title Read spatial networks
 #' @name read_spatial_networks
 #' @description read spatial networks from list
 #' @keywords internal
 read_spatial_networks = function(spatial_network,
-                                 provenance = NULL) {
+                                 default_spat_unit = NULL,
+                                 provenance = NULL,
+                                 verbose = TRUE) {
 
   if(is.null(spatial_network)) {
     wrap_msg('No spatial networks are provided')
@@ -1668,6 +1704,8 @@ read_spatial_networks = function(spatial_network,
     }
   }
 
+  # set defaults
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
 
   # list reading
   obj_list = list()
@@ -1677,8 +1715,12 @@ read_spatial_networks = function(spatial_network,
 
   # read nesting
   if(depth(spatial_network) == 1L) {
+    if(isTRUE(verbose)) wrap_msg('list depth of 1')
 
     obj_names = names(spatial_network)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for objects. Setting defaults.')
+
     for(obj_i in seq_along(spatial_network)) {
 
       network = spatial_network[[obj_i]]
@@ -1687,14 +1729,20 @@ read_spatial_networks = function(spatial_network,
       obj_list[[length(obj_list) + 1L]] = network
       name_list = c(name_list, name)
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assumed
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assumed
 
   } else if(depth(spatial_network) == 2L) {
+    if(isTRUE(verbose)) wrap_msg('list depth of 2')
 
     spat_unit_names = names(spatial_network)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(spatial_network)) {
 
       obj_names = names(spatial_network[[unit_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for objects. Setting defaults.')
       for(obj_i in seq_along(spatial_network[[unit_i]])) {
 
         network = spatial_network[[unit_i]][[obj_i]]
@@ -1719,16 +1767,33 @@ read_spatial_networks = function(spatial_network,
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
       if(inherits(obj_list[[obj_i]], 'spatialNetworkObj')) {
+        warning(wrap_txt('\nList item [', obj_i,']: Not possible to read spatialNetworkObj.
+                         Returning without modifications', sep = ''))
         return(obj_list[[obj_i]])
       } else {
 
+        # Get data from collection lists
+        name = name_list[[obj_i]]
+        method = name_list[[obj_i]] # assumed
+        spat_unit = spat_unit_list[[obj_i]]
+        networkDT = obj_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   # no method nesting to report
+                   '\nname: ', name,
+                   sep = ''
+          )
+        }
+
         return(
           create_spat_net_obj(
-            name = name_list[[obj_i]],
-            method = name_list[[obj_i]], # assumed
-            spat_unit = spat_unit_list[[obj_i]],
-            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
-            networkDT = obj_list[[obj_i]],
+            name = name,
+            method = method, # assumed
+            spat_unit = spat_unit,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            networkDT = networkDT,
             networkDT_before_filter = NULL,
             cellShapeObj = NULL,
             crossSectionObjects = NULL,
@@ -1745,41 +1810,6 @@ read_spatial_networks = function(spatial_network,
   } else {
     warning('No objects found in spatial networks input list')
   }
-
-
-
-    # for(spat_unit in names(spatial_network)) {
-    #   for(name in names(spatial_network[[spat_unit]])) {
-    #
-    #     # first check if corresponding expression matrix exists
-    #     if(!is.null(slot(gobject, 'expression')[[spat_unit]])) {
-    #
-    #
-    #
-    #       network = spatial_network[[spat_unit]][[name]]
-    #
-    #       if(any(c('data.frame', 'data.table') %in% class(network))) {
-    #         if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-    #           spatial_network_Obj = new('spatialNetworkObj',
-    #                                     name = name,
-    #                                     networkDT = network)
-    #           gobject = set_spatialNetwork(gobject = gobject,
-    #                                        spat_unit = spat_unit,
-    #                                        name = name,
-    #                                        spatial_network = spatial_network_Obj)
-    #         } else {
-    #           warning('\n spatial unit: ', spat_unit, ' with network name: ', name, ' does not have all necessary column names, see details
-    #                   and will not be added to the Giotto object \n')
-    #         }
-    #       } else {
-    #         warning('\n spatial unit: ', spat_unit, ' with network name: ', name, ' is not a data.frame or data.table
-    #                 and will not be added to the Giotto object \n')
-    #       }
-    #
-    #     }
-    #   }
-    # }
-
 
 }
 
@@ -1895,6 +1925,26 @@ evaluate_spatial_enrichment = function(spatial_enrichment,
 
 
 
+#' @title Read spatial enrichment
+#' @name readSpatEnrichData
+#' @description read spatial enrichment results from list
+#' @param data_list (nested) list of spatial enrichment input data
+#' @inheritParams read_data_params
+#' @export
+readSpatEnrichData = function(data_list,
+                              default_spat_unit = NULL,
+                              default_feat_type = NULL,
+                              provenance = NULL,
+                              verbose = TRUE) {
+  read_spatial_enrichment(spatial_enrichment = data_list,
+                          default_spat_unit = default_spat_unit,
+                          default_feat_type = default_feat_type,
+                          provenance = provenance,
+                          verbose = verbose)
+}
+
+
+
 
 
 
@@ -1904,7 +1954,10 @@ evaluate_spatial_enrichment = function(spatial_enrichment,
 #' @keywords internal
 #' @noRd
 read_spatial_enrichment = function(spatial_enrichment,
-                                   provenance = NULL) {
+                                   default_spat_unit = NULL,
+                                   default_feat_type = NULL,
+                                   provenance = NULL,
+                                   verbose = TRUE) {
 
   if(is.null(spatial_enrichment)) {
     message('No spatial enrichment results are provided')
@@ -1921,6 +1974,10 @@ read_spatial_enrichment = function(spatial_enrichment,
     }
   }
 
+  # set default vals
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
+
   # list reading
   obj_list = list()
   spat_unit_list = c()
@@ -1931,7 +1988,11 @@ read_spatial_enrichment = function(spatial_enrichment,
 
 
   if(depth(spatial_enrichment) == 1L) {        # ------------------------ 1 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 1')
+
     obj_names = names(spatial_enrichment)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for object. Setting defaults.')
 
     for(obj_i in seq_along(spatial_enrichment)) {
 
@@ -1944,15 +2005,21 @@ read_spatial_enrichment = function(spatial_enrichment,
       method_list = c(method_list, method)
 
     }
-    feat_type_list = rep('rna', length(obj_list)) # assume
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    feat_type_list = rep(default_feat_type, length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(depth(spatial_enrichment) == 2L) { # ------------------------ 2 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 2')
 
     feat_type_names = names(spatial_enrichment)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
     for(feat_i in seq_along(spatial_enrichment)) {
 
       obj_names = names(spatial_enrichment[[feat_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for object. Setting defaults.')
+
       for(obj_i in seq_along(spatial_enrichment[[feat_i]])) {
 
         enr = spatial_enrichment[[feat_i]][[obj_i]]
@@ -1967,17 +2034,27 @@ read_spatial_enrichment = function(spatial_enrichment,
 
       }
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(depth(spatial_enrichment) == 3L) { # ------------------------ 3 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 3')
 
     spat_unit_names = names(spatial_enrichment)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(spatial_enrichment)) {
 
       feat_type_names = names(spatial_enrichment[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(spatial_enrichment[[unit_i]])) {
 
         obj_names = names(spatial_enrichment[[unit_i]][[feat_i]])
+        if(is.null(obj_names) & isTRUE(verbose))
+          wrap_msg('No list names for object. Setting defaults.')
+
         for(obj_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]])) {
 
           enr = spatial_enrichment[[unit_i]][[feat_i]][[obj_i]]
@@ -1997,17 +2074,29 @@ read_spatial_enrichment = function(spatial_enrichment,
     }
 
   } else if(depth(spatial_enrichment) == 4L) { # ------------------------ 4 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 4')
 
     spat_unit_names = names(spatial_enrichment)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(spatial_enrichment)) {
 
       feat_type_names = names(spatial_enrichment[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(spatial_enrichment[[unit_i]])) {
 
         method_names = names(spatial_enrichment[[unit_i]][[feat_i]])
+        if(is.null(method_names) & isTRUE(verbose))
+          wrap_msg('No list names for method. Setting defaults.')
         for(method_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]])) {
 
           obj_names = names(spatial_enrichment[[unit_i]][[feat_i]][[method_i]])
+          if(is.null(obj_names) & isTRUE(verbose))
+            wrap_msg('No list names for object. Setting defaults.')
+
           for(obj_i in seq_along(spatial_enrichment[[unit_i]][[feat_i]][[method_i]])) {
 
             enr = spatial_enrichment[[unit_i]][[feat_i]][[method_i]][[obj_i]]
@@ -2038,17 +2127,36 @@ read_spatial_enrichment = function(spatial_enrichment,
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
       if(inherits(obj_list[[obj_i]], 'spatEnrObj')) {
+        warning(wrap_txt('\nList item [', obj_i,']: Not possible to read spatEnrObj.
+                         Returning without modifications', sep = ''))
         return(obj_list[[obj_i]])
       } else {
 
+        # Get data from collection lists
+        name = name_list[[obj_i]]
+        method = method_list[[obj_i]]
+        enrichDT = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   '\nmethod: ', method,
+                   '\nname: ', name,
+                   sep = ''
+          )
+        }
+
         return(
           create_spat_enr_obj(
-            name = name_list[[obj_i]],
-            method = method_list[[obj_i]],
-            enrichDT = obj_list[[obj_i]],
-            spat_unit = spat_unit_list[[obj_i]],
-            feat_type = feat_type_list[[obj_i]],
-            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+            name = name,
+            method = method,
+            enrichDT = enrichDT,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
             misc = NULL
           )
         )
@@ -2059,29 +2167,6 @@ read_spatial_enrichment = function(spatial_enrichment,
   } else {
     warning('No objects found in spatial enrichment input list')
   }
-
-  # for(spat_unit in names(spatial_enrichment)) {
-  #   for(name in names(spatial_enrichment[[spat_unit]])) {
-  #
-  #     # first check if corresponding expression matrix exists
-  #     if(!is.null(gobject@expression[[spat_unit]])) {
-  #
-  #
-  #       # TODO: use fread if it's an existing path
-  #
-  #       spat_enrich = spatial_enrichment[[spat_unit]][[name]]
-  #
-  #       if(nrow(spat_enrich) != ncol(gobject@expression[[spat_unit]][[1]][[1]])) {
-  #         stop('\n spatial enrichment for spatial unit: ', spat_unit, ' and name: ', name, ' does not match the corresponding expression data \n')
-  #       } else {
-  #         gobject@spatial_enrichment[[spat_unit]][[name]] = spat_enrich
-  #       }
-  #
-  #     }
-  #
-  #   }
-  #
-  # }
 
 }
 
@@ -2158,14 +2243,44 @@ evaluate_dimension_reduction = function(dimension_reduction) {
 
 
 
+
+#' @title Read dimensional reduction data
+#' @name readDimReducData
+#' @description read dimension reduction results from list
+#' @param data_list (nested) list of dimension reduction input data
+#' @export
+readDimReducData = function(data_list,
+                            default_spat_unit = NULL,
+                            default_feat_type = NULL,
+                            reduction = c('cells', 'feats'),
+                            provenance = NULL,
+                            verbose = TRUE) {
+  reduction = match.arg(reduction, choices = c('cells', 'feats'))
+
+  read_dimension_reduction(dimension_reduction = data_list,
+                           default_spat_unit = default_spat_unit,
+                           default_feat_type = default_feat_type,
+                           reduction = reduction,
+                           provenance = provenance,
+                           verbose = verbose)
+}
+
+
+
+
+
+
+
 #' @title Read dimensional reduction
 #' @name read_dimension_reduction
-#' @description read dimension reduction results from list
 #' @keywords internal
 #' @noRd
 read_dimension_reduction = function(dimension_reduction,
+                                    default_spat_unit = NULL,
+                                    default_feat_type = NULL,
                                     reduction = c('cells', 'feats'),
-                                    provenance = NULL) {
+                                    provenance = NULL,
+                                    verbose = TRUE) {
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
@@ -2184,6 +2299,10 @@ read_dimension_reduction = function(dimension_reduction,
     }
   }
 
+  # set defaults
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
+
 
   # list reading
   obj_list = list()
@@ -2195,8 +2314,11 @@ read_dimension_reduction = function(dimension_reduction,
 
   # read nesting
   if(depth(dimension_reduction) == 1L) {        # ------------------------ 1 #
-    obj_names = names(dimension_reduction)
+    if(isTRUE(verbose)) wrap_msg('list depth of 1')
 
+    obj_names = names(dimension_reduction)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for object. Setting defaults.')
 
     for(obj_i in seq_along(dimension_reduction)) {
 
@@ -2209,15 +2331,22 @@ read_dimension_reduction = function(dimension_reduction,
       method_list = c(method_list, method)
 
     }
-    feat_type_list = rep('rna', length(obj_list)) # assume
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    feat_type_list = rep(default_feat_type, length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(depth(dimension_reduction) == 2L) { # ------------------------ 2 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 2')
 
     feat_type_names = names(dimension_reduction)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
+
     for(feat_i in seq_along(dimension_reduction)) {
 
       obj_names = names(dimension_reduction[[feat_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for object. Setting defaults.')
+
       for(obj_i in seq_along(dimension_reduction[[feat_i]])) {
 
         dr = dimension_reduction[[feat_i]][[obj_i]]
@@ -2232,17 +2361,27 @@ read_dimension_reduction = function(dimension_reduction,
 
       }
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(depth(dimension_reduction) == 3L) { # ------------------------ 3 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 3')
 
     spat_unit_names = names(dimension_reduction)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(dimension_reduction)) {
 
       feat_type_names = names(dimension_reduction[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(dimension_reduction[[unit_i]])) {
 
         obj_names = names(dimension_reduction[[unit_i]][[feat_i]])
+        if(is.null(obj_names) & isTRUE(verbose))
+          wrap_msg('No list names for object. Setting defaults.')
+
         for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]])) {
 
           dr = dimension_reduction[[unit_i]][[feat_i]][[obj_i]]
@@ -2262,17 +2401,30 @@ read_dimension_reduction = function(dimension_reduction,
     }
 
   } else if(depth(dimension_reduction) == 4L) { # ------------------------ 4 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 4')
 
     spat_unit_names = names(dimension_reduction)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(dimension_reduction)) {
 
       feat_type_names = names(dimension_reduction[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(dimension_reduction[[unit_i]])) {
 
         method_names = names(dimension_reduction[[unit_i]][[feat_i]])
+        if(is.null(method_names) & isTRUE(verbose))
+          wrap_msg('No list names for method. Setting defaults.')
+
         for(method_i in seq_along(dimension_reduction[[unit_i]][[feat_i]])) {
 
           obj_names = names(dimension_reduction[[unit_i]][[feat_i]][[method_i]])
+          if(is.null(obj_names) & isTRUE(verbose))
+            wrap_msg('No list names for object. Setting defaults.')
+
           for(obj_i in seq_along(dimension_reduction[[unit_i]][[feat_i]][[method_i]])) {
 
             dr = dimension_reduction[[unit_i]][[feat_i]][[method_i]][[obj_i]]
@@ -2301,18 +2453,38 @@ read_dimension_reduction = function(dimension_reduction,
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
       if(inherits(obj_list[[obj_i]], 'dimObj')) {
+        warning(wrap_txt('\nList item [', obj_i,']: Not possible to read dimObj.
+                         Returning without modifications', sep = ''))
         return(obj_list[[obj_i]])
       } else {
 
+        name = name_list[[obj_i]]
+        coordinates = obj_list[[obj_i]]
+        method = method_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   '\nmethod: ', method,
+                   '\nname: ', name,
+                   sep = ''
+          )
+        }
+
         return(
-          create_dim_obj(name = name_list[[obj_i]],
-                         reduction = reduction,
-                         coordinates = obj_list[[obj_i]],
-                         reduction_method = method_list[[obj_i]],
-                         spat_unit = spat_unit_list[[obj_i]],
-                         feat_type = feat_type_list[[obj_i]],
-                         provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
-                         misc = NULL)
+          create_dim_obj(
+            name = name,
+            reduction = reduction,
+            coordinates = obj_list,
+            reduction_method = method,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            misc = NULL
+          )
         )
       }
     })
@@ -2478,13 +2650,35 @@ evaluate_nearest_networks = function(nn_network) {
 
 
 
+#' @title Read nearest neighbor network data
+#' @name readNNetData
+readNNetData = function(data_list,
+                        default_spat_unit = NULL,
+                        default_feat_type = NULL,
+                        provenance = NULL,
+                        verbose = TRUE) {
+  read_nearest_networks(nn_network = data_list,
+                        default_spat_unit = default_spat_unit,
+                        default_feat_type = default_feat_type,
+                        provenance = provenance,
+                        verbose = verbose)
+}
+
+
+
+
+
+
 #' @title Read nearest neighbor networks
 #' @name read_nearest_networks
 #' @description read nearest network results from list
 #' @keywords internal
 #' @noRd
 read_nearest_networks = function(nn_network,
-                                 provenance = NULL) {
+                                 default_spat_unit = NULL,
+                                 default_feat_type = NULL,
+                                 provenance = NULL,
+                                 verbose = TRUE) {
 
   if(is.null(nn_network)) {
     message('No nearest network results are provided')
@@ -2501,6 +2695,10 @@ read_nearest_networks = function(nn_network,
     }
   }
 
+  # set defaults
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
+
 
   # list reading
   obj_list = list()
@@ -2511,8 +2709,12 @@ read_nearest_networks = function(nn_network,
 
   # read nesting
   if(depth(nn_network, sig = 'igraph') == 1L) {       # ------------------------ 1 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 1')
 
     obj_names = names(nn_network)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for object. Setting defaults.')
+
     for(obj_i in seq_along(nn_network)) {
 
       nn = nn_network[[obj_i]]
@@ -2523,15 +2725,22 @@ read_nearest_networks = function(nn_network,
       name_list = c(name_list, name)
       method_list = c(method_list, method)
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assume
-    feat_type_list = rep('rna', length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
+    feat_type_list = rep(default_feat_type, length(obj_list)) # assume
 
   } else if(depth(nn_network, sig = 'igraph') == 2L) { # ------------------------ 2 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 2')
 
     feat_type_names = names(nn_network)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
+
     for(feat_i in seq_along(nn_network)) {
 
       obj_names = names(nn_network[[feat_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for object. Setting defaults.')
+
       for(obj_i in seq_along(nn_network[[feat_i]])) {
 
         nn = nn_network[[feat_i]][[obj_i]]
@@ -2545,17 +2754,27 @@ read_nearest_networks = function(nn_network,
         method_list = c(method_list, method)
       }
     }
-    spat_unit_list = rep('cell', length(obj_list)) # assume
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
   } else if(depth(nn_network, sig = 'igraph') == 3L) { # ------------------------ 3 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 3')
 
     spat_unit_names = names(nn_network)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(nn_network)) {
 
       feat_type_names = names(nn_network[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(nn_network[[unit_i]])) {
 
         obj_names = names(nn_network[[unit_i]][[feat_i]])
+        if(is.null(obj_names) & isTRUE(verbose))
+          wrap_msg('No list names for object. Setting defaults.')
+
         for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
 
           nn = nn_network[[unit_i]][[feat_i]][[obj_i]]
@@ -2574,17 +2793,30 @@ read_nearest_networks = function(nn_network,
     }
 
   } else if(depth(nn_network, sig = 'igraph') == 4L) { # ------------------------ 4 #
+    if(isTRUE(verbose)) wrap_msg('list depth of 4')
 
     spat_unit_names = names(nn_network)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
     for(unit_i in seq_along(nn_network)) {
 
       feat_type_names = names(nn_network[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
       for(feat_i in seq_along(nn_network[[unit_i]])) {
 
         method_names = names(nn_network[[unit_i]][[feat_i]])
+        if(is.null(method_names) & isTRUE(verbose))
+          wrap_msg('No list names for method. Setting defaults.')
+
         for(method_i in seq_along(nn_network[[unit_i]][[feat_i]])) {
 
           obj_names = names(nn_network[[unit_i]][[feat_i]][[method_i]])
+          if(is.null(obj_names) & isTRUE(verbose))
+            wrap_msg('No list names for object. Setting defaults.')
+
           for(obj_i in seq_along(nn_network[[unit_i]][[feat_i]][[method_i]])) {
 
             nn = nn_network[[unit_i]][[feat_i]][[method_i]][[obj_i]]
@@ -2611,19 +2843,39 @@ read_nearest_networks = function(nn_network,
   if(length(obj_list) > 0L) {
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
-
       if(inherits(obj_list[[obj_i]], 'nnNetObj')) {
+      warning(wrap_txt('\nList item [', obj_i,']: Not possible to read nnNetObj.
+                         Returning without modifications', sep = ''))
         return(obj_list[[obj_i]])
       } else {
 
+        # Get data from collection lists
+        name = name_list[[obj_i]]
+        nn_type = method_list[[obj_i]]
+        igraph = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   '\nmethod: ', nn_type,
+                   '\nname: ', name,
+                   sep = ''
+          )
+        }
+
         return(
-          create_nn_net_obj(name = name_list[[obj_i]],
-                            nn_type = method_list[[obj_i]],
-                            igraph = obj_list[[obj_i]],
-                            spat_unit = spat_unit_list[[obj_i]],
-                            feat_type = feat_type_list[[obj_i]],
-                            provenance = provenance,
-                            misc = NULL)
+          create_nn_net_obj(
+            name = name,
+            nn_type = nn_type,
+            igraph = igraph,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assume
+            misc = NULL
+          )
         )
       }
     })

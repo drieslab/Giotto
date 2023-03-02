@@ -41,6 +41,17 @@ NULL
 
 
 
+# Read Functions ####
+
+#' @name read_data_params
+#' @param data_list (nested) list of input data to read
+#' @param default_spat_unit (optional) default spat_unit to use
+#' @param default_feat_type (optional) default feat_type to use
+#' @param provenance (optional) provenance information
+#' @param verbose be verbose
+#' @keywords internal
+NULL
+
 
 
 
