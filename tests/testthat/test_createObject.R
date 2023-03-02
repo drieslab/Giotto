@@ -194,6 +194,7 @@ test_that('Eval of minimal igraph adds weight attr', {
 
 test_that('Read returns nnNetObj list directly', {
   read_list = read_nearest_networks(nn_network = list(nn, nn))
+  expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'nnNetObj'))
 })
 
@@ -257,6 +258,7 @@ drm = dr[]
 
 test_that('Read returns dimObj list directly', {
   read_list = read_dimension_reduction(list(dr, dr))
+  expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'dimObj'))
 })
 
@@ -313,6 +315,7 @@ enrDT = enr[]
 
 test_that('Read returns spatEnrObj list directly', {
   read_list = read_spatial_enrichment(list(enr, enr))
+  expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatEnrObj'))
 })
 
@@ -366,12 +369,13 @@ test_that('Depth 4 works', {
 # spatial network ####
 
 
-## list reading
+## list reading ####
 
 snDT = sn[]
 
 test_that('Read returns spatialNetworkObj list directly', {
   read_list = read_spatial_networks(list(sn, sn))
+  expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatialNetworkObj'))
 })
 
@@ -398,12 +402,13 @@ test_that('Depth 2 works', {
 # spatial locations ####
 
 
-## list reading
+## list reading ####
 
 slDT = sl[]
 
 test_that('Read returns spatLocsObj list directly', {
   read_list = read_spatial_location_data(list(sl, sl))
+  expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatLocsObj'))
 })
 
@@ -420,6 +425,74 @@ test_that('Depth 2 works', {
   expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'unit_2'))
   expect_identical(sapply(read_list, objName), c('coord_1', 'coord_2', 'test'))
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+# expression ####
+
+
+## list reading ####
+
+exMat = ex[]
+
+test_that('Read returns dimObj list directly', {
+  read_list = expect_warning(readExprData(list(ex, ex)),
+                             regexp = 'exprObj')
+  expect_true(is.list(read_list))
+  expect_true(all(sapply(read_list, class) == 'exprObj'))
+})
+
+
+test_that('Depth 1 works', {
+  read_list = readExprData(list(exMat, exMat))
+  expect_true(all(sapply(read_list, featType) == 'rna'))
+  expect_true(all(sapply(read_list, spatUnit) == 'cell'))
+  expect_identical(sapply(read_list, objName), c('data_1', 'data_2'))
+})
+
+
+test_that('Depth 2 works', {
+  read_list = readExprData(list(test_feat = list(exMat,exMat),
+                                            list(test = exMat)))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
+  expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
+  expect_identical(sapply(read_list, objName), c('data_1', 'data_2', 'test'))
+})
+
+test_that('Depth 3 works', {
+  read_list = readExprData(list(test_unit = list(test_feat = list(a = exMat, exMat),
+                                                             list(exMat)),
+                                            list(list(b = exMat))))
+  expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
+  expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2', 'feat_1'))
+  expect_identical(sapply(read_list, objName), c('a', 'data_2', 'data_1', 'b'))
+})
+
+
+# cell metadata ####
+
+## list reading ####
+
+
+
+
+
+# feat metadata ####
+
+## list reading ####
+
+
+
 
 
 

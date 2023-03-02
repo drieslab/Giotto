@@ -551,51 +551,18 @@ evaluate_expr_matrix = function(inputmatrix,
 
 
 
-#' @title Find depth of subnesting
-#' @name depth
-#' @param this object to evaluate
-#' @param method max (default) or min nesting to detect
-#' @param sig signature or class to check for. Default is 'data.frame'
-#' @description Recursively determines how many max or min layers of subnesting
-#' there is, with the end object (defined by param sig or a list of length 0)
-#' being layer 0
-#' @details https://stackoverflow.com/questions/13432863/determine-level-of-nesting-in-r
-#' @keywords internal
-depth <- function(this,
-                  method = c('max', 'min'),
-                  sig = 'data.frame') {
-
-  method = match.arg(arg = method, choices = c('max', 'min'))
-
-  # Stop conditions:
-
-  # Stop if matches signature to search for
-  if(inherits(this, sig)) {
-    return(0L)
-  }
-  # Stop if an empty list is discovered
-  if(is.list(this) && length(this) == 0L) {
-    return(0L)
-  }
-  # Stop if object is not a list AND recurse if it is.
-  # Report minimum or maximum depth depending on method
-  if(method == 'max') {
-    ifelse(is.list(this), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
-  } else if(method == 'min') {
-    ifelse(is.list(this), 1L + min(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
-  }
-
-}
 
 
 
 
 #' @title Read expression data
-#' @name read_expression_data
+#' @name readExprData
+#' @description Read a nested list of expression data inputs in order to
+#' generate a list of giotto-native exprObj
 #' @param expr_list (nested) list with expression data
-#' @param sparse read matrix data in a sparse manner
+#' @param sparse (boolean, default = TRUE) read matrix data in a sparse manner
 #' @param cores number of cores to use
-#' @param default_feat_type default feature type if nothing is provided
+#' @param default_feat_type default feature type to use
 #' @param verbose be verbose
 #' @param provenance provenance information
 #' @details
@@ -614,7 +581,36 @@ depth <- function(this,
 #'
 #' mymatD = matrix(data = 1:4)
 #'
+#' @export
+readExprData = function(expr_list,
+                        sparse = TRUE,
+                        cores = determine_cores(),
+                        default_feat_type = NULL,
+                        verbose = TRUE,
+                        provenance = NULL) {
+
+  read_expression_data(
+    expr_list = expr_list,
+    sparse = sparse,
+    cores = cores,
+    default_feat_type = default_feat_type,
+    verbose = verbose,
+    provenance = provenance
+  )
+
+}
+
+
+
+
+
+
+
+
+#' @title Read expression data
+#' @name read_expression_data
 #' @keywords internal
+#' @noRd
 read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
                                 cores = determine_cores(),
@@ -622,37 +618,31 @@ read_expression_data = function(expr_list = NULL,
                                 verbose = TRUE,
                                 provenance = NULL) {
 
+  # import box characters
+  ch = box_chars()
+
   # Check
   if(is.null(expr_list)) return(NULL)
 
-  # import box characters
-  ch = box_chars()
+  if(!inherits(expr_list, 'list')) {
+    try_val = try(as.list(expr_list), silent = TRUE)
+    if(inherits(try_val, 'try-error')) {
+      expr_list = list('raw' = expr_list) # single matrix or path (expected)
+    } else {
+      expr_list = try_val
+    }
+  }
+
 
   # Set default feature type if missing
   if(is.null(default_feat_type)) default_feat_type = 'rna'
 
-  ## to make it compatible with previous version
-
-  # single matrix
-  if(inherits(expr_list, c('matrix', 'Matrix', 'DelayedMatrix'))) {
-    expr_list = list('raw' = expr_list)
-  }
-
-  # single path to matrix
-  if(length(expr_list) == 1 & !is.list(expr_list)) {
-    expr_list = list('raw' = expr_list)
-  }
-
-
 
   # 1. get depth of list
-  if(verbose == TRUE) print(str(expr_list))
+  # if(verbose == TRUE) print(str(expr_list))
   list_depth = depth(expr_list)
 
-  # no expression information
-  if(list_depth == 0L) {
-    stop('Depth of expression list is 0, no expression information is provided \n')
-  }
+
 
   # too much information
   if(list_depth > 3L) {
@@ -664,127 +654,139 @@ read_expression_data = function(expr_list = NULL,
   }
 
 
-  return_list = list()
+
+  # list reading
+  obj_list = list()
+  spat_unit_list = c()
+  feat_type_list = c()
+  name_list = c()
 
 
-  # 2. for list with 1 depth
+  # read nesting
   if(list_depth == 1L) {
-
     if(isTRUE(verbose)) message('list depth of 1')
 
+    obj_names = names(expr_list)
+    if(is.null(obj_names) & isTRUE(verbose))
+      wrap_msg('No list names for objects. Setting defaults.')
 
-    # assign exprObj tagged name info if not named
-    expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
-    expr_list = assign_listnames_2_obj(expr_list)
+    for(obj_i in seq_along(expr_list)) {
 
+      ex = expr_list[[obj_i]]
+      name = if(is_empty_char(obj_names[[obj_i]])) paste0('data_', obj_i) else obj_names[[obj_i]]
 
-    for(data in names(expr_list)) {
-
-      # print(expr_list[[data]])
-      res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[data]],
-                                     sparse = sparse,
-                                     cores = cores)
-      # add default feat == 'rna'
-      # add default region == 'cell'
-      if(!inherits(res_mat, 'exprObj')) {
-        exprObj = create_expr_obj(name = data,
-                                  exprMat = res_mat,
-                                  spat_unit = 'cell',
-                                  provenance = if(is.null(provenance)) 'cell' else provenance,
-                                  feat_type = default_feat_type,
-                                  misc = NULL)
-      } else {
-        exprObj = res_mat
-      }
-
-      return_list = append(return_list, exprObj)
-
+      obj_list[[length(obj_list) + 1L]] = ex
+      name_list = c(name_list, name)
     }
-
+    feat_type_list = rep(default_feat_type, length(obj_list)) # assume
+    spat_unit_list = rep('cell', length(obj_list)) # assume
 
   } else if(list_depth == 2L) {
+    if(isTRUE(verbose)) message('list depth of 2')
 
-    cat('list depth of 2 \n')
-    # add default region == 'cell'
+    feat_type_names = names(expr_list)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
 
-    for(feat in names(expr_list)) {
+    for(feat_i in seq_along(expr_list)) {
 
+      obj_names = names(expr_list[[feat_i]])
+      if(is.null(obj_names) & isTRUE(verbose))
+        wrap_msg('No list names for objects. Setting defaults.')
 
-      # assign exprObj tagged name info if not named
-      expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
-      expr_list = assign_listnames_2_obj(expr_list)
+      for(obj_i in seq_along(expr_list[[feat_i]])) {
 
+        ex = expr_list[[feat_i]][[obj_i]]
+        name = if(is_empty_char(obj_names[[obj_i]])) paste0('data_', obj_i) else obj_names[[obj_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
 
-      for(data in names(expr_list[[feat]])) {
-
-        res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[feat]][[data]],
-                                       sparse = sparse,
-                                       cores = cores)
-        # add default region == 'cell'
-        if(!inherits(res_mat, 'exprObj')) {
-          exprObj = create_expr_obj(name = data,
-                                    exprMat = res_mat,
-                                    spat_unit = 'cell',
-                                    provenance = if(is.null(provenance)) 'cell' else provenance,
-                                    feat_type = feat,
-                                    misc = NULL)
-        } else {
-          exprObj = res_mat
-          featType(exprObj) = feat
-        }
-
-
-        return_list = append(return_list, exprObj)
-
+        obj_list[[length(obj_list) + 1L]] = ex
+        name_list = c(name_list, name)
+        feat_type_list = c(feat_type_list, feat_type)
       }
     }
+    spat_unit_list = rep('cell', length(obj_list)) # assume
 
   } else if(list_depth == 3L) {
+    if(isTRUE(verbose)) message('list depth of 3')
 
-    cat('list depth of 3 \n')
+    spat_unit_names = names(expr_list)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
 
-    for(region in names(expr_list)) {
-      for(feat in names(expr_list[[region]])) {
+    for(unit_i in seq_along(expr_list)) {
 
+      feat_type_names = names(expr_list[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
 
-        # assign exprObj tagged name info if not named
-        expr_list = assign_objnames_2_list(expr_list, force_replace = FALSE)
-        expr_list = assign_listnames_2_obj(expr_list)
+      for(feat_i in seq_along(expr_list[[unit_i]])) {
 
+        obj_names = names(expr_list[[unit_i]][[feat_i]])
+        if(is.null(obj_names) & isTRUE(verbose))
+          wrap_msg('No list names for objects. Setting defaults.')
 
-        for(data in names(expr_list[[region]][[feat]])) {
+        for(obj_i in seq_along(expr_list[[unit_i]][[feat_i]])) {
 
-          res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[region]][[feat]][[data]],
-                                         sparse = sparse,
-                                         cores = cores)
-          # add default region == 'cell'
-          if(!inherits(res_mat, 'exprObj')) {
-            exprObj = create_expr_obj(name = data,
-                                      exprMat = res_mat,
-                                      spat_unit = region,
-                                      provenance = if(is.null(provenance)) region else provenance,
-                                      feat_type = feat,
-                                      misc = NULL)
-          } else {
-            exprObj = res_mat
-            featType(exprObj) = feat
-            spatUnit(exprObj) = region
-          }
+          ex = expr_list[[unit_i]][[feat_i]][[obj_i]]
+          name = if(is_empty_char(obj_names[[obj_i]])) paste0('data_', obj_i) else obj_names[[obj_i]]
+          feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+          spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
 
-
-          return_list = append(return_list, exprObj)
-
+          obj_list[[length(obj_list) + 1L]] = ex
+          name_list = c(name_list, name)
+          feat_type_list = c(feat_type_list, feat_type)
+          spat_unit_list = c(spat_unit_list, spat_unit)
         }
       }
     }
-
-
-
   } else {
-    stop('unexpected list_depth error')
+    stop(wrap_txt('Unexpected list depth', errWidth = TRUE))
   }
 
-  return(return_list)
+
+  if(length(obj_list) > 0L) {
+
+    return_list = lapply(seq_along(obj_list), function(obj_i) {
+
+      if(inherits(obj_list[[obj_i]], 'exprObj')) {
+        warning(wrap_txt('List item [', obj_i,']: Not possible to read exprObj.
+                         Returning without modifications', sep = ''))
+        return(obj_list[[obj_i]])
+      } else {
+
+        # Get data from collection lists
+        name = name_list[[obj_i]]
+        exprMat = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+        provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   '\nname: ', name,
+                   sep = ''
+          )
+        }
+
+        return(
+          create_expr_obj(name = name,
+                          exprMat = exprMat,
+                          spat_unit = spat_unit,
+                          feat_type = feat_type,
+                          provenance = provenance, # assumed
+                          misc = NULL)
+        )
+      }
+    })
+    return(return_list)
+
+  } else {
+    warning('No objects found in expression data input list')
+  }
+
 
 }
 
@@ -1177,15 +1179,41 @@ evaluate_spatial_locations = function(spatial_locs,
 }
 
 
+
+
+
+
+
 #' @title Read spatial location data
-#' @name read_spatial_location_data
-#' @description read spatial locations
-#' @param spat_loc_list list of spatial locations
+#' @name readSpatLocData
+#' @description read spatial locations/coordinates from nested list and generate
+#' list of Giotto spatLocsObj
+#' @param spat_loc_list (nested) list of spatial locations
 #' @param cores how many cores to use
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
-#' @return updated giotto object
-#' @keywords internal
+#' @return list of spatLocsObj
+#' @export
+readSpatLocData = function(spat_loc_list,
+                           cores = determine_cores(),
+                           provenance = NULL,
+                           verbose = TRUE) {
+
+  spatLocsObj_list = read_spatial_location_data(
+    spat_loc_list = spat_loc_list,
+    cores = cores,
+    provenance = provenance,
+    verbose = verbose
+  )
+
+  return(spatLocsObj_list)
+}
+
+
+
+
+
+
 #' @noRd
 read_spatial_location_data = function(spat_loc_list,
                                       cores = determine_cores(),
@@ -1199,27 +1227,15 @@ read_spatial_location_data = function(spat_loc_list,
 
   try_val = try(as.list(spat_loc_list), silent = TRUE)
   if(inherits(try_val, 'try-error')) {
-    return(list(spat_loc_list))
+    spat_loc_list = list(raw = spat_loc_list) # single matrix or path (expected)
   } else {
     spat_loc_list = try_val
-  }
-
-  ## to make it compatible with previous version
-
-  # single matrix
-  if(inherits(spat_loc_list, c('data.frame', 'data.table', 'matrix', 'character'))) {
-    spat_loc_list = list('raw' = spat_loc_list)
-  }
-
-  # single path to matrix
-  if(length(spat_loc_list) == 1 & !is.list(spat_loc_list)) {
-    spat_loc_list = list('raw' = spat_loc_list)
   }
 
 
 
   # 1. get depth of list
-  if(verbose == TRUE) print(str(spat_loc_list))
+  # if(verbose == TRUE) print(str(spat_loc_list))
   list_depth = depth(spat_loc_list)
 
   # no expression information
@@ -1293,15 +1309,30 @@ read_spatial_location_data = function(spat_loc_list,
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
       if(inherits(obj_list[[obj_i]], 'spatLocsObj')) {
+        warning(wrap_txt('\nList item [', obj_i,']: Not possible to read spatLocsObj.
+                         Returning without modifications', sep = ''))
         return(obj_list[[obj_i]])
       } else {
 
+        name = name_list[[obj_i]]
+        coordinates = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance # assumed
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nname: ', name,
+                   sep = ''
+                  )
+        }
+
         return(
           create_spat_locs_obj(
-            name = name_list[[obj_i]],
-            coordinates = obj_list[[obj_i]],
-            spat_unit = spat_unit_list[[obj_i]],
-            provenance = if(is_empty_char(provenance)) spat_unit_list[[obj_i]] else provenance, # assumed
+            name = name,
+            coordinates = coordinates,
+            spat_unit = spat_unit,
+            provenance = provenance,
             misc = NULL
           )
         )
@@ -1309,7 +1340,7 @@ read_spatial_location_data = function(spat_loc_list,
     })
     return(return_list)
   } else {
-    warning('No objects found in spatial locations input list')
+    warning(wrap_txt('No objects found in spatial locations input list'))
   }
 
 }

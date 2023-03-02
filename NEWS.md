@@ -42,6 +42,7 @@
 - Fix bug in `gefToGiotto()` bin_size arguments.
 - Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths
 - Moved `create_featureNetwork_object()`, `create_giotto_points_object()`, `create_giotto_polygon_object()` to classes.R
+- Moved `depth()` from giotto.R to utilities.R
 
 
 # Giotto Suite 3.2.0 (2023-02-02)
