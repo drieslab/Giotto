@@ -16,7 +16,7 @@
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
 - Add `initialize()` method for `giotto`
 - Add validity check for `giotto` that checks for correct slot nesting
-- Add `initialize()` method for `exprObj` to automatically format matrix info
+- Add `read` functions for ingesting data and converting to list of Giotto native S4 subobjects
 - Add `activeSpatUnit()` and `activeFeatType()` for getting and setting active defaults on gobject
 - New `get_*_list()` internal functions for retrieving list of all objects of a particular class for a spat_unit and feat_type
 - Add `instructions()` generic for `giotto` to access and edit `giottoInstructions`
