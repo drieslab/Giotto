@@ -909,7 +909,7 @@ set_feature_metadata = function(gobject,
 
     # 4.2 if nested list structure, extract spat_unit/feat_type
     if(inherits(metadata, 'list')) {
-      featMetaObj_list = read_feature_metadata(gobject,
+      featMetaObj_list = readFeatMetadata(gobject,
                                                metadata = metadata,
                                                provenance = if(is.null(provenance)) spat_unit else provenance)
       # recursively run
@@ -1225,8 +1225,8 @@ setExpression = function(gobject,
     # 4.1 if nested list structure, extract spat_unit/feat_type
     if(inherits(values, 'list')) {
 
-      exprObj_list = read_expression_data(
-        expr_list = values,
+      exprObj_list = readExprData(
+        data_list = values,
         sparse = TRUE,
         cores = determine_cores(),
         default_feat_type = if(is.null(feat_type)) default_feat else feat_type,
@@ -1244,9 +1244,9 @@ setExpression = function(gobject,
     } else {
 
       # 4.2 otherwise assume matrix type object, and create S4
-      values = create_expr_obj(
+      values = createExprObj(
         name = name,
-        exprMat = values,
+        expression_data = values,
         spat_unit = if(is.null(spat_unit)) default_unit else spat_unit,
         feat_type = if(is.null(feat_type)) default_feat else feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
@@ -1636,8 +1636,8 @@ setSpatialLocations = function(gobject,
     # 4.1 If nested list structure, extract spat_unit
     if(inherits(spatlocs, 'list')) {
 
-      spatLocs_list = read_spatial_location_data(
-        spat_loc_list = spatlocs,
+      spatLocs_list = readSpatLocData(
+        data_list = spatlocs,
         cores = determine_cores(),
         provenance = provenance, # do not assume spat_unit
         verbose = verbose
@@ -2057,7 +2057,7 @@ setDimReduction = function(gobject,
     # 4.1 If nested list structure, extract spat_unit and feat_type
     if(inherits(dimObject, 'list')) {
 
-      dimObj_list = read_dimension_reduction(dimension_reduction = dimObject,
+      dimObj_list = readDimReducData(data_list = dimObject,
                                              reduction = reduction,
                                              provenance = provenance)
       # recursively call external so checking is done per iteration
@@ -2474,7 +2474,7 @@ setNearestNetwork = function(gobject,
     # 4.1 if list structure
     if(inherits(nn_network, 'list')) {
 
-      nn_list = read_nearest_networks(nn_network = nn_network,
+      nn_list = readNearestNetData(data_list = nn_network,
                                       provenance = provenance)
       # recursively call external so gobj checking is also done per iteration
       for(obj_i in seq_along(nn_list)) {
@@ -2873,7 +2873,7 @@ setSpatialNetwork = function(gobject,
     # 4.1 if list structure
     if(inherits(spatial_network, 'list')) {
 
-      sn_list = read_spatial_networks(spatial_network = spatial_network,
+      sn_list = readSpatNetData(data_list = spatial_network,
                                       provenance = provenance)
       # recursively call external so gobj checking is done per iteration
       for(obj_i in seq_along(sn_list)) {
@@ -4178,8 +4178,8 @@ setSpatialEnrichment = function(gobject,
     # 4.1 if nested list structure, extract spat_unit and feat_type
     if(inherits(spatenrichment, 'list')) {
 
-      spatEnr_list = read_spatial_enrichment(
-        spatial_enrichment = spatenrichment,
+      spatEnr_list = readSpatEnrichData(
+        data_list = spatenrichment,
         provenance = provenance # do not assume spat_unit
       )
       # recursively call external so gobj checking is done per iteration
