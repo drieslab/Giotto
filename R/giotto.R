@@ -601,14 +601,6 @@ readExprData = function(data_list,
 }
 
 
-
-
-
-
-
-
-#' @title Read expression data
-#' @name read_expression_data
 #' @keywords internal
 #' @noRd
 read_expression_data = function(expr_list = NULL,
@@ -769,9 +761,9 @@ read_expression_data = function(expr_list = NULL,
         }
 
         return(
-          create_expr_obj(
+          createExprObj(
             name = name,
-            exprMat = exprMat,
+            expression_data = exprMat,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
@@ -1203,10 +1195,9 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @name readSpatLocData
 #' @description read spatial locations/coordinates from nested list and generate
 #' list of Giotto spatLocsObj
+#' @inheritParams read_data_params
 #' @param data_list (nested) list of spatial locations input data
 #' @param cores how many cores to use
-#' @param provenance provenance information (optional)
-#' @param verbose be verbose
 #' @return list of spatLocsObj
 #' @export
 readSpatLocData = function(data_list,
@@ -1225,9 +1216,6 @@ readSpatLocData = function(data_list,
 
   return(spatLocsObj_list)
 }
-
-
-
 
 
 
@@ -1672,6 +1660,7 @@ evaluate_spatial_network = function(spatial_network) {
 
 #' @title Read spatial networks
 #' @name readSpatNetData
+#' @inheritParams read_data_params
 #' @description read spatial networks data from list
 #' @param data_list (nested) list of spatial network input data
 #' @export
@@ -1688,13 +1677,8 @@ readSpatNetData = function(data_list,
 
 
 
-
-
-
-#' @title Read spatial networks
-#' @name read_spatial_networks
-#' @description read spatial networks from list
 #' @keywords internal
+#' @noRd
 read_spatial_networks = function(spatial_network,
                                  default_spat_unit = NULL,
                                  provenance = NULL,
@@ -1937,8 +1921,8 @@ evaluate_spatial_enrichment = function(spatial_enrichment,
 #' @title Read spatial enrichment
 #' @name readSpatEnrichData
 #' @description read spatial enrichment results from list
-#' @param data_list (nested) list of spatial enrichment input data
 #' @inheritParams read_data_params
+#' @param data_list (nested) list of spatial enrichment input data
 #' @export
 readSpatEnrichData = function(data_list,
                               default_spat_unit = NULL,
@@ -1955,11 +1939,6 @@ readSpatEnrichData = function(data_list,
 
 
 
-
-
-#' @title Read spatial enrichment
-#' @name read_spatial_enrichment
-#' @description read spatial enrichment results from list
 #' @keywords internal
 #' @noRd
 read_spatial_enrichment = function(spatial_enrichment,
@@ -2251,6 +2230,8 @@ evaluate_dimension_reduction = function(dimension_reduction) {
 #' @title Read dimensional reduction data
 #' @name readDimReducData
 #' @description read dimension reduction results from list
+#' @inheritParams read_data_params
+#' @param reduction whether dim reduction was performed on 'cels' or 'feats'
 #' @param data_list (nested) list of dimension reduction input data
 #' @export
 readDimReducData = function(data_list,
@@ -2271,12 +2252,6 @@ readDimReducData = function(data_list,
 
 
 
-
-
-
-
-#' @title Read dimensional reduction
-#' @name read_dimension_reduction
 #' @keywords internal
 #' @noRd
 read_dimension_reduction = function(dimension_reduction,
@@ -2651,6 +2626,9 @@ evaluate_nearest_networks = function(nn_network) {
 
 #' @title Read nearest neighbor network data
 #' @name readNearestNetData
+#' @inheritParams read_data_params
+#' @description read nearest network results from list
+#' @export
 readNearestNetData = function(data_list,
                               default_spat_unit = NULL,
                               default_feat_type = NULL,
@@ -2665,12 +2643,6 @@ readNearestNetData = function(data_list,
 
 
 
-
-
-
-#' @title Read nearest neighbor networks
-#' @name read_nearest_networks
-#' @description read nearest network results from list
 #' @keywords internal
 #' @noRd
 read_nearest_networks = function(nn_network,
@@ -3312,7 +3284,7 @@ createGiottoObject <- function(expression,
 
   if(!is.null(expression)) {
 
-    expression_data = read_expression_data(expr_list = expression,
+    expression_data = readExprData(data_list = expression,
                                            sparse = TRUE,
                                            cores = cores,
                                            default_feat_type = expression_feat,
@@ -3377,7 +3349,7 @@ createGiottoObject <- function(expression,
   if(!is.null(spatial_locs)) {
 
     # parse spatial_loc param input for any spat_unit/name info
-    spatial_location_data = read_spatial_location_data(spat_loc_list = spatial_locs,
+    spatial_location_data = readSpatLocData(data_list = spatial_locs,
                                                        cores = cores,
                                                        verbose = verbose)
 
@@ -3410,7 +3382,7 @@ createGiottoObject <- function(expression,
                                             sdimx = first_col,
                                             sdimy = second_col)
 
-      dummySpatLocObj = create_spat_locs_obj(name = 'raw',
+      dummySpatLocObj = createSpatLocsObj(name = 'raw',
                                              coordinates = spatial_locs,
                                              spat_unit = spat_unit)
 
@@ -3472,7 +3444,7 @@ createGiottoObject <- function(expression,
 
   ### OPTIONAL:
   ## spatial network
-  spatial_network_list = read_spatial_networks(spatial_network)
+  spatial_network_list = readSpatNetData(data_list = spatial_network)
   for(sn_i in seq_along(spatial_network_list)) {
     gobject = set_spatialNetwork(gobject = gobject,
                                  spatial_network = spatial_network_list[[sn_i]],
@@ -3518,7 +3490,7 @@ createGiottoObject <- function(expression,
 
 
   ## spatial enrichment
-  spatial_enrichment = read_spatial_enrichment(spatial_enrichment = spatial_enrichment)
+  spatial_enrichment = readSpatEnrichData(data_list = spatial_enrichment)
   for(se_i in seq_along(spatial_enrichment)) {
     gobject = set_spatial_enrichment(gobject = gobject,
                                      spatenrichment = spatial_enrichment[[se_i]],
@@ -3529,7 +3501,7 @@ createGiottoObject <- function(expression,
 
 
   ## dimension reduction
-  dimension_reduction = read_dimension_reduction(dimension_reduction = dimension_reduction)
+  dimension_reduction = readDimReducData(data_list =  dimension_reduction)
   for(dr_i in seq_along(dimension_reduction)) {
     gobject = set_dimReduction(gobject = gobject,
                                dimObject = dimension_reduction[[dr_i]],
@@ -3538,7 +3510,7 @@ createGiottoObject <- function(expression,
 
 
   # NN network
-  nn_network = read_nearest_networks(nn_network = nn_network)
+  nn_network = readNearestNetData(data_list =  nn_network)
   for(nn_i in seq_along(nn_network)) {
     gobject = set_NearestNetwork(gobject = gobject,
                                  nn_network = nn_network[[nn_i]],
