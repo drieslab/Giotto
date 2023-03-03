@@ -1637,7 +1637,6 @@ setSpatialLocations = function(gobject,
     if(inherits(spatlocs, 'list')) {
 
       spatLocs_list = read_spatial_location_data(
-        gobject = gobject, # TODO remove this from read fx (it's not used)
         spat_loc_list = spatlocs,
         cores = determine_cores(),
         provenance = provenance, # do not assume spat_unit

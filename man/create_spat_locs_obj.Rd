@@ -2,20 +2,21 @@
 % Please edit documentation in R/classes.R
 \name{create_spat_locs_obj}
 \alias{create_spat_locs_obj}
+\alias{createSpatLocsObj}
 \title{Create S4 spatLocsObj}
 \usage{
-create_spat_locs_obj(
+createSpatLocsObj(
+  coordinates,
   name = "test",
-  coordinates = NULL,
   spat_unit = "cell",
   provenance = NULL,
   misc = NULL
 )
 }
 \arguments{
-\item{name}{name of spatLocsObj}
-
 \item{coordinates}{spatial coordinates}
+
+\item{name}{name of spatLocsObj}
 
 \item{spat_unit}{spatial unit of aggregated expression (e.g. 'cell')}
 
@@ -26,4 +27,3 @@ create_spat_locs_obj(
 \description{
 Create an S4 spatLocsObj
 }
-\keyword{internal}

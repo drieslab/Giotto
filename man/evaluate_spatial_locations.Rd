@@ -4,7 +4,11 @@
 \alias{evaluate_spatial_locations}
 \title{Evaluate spatial locations}
 \usage{
-evaluate_spatial_locations(spatial_locs, cores = determine_cores())
+evaluate_spatial_locations(
+  spatial_locs,
+  cores = determine_cores(),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{spatial_locs}{spatial locations to evaluate}

@@ -193,7 +193,7 @@ test_that('Eval of minimal igraph adds weight attr', {
 
 
 test_that('Read returns nnNetObj list directly', {
-  read_list = expect_warning(readNNetData(list(nn, nn)),
+  read_list = expect_warning(readNearestNetData(list(nn, nn)),
                              regexp = 'nnNetObj')
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'nnNetObj'))
@@ -201,7 +201,7 @@ test_that('Read returns nnNetObj list directly', {
 
 
 test_that('Depth 1 works', {
-  read_list = readNNetData(list(ig, ig))
+  read_list = readNearestNetData(list(ig, ig))
   expect_true(all(sapply(read_list, featType) == 'rna'))
   expect_true(all(sapply(read_list, spatUnit) == 'cell'))
   expect_identical(sapply(read_list, objName), c('nn_1', 'nn_2'))
@@ -210,7 +210,7 @@ test_that('Depth 1 works', {
 
 
 test_that('Depth 2 works', {
-  read_list = readNNetData(list(test_feat = list(ig,ig),
+  read_list = readNearestNetData(list(test_feat = list(ig,ig),
                                          list(test = ig)))
   expect_identical(sapply(read_list, featType), c('test_feat', 'test_feat', 'feat_2'))
   expect_identical(sapply(read_list, spatUnit), c('cell', 'cell', 'cell'))
@@ -219,7 +219,7 @@ test_that('Depth 2 works', {
 })
 
 test_that('Depth 3 works', {
-  read_list = readNNetData(list(test_unit = list(test_feat = list(a = ig, ig),
+  read_list = readNearestNetData(list(test_unit = list(test_feat = list(a = ig, ig),
                                                           list(ig)),
                                          list(list(b = ig))))
   expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'test_unit', 'unit_2'))
@@ -229,7 +229,7 @@ test_that('Depth 3 works', {
 })
 
 test_that('Depth 4 works', {
-  read_list = readNNetData(list(test_unit = list(test_feat = list(list(a = ig),
+  read_list = readNearestNetData(list(test_unit = list(test_feat = list(list(a = ig),
                                                                            test_meth2 = list(x = ig)),
                                                           list(test_meth = list(ig))),
                                          list(list(list(b = ig)))))

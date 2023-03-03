@@ -5,18 +5,19 @@
 \title{Read spatial location data}
 \usage{
 readSpatLocData(
-  spat_loc_list,
-  cores = determine_cores(),
+  data_list,
+  default_spat_unit = NULL,
   provenance = NULL,
+  cores = determine_cores(),
   verbose = TRUE
 )
 }
 \arguments{
-\item{spat_loc_list}{(nested) list of spatial locations}
-
-\item{cores}{how many cores to use}
+\item{data_list}{(nested) list of spatial locations input data}
 
 \item{provenance}{provenance information (optional)}
+
+\item{cores}{how many cores to use}
 
 \item{verbose}{be verbose}
 }
