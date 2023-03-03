@@ -622,16 +622,12 @@ read_expression_data = function(expr_list = NULL,
   # import box characters
   ch = box_chars()
 
-  # Check
+  # Check if input exists
   if(is.null(expr_list)) return(NULL)
 
+  # if not list make list with default name of raw
   if(!inherits(expr_list, 'list')) {
-    try_val = try(as.list(expr_list), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      expr_list = list('raw' = expr_list) # single matrix or path (expected)
-    } else {
-      expr_list = try_val
-    }
+    expr_list = list('raw' = expr_list) # single matrix or path (expected)
   }
 
 
@@ -948,14 +944,27 @@ read_cell_metadata = function(gobject,
 
 
 
+
+
 #' @title Read feature metadata
 #' @name read_feature_metadata
-#' @description read feature metadata from list
-#' @param gobject giotto object
+#' @description read feature metadata from listt
 #' @param metadata nested list of feature metadata information
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
+#' @export
+readFeatMetadata = function(metadata,
+                            provenance = NULL,
+                            verbose = TRUE) {
+  read_feature_metadata(metadata = metadata,
+                        provenance = provenance,
+                        verbose = verbose)
+}
+
+
+
 #' @keywords internal
+#' @noRd
 read_feature_metadata = function(gobject,
                                  metadata,
                                  provenance = NULL,
@@ -1116,7 +1125,8 @@ evaluate_spatial_locations_OLD = function(spatial_locs,
 #' @return data.table
 #' @keywords internal
 evaluate_spatial_locations = function(spatial_locs,
-                                      cores = determine_cores()) {
+                                      cores = determine_cores(),
+                                      verbose = TRUE) {
 
   # data.table variables
   cell_ID = NULL
@@ -1146,9 +1156,11 @@ evaluate_spatial_locations = function(spatial_locs,
 
     non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
 
-    message('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
-            '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
-            '\n Other non numeric columns will be removed')
+    if(isTRUE(verbose)) wrap_msg(
+      'There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+      '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+      '\n Other non numeric columns will be removed'
+    )
 
 
     potential_cell_IDs = spatial_locs[[names(non_numeric_classes)[[1]]]]
@@ -1231,12 +1243,11 @@ read_spatial_location_data = function(spat_loc_list,
 
   if(is.null(spat_loc_list)) return(NULL)
 
-  try_val = try(as.list(spat_loc_list), silent = TRUE)
-  if(inherits(try_val, 'try-error')) {
+  #  if not list make list with default name of raw
+  if(!is.list(spat_loc_list)) {
     spat_loc_list = list(raw = spat_loc_list) # single matrix or path (expected)
-  } else {
-    spat_loc_list = try_val
   }
+
 
   if(is.null(default_spat_unit)) default_spat_unit = 'cell'
 
@@ -1342,7 +1353,7 @@ read_spatial_location_data = function(spat_loc_list,
         }
 
         return(
-          create_spat_locs_obj(
+          createSpatLocsObj(
             name = name,
             coordinates = coordinates,
             spat_unit = spat_unit,
@@ -1694,14 +1705,9 @@ read_spatial_networks = function(spatial_network,
     return(NULL)
   }
 
-  # if not a list, return directly
+  # if not a list, make list
   if(!inherits(spatial_network, 'list')) {
-    try_val = try(as.list(spatial_network), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      return(list(spatial_network))
-    } else {
-      spatial_network = try_val
-    }
+    return(list(spatial_network))
   }
 
   # set defaults
@@ -1788,12 +1794,12 @@ read_spatial_networks = function(spatial_network,
         }
 
         return(
-          create_spat_net_obj(
+          createSpatNetObj(
             name = name,
-            method = method, # assumed
+            method = method,
             spat_unit = spat_unit,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
-            networkDT = networkDT,
+            network = networkDT,
             networkDT_before_filter = NULL,
             cellShapeObj = NULL,
             crossSectionObjects = NULL,
@@ -1857,7 +1863,8 @@ shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRU
 #' @noRd
 evaluate_spatial_enrichment = function(spatial_enrichment,
                                        provenance = NULL,
-                                       cores = determine_cores()) {
+                                       cores = determine_cores(),
+                                       verbose = TRUE) {
 
   # data.table vars
   cell_ID = NULL
@@ -1893,11 +1900,13 @@ evaluate_spatial_enrichment = function(spatial_enrichment,
 
     non_numeric_indices = which(!column_classes %in% c('numeric', 'integer'))
 
-    wrap_msg('There are non numeric or integer columsn for the spatial location',
-             'input at column position(s):', non_numeric_indices,
-             '\nThe first non-numeric column will be considered as a cell ID to',
-             'test for consistency with the expression matrix.
-             Other non-numeric columns will be removed.')
+    if(isTRUE(verbose)) {
+      wrap_msg('There are non numeric or integer columns for the spatial enrichment',
+               'input at column position(s):', non_numeric_indices,
+               '\nThe first non-numeric column will be considered as a cell ID to',
+               'test for consistency with the expression matrix.
+               Other non-numeric columns will be removed.')
+    }
 
     potential_cell_IDs = spatial_enrichment[[names(non_numeric_classes)[[1L]]]]
 
@@ -1964,14 +1973,9 @@ read_spatial_enrichment = function(spatial_enrichment,
     return(NULL)
   }
 
-  # return directly if not list
+  # if not list make list
   if(!inherits(spatial_enrichment, 'list')) {
-    try_val = try(as.list(spatial_enrichment), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      return(list(spatial_enrichment))
-    } else {
-      spatial_enrichment = try_val
-    }
+    return(list(spatial_enrichment))
   }
 
   # set default vals
@@ -2150,10 +2154,10 @@ read_spatial_enrichment = function(spatial_enrichment,
         }
 
         return(
-          create_spat_enr_obj(
+          createSpatEnrObj(
             name = name,
             method = method,
-            enrichDT = enrichDT,
+            enrichment_data = enrichDT,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
@@ -2289,14 +2293,9 @@ read_dimension_reduction = function(dimension_reduction,
     return(NULL)
   }
 
-  # if not list, return directly
+  # if not list, make list
   if(!inherits(dimension_reduction, 'list')) {
-    try_val = try(as.list(dimension_reduction), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      return(list(dimension_reduction))
-    } else {
-      dimension_reduction = try_val
-    }
+    return(list(dimension_reduction))
   }
 
   # set defaults
@@ -2475,11 +2474,11 @@ read_dimension_reduction = function(dimension_reduction,
         }
 
         return(
-          create_dim_obj(
+          createDimObj(
             name = name,
             reduction = reduction,
-            coordinates = obj_list,
-            reduction_method = method,
+            coordinates = coordinates,
+            method = method,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
@@ -2651,12 +2650,12 @@ evaluate_nearest_networks = function(nn_network) {
 
 
 #' @title Read nearest neighbor network data
-#' @name readNNetData
-readNNetData = function(data_list,
-                        default_spat_unit = NULL,
-                        default_feat_type = NULL,
-                        provenance = NULL,
-                        verbose = TRUE) {
+#' @name readNearestNetData
+readNearestNetData = function(data_list,
+                              default_spat_unit = NULL,
+                              default_feat_type = NULL,
+                              provenance = NULL,
+                              verbose = TRUE) {
   read_nearest_networks(nn_network = data_list,
                         default_spat_unit = default_spat_unit,
                         default_feat_type = default_feat_type,
@@ -2685,14 +2684,9 @@ read_nearest_networks = function(nn_network,
     return(NULL)
   }
 
-  # return directly if not list
+  # if not list make list
   if(!inherits(nn_network, 'list')) {
-    try_val = try(as.list(nn_network), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
       return(list(nn_network))
-    } else {
-      nn_network = try_val
-    }
   }
 
   # set defaults
@@ -2867,10 +2861,10 @@ read_nearest_networks = function(nn_network,
         }
 
         return(
-          create_nn_net_obj(
+          createNearestNetObj(
             name = name,
             nn_type = nn_type,
-            igraph = igraph,
+            network = igraph,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assume

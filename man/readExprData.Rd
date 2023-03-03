@@ -5,7 +5,7 @@
 \title{Read expression data}
 \usage{
 readExprData(
-  expr_list,
+  data_list,
   sparse = TRUE,
   cores = determine_cores(),
   default_feat_type = NULL,
@@ -14,8 +14,6 @@ readExprData(
 )
 }
 \arguments{
-\item{expr_list}{(nested) list with expression data}
-
 \item{sparse}{(boolean, default = TRUE) read matrix data in a sparse manner}
 
 \item{cores}{number of cores to use}
@@ -25,6 +23,8 @@ readExprData(
 \item{verbose}{be verbose}
 
 \item{provenance}{provenance information}
+
+\item{expr_list}{(nested) list of expression input data}
 }
 \description{
 Read a nested list of expression data inputs in order to

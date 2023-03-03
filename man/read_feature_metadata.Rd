@@ -2,13 +2,12 @@
 % Please edit documentation in R/giotto.R
 \name{read_feature_metadata}
 \alias{read_feature_metadata}
+\alias{readFeatMetadata}
 \title{Read feature metadata}
 \usage{
-read_feature_metadata(gobject, metadata, provenance = NULL, verbose = TRUE)
+readFeatMetadata(metadata, provenance = NULL, verbose = TRUE)
 }
 \arguments{
-\item{gobject}{giotto object}
-
 \item{metadata}{nested list of feature metadata information}
 
 \item{provenance}{provenance information (optional)}
@@ -16,6 +15,5 @@ read_feature_metadata(gobject, metadata, provenance = NULL, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \description{
-read feature metadata from list
+read feature metadata from listt
 }
-\keyword{internal}

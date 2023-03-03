@@ -1793,7 +1793,7 @@ addSpatialCentroidLocationsLayer = function(gobject,
 
   # data.table vars
   x = y = poly_ID = NULL
-browser()
+
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
@@ -1921,15 +1921,21 @@ addSpatialCentroidLocations = function(gobject,
                                        verbose = TRUE) {
 
   if(length(poly_info) > 1) {
-    if(!is.list(provenance) | length(provenance) != length(unique(poly_info))) {
+    if(!is.list(provenance) | length(provenance) != length(poly_info)) {
       stop(wrap_txt(
-        'poly_info:', unique(poly_info), '(', length(unique(poly_info)), ')',
-        'provenance: (', length(provenance), ')',
         'If more than one poly_info is supplied at a time, then provenance must',
         'be a list of equal length',
         errWidth = TRUE))
     }
+
+    # setup provenance list
+    p_names = names(provenance)
+    if(is.null(p_names)) names(provenance) = poly_info
+  } else {
+    provenance = list(provenance)
+    names(provenance) = poly_info
   }
+
 
 
   potential_polygon_names = list_spatial_info_names(gobject)
@@ -1943,14 +1949,15 @@ addSpatialCentroidLocations = function(gobject,
     } else {
 
       if(verbose == TRUE) {
-        cat('Start centroid calculation for polygon information layer: ', poly_layer, '\n')
+        wrap_msg('Start centroid calculation for polygon information layer: ',
+                 poly_layer, '\n')
       }
 
       if(return_gobject == TRUE) {
         gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                    poly_info = poly_layer,
                                                    feat_type = feat_type,
-                                                   provenance = provenance,
+                                                   provenance = provenance[[poly_layer]],
                                                    spat_loc_name = spat_loc_name,
                                                    init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
@@ -1959,7 +1966,7 @@ addSpatialCentroidLocations = function(gobject,
         return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                                      poly_info = poly_layer,
                                                                      feat_type = feat_type,
-                                                                     provenance = provenance,
+                                                                     provenance = provenance[[poly_layer]],
                                                                      spat_loc_name = spat_loc_name,
                                                                      init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)

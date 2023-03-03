@@ -2277,18 +2277,38 @@ setMethod(
 
 
 
-# Internal constructor functions for S4 subobjects ####
+# constructor functions for S4 subobjects ####
 
 #' @title Create S4 exprObj
-#' @name create_expr_obj
+#' @name createExprObj
 #' @description Create an S4 exprObj
+#' @param expression_data expression data
 #' @param name name of exprObj
-#' @param exprMat matrix of expression information
 #' @param spat_unit spatial unit of expression (e.g. 'cell')
 #' @param feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of expression information (if applicable)
 #' @param misc misc
+createExprObj = function(expression_data,
+                         name = 'test',
+                         spat_unit = 'cell',
+                         feat_type = 'rna',
+                         provenance = NULL,
+                         misc = NULL) {
+
+  exprMat = evaluate_expr_matrix(expression_data)
+
+  create_expr_obj(name = name,
+                  exprMat = exprMat,
+                  spat_unit = spat_unit,
+                  feat_type = feat_type,
+                  provenance = provenance,
+                  misc = misc)
+}
+
+
+#' @param exprMat matrix of expression information
 #' @keywords internal
+#' @noRd
 create_expr_obj = function(name = 'test',
                            exprMat = NULL,
                            spat_unit = 'cell',
@@ -2296,12 +2316,7 @@ create_expr_obj = function(name = 'test',
                            provenance = NULL,
                            misc = NULL) {
 
-  if(is.null(exprMat)) {
-    exprMat = matrix()
-  } else {
-    # Convert matrix input to preferred format
-    exprMat = evaluate_expr_matrix(exprMat)
-  }
+  if(is.null(exprMat)) exprMat = matrix()
 
   return(new('exprObj',
              name = name,
@@ -2313,8 +2328,11 @@ create_expr_obj = function(name = 'test',
 }
 
 
+
+
+
 #' @title Create S4 cellMetaObj
-#' @name create_cell_meta_obj
+#' @name createCellMetaObj
 #' @description Create an S4 cellMetaObj
 #' @param metadata metadata info
 #' @param col_desc (optional) character vector describing columns of the metadata
@@ -2322,12 +2340,30 @@ create_expr_obj = function(name = 'test',
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @export
+createCellMetaObj = function(metadata,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             col_desc = NULL) {
+
+  create_cell_meta_obj(metaDT = metadata,
+                       col_desc = col_desc,
+                       spat_unit = spat_unit,
+                       feat_type = feat_type,
+                       provenance = provenance)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_cell_meta_obj = function(metaDT = NULL,
                                 col_desc = NA_character_,
                                 spat_unit = 'cell',
                                 feat_type = 'rna',
                                 provenance = NULL) {
+
+  if(is.null(col_desc)) col_desc = NA_character_
 
   if(is.null(metaDT)) metaDT = data.table::data.table(cell_ID = NA_character_)
 
@@ -2340,8 +2376,11 @@ create_cell_meta_obj = function(metaDT = NULL,
 }
 
 
+
+
+
 #' @title Create S4 featMetaObj
-#' @name create_feat_meta_obj
+#' @name createFeatMetaObj
 #' @description Create an S4 featMetaObj
 #' @param metadata metadata info
 #' @param col_desc (optional) character vector describing columns of the metadata
@@ -2349,12 +2388,31 @@ create_cell_meta_obj = function(metaDT = NULL,
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @export
+createFeatMetaObj = function(metadata,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             col_desc = NULL) {
+
+  create_feat_meta_obj(metaDT = metaDT,
+                       col_desc = col_desc,
+                       spat_unit = spat_unit,
+                       feat_type = feat_type,
+                       provenance = provenance)
+}
+
+
+
 #' @keywords internal
+#' @noRd
 create_feat_meta_obj = function(metaDT = NULL,
                                 col_desc = NA_character_,
                                 spat_unit = 'cell',
                                 feat_type = 'rna',
                                 provenance = NULL) {
+
+  if(is.null(col_desc)) col_desc = NA_character_
 
   if(is.null(metaDT)) metaDT = data.table::data.table(feat_ID = NA_character_)
 
@@ -2367,19 +2425,50 @@ create_feat_meta_obj = function(metaDT = NULL,
 }
 
 
+
+
+
+
+
 #' @title Create S4 dimObj
-#' @name create_dim_obj
+#' @name createDimObj
 #' @description Create an S4 dimObj
+#' @param coordinates embedding coordinates
 #' @param name name of dimObj
 #' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
 #' @param reduction_method method used to generate dimension reduction
-#' @param coordinates embedding coordinates
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
 #' @param my_rownames (optional) if needed, set coordinates rowname values here
+#' @export
+createDimObj = function(coordinates,
+                        name = 'test',
+                        spat_unit = 'cell',
+                        feat_type = 'rna',
+                        method = NULL,
+                        reduction = 'cells',
+                        provenance = NULL,
+                        misc = NULL,
+                        my_rownames = NULL) {
+
+  coordinates = evaluate_dimension_reduction(coordinates)
+
+  create_dim_obj(name = name,
+                 reduction = reduction,
+                 reduction_method = method,
+                 coordinates = coordinates,
+                 spat_unit = spat_unit,
+                 feat_type = feat_type,
+                 provenance = provenance,
+                 misc = misc,
+                 my_rownames = my_rownames)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_dim_obj = function(name = 'test',
                           reduction = 'cells',
                           reduction_method = NA_character_,
@@ -2390,7 +2479,7 @@ create_dim_obj = function(name = 'test',
                           misc = NULL,
                           my_rownames = NULL) {
 
-  coordinates = evaluate_dimension_reduction(coordinates)
+  if(is.null(reduction_method)) reduction_method = NA_character_
 
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
@@ -2399,29 +2488,66 @@ create_dim_obj = function(name = 'test',
     rownames(coordinates) = as.character(my_rownames)
   }
 
-  return(new('dimObj',
-             name = name,
-             reduction = reduction,
-             reduction_method = reduction_method,
-             coordinates = coordinates,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-             misc = misc))
+  new('dimObj',
+      name = name,
+      reduction = reduction,
+      reduction_method = reduction_method,
+      coordinates = coordinates,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+      misc = misc)
 }
 
 
+
+
+
+
+
+
 #' @title Create S4 nnNetObj
-#' @name create_nn_net_obj
+#' @name createNearestNetObj
 #' @description Create an S4 nnNetObj
 #' @param name name of nnNetObj
 #' @param nn_type type of nearest neighbor network
-#' @param igraph igraph object containing nearest neighbor information
+#' @param network igraph object or data.frame containing nearest neighbor
+#' information (see details)
 #' @slot spat_unit spatial unit of data
 #' @slot feat_type feature type of data
 #' @slot provenance origin of aggregated information (if applicable)
 #' @param misc misc
+#' @details igraph and dataframe-like inputs must include certain information.
+#' For igraph, it must have, at minimum vertex 'name' attributes and 'distance'
+#' edge attribute.
+#' dataframe-like inputs must have 'from', 'to', and 'distance' columns
+#' @export
+createNearestNetObj = function(name = 'test',
+                               network,
+                               nn_type = NULL,
+                               spat_unit = 'cell',
+                               feat_type = 'rna',
+                               provenance = NULL,
+                               misc = NULL) {
+
+  if(is.null(network)) igraph = NULL
+  else {
+    # convert igraph input to preferred format
+    igraph = evaluate_nearest_networks(network)
+  }
+
+  create_nn_net_obj(name = name,
+                    igraph = igraph,
+                    nn_type = nn_type,
+                    spat_unit = spat_unit,
+                    feat_type = feat_type,
+                    provenance = provenance,
+                    misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_nn_net_obj = function(name = 'test',
                              nn_type = NA_character_,
                              igraph = NULL,
@@ -2430,32 +2556,54 @@ create_nn_net_obj = function(name = 'test',
                              provenance = NULL,
                              misc = NULL) {
 
-  if(is.null(igraph)) igraph = NULL
-  else {
-    # convert igraph input to preferred format
-    igraph = evaluate_nearest_networks(igraph)
-  }
+  if(is.null(nn_type)) nn_type = NA_character_
 
-  return(new('nnNetObj',
-             name = name,
-             nn_type = nn_type,
-             igraph = igraph,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = provenance,
-             misc = misc))
+  new('nnNetObj',
+      name = name,
+      nn_type = nn_type,
+      igraph = igraph,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
+
+
+
 
 
 #' @title Create S4 spatLocsObj
 #' @name create_spat_locs_obj
 #' @description Create an S4 spatLocsObj
-#' @param name name of spatLocsObj
 #' @param coordinates spatial coordinates
+#' @param name name of spatLocsObj
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @export
+createSpatLocsObj = function(coordinates,
+                             name = 'test',
+                             spat_unit = 'cell',
+                             provenance = NULL,
+                             misc = NULL) {
+
+  # convert coordinates input to preferred format
+  coordinates = evaluate_spatial_locations(coordinates)
+
+  create_spat_locs_obj(name = name,
+                       coordinates = coordinates,
+                       spat_unit = spat_unit,
+                       provenance = provenance,
+                       misc = misc)
+}
+
+
+
 #' @keywords internal
+#' @noRd
 create_spat_locs_obj = function(name = 'test',
                                 coordinates = NULL,
                                 spat_unit = 'cell',
@@ -2468,38 +2616,71 @@ create_spat_locs_obj = function(name = 'test',
       sdimy = NA_real_,
       cell_ID = NA_character_
     )
-  } else {
-    # convert coordinates input to preferred format
-    coordinates = evaluate_spatial_locations(coordinates)
-    # set cell_ID col if missing to conform to spatialLocationsObj validity
-    # should already never be the case after evaluation
-    if(!'cell_ID' %in% colnames(coordinates)) coordinates[, cell_ID := NA_character_]
   }
 
-  return(new('spatLocsObj',
-             name = name,
-             coordinates = coordinates,
-             spat_unit = spat_unit,
-             provenance = provenance,
-             misc = misc))
+  # set cell_ID col if missing to conform to spatialLocationsObj validity
+  # should already never be the case after evaluation
+  if(!'cell_ID' %in% colnames(coordinates)) coordinates[, cell_ID := NA_character_]
+
+  new('spatLocsObj',
+      name = name,
+      coordinates = coordinates,
+      spat_unit = spat_unit,
+      provenance = provenance,
+      misc = misc)
 }
 
 
 
+
+
+
+
+
 #' @title Create S4 spatialNetworkObj
-#' @name create_spat_net_obj
+#' @name createSpatNetObj
+#' @param network network data with connections, distances, and weightings
 #' @param name name of spatialNetworkObj
-#' @param method method used to generate spatial network
-#' @param parameters additional method-specific parameters used during spatial network generation
-#' @param outputObj network geometry object
-#' @param networkDT data.table of network connections, distances, and weightings
-#' @param networkDT_before_filter unfiltered data.table  of network connections, distances, and weightings
-#' @param cellShapeObj network cell shape information
-#' @param crossSectionObjects crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @param networkDT_before_filter (optional) unfiltered data.table  of network connections, distances, and weightings
 #' @param spat_unit spatial unit tag
-#' @param provenance origin of aggregated information (if applicable)
+#' @param method method used to generate spatial network
+#' @param parameters (optional) additional method-specific parameters used during spatial network generation
+#' @param outputObj (optional) network geometry object
+#' @param cellShapeObj (optional) network cell shape information
+#' @param crossSectionObjects (optional) crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @param provenance (optional) origin of aggregated information (if applicable)
 #' @param misc misc
+#' @export
+createSpatNetObj = function(network,
+                            name = 'test',
+                            networkDT_before_filter = NULL,
+                            method = NULL,
+                            spat_unit = 'cell',
+                            provenance = NULL,
+                            parameters = NULL,
+                            outputObj = NULL,
+                            cellShapeObj = NULL,
+                            crossSectionObjects = NULL,
+                            misc = NULL) {
+
+  networkDT = evaluate_spatial_network(network)
+
+  create_spat_net_obj(name = name,
+                      method = method,
+                      parameters = parameters,
+                      outputObj = outputObj,
+                      networkDT = networkDT,
+                      networkDT_before_filter = networkDT_before_filter,
+                      cellShapeObj = cellShapeObj,
+                      crossSectionObjects = crossSectionObjects,
+                      spat_unit = spat_unit,
+                      provenance = provenance,
+                      misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_spat_net_obj = function(name = 'test',
                                method = NA_character_,
                                parameters = NULL,
@@ -2512,37 +2693,61 @@ create_spat_net_obj = function(name = 'test',
                                provenance = NULL,
                                misc = NULL ) {
 
-  if(!is.null(networkDT)) {
-    networkDT = evaluate_spatial_network(networkDT)
-  }
+  if(is.null(method)) method = NA_character_
 
-  return(new('spatialNetworkObj',
-             name = name,
-             method = method,
-             parameters = parameters,
-             outputObj = outputObj,
-             networkDT = networkDT,
-             networkDT_before_filter = networkDT_before_filter,
-             cellShapeObj = cellShapeObj,
-             crossSectionObjects = crossSectionObjects,
-             spat_unit = spat_unit,
-             provenance = provenance,
-             misc = misc))
+  new('spatialNetworkObj',
+      name = name,
+      method = method,
+      parameters = parameters,
+      outputObj = outputObj,
+      networkDT = networkDT,
+      networkDT_before_filter = networkDT_before_filter,
+      cellShapeObj = cellShapeObj,
+      crossSectionObjects = crossSectionObjects,
+      spat_unit = spat_unit,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
 
 
 
 #' @title Create S4 spatEnrObj
 #' @name create_spat_enr_obj
+#' @param enrichment_data spatial enrichment results, provided a dataframe-like object
 #' @param name name of S4 spatEnrObj
 #' @param method method used to generate spatial enrichment information
-#' @param enrichDT spatial enrichment results, provided as a data.table
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc additional information about he spatial enrichment or how it
+#' @param misc misc additional information about the spatial enrichment or how it
 #' was generated
+#' @export
+createSpatEnrObj = function(enrichment_data,
+                            name = 'test',
+                            spat_unit = 'cell',
+                            feat_type = 'rna',
+                            method = NULL,
+                            provenance = NULL,
+                            misc = NULL,
+                            verbose = TRUE) {
+
+  enrichDT = evaluate_spatial_enrichment(enrichment_data, verbose = verbose)
+
+  create_spat_enr_obj(name = name,
+                      method = method,
+                      enrichDT = enrichment_data,
+                      spat_unit = spat_unit,
+                      feat_type = feat_type,
+                      provenance = provenance,
+                      misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_spat_enr_obj = function(name = 'test',
                                method = NA_character_,
                                enrichDT = NULL,
@@ -2551,18 +2756,28 @@ create_spat_enr_obj = function(name = 'test',
                                provenance = NULL,
                                misc = NULL) {
 
-  enrichDT = evaluate_spatial_enrichment(enrichDT)
+  if(is.null(method)) method = NA_character_
 
-  return(new('spatEnrObj',
-             name = name,
-             method = method,
-             enrichDT = enrichDT,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = provenance,
-             misc = misc))
-
+  new('spatEnrObj',
+      name = name,
+      method = method,
+      enrichDT = enrichDT,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 #' @title Create S4 spatialGridObj
