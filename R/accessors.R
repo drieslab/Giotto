@@ -605,6 +605,29 @@ get_cell_metadata = function(gobject,
 }
 
 
+#' @title getCellMetadata
+#' @name getCellMetadata
+#' @inheritParams data_access_params
+#' @param output return as either 'data.table' or 'cellMetaObj'
+#' @description Get cell metadata from giotto object
+#' @seealso pDataDT
+#' @export
+getCellMetadata = function(gobject,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           output = c('cellMetaObj', 'data.table'),
+                           copy_obj = TRUE,
+                           set_defaults = TRUE) {
+
+  get_cell_metadata(gobject = gobject,
+                    spat_unit = spat_unit,
+                    feat_type = feat_type,
+                    output = output,
+                    copy_obj = copy_obj,
+                    set_defaults = set_defaults)
+
+}
+
 
 
 
@@ -823,6 +846,30 @@ get_feature_metadata = function(gobject,
 
 }
 
+
+#' @title getFeatureMetadata
+#' @name getFeatureMetadata
+#' @inheritParams data_access_params
+#' @param output return as either 'data.table' or 'featMetaObj'
+#' @param copy_obj whether to perform a deepcopy of the data.table information
+#' @description Get feature metadata from giotto object
+#' @seealso fDataDT
+#' @export
+getFeatureMetadata = function(gobject,
+                              spat_unit = NULL,
+                              feat_type = NULL,
+                              output = c('featMetaObj', 'data.table'),
+                              copy_obj = TRUE,
+                              set_defaults = TRUE) {
+
+  get_feature_metadata(gobject = gobject,
+                       spat_unit = spat_unit,
+                       feat_type = feat_type,
+                       output = output,
+                       copy_obj = copy_obj,
+                       set_defaults = set_defaults)
+
+}
 
 
 
