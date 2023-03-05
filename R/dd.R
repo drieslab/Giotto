@@ -24,6 +24,8 @@
 # Data Access ####
 
 
+#' data_access_params
+#' 
 #' @name data_access_params
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -45,6 +47,8 @@ NULL
 # Plotting ####
 
 
+#' plot_params
+#' 
 #' @name plot_params
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
