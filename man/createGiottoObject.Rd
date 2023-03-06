@@ -6,7 +6,6 @@
 \usage{
 createGiottoObject(
   expression,
-  raw_exprs = NULL,
   expression_feat = "rna",
   spatial_locs = NULL,
   spatial_info = NULL,
@@ -24,13 +23,12 @@ createGiottoObject(
   offset_file = NULL,
   instructions = NULL,
   cores = determine_cores(),
+  raw_exprs = NULL,
   verbose = TRUE
 )
 }
 \arguments{
 \item{expression}{expression information}
-
-\item{raw_exprs}{deprecated, use expression}
 
 \item{expression_feat}{available features (e.g. rna, protein, ...)}
 
@@ -67,6 +65,8 @@ see \code{\link{createGiottoPoints}}}
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
+
+\item{raw_exprs}{deprecated, use expression}
 
 \item{verbose}{be verbose when building Giotto object}
 }

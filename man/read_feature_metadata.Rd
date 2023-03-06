@@ -6,7 +6,7 @@
 \title{Read feature metadata}
 \usage{
 readFeatMetadata(
-  metadata,
+  data_list,
   default_spat_unit = NULL,
   default_feat_type = NULL,
   provenance = NULL,
@@ -14,7 +14,7 @@ readFeatMetadata(
 )
 }
 \arguments{
-\item{metadata}{nested list of feature metadata information}
+\item{data_list}{nested list of feature metadata information}
 
 \item{provenance}{provenance information (optional)}
 

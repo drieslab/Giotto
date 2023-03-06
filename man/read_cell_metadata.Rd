@@ -22,6 +22,8 @@ read_cell_metadata(
 )
 }
 \arguments{
+\item{data_list}{nested list of cell metadata information}
+
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
