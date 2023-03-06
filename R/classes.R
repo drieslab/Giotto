@@ -783,6 +783,17 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
 
 
+  ## Metadata ##
+  ## ------------- ##
+
+  if(!is.null(avail_cm)) {
+    check_cell_metadata(gobject = .Object) # modifies by reference
+  }
+  if(!is.null(avail_fm)) {
+    check_feat_metadata(gobject = .Object) # modifies by reference
+  }
+
+
 
   ## Spatial locations ##
   ## ----------------- ##
@@ -2366,13 +2377,17 @@ create_expr_obj = function(name = 'test',
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc
+#' @param verbose be verbose
 #' @export
 createCellMetaObj = function(metadata,
                              spat_unit = 'cell',
                              feat_type = 'rna',
                              provenance = NULL,
-                             col_desc = NULL) {
+                             col_desc = NULL,
+                             verbose = TRUE) {
+
+  metadata = evaluate_cell_metadata(metadata = metadata,
+                                    verbose = verbose)
 
   create_cell_meta_obj(metaDT = metadata,
                        col_desc = col_desc,
@@ -2414,15 +2429,19 @@ create_cell_meta_obj = function(metaDT = NULL,
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc
+#' @param verbose be verbose
 #' @export
 createFeatMetaObj = function(metadata,
                              spat_unit = 'cell',
                              feat_type = 'rna',
                              provenance = NULL,
-                             col_desc = NULL) {
+                             col_desc = NULL,
+                             verbose = TRUE) {
 
-  create_feat_meta_obj(metaDT = metaDT,
+  metadata = evaluate_cell_metadata(metadata = metadata,
+                                    verbose = verbose)
+
+  create_feat_meta_obj(metaDT = metadata,
                        col_desc = col_desc,
                        spat_unit = spat_unit,
                        feat_type = feat_type,

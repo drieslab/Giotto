@@ -228,6 +228,26 @@ test_that('feat_ID from feat_info is overwritten by expression', {
 
 
 
+### GOBJECT ASSEMBLY: VIZGEN ####
+
+#### Step-wise ####
+
+# test_that('Vizgen mini can be assembled with no errors', {
+#   a = giotto()
+# })
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

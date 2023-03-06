@@ -2,20 +2,35 @@
 % Please edit documentation in R/giotto.R
 \name{read_cell_metadata}
 \alias{read_cell_metadata}
+\alias{readCellMetadata}
 \title{Read cell metadata}
 \usage{
-read_cell_metadata(gobject, metadata, provenance = NULL, verbose = TRUE)
+readCellMetadata(
+  data_list,
+  default_spat_unit = NULL,
+  default_feat_type = NULL,
+  provenance = NULL,
+  verbose = TRUE
+)
+
+read_cell_metadata(
+  metadata,
+  default_spat_unit = NULL,
+  default_feat_type = NULL,
+  provenance = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{metadata}{nested list of cell metadata information}
-
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
+
+\item{metadata}{nested list of cell metadata information}
 }
 \description{
+read cell metadata from list
+
 read cell metadata from list
 }
 \keyword{internal}

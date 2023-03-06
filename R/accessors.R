@@ -633,6 +633,93 @@ getCellMetadata = function(gobject,
 
 
 
+
+
+#' @title Set cell metadata
+#' @name setCellMetadata
+#' @description Function to set cell metadata into giotto object
+#' @inheritParams data_access_params
+#' @param x cellMetaObj or list of cellMetaObj to set. Passing NULL will
+#' reset a specified set of cell metadata in the giotto object.
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @return giotto object
+#' @family functions to set data in giotto object
+setCellMetadata = function(gobject,
+                           x,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           provenance = NULL,
+                           verbose = TRUE) {
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
+                                        errWidth = TRUE))
+
+  # check hierarchical slots
+  used_su = list_cell_id_names(gobject)
+  if(is.null(used_su))
+    stop(wrap_txt('Add expression or spatial (polygon) information first'))
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  .external_accessor_cellmeta = list(nospec_unit = nospec_unit,
+                                     nospec_feat = nospec_feat)
+  # checked by internal setter to determine if called by external
+
+  # SINGLE INPUT
+  # 2. if input is cellMetaObj or NULL, pass to internal
+  if(is.null(x) | inherits(x, 'cellMetaObj')) {
+
+    # pass to internal
+    gobject = set_cell_metadata(
+      gobject = gobject,
+      metadata = x,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+  } else if(is.list(x)) {
+
+    # check list items are native
+    if(all(sapply(x, class) == 'cellMetaObj')) {
+
+      # MULTIPLE INPUT
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
+
+        if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_cell_metadata(
+          gobject = gobject,
+          metadata = x[[obj_i]],
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          provenance = provenance,
+          verbose = verbose,
+          set_defaults = FALSE,
+          initialize = TRUE
+        )
+      }
+      return(gobject)
+    }
+  }
+
+  # catch
+  stop(wrap_txt('only cellMetaObj or lists of cellMetaObj accepted.
+                For raw or external data, please first use readCellMetadata()'))
+
+}
+
+
+
+
+
+
 #' @title Set cell metadata
 #' @name set_cell_metadata
 #' @description Function to set cell metadata information into giotto object
@@ -650,7 +737,8 @@ set_cell_metadata = function(gobject,
                              feat_type = NULL,
                              provenance = NULL,
                              verbose = TRUE,
-                             set_defaults = TRUE) {
+                             set_defaults = TRUE,
+                             initialize = FALSE) {
 
   # data.table vars
   cell_ID = NULL
@@ -675,7 +763,8 @@ set_cell_metadata = function(gobject,
   if(is.null(metadata)) {
     if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
     gobject@cell_metadata[[spat_unit]][[feat_type]] = NULL
-    return(gobject)
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
   # 3.2 if input is 'initialize', RESET/reinitialize object
@@ -690,7 +779,8 @@ set_cell_metadata = function(gobject,
         feat_type = feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance
       )
-      return(gobject)
+      if(isTRUE(initialize)) return(initialize(gobject))
+      else return(gobject)
     }
   }
 
@@ -725,7 +815,8 @@ set_cell_metadata = function(gobject,
         gobject = set_cell_metadata(gobject,
                                     metadata = cellMetaObj_list[[obj_i]])
       }
-      return(gobject)
+      if(isTRUE(initialize)) initialize(gobject)
+      else return(gobject)
     }
 
     # 4.3 otherwise assume data.frame type object
@@ -801,7 +892,8 @@ set_cell_metadata = function(gobject,
   # message("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
   #
   gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
-  return(gobject)
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
@@ -875,24 +967,100 @@ getFeatureMetadata = function(gobject,
 
 
 
+
+
+
 #' @title Set feature metadata
-#' @name set_feature_metadata
+#' @name setFeatureMetadata
 #' @description Function to set feature metadata into giotto object
 #' @inheritParams data_access_params
-#' @param metadata featMetaObj or data.table object containing feature metadata.
-#' Setting NULL will remove the object.
+#' @param x featMetaObj or list of featMetaObj to set. Passing NULL will
+#' reset a specified set of feature metadata in the giotto object.
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return giotto object
 #' @family functions to set data in giotto object
+setFeatureMetadata = function(gobject,
+                              x,
+                              spat_unit = NULL,
+                              feat_type = NULL,
+                              provenance = NULL,
+                              verbose = TRUE) {
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
+                                        errWidth = TRUE))
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  .external_accessor_featmeta = list(nospec_unit = nospec_unit,
+                                     nospec_feat = nospec_feat)
+  # checked by internal setter to determine if called by external
+
+  # SINGLE INPUT
+  # 2. if input is featMetaObj or NULL, pass to internal
+  if(is.null(x) | inherits(x, 'featMetaObj')) {
+
+    # pass to internal
+    gobject = set_feature_metadata(
+      gobject = gobject,
+      metadata = x,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+  } else if(is.list(x)) {
+
+    # check list items are native
+    if(all(sapply(x, class) == 'featMetaObj')) {
+
+      # MULTIPLE INPUT
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
+
+        if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_feature_metadata(
+          gobject = gobject,
+          metadata = x[[obj_i]],
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          provenance = provenance,
+          verbose = verbose,
+          set_defaults = FALSE,
+          initialize = TRUE
+        )
+      }
+      return(gobject)
+    }
+  }
+
+  # catch
+  stop(wrap_txt('only featMetaObj or lists of featMetaObj accepted.
+                For raw or external data, please first use readFeatMetadata()'))
+
+}
+
+
+
+
+
+
+
 #' @keywords internal
+#' @noRd
 set_feature_metadata = function(gobject,
                                 metadata,
                                 spat_unit = NULL,
                                 feat_type = NULL,
                                 provenance = NULL,
                                 verbose = TRUE,
-                                set_defaults = TRUE) {
+                                set_defaults = TRUE,
+                                initialize = FALSE) {
 
   # data.table vars
   feat_ID = NULL
@@ -917,7 +1085,8 @@ set_feature_metadata = function(gobject,
   if(is.null(metadata)) {
     if(isTRUE(verbose)) wrap_msg('NULL passed to metadata.\n Removing specified metadata.')
     gobject@feat_metadata[[spat_unit]][[feat_type]] = NULL
-    return(gobject)
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
   # 3.2 if input is 'initialize', RESET/reinitialize object
@@ -932,7 +1101,8 @@ set_feature_metadata = function(gobject,
         feat_type = feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance
       )
-      return(gobject)
+      if(isTRUE(initialize)) return(initialize(gobject))
+      else return(gobject)
     }
   }
 
@@ -1014,9 +1184,11 @@ set_feature_metadata = function(gobject,
                                  feat_type, '" already exists and will be replaced with new metadata.')
   }
 
-  gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
-  return(gobject)
 
+  # 6. return object
+  gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
@@ -1229,35 +1401,6 @@ setExpression = function(gobject,
   # checked by internal setter to determine if called by external
 
 
-  # if(inherits(values, 'exprObj')) {
-  #   if(!is.na(spatUnit(values)) &
-  #      !is.na(featType(values)) &
-  #      isTRUE(nospec_unit) &
-  #      isTRUE(nospec_feat)) {
-  #     set_defaults = FALSE
-  #   }
-  # }
-
-  # 2. Set feat_type and spat_unit (suppressed) returns NULL when it fails
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = suppressWarnings(
-  #     set_default_spat_unit(gobject = gobject,
-  #                           spat_unit = spat_unit)
-  #   )
-  #   feat_type = suppressWarnings(
-  #     set_default_feat_type(gobject = gobject,
-  #                           spat_unit = spat_unit,
-  #                           feat_type = feat_type)
-  #   )
-  # }
-
-  # Extra defaults: expression, feature_info, spat_info specific
-  # default_unit = 'cell'
-  # default_feat = gobject@expression_feat[[1L]]
-  # if(is.null(default_feat)) default_feat = 'rna'
-
-
-
   # SINGLE INPUT
   # 3. if input is exprObj or NULL, pass to internal
   if(is.null(x) | inherits(x, 'exprObj')) {
@@ -1302,47 +1445,6 @@ setExpression = function(gobject,
       return(gobject)
 
     }
-
-    # OTHER INPUT TYPES
-    # 4 parse input for nesting info
-    # 4.1 if nested list structure, extract spat_unit/feat_type
-    # if(inherits(values, 'list')) {
-    #
-    #   exprObj_list = readExprData(
-    #     data_list = values,
-    #     sparse = TRUE,
-    #     cores = determine_cores(),
-    #     default_feat_type = if(is.null(feat_type)) default_feat else feat_type,
-    #     provenance = provenance # do not assume spat_unit
-    #   )
-    #   # recursively call external so gobj checking is also done per iteration
-    #   for(obj_i in seq_along(exprObj_list)) {
-    #     # provenance info set during prev. step
-    #     gobject = setExpression(gobject,
-    #                             values = exprObj_list[[obj_i]],
-    #                             verbose = verbose,
-    #                             set_defaults = FALSE)
-    #   }
-    #   return(gobject)
-    # } else {
-    #
-    #   # 4.2 otherwise assume matrix type object, and create S4
-    #   values = createExprObj(
-    #     name = name,
-    #     expression_data = values,
-    #     spat_unit = if(is.null(spat_unit)) default_unit else spat_unit,
-    #     feat_type = if(is.null(feat_type)) default_feat else feat_type,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_expression_values(gobject,
-    #                                   values = values,
-    #                                   set_defaults = FALSE,
-    #                                   verbose = verbose,
-    #                                   initialize = TRUE)
-    #   return(gobject)
-    # }
   }
 
   # catch
@@ -1690,12 +1792,6 @@ setSpatialLocations = function(gobject,
                                     nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
 
-  # # 2. Set spat_unit
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                     spat_unit = spat_unit)
-  # }
-
 
   # NATIVE INPUT TYPES
   # 3. If input is spatLocsObj or NULL, pass to internal
@@ -1744,56 +1840,6 @@ setSpatialLocations = function(gobject,
   # catch
   stop(wrap_txt('Only spatLocsObj or lists of spatLocsObj accepted.
                 For raw or external data, please first use readSpatLocsData()'))
-
-    #
-    # # OTHER INPUT TYPES
-    # # 4. Parse input for nesting info
-    # # 4.1 If nested list structure, extract spat_unit
-    # if(inherits(spatlocs, 'list')) {
-    #
-    #   spatLocs_list = readSpatLocsData(
-    #     data_list = spatlocs,
-    #     cores = determine_cores(),
-    #     provenance = provenance, # do not assume spat_unit
-    #     verbose = verbose
-    #   )
-    #   # recursively call external so checking is also done per iteration
-    #   for(obj_i in seq_along(spatLocs_list)) {
-    #     # provenance info set during prev. step
-    #     gobject = setSpatialLocations(gobject = gobject,
-    #                                   spatlocs = spatLocs_list[[obj_i]],
-    #                                   verbose = verbose,
-    #                                   set_defaults = FALSE)
-    #   }
-    #   return(gobject)
-    #
-    # } else {
-    #
-    #   # 4.2 Otherwise assume evaluatable class, and create S4
-    #
-    #   if(is.null(spat_unit)) stop(wrap_txt(
-    #     'Add expression or polygon info first
-    #     Alternatively, specify expected spat_unit using activeSpatUnit()',
-    #     errWidth = TRUE
-    #   ))
-    #
-    #
-    #   spatlocs = create_spat_locs_obj(
-    #     name = name,
-    #     coordinates = spatlocs,
-    #     spat_unit = spat_unit,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_spatial_locations(gobject = gobject,
-    #                                   spatlocs = spatlocs,
-    #                                   set_defaults = FALSE,
-    #                                   verbose = verbose,
-    #                                   initialize = TRUE)
-    #   return(gobject)
-    # }
-  # }
 
 }
 
@@ -2142,15 +2188,6 @@ setDimReduction = function(gobject,
                                    nospec_red_method = nospec_red_method)
   # checked by internal setter to determine if called by external
 
-  # 2. Set default spat_unit/feat_type
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                     spat_unit = spat_unit)
-  #   feat_type = set_default_feat_type(gobject = gobject,
-  #                                     spat_unit = spat_unit,
-  #                                     feat_type = feat_type)
-  # }
-
 
   # NATIVE INPUT TYPES
   # 3. If input is dimObj or NULL, pass to internal
@@ -2204,60 +2241,6 @@ setDimReduction = function(gobject,
   # catch
   stop(wrap_txt('Only dimObj or lists of dimObj accepted.
                   For raw or external data, please first use readDimReducData()'))
-
-    # # OTHER INPUT TYPES
-    # # 4. Parse input for nesting info
-    # # 4.1 If nested list structure, extract spat_unit and feat_type
-    # if(inherits(dimObject, 'list')) {
-    #
-    #   dimObj_list = readDimReducData(data_list = dimObject,
-    #                                          reduction = reduction,
-    #                                          provenance = provenance)
-    #   # recursively call external so checking is done per iteration
-    #   for(obj_i in seq_along(dimObj_list)) {
-    #
-    #     gobject = setDimReduction(
-    #       gobject = gobject,
-    #       dimObject = dimObj_list[[obj_i]],
-    #       verbose = verbose,
-    #       set_defaults = FALSE
-    #     )
-    #   }
-    #   return(gobject)
-    # } else {
-    #
-    #   # 4.2 Otherwise assume evaluatable class and create S4
-    #
-    #   if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
-    #     'Add expression or polygon info first
-    #     Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
-    #     errWidth = TRUE
-    #   ))
-    #
-    #
-    #   if(identical(reduction_method, c('pca', 'umap', 'tsne'))) {
-    #     reduction_method = name
-    #   }
-    #
-    #   dimObject = create_dim_obj(
-    #     name = name,
-    #     reduction = reduction,
-    #     reduction_method = reduction_method,
-    #     coordinates = dimObject,
-    #     spat_unit = spat_unit,
-    #     feat_type = feat_type,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_dimReduction(gobject,
-    #                              dimObject = dimObject,
-    #                              set_defaults = FALSE,
-    #                              verbose = verbose,
-    #                              initialize = TRUE)
-    #   return(gobject)
-    # }
-  # }
 
 }
 
@@ -2573,8 +2556,7 @@ setNearestNetwork = function(gobject,
                              nn_type = 'sNN',
                              name = 'sNN.pca',
                              provenance = NULL,
-                             verbose = TRUE,
-                             set_defaults = TRUE) {
+                             verbose = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x (data to set) param must be given'))
@@ -2596,15 +2578,6 @@ setNearestNetwork = function(gobject,
                                nospec_net = nospec_net,
                                nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
-
-  # # 2. Set spat_unit/feat_type
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                     spat_unit = spat_unit)
-  #   feat_type = set_default_feat_type(gobject = gobject,
-  #                                     spat_unit = spat_unit,
-  #                                     feat_type = feat_type)
-  # }
 
 
   # NATIVE INPUT TYPES
@@ -2657,50 +2630,6 @@ setNearestNetwork = function(gobject,
   # catch
   stop(wrap_txt('Only nnNetObj or lists of nnNetObj accepted.
                 For raw or external data, please first use readNearestNetData()'))
-
-    # # OTHER INPUT TYPES
-    # # 4. Parse input if list
-    # # 4.1 if list structure
-    # if(inherits(nn_network, 'list')) {
-    #
-    #   nn_list = readNearestNetData(data_list = nn_network,
-    #                                   provenance = provenance)
-    #   # recursively call external so gobj checking is also done per iteration
-    #   for(obj_i in seq_along(nn_list)) {
-    #     gobject = setNearestNetwork(gobject = gobject,
-    #                                 nn_network = nn_list[[obj_i]],
-    #                                 verbose = verbose,
-    #                                 set_defaults = FALSE)
-    #   }
-    #   return(gobject)
-    # } else {
-    #
-    #   # 4.2 Otherwise assume evaluatable class and create S4
-    #
-    #   if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
-    #     'Add expression or polygon info first
-    #     Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
-    #     errWidth = TRUE
-    #   ))
-    #
-    #   nn_network = create_nn_net_obj(
-    #     name = name,
-    #     nn_type = nn_type,
-    #     igraph = nn_network,
-    #     spat_unit = spat_unit,
-    #     feat_type = feat_type,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_NearestNetwork(gobject = gobject,
-    #                                nn_network = nn_network,
-    #                                set_defaults = FALSE,
-    #                                verbose = verbose,
-    #                                initialize = TRUE)
-    #   return(gobject)
-    # }
-  # }
 
 }
 
@@ -3014,8 +2943,7 @@ setSpatialNetwork = function(gobject,
                              spat_unit = NULL,
                              name = NULL,
                              provenance = NULL,
-                             verbose = TRUE,
-                             set_defaults = TRUE) {
+                             verbose = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
@@ -3035,14 +2963,6 @@ setSpatialNetwork = function(gobject,
                                nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
 
-  # 2. Set spat_unit/feat_type
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                     spat_unit = spat_unit)
-  #   feat_type = set_default_feat_type(gobject = gobject,
-  #                                     spat_unit = spat_unit,
-  #                                     feat_type = feat_type)
-  # }
 
   # NATIVE INPUT TYPES
   # 3. If input is spatialNetworkObj or NULL, pass to internal
@@ -3090,55 +3010,6 @@ setSpatialNetwork = function(gobject,
   # catch
   stop(wrap_txt('Only spatialNetworkObj or lists of spatialNetworkObj accepted.
                 For raw or external data, please first use readSpatNetData()'))
-
-    # # OTHER INPUT TYPES
-    # # 4. Parse input if list
-    # # 4.1 if list structure
-    # if(inherits(spatial_network, 'list')) {
-    #
-    #   sn_list = readSpatNetData(data_list = spatial_network,
-    #                                   provenance = provenance)
-    #   # recursively call external so gobj checking is done per iteration
-    #   for(obj_i in seq_along(sn_list)) {
-    #     gobject = setSpatialNetwork(gobject = gobject,
-    #                                 spatial_network = sn_list[[obj_i]],
-    #                                 verbose = verbose,
-    #                                 set_defaults = FALSE)
-    #     # provenance set during previous step
-    #   }
-    #   return(gobject)
-    # } else {
-    #
-    #   # 4.2 Otherwise assume evaluatable class and create S4
-    #
-    #   if(is.null(spat_unit)) stop(wrap_txt(
-    #     'Add expression or polygon info first
-    #     Alternatively, specify expected spat_unit using activeSpatUnit()',
-    #     errWidth = TRUE
-    #   ))
-    #
-    #   spatial_network = create_spat_net_obj(
-    #     name = name,
-    #     method = name, # guess
-    #     spat_unit = spat_unit,
-    #     networkDT = spatial_network,
-    #     networkDT_before_filter = NULL,
-    #     parameters = NULL,
-    #     outputObj = NULL,
-    #     cellShapeObj = NULL,
-    #     crossSectionObjects = NULL,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_spatialNetwork(gobject = gobject,
-    #                                spatial_network = spatial_network,
-    #                                set_defaults = FALSE,
-    #                                verbose = verbose,
-    #                                initialize = TRUE)
-    #   return(gobject)
-    # }
-  # }
 
 }
 
@@ -4353,8 +4224,7 @@ setSpatialEnrichment = function(gobject,
                                 feat_type = NULL,
                                 name = 'enrichment',
                                 provenance = NULL,
-                                verbose = TRUE,
-                                set_defaults = TRUE) {
+                                verbose = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
@@ -4374,14 +4244,6 @@ setSpatialEnrichment = function(gobject,
                                     nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
 
-  # 2. set spat_unit/feat_type
-  # if(isTRUE(set_defaults)) {
-  #   spat_unit = set_default_spat_unit(gobject = gobject,
-  #                                     spat_unit = spat_unit)
-  #   feat_type = set_default_feat_type(gobject = gobject,
-  #                                     spat_unit = spat_unit,
-  #                                     feat_type = feat_type)
-  # }
 
   # NATIVE INPUT TYPES
   # 3. if input is spatEnrObj or NULL, pass to internal
@@ -4429,54 +4291,6 @@ setSpatialEnrichment = function(gobject,
   # catch
   stop(wrap_txt('Only spatEnrObj or lists of spatEnrObj accepted.
                 For raw or external data, please first use readSpatEnrichData()'))
-
-
-    # # OTHER INPUT TYPES
-    # # 4. parse input for nesting info
-    # # 4.1 if nested list structure, extract spat_unit and feat_type
-    # if(inherits(spatenrichment, 'list')) {
-    #
-    #   spatEnr_list = readSpatEnrichData(
-    #     data_list = spatenrichment,
-    #     provenance = provenance # do not assume spat_unit
-    #   )
-    #   # recursively call external so gobj checking is done per iteration
-    #   for(obj_i in seq_along(spatEnr_list)) {
-    #     gobject = setSpatialEnrichment(gobject = gobject,
-    #                                    spatenrichment = spatEnr_list[[obj_i]],
-    #                                    verbose = verbose,
-    #                                    set_defaults = FALSE)
-    #   }
-    #   return(gobject)
-    #
-    # } else {
-    #
-    #   # 4.2 otherwise assume evaluatable class and create S4
-    #
-    #   if(is.null(spat_unit) | is.null(feat_type)) stop(wrap_txt(
-    #     'Add expression or polygon info first
-    #     Alternatively, specify expected spat_unit and feat_type using activeSpatUnit() and activeFeatType()',
-    #     errWidth = TRUE
-    #   ))
-    #
-    #   spatEnr = create_spat_enr_obj(
-    #     name = name,
-    #     method = name, # assumed
-    #     enrichDT = spatenrichment,
-    #     spat_unit = spat_unit,
-    #     feat_type = feat_type,
-    #     provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
-    #     misc = NULL
-    #   )
-    #   # pass to internal
-    #   gobject = set_spatial_enrichment(gobject = gobject,
-    #                                    spatenrichment = spatenrichment,
-    #                                    verbose = verbose,
-    #                                    set_defaults = FALSE,
-    #                                    initialize = TRUE)
-    #   return(gobject)
-    # }
-  # }
 
 }
 
