@@ -789,10 +789,10 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
   if(!is.null(avail_cm)) {
     check_cell_metadata(gobject = .Object) # modifies by reference
   }
+
   if(!is.null(avail_fm)) {
     check_feat_metadata(gobject = .Object) # modifies by reference
   }
-
 
 
   ## Spatial locations ##

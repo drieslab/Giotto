@@ -860,7 +860,7 @@ init_cell_and_feat_IDs = function(gobject) {
 #' @title Read cell metadata
 #' @name read_cell_metadata
 #' @description read cell metadata from list
-#' @param metadata nested list of cell metadata information
+#' @param data_list nested list of cell metadata information
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @export
@@ -1171,6 +1171,7 @@ check_cell_metadata = function(gobject,
       # ensure ID col first
       setcolorder(meta[], 'cell_ID')
 
+
     })
   }
 
@@ -1184,11 +1185,11 @@ check_cell_metadata = function(gobject,
 #' @title Read feature metadata
 #' @name read_feature_metadata
 #' @description read feature metadata from listt
-#' @param metadata nested list of feature metadata information
+#' @param data_list nested list of feature metadata information
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @export
-readFeatMetadata = function(metadata,
+readFeatMetadata = function(data_list,
                             default_spat_unit = NULL,
                             default_feat_type = NULL,
                             provenance = NULL,
@@ -1402,6 +1403,7 @@ check_feat_metadata = function(gobject,
 
   # find available feat metadata
   avail_fm = list_feat_metadata(gobject)
+  avail_ex = list_expression(gobject)
   g_ft = list_feat_id_names(gobject)
   used_ft = unique(avail_fm$feat_type)
 
@@ -1417,19 +1419,35 @@ check_feat_metadata = function(gobject,
 
   for(ft_i in used_ft) {
 
-    IDs = featIDs(gobject, feat_type = ft_i)
-    search_IDs = c(head(IDs, 10L), tail(IDs, 10L))
-
     ft_fm = avail_fm[feat_type == ft_i,]
     lapply(seq(nrow(ft_fm)), function(obj_i) {
 
+      su_i = ft_fm$spat_unit[[obj_i]]
+
       # get metadata
       meta = get_feature_metadata(gobject = gobject,
-                                  spat_unit = ft_fm$spat_unit[[obj_i]],
+                                  spat_unit = su_i,
                                   feat_type = ft_i,
                                   output = 'featMetaObj',
                                   copy_obj = FALSE,
                                   set_defaults = FALSE)
+
+      # Start checking values when specific expression is added
+      if(is.null(avail_ex)) return()
+
+      if(!nrow(avail_ex[spat_unit == su_i & feat_type == ft_i] == 0L)) {
+        IDs = featIDs(get_expression_values(gobject = gobject,
+                                            spat_unit = su_i,
+                                            feat_type = ft_i,
+                                            output = 'exprObj'))
+      } else {
+        return() # skip checks if no expression found
+      }
+
+
+
+      # check metadata
+      search_IDs = c(head(IDs, 10L), tail(IDs, 10L))
 
       # no feat_IDs
       if(any(meta[][, is.na(feat_ID)])) { # denotes missing or need to repair IDs
@@ -1462,7 +1480,7 @@ check_feat_metadata = function(gobject,
 
       # duplicated IDs
       if(any(meta[][, duplicated(feat_ID)])) {
-        stop(wrap_txt('Feature metadata: duplicates found in feat_ID column.',
+        warning(wrap_txt('Feature metadata: duplicates found in feat_ID column.',
                       errWidth = TRUE))
       }
 
@@ -3768,58 +3786,35 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @concept giotto
 #' @importFrom methods new
 #' @export
-createGiottoObject <- function(expression,
-                               raw_exprs = NULL,
-                               expression_feat = 'rna',
-                               spatial_locs = NULL,
-                               spatial_info = NULL,
-                               cell_metadata = NULL,
-                               feat_metadata = NULL,
-                               feat_info = NULL,
-                               spatial_network = NULL,
-                               spatial_grid = NULL,
-                               spatial_grid_name = NULL,
-                               spatial_enrichment = NULL,
-                               dimension_reduction = NULL,
-                               nn_network = NULL,
-                               images = NULL,
-                               largeImages = NULL,
-                               offset_file = NULL,
-                               instructions = NULL,
-                               cores = determine_cores(),
-                               verbose = TRUE) {
+createGiottoObject = function(expression,
+                              expression_feat = 'rna',
+                              spatial_locs = NULL,
+                              spatial_info = NULL,
+                              cell_metadata = NULL,
+                              feat_metadata = NULL,
+                              feat_info = NULL,
+                              spatial_network = NULL,
+                              spatial_grid = NULL,
+                              spatial_grid_name = NULL,
+                              spatial_enrichment = NULL,
+                              dimension_reduction = NULL,
+                              nn_network = NULL,
+                              images = NULL,
+                              largeImages = NULL,
+                              offset_file = NULL,
+                              instructions = NULL,
+                              cores = determine_cores(),
+                              raw_exprs = NULL,
+                              verbose = TRUE) {
 
   # create minimum giotto
-  gobject = new('giotto',
-                expression_feat = expression_feat,
-                offset_file = offset_file,
-                instructions = instructions,
-                OS_platform = .Platform[['OS.type']])
-
-  # gobject = giotto(expression = list(),
-  #                  expression_feat = expression_feat,
-  #                  spatial_locs = spatial_locs,
-  #                  spatial_info = NULL,
-  #                  cell_metadata = cell_metadata,
-  #                  feat_metadata = feat_metadata,
-  #                  feat_info = feat_info,
-  #                  cell_ID = NULL,
-  #                  feat_ID = NULL,
-  #                  spatial_network = NULL,
-  #                  spatial_grid = NULL,
-  #                  spatial_enrichment = NULL,
-  #                  dimension_reduction = NULL,
-  #                  nn_network = NULL,
-  #                  images = NULL,
-  #                  largeImages = NULL,
-  #                  parameters = NULL,
-  #                  offset_file = offset_file,
-  #                  instructions = instructions,
-  #                  OS_platform = .Platform[['OS.type']],
-  #                  join_info = NULL)
+  gobject = giotto(expression_feat = expression_feat,
+                   offset_file = offset_file,
+                   instructions = instructions,
+                   OS_platform = .Platform[['OS.type']])
 
 
-  ## data.table: set global variable
+  ## data.table vars
   cell_ID = feat_ID = NULL
 
   ## check if all optional packages are installed
@@ -3843,6 +3838,28 @@ createGiottoObject <- function(expression,
   data.table::setDTthreads(threads = cores)
 
 
+  ## spatial info ##
+  ## ------------ ##
+  ## place to store segmentation info in polygon format style
+
+  if(!is.null(spatial_info)) {
+    gobject = addGiottoPolygons(gobject = gobject,
+                                gpolygons = spatial_info)
+  }
+
+
+
+  ## feature info ##
+  ## ------------ ##
+  ## place to store individual feature info
+  if(!is.null(feat_info)) {
+    gobject = addGiottoPoints(gobject = gobject,
+                              gpoints = feat_info)
+  }
+
+
+
+
   ## expression data ##
   ## --------------- ##
 
@@ -3853,6 +3870,7 @@ createGiottoObject <- function(expression,
     warning('raw_exprs argument is deprecated, use expression argument in the future \n')
   }
 
+
   if(!is.null(expression)) {
 
     expression_data = readExprData(data_list = expression,
@@ -3860,21 +3878,27 @@ createGiottoObject <- function(expression,
                                    cores = cores,
                                    default_feat_type = expression_feat,
                                    verbose = verbose)
-    for(expr_i in seq_along(expression_data)) {
-      gobject = set_expression_values(gobject = gobject,
-                                      values = expression_data[[expr_i]],
-                                      set_defaults = FALSE)
-    }
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setExpression(gobject = gobject,
+                            x = expression_data,
+                            verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 
     print('test 1')
 
 
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
-    gobject = init_cell_and_feat_IDs(gobject)
+    # gobject = init_cell_and_feat_IDs(gobject)
+    # no longer needed
 
   }
 
   if(verbose) message('finished expression data')
+
+
+
+
 
 
   ## parameters ##
@@ -3885,33 +3909,31 @@ createGiottoObject <- function(expression,
 
   ## set instructions ##
   ## ---------------- ##
-  if(is.null(instructions)) {
-    # create all default instructions
-    gobject@instructions = createGiottoInstructions()
-  }
+  # if(is.null(instructions)) {
+  #   # create all default instructions
+  #   gobject@instructions = createGiottoInstructions()
+  # }
+  # now automatically done
 
 
   ## test if python modules are available
-  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
-  my_python_path = gobject@instructions$python_path
-  for(module in python_modules) {
-    if(reticulate::py_module_available(module) == FALSE) {
-      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
-    }
-  }
+  # python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
+  # my_python_path = gobject@instructions$python_path
+  # for(module in python_modules) {
+  #   if(reticulate::py_module_available(module) == FALSE) {
+  #     warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+  #   }
+  # }
 
 
   ## spatial locations ##
   ## ----------------- ##
 
-
-
-
   raw_cell_dim_list = list()
 
   for(spat_unit in names(gobject@expression)) {
     for(feat_type in names(gobject@expression[[spat_unit]])) {
-      raw_cell_dim_list[[spat_unit]][[feat_type]] = ncol(gobject@expression[[spat_unit]][[feat_type]][[1]])
+      raw_cell_dim_list[[spat_unit]][[feat_type]] = ncol(gobject@expression[[spat_unit]][[feat_type]][[1L]])
     }
   }
 
@@ -3924,17 +3946,16 @@ createGiottoObject <- function(expression,
 
   if(!is.null(spatial_locs)) {
 
-    # parse spatial_loc param input for any spat_unit/name info
     spatial_location_data = readSpatLocsData(data_list = spatial_locs,
                                              cores = cores,
                                              verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setSpatialLocations(gobject = gobject,
+                                  x = spatial_location_data,
+                                  verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-    # set spatial location data
-    for(spatloc_i in seq_along(spatial_location_data)) {
-      gobject = set_spatial_locations(gobject, spatlocs = spatial_location_data[[spatloc_i]])
-    }
 
-    # slot(gobject, 'spatial_locs') = spatial_location_data
 
     # 1. ensure spatial locations and expression matrices have the same cell IDs
     # 2. give cell IDs if not provided
@@ -3963,7 +3984,7 @@ createGiottoObject <- function(expression,
                                              spat_unit = spat_unit)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
+      gobject = set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     }
@@ -3972,60 +3993,57 @@ createGiottoObject <- function(expression,
   if(verbose) message('finished spatial location data')
 
 
-  ## spatial info ##
-  ## ------------ ##
-  ## place to store segmentation info in polygon format style
-
-  if(!is.null(spatial_info)) {
-    gobject = addGiottoPolygons(gobject = gobject,
-                                gpolygons = spatial_info)
-  }
 
 
 
   ## cell metadata ##
   ## ------------- ##
-  if(is.null(cell_metadata)) {
-    # initialize metadata
-    gobject = init_cell_metadata(gobject)
-  } else {
-    gobject = set_cell_metadata(gobject = gobject,
-                                metadata = cell_metadata)
+  if(!is.null(cell_metadata)) {
+    cm_list = readCellMetadata(data_list = cell_metadata,
+                               default_feat_type = expression_feat,
+                               verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setCellMetadata(gobject = gobject,
+                              x = cm_list,
+                              verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
   if(verbose) message('finished cell metadata')
 
   ## feat metadata ##
   ## ------------- ##
-  if(is.null(feat_metadata)) {
-    # initialize metadata
-    gobject = init_feat_metadata(gobject)
-  } else {
-    gobject = set_feature_metadata(gobject = gobject,
-                                   metadata = feat_metadata)
+  if(!is.null(feat_metadata)) {
+    fm_list = readFeatMetadata(data_list = feat_metadata,
+                               default_feat_type = expression_feat,
+                               verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setFeatureMetadata(gobject = gobject,
+                                 x = fm_list,
+                                 verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
   if(verbose) message('finished feature metadata')
-
-  ## feature info ##
-  ## ------------ ##
-  ## place to store individual feature info
-  if(!is.null(feat_info)) {
-    gobject = addGiottoPoints(gobject = gobject,
-                              gpoints = feat_info)
-  }
 
 
 
 
   ### OPTIONAL:
   ## spatial network
-  spatial_network_list = readSpatNetData(data_list = spatial_network)
-  for(sn_i in seq_along(spatial_network_list)) {
-    gobject = set_spatialNetwork(gobject = gobject,
-                                 spatial_network = spatial_network_list[[sn_i]],
-                                 set_defaults = FALSE)
+  if(!is.null(spatial_network)) {
+    spatial_network_list = readSpatNetData(data_list = spatial_network,
+                                           verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setSpatialNetwork(gobject = gobject,
+                                x = spatial_network_list,
+                                verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  } else {
+    message('No spatial network results are provided')
   }
+
+
 
 
 
@@ -4066,32 +4084,53 @@ createGiottoObject <- function(expression,
 
 
   ## spatial enrichment
-  spatial_enrichment = readSpatEnrichData(data_list = spatial_enrichment)
-  for(se_i in seq_along(spatial_enrichment)) {
-    gobject = set_spatial_enrichment(gobject = gobject,
-                                     spatenrichment = spatial_enrichment[[se_i]],
-                                     set_defaults = FALSE)
+  if(!is.null(spatial_enrichment)) {
+    spatial_enrichment = readSpatEnrichData(data_list = spatial_enrichment,
+                                            default_feat_type = expression_feat,
+                                            verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setSpatialEnrichment(gobject = gobject,
+                                   x = spatial_enrichment,
+                                   verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  } else {
+    message('No spatial enrichment results are provided')
   }
 
 
 
 
   ## dimension reduction
-  dimension_reduction = readDimReducData(data_list =  dimension_reduction)
-  for(dr_i in seq_along(dimension_reduction)) {
-    gobject = set_dimReduction(gobject = gobject,
-                               dimObject = dimension_reduction[[dr_i]],
-                               set_defaults = FALSE)
+  if(!is.null(dimension_reduction)) {
+    dimension_reduction = readDimReducData(data_list = dimension_reduction,
+                                           default_feat_type = expression_feat,
+                                           verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setDimReduction(gobject = gobject,
+                              x = dimension_reduction,
+                              verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  } else {
+    message('No dimension reduction results are provided')
   }
+
+
 
 
   # NN network
-  nn_network = readNearestNetData(data_list =  nn_network)
-  for(nn_i in seq_along(nn_network)) {
-    gobject = set_NearestNetwork(gobject = gobject,
-                                 nn_network = nn_network[[nn_i]],
-                                 set_defaults = FALSE)
+  if(!is.null(nn_network)) {
+    nn_network = readNearestNetData(data_list = nn_network,
+                                    default_feat_type = expression_feat,
+                                    verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setNearestNetwork(gobject = gobject,
+                                x = nn_network,
+                                verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  } else {
+    message('No nearest neighbor network results are provided')
   }
+
 
 
 
