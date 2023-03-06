@@ -854,85 +854,328 @@ init_cell_and_feat_IDs = function(gobject) {
 
 #### Giotto metadata ####
 
+
+
+
 #' @title Read cell metadata
 #' @name read_cell_metadata
 #' @description read cell metadata from list
-#' @param gobject giotto object
+#' @param metadata nested list of cell metadata information
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @export
+readCellMetadata = function(data_list,
+                            default_spat_unit = NULL,
+                            default_feat_type = NULL,
+                            provenance = NULL,
+                            verbose = TRUE) {
+  read_cell_metadata(metadata = data_list,
+                     default_spat_unit = default_spat_unit,
+                     default_feat_type = default_feat_type,
+                     provenance = provenance,
+                     verbose = verbose)
+}
+
+
+
+
+#' @title Read cell metadata
+#' @name read_cell_metadata
+#' @description read cell metadata from list
 #' @param metadata nested list of cell metadata information
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @keywords internal
-read_cell_metadata = function(gobject,
-                              metadata,
+read_cell_metadata = function(metadata,
+                              default_spat_unit = NULL,
+                              default_feat_type = NULL,
                               provenance = NULL,
                               verbose = TRUE) {
 
   # data.table vars
   cell_ID = NULL
 
-  if(is.null(metadata)) {
-    return(NULL)
+  # check if input exists
+  if(is.null(metadata)) return(NULL)
+
+  # set defaults if missing
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
+
+  # if not list make list
+  if(!is.list(metadata)) {
+    meta_list = list()
+    meta_list[[default_spat_unit]][[default_feat_type]] = metadata
+    metadata = meta_list
   }
 
-  if(inherits(metadata, 'cellMetaObj')) {
-    return(list(metadata))
-  }
+
+  # 1. get detph of list
+  list_depth = depth(metadata)
 
 
   # list reading
+  obj_list = list()
+  spat_unit_list = c()
+  feat_type_list = c()
 
 
+  # read nesting
+  if(list_depth == 1L) {
 
-  cellMetaObj_list = list()
+    if(isTRUE(verbose)) message('list depth of 1')
 
-  # extract all metadata information
-  # need to be nested list (feature type and spatial unit)
-  for(spat_unit in names(metadata)) {
+    feat_type_names = names(metadata)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
 
-    if(!spat_unit %in% list_cell_id_names(gobject)) {
-      if(isTRUE(verbose)) warning('spat_unit "', spat_unit, '" not found in gobject cell_ID slot.\nPlease check metadata list nesting.\n')
+    for(feat_i in seq_along(metadata)) {
+
+      meta = metadata[[feat_i]]
+      feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+
+      obj_list[[length(obj_list) + 1L]] = meta
+      feat_type_list = c(feat_type_list, feat_type)
     }
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
 
-    for(feat_type in names(metadata[[spat_unit]])) {
+  } else if(list_depth == 2L) {
+    if(isTRUE(verbose)) message('list depth of 2')
 
-      if(!feat_type %in% list_feat_id_names(gobject)) {
-        if(isTRUE(verbose)) warning('feat_type "', feat_type, '" not found in gobject feat_ID slot.\nPlease check metadata list nesting.\n')
+    spat_unit_names = names(metadata)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
+    for(unit_i in seq_along(metadata)) {
+
+      feat_type_names = names(metadata[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
+      for(feat_i in seq_along(metadata[[unit_i]])) {
+
+        meta = metadata[[unit_i]][[feat_i]]
+        spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+
+        obj_list[[length(obj_list) + 1L]] = meta
+        spat_unit_list = c(spat_unit_list, spat_unit)
+        feat_type_list = c(feat_type_list, feat_type)
       }
-
-      # TODO load with fread if path given as character
-
-      metaDT = data.table::as.data.table(metadata[[spat_unit]][[feat_type]])
-
-      # if cell ID col is missing, try to automatically set
-      if(is.null(metaDT[['cell_ID']])) {
-        id_error = try(metaDT[, cell_ID := get_cell_id(gobject, spat_unit = spat_unit)], silent = TRUE)
-        if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata cell_ID based on gobject cell_ID slot.')
-      } else if(spat_unit %in% list_cell_id_names(gobject)) {
-
-        # if cell ID col is present in both, try to match
-        if(!identical(metaDT[, cell_ID], get_cell_id(gobject, spat_unit = spat_unit))) {
-          stop('metadata cell_ID does not match that in gobject cell_ID slot for spat_unit "', spat_unit, '".\n')
-        }
-
-      }
-
-      # put cell_ID first
-      setcolorder(metaDT, 'cell_ID')
-
-      metaObj = new('cellMetaObj',
-                    metaDT = metaDT,
-                    col_desc = NA_character_, # unknown
-                    spat_unit = spat_unit,
-                    provenance = if(is.null(provenance)) spat_unit else provenance,
-                    feat_type = feat_type)
-
-      cellMetaObj_list = append(cellMetaObj_list, metaObj)
-
     }
+  } else {
+    stop(wrap_txt('Unexpected list depth', errWidth = TRUE))
   }
 
-  return(cellMetaObj_list)
+  if(length(obj_list) > 0L) {
+
+    return_list = lapply(seq_along(obj_list), function(obj_i) {
+
+      if(inherits(obj_list[[obj_i]], 'cellMetaObj')) {
+        warning(wrap_txt('List item [', obj_i, ']: Not possible to read cellMetaObj.
+                         Returning without modifications', sep = ''))
+        return(obj_list[[obj_i]])
+      } else {
+
+        # Get data from collection lists
+        meta_data = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   sep = ''
+          )
+        }
+
+        return(
+          createCellMetaObj(
+            metadata = meta_data,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            verbose = TRUE,
+            col_desc = NA_character_ # unknown
+          )
+        )
+      }
+    })
+    return(return_list)
+
+  } else {
+    warning('No objects found in cell metadata input list')
+  }
+
 }
+
+
+
+
+
+#' @keywords internal
+#' @noRd
+evaluate_cell_metadata = function(metadata,
+                                  cores = determine_cores(),
+                                  verbose = TRUE) {
+
+  # data.table vars cell_ID
+
+  # Get data as data.table
+  if(!any(class(metadata) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+    stop(wrap_txt('metadata needs to be a data.table or data.frame-like object',
+                  'or a path to one of these',
+                  errWidth = TRUE))
+  }
+  if(inherits(metadata, 'character')) {
+    metadata = path.expand(metadata)
+    if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
+                                              errWidth = TRUE))
+    metadata = data::fread(input = metadata, nThread = cores)
+  } else {
+    metadata = tryCatch(
+      data.table::setDT(metadata),
+      error = function(e) data.table::as.data.table(metadata)
+    )
+  }
+
+
+  # assign cell_ID col
+  if('cell_ID' %in% colnames(metadata)) {
+    data.table::setcolorder(metadata, neworder = c('cell_ID')) # set as first
+    metadata[, cell_ID := as.character(cell_ID)] # ensure character
+
+    # ensure unique entries
+    if(any(metadata[, duplicated(cell_ID)])) {
+      stop(wrap_txt('Cell metadata: duplicates found in cell_ID column.',
+                    errWidth = TRUE))
+    }
+
+  } else {
+
+    warning(wrap_txt('Cell metadata input: no col named cell_ID.
+                     Setting temporary NA values'))
+    # set temporary NA values
+    metadata[, cell_ID := NA_character_]
+
+  }
+
+  return(metadata)
+}
+
+
+
+
+
+#' @keywords internal
+#' @noRd
+check_cell_metadata = function(gobject,
+                               verbose = TRUE) {
+
+  # data.table vars
+  cell_ID = NULL
+
+  # find available cell metadata
+  avail_cm = list_cell_metadata(gobject)
+  g_su = list_cell_id_names(gobject)
+  used_su = unique(avail_cm$spat_unit)
+
+
+  # check hierarchical
+  missing_su = !used_su %in% g_su
+  if(any(missing_su)) {
+    stop(wrap_txt('No expression or polygon information discovered for spat_unit:',
+                  used_su[missing_su],
+                  'Please add expression or polygon information for this spatial',
+                  'unit first', errWidth = TRUE))
+  }
+
+  for(su_i in used_su) {
+
+    IDs = spatIDs(gobject, spat_unit = su_i)
+    search_IDs = c(head(IDs, 10L), tail(IDs, 10L))
+
+    su_cm = avail_cm[spat_unit == su_i,]
+    lapply(seq(nrow(su_cm)), function(obj_i) {
+
+      # get metadata
+      meta = get_cell_metadata(gobject = gobject,
+                               spat_unit = su_i,
+                               feat_type = su_cm$feat_type[[obj_i]],
+                               output = 'cellMetaObj',
+                               copy_obj = FALSE,
+                               set_defaults = FALSE)
+
+      # no cell_IDs
+      if(any(meta[][, is.na(cell_ID)])) { # denotes missing or need to repair IDs
+
+        ID_col_guess = which.max(sapply(meta[], function(x) sum(search_IDs %in% x)))
+
+        if(ID_col_guess == 0L) { # likely that cell_ID col does not exist yet
+          if(length(IDs) == nrow(meta[])) {
+            if(isTRUE(verbose)) wrap_msg('No cell_ID info found within cell metadata
+                                         Directly assigning based on gobject cell_ID')
+            meta[][, cell_ID := IDs] # set by reference
+
+          } else {
+            stop(wrap_txt('No cell_ID info found within cell metadata and unable',
+                          'to guess IDs based on gobject cell_ID', errWidth = TRUE))
+          }
+
+        } else { # otherwise, cell_ID col found
+          ID_col_name = names(ID_col_guess)
+          meta[][, cell_ID := NULL] # remove older column
+          data.table::setnames(meta[], old = ID_col_name, new = 'cell_ID')
+          if(isTRUE(verbose)) wrap_msg('Cell metadata: guessing', ID_col_name,
+                                       'as cell_ID column.')
+        }
+
+        # cell ID guessing and assignment done #
+
+      }
+
+
+      # duplicated IDs
+      if(any(meta[][, duplicated(cell_ID)])) {
+        stop(wrap_txt('Cell metadata: duplicates found in cell_ID column.',
+                      errWidth = TRUE))
+      }
+
+      # length mismatch
+      if(nrow(meta[]) > length(IDs)) {
+
+        m_IDs = meta[][['cell_ID']]
+        filter_bool_cells = m_IDs %in% IDs
+
+        meta[] = meta[][filter_bool_cells]
+      }
+
+      if(nrow(meta[]) < length(IDs)) {
+        ID_dt = data.table::data.table(cell_ID = IDs)
+        meta[] = merge(ID_dt, meta[], all.x = TRUE)
+      }
+
+      if(nrow(meta[]) != length(IDs)) stop(wrap_txt(
+        'Cell metadata: number of entries does not match',
+        'number of gobject IDs for this spat_unit (', length(IDs), ')',
+        errWidth = TRUE
+      ))
+
+      # cell_ID  contents mismatch
+      if(!meta[][, setequal(cell_ID, IDs)]) {
+        stop(wrap_txt('Cell_metadata: IDs do not match between metadata and
+                      cell_ID slot for this spat_unit'))
+      }
+
+      # ensure ID col first
+      setcolorder(meta[], 'cell_ID')
+
+    })
+  }
+
+}
+
 
 
 
@@ -946,77 +1189,320 @@ read_cell_metadata = function(gobject,
 #' @param verbose be verbose
 #' @export
 readFeatMetadata = function(metadata,
+                            default_spat_unit = NULL,
+                            default_feat_type = NULL,
                             provenance = NULL,
                             verbose = TRUE) {
   read_feature_metadata(metadata = metadata,
+                        default_spat_unit = NULL,
+                        default_feat_type = NULL,
                         provenance = provenance,
                         verbose = verbose)
 }
 
 
 
+
 #' @keywords internal
 #' @noRd
-read_feature_metadata = function(gobject,
-                                 metadata,
+read_feature_metadata = function(metadata,
+                                 default_spat_unit = NULL,
+                                 default_feat_type = NULL,
                                  provenance = NULL,
                                  verbose = TRUE) {
 
   # data.table vars
-  feat_ID = NULL
+  cell_ID = NULL
 
-  featMetaObj_list = list()
+  # check if input exists
+  if(is.null(metadata)) return(NULL)
 
-  # extract all metadata information
-  # need to be nested list (feature type and spatial unit)
-  for(spat_unit in names(metadata)) {
+  # set defaults if missing
+  if(is.null(default_spat_unit)) default_spat_unit = 'cell'
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
 
-    if(!spat_unit %in% list_cell_id_names(gobject)) {
-      if(isTRUE(verbose)) warning('spat_unit "', spat_unit, '" not found in gobject cell_ID slot.\nPlease check metadata list nesting.\n')
-    }
-
-    for(feat_type in names(metadata[[spat_unit]])) {
-
-      if(!feat_type %in% list_feat_id_names(gobject)) {
-        if(isTRUE(verbose)) warning('feat_type "', feat_type, '" not found in gobject feat_ID slot.\nPlease check metadata list nesting.\n')
-      }
-
-      # TODO load with fread if path given as character
-
-      metaDT = data.table::as.data.table(metadata[[spat_unit]][[feat_type]])
-
-      # if feat ID col is missing, try to automatically set
-      if(is.null(metaDT[['feat_ID']])) {
-        id_error = try(metaDT[, feat_ID := get_feat_id(gobject, feat_type = feat_type)], silent = TRUE)
-        if(inherits(id_error, 'try-error')) stop('cannot automatically set metadata feat_ID based on gobject feat_ID slot.')
-      } else if(spat_unit %in% list_feat_id_names(gobject)) {
-
-        # if feat ID col is present in both, try to match
-        if(!identical(metaDT[, feat_ID], get_feat_id(gobject, feat_type = feat_type))) {
-          stop('metadata feat_ID does not match that in gobject feat_ID slot for feat_type "', feat_type, '".\n')
-        }
-
-      }
-
-      # put feat_ID first
-      all_colnames = colnames(metaDT)
-      other_colnames = grep('feat_ID', all_colnames, invert = TRUE, value = TRUE)
-      metaDT = metaDT[, c('feat_ID', other_colnames), with = FALSE]
-
-      metaObj = new('featMetaObj',
-                    metaDT = metaDT,
-                    col_desc = NA_character_, # unknown
-                    spat_unit = spat_unit,
-                    provenance = if(is.null(provenance)) spat_unit else provenance,
-                    feat_type = feat_type)
-
-      featMetaObj_list = append(featMetaObj_list, metaObj)
-
-    }
+  # if not list make list
+  if(!is.list(metadata)) {
+    meta_list = list()
+    meta_list[[default_spat_unit]][[default_feat_type]] = metadata
+    metadata = meta_list
   }
 
-  return(featMetaObj_list)
+
+  # 1. get detph of list
+  list_depth = depth(metadata)
+
+
+  # list reading
+  obj_list = list()
+  spat_unit_list = c()
+  feat_type_list = c()
+
+
+  # read nesting
+  if(list_depth == 1L) {
+
+    if(isTRUE(verbose)) message('list depth of 1')
+
+    feat_type_names = names(metadata)
+    if(is.null(feat_type_names) & isTRUE(verbose))
+      wrap_msg('No list names for feat_type. Setting defaults.')
+
+    for(feat_i in seq_along(metadata)) {
+
+      meta = metadata[[feat_i]]
+      feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+
+      obj_list[[length(obj_list) + 1L]] = meta
+      feat_type_list = c(feat_type_list, feat_type)
+    }
+    spat_unit_list = rep(default_spat_unit, length(obj_list)) # assume
+
+  } else if(list_depth == 2L) {
+    if(isTRUE(verbose)) message('list depth of 2')
+
+    spat_unit_names = names(metadata)
+    if(is.null(spat_unit_names) & isTRUE(verbose))
+      wrap_msg('No list names for spat_unit. Setting defaults.')
+
+    for(unit_i in seq_along(metadata)) {
+
+      feat_type_names = names(metadata[[unit_i]])
+      if(is.null(feat_type_names) & isTRUE(verbose))
+        wrap_msg('No list names for feat_type. Setting defaults.')
+
+      for(feat_i in seq_along(metadata[[unit_i]])) {
+
+        meta = metadata[[unit_i]][[feat_i]]
+        spat_unit = if(is_empty_char(spat_unit_names[[unit_i]])) paste0('unit_', unit_i) else spat_unit_names[[unit_i]]
+        feat_type = if(is_empty_char(feat_type_names[[feat_i]])) paste0('feat_', feat_i) else feat_type_names[[feat_i]]
+
+        obj_list[[length(obj_list) + 1L]] = meta
+        spat_unit_list = c(spat_unit_list, spat_unit)
+        feat_type_list = c(feat_type_list, feat_type)
+      }
+    }
+  } else {
+    stop(wrap_txt('Unexpected list depth', errWidth = TRUE))
+  }
+
+  if(length(obj_list) > 0L) {
+
+    return_list = lapply(seq_along(obj_list), function(obj_i) {
+
+      if(inherits(obj_list[[obj_i]], 'featMetaObj')) {
+        warning(wrap_txt('List item [', obj_i, ']: Not possible to read featMetaObj.
+                         Returning without modifications', sep = ''))
+        return(obj_list[[obj_i]])
+      } else {
+
+        # Get data from collection lists
+        meta_data = obj_list[[obj_i]]
+        spat_unit = spat_unit_list[[obj_i]]
+        feat_type = feat_type_list[[obj_i]]
+
+        if(isTRUE(verbose)) {
+          wrap_msg('\nList item [', obj_i, ']:',
+                   '\nspat_unit: ', spat_unit,
+                   '\nfeat_type: ', feat_type,
+                   sep = ''
+          )
+        }
+
+        return(
+          createFeatMetaObj(
+            metadata = meta_data,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            verbose = TRUE,
+            col_desc = NA_character_ # unknown
+          )
+        )
+      }
+    })
+    return(return_list)
+
+  } else {
+    warning('No objects found in feature metadata input list')
+  }
+
 }
+
+
+
+
+
+
+
+#' @keywords internal
+#' @noRd
+evaluate_feat_metadata = function(metadata,
+                                  cores = determine_cores(),
+                                  verbose = TRUE) {
+
+  # data.table vars
+  feat_ID = NULL
+
+  # Get data as data.table
+  if(!any(class(metadata) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+    stop(wrap_txt('metadata needs to be a data.table or data.frame-like object',
+                  'or a path to one of these',
+                  errWidth = TRUE))
+  }
+  if(inherits(metadata, 'character')) {
+    metadata = path.expand(metadata)
+    if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
+                                             errWidth = TRUE))
+    metadata = data::fread(input = metadata, nThread = cores)
+  } else {
+    metadata = tryCatch(
+      data.table::setDT(metadata),
+      error = function(e) data.table::as.data.table(metadata)
+    )
+  }
+
+
+  # assign feat_ID col
+  if('feat_ID' %in% colnames(metadata)) {
+    data.table::setcolorder(metadata, neworder = c('feat_ID')) # set as first
+    metadata[, feat_ID := as.character(feat_ID)] # ensure character
+
+    # ensure unique entries
+    if(any(metadata[, duplicated(feat_ID)])) {
+      stop(wrap_txt('Feature metadata: duplicates found in feat_ID column.',
+                    errWidth = TRUE))
+    }
+
+  } else {
+
+    warning(wrap_txt('Feature metadata input: no col named feat_ID.
+                     Setting temporary NA values'))
+    # set temporary NA values
+    metadata[, feat_ID := NA_character_]
+
+  }
+
+  return(metadata)
+}
+
+
+
+
+
+
+
+#' @keywords internal
+#' @noRd
+check_feat_metadata = function(gobject,
+                               verbose = TRUE) {
+
+  # data.table vars
+  feat_ID = NULL
+
+  # find available feat metadata
+  avail_fm = list_feat_metadata(gobject)
+  g_ft = list_feat_id_names(gobject)
+  used_ft = unique(avail_fm$feat_type)
+
+
+  # check hierarchical
+  missing_ft = !used_ft %in% g_ft
+  if(any(missing_ft)) {
+    stop(wrap_txt('No expression or polygon information discovered for feat_type:',
+                  used_ft[missing_ft],
+                  'Please add expression or polygon information for this feature',
+                  'type first', errWidth = TRUE))
+  }
+
+  for(ft_i in used_ft) {
+
+    IDs = featIDs(gobject, feat_type = ft_i)
+    search_IDs = c(head(IDs, 10L), tail(IDs, 10L))
+
+    ft_fm = avail_fm[feat_type == ft_i,]
+    lapply(seq(nrow(ft_fm)), function(obj_i) {
+
+      # get metadata
+      meta = get_feature_metadata(gobject = gobject,
+                                  spat_unit = ft_fm$spat_unit[[obj_i]],
+                                  feat_type = ft_i,
+                                  output = 'featMetaObj',
+                                  copy_obj = FALSE,
+                                  set_defaults = FALSE)
+
+      # no feat_IDs
+      if(any(meta[][, is.na(feat_ID)])) { # denotes missing or need to repair IDs
+
+        ID_col_guess = which.max(sapply(meta[], function(x) sum(search_IDs %in% x)))
+
+        if(ID_col_guess == 0L) { # likely that feat_ID col does not exist yet
+          if(length(IDs) == nrow(meta[])) {
+            if(isTRUE(verbose)) wrap_msg('No feat_ID info found within feat metadata
+                                         Directly assigning based on gobject feat_ID')
+            meta[][, feat_ID := IDs] # set by reference
+
+          } else {
+            stop(wrap_txt('No feat_ID info found within feat metadata and unable',
+                          'to guess IDs based on gobject feat_ID', errWidth = TRUE))
+          }
+
+        } else { # otherwise, feat_ID col found
+          ID_col_name = names(ID_col_guess)
+          meta[][, feat_ID := NULL] # remove older column
+          data.table::setnames(meta[], old = ID_col_name, new = 'feat_ID')
+          if(isTRUE(verbose)) wrap_msg('Feature metadata: guessing', ID_col_name,
+                                       'as feat_ID column.')
+        }
+
+        # feat ID guessing and assignment done #
+
+      }
+
+
+      # duplicated IDs
+      if(any(meta[][, duplicated(feat_ID)])) {
+        stop(wrap_txt('Feature metadata: duplicates found in feat_ID column.',
+                      errWidth = TRUE))
+      }
+
+      # length mismatch
+      if(nrow(meta[]) > length(IDs)) {
+
+        m_IDs = meta[][['feat_ID']]
+        filter_bool_feats = m_IDs %in% IDs
+
+        meta[] = meta[][filter_bool_feats]
+      }
+
+      if(nrow(meta[]) < length(IDs)) {
+        ID_dt = data.table::data.table(feat_ID = IDs)
+        meta[] = merge(ID_dt, meta[], all.x = TRUE)
+      }
+
+      if(nrow(meta[]) != length(IDs)) stop(wrap_txt(
+        'Feature metadata: number of entries does not match',
+        'number of gobject IDs for this spat_unit (', length(IDs), ')',
+        errWidth = TRUE
+      ))
+
+      # feat_ID  contents mismatch
+      if(!meta[][, setequal(feat_ID, IDs)]) {
+        stop(wrap_txt('Feature metadata: IDs do not match between metadata and
+                      feat_ID slot for this spat_unit'))
+      }
+
+      # ensure ID col first
+      setcolorder(meta[], 'cell_ID')
+
+    })
+  }
+
+}
+
+
+
+
 
 
 
@@ -1820,7 +2306,7 @@ check_spatial_networks = function(gobject) {
   # check hierarchical
   missing_su = !used_su %in% avail_sl$spat_unit
   if(sum(missing_su != 0L)) {
-    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[[missing_su]],
+    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[missing_su],
                   'must be added before the respective spatial networks',
                   errWidth = TRUE))
   }
@@ -2221,7 +2707,7 @@ check_spatial_enrichment = function(gobject) {
   # check hierarchical
   missing_su = !used_su %in% avail_sl$spat_unit
   if(sum(missing_su != 0L)) {
-    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[[missing_su]],
+    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[missing_su],
                   'must be added before the respective spatial enrichments',
                   errWidth = TRUE))
   }
@@ -2944,7 +3430,7 @@ check_nearest_networks = function(gobject) {
   missing_su_ft = !used_su_ft %in% dr_su_ft
   if(sum(missing_su_ft != 0L)) {
     stop(wrap_txt('Matching dimension reductions [spat_unit][feat_type]:\n',
-                  used_su_ft[[missing_su_ft]],
+                  used_su_ft[missing_su_ft],
                   '\nmust be added before the respective nearest neighbor networks',
                   errWidth = TRUE))
   }
@@ -3370,10 +3856,10 @@ createGiottoObject <- function(expression,
   if(!is.null(expression)) {
 
     expression_data = readExprData(data_list = expression,
-                                           sparse = TRUE,
-                                           cores = cores,
-                                           default_feat_type = expression_feat,
-                                           verbose = verbose)
+                                   sparse = TRUE,
+                                   cores = cores,
+                                   default_feat_type = expression_feat,
+                                   verbose = verbose)
     for(expr_i in seq_along(expression_data)) {
       gobject = set_expression_values(gobject = gobject,
                                       values = expression_data[[expr_i]],
@@ -3393,7 +3879,8 @@ createGiottoObject <- function(expression,
 
   ## parameters ##
   ## ---------- ##
-  gobject@parameters = list()
+  # gobject@parameters = list()
+  # now automatically done
 
 
   ## set instructions ##
@@ -3416,6 +3903,10 @@ createGiottoObject <- function(expression,
 
   ## spatial locations ##
   ## ----------------- ##
+
+
+
+
   raw_cell_dim_list = list()
 
   for(spat_unit in names(gobject@expression)) {

@@ -9,7 +9,8 @@ createFeatMetaObj(
   spat_unit = "cell",
   feat_type = "rna",
   provenance = NULL,
-  col_desc = NULL
+  col_desc = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -23,7 +24,7 @@ createFeatMetaObj(
 
 \item{col_desc}{(optional) character vector describing columns of the metadata}
 
-\item{misc}{misc}
+\item{verbose}{be verbose}
 }
 \description{
 Create an S4 featMetaObj

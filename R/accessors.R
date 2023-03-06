@@ -633,6 +633,93 @@ getCellMetadata = function(gobject,
 
 
 
+
+
+#' @title Set cell metadata
+#' @name setCellMetadata
+#' @description Function to set cell metadata into giotto object
+#' @inheritParams data_access_params
+#' @param x cellMetaObj or list of cellMetaObj to set. Passing NULL will
+#' reset a specified set of cell metadata in the giotto object.
+#' @param provenance provenance information (optional)
+#' @param verbose be verbose
+#' @return giotto object
+#' @family functions to set data in giotto object
+setCellMetadata = function(gobject,
+                           x,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           provenance = NULL,
+                           verbose = TRUE) {
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
+                                        errWidth = TRUE))
+
+  # check hierarchical slots
+  used_su = list_cell_id_names(gobject)
+  if(is.null(used_su))
+    stop(wrap_txt('Add expression or spatial (polygon) information first'))
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  .external_accessor_cellmeta = list(nospec_unit = nospec_unit,
+                                     nospec_feat = nospec_feat)
+  # checked by internal setter to determine if called by external
+
+  # SINGLE INPUT
+  # 2. if input is cellMetaObj or NULL, pass to internal
+  if(is.null(x) | inherits(x, 'cellMetaObj')) {
+
+    # pass to internal
+    gobject = set_cell_metadata(
+      gobject = gobject,
+      metadata = x,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+  } else if(is.list(x)) {
+
+    # check list items are native
+    if(all(sapply(x, class) == 'cellMetaObj')) {
+
+      # MULTIPLE INPUT
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
+
+        if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_cell_metadata(
+          gobject = gobject,
+          metadata = x[[obj_i]],
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          provenance = provenance,
+          verbose = verbose,
+          set_defaults = FALSE,
+          initialize = TRUE
+        )
+      }
+      return(gobject)
+    }
+  }
+
+  # catch
+  stop(wrap_txt('only cellMetaObj or lists of cellMetaObj accepted.
+                For raw or external data, please first use readCellMetadata()'))
+
+}
+
+
+
+
+
+
 #' @title Set cell metadata
 #' @name set_cell_metadata
 #' @description Function to set cell metadata information into giotto object
@@ -650,7 +737,8 @@ set_cell_metadata = function(gobject,
                              feat_type = NULL,
                              provenance = NULL,
                              verbose = TRUE,
-                             set_defaults = TRUE) {
+                             set_defaults = TRUE,
+                             initialize = FALSE) {
 
   # data.table vars
   cell_ID = NULL
@@ -675,7 +763,8 @@ set_cell_metadata = function(gobject,
   if(is.null(metadata)) {
     if(isTRUE(verbose)) message('NULL passed to metadata.\n Removing specified metadata.')
     gobject@cell_metadata[[spat_unit]][[feat_type]] = NULL
-    return(gobject)
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
   # 3.2 if input is 'initialize', RESET/reinitialize object
@@ -690,7 +779,8 @@ set_cell_metadata = function(gobject,
         feat_type = feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance
       )
-      return(gobject)
+      if(isTRUE(initialize)) return(initialize(gobject))
+      else return(gobject)
     }
   }
 
@@ -725,7 +815,8 @@ set_cell_metadata = function(gobject,
         gobject = set_cell_metadata(gobject,
                                     metadata = cellMetaObj_list[[obj_i]])
       }
-      return(gobject)
+      if(isTRUE(initialize)) initialize(gobject)
+      else return(gobject)
     }
 
     # 4.3 otherwise assume data.frame type object
@@ -801,7 +892,8 @@ set_cell_metadata = function(gobject,
   # message("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
   #
   gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
-  return(gobject)
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 
@@ -875,24 +967,100 @@ getFeatureMetadata = function(gobject,
 
 
 
+
+
+
 #' @title Set feature metadata
-#' @name set_feature_metadata
+#' @name setFeatureMetadata
 #' @description Function to set feature metadata into giotto object
 #' @inheritParams data_access_params
-#' @param metadata featMetaObj or data.table object containing feature metadata.
-#' Setting NULL will remove the object.
+#' @param x featMetaObj or list of featMetaObj to set. Passing NULL will
+#' reset a specified set of feature metadata in the giotto object.
 #' @param provenance provenance information (optional)
 #' @param verbose be verbose
 #' @return giotto object
 #' @family functions to set data in giotto object
+setFeatureMetadata = function(gobject,
+                              x,
+                              spat_unit = NULL,
+                              feat_type = NULL,
+                              provenance = NULL,
+                              verbose = TRUE) {
+  guard_against_notgiotto(gobject)
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
+                                        errWidth = TRUE))
+
+  # 1. Determine user inputs
+  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  .external_accessor_featmeta = list(nospec_unit = nospec_unit,
+                                     nospec_feat = nospec_feat)
+  # checked by internal setter to determine if called by external
+
+  # SINGLE INPUT
+  # 2. if input is featMetaObj or NULL, pass to internal
+  if(is.null(x) | inherits(x, 'featMetaObj')) {
+
+    # pass to internal
+    gobject = set_feature_metadata(
+      gobject = gobject,
+      metadata = x,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      verbose = verbose,
+      set_defaults = FALSE,
+      initialize = TRUE
+    )
+    return(gobject)
+  } else if(is.list(x)) {
+
+    # check list items are native
+    if(all(sapply(x, class) == 'featMetaObj')) {
+
+      # MULTIPLE INPUT
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
+
+        if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_feature_metadata(
+          gobject = gobject,
+          metadata = x[[obj_i]],
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          provenance = provenance,
+          verbose = verbose,
+          set_defaults = FALSE,
+          initialize = TRUE
+        )
+      }
+      return(gobject)
+    }
+  }
+
+  # catch
+  stop(wrap_txt('only featMetaObj or lists of featMetaObj accepted.
+                For raw or external data, please first use readFeatMetadata()'))
+
+}
+
+
+
+
+
+
+
 #' @keywords internal
+#' @noRd
 set_feature_metadata = function(gobject,
                                 metadata,
                                 spat_unit = NULL,
                                 feat_type = NULL,
                                 provenance = NULL,
                                 verbose = TRUE,
-                                set_defaults = TRUE) {
+                                set_defaults = TRUE,
+                                initialize = FALSE) {
 
   # data.table vars
   feat_ID = NULL
@@ -917,7 +1085,8 @@ set_feature_metadata = function(gobject,
   if(is.null(metadata)) {
     if(isTRUE(verbose)) wrap_msg('NULL passed to metadata.\n Removing specified metadata.')
     gobject@feat_metadata[[spat_unit]][[feat_type]] = NULL
-    return(gobject)
+    if(isTRUE(initialize)) return(initialize(gobject))
+    else return(gobject)
   }
 
   # 3.2 if input is 'initialize', RESET/reinitialize object
@@ -932,7 +1101,8 @@ set_feature_metadata = function(gobject,
         feat_type = feat_type,
         provenance = if(is.null(provenance)) spat_unit else provenance
       )
-      return(gobject)
+      if(isTRUE(initialize)) return(initialize(gobject))
+      else return(gobject)
     }
   }
 
@@ -1014,9 +1184,11 @@ set_feature_metadata = function(gobject,
                                  feat_type, '" already exists and will be replaced with new metadata.')
   }
 
-  gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
-  return(gobject)
 
+  # 6. return object
+  gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
+  if(isTRUE(initialize)) return(initialize(gobject))
+  else return(gobject)
 
 }
 

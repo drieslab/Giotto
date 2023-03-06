@@ -5,7 +5,13 @@
 \alias{readFeatMetadata}
 \title{Read feature metadata}
 \usage{
-readFeatMetadata(metadata, provenance = NULL, verbose = TRUE)
+readFeatMetadata(
+  metadata,
+  default_spat_unit = NULL,
+  default_feat_type = NULL,
+  provenance = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{metadata}{nested list of feature metadata information}
