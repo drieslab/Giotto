@@ -6,7 +6,7 @@
 \usage{
 setSpatialNetwork(
   gobject,
-  spatial_network,
+  x,
   spat_unit = NULL,
   name = NULL,
   provenance = NULL,
@@ -17,7 +17,8 @@ setSpatialNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatial_network}{spatial network}
+\item{x}{spatialNetworkObj or list of spatialNetworkObj to set. Passing NULL
+removes a specified set of spatial network information from the gobject.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 

@@ -1192,7 +1192,7 @@ evaluate_spatial_locations = function(spatial_locs,
 
 
 #' @title Read spatial location data
-#' @name readSpatLocData
+#' @name readSpatLocsData
 #' @description read spatial locations/coordinates from nested list and generate
 #' list of Giotto spatLocsObj
 #' @inheritParams read_data_params
@@ -1200,11 +1200,11 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @param cores how many cores to use
 #' @return list of spatLocsObj
 #' @export
-readSpatLocData = function(data_list,
-                           default_spat_unit = NULL,
-                           provenance = NULL,
-                           cores = determine_cores(),
-                           verbose = TRUE) {
+readSpatLocsData = function(data_list,
+                            default_spat_unit = NULL,
+                            provenance = NULL,
+                            cores = determine_cores(),
+                            verbose = TRUE) {
 
   spatLocsObj_list = read_spatial_location_data(
     spat_loc_list = data_list,
@@ -1379,6 +1379,7 @@ check_spatial_location_data = function(gobject) {
   avail_ex = list_expression(gobject)
   avail_si = list_spatial_info(gobject)
 
+  # check hierarchical
   missing_unit = !(avail_sl$spat_unit) %in% c(avail_ex$spat_unit, avail_si$spat_info)
   if(any(missing_unit)) {
     stop(wrap_txt('No expression or polygon information discovered for spat_unit:',
@@ -1804,6 +1805,57 @@ read_spatial_networks = function(spatial_network,
 }
 
 
+
+
+
+
+#' @keywords internal
+#' @noRd
+check_spatial_networks = function(gobject) {
+
+  avail_sn = list_spatial_networks(gobject = gobject)
+  avail_sl = list_spatial_locations(gobject = gobject)
+  used_su = unique(avail_sn$spat_unit)
+
+  # check hierarchical
+  missing_su = !used_su %in% avail_sl$spat_unit
+  if(sum(missing_su != 0L)) {
+    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[[missing_su]],
+                  'must be added before the respective spatial networks',
+                  errWidth = TRUE))
+  }
+
+  if(!is.null(used_su)) {
+
+    for(su_i in used_su) {
+      IDs = spatIDs(gobject, spat_unit = su_i)
+
+      su_sn = avail_sn[spat_unit == su_i,]
+      lapply(seq(nrow(su_sn)), function(obj_i) {
+        sn_obj = get_spatialNetwork(gobject = gobject,
+                                    spat_unit = su_i,
+                                    name = su_sn$name[[obj_i]],
+                                    output = 'spatialNetworkObj',
+                                    set_defaults = FALSE,
+                                    copy_obj = FALSE,
+                                    verbose = FALSE)
+        if(!all(spatIDs(sn_obj) %in% IDs)) {
+          warning(wrap_txt('spat_unit:', su_i,
+                           'name:', su_sn$name[[obj_i]], '\n',
+                           'Spatial network vertex names are not all found in gobject IDs'))
+        }
+        # print(paste(su_i, su_sn$name[[obj_i]])) # debug
+      })
+    }
+  }
+
+}
+
+
+
+
+
+
 # See function spatShift in generics.R
 #' @name shift_spatial_network
 #' @title Shift spatial network
@@ -2163,7 +2215,16 @@ read_spatial_enrichment = function(spatial_enrichment,
 check_spatial_enrichment = function(gobject) {
 
   avail_se = list_spatial_enrichments(gobject = gobject)
+  avail_sl = list_spatial_locations(gobject = gobject)
   used_su = unique(avail_se$spat_unit)
+
+  # check hierarchical
+  missing_su = !used_su %in% avail_sl$spat_unit
+  if(sum(missing_su != 0L)) {
+    stop(wrap_txt('Matching spatial locations in spat_unit(s)', used_su[[missing_su]],
+                  'must be added before the respective spatial enrichments',
+                  errWidth = TRUE))
+  }
 
   if(!is.null(used_su)) {
 
@@ -2171,7 +2232,7 @@ check_spatial_enrichment = function(gobject) {
       IDs = spatIDs(gobject, spat_unit = su_i)
 
       su_se = avail_se[spat_unit == su_i,]
-      lapply(seq(nrow(avail_se)), function(obj_i) {
+      lapply(seq(nrow(su_se)), function(obj_i) {
         se_obj = get_spatial_enrichment(gobject = gobject,
                                         spat_unit = su_i,
                                         feat_type = su_se$feat_type[[obj_i]],
@@ -2483,7 +2544,19 @@ check_dimension_reduction = function(gobject) {
 
   # check that all spatIDs of coordinates setequals with gobject cell_ID for the particular spat_unit
   avail_dr = list_dim_reductions(gobject = gobject)
+  avail_ex = list_expression(gobject = gobject)
   used_su = unique(avail_dr$spat_unit)
+  used_su_ft = unique(avail_dr[, paste0('[',spat_unit,'][',  feat_type,']')])
+  ex_su_ft = unique(avail_ex[, paste0('[',spat_unit,'][',  feat_type,']')])
+
+  # check hierarchical
+  missing_su_ft = !used_su_ft %in% ex_su_ft
+  if(sum(missing_su_ft != 0L)) {
+    stop(wrap_txt('Matching expression values [spat_unit][feat_type]:\n',
+                  used_su_ft[missing_su_ft],
+                  '\nmust be added before the respective dimension reductions',
+                  errWidth = TRUE))
+  }
 
   if(!is.null(used_su)) {
 
@@ -2491,7 +2564,7 @@ check_dimension_reduction = function(gobject) {
       IDs = spatIDs(gobject, spat_unit = su_i)
 
       su_dr = avail_dr[spat_unit == su_i,]
-      lapply(seq(nrow(avail_dr)), function(obj_i) {
+      lapply(seq(nrow(su_dr)), function(obj_i) {
         dr_obj = get_dimReduction(gobject = gobject,
                                   spat_unit = su_i,
                                   feat_type = su_dr$feat_type[[obj_i]],
@@ -2862,7 +2935,19 @@ read_nearest_networks = function(nn_network,
 check_nearest_networks = function(gobject) {
 
   avail_nn = list_nearest_networks(gobject = gobject)
+  avail_dr = list_dim_reductions(gobject = gobject)
   used_su = unique(avail_nn$spat_unit)
+  used_su_ft = unique(avail_nn[, paste0('[',spat_unit,'][',  feat_type,']')])
+  dr_su_ft = unique(avail_dr[, paste0('[',spat_unit,'][',  feat_type,']')])
+
+  # check hierarchical
+  missing_su_ft = !used_su_ft %in% dr_su_ft
+  if(sum(missing_su_ft != 0L)) {
+    stop(wrap_txt('Matching dimension reductions [spat_unit][feat_type]:\n',
+                  used_su_ft[[missing_su_ft]],
+                  '\nmust be added before the respective nearest neighbor networks',
+                  errWidth = TRUE))
+  }
 
   if(!is.null(used_su)) {
 
@@ -2870,7 +2955,7 @@ check_nearest_networks = function(gobject) {
       IDs = spatIDs(gobject, spat_unit = su_i)
 
       su_nn = avail_nn[spat_unit == su_i,]
-      lapply(seq(nrow(avail_nn)), function(obj_i) {
+      lapply(seq(nrow(su_nn)), function(obj_i) {
         nn_obj = get_NearestNetwork(gobject = gobject,
                                     spat_unit = su_i,
                                     feat_type = su_nn$feat_type[[obj_i]],
@@ -3349,9 +3434,9 @@ createGiottoObject <- function(expression,
   if(!is.null(spatial_locs)) {
 
     # parse spatial_loc param input for any spat_unit/name info
-    spatial_location_data = readSpatLocData(data_list = spatial_locs,
-                                                       cores = cores,
-                                                       verbose = verbose)
+    spatial_location_data = readSpatLocsData(data_list = spatial_locs,
+                                             cores = cores,
+                                             verbose = verbose)
 
     # set spatial location data
     for(spatloc_i in seq_along(spatial_location_data)) {

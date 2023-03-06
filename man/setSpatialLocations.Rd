@@ -6,30 +6,26 @@
 \usage{
 setSpatialLocations(
   gobject,
-  spatlocs,
+  x,
   spat_unit = NULL,
   name = "raw",
   provenance = NULL,
-  verbose = TRUE,
-  set_defaults = TRUE
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatlocs}{spatial locations (accepts either \code{data.table} or
-\code{spatLocsObj})}
+\item{x}{spatLocsObj or list of spatLocsObj. Passing NULL will remove a
+specified set of spatial locations data.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{name}{name of spatial locations, default "raw"}
 
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
-
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
-
-\item{spat_loc_name}{name of spatial locations, default "raw"}
 }
 \value{
 giotto object
@@ -38,15 +34,9 @@ giotto object
 Function to set a spatial location slot
 }
 \details{
-If a \code{spatLocsObj} is provided to \code{spatlocs} param then any
-attached name and spat_unit info will be used for input to this function's
-\code{spat_loc_name} and \code{spat_unit}params, BUT will be overridden by any
-alternative specific inputs to those params. \cr
-ie: a \code{spatLocsObj} with spat_unit slot == 'cell' will be automatically
-nested by spat_unit 'cell' when using \code{setSpatialLocations} as long as
-param \code{spat_unit = NULL}. BUT if param \code{spat_unit = 'nucleus'} then
-the \code{spatLocsObj} will be nested by spat_unit 'nucleus' instead and
-its spat_unit slot will be changed to 'nucleus'
+Spatial information will be set to the nested location described
+by their tagged spat_unit and name information. An alternative location can also
+be specified through the respective params in this function.
 }
 \seealso{
 Other spatial location data accessor functions: 

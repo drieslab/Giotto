@@ -13,6 +13,12 @@ readSpatNetData(
 }
 \arguments{
 \item{data_list}{(nested) list of spatial network input data}
+
+\item{default_spat_unit}{(optional) default spat_unit to use}
+
+\item{provenance}{(optional) provenance information}
+
+\item{verbose}{be verbose}
 }
 \description{
 read spatial networks data from list

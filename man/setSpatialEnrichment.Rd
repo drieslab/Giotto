@@ -6,7 +6,7 @@
 \usage{
 setSpatialEnrichment(
   gobject,
-  spatenrichment,
+  x,
   spat_unit = NULL,
   feat_type = NULL,
   name = "enrichment",
@@ -18,7 +18,8 @@ setSpatialEnrichment(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatenrichment}{spatial enrichment results}
+\item{x}{spatEnrObj or list of spatEnrObj to set. Passing NULL will remove
+a specified set of spatial enrichment information from the gobject.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 

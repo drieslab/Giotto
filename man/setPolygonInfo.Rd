@@ -6,7 +6,7 @@
 \usage{
 setPolygonInfo(
   gobject,
-  gpolygon,
+  x,
   polygon_name = "cell",
   input = c("table", "mask"),
   polygon_dfr_list_params = NULL,
@@ -18,7 +18,7 @@ setPolygonInfo(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{gpolygon}{single object or named list of objects to set as polygon
+\item{x}{single object or named list of objects to set as polygon
 information (see details)}
 
 \item{polygon_name}{(optional, character) When setting a single giottoPolygon

@@ -510,7 +510,6 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
 
 
-
   # message('initialize Giotto run\n\n')  # debug
 
 
@@ -560,6 +559,12 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   # detect dimension reduction slot
   avail_dr = list_dim_reductions(.Object)
+
+  # detect spatial network slot
+  avail_sn = list_spatial_networks(.Object)
+
+  # detect spatial enrichment slot
+  avail_se = list_spatial_enrichments(.Object)
 
 
 
@@ -786,6 +791,28 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
     # 1. ensure spatial locations and expression matrices have the same cell IDs
     # 2. give cell IDs if not provided
     check_spatial_location_data(gobject = .Object) # modifies by reference
+  }
+
+
+
+  ## Spatial network ##
+  ## --------------- ##
+
+  if(!is.null(avail_sl) & !is.null(avail_sn)) {
+    # 1. ensure vertices have same IDs as seen in spat_unit for gobject
+    # 2. ensure spatial locations of same spat_unit exists
+    check_spatial_networks(gobject = .Object)
+  }
+
+
+
+  ## Spatial enrichment ##
+  ## ------------------ ##
+
+  if(!is.null(avail_sl) & !is.null(avail_se)) {
+    # 1. ensure IDs in enrichment match gobject for same spat_unit
+    # 2. ensure spatial locations exist for same spat_unit
+    check_spatial_enrichment(gobject = .Object)
   }
 
 

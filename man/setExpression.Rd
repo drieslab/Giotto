@@ -2,24 +2,23 @@
 % Please edit documentation in R/accessors.R
 \name{setExpression}
 \alias{setExpression}
-\title{Set expression values}
+\title{Set expression data}
 \usage{
 setExpression(
   gobject,
-  values,
+  x,
   spat_unit = NULL,
   feat_type = NULL,
   name = "raw",
   provenance = NULL,
-  verbose = TRUE,
-  set_defaults = TRUE
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{values}{exprObj or matrix of expression values. If NULL, then the object
-will be removed.}
+\item{x}{exprObj or list of exprObj to set. Passing NULL will remove a
+specified set of expression data from the giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -27,18 +26,16 @@ will be removed.}
 
 \item{name}{name for the expression information}
 
-\item{provenance}{provenance information (optional)}
+\item{provenance}{provenance information (optional)
+information for the giotto object. Pass NULL to remove an expression object}
 
 \item{verbose}{be verbose}
-
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
 }
 \value{
 giotto object
 }
 \description{
-Function to set expression values for giotto object
+Function to set expression values for giotto object.
 }
 \seealso{
 Other expression accessor functions: 

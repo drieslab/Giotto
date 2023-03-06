@@ -6,7 +6,7 @@
 \usage{
 setNearestNetwork(
   gobject,
-  nn_network,
+  x,
   spat_unit = NULL,
   feat_type = NULL,
   nn_type = "sNN",
@@ -19,8 +19,8 @@ setNearestNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
-yet supported.}
+\item{x}{nnNetObj or list of nnNetObj. Passing NULL will remove a specified
+set of nearest neighbor network information from the gobject}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -28,7 +28,8 @@ yet supported.}
 
 \item{nn_type}{"kNN" or "sNN"}
 
-\item{name}{name of NN network to be used}
+\item{name}{name of NN network to be used
+yet supported.}
 
 \item{provenance}{provenance information (optional)}
 

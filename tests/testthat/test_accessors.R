@@ -21,28 +21,56 @@ cm = GiottoData::loadSubObjectMini('cellMetaObj')
 fm = GiottoData::loadSubObjectMini('featMetaObj')
 sn = GiottoData::loadSubObjectMini('spatialNetworkObj')
 enr = GiottoData::loadSubObjectMini('spatEnrObj')
+dr = GiottoData::loadSubObjectMini('dimObj')
 nn = GiottoData::loadSubObjectMini('nnNetObj')
 gpoly = GiottoData::loadSubObjectMini('giottoPolygon')
 gpoints = GiottoData::loadSubObjectMini('giottoPoints')
 
 
+# create test object
+test = giotto()
 
 
 
 
-### TESTS EXTERNAL SETTERS ####
+ex1 = ex2 = ex
+objName(ex1) = 'data1'
+featType(ex1) = 'protein'
+objName(ex2) = 'data2'
+featType(ex2) = 'feat3'
+spatUnit(ex2) = 'nucleus'
+
+
+
+# GETTERS ####
+
+## missing cases ####
+
+test_that('Not found exprObj returns error', {
+  expect_error(
+    getExpression(test, spat_unit = 'none', feat_type = 'none', values = 'raw')
+  )
+})
+
+
+
+
+# SETTERS ####
 ## ------------------------------------------------------------------------ ##
 
-#### Native setting ####
+#### setting: expression ####
+
+ex1 = ex2 = ex
+objName(ex1) = 'data1'
+featType(ex1) = 'protein'
+objName(ex2) = 'data2'
+featType(ex2) = 'feat3'
+spatUnit(ex2) = 'nucleus'
 
 
+test_that('Single: exprObj can be set', {
 
-
-
-
-test_that('Native exprObj can be set directly', {
-
-  test_ex = expect_no_condition(setExpression(test, ex))
+  test_ex = setExpression(test, ex)
 
   avail_ex = list_expression(test_ex)
   expect_s3_class(avail_ex, 'data.table')
@@ -52,6 +80,325 @@ test_that('Native exprObj can be set directly', {
   expect_identical(avail_ex$name, 'normalized')
 
 })
+
+test_that('List: exprObj can be set', {
+
+  test_ex = setExpression(test, list(ex, ex1, ex2))
+
+  avail_ex = list_expression(test_ex)
+  expect_s3_class(avail_ex, 'data.table')
+
+  expect_identical(avail_ex$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+  expect_identical(avail_ex$feat_type, c('rna', 'protein', 'feat3'))
+  expect_identical(avail_ex$name, c('normalized', 'data1', 'data2'))
+
+})
+
+test_that('Non-native throws error', {
+  test_ex = expect_error(setExpression(test, ex[]), regexp = 'Only exprObj')
+})
+
+spatUnit(ex) = 'aggregate'
+spatUnit(ex2) = 'nucleus'
+test_ex = setExpression(test, ex) # spat_unit aggregate
+test_ex2 = setExpression(test_ex, ex2) # spat_unit nucleus
+
+
+## setting: cell metadata ####
+
+
+
+
+## setting: feat metadata ####
+
+
+
+
+## setting: spatial locations ####
+
+sl1 = sl2 = sl
+objName(sl1) = 'data1'
+objName(sl2) = 'data2'
+spatUnit(sl2) = 'nucleus'
+
+
+test_that('Single: spatLocsObj can be set', {
+
+  test_ex = setSpatialLocations(test_ex, sl)
+
+  avail_ex = list_spatial_locations(test_ex)
+  expect_s3_class(avail_ex, 'data.table')
+
+  expect_identical(avail_ex$spat_unit, spatUnit(sl))
+  expect_identical(avail_ex$name, objName(sl))
+
+})
+
+test_that('List: spatLocsObj can be set', {
+  # setup
+  test_ex = setExpression(test_ex, ex2)
+
+  # tests
+  test_ex = setSpatialLocations(test_ex, list(sl, sl1, sl2))
+
+  avail_ex = list_spatial_locations(test_ex)
+  expect_s3_class(avail_ex, 'data.table')
+
+  expect_identical(avail_ex$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+  expect_identical(avail_ex$name, c('raw', 'data1', 'data2'))
+
+})
+
+test_that('Non-native throws error', {
+  expect_error(setSpatialLocations(test_ex, sl[]), regexp = 'Only spatLocsObj')
+})
+
+
+
+
+## setting: spatial networks ####
+
+sn1 = sn2 = sn
+objName(sn1) = 'data1'
+objName(sn2) = 'data2'
+spatUnit(sl) = 'aggregate'
+spatUnit(sl2) = 'nucleus'
+spatUnit(sn2) = 'nucleus'
+
+test_that('Spatial network requires matching spatial locations', {
+  expect_error(setSpatialNetwork(test_ex, sn2), regexp = 'Add spatial location') # none
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setSpatialNetwork(test_ex, sn2), regexp = 'Matching') # no match (nucleus vs aggregate)
+
+  # test_ex2 contains info with spat_unit = 'nucleus'
+  test_ex2 = setSpatialLocations(test_ex2, sl2)
+  expect_no_error(setSpatialNetwork(test_ex2, sn2)) # should now work with correct sl spat_unit
+})
+
+test_that('Single: spatialNetworkObj can be set', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  test_ex = setSpatialNetwork(test_ex, sn)
+
+  avail_ex = list_spatial_networks(test_ex)
+  expect_s3_class(avail_ex, 'data.table')
+
+  expect_identical(avail_ex$spat_unit, spatUnit(sn))
+  expect_identical(avail_ex$name, objName(sn))
+
+})
+
+test_that('List: spatialNetworkObj can be set', {
+  # setup
+  test_ex = setSpatialLocations(test_ex, sl)
+  test_ex = setExpression(test_ex, ex2)
+  test_ex = setSpatialLocations(test_ex, sl2)
+
+  # tests
+  test_ex = setSpatialNetwork(test_ex, list(sn, sn1, sn2))
+
+  avail_ex = list_spatial_networks(test_ex)
+  expect_s3_class(avail_ex, 'data.table')
+
+  expect_identical(avail_ex$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+  expect_identical(avail_ex$name, c(objName(sn), 'data1', 'data2'))
+
+})
+
+test_that('Non-native throws error', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setSpatialNetwork(test_ex, sn[]), regexp = 'Only spatialNetworkObj')
+})
+
+
+
+
+## setting: spatial enrichment ####
+
+enr1 = enr2 = enr
+objName(enr1) = 'data1'
+objName(enr2) = 'data2'
+spatUnit(sl) = 'aggregate'
+spatUnit(sl2) = 'nucleus'
+spatUnit(enr2) = 'nucleus'
+
+test_that('Spatial enrichment requires matching spatial locations', {
+  expect_error(setSpatialEnrichment(test_ex, enr2), regexp = 'Add spatial location') # none
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setSpatialEnrichment(test_ex, enr2), regexp = 'Matching') # no match (nucleus vs aggregate)
+
+  # test_ex2 contains info with spat_unit = 'nucleus'
+  test_ex2 = setSpatialLocations(test_ex2, sl2)
+  expect_no_error(setSpatialEnrichment(test_ex2, enr2)) # should now work with correct sl spat_unit
+})
+
+test_that('Single: spatEnrObj can be set', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  test_ex = setSpatialEnrichment(test_ex, enr)
+
+  avail_se = list_spatial_enrichments(test_ex)
+  expect_s3_class(avail_se, 'data.table')
+
+  expect_identical(avail_se$spat_unit, spatUnit(enr))
+  expect_identical(avail_se$name, objName(enr))
+
+})
+
+test_that('List: spatEnrObj can be set', {
+  # setup
+  test_ex = setSpatialLocations(test_ex, sl)
+  test_ex = setExpression(test_ex, ex2)
+  test_ex = setSpatialLocations(test_ex, sl2)
+
+  # tests
+  test_ex = setSpatialEnrichment(test_ex, list(enr, enr1, enr2))
+
+  avail_se = list_spatial_enrichments(test_ex)
+  expect_s3_class(avail_se, 'data.table')
+
+  expect_identical(avail_se$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+  expect_identical(avail_se$name, c(objName(enr), 'data1', 'data2'))
+
+})
+
+test_that('Non-native throws error', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setSpatialEnrichment(test_ex, enr[]), regexp = 'Only spatEnrObj')
+})
+
+
+
+
+## setting: dim reduction ####
+
+dr1 = dr2 = dr
+objName(dr1) = 'data1'
+featType(dr1) = 'test_feat'
+objName(dr2) = 'data2'
+spatUnit(dr2) = 'nucleus'
+featType(dr2) = 'test_feat'
+
+test_that('Dim red requires matching expression', {
+  expect_error(setDimReduction(test, dr2), regexp = 'Add expression') # none
+  expect_error(setDimReduction(test_ex, dr2), regexp = 'Matching') # no match (nucleus vs aggregate)
+
+  # test_ex2 contains info with spat_unit = 'nucleus'
+  expect_error(setDimReduction(test_ex2, dr2), regexp = 'Matching') # wrong feat
+  featType(dr2) = 'feat3'
+  expect_no_error(setDimReduction(test_ex2, dr2))
+})
+
+test_that('Single: dimObj can be set', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  test_ex = setDimReduction(test_ex, dr)
+
+  avail_dr = list_dim_reductions(test_ex)
+  expect_s3_class(avail_dr, 'data.table')
+
+  expect_identical(avail_dr$spat_unit, spatUnit(dr))
+  expect_identical(avail_dr$name, objName(dr))
+
+})
+
+test_that('List: dimObj can be set', {
+  # setup
+  featType(ex2) = 'test_feat'
+  test_ex = setExpression(test_ex, ex2)
+  featType(ex2) = 'rna'
+  test_ex = setExpression(test_ex, ex2)
+  featType(ex) = 'test_feat'
+  test_ex = setExpression(test_ex, ex)
+
+  # tests
+  test_ex = setDimReduction(test_ex, list(dr, dr1, dr2))
+
+  avail_dr = list_dim_reductions(test_ex)
+  expect_s3_class(avail_dr, 'data.table')
+
+  expect_identical(avail_dr$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+  expect_identical(avail_dr$feat_type, c('rna', 'test_feat', 'test_feat'))
+  expect_identical(avail_dr$name, c(objName(dr), 'data1', 'data2'))
+
+})
+
+test_that('Non-native throws error', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setDimReduction(test_ex, dr[]), regexp = 'Only dimObj')
+})
+
+
+
+
+
+## setting: nearest networks ####
+
+nn1 = nn2 = nn
+objName(nn1) = 'data1'
+featType(nn1) = 'test_feat'
+objName(nn2) = 'data2'
+spatUnit(nn2) = 'nucleus'
+featType(nn2) = 'test_feat'
+
+test_that('Nearest neighbors requires matching dimreduction', {
+  expect_error(setNearestNetwork(test, nn2), regexp = 'Add dimension reduction') # none
+  test_ex = setDimReduction(test_ex, dr) # no match (nucleus vs aggregate)
+
+  # test_ex2 contains info with spat_unit = 'nucleus'
+  expect_error(setNearestNetwork(test_ex, nn2), regexp = 'Matching') # wrong feat
+  featType(dr2) = 'test_feat'
+  featType(ex2) = 'test_feat'
+
+  test_ex = setExpression(test_ex, ex2)
+  test_ex = setDimReduction(test_ex, dr2)
+  expect_no_error(setNearestNetwork(test_ex, nn2))
+})
+
+# test_that('Single: nnNetObj can be set', {
+#   test_ex = setSpatialLocations(test_ex, sl)
+#   test_ex = setDimReduction(test_ex, nn)
+#
+#   avail_nn = list_dim_reductions(test_ex)
+#   expect_s3_class(avail_nn, 'data.table')
+#
+#   expect_identical(avail_nn$spat_unit, spatUnit(nn))
+#   expect_identical(avail_nn$name, objName(nn))
+#
+# })
+#
+# test_that('List: nnNetObj can be set', {
+#   # setup
+#   featType(ex2) = 'test_feat'
+#   test_ex = setExpression(test_ex, ex2)
+#   featType(ex2) = 'rna'
+#   test_ex = setExpression(test_ex, ex2)
+#   featType(ex) = 'test_feat'
+#   test_ex = setExpression(test_ex, ex)
+#
+#   # tests
+#   test_ex = setNearestNetwork(test_ex, list(nn, nn1, nn2))
+#
+#   avail_nn = list_nearest_networks(test_ex)
+#   expect_s3_class(avail_nn, 'data.table')
+#
+#   expect_identical(avail_nn$spat_unit, c('aggregate', 'aggregate', 'nucleus'))
+#   expect_identical(avail_nn$feat_type, c('rna', 'test_feat', 'test_feat'))
+#   expect_identical(avail_nn$name, c(objName(nn), 'data1', 'data2'))
+#
+# })
+
+test_that('Non-native throws error', {
+  test_ex = setSpatialLocations(test_ex, sl)
+  expect_error(setDimReduction(test_ex, nn[]), regexp = 'Only dimObj')
+})
+
+
+
+
+
+
+
+
+
+
 
 ## ------------------------------------------------------------------------ ##
 
