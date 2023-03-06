@@ -1,6 +1,4 @@
-name: giotto_env
-# NOTE THAT THIS IS AN OLD, BUT STABLE, CONDA 
-# ENVIRONMENT CONFIGURATION FOR GIOTTO SUITE
+name: old_giotto_env
 channels:
   - conda-forge
   - vtraag
@@ -17,14 +15,5 @@ dependencies:
   - python.app==2: [osx]
   - scikit-learn==0.24.2
   - python-louvain==0.15
-
-  #'  Python  v3.6
-#'  \preformatted{
-#'   - pandas==1.1.5
-#'   - networkx==2.6.3
-#'   - python-igraph==0.9.6
-#'   - leidenalg==0.8.7
-#'   - python-louvain==0.15
-#'   - python.app==2 # macOS only
-#'   - scikit-learn==0.24.2
-#' }
+# NOTE THAT THIS IS AN OLD, BUT STABLE, CONDA 
+# ENVIRONMENT CONFIGURATION FOR GIOTTO SUITE
