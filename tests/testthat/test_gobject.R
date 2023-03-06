@@ -44,14 +44,19 @@ test_that('giottoInstructions is automatically generated', {
 })
 
 
-test_that('Active spat_unit and feat_type work', {
-  expect_null(activeSpatUnit(test))
-  expect_null(activeFeatType(test))
+#### Default Spat/Feat Setting ####
 
+test_that('Error is thrown when no data or actives set', {
   expect_warning(set_default_spat_unit(test), regexp = 'No default for spat_unit could be set')
   expect_warning(set_default_feat_type(test), regexp = 'No default for feat_type could be set')
+})
 
-  # set actives
+test_that('No actives return NULL when checked', {
+  expect_null(activeSpatUnit(test))
+  expect_null(activeFeatType(test))
+})
+
+test_that('Actives can be set', {
   activeSpatUnit(test) = 'aggregate'
   activeFeatType(test) = 'rna'
 
@@ -60,8 +65,16 @@ test_that('Active spat_unit and feat_type work', {
 
   expect_identical(set_default_spat_unit(test), 'aggregate')
   expect_identical(set_default_feat_type(test), 'rna')
-
 })
+
+test_that('Providing spat_unit returns unmodified', {
+  expect_identical('test_value', set_default_spat_unit(spat_unit = 'test_value'))
+})
+
+test_that('Providing feat_type returns unmodified', {
+  expect_identical('test_value', set_default_feat_type(feat_type = 'test_value'))
+})
+
 
 
 #### Aggregate Initialization ####
@@ -99,11 +112,13 @@ test_that('Expression initiates metadata slots', {
 test_that('Expression sets active spat_unit and feat_type', {
   test_ex = setExpression(test, ex)
 
-  expect_identical(activeSpatUnit(test_ex), 'aggregate')
-  expect_identical(activeFeatType(test_ex), 'rna')
+  # check in instructions settings
+  expect_identical(activeSpatUnit(test_ex), spatUnit(ex))
+  expect_identical(activeFeatType(test_ex), featType(ex))
 
-  expect_identical(set_default_spat_unit(test_ex), 'aggregate')
-  expect_identical(set_default_feat_type(test_ex), 'rna')
+  # check output from default setting
+  expect_identical(set_default_spat_unit(test_ex), spatUnit(ex))
+  expect_identical(set_default_feat_type(test_ex), featType(ex))
 })
 
 
@@ -123,7 +138,7 @@ test_that('expression_feats slot is set by expression', {
 #### Subcellular Initialization ####
 
 
-test_that('Spatial info initiates spat_ID slot', { # FAILURE
+test_that('Spatial info initiates spat_ID slot', {
 
   test_si = setPolygonInfo(test, gpoly)
 

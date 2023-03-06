@@ -411,21 +411,21 @@ test_that('Depth 2 works', {
 slDT = sl[]
 
 test_that('Read returns spatLocsObj list directly', {
-  read_list = expect_warning(readSpatLocData(list(sl, sl)),
+  read_list = expect_warning(readSpatLocsData(list(sl, sl)),
                              regexp = 'spatLocsObj')
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatLocsObj'))
 })
 
 test_that('Depth 1 works', {
-  read_list = readSpatLocData(list(slDT, slDT))
+  read_list = readSpatLocsData(list(slDT, slDT))
   expect_true(all(sapply(read_list, spatUnit) == 'cell'))
   expect_identical(sapply(read_list, objName), c('coord_1', 'coord_2'))
 })
 
 
 test_that('Depth 2 works', {
-  read_list = readSpatLocData(list(test_unit = list(slDT,slDT),
+  read_list = readSpatLocsData(list(test_unit = list(slDT,slDT),
                                          list(test = slDT)))
   expect_identical(sapply(read_list, spatUnit), c('test_unit', 'test_unit', 'unit_2'))
   expect_identical(sapply(read_list, objName), c('coord_1', 'coord_2', 'test'))

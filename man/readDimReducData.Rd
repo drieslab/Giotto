@@ -15,6 +15,16 @@ readDimReducData(
 }
 \arguments{
 \item{data_list}{(nested) list of dimension reduction input data}
+
+\item{default_spat_unit}{(optional) default spat_unit to use}
+
+\item{default_feat_type}{(optional) default feat_type to use}
+
+\item{reduction}{whether dim reduction was performed on 'cels' or 'feats'}
+
+\item{provenance}{(optional) provenance information}
+
+\item{verbose}{be verbose}
 }
 \description{
 read dimension reduction results from list

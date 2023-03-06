@@ -11,27 +11,26 @@ set_default_spat_unit = function(gobject,
                                  spat_unit = NULL) {
 
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
+  # If a spatial unit is provided, use it directly
+  if(!is.null(spat_unit)) {
+    return(spat_unit)
+  }
 
-    # spat_unit = getOption('giotto.spat_unit')
-    spat_unit = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+  # set a default
+  spat_unit = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
 
-    if(inherits(spat_unit, 'try-error')) {
-      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
-        spat_unit = names(gobject@expression)[[1]]
-      } else if(!is.null(gobject@spatial_info)){
-        spat_unit = names(gobject@spatial_info)[[1]]
-      } else {
-        warning('No default for spat_unit could be set \n')
-        spat_unit = NULL
-      }
+  if(inherits(spat_unit, 'try-error')) {
+    if(!is.null(gobject@expression) & length(gobject@expression) > 0L) {
+      spat_unit = names(gobject@expression)[[1L]]
+    } else if(!is.null(gobject@spatial_info)){
+      spat_unit = names(gobject@spatial_info)[[1L]]
+    } else {
+      warning('No default for spat_unit could be set \n')
+      spat_unit = NULL
     }
-
   }
 
   return(spat_unit)
-
 }
 
 
@@ -45,24 +44,24 @@ set_default_feat_type = function(gobject,
                                  spat_unit) {
 
 
-  # set spatial unit
-  if(is.null(feat_type)) {
+  # if a feature type is provided, use it directly
+  if(!is.null(feat_type)) {
+    return(feat_type)
+  }
 
-    # feat_type = getOption('giotto.feat_type')
-    feat_type = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
+  # set a default
+  feat_type = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
 
-    if(inherits(feat_type, 'try-error')) {
-      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
-        feat_type = names(gobject@expression[[spat_unit]])[[1]]
-        if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
-      } else if(!is.null(gobject@feat_info)){
-        feat_type = names(gobject@feat_info)[[1]]
-      } else {
-        warning('No default for feat_type could be set \n')
-        feat_type = NULL
-      }
+  if(inherits(feat_type, 'try-error')) {
+    if(!is.null(gobject@expression) & length(gobject@expression) > 0L) {
+      feat_type = names(gobject@expression[[spat_unit]])[[1L]]
+      if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
+    } else if(!is.null(gobject@feat_info)){
+      feat_type = names(gobject@feat_info)[[1L]]
+    } else {
+      warning('No default for feat_type could be set \n')
+      feat_type = NULL
     }
-
   }
 
   return(feat_type)
