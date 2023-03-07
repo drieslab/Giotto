@@ -15,20 +15,19 @@
 ## Added
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
 - Add `initialize()` method for `giotto`
-- Add validity check for `giotto` that checks for correct slot nesting
-- Add `read` functions for ingesting data and converting to list of Giotto native S4 subobjects
 - Add exported `create` constructor functions for Giotto S4 subobjects
 - Add `activeSpatUnit()` and `activeFeatType()` for getting and setting active defaults on gobject
 - New `get_*_list()` internal functions for retrieving list of all objects of a particular class for a spat_unit and feat_type
 - Add `instructions()` generic for `giotto` to access and edit `giottoInstructions`
 - Add `centroids()` method for `giottoPolygon` to get centroid info
 - Add `overlaps()` generic for accessing `overlaps` slot of `giottoPolygon`
-- Add `[` and `[<-` access generics to main slots of `giottoPolygon` and `giottoPoints`
+- Add `[` and `[<-` (empty) access generics to get the data from main slots of `giottoPolygon` and `giottoPoints`
 - Add cores detection to run on package attach. (`getOption('giotto.cores')`)
-- New `dd.R` as a file with dummy documentation to inherit commonly used documentation from
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
-- New test_that scripts for gobject consistency and S4 subobject creation (in progress)
+- New test_that `test_createObject.R` script for `read` functions/S4 subobject creation
+- New test_that `test_accessors.R` script for `accessor` functions
+- New test_that `test_gobject.R` script for gobject consistency checks
 
 
 
@@ -36,12 +35,17 @@
 - Update `installGiottoEnvironment()` and downstream internal functions to allow custom python installation with a new argument, `mini_install_path`.
 - Update `checkGiottoEnvironment()` to account for custom python installations with a new argument, `mini_install_path`.
 - Update `removeGiottoEnvironment()` to account for custom python installations with a new argument, `mini_path`.
+- Update `createGiottoObject()` with new data ingestion pipeline
 - Modify `cell_ID`, `feat_ID`, `cell_metadata`, `feat_metadata` slot initialization
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Change `changeGiottoInstructions()` to allow addition of new params and enforce logical class of known params
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
 - Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths
+- Organize new and refactored slot `check` functions in `giotto.R` for checking gobject consistency during `initialize()`
+- Organize new and refactored `evaluate` functions in `data_evaluation.R` for data wrangling of external data
+- Organize new and refactored `read` functions in `data_input.R` for ingesting data and converting to list of Giotto native S4 subobjects
+- Organize dummy documentation in `dd.R` for inheriting commonly used documentation
 - Moved `create_featureNetwork_object()`, `create_giotto_points_object()`, `create_giotto_polygon_object()` to classes.R
 - Moved `depth()` from giotto.R to utilities.R
 
