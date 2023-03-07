@@ -1128,9 +1128,8 @@ set_feature_metadata = function(gobject,
 
     # 4.2 if nested list structure, extract spat_unit/feat_type
     if(inherits(metadata, 'list')) {
-      featMetaObj_list = readFeatMetadata(gobject,
-                                               metadata = metadata,
-                                               provenance = if(is.null(provenance)) spat_unit else provenance)
+      featMetaObj_list = readFeatMetadata(data_list = metadata,
+                                          provenance = if(is.null(provenance)) spat_unit else provenance)
       # recursively run
       for(obj_i in seq_along(featMetaObj_list)) {
         # (provenance info set during prev. step)
@@ -1890,12 +1889,11 @@ set_spatial_locations = function(gobject,
     stop(wrap_txt(deparse(substitute(spatlocs)), 'is not spatLocsObj (set)
                   or NULL (remove)'))
     gobject = setSpatialLocations(gobject = gobject,
-                                  spatlocs = spatlocs,
+                                  x = spatlocs,
                                   spat_unit = spat_unit,
                                   name = spat_loc_name,
                                   provenance = provenance,
-                                  verbose = verbose,
-                                  set_defaults = set_defaults)
+                                  verbose = verbose)
     return(gobject) # initialize done already
   }
 
