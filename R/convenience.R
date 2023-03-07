@@ -372,7 +372,6 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
   # 0. setup
   cosmx_dir = path.expand(cosmx_dir)
-  cores = determine_cores(cores = cores)
 
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
