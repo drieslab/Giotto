@@ -2438,7 +2438,7 @@ createFeatMetaObj = function(metadata,
                              col_desc = NULL,
                              verbose = TRUE) {
 
-  metadata = evaluate_cell_metadata(metadata = metadata,
+  metadata = evaluate_feat_metadata(metadata = metadata,
                                     verbose = verbose)
 
   create_feat_meta_obj(metaDT = metadata,
@@ -2634,10 +2634,12 @@ createSpatLocsObj = function(coordinates,
                              name = 'test',
                              spat_unit = 'cell',
                              provenance = NULL,
-                             misc = NULL) {
+                             misc = NULL,
+                             verbose = TRUE) {
 
   # convert coordinates input to preferred format
-  coordinates = evaluate_spatial_locations(coordinates)
+  coordinates = evaluate_spatial_locations(spatial_locs = coordinates,
+                                           verbose = verbose)
 
   create_spat_locs_obj(name = name,
                        coordinates = coordinates,

@@ -4,16 +4,20 @@
 \alias{setFeatureInfo}
 \title{Set feature info}
 \usage{
-setFeatureInfo(gobject, gpoints, feat_type = NULL, verbose = TRUE)
+setFeatureInfo(gobject, x, feat_type = NULL, verbose = TRUE, initialize = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{gpoints}{giotto points object}
+\item{x}{giottoPoints object or list of giottoPoints to set. Passing NULL
+will remove the specified giottoPoints object from the giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

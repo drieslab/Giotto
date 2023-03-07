@@ -10,7 +10,8 @@ createSpatLocsObj(
   name = "test",
   spat_unit = "cell",
   provenance = NULL,
-  misc = NULL
+  misc = NULL,
+  verbose = TRUE
 )
 }
 \arguments{

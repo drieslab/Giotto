@@ -10,7 +10,8 @@ setFeatureMetadata(
   spat_unit = NULL,
   feat_type = NULL,
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ reset a specified set of feature metadata in the giotto object.}
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

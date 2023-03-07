@@ -11,7 +11,8 @@ setExpression(
   feat_type = NULL,
   name = "raw",
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ specified set of expression data from the giotto object}
 information for the giotto object. Pass NULL to remove an expression object}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

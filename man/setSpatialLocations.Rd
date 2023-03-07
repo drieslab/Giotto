@@ -10,7 +10,8 @@ setSpatialLocations(
   spat_unit = NULL,
   name = "raw",
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ specified set of spatial locations data.}
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

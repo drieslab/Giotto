@@ -7,12 +7,10 @@
 setPolygonInfo(
   gobject,
   x,
-  polygon_name = "cell",
-  input = c("table", "mask"),
-  polygon_dfr_list_params = NULL,
-  polygon_mask_list_params = NULL,
-  calc_centroids = FALSE,
-  verbose = TRUE
+  name = "cell",
+  centroids_to_spatlocs = FALSE,
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -21,24 +19,15 @@ setPolygonInfo(
 \item{x}{single object or named list of objects to set as polygon
 information (see details)}
 
-\item{polygon_name}{(optional, character) When setting a single giottoPolygon
-object, this param is ignored in favor of a default spatial unit if available
-unless polygon_name is explicitly used in the call.
-In all other cases, this param is the name to assign the generated polygon
-information. If \code{gpolygon} is a single object then it is directly applied.
-If \code{gpolygon} is an unnamed list then it will be used as the base of a
-template for generating indexed default names for the polygon objects.}
+\item{name}{(optional, character) name to assign to polygon and spatial unit
+that polygon might define. Only used for single giottoPolygon objects. Names
+are taken from a named list for multiple polygons.}
 
-\item{input}{(default = 'table') whether \code{gpolygon} is tabular data or
-image ('mask') type information}
+\item{centroids_to_spatlocs}{if centroid information is discovered, whether
+to additionally set them as a set of spatial locations (default = FALSE)}
 
-\item{polygon_dfr_list_params}{list parameters for
-\code{\link{createGiottoPolygonsFromDfr}}. Used when \code{input} is 'table'}
-
-\item{polygon_mask_list_params}{list parameters for
-\code{\link{createGiottoPolygonsFromMask}}. Used when \code{input} is 'mask'}
-
-\item{calc_centroids}{whether to generate centroids for the polygon(s)}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
