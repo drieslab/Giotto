@@ -650,7 +650,8 @@ setCellMetadata = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL,
                            provenance = NULL,
-                           verbose = TRUE) {
+                           verbose = TRUE,
+                           initialize = TRUE) {
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
                                         errWidth = TRUE))
@@ -680,7 +681,7 @@ setCellMetadata = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
   } else if(is.list(x)) {
@@ -692,7 +693,7 @@ setCellMetadata = function(gobject,
       # 3. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_cell_metadata(
           gobject = gobject,
@@ -702,7 +703,7 @@ setCellMetadata = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -746,9 +747,25 @@ set_cell_metadata = function(gobject,
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(metadata)) stop(wrap_txt('metadata param must be given'))
 
+  if(!inherits(metadata, c('cellMetaObj', 'NULL')) &
+     !identical(metadata, 'initialize')) {
+    stop(wrap_txt(deparse(substitute(metadata)), 'is not a cellMetaObj (set)
+                  or NULL (remove)'))
+  }
+
+
   # 1. determine if user input was supplied
-  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  p = parent.frame() # get values if called from external
+  call_from_external = exists('.external_accessor_cellmeta', where = p)
+
+  if(call_from_external) {
+    nospec_unit = p$.external_accessor_cellmeta$nospec_unit
+    nospec_feat = p$.external_accessor_cellmeta$nospec_feat
+  } else {
+    nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+    nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  }
+
 
   # 2. set spat unit/ feat type if needed
   if(isTRUE(set_defaults)) {
@@ -891,7 +908,15 @@ set_cell_metadata = function(gobject,
   # })
   # message("\nCell Metadata slot '",spat_unit, feat_type, "' set.\n")
   #
+
+  # 6. set and return gobject
   gobject@cell_metadata[[spat_unit]][[feat_type]] = metadata
+
+  if(isTRUE(verbose) & isTRUE(call_from_external)) wrap_msg(
+    'Setting cell metadata [', spatUnit(metadata), '][', featType(metadata), '] ',
+    sep = ''
+  )
+
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
 
@@ -985,7 +1010,8 @@ setFeatureMetadata = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
                               provenance = NULL,
-                              verbose = TRUE) {
+                              verbose = TRUE,
+                              initialize = TRUE) {
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given',
                                         errWidth = TRUE))
@@ -1010,7 +1036,7 @@ setFeatureMetadata = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
   } else if(is.list(x)) {
@@ -1022,7 +1048,7 @@ setFeatureMetadata = function(gobject,
       # 3. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_feature_metadata(
           gobject = gobject,
@@ -1032,7 +1058,7 @@ setFeatureMetadata = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -1066,11 +1092,27 @@ set_feature_metadata = function(gobject,
   feat_ID = NULL
 
   guard_against_notgiotto(gobject)
-  if(!methods::hasArg(metadata)) stop(wrap_txt('metaadata param must be given'))
+  if(!methods::hasArg(metadata)) stop(wrap_txt('metadata param must be given'))
+
+  if(!inherits(metadata, c('featMetaObj', 'NULL')) &
+     !identical(metadata, 'initialize')) {
+    stop(wrap_txt(deparse(substitute(metadata)), 'is not featMetaObj (set)
+                  or NULL (remove)'))
+  }
+
 
   # 1. determine if user input was supplied
-  nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
-  nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  p = parent.frame() # get values if called from external
+  call_from_external = exists('.external_accessor_featmeta', where = p)
+
+  if(call_from_external) {
+    nospec_unit = p$.external_accessor_featmeta$nospec_unit
+    nospec_feat = p$.external_accessor_featmeta$nospec_feat
+  } else {
+    nospec_unit = ifelse(is.null(spat_unit), yes = TRUE, no = FALSE)
+    nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
+  }
+
 
   # 2. set spat unit/ feat type if needed
   if(isTRUE(set_defaults)) {
@@ -1186,6 +1228,12 @@ set_feature_metadata = function(gobject,
 
   # 6. return object
   gobject@feat_metadata[[spat_unit]][[feat_type]] = metadata
+
+  if(isTRUE(verbose) & isTRUE(call_from_external)) wrap_msg(
+    'Setting feature metadata [', spatUnit(metadata), '][', featType(metadata), '] ',
+    sep = ''
+  )
+
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
 
@@ -1385,7 +1433,8 @@ setExpression = function(gobject,
                          feat_type = NULL,
                          name = 'raw',
                          provenance = NULL,
-                         verbose = TRUE) {
+                         verbose = TRUE,
+                         initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
@@ -1414,7 +1463,7 @@ setExpression = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -1427,7 +1476,7 @@ setExpression = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_expression_values(
           gobject = gobject,
@@ -1438,7 +1487,7 @@ setExpression = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -1771,7 +1820,8 @@ setSpatialLocations = function(gobject,
                                spat_unit = NULL,
                                name = 'raw',
                                provenance = NULL,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x (data to set) param must be given'))
@@ -1805,7 +1855,7 @@ setSpatialLocations = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -1818,7 +1868,7 @@ setSpatialLocations = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_spatial_locations(
           gobject = gobject,
@@ -1828,7 +1878,7 @@ setSpatialLocations = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -2159,7 +2209,8 @@ setDimReduction = function(gobject,
                            reduction = c('cells', 'feats'),
                            reduction_method = c('pca', 'umap', 'tsne'),
                            provenance = NULL,
-                           verbose = TRUE) {
+                           verbose = TRUE,
+                           initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
@@ -2203,7 +2254,7 @@ setDimReduction = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -2216,7 +2267,7 @@ setDimReduction = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_dimReduction(
           gobject = gobject,
@@ -2229,7 +2280,7 @@ setDimReduction = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -2554,7 +2605,8 @@ setNearestNetwork = function(gobject,
                              nn_type = 'sNN',
                              name = 'sNN.pca',
                              provenance = NULL,
-                             verbose = TRUE) {
+                             verbose = TRUE,
+                             initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x (data to set) param must be given'))
@@ -2593,7 +2645,7 @@ setNearestNetwork = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -2606,7 +2658,7 @@ setNearestNetwork = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_NearestNetwork(
           gobject = gobject,
@@ -2618,7 +2670,7 @@ setNearestNetwork = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -2941,7 +2993,8 @@ setSpatialNetwork = function(gobject,
                              spat_unit = NULL,
                              name = NULL,
                              provenance = NULL,
-                             verbose = TRUE) {
+                             verbose = TRUE,
+                             initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
@@ -2975,7 +3028,7 @@ setSpatialNetwork = function(gobject,
       provenance = provenance,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -2988,7 +3041,7 @@ setSpatialNetwork = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, '[')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_spatialNetwork(
           gobject = gobject,
@@ -2998,7 +3051,7 @@ setSpatialNetwork = function(gobject,
           provenance = provenance,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)
@@ -3099,7 +3152,7 @@ set_spatialNetwork = function(gobject,
 
   # 6. update and return giotto object
   if(isTRUE(verbose) & isTRUE(call_from_external)) wrap_msg(
-    'Setting expression [', spatUnit(spatial_network), '] ',
+    'Setting spatial network [', spatUnit(spatial_network), '] ',
     objName(spatial_network), sep = ''
   )
 
@@ -3464,20 +3517,11 @@ get_polygon_info_list = function(gobject,
 #' @inheritParams data_access_params
 #' @param x single object or named list of objects to set as polygon
 #' information (see details)
-#' @param polygon_name (optional, character) When setting a single giottoPolygon
-#' object, this param is ignored in favor of a default spatial unit if available
-#' unless polygon_name is explicitly used in the call.
-#' In all other cases, this param is the name to assign the generated polygon
-#' information. If \code{gpolygon} is a single object then it is directly applied.
-#' If \code{gpolygon} is an unnamed list then it will be used as the base of a
-#' template for generating indexed default names for the polygon objects.
-#' @param input (default = 'table') whether \code{gpolygon} is tabular data or
-#' image ('mask') type information
-#' @param polygon_dfr_list_params list parameters for
-#' \code{\link{createGiottoPolygonsFromDfr}}. Used when \code{input} is 'table'
-#' @param polygon_mask_list_params list parameters for
-#' \code{\link{createGiottoPolygonsFromMask}}. Used when \code{input} is 'mask'
-#' @param calc_centroids whether to generate centroids for the polygon(s)
+#' @param name (optional, character) name to assign to polygon and spatial unit
+#' that polygon might define. Only used for single giottoPolygon objects. Names
+#' are taken from a named list for multiple polygons.
+#' @param centroids_to_spatlocs if centroid information is discovered, whether
+#' to additionally set them as a set of spatial locations (default = FALSE)
 #' @return giotto object
 #' @details Inputs can be provided as either single objects or named lists of
 #' objects. If the list is not named, then a generic name of the template
@@ -3491,125 +3535,134 @@ get_polygon_info_list = function(gobject,
 #' @export
 setPolygonInfo = function(gobject,
                           x,
-                          polygon_name = 'cell',
-                          input = c('table', 'mask'),
-                          polygon_dfr_list_params = NULL,
-                          polygon_mask_list_params = NULL,
-                          calc_centroids = FALSE,
-                          verbose = TRUE) {
+                          name = 'cell',
+                          centroids_to_spatlocs = FALSE,
+                          verbose = TRUE,
+                          initialize = TRUE) {
+
+  # data.table vars
+  poly_ID = y = NULL
 
   guard_against_notgiotto(gobject)
-  if(!methods::hasArg(x)) stop(wrap_txt('gpolygon input must be given'))
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to be set) must be given'))
 
-  input = match.arg(input, choices = c('table', 'mask'))
 
   # 1. determine user inputs
-  nospec_name = !methods::hasArg(polygon_name)
+  nospec_name = !methods::hasArg(name)
   .external_accessor_poly = list(nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
 
-  # 2. set defaults not needed when general default exists ('cell')
 
 
   # NATIVE INPUT TYPES
-  # 3. If input is giottoPolygon or NULL, pass to internal
-  if(inherits(gpolygon, c('giottoPolygon', 'NULL'))) {
+  # 2. If input is giottoPolygon or NULL, pass to internal
+  if(inherits(x, c('giottoPolygon', 'NULL'))) {
     # pass to internal
     gobject = set_polygon_info(
       gobject = gobject,
-      polygon_name = polygon_name,
-      gpolygon = gpolygon,
+      polygon_name = name,
+      gpolygon = x,
       verbose = verbose,
-      initialize = FALSE
+      initialize = !isTRUE(centroids_to_spatlocs) & initialize # delay so centroids can be added
     )
 
     # Attach centroids if found
-    if(inherits(gpolygon, 'giottoPolygon')) {
-      if(!is.null(gpolygon@spatVectorCentroids)) {
+    if(inherits(x, 'giottoPolygon') & isTRUE(centroids_to_spatlocs)) {
+      if(!is.null(x@spatVectorCentroids)) {
 
-        centroids = gpolygon@spatVectorCentroids
+        centroids = x@spatVectorCentroids
         centroidsDT = spatVector_to_dt(centroids)
         centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
         colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
 
         locsObj = create_spat_locs_obj(name = 'raw',
                                        coordinates = centroidsDT_loc,
-                                       spat_unit = gpolygon@name, # tag same spat_unit as poly
-                                       provenance = gpolygon@name,
+                                       spat_unit = x@name, # tag same spat_unit as poly
+                                       provenance = x@name,
                                        misc = NULL)
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         .external_accessor_spatloc = list(
-          # set spatlocs 'spat_unit' using 'polygon_name' if it was EXPLICITLY
+          # set spatlocs 'spat_unit' using 'name' if it was EXPLICITLY
           # supplied to setPolygonInfo
-          # otherwise, set spatlocs 'spat_unit' as gpolygon@name
+          # otherwise, set spatlocs 'spat_unit' as x@name
           nospec_unit = nospec_name,
           # set spatlocs name based on locsObj@name
           nospec_name = TRUE
         )
         gobject = set_spatial_locations(gobject,
                                         spatlocs = locsObj,
-                                        spat_unit = polygon_name, # useif explicit here
+                                        spat_unit = name, # useif explicit here
                                         verbose = verbose,
                                         set_defaults = FALSE,
-                                        initialize = TRUE)
+                                        initialize = initialize)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       }
     }
     return(gobject)
 
-  } else {
+  } else if(is.list(x)) {
 
-    # 4. OTHER INPUT TYPES
+    # check list items are native
+    if(all(sapply(x, class) == 'giottoPolygon')) {
 
-    # Setup gpolygon creation settings
-    if(is.null(polygon_mask_list_params)) {
-      polygon_mask_list_params = list(mask_method = 'guess',
-                                      remove_background_polygon = TRUE,
-                                      background_algo = c('range'),
-                                      fill_holes = TRUE,
-                                      poly_IDs = NULL,
-                                      flip_vertical = TRUE,
-                                      shift_vertical_step = TRUE,
-                                      flip_horizontal = TRUE,
-                                      shift_horizontal_step = TRUE,
-                                      fix_multipart = TRUE)
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
+
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_polygon_info(
+          gobject = gobject,
+          gpolygon = x[[obj_i]],
+          polygon_name = name,
+          verbose = verbose,
+          initialize = !isTRUE(centroids_to_spatlocs) & initialize
+        )
+
+        # Attach centroids if found
+        if(inherits(x[[obj_i]], 'giottoPolygon') & isTRUE(centroids_to_spatlocs)) {
+          if(!is.null(x[[obj_i]]@spatVectorCentroids)) {
+
+            centroids = x[[obj_i]]@spatVectorCentroids
+            centroidsDT = spatVector_to_dt(centroids)
+            centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
+            colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
+
+            locsObj = create_spat_locs_obj(name = 'raw',
+                                           coordinates = centroidsDT_loc,
+                                           spat_unit = x[[obj_i]]@name, # tag same spat_unit as poly
+                                           provenance = x[[obj_i]]@name, # TODO change this if polygons get prov
+                                           misc = initialize)
+
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+            .external_accessor_spatloc = list(
+              # set spatlocs 'spat_unit' using 'name' if it was EXPLICITLY
+              # supplied to setPolygonInfo
+              # otherwise, set spatlocs 'spat_unit' as x@name
+              nospec_unit = nospec_name,
+              # set spatlocs name based on locsObj@name
+              nospec_name = TRUE
+            )
+            gobject = set_spatial_locations(gobject,
+                                            spatlocs = locsObj,
+                                            spat_unit = name, # useif explicit here
+                                            verbose = verbose,
+                                            set_defaults = FALSE,
+                                            initialize = initialize)
+            ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+          }
+        }
+      }
+      return(gobject)
+
     }
-
-    # gpoly creation settings
-    if(is.null(polygon_dfr_list_params)) {
-      polygon_dfr_list_params = list()
-    }
-
-    # set centroids param
-    polygon_mask_list_params$calc_centroids = calc_centroids
-    polygon_dfr_list_params$calc_centroids = calc_centroids
-
-
-    # gpolygon should always be list at this point
-    # returns list of giottoPolygon objects
-    if(verbose) wrap_msg("Start extracting polygon information")
-    gpoly_list = extract_polygon_list(
-      polygonlist = gpolygon,
-      input = input,
-      default_name = polygon_name,
-      polygon_mask_list_params = polygon_mask_list_params,
-      polygon_dfr_list_params = polygon_dfr_list_params,
-      verbose = verbose
-    )
-
-    if(verbose) wrap_msg("Finished extracting polygon information")
-
-    # send object list to internal (different from most other accessors)
-    gobject = set_polygon_info(gobject = gobject,
-                               gpolygon = gpoly_list,
-                               verbose = verbose,
-                               initialize = TRUE)
-    return(gobject)
   }
 
+  # catch
+  stop(wrap_txt('Only giottoPolygon or lists of giottoPolygon accepted.
+                For raw or external data, please first use readPolygonData()',
+                errWidth = TRUE))
 }
-
 
 
 
@@ -3726,6 +3779,10 @@ set_polygon_info = function(gobject,
 
 
   ## 6. update and return giotto object
+  if(isTRUE(verbose) & isTRUE(call_from_external)) wrap_msg(
+    'Setting polygon info [', objName(gpolygon), '] ', sep = ''
+  )
+
   gobject@spatial_info[[name]] = gpolygon
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
@@ -3833,19 +3890,21 @@ get_feature_info_list = function(gobject,
 #' @name setFeatureInfo
 #' @description Set giotto polygon spatVector for features
 #' @inheritParams data_access_params
-#' @param gpoints giotto points object
+#' @param x giottoPoints object or list of giottoPoints to set. Passing NULL
+#' will remove the specified giottoPoints object from the giotto object
 #' @param verbose be verbose
 #' @return giotto object
 #' @family feature info data accessor functions
 #' @family functions to set data in giotto object
 #' @export
 setFeatureInfo = function(gobject,
-                          gpoints,
+                          x,
                           feat_type = NULL,
-                          verbose = TRUE) {
+                          verbose = TRUE,
+                          initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
-  if(!methods::hasArg(gpoints)) stop(wrap_txt('gpoints param must be given'))
+  if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
 
   # 1. Determine user inputs
   nospec_feat = ifelse(is.null(feat_type), yes = TRUE, no = FALSE)
@@ -3853,72 +3912,52 @@ setFeatureInfo = function(gobject,
   # checked by internal setter to determine if called by external
 
 
-  # 2. set default feat_type (suppressed) returns NULL when it fails
-  spat_unit = suppressWarnings(
-    set_default_spat_unit(gobject = gobject,
-                          spat_unit = NULL)
-  )
-  feat_type = suppressWarnings(
-    set_default_feat_type(gobject = gobject,
-                          spat_unit = spat_unit,
-                          feat_type = feat_type)
-  )
-
   # Extra defaults: expression, feature_info, spat_info specific
   default_feat = if(is.null(gobject@expression_feat)) 'rna' else gobject@expression_feat[[1L]]
 
 
   # NATIVE INPUT TYPES
-  # 3. if input is giottoPoints or NULL, pass to internal
-  if(is.null(gpoints) | inherits(gpoints, 'giottoPoints')) {
+  # 2. if input is giottoPoints or NULL, pass to internal
+  if(is.null(x) | inherits(x, 'giottoPoints')) {
 
     # pass to internal
     gobject = set_feature_info(
       gobject = gobject,
-      gpoints = gpoints,
+      gpoints = x,
       feat_type = feat_type,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
-  } else {
+  } else if(is.list(x)) {
 
-    # OTHER INPUT TYPES
-    # 4. parse input for nesting info
-    # 4.1 read if list
-    if(inherits(gpoints, 'list')) {
+    # check list items are native
+    if(all(sapply(x, class) == 'giottoPoints')) {
 
-      # returns list of giottoPoints objects
-      gpoints_list = extract_points_list(
-        pointslist = gpoints,
-        verbose = verbose
-      )
-      # send object list to internal (different from most other accessors)
-      gobject = set_feature_info(gobject = gobject,
-                                 gpoints = gpoints_list,
-                                 verbose = verbose,
-                                 set_defaults = FALSE,
-                                 initialize = TRUE)
-      return(gobject)
-    } else {
+      # MULTIPLE INPUT
+      # 3. iteratively set
+      for(obj_i in seq_along(x)) {
 
-      # 4.2 otherwise assume evaluatable class and create S4
-      gpoints = create_giotto_points_object(
-        feat_type = if(is.null(feat_type)) default_feat else feat_type,
-        spatVector = gpoints,
-        networks = NULL
-      )
-      # pass to internal
-      gobject = set_feature_info(gobject = gobject,
-                                 gpoints = gpoints,
-                                 verbose = verbose,
-                                 set_defaults = FALSE,
-                                 initialize = TRUE)
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
+
+        gobject = set_feature_info(
+          gobject = gobject,
+          gpoints = x[[obj_i]],
+          feat_type = feat_type,
+          verbose = verbose,
+          set_defaults = FALSE,
+          initialize = initialize
+        )
+      }
       return(gobject)
     }
   }
+
+  # catch
+  stop(wrap_txt('Only giottoPoints or lists of giottoPoints accepted.
+                For raw or external data, please first use readFeatureInfo()'))
 
 }
 
@@ -4044,6 +4083,10 @@ set_feature_info = function(gobject,
   }
 
   ## 6. update and return giotto object
+  if(isTRUE(verbose) & isTRUE(call_from_external)) wrap_msg(
+    'Setting feature info [', featType(gpoints), '] ', sep = ''
+  )
+
   gobject@feat_info[[feat_type]] = gpoints
   if(isTRUE(initialize)) return(initialize(gobject))
   else return(gobject)
@@ -4222,7 +4265,8 @@ setSpatialEnrichment = function(gobject,
                                 feat_type = NULL,
                                 name = 'enrichment',
                                 provenance = NULL,
-                                verbose = TRUE) {
+                                verbose = TRUE,
+                                initialize = TRUE) {
 
   guard_against_notgiotto(gobject)
   if(!methods::hasArg(x)) stop(wrap_txt('x param (data to set) must be given'))
@@ -4256,7 +4300,7 @@ setSpatialEnrichment = function(gobject,
       enrichm_name = name,
       verbose = verbose,
       set_defaults = FALSE,
-      initialize = TRUE
+      initialize = initialize
     )
     return(gobject)
 
@@ -4269,7 +4313,7 @@ setSpatialEnrichment = function(gobject,
       # 4. iteratively set
       for(obj_i in seq_along(x)) {
 
-        if(isTRUE(verbose)) message('[', obj_i, ']')
+        # if(isTRUE(verbose)) message('[', obj_i, ']')
 
         gobject = set_spatial_enrichment(
           gobject = gobject,
@@ -4279,7 +4323,7 @@ setSpatialEnrichment = function(gobject,
           enrichm_name = name,
           verbose = verbose,
           set_defaults = FALSE,
-          initialize = TRUE
+          initialize = initialize
         )
       }
       return(gobject)

@@ -10,7 +10,8 @@ setSpatialNetwork(
   spat_unit = NULL,
   name = NULL,
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ removes a specified set of spatial network information from the gobject.}
 \item{provenance}{provenance name}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object

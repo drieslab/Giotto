@@ -771,7 +771,8 @@ read_spatial_location_data = function(spat_loc_list,
             coordinates = coordinates,
             spat_unit = spat_unit,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
-            misc = NULL
+            misc = NULL,
+            verbose = verbose
           )
         )
       }
@@ -1189,7 +1190,8 @@ read_spatial_enrichment = function(spatial_enrichment,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
-            misc = NULL
+            misc = NULL,
+            verbose = verbose
           )
         )
       }
@@ -1718,6 +1720,83 @@ read_nearest_networks = function(nn_network,
 
 
 
+#' @title Read list of polygons information
+#' @name readPolygonData
+#' @description Function extract list of polygons when given raw input as either
+#' mask or tabular data. Calls the respective createGiottoPolygons functions. \cr
+#' If a \code{giottoPolygon} object is passed then no edits will be made other
+#' than updating the \code{name} slot if the list is named.
+#' @param input what type of input is being used. When set to 'guess', uses
+#' 'mask' if \code{polygonlist} is of type character and 'table' when
+#' \code{polygonlist} is dataframe-like
+#' @param default_name default name to assign if \code{polygonlist} is not a
+#' list. If \code{polygonlist} is an unnamed list then \code{default_name} will
+#' be used as part of the template for generating indexed default names.
+#' @param polygon_mask_list_params parameters for when using 'mask' workflow
+#' @param polygon_dfr_list_params parameters for when using 'table' workflow
+#' @param calc_centroids whether centroids should be calculated during polygon
+#' creation
+#' @param verbose be verbose
+#' @export
+readPolygonData = function(data_list,
+                           default_name = 'cell',
+                           input = 'guess',
+                           polygon_mask_list_params = NULL,
+                           polygon_dfr_list_params = NULL,
+                           calc_centroids = FALSE,
+                           verbose = TRUE) {
+
+  if(is.null(data_list)) {
+    message('No polygon data/spatial info is provided')
+    return(NULL)
+  }
+
+
+
+  # Setup gpolygon creation settings: mask
+  if(is.null(polygon_mask_list_params)) {
+    polygon_mask_list_params = list(mask_method = 'guess',
+                                    remove_background_polygon = TRUE,
+                                    background_algo = c('range'),
+                                    fill_holes = TRUE,
+                                    poly_IDs = NULL,
+                                    flip_vertical = TRUE,
+                                    shift_vertical_step = TRUE,
+                                    flip_horizontal = TRUE,
+                                    shift_horizontal_step = TRUE,
+                                    fix_multipart = TRUE)
+  }
+
+  # gpoly creation settings: dataframe
+  if(is.null(polygon_dfr_list_params)) {
+    polygon_dfr_list_params = list()
+  }
+
+  # set centroids param
+  polygon_mask_list_params$calc_centroids =
+    polygon_dfr_list_params$calc_centroids =
+    calc_centroids
+
+
+
+  # pass to internal
+  extract_polygon_list(
+    polygonlist = data_list,
+    input = input,
+    default_name = default_name,
+    polygon_mask_list_params = polygon_mask_list_params,
+    polygon_dfr_list_params = polygon_dfr_list_params,
+    verbose = verbose
+  )
+
+
+}
+
+
+
+
+
+
 #' @title Extract list of polygons
 #' @name extract_polygon_list
 #' @description Function extract list of polygons when given raw input as either
@@ -1895,6 +1974,28 @@ addGiottoPolygons = function(gobject,
 
 
 
+#' @title Read feature information
+#' @name readFeatData
+#' @description Function to read lists of feature information data and output
+#' a list of generated giottoPoints objects
+#' @inheritParams read_data_params
+#' @export
+readFeatData = function(data_list,
+                        verbose = TRUE) {
+
+  if(is.null(data_list)) {
+    message('No feature info is provided')
+    return(NULL)
+  }
+
+
+  extract_points_list(pointslist = data_list,
+                      verbose = verbose)
+}
+
+
+
+
 
 #' @title Extract list of giotto points objects
 #' @name extract_points_list
@@ -1902,6 +2003,7 @@ addGiottoPolygons = function(gobject,
 #' @param pointslist list of inputs from which to create giotto points objects
 #' @param verbose be verbose
 #' @keywords internal
+#' @noRd
 extract_points_list = function(pointslist,
                                verbose = TRUE) {
 
@@ -1917,21 +2019,21 @@ extract_points_list = function(pointslist,
     if(inherits(try_val, 'try-error')) {
       pointslist = list(pointslist)
     } else pointslist = try_val
-    if(length(pointslist) == 1) {
+    if(length(pointslist) == 1L) {
       names(pointslist) = 'rna'
     } else {
       pointslist_l = length(pointslist)
-      names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
+      names(pointslist) = c('rna', paste0('feat', seq(pointslist_l-1L)))
     }
   } else if(is.null(names(pointslist))) {
     # if it is list
     # test if it has names
     if(isTRUE(verbose)) wrap_msg('pointslist is a list without names')
-    if(length(pointslist) == 1) {
+    if(length(pointslist) == 1L) {
       names(pointslist) = 'rna'
     } else {
       pointslist_l = length(pointslist)
-      names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
+      names(pointslist) = c('rna', paste0('feat', seq(pointslist_l-1L)))
 
     }
   } else {

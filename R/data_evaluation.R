@@ -222,7 +222,8 @@ evaluate_feat_metadata = function(metadata,
 evaluate_spatial_locations_OLD = function(spatial_locs,
                                           cores = 1,
                                           dummy_n = 2,
-                                          expr_matrix = NULL) {
+                                          expr_matrix = NULL,
+                                          verbose = TRUE) {
 
   if(is.null(spatial_locs)) {
     warning('\n spatial locations are not given, dummy 2D data will be created \n')
@@ -260,9 +261,12 @@ evaluate_spatial_locations_OLD = function(spatial_locs,
 
       non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
 
-      warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
-              '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
-              '\n Other non numeric columns will be removed\n\n')
+      if(isTRUE(verbose)) {
+        wrap_msg('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+                 '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+                 '\n Other non numeric columns will be removed\n\n')
+      }
+
 
       if(!is.null(expr_matrix)) {
         potential_cell_IDs = spatial_locs[[ non_numeric_indices[1] ]]

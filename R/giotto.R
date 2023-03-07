@@ -679,7 +679,7 @@ check_feat_metadata = function(gobject,
       # Start checking values when specific expression is added
       if(is.null(avail_ex)) return()
 
-      if(!nrow(avail_ex[spat_unit == su_i & feat_type == ft_i] == 0L)) {
+      if(!nrow(avail_ex[spat_unit == su_i & feat_type == ft_i]) == 0L) {
         IDs = featIDs(get_expression_values(gobject = gobject,
                                             spat_unit = su_i,
                                             feat_type = ft_i,
@@ -755,7 +755,7 @@ check_feat_metadata = function(gobject,
       }
 
       # ensure ID col first
-      setcolorder(meta[], 'cell_ID')
+      setcolorder(meta[], 'feat_ID')
 
     })
   }
@@ -1130,7 +1130,7 @@ check_spatial_info = function(gobject) {
                                          copy_obj = FALSE)
         if(!all(spatIDs(spatlocs) %in% spatIDs(sinfo))) {
           warning(wrap_txt('spat_unit:', su_i,
-                           'spatloc name:', su_sloc[[obj_i]], '\n',
+                           'spatloc name:', su_sloc$name[[obj_i]], '\n',
                            'cell IDs in spatial locations are missing from spatial polygon info'))
         }
         # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
@@ -1427,9 +1427,11 @@ createGiottoObject = function(expression,
                               expression_feat = 'rna',
                               spatial_locs = NULL,
                               spatial_info = NULL,
+                              calc_poly_centroids = FALSE,
+                              centroids_to_spatlocs = FALSE,
+                              feat_info = NULL,
                               cell_metadata = NULL,
                               feat_metadata = NULL,
-                              feat_info = NULL,
                               spatial_network = NULL,
                               spatial_grid = NULL,
                               spatial_grid_name = NULL,
@@ -1443,6 +1445,9 @@ createGiottoObject = function(expression,
                               cores = determine_cores(),
                               raw_exprs = NULL,
                               verbose = TRUE) {
+
+  debug_msg = FALSE # for debug help
+  initialize_per_step = FALSE
 
   # create minimum giotto
   gobject = giotto(expression_feat = expression_feat,
@@ -1479,9 +1484,19 @@ createGiottoObject = function(expression,
   ## ------------ ##
   ## place to store segmentation info in polygon format style
 
+
   if(!is.null(spatial_info)) {
-    gobject = addGiottoPolygons(gobject = gobject,
-                                gpolygons = spatial_info)
+    spatial_info = readPolygonData(data_list = spatial_info,
+                                   calc_centroids = calc_poly_centroids,
+                                   verbose = debug_msg)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setPolygonInfo(gobject = gobject,
+                             x = spatial_info,
+                             centroids_to_spatlocs = centroids_to_spatlocs,
+                             verbose = verbose,
+                             initialize = initialize_per_step)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  if(isTRUE(verbose)) wrap_msg('--- finished spatial info ---\n\n')
   }
 
 
@@ -1490,8 +1505,15 @@ createGiottoObject = function(expression,
   ## ------------ ##
   ## place to store individual feature info
   if(!is.null(feat_info)) {
-    gobject = addGiottoPoints(gobject = gobject,
-                              gpoints = feat_info)
+    feat_info = readFeatData(data_list = feat_info,
+                             verbose = debug_msg)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = setFeatureInfo(gobject = gobject,
+                             x = feat_info,
+                             verbose = verbose,
+                             initialize = initialize_per_step)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    if(isTRUE(verbose)) wrap_msg('--- finished feature info ---\n\n')
   }
 
 
@@ -1514,24 +1536,25 @@ createGiottoObject = function(expression,
                                    sparse = TRUE,
                                    cores = cores,
                                    default_feat_type = expression_feat,
-                                   verbose = verbose)
+                                   verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setExpression(gobject = gobject,
                             x = expression_data,
-                            verbose = verbose)
+                            verbose = verbose,
+                            initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
-    print('test 1')
+
 
 
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
-    # gobject = init_cell_and_feat_IDs(gobject)
-    # no longer needed
+    gobject = init_cell_and_feat_IDs(gobject) # needed when initialize per step is FALSE
+
 
   }
 
-  if(verbose) message('finished expression data')
+  if(verbose) message('--- finished expression data ---\n')
 
 
 
@@ -1585,11 +1608,12 @@ createGiottoObject = function(expression,
 
     spatial_location_data = readSpatLocsData(data_list = spatial_locs,
                                              cores = cores,
-                                             verbose = verbose)
+                                             verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setSpatialLocations(gobject = gobject,
                                   x = spatial_location_data,
-                                  verbose = verbose)
+                                  verbose = verbose,
+                                  initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1627,7 +1651,7 @@ createGiottoObject = function(expression,
     }
   }
 
-  if(verbose) message('finished spatial location data')
+  if(verbose) message('--- finished spatial location data ---\n')
 
 
 
@@ -1638,30 +1662,32 @@ createGiottoObject = function(expression,
   if(!is.null(cell_metadata)) {
     cm_list = readCellMetadata(data_list = cell_metadata,
                                default_feat_type = expression_feat,
-                               verbose = verbose)
+                               verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setCellMetadata(gobject = gobject,
                               x = cm_list,
-                              verbose = verbose)
+                              verbose = verbose,
+                              initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
-  if(verbose) message('finished cell metadata')
+  if(verbose) message('--- finished cell metadata ---\n')
 
   ## feat metadata ##
   ## ------------- ##
   if(!is.null(feat_metadata)) {
     fm_list = readFeatMetadata(data_list = feat_metadata,
                                default_feat_type = expression_feat,
-                               verbose = verbose)
+                               verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setFeatureMetadata(gobject = gobject,
                                  x = fm_list,
-                                 verbose = verbose)
+                                 verbose = verbose,
+                                 initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
-  if(verbose) message('finished feature metadata')
+  if(verbose) message('--- finished feature metadata ---\n')
 
 
 
@@ -1670,14 +1696,16 @@ createGiottoObject = function(expression,
   ## spatial network
   if(!is.null(spatial_network)) {
     spatial_network_list = readSpatNetData(data_list = spatial_network,
-                                           verbose = verbose)
+                                           verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setSpatialNetwork(gobject = gobject,
                                 x = spatial_network_list,
-                                verbose = verbose)
+                                verbose = verbose,
+                                initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    if(isTRUE(verbose)) wrap_msg('--- finished spatial network ---\n\n')
   } else {
-    message('No spatial network results are provided')
+    if(isTRUE(verbose)) message('No spatial network results are provided')
   }
 
 
@@ -1724,14 +1752,16 @@ createGiottoObject = function(expression,
   if(!is.null(spatial_enrichment)) {
     spatial_enrichment = readSpatEnrichData(data_list = spatial_enrichment,
                                             default_feat_type = expression_feat,
-                                            verbose = verbose)
+                                            verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setSpatialEnrichment(gobject = gobject,
                                    x = spatial_enrichment,
-                                   verbose = verbose)
+                                   verbose = verbose,
+                                   initialize = initialize_per_step)
+    if(isTRUE(verbose)) wrap_msg('--- finished spatial enrichment ---\n\n')
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   } else {
-    message('No spatial enrichment results are provided')
+    if(isTRUE(verbose)) message('No spatial enrichment results are provided')
   }
 
 
@@ -1741,14 +1771,16 @@ createGiottoObject = function(expression,
   if(!is.null(dimension_reduction)) {
     dimension_reduction = readDimReducData(data_list = dimension_reduction,
                                            default_feat_type = expression_feat,
-                                           verbose = verbose)
+                                           verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setDimReduction(gobject = gobject,
                               x = dimension_reduction,
-                              verbose = verbose)
+                              verbose = verbose,
+                              initialize = initialize_per_step)
+    if(isTRUE(verbose)) wrap_msg('--- finished dimension reduction ---\n\n')
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   } else {
-    message('No dimension reduction results are provided')
+    if(isTRUE(verbose)) message('No dimension reduction results are provided')
   }
 
 
@@ -1758,14 +1790,16 @@ createGiottoObject = function(expression,
   if(!is.null(nn_network)) {
     nn_network = readNearestNetData(data_list = nn_network,
                                     default_feat_type = expression_feat,
-                                    verbose = verbose)
+                                    verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setNearestNetwork(gobject = gobject,
                                 x = nn_network,
-                                verbose = verbose)
+                                verbose = verbose,
+                                initialize = initialize_per_step)
+    if(isTRUE(verbose)) wrap_msg('--- finished nearest neighbor network ---\n\n')
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   } else {
-    message('No nearest neighbor network results are provided')
+    if(isTRUE(verbose)) message('No nearest neighbor network results are provided')
   }
 
 
@@ -1797,11 +1831,17 @@ createGiottoObject = function(expression,
   }
 
 
+  if(!is.null(largeImages)) {
+    if(isTRUE(verbose)) wrap_msg('attaching largeImages')
+    gobject = addGiottoImage(gobject = gobject,
+                             largeImages = largeImages)
+  }
+
 
   # other information
   # TODO
 
-  return(gobject)
+  return(initialize(gobject))
 
 }
 

@@ -9,9 +9,11 @@ createGiottoObject(
   expression_feat = "rna",
   spatial_locs = NULL,
   spatial_info = NULL,
+  calc_poly_centroids = FALSE,
+  centroids_to_spatlocs = FALSE,
+  feat_info = NULL,
   cell_metadata = NULL,
   feat_metadata = NULL,
-  feat_info = NULL,
   spatial_network = NULL,
   spatial_grid = NULL,
   spatial_grid_name = NULL,
@@ -37,12 +39,12 @@ createGiottoObject(
 \item{spatial_info}{list of giotto polygon objects with spatial information,
 see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}}
 
+\item{feat_info}{list of giotto point objects with feature info,
+see \code{\link{createGiottoPoints}}}
+
 \item{cell_metadata}{cell annotation metadata}
 
 \item{feat_metadata}{feature annotation metadata for each unique feature}
-
-\item{feat_info}{list of giotto point objects with feature info,
-see \code{\link{createGiottoPoints}}}
 
 \item{spatial_network}{list of spatial network(s)}
 

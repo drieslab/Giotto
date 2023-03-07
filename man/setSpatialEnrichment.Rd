@@ -11,7 +11,8 @@ setSpatialEnrichment(
   feat_type = NULL,
   name = "enrichment",
   provenance = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ a specified set of spatial enrichment information from the gobject.}
 \item{name}{name of spatial enrichment results. Default "DWLS"}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
