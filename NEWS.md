@@ -1,7 +1,7 @@
 
 
 
-# Giotto Suite 3.2.1 (2023-02-13)
+# Giotto Suite 3.2.1 (TBD)
 
 ## Breaking Changes
 - Removed all deprecated accessors from `accessors.R`
