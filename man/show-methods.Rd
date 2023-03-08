@@ -5,6 +5,7 @@
 \alias{show,giotto-method}
 \alias{show,exprObj-method}
 \alias{show,dimObj-method}
+\alias{show,nnNetObj-method}
 \alias{show,spatLocsObj-method}
 \alias{show,spatialNetworkObj-method}
 \alias{show,spatialGridObj-method}
@@ -18,6 +19,8 @@
 \S4method{show}{exprObj}(object)
 
 \S4method{show}{dimObj}(object)
+
+\S4method{show}{nnNetObj}(object)
 
 \S4method{show}{spatLocsObj}(object)
 
@@ -40,6 +43,8 @@ show method for giotto class
 show method for exprObj class
 
 show method for dimObj class
+
+show method for nnNetObj class
 
 show method for spatLocsObj class
 

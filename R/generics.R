@@ -80,6 +80,12 @@ setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
             cell_ID = NULL
             x@enrichDT[, cell_ID]
           })
+#' @rdname spatIDs-generic
+#' @export
+setMethod('spatIDs', signature(x = 'nnNetObj', spat_unit = 'missing'),
+          function(x, ...) {
+            unique(names(igraph::V(x@igraph)))
+          })
 
 
 
@@ -126,17 +132,79 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 
 
 
+# default spat unit ####
+#' @title Active spatial unit
+#' @name activeSpatUnit-generic
+#' @aliases activeSpatUnit activeSpatUnit<-
+#' @description Retrieve or set the active spatial unit. This value will be the
+#' default spatial unit that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
+setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit', signature(gobject = 'giotto'), function(gobject) {
+  su_try = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+  if(inherits(su_try, 'try-error')) su_try = NULL
+  return(su_try)
+})
+
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_spat_unit') = value
+            return(gobject)
+          })
+
+
+# default feature type ####
+#' @title Active feature type
+#' @name activeFeatType-generic
+#' @aliases activeFeatType activeFeatType<-
+#' @description Retrieve or set the active feature type. This value will be the
+#' default feature type that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
+setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType', signature(gobject = 'giotto'), function(gobject) {
+  ft_try = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
+  if(inherits(ft_try, 'try-error')) ft_try = NULL
+  return(ft_try)
+})
+
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_feat_type') = value
+            return(gobject)
+          })
+
+
+
+
+
 # instructions ####
 #' @title Access giotto instructions
 #' @name instructions-generic
 #' @aliases instructions instructions<-
 #' @description Retrieve or set giotto instructions. Specific instructions can
-#' be replaced using the \code{field} param
+#' be replaced using the \code{field} param. Additionally, when using
+#' instructions<-, \code{initialize()} will be called on the giotto object if
+#' initialize param is TRUE
 #' @inheritParams data_access_params
 #' @param param Specific param in instructions to access or modify
+#' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
 
 
 
@@ -151,10 +219,23 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'missing'),
 # Set instructions object
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'missing', value = 'ANY'),
-          function(gobject, value) {
-            gobject = replaceGiottoInstructions(gobject, instructions = value)
-            return(initialize(gobject))
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'missing', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'logical', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = initialize)
+            return(gobject)
           })
 
 # Get specific field
@@ -169,13 +250,27 @@ setMethod('instructions', signature(gobject = 'giotto', param = 'character'),
 # Set specific field
 #' @rdname instructions-generic
 #' @export
-setMethod('instructions<-', signature(gobject = 'giotto', param = 'character', value = 'ANY'),
-          function(gobject, param, value) {
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'missing', value = 'ANY'),
+          function(gobject, param, initialize, value) {
             gobject = changeGiottoInstructions(gobject = gobject,
                                                params = param,
                                                new_values = value,
-                                               return_gobject = TRUE)
-            return(initialize(gobject))
+                                               return_gobject = TRUE,
+                                               init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'logical', value = 'ANY'),
+          function(gobject, param, initialize, value) {
+            gobject = changeGiottoInstructions(gobject = gobject,
+                                               params = param,
+                                               new_values = value,
+                                               return_gobject = TRUE,
+                                               init_gobject = initialize)
+            return(gobject)
           })
 
 
@@ -734,54 +829,28 @@ NULL
 setMethod('plot', signature(x = 'giottoImage', y = 'missing'), function(x,y,...) plot_giottoImage_MG(giottoImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
+#' @importMethodsFrom terra plot
 #' @export
 setMethod('plot', signature(x = 'giottoLargeImage', y = 'missing'), function(x,y,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
+#' @importMethodsFrom terra plot
 #' @param point_size size of points when plotting giottoPolygon object centroids
 #' @param type what to plot: either 'poly' (default) or polygon 'centroid'
 #' @export
-setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'), function(x,
-                                                                          y,
-                                                                          point_size = 0.1,
-                                                                          type = c('poly', 'centroid'),
-                                                                          ...) {
-  type = match.arg(type, choices = c('poly', 'centroid'))
-  if(type == 'poly') {
-    terra::plot(x = x@spatVector, ...)
-  }
-  if(type == 'centroid') {
-    if(!is.null(x@spatVectorCentroids)) {
-      terra::plot(x = x@spatVectorCentroids, cex = point_size, ...)
-    } else {
-      cat('no centroids calculated\n')
-    }
-  }
-
-})
+setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
+          function(x, point_size = 0.1, type = c('poly', 'centroid'), ...) {
+            plot_giotto_polygon(x = x, point_size = point_size, type = type, ...)
+          })
 
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
 #' @export
-setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
-                                                                         y,
-                                                                         point_size = 0.1,
-                                                                         feats = NULL,
-                                                                         ...) {
-
-  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
-  else if(length(feats) == 1) {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, ...)
-  }
-  else {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
-  }
-})
+setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
+          function(x, point_size = 0.1, feats = NULL, ...) {
+            plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
+          })
 
 
 #' @describeIn plot-generic Plot a spatLocsObj

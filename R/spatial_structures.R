@@ -437,30 +437,7 @@ filter_network <- function(networkDT = NULL,
 
 
 
-#' @title Evaluate spatial network
-#' @name evaluate_spatial_network
-#' @description function to evaluate a spatial network
-#' @keywords internal
-evaluate_spatial_network = function(spatial_network) {
 
-  if(!inherits(spatial_network, 'data.frame')) {
-    stop('The spatial network must be a data.frame(-like) object \n')
-  }
-
-  netw_names = colnames(spatial_network)
-  required_cols = c('from', 'to',
-                    'sdimx_begin', 'sdimy_begin',
-                    'sdimx_end', 'sdimy_end',
-                    'distance', 'weight')
-  missing_cols = required_cols[!required_cols %in% netw_names]
-
-  if(length(missing_cols) > 0) {
-    stop('missing columns: ', list(missing_cols))
-  } else {
-    return(TRUE)
-  }
-
-}
 
 
 
@@ -473,7 +450,7 @@ compatible_spatial_network = function(spatial_network,
                                       expression_matrix) {
 
   # first evaluate spatial network
-  evaluate_spatial_network(spatial_network)
+  spatial_network = evaluate_spatial_network(spatial_network)
 
   # compatible network
   # all network nodes need to be found back in the column names
@@ -608,7 +585,7 @@ create_delaunayNetwork_geometry <- function(spatial_locations,
   adj_obj = igraph::as_adjacency_matrix(igraph_obj)
   igraph_obj2 = igraph::graph.adjacency(adj_obj)
   delaunay_edges_dedup2 = igraph::get.data.frame(igraph_obj2)
-  delaunay_edges_dedup = data.table::as.data.table(delaunay_edges_dedup2)
+  delaunay_edges_dedup = data.table::setDT(delaunay_edges_dedup2)
 
 
   xbegin_name = paste0(sdimx,'_begin')

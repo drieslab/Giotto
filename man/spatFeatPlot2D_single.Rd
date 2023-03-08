@@ -12,7 +12,7 @@ spatFeatPlot2D_single(
   gimage = NULL,
   image_name = NULL,
   largeImage_name = NULL,
-  spat_loc_name = NULL,
+  spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",
   expression_values = c("normalized", "scaled", "custom"),

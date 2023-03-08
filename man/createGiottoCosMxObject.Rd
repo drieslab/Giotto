@@ -9,7 +9,7 @@ createGiottoCosMxObject(
   data_to_use = c("all", "subcellular", "aggregate"),
   FOVs = NULL,
   instructions = NULL,
-  cores = NA,
+  cores = determine_cores(),
   verbose = TRUE
 )
 }

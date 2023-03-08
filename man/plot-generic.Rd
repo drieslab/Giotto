@@ -15,9 +15,9 @@
 
 \S4method{plot}{giottoLargeImage,missing}(x, y, ...)
 
-\S4method{plot}{giottoPolygon,missing}(x, y, point_size = 0.1, type = c("poly", "centroid"), ...)
+\S4method{plot}{giottoPolygon,missing}(x, point_size = 0.1, type = c("poly", "centroid"), ...)
 
-\S4method{plot}{giottoPoints,missing}(x, y, point_size = 0.1, feats = NULL, ...)
+\S4method{plot}{giottoPoints,missing}(x, point_size = 0.1, feats = NULL, ...)
 
 \S4method{plot}{spatLocsObj,missing}(x, y, ...)
 

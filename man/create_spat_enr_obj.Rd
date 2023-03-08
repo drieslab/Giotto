@@ -2,35 +2,36 @@
 % Please edit documentation in R/classes.R
 \name{create_spat_enr_obj}
 \alias{create_spat_enr_obj}
+\alias{createSpatEnrObj}
 \title{Create S4 spatEnrObj}
 \usage{
-create_spat_enr_obj(
+createSpatEnrObj(
+  enrichment_data,
   name = "test",
-  method = NA_character_,
-  enrichDT = NULL,
   spat_unit = "cell",
   feat_type = "rna",
+  method = NULL,
   provenance = NULL,
-  misc = NULL
+  misc = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
+\item{enrichment_data}{spatial enrichment results, provided a dataframe-like object}
+
 \item{name}{name of S4 spatEnrObj}
-
-\item{method}{method used to generate spatial enrichment information}
-
-\item{enrichDT}{spatial enrichment results, provided as a data.table}
 
 \item{spat_unit}{spatial unit of aggregated expression (e.g. 'cell')}
 
 \item{feat_type}{feature type of aggregated expression (e.g. 'rna', 'protein')}
 
+\item{method}{method used to generate spatial enrichment information}
+
 \item{provenance}{origin data of aggregated expression information (if applicable)}
 
-\item{misc}{misc additional information about he spatial enrichment or how it
+\item{misc}{misc additional information about the spatial enrichment or how it
 was generated}
 }
 \description{
 Create S4 spatEnrObj
 }
-\keyword{internal}
