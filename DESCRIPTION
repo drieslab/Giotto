@@ -123,6 +123,8 @@ Collate:
     'clustering.R'
     'convenience.R'
     'cross_section.R'
+    'data_evaluation.R'
+    'data_input.R'
     'dd.R'
     'differential_expression.R'
     'dimension_reduction.R'

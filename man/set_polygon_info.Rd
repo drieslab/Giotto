@@ -4,16 +4,24 @@
 \alias{set_polygon_info}
 \title{Set polygon info}
 \usage{
-set_polygon_info(gobject, polygon_name = "cell", gpolygon, verbose = TRUE)
+set_polygon_info(
+  gobject,
+  gpolygon,
+  polygon_name = "cell",
+  verbose = TRUE,
+  initialize = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons. Default "cell"}
+\item{gpolygon}{giottoPolygon object}
 
-\item{gpolygon}{giotto polygon}
+\item{polygon_name}{name of polygons. Default "cell" (only used when gpolygon
+is length of 1)}
 
-\item{verbose}{verbosity}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
@@ -30,9 +38,11 @@ Other polygon info data accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -48,7 +58,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_spatialGrid}()},

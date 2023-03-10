@@ -302,6 +302,7 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
 #' @param index element index
 #' @keywords internal
 #' @return boolean
+#' @noRd
 list_element_exists = function(x, index) {
   tryCatch({
     if(length(x[[index]]) > -1)
@@ -318,6 +319,7 @@ list_element_exists = function(x, index) {
 #' @param x data.table
 #' @param neworder numerical vector to reorder rows
 #' @keywords internal
+#' @noRd
 set_row_order_dt = function(x, neworder) {
   if('.r' %in% colnames(x)) {
     temp_r = x[, .SD, .SDcols = '.r']
@@ -329,6 +331,63 @@ set_row_order_dt = function(x, neworder) {
   }
 
 }
+
+
+
+# Determine if character is missing, NULL or an empty string.
+# Returns TRUE for all cases
+is_empty_char = function(x) {
+  if(is.null(x)) return(TRUE)
+  if(is.na(x)) return(TRUE)
+  if(x == '') return(TRUE)
+
+  FALSE
+}
+
+
+
+
+
+
+
+# list nesting depth ####
+
+#' @title Find depth of subnesting
+#' @name depth
+#' @param this object to evaluate
+#' @param method max (default) or min nesting to detect
+#' @param sig signature or class to check for. Default is 'data.frame'
+#' @description Recursively determines how many max or min layers of subnesting
+#' there is, with the end object (defined by param sig or a list of length 0)
+#' being layer 0
+#' @details https://stackoverflow.com/questions/13432863/determine-level-of-nesting-in-r
+#' @keywords internal
+depth <- function(this,
+                  method = c('max', 'min'),
+                  sig = 'data.frame') {
+
+  method = match.arg(arg = method, choices = c('max', 'min'))
+
+  # Stop conditions:
+
+  # Stop if matches signature to search for
+  if(inherits(this, sig)) {
+    return(0L)
+  }
+  # Stop if an empty list is discovered
+  if(is.list(this) && length(this) == 0L) {
+    return(0L)
+  }
+  # Stop if object is not a list AND recurse if it is.
+  # Report minimum or maximum depth depending on method
+  if(method == 'max') {
+    ifelse(is.list(this), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+  } else if(method == 'min') {
+    ifelse(is.list(this), 1L + min(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+  }
+
+}
+
 
 
 
@@ -725,11 +784,30 @@ degrees = function(rad) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 # guard functions ####
 
-guard_against_notgiotto = function(gobject, ...) {
-  fn_name = deparse(sys.calls()[[sys.nframe()-1]])
+#' @inheritParams data_access_params
+#' @param n Frames back in which to evaluate the gobject param
+#' @keywords internal
+#' @noRd
+guard_against_notgiotto = function(gobject, n = 1L, ...) {
+  fn_name = deparse(sys.calls()[[sys.nframe() - n]])
   orig_name = deparse(eval(call('substitute', as.name(substitute(gobject)), parent.frame())))
+  if(!hasArg(gobject)) stop(wrap_txt(fn_name, ':\ngiotto object must be given',
+                                     errWidth = TRUE),
+                            call. = FALSE)
   if(!inherits(gobject, 'giotto')) {
     stop(wrap_txt(fn_name, ':\n', orig_name, 'is not a giotto object',
                   errWidth = TRUE),

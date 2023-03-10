@@ -4,16 +4,20 @@
 \alias{setFeatureInfo}
 \title{Set feature info}
 \usage{
-setFeatureInfo(gobject = NULL, gpoints, feat_type = NULL, verbose = TRUE)
+setFeatureInfo(gobject, x, feat_type = NULL, verbose = TRUE, initialize = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{gpoints}{giotto points object}
+\item{x}{giottoPoints object or list of giottoPoints to set. Passing NULL
+will remove the specified giottoPoints object from the giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{verbose}{be verbose}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
@@ -30,8 +34,10 @@ Other feature info data accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -47,7 +53,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

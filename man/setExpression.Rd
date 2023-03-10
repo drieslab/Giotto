@@ -2,49 +2,44 @@
 % Please edit documentation in R/accessors.R
 \name{setExpression}
 \alias{setExpression}
-\title{Set expression values}
+\title{Set expression data}
 \usage{
 setExpression(
   gobject,
-  values,
+  x,
   spat_unit = NULL,
   feat_type = NULL,
-  name = "test",
+  name = "raw",
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  initialize = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{values}{exprObj or matrix of expression values. If NULL, then the object
-will be removed.}
+\item{x}{exprObj or list of exprObj to set. Passing NULL will remove a
+specified set of expression data from the giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{name}{name for the expression slot}
+\item{name}{name for the expression information}
 
-\item{provenance}{provenance information (optional)}
+\item{provenance}{provenance information (optional)
+information for the giotto object. Pass NULL to remove an expression object}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
-expression and spat_info are not expected to exist.}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
 }
 \description{
-Function to set expression values for giotto object
-}
-\details{
-If cell_ID, feat_ID, cell_metadata, or feat_metadata objects have not
-been initialized yet, they will be initialized by this function. Note that
-initialization based on feature info or spatial info is preferred if they exist
-for this spatial unit and feature type.
+Function to set expression values for giotto object.
 }
 \seealso{
 Other expression accessor functions: 
@@ -54,8 +49,10 @@ Other expression accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -71,7 +68,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},
