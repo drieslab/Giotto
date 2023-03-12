@@ -483,10 +483,13 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   # }
 
 
-  spatvector = evaluate_spatial_info(spatial_info = segmdfr,
-                                     skip_eval_dfr = skip_eval_dfr,
-                                     copy_dt = copy_dt,
-                                     verbose = verbose)
+  eval_list = evaluate_spatial_info(spatial_info = segmdfr,
+                                    skip_eval_dfr = skip_eval_dfr,
+                                    copy_dt = copy_dt,
+                                    verbose = verbose)
+
+  spatvector = eval_list$spatvector
+  unique_IDs = eval_list$unique_IDs
 
   # if(!isTRUE(skip_eval_dfr)) {
   #   input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
@@ -529,7 +532,8 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
   g_polygon = create_giotto_polygon_object(name = name,
                                            spatVector = spatvector,
-                                           spatVectorCentroids = NULL)
+                                           spatVectorCentroids = NULL,
+                                           unique_IDs = NULL)
 
   # add centroids
   if(calc_centroids == TRUE) {
@@ -1069,42 +1073,7 @@ create_spatvector_object_from_dfr = function(x,
 }
 
 
-# create Giotto points from data.frame or spatVector
 
-#' @title Create giotto points object
-#' @name createGiottoPoints
-#' @description Creates Giotto point object from a structured dataframe-like object
-#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat_ID)
-#' @param feat_type feature type
-#' @param verbose be verbose
-#' @return giottoPoints
-#' @concept polygon
-#' @export
-createGiottoPoints = function(x,
-                              feat_type = 'rna',
-                              verbose = TRUE) {
-
-  if(inherits(x, 'data.frame')) {
-
-    spatvec = create_spatvector_object_from_dfr(x = x,
-                                                verbose = verbose)
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = spatvec)
-
-  } else if(inherits(x, 'spatVector')) {
-
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = x)
-
-  } else {
-
-    stop('Class ', class(x), ' is not supported')
-
-  }
-
-  return(g_points)
-
-}
 
 
 # data.table to spatVector

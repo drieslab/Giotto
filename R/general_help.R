@@ -2280,3 +2280,11 @@ fread_colmatch = function(file,
   return(file_DT)
 }
 
+
+
+file_extension = function(file) {
+  ex = strsplit(basename(file), split = '.', fixed = TRUE)[[1L]]
+  return(ex[-1])
+}
+
+

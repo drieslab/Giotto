@@ -567,6 +567,53 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
   avail_se = list_spatial_enrichments(.Object)
 
 
+  ## Perform any subobject updates ##
+  ## ----------------------------- ##
+
+  # Feature Info #
+  if(!is.null(avail_fi)) {
+    info_list = get_feature_info_list(.Object)
+    # update S4 object if needed
+    info_list = lapply(info_list, function(info) {
+      try_val = try(validObject(info), silent = TRUE)
+      if(inherits(try_val, 'try-error')) {
+        info = updateGiottoPointsObject(info)
+      }
+      return(info)
+    })
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    .Object = setFeatureInfo(gobject = .Object,
+                             x = info_list,
+                             verbose = FALSE,
+                             initialize = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  }
+
+
+  # Spatial Info #
+  if(!is.null(avail_si)) {
+    info_list = get_polygon_info_list(.Object)
+
+    # update S4 object if needed
+    info_list = lapply(info_list, function(info) {
+      try_val = try(validObject(info), silent = TRUE)
+      if(inherits(try_val, 'try-error')) {
+        info = updateGiottoPolygonObject(info)
+      }
+      return(info)
+    })
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    .Object = setPolygonInfo(gobject = .Object,
+                             x = info_list,
+                             verbose = FALSE,
+                             centroids_to_spatlocs = FALSE,
+                             initialize = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  }
+
+
+
+
 
 
   ## Set active/default spat_unit and feat_type ##
@@ -1974,6 +2021,7 @@ setMethod(
 #' @slot spatVector terra spatVector to store polygon shapes
 #' @slot spatVectorCentroids centroids of polygon shapes
 #' @slot overlaps information about overlapping points and polygons
+#' @slot unique_ID_cache cached unique spatial IDs that should match the spatVector slot
 #' @details holds polygon data
 #'
 #' @export
@@ -1984,15 +2032,60 @@ giottoPolygon = setClass(
   slots = c(
     spatVector = "ANY",
     spatVectorCentroids = "ANY",
-    overlaps = "ANY"
+    overlaps = "ANY",
+    unique_ID_cache = 'character'
   ),
 
   prototype = list(
     spatVector = NULL,
     spatVectorCentroids = NULL,
-    overlaps = NULL
+    overlaps = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
+
+
+#' @title Update giotto polygon object
+#' @name updateGiottoPolygonObject
+#' @param gpoly giotto polygon object
+#' @export
+updateGiottoPolygonObject = function(gpoly) {
+  if(!inherits(gpoly, 'giottoPolygon')) {
+    stop('This function is only for giottoPoints')
+  }
+
+  # 3.2.X adds cacheing of IDs
+  if(is.null(attr(gpoly, 'unique_ID_cache'))) {
+    attr(gpoly, 'unique_ID_cache') = unique(as.list(gpoly@spatVector)$poly_ID)
+  }
+
+  gpoly
+}
+
+
+# * show ####
+setMethod('show', signature = 'giottoPolygon', function(object) {
+
+  cat('An object of class giottoPolygon with name "', object@name, '"\n', sep = '')
+  cat('Spatial Information:\n')
+  print(object@spatVector)
+
+  if(!is.null(object@spatVectorCentroids)) {
+    cat(' centroids   : calculated\n')
+  } else {
+    cat(' centroids   : NULL\n')
+  }
+
+  if(!is.null(object@overlaps)) {
+    cat(' overlaps    : calculated')
+  } else {
+    cat(' overlaps    : NULL')
+  }
+
+})
+
 
 
 # for use with wrap() generic
@@ -2002,12 +2095,14 @@ setClass('packedGiottoPolygon',
          slots = c(
            packed_spatVector = 'ANY',
            packed_spatVectorCentroids = 'ANY',
-           packed_overlaps = 'ANY'
+           packed_overlaps = 'ANY',
+           unique_ID_cache = 'character'
          ),
          prototype = list(
            packed_spatVector = NULL,
            packed_spatVectorCentroids = NULL,
-           packed_overlaps = NULL
+           packed_overlaps = NULL,
+           unique_ID_cache = NA_character_
          ))
 
 
@@ -2031,6 +2126,7 @@ setMethod("show", signature(object='packedGiottoPolygon'),
 #' @slot feat_type name of feature type
 #' @slot spatVector terra spatVector to store point shapes
 #' @slot networks feature networks
+#' @slot unique_ID_cache cached unique feature IDs that should match the spatVector slot
 #' @details Contains vector-type feature data
 #'
 #' @export
@@ -2040,14 +2136,56 @@ giottoPoints <- setClass(
 
   slots = c(
     spatVector = "ANY",
-    networks = "ANY"
+    networks = "ANY",
+    unique_ID_cache = 'character'
   ),
 
   prototype = list(
     spatVector = NULL,
-    networks = NULL
+    networks = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
+
+
+#' @title Update giotto points object
+#' @name updateGiottoPointsObject
+#' @param gpoints giotto points object
+#' @export
+updateGiottoPointsObject = function(gpoints) {
+  if(!inherits(gpoints, 'giottoPoints')) {
+    stop('This function is only for giottoPoints')
+  }
+
+  # 3.2.X adds cacheing of IDs
+  if(is.null(attr(gpoints, 'unique_ID_cache'))) {
+    attr(gpoints, 'unique_ID_cache') = unique(as.list(gpoints@spatVector)$feat_ID)
+  }
+
+  gpoints
+}
+
+
+
+
+# * show ####
+setMethod('show', signature = 'giottoPoints', function(object) {
+
+  cat('An object of class giottoPoints with feature type "', object@feat_type, '"\n', sep = '')
+  cat('Feature Information:\n')
+  print(object@spatVector)
+
+  if(!is.null(object@networks)) {
+    cat(' feat. net.  :')
+    print(object@networks)
+  }
+
+})
+
+
+
 
 
 
@@ -2058,14 +2196,18 @@ setClass(
   slots = c(
     feat_type = 'character',
     packed_spatVector = 'ANY',
-    networks = 'ANY'
+    networks = 'ANY',
+    unique_ID_cache = 'character'
   ),
   prototype = list(
     feat_type = NA_character_,
     packed_spatVector = NULL,
-    networks = NULL
+    networks = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
 
 
 
@@ -2905,17 +3047,61 @@ create_featureNetwork_object = function(name = 'feat_network',
 }
 
 
+# create Giotto points from data.frame or spatVector
+
+#' @title Create giotto points object
+#' @name createGiottoPoints
+#' @description Creates Giotto point object from a structured dataframe-like object
+#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat_ID)
+#' @param feat_type feature type
+#' @param verbose be verbose
+#' @param unique_IDs (optional) character vector of unique IDs present within
+#' the spatVector data. Provided for cacheing purposes
+#' @return giottoPoints
+#' @concept polygon
+#' @export
+createGiottoPoints = function(x,
+                              feat_type = 'rna',
+                              verbose = TRUE,
+                              unique_IDs = NULL) {
+
+  if(inherits(x, 'data.frame')) {
+
+    spatvec = create_spatvector_object_from_dfr(x = x,
+                                                verbose = verbose)
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = spatvec,
+                                           unique_IDs = unique_IDs)
+
+  } else if(inherits(x, 'spatVector')) {
+
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = x,
+                                           unique_IDs = unique_IDs)
+
+  } else {
+
+    stop('Class ', class(x), ' is not supported')
+
+  }
+
+  return(g_points)
+
+}
+
 
 
 #' @title Create giotto points object
 #' @name create_giotto_points_object
 #' @param feat_type feature type
 #' @param spatVector terra spatVector object containing point data
-#' @param networks feature network object
+#' @param networks (optional) feature network object
+#' @param unique_IDs (optional) unique IDs in spatVector for cacheing
 #' @keywords internal
 create_giotto_points_object = function(feat_type = 'rna',
                                        spatVector = NULL,
-                                       networks = NULL) {
+                                       networks = NULL,
+                                       unique_IDs = NULL) {
 
   if(is.null(feat_type)) feat_type = NA # compliance with featData class
 
@@ -2937,6 +3123,13 @@ create_giotto_points_object = function(feat_type = 'rna',
   ## 3. feature_network object
   g_points@networks = networks
 
+  ## 4. feat_ID cacheing
+  if(is.null(unique_IDs)) {
+    g_points@unique_ID_cache = featIDs(g_points)
+  } else {
+    g_points@unique_ID_cache = unique_IDs
+  }
+
   # giottoPoints object
   return(g_points)
 
@@ -2954,11 +3147,17 @@ create_giotto_points_object = function(feat_type = 'rna',
 
 #' @title Create a giotto polygon object
 #' @name create_giotto_polygon_object
+#' @param name name of polygon object
+#' @param spatVector SpatVector of polygons
+#' @param spatVectorCentroids (optional) SpatVector of polygon centroids
+#' @param overlaps (optional) feature overlaps of polygons
+#' @param unique_IDs unique polygon IDs for cacheing
 #' @keywords internal
 create_giotto_polygon_object = function(name = 'cell',
                                         spatVector = NULL,
                                         spatVectorCentroids = NULL,
-                                        overlaps = NULL) {
+                                        overlaps = NULL,
+                                        unique_IDs = NULL) {
 
 
   # create minimum giotto
@@ -2995,6 +3194,12 @@ create_giotto_polygon_object = function(name = 'cell',
   ## 3. overlaps info
   g_polygon@overlaps = overlaps
 
+  ## 4. spat_ID cacheing
+  if(is.null(unique_IDs)) {
+    g_polygon@unique_ID_cache = spatIDs(g_polygon)
+  } else {
+    g_polygon@unique_ID_cache = unique_IDs
+  }
 
   # provide name
   g_polygon@name = name
