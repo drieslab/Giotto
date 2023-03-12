@@ -1873,7 +1873,7 @@ extract_polygon_list = function(polygonlist,
 
     if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
 
-    if(is.character(polyinfo) | input == 'mask') {
+    if((is.character(polyinfo) & input == 'guess') | input == 'mask') {
 
       parameters = c(list(name = name_polyinfo,
                           maskfile = polyinfo),
@@ -1882,7 +1882,7 @@ extract_polygon_list = function(polygonlist,
 
       poly_results = do.call(what = 'createGiottoPolygonsFromMask', args = parameters)
 
-    } else if(inherits(polyinfo, 'data.frame') | input == 'table') {
+    } else if((inherits(polyinfo, 'data.frame') & input == 'guess') | input == 'table') {
 
       parameters = c(list(name = name_polyinfo,
                           segmdfr = polyinfo),

@@ -68,10 +68,13 @@ setMethod('spatIDs', signature(x = 'dimObj', spat_unit = 'missing'),
             rownames(x@coordinates)
           })
 #' @rdname spatIDs-generic
+#' @param use_cache use cached IDs if available (gpoly and gpoints only)
 #' @export
 setMethod('spatIDs', signature(x = 'giottoPolygon', spat_unit = 'missing'),
-          function(x, ...) {
-            unique(x@spatVector$poly_ID)
+          function(x, use_cache = TRUE, ...) {
+            # getting as list first is more performant
+            if(!all(is.na(x@unique_ID_cache)) & isTRUE(use_cache)) x@unique_ID_cache
+            else unique(terra::as.list(x@spatVector)$poly_ID)
           })
 #' @rdname spatIDs-generic
 #' @export
@@ -114,8 +117,10 @@ setMethod('featIDs', signature(x = 'exprObj', feat_type = 'missing'),
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'giottoPoints', feat_type = 'missing'),
-          function(x, ...) {
-            unique(x@spatVector$feat_ID)
+          function(x, use_cache = TRUE, ...) {
+            # getting as list is more performant than directly using `$`
+            if(!all(is.na(x@unique_ID_cache)) & isTRUE(use_cache)) x@unique_ID_cache
+            else unique(terra::as.list(x@spatVector)$feat_ID)
           })
 #' @rdname spatIDs-generic
 #' @export
@@ -653,6 +658,7 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
           function(x) {
             pgp = new('packedGiottoPolygon')
             pgp@name = x@name
+            pgp@unique_ID_cache = x@unique_ID_cache
             pgp@packed_spatVector = terra::wrap(x@spatVector)
             if(!is.null(x@spatVectorCentroids)) {
               pgp@packed_spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
@@ -695,6 +701,7 @@ setMethod('wrap', signature(x = 'giottoPoints'),
           function(x) {
             pgp = new('packedGiottoPoints')
             pgp@feat_type = x@feat_type
+            pgp@unique_ID_cache = x@unique_ID_cache
             pgp@packed_spatVector = terra::wrap(x@spatVector)
             pgp@networks = x@networks
             return(pgp)
@@ -713,6 +720,12 @@ setMethod('vect', signature(x = 'packedGiottoPolygon'),
             gp = new('giottoPolygon')
             gp@name = x@name
             gp@spatVector = terra::vect(x@packed_spatVector)
+
+            # new cache slot
+            if(!is.null(attr(x, 'unique_ID_cache'))) {
+              gp@unique_ID_cache = x@unique_ID_cache
+            } else gp@unique_ID_cache = spatIDs(gp)
+
             if(!is.null(x@packed_spatVectorCentroids)) {
               gp@spatVectorCentroids = terra::vect(x@packed_spatVectorCentroids)
             }
@@ -739,6 +752,12 @@ setMethod('vect', signature(x = 'packedGiottoPoints'),
             gp = new('giottoPoints')
             gp@feat_type = x@feat_type
             gp@spatVector = terra::vect(x@packed_spatVector)
+
+            # new cache slot
+            if(!is.null(attr(x, 'unique_ID_cache'))) {
+              gp@unique_ID_cache = x@unique_ID_cache
+            } else gp@unique_ID_cache = featIDs(gp)
+
             gp@networks = x@networks
             return(gp)
             }
@@ -1130,6 +1149,47 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'mi
             x@coordinates = x@coordinates[, j = j, with = FALSE]
             x
           })
+
+
+# setMethod('[', signature(x = 'giotto', i = 'character', j = 'missing', drop = 'missing'),
+#           function(x, i, spat_unit = NULL, feat_type = NULL, name = NULL) {
+#
+#             # set defaults
+#             spat_unit = set_default_spat_unit(gobject = x,
+#                                               spat_unit = spat_unit)
+#             feat_type = set_default_feat_type(gobject = x,
+#                                               spat_unit = spat_unit,
+#                                               feat_type = feat_type)
+#             if(is.null(name)) name = 1L
+#
+#             switch(i,
+#                    'expression' = slot(x, 'expression')[[spat_unit]][[feat_type]][[name]],
+#                    'spatial_locs' = slot(x, 'spatial_locs')[[spat_unit]][[name]],
+#                    'spatial_info' = slot(x, 'spatial_info')[[name]],
+#                    'feat_info' = slot(x, 'feat_info')[[feat_type]])
+#           })
+
+# setMethod('[', signature(x = 'giotto', i = 'character', j = 'numeric', drop = 'missing'),
+#           function(x, i, j, spat_unit = NULL, feat_type = NULL, name = NULL) {
+#
+#             avail_data = switch(i,
+#                                 'expression' = list_expression(gobject = x,
+#                                                                spat_unit = spat_unit,
+#                                                                feat_type = feat_type),
+#                                 'spatial_locs' = list_spatial_locations(gobject = x,
+#                                                                         spat_unit = spat_unit),
+#                                 'spatial_info' = list_spatial_info(gobject = x),
+#                                 'feat_info' = list_feature_info(gobject = x))
+#
+#             switch(i,
+#                    'expression' = get_expression_values(gobject = x,
+#                                                         spat_unit = avail_data$spat_unit[[j]],
+#                                                         feat_type = avail_data$feat_type[[j]],
+#                                                         values = avail_data$name[[j]],
+#                                                         output = 'exprObj',
+#                                                         set_defaults = FALSE))
+#
+#           })
 
 #' @rdname extract-methods
 #' @export

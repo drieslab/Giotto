@@ -12,6 +12,12 @@
 
 
 
+
+
+
+
+
+
 # Expression ####
 
 #' @title Evaluate expression matrix
@@ -626,13 +632,14 @@ evaluate_nearest_networks = function(nn_network) {
 #' for columns that should correspond to x/y vertices and the polygon ID. Returns
 #' a data.table with those key columns renamed to 'x', 'y', and 'poly_ID' if necessary.
 #' @keywords internal
+#' @noRd
 evaluate_gpoly_dfr = function(input_dt,
                               verbose = TRUE) {
 
   x = y = poly_ID = NULL
 
   # data.frame like object needs to have 2 coordinate columns and
-  # at least one other column as the feat_ID
+  # at least one other column as the poly_ID
   if(ncol(input_dt) < 3) stop('At minimum, columns for xy coordinates and poly ID are needed.\n')
 
   col_classes = sapply(input_dt, class)
@@ -686,6 +693,68 @@ evaluate_gpoly_dfr = function(input_dt,
 
 
 
+#' @keywords internal
+#' @param input_sv SpatVector to evaluate
+#' @param verbose be verbose
+#' @return list of SpatVector and unique_IDs
+#' @noRd
+evaluate_gpoly_spatvector = function(input_sv,
+                                     verbose = TRUE) {
+
+  # determine sv type
+  sv_type = terra::geomtype(input_sv)
+
+  if(sv_type != 'polygons') {
+    stop('SpatVector is of type "', sv_type, '" instead of "polygons"')
+  }
+
+
+  col_classes = sapply(
+    sample(x = input_sv, size = 1L),
+    FUN = class
+  )
+
+
+  # 1. detect poly_ID
+  ## find poly_ID as either first character col or named column
+  ## if neither exist, pick the 1st column
+  sv_names = names(input_sv)
+  if('poly_ID' %in% sv_names) {
+    poly_ID_col = which(sv_names == 'poly_ID')
+  } else {
+    poly_ID_col = which(col_classes == 'character')
+    if(length(poly_ID_col) < 1L) poly_ID_col = 1L # case if no char found: default to 1st
+    else poly_ID_col = poly_ID_col[[1L]] # case if char is found
+  }
+
+
+  # 2. print selections and ensure correct data type
+  if(isTRUE(verbose)) wrap_msg('  Selecting attribute "', names(input_sv[[poly_ID_col]]), '" as poly_ID', sep = '')
+  sv_names[[poly_ID_col]] = 'poly_ID'
+  terra::set.names(input_sv, sv_names)
+
+  # strip crs info
+  terra::set.crs(input_sv, NULL)
+
+  unique_IDs = NULL
+  if(col_classes[[poly_ID_col]] != 'character') {
+    poly_ID_vals = terra::as.list(input_sv)$poly_ID
+    poly_ID_vals = as.character(poly_ID_vals)
+
+    input_sv$poly_ID = poly_ID_vals
+    unique_IDs = unique(poly_ID_vals)
+  }
+
+  return_list = list(spatvector = input_sv,
+                     unique_IDs = unique_IDs)
+
+  return_list
+}
+
+
+
+
+
 
 
 
@@ -699,7 +768,7 @@ evaluate_gpoly_dfr = function(input_dt,
 #' whether a copy is made
 #' @param cores how many cores to use
 #' @param verbose be verbose
-#' @return SpatVector
+#' @return list of SpatVector and unique polygon IDs that it contains
 #' @keywords internal
 #' @noRd
 evaluate_spatial_info = function(spatial_info,
@@ -709,13 +778,22 @@ evaluate_spatial_info = function(spatial_info,
                                  verbose = TRUE) {
 
   # data.table vars
-  geom = NULL
+  geom = poly_ID = NULL
 
   ## 1. load or read spatial information data ##
   ## 1.1 read from file
   if(inherits(spatial_info, 'character')) {
-    if(!file.exists(path.expand(spatial_info))) stop('path to spatial information does not exist')
-    spatial_info = data.table::fread(input = spatial_info, nThread = cores)
+    spatial_info = path.expand(spatial_info)
+    if(!file.exists(spatial_info)) stop('path to spatial information does not exist')
+
+    if(file_extension(spatial_info) %in% c('shp', 'geojson', 'wkt')) {
+      spatial_info = terra::vect(spatial_info)
+      spatial_info = evaluate_gpoly_spatvector(spatial_info)
+      return(spatial_info)
+    } else {
+      spatial_info = data.table::fread(input = spatial_info, nThread = cores)
+    }
+
 
     ## 1.2 data.frame-like input
   } else if (inherits(spatial_info, 'data.table')) {
@@ -725,9 +803,7 @@ evaluate_spatial_info = function(spatial_info,
 
     ## 1.3 SpatVector input
   } else if(inherits(spatial_info, 'SpatVector')) {
-    if(!'poly_ID' %in% names(spatial_info)) {
-      stop(wrap_txt('SpatVector input requires the poly_ID attribute'))
-    }
+    spatial_info = evaluate_gpoly_spatvector(spatial_info)
     return(spatial_info)
 
     ## 1.4 Other inputs
@@ -739,7 +815,6 @@ evaluate_spatial_info = function(spatial_info,
                     errWidth = TRUE))
     }
   }
-  # TODO add compatibility for HDF5s from specific outputs?
 
 
   # 2. data.frame info evaluation
@@ -758,13 +833,17 @@ evaluate_spatial_info = function(spatial_info,
   spatial_info[, c('part', 'hole') := list(1, 0)]
   spatial_info = spatial_info[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
 
+  # get unique IDs
+  unique_IDs = spatial_info[, unique(poly_ID)]
 
   # 4. create spatvector
   spatial_info = dt_to_spatVector_polygon(spatial_info,
                                           include_values = TRUE)
 
+  return_list = list(spatvector = spatial_info,
+                     unique_IDs = unique_IDs)
 
-  return(spatial_info)
+  return(return_list)
 
 
   # ## 2. check and name columns ##

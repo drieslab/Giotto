@@ -43,7 +43,7 @@ createGiottoInstructions <- function(python_path =  NULL,
     python_path = set_giotto_python_path(python_path = python_path)
     if (is.null(python_path)){
       stop(wrap_txt("Python is required for full Giotto functionality.\n", errWidth = T))
-    } 
+    }
   }
 
   # print plot to console
@@ -953,6 +953,8 @@ check_nearest_networks = function(gobject) {
 check_spatial_info = function(gobject) {
 
   avail_sinfo = list_spatial_info(gobject)
+  if(is.null(avail_sinfo)) return(gobject) # quit early if none available
+
   avail_slocs = list_spatial_locations(gobject)
 
   common_su = intersect(avail_sinfo$spat_info, avail_slocs$spat_unit)
@@ -989,6 +991,18 @@ check_spatial_info = function(gobject) {
 }
 
 
+
+
+
+#' @name check_feature_info
+#' @keywords internal
+#' @noRd
+check_feature_info = function(gobject) {
+
+  # TODO ... expr info or meta info w/ IDs not in feature info
+
+
+}
 
 
 
@@ -2822,10 +2836,10 @@ joinGiottoObjects = function(gobject_list,
   n_gobjects = length(gobject_list)
 
   ## check general input params
-  if(n_gobjects == 0) stop(wrap_txt('A list of Giotto objects to be joined must be provided.'))
-  if(n_gobjects == 1) stop(wrap_txt('Only one gobject provided in gobject_list.'))
-  if(!is.vector(gobject_names) | !is.character(gobject_names)) stop(wrap_txt('gobject_names need to be a vector with unique names for the giotto objects'))
-  if(n_gobjects != length(gobject_names)) stop(wrap_txt('each giotto object in the list needs to have a unique (short) name'))
+  if(n_gobjects == 0L) stop(wrap_txt('A list of Giotto objects to be joined must be provided.', errWidth = TRUE))
+  if(n_gobjects == 1L) stop(wrap_txt('Only one gobject provided in gobject_list.', errWidth = TRUE))
+  if(!is.vector(gobject_names) | !is.character(gobject_names)) stop(wrap_txt('gobject_names need to be a vector with unique names for the giotto objects', errWidth = TRUE))
+  if(n_gobjects != length(gobject_names)) stop(wrap_txt('each giotto object in the list needs to have a unique (short) name', errWidth = TRUE))
   if(is.null(join_method)) wrap_msg('No join_method given. Defaulting to "shift"')
 
 
@@ -2837,8 +2851,8 @@ joinGiottoObjects = function(gobject_list,
   # **** For shift workflow ****
   if(join_method == 'shift') {
     # Make sure enough x_shift and y_shift values are given to cover all gobjects
-    if(!is.null(x_shift)) if(length(x_shift) != n_gobjects) stop(wrap_txt('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n'))
-    if(!is.null(y_shift)) if(length(y_shift) != n_gobjects) stop(wrap_txt('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n'))
+    if(!is.null(x_shift)) if(length(x_shift) != n_gobjects) stop(wrap_txt('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n', errWidth = TRUE))
+    if(!is.null(y_shift)) if(length(y_shift) != n_gobjects) stop(wrap_txt('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n', errWidth = TRUE))
 
     # Set defaults if no shift params are given
     if(is.null(x_shift) & is.null(y_shift) & is.null(x_padding) & is.null(y_padding)) {
@@ -2866,15 +2880,16 @@ joinGiottoObjects = function(gobject_list,
   # **** For z_stack workflow ****
   if(join_method == 'z_stack') {
     if(!(is.atomic(z_vals) && is.numeric(z_vals))) {
-      stop('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object). \n')
+      stop(wrap_txt('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object).', errWidth = TRUE))
     }
     if((length(z_vals) != n_gobjects) && (length(z_vals) != 1)) {
-      stop('If more than one z_value is given, there must be one for each Giotto object to be joined. \n')
+      stop(wrap_txt('If more than one z_value is given, there must be one for each Giotto object to be joined.', errWidth = TRUE))
     }
 
     # expand z_vals if given as a step value
     if(length(z_vals) == 1) {
-      if(isTRUE(verbose)) message('Only one value given through z_vals param\n Treating this value as a z step')
+      if(isTRUE(verbose)) wrap_msg('Only one value given through z_vals param
+                                   Treating this value as a z step')
       z_vals = ((1:n_gobjects) - 1) * z_vals # Find z vals stepwise
     }
   }
@@ -2920,12 +2935,12 @@ joinGiottoObjects = function(gobject_list,
   first_instructions = gobject_list[[1]]@instructions
 
   # keep features from all giotto objects
-  vect = vector()
-  for(obj_i in 1:n_gobjects) {
+  existing_features = vector()
+  for(obj_i in seq_len(n_gobjects)) {
     obj_i_features = gobject_list[[obj_i]]@expression_feat
-    vect = c(vect, obj_i_features)
+    existing_features = c(existing_features, obj_i_features)
   }
-  first_features = unique(vect)
+  first_features = unique(existing_features)
 
 
 
@@ -2956,7 +2971,7 @@ joinGiottoObjects = function(gobject_list,
 
   if(verbose) wrap_msg('A) Update giotto Objects \n')
 
-  for(gobj_i in 1:n_gobjects) {
+  for(gobj_i in seq_len(n_gobjects)) {
 
     gobj = gobject_list[[gobj_i]]
     gname = gobject_names[[gobj_i]]
@@ -2969,6 +2984,7 @@ joinGiottoObjects = function(gobject_list,
       old_cell_ID = get_cell_id(gobject = gobj, spat_unit = spat_unit)
       new_cell_ID = paste0(gname, '-', old_cell_ID)
       all_cell_ID_list[[spat_unit]][[gobj_i]] = new_cell_ID
+      # TODO setting might not be necessary
       gobj = set_cell_id(gobject = gobj,
                          spat_unit = spat_unit,
                          cell_IDs = new_cell_ID,
@@ -2976,7 +2992,7 @@ joinGiottoObjects = function(gobject_list,
     }
 
 
-
+    # TODO this varies by active spat_unit and might no longer be needed....
     for(feat_type in names(gobj@feat_ID)) {
       all_feat_ID_list[[feat_type]][[gobj_i]] = get_feat_id(gobject = gobj, feat_type = feat_type)
     }
@@ -3349,23 +3365,7 @@ joinGiottoObjects = function(gobject_list,
   if(verbose) wrap_msg('B) Prepare to create new Giotto object \n')
 
   comb_gobject = new('giotto',
-                     expression = list(),
                      expression_feat = first_features,
-                     spatial_locs = NULL,
-                     spatial_info = NULL,
-                     cell_metadata = NULL,
-                     feat_metadata = NULL,
-                     feat_info = NULL,
-                     cell_ID = NULL,
-                     feat_ID = NULL,
-                     spatial_network = NULL,
-                     spatial_grid = NULL,
-                     spatial_enrichment = NULL,
-                     dimension_reduction = NULL,
-                     nn_network = NULL,
-                     images = NULL,
-                     parameters = NULL,
-                     offset_file = NULL,
                      instructions = first_instructions,
                      OS_platform = .Platform[['OS.type']],
                      join_info = NULL)
@@ -3611,8 +3611,8 @@ joinGiottoObjects = function(gobject_list,
   if(verbose) wrap_msg('6. spatial feature/points information \n')
 
 
-
-  for(feat in comb_gobject@expression_feat) {
+  for(feat in first_features) {
+  # for(feat in comb_gobject@expression_feat) {
 
     savelist_vector = list()
 
@@ -3680,7 +3680,7 @@ joinGiottoObjects = function(gobject_list,
                                 x_padding = x_padding,
                                 y_padding = y_padding)
 
-  return(comb_gobject)
+  return(initialize(comb_gobject))
 
 
 }
