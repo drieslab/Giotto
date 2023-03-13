@@ -15,7 +15,7 @@ makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
   ## check input
-  if(!is.list(sign_list)) {
+  if(!inherits(sign_list, 'list')) {
     stop('\n sign_list needs to be a list of signatures for each cell type / process \n')
   }
   if(length(sign_names) != length(sign_list)) {

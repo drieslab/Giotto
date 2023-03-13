@@ -1472,7 +1472,7 @@ addSpatialCentroidLocations = function(gobject,
                                        verbose = TRUE) {
 
   if(length(poly_info) > 1) {
-    if(!is.list(provenance) | length(provenance) != length(poly_info)) {
+    if(!inherits(provenance, 'list') | length(provenance) != length(poly_info)) {
       stop(wrap_txt(
         'If more than one poly_info is supplied at a time, then provenance must',
         'be a list of equal length',
