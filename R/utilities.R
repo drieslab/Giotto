@@ -375,15 +375,15 @@ depth <- function(this,
     return(0L)
   }
   # Stop if an empty list is discovered
-  if(is.list(this) && length(this) == 0L) {
+  if(inherits(this, 'list') && length(this) == 0L) {
     return(0L)
   }
   # Stop if object is not a list AND recurse if it is.
   # Report minimum or maximum depth depending on method
   if(method == 'max') {
-    ifelse(is.list(this), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+    ifelse(inherits(this, 'list'), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
   } else if(method == 'min') {
-    ifelse(is.list(this), 1L + min(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+    ifelse(inherits(this, 'list'), 1L + min(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
   }
 
 }

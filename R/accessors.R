@@ -684,7 +684,7 @@ setCellMetadata = function(gobject,
       initialize = initialize
     )
     return(gobject)
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'cellMetaObj')) {
@@ -1039,7 +1039,7 @@ setFeatureMetadata = function(gobject,
       initialize = initialize
     )
     return(gobject)
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'featMetaObj')) {
@@ -1467,7 +1467,7 @@ setExpression = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'exprObj')) {
@@ -1859,7 +1859,7 @@ setSpatialLocations = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'spatLocsObj')) {
@@ -2258,7 +2258,7 @@ setDimReduction = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'dimObj')) {
@@ -2649,7 +2649,7 @@ setNearestNetwork = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'nnNetObj')) {
@@ -3032,7 +3032,7 @@ setSpatialNetwork = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'spatialNetworkObj')) {
@@ -3601,7 +3601,7 @@ setPolygonInfo = function(gobject,
     }
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'giottoPolygon')) {
@@ -3690,7 +3690,7 @@ set_polygon_info = function(gobject,
   if(!methods::hasArg(gpolygon)) stop(wrap_txt('gpolygon param must be given'))
 
   # 0. stop if not native formats
-  if(is.list(gpolygon)) {
+  if(inherits(gpolygon, 'list')) {
     if(!all(sapply(gpolygon, class) == 'giottoPolygon')) {
       stop(wrap_txt('If providing a list to internal setter, only lists of',
                     'giottoPolygon objects are permitted',
@@ -3736,7 +3736,7 @@ set_polygon_info = function(gobject,
   }
 
   # 3.2 if input is list, set list
-  if(is.list(gpolygon)) {
+  if(inherits(gpolygon, 'list')) {
     # ensure list names are accurate
     gp_names = names(gpolygon)
     if(is.null(gp_names)) stop(wrap_txt('if "gpolygon" is a list, then it must be a named list',
@@ -3931,7 +3931,7 @@ setFeatureInfo = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'giottoPoints')) {
@@ -3997,7 +3997,7 @@ set_feature_info = function(gobject,
 
 
   # 0. stop if not native formats
-  if(is.list(gpoints)) {
+  if(inherits(gpoints, 'list')) {
     if(!all(sapply(gpoints, class) == 'giottoPoints')) {
       stop(wrap_txt('If providing a list to internal setter, only lists of',
                     'giottoPoints objects are permitted',
@@ -4047,7 +4047,7 @@ set_feature_info = function(gobject,
   }
 
   # 3.2 if input is list, set list
-  if(is.list(gpoints)) {
+  if(inherits(gpoints, 'list')) {
     # ensure list names are accurate
     gp_names = names(gpoints)
     if(is.null(gp_names)) stop(wrap_txt('If "gpoints" is a list, then it must be a named list',
@@ -4304,7 +4304,7 @@ setSpatialEnrichment = function(gobject,
     )
     return(gobject)
 
-  } else if(is.list(x)) {
+  } else if(inherits(x, 'list')) {
 
     # check list items are native
     if(all(sapply(x, class) == 'spatEnrObj')) {

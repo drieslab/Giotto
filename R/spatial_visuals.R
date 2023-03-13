@@ -2328,7 +2328,7 @@ plot_spat_image_layer_ggplot = function(gg_obj,
   # Assign region to plot
   gg_obj = gg_obj + geom_blank(data = spat_ext, aes_string(sdimx, sdimy))
 
-  if((is.list(gimage) | is.vector(gimage)) & length(gimage) > 1) {
+  if((inherits(gimage, 'list') | is.vector(gimage)) & length(gimage) > 1) {
 
     for(i in 1:length(gimage)) {
 
