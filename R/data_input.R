@@ -331,7 +331,7 @@ read_cell_metadata = function(metadata,
   if(is.null(default_feat_type)) default_feat_type = 'rna'
 
   # if not list make list
-  if(!is.list(metadata)) {
+  if(!inherits(metadata, 'list')) {
     meta_list = list()
     meta_list[[default_spat_unit]][[default_feat_type]] = metadata
     metadata = meta_list
@@ -491,7 +491,7 @@ read_feature_metadata = function(metadata,
   if(is.null(default_feat_type)) default_feat_type = 'rna'
 
   # if not list make list
-  if(!is.list(metadata)) {
+  if(!inherits(metadata, 'list')) {
     meta_list = list()
     meta_list[[default_spat_unit]][[default_feat_type]] = metadata
     metadata = meta_list
@@ -657,7 +657,7 @@ read_spatial_location_data = function(spat_loc_list,
   if(is.null(spat_loc_list)) return(NULL)
 
   #  if not list make list with default name of raw
-  if(!is.list(spat_loc_list)) {
+  if(!inherits(spat_loc_list, 'list')) {
     spat_loc_list = list(raw = spat_loc_list) # single matrix or path (expected)
   }
 
@@ -1825,7 +1825,7 @@ extract_polygon_list = function(polygonlist,
 
   # if polygonlist is not a named list
   # try to make list and give default names
-  if(!is.list(polygonlist)) {
+  if(!inherits(polygonlist, 'list')) {
 
     try_val = try(as.list(polygonlist), silent = TRUE)
     if(inherits(try_val, 'try-error')) {
@@ -2011,7 +2011,7 @@ extract_points_list = function(pointslist,
 
   # if pointslist is not a named list
   # try to make list and give default names
-  if(!is.list(pointslist)) {
+  if(!inherits(pointslist, 'list')) {
 
     if(isTRUE(verbose)) wrap_msg('pointslist is not a list')
 
