@@ -7,7 +7,8 @@
 create_giotto_points_object(
   feat_type = "rna",
   spatVector = NULL,
-  networks = NULL
+  networks = NULL,
+  unique_IDs = NULL
 )
 }
 \arguments{
@@ -15,7 +16,9 @@ create_giotto_points_object(
 
 \item{spatVector}{terra spatVector object containing point data}
 
-\item{networks}{feature network object}
+\item{networks}{(optional) feature network object}
+
+\item{unique_IDs}{(optional) unique IDs in spatVector for cacheing}
 }
 \description{
 Create giotto points object

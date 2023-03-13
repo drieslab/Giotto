@@ -1015,8 +1015,10 @@ subset_giotto_polygon_object = function(gpolygon,
 
 
   if(!is.null(gpolygon@spatVector)) {
-    cell_id_bool = gpolygon@spatVector$poly_ID %in% cell_ids
+    poly_IDs = gpolygon@spatVector$poly_ID
+    cell_id_bool = poly_IDs %in% cell_ids
     gpolygon@spatVector = gpolygon@spatVector[cell_id_bool]
+    gpolygon@unique_ID_cache = unique(poly_IDs) # update cache
   }
 
   if(!is.null(gpolygon@spatVectorCentroids)) {
@@ -1144,6 +1146,7 @@ subset_giotto_points_object = function(gpoints,
       print('im3')
 
       gpoints@spatVector = myspatvector_subset
+      gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)] # update cache
     }
 
   }
