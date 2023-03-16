@@ -32,10 +32,11 @@ do_gpoly = function(x, what, args = NULL) {
 
 
 #' @title Convert polygon to raster
-#' @name polygon_to_raster
+#' @name polygon_to_raster_OLD
 #' @description function to convert terra SpatVector Polygon shape into a terra SpatRaster
+#' TODO: can be removed
 #' @keywords internal
-polygon_to_raster = function(polygon, field = NULL) {
+polygon_to_raster_OLD = function(polygon, field = NULL) {
 
   pol_xmax = terra::xmax(polygon)
   pol_ymax = terra::ymax(polygon)
@@ -1544,7 +1545,7 @@ addSpatialCentroidLocations = function(gobject,
 
 ## ** raster way ####
 
-
+#' @title Convert polygon to raster
 #' @name polygon_to_raster
 #' @description  convert polygon to raster
 #' @keywords internal
