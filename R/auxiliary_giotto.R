@@ -11,24 +11,26 @@ set_default_spat_unit = function(gobject,
                                  spat_unit = NULL) {
 
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
+  # If a spatial unit is provided, use it directly
+  if(!is.null(spat_unit)) {
+    return(spat_unit)
+  }
 
-    spat_unit = getOption('giotto.spat_unit')
-    if(is.null(spat_unit)) {
-      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
-        spat_unit = names(gobject@expression)[[1]]
-      } else if(!is.null(gobject@spatial_info)){
-        spat_unit = names(gobject@spatial_info)[[1]]
-      } else {
-        warning('No default for spat_unit could be set \n')
-      }
+  # set a default
+  spat_unit = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+
+  if(inherits(spat_unit, 'try-error')) {
+    if(!is.null(gobject@expression) & length(gobject@expression) > 0L) {
+      spat_unit = names(gobject@expression)[[1L]]
+    } else if(!is.null(gobject@spatial_info)){
+      spat_unit = names(gobject@spatial_info)[[1L]]
+    } else {
+      warning('No default for spat_unit could be set \n')
+      spat_unit = NULL
     }
-
   }
 
   return(spat_unit)
-
 }
 
 
@@ -42,26 +44,32 @@ set_default_feat_type = function(gobject,
                                  spat_unit) {
 
 
-  # set spatial unit
-  if(is.null(feat_type)) {
+  # if a feature type is provided, use it directly
+  if(!is.null(feat_type)) {
+    return(feat_type)
+  }
 
-    feat_type = getOption('giotto.feat_type')
+  # set a default
+  feat_type = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
 
-    if(is.null(feat_type)) {
-      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
-        feat_type = names(gobject@expression[[spat_unit]])[[1]]
-        if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
-      } else if(!is.null(gobject@feat_info)){
-        feat_type = names(gobject@feat_info)[[1]]
-      } else {
-        warning('No default for feat_type could be set \n')
-      }
+  if(inherits(feat_type, 'try-error')) {
+    if(!is.null(gobject@expression) & length(gobject@expression) > 0L) {
+      feat_type = names(gobject@expression[[spat_unit]])[[1L]]
+      if(is.null(feat_type)) warning(wrap_txt('No existing feat_types to default to in given spat_unit'))
+    } else if(!is.null(gobject@feat_info)){
+      feat_type = names(gobject@feat_info)[[1L]]
+    } else {
+      warning('No default for feat_type could be set \n')
+      feat_type = NULL
     }
-
   }
 
   return(feat_type)
 }
+
+
+
+
 
 
 #' @title mean_expr_det_test
@@ -318,6 +326,8 @@ create_average_detection_DT <- function(gobject,
 
 
 
+
+# TODO DEPRECATE now that this functionality is covered in initialize()
 #' @title Initialize cell metadata slot
 #' @name init_cell_metadata
 #' @description Generate cellMetaObjs to hold cell metadata for each spatial unit
@@ -374,6 +384,9 @@ init_cell_metadata = function(gobject,
 }
 
 
+
+
+# TODO DEPRECATE now that this functionality is covered in initialize()
 #' @title Initialize feature metadata slot
 #' @name init_feat_metadata
 #' @description Generate featMetaObjs to hold all feature metadata for each spatial unit
@@ -1002,8 +1015,10 @@ subset_giotto_polygon_object = function(gpolygon,
 
 
   if(!is.null(gpolygon@spatVector)) {
-    cell_id_bool = gpolygon@spatVector$poly_ID %in% cell_ids
+    poly_IDs = gpolygon@spatVector$poly_ID
+    cell_id_bool = poly_IDs %in% cell_ids
     gpolygon@spatVector = gpolygon@spatVector[cell_id_bool]
+    gpolygon@unique_ID_cache = unique(poly_IDs) # update cache
   }
 
   if(!is.null(gpolygon@spatVectorCentroids)) {
@@ -1131,6 +1146,7 @@ subset_giotto_points_object = function(gpoints,
       print('im3')
 
       gpoints@spatVector = myspatvector_subset
+      gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)] # update cache
     }
 
   }
@@ -1292,11 +1308,11 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 3: subset spatial locations \n')
 
+  # update ID slots now performed by intialization
 
 
-
-  gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
-  gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
+  # gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
+  # gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
 
 
   if(verbose) cat('completed 4: subset cell (spatial units) and feature IDs \n')
@@ -1422,7 +1438,7 @@ subsetGiotto <- function(gobject,
   gobject@parameters = parameters_list
 
 
-  return(gobject)
+  return(initialize(gobject))
 
 }
 
@@ -3032,8 +3048,8 @@ combine_polygons = function(polygon_list) {
 
 
 
-#' @title aggregateStacksPolygons
-#' @name aggregateStacksPolygons
+#' @title aggregateStacksPolygonsOLD
+#' @name aggregateStacksPolygonsOLD
 #' @description aggregate polygons from different z-stacks
 #' @param gobject giotto object
 #' @param spat_units spatial units to aggregate
@@ -3042,7 +3058,7 @@ combine_polygons = function(polygon_list) {
 #' @family aggregate stacks
 #' @export
 #'
-aggregateStacksPolygons = function(gobject,
+aggregateStacksPolygonsOLD = function(gobject,
                                    spat_units,
                                    new_spat_unit = 'aggregate') {
 
@@ -3064,6 +3080,85 @@ aggregateStacksPolygons = function(gobject,
 
   gpolygon = create_giotto_polygon_object(name = new_spat_unit,
                                           spatVector = combined_polygons,
+                                          spatVectorCentroids = NULL,
+                                          overlaps = NULL)
+
+  gobject = set_polygon_info(gobject = gobject,
+                             polygon_name = new_spat_unit,
+                             gpolygon = gpolygon,
+                             verbose = F)
+
+  return(gobject)
+
+}
+
+
+#' @title combine_stack_spatVectors
+#' @description combines/aggregates polygons with the same cell ID from different z-stacks
+#' @keywords internal
+combine_stack_spatVectors = function(gobject,
+                                     spat_units) {
+
+
+  # 1. combine all spatVectors across all stacks
+  stack_list = list()
+  for(spat_i in 1:length(spat_units)) {
+    spat = spat_units[[spat_i]]
+    stackspatvector = get_polygon_info(gobject = gobject,
+                                       polygon_name = spat,
+                                       polygon_overlap = NULL,
+                                       return_giottoPolygon = FALSE)
+    #stackspatvector = gobject@spatial_info[[spat]]@spatVector
+    stackspatvector[['stack']] = spat
+    stack_list[[spat_i]] = stackspatvector
+  }
+  stack_spatvector = do.call('rbind', stack_list)
+
+  # 2. make sure spatvectors are valid
+  stack_spatvector = terra::makeValid(stack_spatvector)
+
+
+  # 3. aggregate individual cells/polys
+  all_poly_ids = sort(unique(stack_spatvector$poly_ID))
+  poly_list = list()
+  for(selected_poly_i in 1:length(all_poly_ids)) {
+    selected_poly_id = all_poly_ids[[selected_poly_i]]
+    selected_poly = stack_spatvector[stack_spatvector$poly_ID == selected_poly_id]
+    selected_poly_aggr = terra::aggregate(selected_poly, by = 'poly_ID', dissolve = TRUE)
+    poly_list[[selected_poly_i]] = selected_poly_aggr
+  }
+  aggr_spatvectors = do.call('rbind', poly_list)
+
+  # 4. add valid information to aggregated spatvector
+  aggr_spatvectors[['valid']] = terra::is.valid(aggr_spatvectors)
+
+  return(aggr_spatvectors)
+
+}
+
+
+
+#' @title aggregateStacksPolygons
+#' @name aggregateStacksPolygons
+#' @description aggregate polygons from different z-stacks
+#' @param gobject giotto object
+#' @param spat_units spatial units to aggregate
+#' @param new_spat_unit new name for aggregated spatial unit
+#' @return giotto object
+#' @family aggregate stacks
+#' @export
+#'
+aggregateStacksPolygons = function(gobject,
+                                   spat_units,
+                                   new_spat_unit = 'aggregate') {
+
+
+  # aggregate spatvectors
+  aggregated_spatVec = combine_stack_spatVectors(gobject = gobject,
+                                                 spat_units = spat_units)
+
+  gpolygon = create_giotto_polygon_object(name = new_spat_unit,
+                                          spatVector = aggregated_spatVec,
                                           spatVectorCentroids = NULL,
                                           overlaps = NULL)
 
@@ -3399,6 +3494,18 @@ addCellMetadata <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type)
+  if(is.null(avail_ex))
+    stop(wrap_txt('No matching expression information discovered for:
+                  spat_unit:', spat_unit,
+                  '\nfeature type:', feat_type,
+                  '\nPlease add expression information first'))
+
+
   cell_metadata = get_cell_metadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
@@ -3502,6 +3609,18 @@ addFeatMetadata <- function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+
+
+  # check hierarchical slots
+  avail_ex = list_expression(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type)
+  if(is.null(avail_ex))
+    stop(wrap_txt('No matching expression information discovered for:
+                  spat_unit:', spat_unit,
+                  '\nfeature type:', feat_type,
+                  '\nPlease add expression information first'))
+
 
   feat_metadata = get_feature_metadata(gobject,
                                        spat_unit = spat_unit,

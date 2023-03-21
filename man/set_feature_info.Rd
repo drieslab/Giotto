@@ -6,22 +6,30 @@
 \usage{
 set_feature_info(
   gobject,
-  feat_type = NULL,
   gpoints,
-  gpolygon = NULL,
-  verbose = TRUE
+  feat_type = NULL,
+  verbose = TRUE,
+  set_defaults = TRUE,
+  initialize = FALSE,
+  gpolygon = NULL
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
-
 \item{gpoints}{giotto points object}
 
-\item{gpolygon}{typo do not use}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{verbose}{be verbose}
+
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
+
+\item{gpolygon}{typo do not use}
 }
 \value{
 giotto object
@@ -38,9 +46,11 @@ Other feature info data accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -55,7 +65,6 @@ Other functions to set data in giotto object:
 \code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

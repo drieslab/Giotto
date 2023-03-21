@@ -5,7 +5,9 @@
 #' @description guesses how many cores to use
 #' @return numeric
 #' @keywords internal
-determine_cores = function(cores, min_cores = 1, max_cores = 10) {
+determine_cores = function(cores = getOption('giotto.cores', default = NA),
+                           min_cores = 1,
+                           max_cores = 10) {
 
   if(is.na(cores) | !is.numeric(cores) | (is.numeric(cores) & cores <= 0)) {
     cores = parallel::detectCores()
@@ -16,12 +18,16 @@ determine_cores = function(cores, min_cores = 1, max_cores = 10) {
       cores = cores - 2
       cores = ifelse(cores > max_cores, max_cores, cores)
     }
+    options('giotto.cores' = cores)
     return(cores)
+
   } else {
     cores = cores
     return(cores)
   }
 }
+
+
 
 #' @title getDistinctColors
 #' @description Returns a number of distint colors based on the RGB scale
@@ -2273,4 +2279,12 @@ fread_colmatch = function(file,
   file_DT = data.table::fread(cmd = fread_cmd, col.names = col_names, ...)
   return(file_DT)
 }
+
+
+
+file_extension = function(file) {
+  ex = strsplit(basename(file), split = '.', fixed = TRUE)[[1L]]
+  return(ex[-1])
+}
+
 

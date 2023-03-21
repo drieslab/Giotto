@@ -6,13 +6,14 @@
 \usage{
 createGiottoObject(
   expression,
-  raw_exprs = NULL,
   expression_feat = "rna",
   spatial_locs = NULL,
   spatial_info = NULL,
+  calc_poly_centroids = FALSE,
+  centroids_to_spatlocs = FALSE,
+  feat_info = NULL,
   cell_metadata = NULL,
   feat_metadata = NULL,
-  feat_info = NULL,
   spatial_network = NULL,
   spatial_grid = NULL,
   spatial_grid_name = NULL,
@@ -23,14 +24,13 @@ createGiottoObject(
   largeImages = NULL,
   offset_file = NULL,
   instructions = NULL,
-  cores = NA,
+  cores = determine_cores(),
+  raw_exprs = NULL,
   verbose = TRUE
 )
 }
 \arguments{
 \item{expression}{expression information}
-
-\item{raw_exprs}{deprecated, use expression}
 
 \item{expression_feat}{available features (e.g. rna, protein, ...)}
 
@@ -39,12 +39,12 @@ createGiottoObject(
 \item{spatial_info}{list of giotto polygon objects with spatial information,
 see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}}
 
+\item{feat_info}{list of giotto point objects with feature info,
+see \code{\link{createGiottoPoints}}}
+
 \item{cell_metadata}{cell annotation metadata}
 
 \item{feat_metadata}{feature annotation metadata for each unique feature}
-
-\item{feat_info}{list of giotto point objects with feature info,
-see \code{\link{createGiottoPoints}}}
 
 \item{spatial_network}{list of spatial network(s)}
 
@@ -67,6 +67,8 @@ see \code{\link{createGiottoPoints}}}
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
+
+\item{raw_exprs}{deprecated, use expression}
 
 \item{verbose}{be verbose when building Giotto object}
 }

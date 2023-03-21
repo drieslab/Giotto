@@ -53,59 +53,7 @@ polygon_to_raster = function(polygon, field = NULL) {
 
 
 
-## extension of spatVector object
-## name should match the cellular structure
 
-#' @title Create a giotto polygon object
-#' @name create_giotto_polygon_object
-#' @keywords internal
-create_giotto_polygon_object = function(name = 'cell',
-                                        spatVector = NULL,
-                                        spatVectorCentroids = NULL,
-                                        overlaps = NULL) {
-
-
-  # create minimum giotto
-  g_polygon = giottoPolygon(name = name,
-                            spatVector = NULL,
-                            spatVectorCentroids = NULL,
-                            overlaps = NULL)
-
-  ## 1. check spatVector object
-  if(!methods::is(spatVector, 'SpatVector')) {
-    stop("spatVector needs to be a SpatVector object from the terra package")
-  }
-
-  g_polygon@spatVector = spatVector
-
-
-  ## 2. centroids need to be of similar length as polygons
-  if(!is.null(spatVectorCentroids)) {
-    if(!methods::is(spatVectorCentroids, 'SpatVector')) {
-      stop("spatVectorCentroids needs to be a spatVector object from the terra package")
-    }
-
-    l_centroids = nrow(terra::values(spatVectorCentroids))
-    l_polygons = nrow(terra::values(spatVector))
-
-    if(l_centroids == l_polygons) {
-      g_polygon@spatVectorCentroids = spatVectorCentroids
-    } else {
-      stop('number of centroids does not equal number of polygons')
-    }
-
-  }
-
-  ## 3. overlaps info
-  g_polygon@overlaps = overlaps
-
-
-  # provide name
-  g_polygon@name = name
-
-  # giotto polygon object
-  return(g_polygon)
-}
 
 
 
@@ -351,16 +299,14 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         fix_multipart = TRUE,
                                         remove_unvalid_polygons = TRUE) {
 
-  # define for .()
-  x = NULL
-  y = NULL
-  geom = NULL
-  part = NULL
+  # data.table vars
+  x = y = geom = part = NULL
 
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
 
   # check if mask file exists
+  maskfile = path.expand(maskfile)
   if(!file.exists(maskfile)) {
     stop('path : ', maskfile, ' does not exist \n')
   }
@@ -527,35 +473,43 @@ createGiottoPolygonsFromDfr = function(segmdfr,
                                        skip_eval_dfr = FALSE,
                                        copy_dt = TRUE) {
 
-  # define for data.table
-  geom = NULL
 
-  if(!inherits(segmdfr, 'data.table')) {
-    if(inherits(segmdfr, 'data.frame')) input_dt = data.table::setDT(segmdfr)
-    else input_dt = data.table::as.data.table(segmdfr)
-  } else {
-    if(isTRUE(copy_dt)) input_dt = data.table::copy(segmdfr)
-    else input_dt = segmdfr
-  }
+  # if(!inherits(segmdfr, 'data.table')) {
+  #   if(inherits(segmdfr, 'data.frame')) input_dt = data.table::setDT(segmdfr)
+  #   else input_dt = data.table::as.data.table(segmdfr)
+  # } else {
+  #   if(isTRUE(copy_dt)) input_dt = data.table::copy(segmdfr)
+  #   else input_dt = segmdfr
+  # }
 
 
-  if(!isTRUE(skip_eval_dfr)) {
-    input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
-                                  verbose = verbose)
-  }
+  eval_list = evaluate_spatial_info(spatial_info = segmdfr,
+                                    skip_eval_dfr = skip_eval_dfr,
+                                    copy_dt = copy_dt,
+                                    verbose = verbose)
+
+  spatvector = eval_list$spatvector
+  unique_IDs = eval_list$unique_IDs
+
+  # if(!isTRUE(skip_eval_dfr)) {
+  #   input_dt = evaluate_gpoly_dfr(input_dt = input_dt,
+  #                                 verbose = verbose)
+  # } else {
+  #   input_dt = segmdfr
+  # }
 
   #pl = ggplot()
   #pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = poly_ID))
   #print(pl)
 
-  # add other colnames for the input data.table
-  nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
-  names(nr_of_cells_vec) = unique(input_dt$poly_ID)
-  new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
-  input_dt[, geom := new_vec]
-
-  input_dt[, c('part', 'hole') := list(1, 0)]
-  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
+  # # add other colnames for the input data.table
+  # nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
+  # names(nr_of_cells_vec) = unique(input_dt$poly_ID)
+  # new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
+  # input_dt[, geom := new_vec]
+  #
+  # input_dt[, c('part', 'hole') := list(1, 0)]
+  # input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with = FALSE]
 
 
   #pl = ggplot()
@@ -565,8 +519,8 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
 
   # create spatvector
-  spatvector = dt_to_spatVector_polygon(input_dt,
-                                        include_values = TRUE)
+  # spatvector = dt_to_spatVector_polygon(input_dt,
+  #                                       include_values = TRUE)
 
   # hopla = spatVector_to_dt(spatvector)
 
@@ -578,7 +532,8 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
   g_polygon = create_giotto_polygon_object(name = name,
                                            spatVector = spatvector,
-                                           spatVectorCentroids = NULL)
+                                           spatVectorCentroids = NULL,
+                                           unique_IDs = NULL)
 
   # add centroids
   if(calc_centroids == TRUE) {
@@ -637,212 +592,8 @@ gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
 
 
 
-#' @describeIn createGiottoPolygonsFromDfr Examines provided data.frame type object
-#' for columns that should correspond to x/y vertices and the polygon ID. Returns
-#' a data.table with those key columns renamed to 'x', 'y', and 'poly_ID' if necessary.
-#' @keywords internal
-evaluate_gpoly_dfr = function(input_dt,
-                              verbose = TRUE) {
-
-  x = y = poly_ID = NULL
-
-  # data.frame like object needs to have 2 coordinate columns and
-  # at least one other column as the feat_ID
-  if(ncol(input_dt) < 3) stop('At minimum, columns for xy coordinates and poly ID are needed.\n')
-
-  col_classes = sapply(input_dt, class)
 
 
-  # 1. detect poly_ID
-  ## find poly_ID as either first character col or named column
-  ## if neither exist, pick the 3rd column
-  if('poly_ID' %in% colnames(input_dt)) {
-    poly_ID_col = which(colnames(input_dt) == 'poly_ID')
-  } else {
-    poly_ID_col = which(col_classes == 'character')
-    if(length(poly_ID_col) < 1) poly_ID_col = 3 # case if no char found: default to 3rd
-    else poly_ID_col = poly_ID_col[[1]] # case if char is found
-  }
-
-
-  # 2. detect x and y
-  ## find first two numeric cols as x and y respectively or named column
-  ## if neither exist, pick the 1st and 2nd cols respectively for x and y
-  if(all(c('x','y') %in% colnames(input_dt))) {
-    x_col = which(colnames(input_dt) == 'x')
-    y_col = which(colnames(input_dt) == 'y')
-  } else {
-    x_col = which(col_classes == 'numeric')
-    if(length(x_col) < 2) x_col = 1 # case if no/too few num found: default to 1st
-    else x_col = x_col[[1]] # case if num found
-    y_col = which(col_classes == 'numeric')
-    if(length(y_col) < 2) y_col = 2 # case if no/too few num found: default to 2nd
-    else y_col = y_col[[2]] # case if num found
-  }
-
-
-  # 3. print selections and ensure correct data type
-  if(isTRUE(verbose)) message(paste0('  Selecting col "',colnames(input_dt[, poly_ID_col, with = FALSE]),'" as poly_ID column'))
-  colnames(input_dt)[poly_ID_col] = 'poly_ID'
-  if(!input_dt[, inherits(poly_ID, 'character')]) input_dt[, poly_ID := as.character(poly_ID)]
-
-  if(isTRUE(verbose)) message(paste0('  Selecting cols "',colnames(input_dt[, x_col, with = FALSE]),'" and "', colnames(input_dt[, y_col, with = FALSE]),'" as x and y respectively'))
-  colnames(input_dt)[x_col] = 'x'
-  colnames(input_dt)[y_col] = 'y'
-  if(!input_dt[, inherits(x, 'numeric')]) input_dt[, x := as.numeric(x)]
-  if(!input_dt[, inherits(y, 'numeric')]) input_dt[, y := as.numeric(y)]
-
-  input_dt
-}
-
-
-
-
-#' @title Extract list of polygons
-#' @name extract_polygon_list
-#' @description to extract list of polygons
-#' @keywords internal
-extract_polygon_list = function(polygonlist,
-                                polygon_mask_list_params,
-                                polygon_dfr_list_params,
-                                verbose = TRUE) {
-
-  named_list = FALSE
-
-  # if polygonlist is not a named list
-  # try to make list and give default names
-  if(!is.list(polygonlist)) {
-
-    if(isTRUE(verbose)) (wrap_msg('polygonlist is not a list'))
-
-    try_val = try(as.list(polygonlist), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      polygonlist = list(polygonlist)
-    } else polygonlist = try_val
-    if(length(polygonlist) == 1) {
-      names(polygonlist) = 'cell'
-    } else {
-      polygonlist_l = length(polygonlist)
-      names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
-    }
-  } else if(is.null(names(polygonlist))) {
-    # if it is list
-    # test if it has names
-    if(isTRUE(verbose)) wrap_msg('polygonlist is a list without names')
-
-    if(length(polygonlist) == 1) {
-      names(polygonlist) = 'cell'
-    } else {
-      polygonlist_l = length(polygonlist)
-      names(polygonlist) = c('cell', paste0('info', 1:(polygonlist_l-1)))
-
-    }
-  } else {
-
-    if(isTRUE(verbose)) wrap_msg('polygonlist is a list with names')
-    named_list = TRUE
-
-  }
-
-  # make sure cell is one of the names
-  #all_names = names(polygonlist)
-  #if(!any('cell' %in% all_names)) {
-  #  stop(" Information about 'cell' needs to be provided")
-  #}
-
-
-  final_list = list()
-
-  for(poly_i in seq_along(polygonlist)) {
-
-    name_polyinfo = names(polygonlist)[[poly_i]]
-    polyinfo = polygonlist[[poly_i]]
-
-    if(isTRUE(verbose)) wrap_msg('  [', name_polyinfo, '] Process polygon info...')
-
-    if(is.character(polyinfo)) {
-
-      parameters = c(list(name = name_polyinfo,
-                          maskfile = polyinfo),
-                     polygon_mask_list_params)
-      if(isTRUE(verbose)) print(parameters)
-
-      poly_results = do.call(what = 'createGiottoPolygonsFromMask', args = parameters)
-
-    } else if(inherits(polyinfo, 'data.frame')) {
-
-      parameters = c(list(name = name_polyinfo,
-                          segmdfr = polyinfo),
-                     polygon_dfr_list_params)
-      if(isTRUE(verbose)) print(parameters)
-
-      poly_results = do.call(what = 'createGiottoPolygonsFromDfr', args = parameters)
-
-    } else if(inherits(polyinfo, 'giottoPolygon')) {
-
-      # Override name slot ONLY if giottoPolygon provided as named list
-      if(isTRUE(named_list)) slot(polyinfo, 'name') = name_polyinfo
-      else name_polyinfo = polyinfo@name
-      poly_results = polyinfo
-
-    } else {
-
-      stop(wrap_txt('Polygon can only be extracted from a mask file or from a correctly formatted data.frame'))
-
-    }
-
-    final_list[[name_polyinfo]] = poly_results
-
-  }
-
-  # print(final_list)
-  return(final_list)
-
-}
-
-
-
-#' @title Add giotto polygons to giotto object
-#' @name addGiottoPolygons
-#' @description Adds Giotto polygon to an existing Giotto object
-#' @param gobject giotto object
-#' @param gpolygons list of giotto polygon objects,
-#' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
-#' @return giotto object
-#' @concept polygon
-#' @export
-addGiottoPolygons = function(gobject,
-                             gpolygons) {
-
-  # check input
-  if(!inherits(gobject, 'giotto')) {
-    stop('gobject needs to be a giotto object')
-  }
-
-  if(!inherits(gpolygons, 'list')) {
-    stop('gpolygons needs to be a list of one or more giottoPolygon objects')
-  }
-
-
-  # add each giottoPoint object to the giotto object
-  for(gp_i in 1:length(gpolygons)) {
-
-    gp = gpolygons[[gp_i]]
-
-    # check if giottoPoint object
-    if(!inherits(gp, 'giottoPolygon')) {
-      stop('gpolygons needs to be a list of one or more giottoPolygon objects', '\n',
-           'number ', gp_i, ' is not a giottoPolygon object \n')
-    }
-
-
-    gobject@spatial_info[[gp@name]] = gp
-
-  }
-
-  return(gobject)
-
-}
 
 
 
@@ -1245,81 +996,7 @@ hexVertices = function(radius, major_axis = c('v', 'h')) {
 
 
 
-#' @title Create feature network object
-#' @name create_featureNetwork_object
-#' @param name name to assign the created feature network object
-#' @param network_datatable network data.table object
-#' @param network_lookup_id network lookup id
-#' @param full fully connected status
-#' @keywords internal
-create_featureNetwork_object = function(name = 'feat_network',
-                                        network_datatable = NULL,
-                                        network_lookup_id = NULL,
-                                        full = NULL) {
 
-
-  # create minimum giotto points object
-  f_network = featureNetwork(name = name,
-                             network_datatable = NULL,
-                             network_lookup_id = NULL,
-                             full = NULL)
-
-  ## 1. check network data.table object
-  if(!methods::is(network_datatable, 'data.table')) {
-    stop("network_datatable needs to be a network data.table object")
-  }
-  f_network@network_datatable = network_datatable
-
-  ## 2. provide network fully connected status
-  f_network@full = full
-
-  ## 3. provide feature network name
-  f_network@name = name
-
-  ## 4. network lookup id
-  f_network@network_lookup_id = network_lookup_id
-
-  # giotoPoints object
-  return(f_network)
-
-}
-
-
-
-
-#' @title Create giotto points object
-#' @name create_giotto_points_object
-#' @param feat_type feature type
-#' @param spatVector terra spatVector object containing point data
-#' @param networks feature network object
-#' @keywords internal
-create_giotto_points_object = function(feat_type = 'rna',
-                                       spatVector = NULL,
-                                       networks = NULL) {
-
-
-  # create minimum giotto points object
-  g_points = giottoPoints(feat_type = feat_type,
-                          spatVector = NULL,
-                          networks = NULL)
-
-  ## 1. check terra spatVector object
-  if(!inherits(spatVector, 'SpatVector')) {
-    stop("spatVector needs to be a spatVector object from the terra package")
-  }
-
-  g_points@spatVector = spatVector
-
-  ## 2. provide feature id
-  g_points@feat_type = feat_type
-
-  ## 3. feature_network object
-  g_points@networks = networks
-
-  # giotoPoints object
-  return(g_points)
-
-}
 
 
 
@@ -1396,42 +1073,7 @@ create_spatvector_object_from_dfr = function(x,
 }
 
 
-# create Giotto points from data.frame or spatVector
 
-#' @title Create giotto points object
-#' @name createGiottoPoints
-#' @description Creates Giotto point object from a structured dataframe-like object
-#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat_ID)
-#' @param feat_type feature type
-#' @param verbose be verbose
-#' @return giottoPoints
-#' @concept polygon
-#' @export
-createGiottoPoints = function(x,
-                              feat_type = 'rna',
-                              verbose = TRUE) {
-
-  if(inherits(x, 'data.frame')) {
-
-    spatvec = create_spatvector_object_from_dfr(x = x,
-                                                verbose = verbose)
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = spatvec)
-
-  } else if(inherits(x, 'spatVector')) {
-
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = x)
-
-  } else {
-
-    stop('Class ', class(x), ' is not supported')
-
-  }
-
-  return(g_points)
-
-}
 
 
 # data.table to spatVector
@@ -1475,206 +1117,6 @@ dt_to_spatVector_points = function(dt,
 }
 
 
-
-# add Giotto points object to existing Giotto object
-# cell IDs needs to match
-
-#' @title Add giotto points object to giotto object
-#' @name addGiottoPoints
-#' @description Adds Giotto points to an existing Giotto object
-#' @param gobject giotto object
-#' @param gpoints list of giotto point objects, see \code{\link{createGiottoPoints}}
-#' @return giotto object
-#' @concept polygon
-#' @export
-addGiottoPoints = function(gobject,
-                           gpoints) {
-
-  # check input
-  if(!inherits(gobject, 'giotto')) {
-    stop('gobject needs to be a giotto object')
-  }
-
-  if(!inherits(gpoints, 'list')) {
-    stop('gpoints needs to be a list of one or more giottoPoints objects')
-  }
-
-  # available features types
-  feat_types = gobject@expression_feat
-
-
-  # add each giottoPoint object to the giotto object
-  for(gp_i in 1:length(gpoints)) {
-
-    gp = gpoints[[gp_i]]
-
-    # check if giottoPoint object
-    if(!inherits(gp, 'giottoPoints')) {
-      stop('gpoints needs to be a list of one or more giottoPoints objects', '\n',
-           'number ', gp_i, ' is not a giottoPoints object \n')
-    }
-
-    # check if feature type is available
-    if(!gp@feat_type %in% feat_types) {
-      stop(gp@feat_type, ' is not a feature type in the giotto object \n')
-    }
-
-    # check if features match
-    gobject_feats = gobject@feat_ID[[gp@feat_type]]
-    gpoints_feats = unique(gp@spatVector[['feat_ID']][[1]])
-
-    extra_feats = gpoints_feats[!gpoints_feats %in% gobject_feats]
-    if(length(extra_feats) > 0) {
-      warning(length(extra_feats), ' too many features, these features are not in the original giotto object: \n',
-           paste(extra_feats, ' '), ' \n you may want to remove them')
-    }
-
-    missing_feats = gobject_feats[!gobject_feats %in% gpoints_feats]
-    if(length(missing_feats) > 0) {
-      warning(length(missing_feats), ' missing features, these features are not found in the giotto points object: \n',
-           paste(missing_feats, ' '), ' \n you may want to add them')
-    }
-
-    gobject@feat_info[[gp@feat_type]] = gp
-
-  }
-
-  return(gobject)
-
-}
-
-
-#' Add sub cellular 3D coordinates to Giotto object
-#'
-#' @param gobject  A Giotto object.
-#' @param coords A \link{data.frame} or `spatVector` with at least xyz coordinates and feature ids.
-#' @param feat_type a character. The feat_type must previously exist in the Giotto object. Default = "rna".
-#'
-#' @return A Giotto object with a `spatVector` object in the feat_info slot
-#' @export
-addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
-{
-  # verify gobject class
-  if (!inherits(gobject, "giotto")) {
-    stop("gobject needs to be a giotto object")
-  }
-  # available features types
-  feat_types = gobject@expression_feat
-  if(!feat_type %in% feat_types) {
-    stop(feat_type, ' is not a feature type in the giotto object \n')
-  }
-
-  if (inherits(coords, "data.frame")) {
-    spatvec = terra::vect(as.matrix(coords[,1:2]), type = "points", atts = coords)
-    names(spatvec)[4] = 'feat_ID'
-
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = spatvec)
-  }
-  else if (inherits(coords, "spatVector")) {
-    g_points = create_giotto_points_object(feat_type = feat_type,
-                                           spatVector = coords)
-  }
-  else {
-    stop("Class ", class(coords), " is not supported")
-  }
-
-  gobject@feat_info[[g_points@feat_type]] = g_points
-
-  return(gobject)
-}
-
-
-
-#' @title Extract list of giotto points objects
-#' @name extract_points_list
-#' @description to extract list of giotto points
-#' @param pointslist list of inputs from which to create giotto points objects
-#' @param verbose be verbose
-#' @keywords internal
-extract_points_list = function(pointslist,
-                               verbose = TRUE) {
-
-  named_list = FALSE
-
-  # if pointslist is not a named list
-  # try to make list and give default names
-  if(!is.list(pointslist)) {
-
-    if(isTRUE(verbose)) wrap_msg('pointslist is not a list')
-
-    try_val = try(as.list(pointslist), silent = TRUE)
-    if(inherits(try_val, 'try-error')) {
-      pointslist = list(pointslist)
-    } else pointslist = try_val
-    if(length(pointslist) == 1) {
-      names(pointslist) = 'rna'
-    } else {
-      pointslist_l = length(pointslist)
-      names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
-    }
-  } else if(is.null(names(pointslist))) {
-    # if it is list
-    # test if it has names
-    if(isTRUE(verbose)) wrap_msg('pointslist is a list without names')
-    if(length(pointslist) == 1) {
-      names(pointslist) = 'rna'
-    } else {
-      pointslist_l = length(pointslist)
-      names(pointslist) = c('rna', paste0('feat', 1:(pointslist_l-1)))
-
-    }
-  } else {
-
-    if(isTRUE(verbose)) wrap_msg('pointslist is a named list')
-    named_list = TRUE
-
-  }
-
-  # make sure rna is one of the names
-  #all_names = names(pointslist)
-  #if(!any('rna' %in% all_names)) {
-  #  stop(" Information about 'rna' needs to be provided")
-  #}
-
-
-  final_list = list()
-
-  for(point_i in seq_along(pointslist)) {
-
-    name_pointinfo = names(pointslist)[[point_i]]
-    pointinfo = pointslist[[point_i]]
-
-    if(isTRUE(verbose)) wrap_msg('  [', name_pointinfo, '] Process point info...')
-
-    if(inherits(pointinfo, 'giottoPoints')) {
-
-      if(isTRUE(named_list)) slot(pointinfo, 'feat_type') = name_pointinfo
-      else name_pointinfo = pointinfo@feat_type
-      point_results = pointinfo
-
-    } else if(inherits(pointinfo, 'data.frame')) {
-
-      point_results = createGiottoPoints(x = pointinfo,
-                                         feat_type = name_pointinfo)
-
-    } else if(inherits(pointinfo, 'character')) {
-
-      stop(wrap_txt('Giotto points can not yet be created directly from a file path'))
-
-    } else {
-
-      stop(wrap_txt('Giotto points can only be created from a correctly formatted data.frame-like object'))
-
-    }
-
-    final_list[[name_pointinfo]] = point_results
-
-  }
-
-  return(final_list)
-
-}
 
 
 
@@ -1900,10 +1342,8 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             init_metadata = TRUE,
                                             return_gobject = TRUE) {
 
-  # define for .()
-  x = NULL
-  y = NULL
-  poly_ID = NULL
+  # data.table vars
+  x = y = poly_ID = NULL
 
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
@@ -2031,6 +1471,23 @@ addSpatialCentroidLocations = function(gobject,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
 
+  if(length(poly_info) > 1) {
+    if(!inherits(provenance, 'list') | length(provenance) != length(poly_info)) {
+      stop(wrap_txt(
+        'If more than one poly_info is supplied at a time, then provenance must',
+        'be a list of equal length',
+        errWidth = TRUE))
+    }
+
+    # setup provenance list
+    p_names = names(provenance)
+    if(is.null(p_names)) names(provenance) = poly_info
+  } else {
+    provenance = list(provenance)
+    names(provenance) = poly_info
+  }
+
+
 
   potential_polygon_names = list_spatial_info_names(gobject)
 
@@ -2043,14 +1500,15 @@ addSpatialCentroidLocations = function(gobject,
     } else {
 
       if(verbose == TRUE) {
-        cat('Start centroid calculation for polygon information layer: ', poly_layer, '\n')
+        wrap_msg('Start centroid calculation for polygon information layer: ',
+                 poly_layer, '\n')
       }
 
       if(return_gobject == TRUE) {
         gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                    poly_info = poly_layer,
                                                    feat_type = feat_type,
-                                                   provenance = provenance,
+                                                   provenance = provenance[[poly_layer]],
                                                    spat_loc_name = spat_loc_name,
                                                    init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
@@ -2059,7 +1517,7 @@ addSpatialCentroidLocations = function(gobject,
         return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
                                                                      poly_info = poly_layer,
                                                                      feat_type = feat_type,
-                                                                     provenance = provenance,
+                                                                     provenance = provenance[[poly_layer]],
                                                                      spat_loc_name = spat_loc_name,
                                                                      init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)

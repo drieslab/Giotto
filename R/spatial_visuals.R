@@ -2328,7 +2328,7 @@ plot_spat_image_layer_ggplot = function(gg_obj,
   # Assign region to plot
   gg_obj = gg_obj + geom_blank(data = spat_ext, aes_string(sdimx, sdimy))
 
-  if((is.list(gimage) | is.vector(gimage)) & length(gimage) > 1) {
+  if((inherits(gimage, 'list') | is.vector(gimage)) & length(gimage) > 1) {
 
     for(i in 1:length(gimage)) {
 
@@ -2699,6 +2699,7 @@ spatPlot2D_single = function(gobject,
                                          output = 'data.table',
                                          copy_obj = TRUE,
                                          verbose = verbose)
+  if(is.null(cell_locations)) return(NULL)
 
 
   ## extract spatial network
@@ -2737,18 +2738,24 @@ spatPlot2D_single = function(gobject,
     }
   }
 
-  cell_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
-                                  spat_unit = spat_unit,
-                                  spat_loc_name = spat_loc_name,
-                                  spat_enr_names = spat_enr_names,
-                                  verbose = verbose)
+  cell_metadata = try(
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names,
+                           verbose = verbose),
+    silent = TRUE
+  )
 
-  if(nrow(cell_metadata) == 0) {
+  if(inherits(cell_metadata, 'try-error')) {
+    cell_locations_metadata = cell_locations
+  } else if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata <- cell_metadata
+    cell_locations_metadata = cell_metadata
   }
+
 
 
   ## create subsets if needed
@@ -3505,6 +3512,7 @@ spatDeconvPlot = function(gobject,
                                             spat_unit = spat_unit,
                                             spat_loc_name = spat_loc_name,
                                             output = "data.table")
+  if(is.null(spatial_locations)) return(NULL)
 
   ## deconvolution results
   spatial_enrichment = get_spatial_enrichment(gobject = gobject,
@@ -4024,7 +4032,7 @@ spatFeatPlot2D_single <- function(gobject,
                                   gimage = NULL,
                                   image_name = NULL,
                                   largeImage_name = NULL,
-                                  spat_loc_name = NULL,
+                                  spat_loc_name = 'raw',
                                   sdimx = 'sdimx',
                                   sdimy = 'sdimy',
                                   expression_values = c('normalized', 'scaled', 'custom'),
@@ -4154,6 +4162,7 @@ spatFeatPlot2D_single <- function(gobject,
                                           spat_loc_name = spat_loc_name,
                                           output = 'data.table',
                                           copy_obj = TRUE)
+  if(is.null(cell_locations)) return(NULL)
 
   ## extract spatial network
   if(show_network == TRUE) {
@@ -4177,12 +4186,18 @@ spatFeatPlot2D_single <- function(gobject,
   }
 
   ## extract cell metadata
-  cell_metadata = combineMetadata(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  spat_loc_name = spat_loc_name,
-                                  feat_type = feat_type)
+  cell_metadata = try(
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
+    silent = TRUE
+  )
 
-  if(nrow(cell_metadata) == 0) {
+  if(inherits(cell_metadata, 'try-error')) {
+    cell_locations_metadata = cell_locations
+  } else if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata = cell_metadata
@@ -7169,7 +7184,7 @@ plotPCA_3D = function(gobject,
 spatPlot_2D_plotly = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
-                              spat_loc_name = NULL,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               spat_enr_names = NULL,
@@ -7210,6 +7225,7 @@ spatPlot_2D_plotly = function(gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name,
                                           output = 'data.table')
+  if(is.null(cell_locations)) return(NULL)
 
 
   ## extract spatial network
@@ -7233,12 +7249,19 @@ spatPlot_2D_plotly = function(gobject,
   }
 
   ## get cell metadata
-  cell_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
-                                  spat_unit = spat_unit,
-                                  spat_enr_names = spat_enr_names)
+  cell_metadata = try(
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
+    silent = TRUE
+  )
 
-  if(nrow(cell_metadata) == 0) {
+
+  if(inherits(cell_metadata, 'try-error')) {
+    cell_locations_metadata = cell_locations
+  } else if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata = cell_metadata
@@ -7412,7 +7435,7 @@ spatPlot_2D_plotly = function(gobject,
 spatPlot_3D_plotly = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
-                              spat_loc_name = NULL,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               sdimz = NULL,
@@ -7454,6 +7477,7 @@ spatPlot_3D_plotly = function(gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name,
                                           output = 'data.table')
+  if(is.null(cell_locations)) return(NULL)
 
   ## extract spatial network
   if(show_network == TRUE) {
@@ -7476,12 +7500,19 @@ spatPlot_3D_plotly = function(gobject,
   }
 
   ## get cell metadata
-  cell_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
-                                  spat_unit = spat_unit,
-                                  spat_enr_names = spat_enr_names)
+  cell_metadata = try(
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
+    silent = TRUE
+  )
 
-  if(nrow(cell_metadata) == 0) {
+
+  if(inherits(cell_metadata, 'try-error')) {
+    cell_locations_metadata = cell_locations
+  } else if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata = cell_metadata
@@ -7962,6 +7993,8 @@ spatDimPlot3D <- function(gobject,
   spatial_locations = get_spatial_locations(gobject,
                                             spat_unit = spat_unit,
                                             spat_loc_name = spat_loc_name)
+  if(is.null(spatial_locations)) return(NULL)
+
   annotated_DT = merge(annotated_DT, spatial_locations, by = 'cell_ID')
 
 
@@ -8735,6 +8768,7 @@ spatGenePlot3D <- function(gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name,
                                           output = 'data.table')
+  if(is.null(cell_locations)) return(NULL)
 
 
   ## extract spatial network
@@ -8758,17 +8792,24 @@ spatGenePlot3D <- function(gobject,
   }
 
   ## extract cell metadata
-  cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
-  cell_metadata = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+  cell_metadata = try(
+    expr = combineMetadata(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           spat_loc_name = spat_loc_name,
+                           spat_enr_names = spat_enr_names),
+    silent = TRUE
+  )
 
 
-  if(nrow(cell_metadata) == 0) {
+  if(inherits(cell_metadata, 'try-error')) {
+    cell_locations_metadata = cell_locations
+  } else if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata = cbind(cell_locations, cell_metadata)
+    cell_locations_metadata = cell_metadata
   }
+
 
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
     cat('You have selected both individual cell IDs and a group of cells \n')
@@ -9498,6 +9539,8 @@ spatDimGenePlot3D <- function(gobject,
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
                                          spat_loc_name = spat_loc_name)
+  if(is.null(cell_locations)) return(NULL)
+
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
   annotated_DT = merge(annotated_DT, cell_locations, by = 'cell_ID')
   annotated_DT = merge(annotated_DT, t_sub_expr_data_DT,by = 'cell_ID')

@@ -36,7 +36,7 @@ runtSNE(
 
 \item{expression_values}{expression values to use}
 
-\item{reduction}{cells or genes}
+\item{reduction}{cells or feats}
 
 \item{dim_reduction_to_use}{use another dimension reduction set as input}
 
@@ -46,7 +46,7 @@ runtSNE(
 
 \item{name}{arbitrary name for tSNE run}
 
-\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which features to use}
 
 \item{genes_to_use}{deprecated, use feats_to_use}
 

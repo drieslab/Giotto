@@ -7,6 +7,7 @@
 check_spatial_location_data(gobject)
 }
 \description{
-check cell ID (spatial unit) names between spatial location and expression data
+check cell ID (spatial unit) names between spatial location and expression data.
+It will look for identical IDs after sorting.
 }
 \keyword{internal}
