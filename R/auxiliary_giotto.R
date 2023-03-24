@@ -1437,6 +1437,8 @@ subsetGiotto <- function(gobject,
                                      'feats removed' = feats_removed)
   gobject@parameters = parameters_list
 
+  print(gobject@spatial_info)
+  print(gobject@spatial_locs)
 
   return(initialize(gobject))
 

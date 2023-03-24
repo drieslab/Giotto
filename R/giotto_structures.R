@@ -1825,9 +1825,25 @@ calculateOverlapPolygonImages = function(gobject,
 
   # convert spatVector to sf object
   if(!is.null(poly_subset)) {
-    poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector[poly_subset])
+
+    #poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector[poly_subset])
+
+    # TODO: workaround till sf_as_sf works again on a spatvector
+    d <- terra::as.data.frame(poly_info@spatVector[poly_subset], geom = "hex")
+    d$geometry <- structure(as.list(d$geometry), class = "WKB")
+    poly_info_spatvector_sf = sf::st_as_sf(x = d, crs = poly_info@spatVector[poly_subset]@ptr$get_crs("wkt"))
+
+
   } else{
-    poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector)
+
+    # poly_info_spatvector_sf = sf::st_as_sf(poly_info@spatVector)
+
+    # TODO: workaround till sf_as_sf works again on a spatvector
+    d <- terra::as.data.frame(poly_info@spatVector, geom = "hex")
+    d$geometry <- structure(as.list(d$geometry), class = "WKB")
+    poly_info_spatvector_sf = sf::st_as_sf(x = d, crs = poly_info@spatVector@ptr$get_crs("wkt"))
+
+
   }
 
 
@@ -2376,10 +2392,11 @@ overlapImagesToMatrix = function(gobject,
                                   return_giottoPolygon = TRUE)
 
 
-  image_info = gobject@spatial_info[[poly_info]]@overlaps[['intensity']][[name_overlap]]
+  image_info = gobject@spatial_info[[poly_info]]@overlaps[['intensity']][[feat_info]]
   melt_image_info = data.table::melt.data.table(data = image_info, id.vars = 'poly_ID', variable.name = 'feat_ID')
   aggr_comb = melt_image_info[, mean(value), by = .(poly_ID, feat_ID)]
   data.table::setnames(aggr_comb, 'V1', 'mean_intensity')
+
 
   if(return_gobject) {
 
@@ -2408,11 +2425,12 @@ overlapImagesToMatrix = function(gobject,
     centroidsDT_loc = centroidsDT[, .(poly_ID, x, y)]
     colnames(centroidsDT_loc) = c('cell_ID', 'sdimx', 'sdimy')
 
+    S4_spat_locs = create_spat_locs_obj(name = name,
+                                        coordinates = centroidsDT_loc,
+                                        spat_unit = poly_info)
+
     gobject = set_spatial_locations(gobject = gobject,
-                                    spat_unit = poly_info,
-                                    spat_loc_name = ,
-                                    spatlocs = centroidsDT_loc,
-                                    verbose = FALSE)
+                                    spatlocs = S4_spat_locs)
 
     # create matrix
     overlapmatrixDT = data.table::dcast(data = aggr_comb,
@@ -2423,11 +2441,13 @@ overlapImagesToMatrix = function(gobject,
     overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
                                   match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
 
+    S4_expr_obj = create_expr_obj(name = name,
+                                  exprMat = overlapmatrix,
+                                  spat_unit = poly_info,
+                                  feat_type = feat_info)
+
     gobject = set_expression_values(gobject = gobject,
-                                    spat_unit = poly_info,
-                                    feat_type = feat_info,
-                                    name = name,
-                                    values = overlapmatrix)
+                                    values = S4_expr_obj)
 
   } else {
     return(aggr_comb)
