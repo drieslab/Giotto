@@ -2368,6 +2368,7 @@ overlapToMatrixMultiPoly = function(gobject,
 #' @param poly_info polygon information
 #' @param feat_info feature information
 #' @param name_overlap name of the overlap
+#' @param aggr_function function to aggregate image information (default = sum)
 #' @param image_names names of images you used
 #' @param spat_locs_name name for spatial centroids / locations associated with matrix
 #' @param return_gobject return giotto object (default: TRUE)
@@ -2379,6 +2380,7 @@ overlapImagesToMatrix = function(gobject,
                                  poly_info = 'cell',
                                  feat_info = 'protein',
                                  name_overlap = 'images',
+                                 aggr_function = 'sum',
                                  image_names = NULL,
                                  spat_locs_name = 'raw',
                                  return_gobject = TRUE) {
@@ -2394,8 +2396,10 @@ overlapImagesToMatrix = function(gobject,
 
   image_info = gobject@spatial_info[[poly_info]]@overlaps[['intensity']][[feat_info]]
   melt_image_info = data.table::melt.data.table(data = image_info, id.vars = 'poly_ID', variable.name = 'feat_ID')
-  aggr_comb = melt_image_info[, mean(value), by = .(poly_ID, feat_ID)]
-  data.table::setnames(aggr_comb, 'V1', 'mean_intensity')
+
+  aggr_fun = get(aggr_function)
+  aggr_comb = melt_image_info[, aggr_fun(value), by = .(poly_ID, feat_ID)]
+  data.table::setnames(aggr_comb, 'V1', 'aggregation')
 
 
   if(return_gobject) {
@@ -2435,7 +2439,7 @@ overlapImagesToMatrix = function(gobject,
     # create matrix
     overlapmatrixDT = data.table::dcast(data = aggr_comb,
                                         formula = feat_ID~poly_ID,
-                                        value.var = 'mean_intensity', fill = 0)
+                                        value.var = 'aggregation', fill = 0)
     overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
     overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
@@ -2715,4 +2719,99 @@ combineFeatureOverlapData = function(gobject,
 
 
 
+## * ####
+## * polygon functions ####
 
+
+#' @title rescale polygons
+#' @name rescale_polygons
+#' @description  rescale individual polygons by a factor x and y
+#' @keywords internal
+rescale_polygons = function(spatVector,
+                            spatVectorCentroids,
+                            fx = 0.5, fy = 0.5) {
+
+
+  spatVectorCentroidsDT = spatVector_to_dt(spatVectorCentroids)
+
+  cell_ids = spatVector$poly_ID
+
+  l = lapply(cell_ids, FUN = function(id) {
+
+    single_polygon = spatVector[spatVector$poly_ID == id]
+    single_centroid = spatVectorCentroidsDT[poly_ID == id]
+
+    single_polygon_resc = terra::rescale(x = single_polygon,
+                                         fx = fx, fy = fy,
+                                         x0 = single_centroid$x,
+                                         y0 = single_centroid$y)
+
+  })
+
+  new_polygons = do.call('rbind', l)
+  return(new_polygons)
+
+}
+
+
+
+#' @title rescalePolygons
+#' @name rescalePolygons
+#' @description Rescale individual polygons by a x and y factor
+#' @param gobject giotto object
+#' @param poly_info polygon information name
+#' @param name name of new polygon layer
+#' @param fx x-scaling factor
+#' @param fy y-scaling factor
+#' @param calculate_centroids calculate centroids
+#' @param return_gobject return giotto object
+#' @return giotto object
+#' @concept polygon scaling
+#' @export
+rescalePolygons = function(gobject,
+                           poly_info = 'cell',
+                           name = 'rescaled_cell',
+                           fx = 0.5,
+                           fy = 0.5,
+                           calculate_centroids = TRUE,
+                           return_gobject = TRUE) {
+
+  # 1. get polygon information
+  original = get_polygon_info(gobject = gobject,
+                              polygon_name = poly_info,
+                              return_giottoPolygon = TRUE)
+
+  original_vector =  slot(original, 'spatVector')
+  original_centroids =  slot(original, 'spatVectorCentroids')
+
+  if(is.null(original_centroids)) {
+    stop("Selected polygons don't have associated centroid,
+         use addSpatialCentroidLocations() ")
+  }
+
+
+  # 2. rescale polygon
+  rescaled_original = rescale_polygons(original_vector,
+                                       original_centroids,
+                                       fx = fx, fy = fy)
+
+  # 3. create new Giotto polygon and calculate centroids
+  S4_polygon = create_giotto_polygon_object(name = name,
+                                            spatVector = rescaled_original)
+  if(calculate_centroids) {
+    S4_polygon = calculate_centroids_polygons(gpolygon = S4_polygon, append_gpolygon = TRUE)
+  }
+
+
+  # 4. return object or S4 polygon
+  if(return_gobject) {
+
+    # TODO: update parameters
+    gobject = setPolygonInfo(gobject = gobject, x = S4_polygon)
+    return(gobject)
+  } else {
+    return(S4_polygon)
+  }
+
+
+}
