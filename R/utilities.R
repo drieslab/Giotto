@@ -293,6 +293,75 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
   }
 }
 
+#' @title standardise_flex_db
+#' @name standardise_flex_db
+#' @description standardizes a database table
+#' @param x expression database tbl
+#' @param center center data
+#' @param scale scale data
+#' @param by feat or cell
+#' @keywords internal
+#' @return standardized database table
+standardise_flex_db = function (x, center = TRUE, scale = TRUE, by = c('feat', 'cell')) {
+  
+  i = match.arg(by, c('feat', 'cell')) 
+  
+  if (center & scale) {
+    colMeans <- x |>
+       group_by(i) |> #scale feats
+       summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
+
+    centered_expr <- x |>
+       inner_join(colMeans, by = i) |>
+       group_by(i) |> #scale feats
+       mutate(xlognorm_centered = (xlognorm - mean_i)) |>
+       select('feat', 'cell', xlognorm_centered) |>
+       ungroup()
+
+    scaled_expr <- centered_expr |>
+       group_by(i) |> # scale feats
+       summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                 sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
+                 .groups = "drop") |>
+       ungroup()
+    
+    res <- centered_expr |>
+       inner_join(scaled_expr, by = i) |>
+       group_by(i) |> #scale feats
+       mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
+       select('feat', 'cell', xlognorm_centered_scaled)
+
+  } else if (center & !scale) {
+    colMeans <- x |>
+       group_by(i) |> #scale feats
+       summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
+
+    res <- x |>
+       inner_join(colMeans, by = i) |>
+       group_by(i) |> #scale feats
+       mutate(xlognorm_centered = (xlognorm - mean_i)) |>
+       select('feat', 'cell', xlognorm_centered) |>
+       ungroup()
+    
+  } else if (!center & scale) {
+    scaled_expr <- x |>
+       group_by(i) |> # scale feats
+       summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                 sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
+                 .groups = "drop") |>
+       ungroup()
+
+    res <- x |>
+          inner_join(scaled_expr, by = i) |>
+          group_by(i) |> #scale feats
+          mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
+          select('feat', 'cell', xlognorm_centered_scaled)
+  } else {
+    res = x
+  }
+
+  return(res)
+}
 
 
 #' @title Test if list element exists
