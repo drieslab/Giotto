@@ -2364,7 +2364,23 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 
         # convert raster object into array with 3 channels
         img_array = terra::as.array(gimage[[i]]@raster_object)
-        img_array = img_array/max(img_array)
+
+        # TODO: check if required, fixes NaN values
+        # replacing NA's by zero or another value directy in raster object?
+        # raster[is.na(raster[])] <- 0
+        if(is.nan(max(img_array[,,1]))) {
+          img_array[,,1][is.nan(img_array[,,1])] = max(img_array[,,1], na.rm = T)
+        }
+        if(is.nan(max(img_array[,,2]))) {
+          img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+        }
+        if(is.nan(max(img_array[,,3]))) {
+          img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+        }
+
+
+
+        img_array = img_array/max(img_array, na.rm = TRUE)
         if(dim(img_array)[3] == 1) {
           img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
           img_array_RGB[,,1:3] = img_array
@@ -2413,7 +2429,21 @@ plot_spat_image_layer_ggplot = function(gg_obj,
 
       # convert raster object into array with 3 channels
       img_array = terra::as.array(gimage@raster_object)
-      img_array = img_array/max(img_array)
+
+      # TODO: check if required, fixes NaN values
+      # replacing NA's by zero or another value directy in raster object?
+      # raster[is.na(raster[])] <- 0
+      if(is.nan(max(img_array[,,1]))) {
+        img_array[,,1][is.nan(img_array[,,1])] = max(img_array[,,1], na.rm = T)
+      }
+      if(is.nan(max(img_array[,,2]))) {
+        img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+      }
+      if(is.nan(max(img_array[,,3]))) {
+        img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+      }
+
+      img_array = img_array/max(img_array, na.rm = TRUE)
       if(dim(img_array)[3] == 1) {
         img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
         img_array_RGB[,,1:3] = img_array
