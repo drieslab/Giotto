@@ -295,8 +295,8 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
   }
 }
 
-#' @title standardise_flex_db
-#' @name standardise_flex_db
+#' @title standardise_db
+#' @name standardise_db
 #' @description standardizes a database table
 #' @param x expression database tbl
 #' @param center center data
@@ -304,7 +304,7 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
 #' @param by feat or cell
 #' @keywords internal
 #' @return standardized database table
-standardise_flex_db = function (x, center = TRUE, scale = TRUE, by = c('feat', 'cell')) {
+standardise_db = function (x, center = TRUE, scale = TRUE, by = c('feat', 'cell')) {
   
   i = match.arg(by, c('feat', 'cell')) 
   
