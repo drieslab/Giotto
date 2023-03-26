@@ -1437,6 +1437,8 @@ subsetGiotto <- function(gobject,
                                      'feats removed' = feats_removed)
   gobject@parameters = parameters_list
 
+  print(gobject@spatial_info)
+  print(gobject@spatial_locs)
 
   return(initialize(gobject))
 
@@ -1663,6 +1665,110 @@ subsetGiottoLocsMulti = function(gobject,
 }
 
 
+
+
+
+#' @title Subset raw subcellular information by location
+#' @name subsetGiottoLocsSubcellular
+#' @description Subsets Giotto object based on spatial coordinates
+#' @inheritParams subsetGiottoLocs
+#' @return giotto object
+#' @details Subsets a Giotto Subcellular object - without aggregated information - based on spatial coordinates
+#' @export
+subsetGiottoLocsSubcellular = function(gobject,
+                                       poly_info,
+                                       feat_type = NULL,
+                                       x_min = NULL,
+                                       x_max = NULL,
+                                       y_min = NULL,
+                                       y_max = NULL,
+                                       z_max = NULL,
+                                       z_min = NULL,
+                                       verbose = TRUE) {
+
+  # only to be used if there is no aggregated information #
+  if(!is.null(gobject@expression)) {
+    stop('Aggregated information was found, use subsetGiottoLocs \n')
+  }
+
+  # Check spatial params
+  spatError = NULL
+  if(!is.null(x_min) && !is.null(x_max)) if(x_min > x_max) spatError = append(spatError, 'x_max must be larger than x_min \n')
+  if(!is.null(y_min) && !is.null(y_max)) if(y_min > y_max) spatError = append(spatError, 'y_max must be larger than y_min \n')
+  if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
+  if(!is.null(spatError)) stop(spatError)
+
+
+  # first subset feature ids based on location
+  # this information could be needed for spatial_info if overlaps were calculated
+
+
+  ## 1. feature info ##
+  ## --------------- ##
+  if(!is.null(gobject@feat_info)) {
+
+    # TODO: make it possible for multiple feature types
+
+    feats_list = slot(miniviz, 'feat_info')
+    cropped_feats = lapply(feats_list[[feat_type]], function(x) {
+      sv = slot(x, 'spatVector')
+      sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
+      sv$feat_ID
+      # TODO add cropping for z values as well
+    })
+
+    cropped_feats = unique(unlist(cropped_feats))
+
+    gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
+                                                 feat_ids = cropped_feats,
+                                                 feat_type = feat_type,
+                                                 x_max = x_max,
+                                                 x_min = x_min,
+                                                 y_max = y_max,
+                                                 y_min = y_min)
+
+    if(verbose == TRUE) cat('subsetted spatial feature data \n')
+  } else {
+
+    cropped_feats = NULL
+
+  }
+
+
+  ## 2. spatial info ###
+  ## ---------------- ##
+  if(!is.null(gobject@spatial_info)) {
+
+    # get the associated poly_IDs
+    polys_list = slot(testg, 'spatial_info')
+    cropped_IDs = lapply(polys_list, function(x) {
+      sv = slot(x, 'spatVector')
+      sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
+      sv$poly_ID
+      # TODO add cropping for z values as well
+    })
+
+    cropped_IDs = unique(unlist(cropped_IDs))
+
+    for(select_poly_info in poly_info) {
+
+      gobject@spatial_info = subset_spatial_info_data(spatial_info = gobject@spatial_info,
+                                                      feat_type = feat_type,
+                                                      cell_ids = cropped_IDs,
+                                                      feat_ids = cropped_feats,
+                                                      poly_info = select_poly_info)
+
+    }
+
+    if(verbose == TRUE) cat('subsetted spatial information data \n')
+  }
+
+
+  # TODO: update parameters
+
+  return(initialize(gobject))
+
+}
 
 
 #' @title filterDistributions

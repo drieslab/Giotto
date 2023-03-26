@@ -10,6 +10,7 @@ overlapImagesToMatrix(
   poly_info = "cell",
   feat_info = "protein",
   name_overlap = "images",
+  aggr_function = "sum",
   image_names = NULL,
   spat_locs_name = "raw",
   return_gobject = TRUE
@@ -25,6 +26,8 @@ overlapImagesToMatrix(
 \item{feat_info}{feature information}
 
 \item{name_overlap}{name of the overlap}
+
+\item{aggr_function}{function to aggregate image information (default = sum)}
 
 \item{image_names}{names of images you used}
 
