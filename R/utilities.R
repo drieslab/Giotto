@@ -151,6 +151,8 @@ cor_flex = function(x, ...) {
 
 
 
+
+
 #' @title lapply_flex
 #' @name lapply_flex
 #' @param X list to use
