@@ -1169,7 +1169,7 @@ loadGiotto = function(path_to_folder,
 
 
   ## 4. images
-  if(verbose) wrap_msg('\n3. read Giotto image information \n')
+  if(verbose) wrap_msg('\n4. read Giotto image information \n')
   image_files = list.files(path = paste0(path_to_folder, '/Images'))
   if(length(image_files) != 0) {
     image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))
