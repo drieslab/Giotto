@@ -11,6 +11,8 @@ createGiottoLargeImage(
   extent = NULL,
   use_rast_ext = FALSE,
   image_transformations = NULL,
+  flip_vertical = FALSE,
+  flip_horizontal = FALSE,
   xmax_bound = NULL,
   xmin_bound = NULL,
   ymax_bound = NULL,
@@ -31,6 +33,10 @@ createGiottoLargeImage(
 \item{use_rast_ext}{Use extent from input raster object}
 
 \item{image_transformations}{vector of sequential image transformations - under construction}
+
+\item{flip_vertical}{flip raster in a vertical manner}
+
+\item{flip_horizontal}{flip raster in a horizontal manner}
 
 \item{xmax_bound, xmin_bound, ymax_bound, ymin_bound}{assign min and max x and y
 values for image spatial placement}
