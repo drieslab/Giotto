@@ -1520,7 +1520,7 @@ plot_giottoLargeImage = function(gobject = NULL,
   raster_object = giottoLargeImage@raster_object
 
   # plot
-  if(asRGB == TRUE | raster_object@ptr$rgb == TRUE | terra::nlyr(raster_object) == 3) {
+  if(isTRUE(asRGB) | terra::has.RGB(raster_object) | terra::nlyr(raster_object) == 3) {
     # Determine likely image bitdepth
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
