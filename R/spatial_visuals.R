@@ -180,11 +180,12 @@ plot_auto_largeImage_resample = function(gobject,
       warning('Plotting large regions with flex_resample == FALSE will be costly in time and drive space.')
     }
     # For ROIs with area smaller than max_crop OR if flex_resample is FALSE
-    giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
+    crop_image = terra::crop(x = giottoLargeImage@raster_object,
+                             y = crop_ext)
+    giottoLargeImage@raster_object = terra::spatSample(crop_image,
                                                        size = 500000,
                                                        method = 'regular',
-                                                       as.raster = TRUE,
-                                                       ext = crop_ext)
+                                                       as.raster = TRUE)
   } else {
     # METHOD B: Resample then crop to final image
     # Sample n values where n = default val scaled by a value >1
