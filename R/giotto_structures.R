@@ -336,6 +336,17 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   spatVecDT = spatVector_to_dt(terra_polygon)
 
+  ## flip across axes ##
+  if(flip_vertical == TRUE) {
+    # terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
+    spatVecDT[, y := -y]
+  }
+
+  if(flip_horizontal == TRUE) {
+    # terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
+    spatVecDT[, x := -x]
+  }
+
   # guess mask method
   if(mask_method == 'guess') {
     uniq_geoms = length(unique(spatVecDT$geom))
@@ -359,14 +370,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   #names(terra_polygon) = 'mask'
 
-  ## flip axes ##
-  if(flip_vertical == TRUE) {
-    terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
-  }
 
-  if(flip_horizontal == TRUE) {
-    terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
-  }
 
   ## shift values ##
   if(shift_vertical_step == TRUE) {
