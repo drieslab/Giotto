@@ -866,11 +866,20 @@ setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
 #' @export
-setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
+setMethod('plot', signature(x = 'giottoPoints', y = 'missing', density = TRUE),
           function(x, point_size = 0.1, feats = NULL, ...) {
             if(is.null(feats)) {
               gpoint_coords = terra::crds(x[])
-              scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1, ...)
+              if(isTRUE(density)) {
+                scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
+                                             col = scales::viridis_pal(alpha = 0.1)(nrow(coords)),
+                                             ...)
+              } else {
+                scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
+                                             ...)
+              }
+
+
             } else {
               plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
             }
