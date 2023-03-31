@@ -963,12 +963,12 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #'
-#' @return cpfObject that contains the differential feat scores
+#' @return icfObject that contains the differential feat scores
 #' @details Function to calculate if features expression residual are differentially expressed in cell types
 #'  when they interact (approximated by physical proximity) with other cell types.
 #'  Feature expression residual calculated as:
 #'  (observed expression in spot - cell_type_proportion * average_expressed_in_cell_type)
-#'  The results data.table in the cpfObject contains - at least - the following columns:
+#'  The results data.table in the icfObject contains - at least - the following columns:
 #' \itemize{
 #'  \item{features:}{ All or selected list of tested features}
 #'  \item{sel:}{ average feature expression residual in the interacting cells from the target cell type }
@@ -1110,7 +1110,7 @@ findICFSpot <- function(gobject,
 
   permutation_test = ifelse(diff_test == 'permutation', nr_permutations, 'no permutations')
 
-  cpfObject = list(CPFscores = final_result,
+  icfObject = list(ICFscores = final_result,
                    Giotto_info = list('values' = values,
                                       'cluster' = 'cell_ID',
                                       'spatial network' = spatial_network_name),
@@ -1119,8 +1119,8 @@ findICFSpot <- function(gobject,
                                     'min cells' = minimum_unique_cells,
                                     'min interacting cells' = minimum_unique_int_cells,
                                     'perm' = permutation_test))
-  class(cpfObject) = append(class(cpfObject), 'cpfObject')
-  return(cpfObject)
+  class(icfObject) = append(class(icfObject), 'icfObject')
+  return(icfObject)
 
 }
 
@@ -1129,7 +1129,7 @@ findICFSpot <- function(gobject,
 #' @name filterICFSpot
 #' @description Filter Interaction Changed Feature scores for spots.
 #'
-#' @param cpfObject ICF (interaction changed feature) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr_resi minimum expression residual level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
@@ -1140,9 +1140,9 @@ findICFSpot <- function(gobject,
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #'
-#' @return cpfObject that contains the filtered differential feature scores
+#' @return icfObject that contains the filtered differential feature scores
 #' @export
-filterICFSpot = function(cpfObject,
+filterICFSpot = function(icfObject,
                          min_cells = 4,
                          min_cells_expr_resi = 0.05,
                          min_int_cells = 4,
@@ -1157,13 +1157,13 @@ filterICFSpot = function(cpfObject,
   nr_select = int_nr_select = zscores = pcc_diff = sel = other = p.adj = NULL
   log2fc = min_log2_fc = NULL
 
-  if(!'cpfObject' %in% class(cpfObject)) {
-    stop('\n cpfObject needs to be the output from findCellProximityFeatures() or findCPF() \n')
+  if(!'icfObject' %in% class(icfObject)) {
+    stop('\n icfObject needs to be the output from findInteractionChangedFeats() or findICF() \n')
   }
 
   zscores_column = match.arg(zscores_column, choices = c('cell_type', 'features'))
 
-  CPFscore = copy(cpfObject[['CPFscores']])
+  ICFscore = copy(icfObject[['ICFscores']])
 
   # other parameters
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -1171,7 +1171,7 @@ filterICFSpot = function(cpfObject,
 
   ## sequential filter steps ##
   # 1. minimum number of source and target cells
-  selection_scores = CPFscore[nr_select >= min_cells & int_nr_select >= min_int_cells]
+  selection_scores = ICFscore[nr_select >= min_cells & int_nr_select >= min_int_cells]
 
   # 2. create z-scores for log2fc per cell type
   selection_scores[, zscores := scale(pcc_diff), by = c(zscores_column)]
@@ -1193,8 +1193,8 @@ filterICFSpot = function(cpfObject,
   }
 
 
-  newobj = copy(cpfObject)
-  newobj[['CPFscores']] = comb_DT
+  newobj = copy(icfObject)
+  newobj[['ICFscores']] = comb_DT
 
   return(newobj)
 
@@ -1205,7 +1205,7 @@ filterICFSpot = function(cpfObject,
 #' @description Create barplot to visualize interaction changed features
 #'
 #' @param gobject giotto object
-#' @param cpfObject ICF (interaction changed feature) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_features named character vector of ICF features
@@ -1219,7 +1219,7 @@ filterICFSpot = function(cpfObject,
 #' @return plot
 #' @export
 plotICFSpot <- function(gobject,
-                        cpfObject,
+                        icfObject,
                         source_type,
                         source_markers,
                         ICF_features,
@@ -1235,11 +1235,11 @@ plotICFSpot <- function(gobject,
   cell_type = int_cell_type = pcc_diff = NULL
 
 
-  if(!'cpfObject' %in% class(cpfObject)) {
-    stop('\n cpfObject needs to be the output from findCellProximityFeatures() or findCPF() \n')
+  if(!'icfObject' %in% class(icfObject)) {
+    stop('\n icfObject needs to be the output from findInteractionChangedFeats() or findICF() \n')
   }
 
-  CPFscores = cpfObject[['CPFscores']]
+  ICFscores = icfObject[['ICFscores']]
 
   # combine features
   names(source_markers) = rep('marker', length(source_markers))
@@ -1247,17 +1247,17 @@ plotICFSpot <- function(gobject,
   all_features = c(source_markers, ICF_features)
 
   # warning if there are features selected that are not detected
-  detected_features = unique(CPFscores[['features']])
+  detected_features = unique(ICFscores[['features']])
   not_detected_features = all_features[!all_features %in% detected_features]
   if(length(not_detected_features) > 0) {
-    cat('These selected features are not in the cpfObject: \n',
+    cat('These selected features are not in the icfObject: \n',
         not_detected_features, '\n')
   }
 
   # data.table set column names
   features = group = NULL
 
-  tempDT = CPFscores[features %in% all_features][cell_type == source_type][int_cell_type %in% neighbor_types]
+  tempDT = ICFscores[features %in% all_features][cell_type == source_type][int_cell_type %in% neighbor_types]
   tempDT[, features := factor(features, levels = all_features)]
   tempDT[, group := names(all_features[all_features == features]), by = 1:nrow(tempDT)]
 
@@ -1308,7 +1308,7 @@ plotICFSpot <- function(gobject,
 #' @description Create visualization for cell proximity feature scores
 #'
 #' @param gobject giotto object
-#' @param cpfObject ICF (interaction changed feature) score object
+#' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr_resi Default = 0.05
@@ -1329,7 +1329,7 @@ plotICFSpot <- function(gobject,
 #' @return plot
 #' @export
 plotCellProximityFeatSpot = function(gobject,
-                                      cpfObject,
+                                      icfObject,
                                       method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                                       min_cells = 4,
                                       min_cells_expr_resi = 0.05,
@@ -1348,8 +1348,8 @@ plotCellProximityFeatSpot = function(gobject,
                                       default_save_name = 'plotCellProximityFeats') {
 
 
-  if(!'cpfObject' %in% class(cpfObject)) {
-    stop('\n cpfObject needs to be the output from findCellProximityFeats() or findCPF() \n')
+  if(!'icfObject' %in% class(icfObject)) {
+    stop('\n icfObject needs to be the output from findInteractionChangedFeats() or findICF() \n')
   }
 
   # print, return and save parameters
@@ -1359,7 +1359,7 @@ plotCellProximityFeatSpot = function(gobject,
 
 
   ## first filter
-  filter_cpf = filterICFSpot(cpfObject,
+  filter_icf = filterICFSpot(icfObject,
                              min_cells = min_cells,
                              min_cells_expr_resi = min_cells_expr_resi,
                              min_int_cells = min_int_cells,
@@ -1370,7 +1370,7 @@ plotCellProximityFeatSpot = function(gobject,
                              zscores_column = c('cell_type', 'features'),
                              direction = c('both', 'up', 'down'))
 
-  complete_part = filter_cpf[['CPFscores']]
+  complete_part = filter_icf[['ICFscores']]
 
   ## other parameters
   method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
