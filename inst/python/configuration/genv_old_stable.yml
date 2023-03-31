@@ -1,4 +1,4 @@
-name: old_giotto_env
+name: giotto_env
 channels:
   - conda-forge
   - vtraag
