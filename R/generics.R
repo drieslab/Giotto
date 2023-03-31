@@ -870,8 +870,9 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
           function(x, point_size = 0.1, feats = NULL, density = TRUE, ...) {
             if(is.null(feats)) {
               gpoint_coords = terra::crds(x[])
+              idx = sample(seq(nrow(gpoint_coords)))
               if(isTRUE(density)) {
-                scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
+                scattermore::scattermoreplot(gpoint_coords[idx, 1], gpoint_coords[idx, 2], asp = 1,
                                              col = scales::viridis_pal(alpha = 0.1)(nrow(gpoint_coords)),
                                              ...)
               } else {
