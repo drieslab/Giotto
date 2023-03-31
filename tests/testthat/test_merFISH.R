@@ -152,7 +152,7 @@ object <- adjustGiottoMatrix(gobject = object, expression_values = c('normalized
 test_that("Adjusted values are created in 'custom' slot", {
    
   # expression now also contains custom object of class double
-  expect_type(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat'), "double")
+  expect_type(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat')[1], "double")
   expect_equal(nrow(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat')), 161)
   expect_equal(ncol(slot(object@expression[["cell"]][["rna"]][["custom"]], 'exprMat')), 73655)
   

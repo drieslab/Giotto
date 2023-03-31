@@ -24,6 +24,6 @@ cal_expr_residual(
 \item{ave_celltype_exp}{average expression matrix in cell types}
 }
 \description{
-Calculate gene expression residual (observed_exp - DWLS_predicted)
+Calculate feature expression residual (observed_exp - DWLS_predicted)
 }
 \keyword{internal}
