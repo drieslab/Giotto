@@ -872,7 +872,7 @@ setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
               gpoint_coords = terra::crds(x[])
               if(isTRUE(density)) {
                 scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
-                                             col = scales::viridis_pal(alpha = 0.1)(nrow(coords)),
+                                             col = scales::viridis_pal(alpha = 0.1)(nrow(gpoint_coords)),
                                              ...)
               } else {
                 scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
