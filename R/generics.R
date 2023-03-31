@@ -866,8 +866,8 @@ setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
 #' @export
-setMethod('plot', signature(x = 'giottoPoints', y = 'missing', density = TRUE),
-          function(x, point_size = 0.1, feats = NULL, ...) {
+setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
+          function(x, point_size = 0.1, feats = NULL, density = TRUE, ...) {
             if(is.null(feats)) {
               gpoint_coords = terra::crds(x[])
               if(isTRUE(density)) {
