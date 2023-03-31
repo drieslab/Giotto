@@ -868,7 +868,12 @@ setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
 #' @export
 setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
           function(x, point_size = 0.1, feats = NULL, ...) {
-            plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
+            if(is.null(feats)) {
+              gpoint_coords = terra::crds(x[])
+              scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1, ...)
+            } else {
+              plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
+            }
           })
 
 
