@@ -1148,26 +1148,187 @@ spatInSituPlotDensity = function(gobject,
 #' @param x giottoPoints object
 #' @param point_size (default = 0.1) size of plotted points
 #' @param feats (default is all) which features to plot
-#' @param ... additional params to pass to plot function
+#' @param raster whether to plot using rasterized method (default = TRUE)
+#' @param raster_size size of rasterized plot to generate
+#' @param ... additional params to pass to plot functions
 #' @keywords internal
 #' @noRd
-plot_giotto_points = function(x, point_size = 0.1, feats = NULL, ...) {
+plot_giotto_points = function(x,
+                              point_size = 0,
+                              feats = NULL,
+                              raster = TRUE,
+                              raster_size = 600L,
+                              ...) {
 
-  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
-  else if(length(feats) == 1) {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, ...)
+  args_list = list(feats, asp = 1L, ...)
+
+  # point size
+  if(is.null(args_list$cex)) args_list$cex = point_size
+
+  # get values to plot
+  args_list$data = x[]
+
+
+  # plot
+  if(raster) {
+    args_list$size = raster_size
+    do.call('plot_giotto_points_raster', args_list)
+  } else {
+    do.call('plot_giotto_points_vector', args_list)
   }
-  else {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
-  }
+
 }
 
 
-#' @name plot_giotto_points
+
+#' @description
+#' @param data points SpatVector
+#' @param feats feature(s) to plot. Leaving NULL plots all points
+#' Rasterized plotting workflow for giottoPoints via scattermore
+#' @param ... additional params to pass
+#' @noRd
+plot_giotto_points_raster = function(data, feats = NULL, ...) {
+  args_list = list(...)
+
+  opar = par(no.readonly = TRUE)
+
+
+  # raster size
+  if(is.null(args_list$size)) args_list$size = c(600, 600)
+  else if(length(args_list$size) == 1L) args_list$size = rep(args_list$size, 2L)
+
+  # axis font size
+  if(is.null(args_list$cex.axis)) args_list$cex.axis = 0.7
+
+  args_list$ann = FALSE
+
+  if(is.null(feats)) {
+    dataDT = spatVector_to_dt2(spatvector = data,
+                               include_values = FALSE)
+  }
+  else {
+    dataDT = spatVector_to_dt2(spatvector = data,
+                               include_values = TRUE)
+  }
+
+
+  tryCatch({
+
+    par(mar = c(2.7, 3.5, 2, 2))
+
+    if(length(feats) == 0L) {
+
+      plot(0, 0, type = 'n', ann = FALSE, axes = FALSE)
+      u = par('usr') # coordinates of the plot area
+      rect(u[1], u[3], u[2], u[4], col = 'black', border = NA)
+      par(new = TRUE)
+
+      args_list$x = dataDT$x
+      args_list$y = dataDT$y
+      args_list$col = 'white'
+      do.call('scattermore'::'scattermoreplot', args_list)
+
+    } else if(length(feats) == 1L) {
+
+      plot(0, 0, type = 'n', ann = FALSE, axes = FALSE)
+      u = par('usr') # coordinates of the plot area
+      rect(u[1], u[3], u[2], u[4], col = 'black', border = NA)
+      par(new = TRUE)
+
+      dataDT = dataDT[feat_ID == feats]
+      args_list$x = dataDT$x
+      args_list$y = dataDT$y
+      args_list$col = 'white'
+      do.call('scattermore'::'scattermoreplot', args_list)
+
+    } else {
+
+      feat_color_idx = feat_ID = NULL
+
+      # save current graphical parameters
+
+
+      feat_colors = getRainbowColors(length(feats))
+
+      data.table::setkey(dataDT, 'feat_ID')
+      dataDT = dataDT[feat_ID %in% feats]
+      dataDT[, feat_color_idx :=
+               sapply(feat_ID, function(feat_i) which(feats == feat_i))]
+
+      args_list$x = dataDT$x
+      args_list$y = dataDT$y
+      args_list$col = feat_colors[dataDT$feat_color_idx]
+
+
+
+      par(mar = c(2.7, 3.5, 2, 4))
+      plot(0, 0, type = 'n', ann = FALSE, axes = FALSE)
+      u = par('usr') # coordinates of the plot area
+      rect(u[1], u[3], u[2], u[4], col = 'black', border = NA)
+      par(new = TRUE)
+
+      do.call('scattermore'::'scattermoreplot', args_list)
+      legend(x = 'topright',
+             inset = c(-1.3/dev.size()[1], 0),
+             legend = feats,
+             col = feat_colors,
+             bty = 'n',
+             pch = 20,
+             cex = 0.6,
+             title = 'feat_ID',
+             xpd = TRUE)
+
+
+    }
+
+  }, finally = {
+    # back to the default graphical parameters
+    par(opar)
+  })
+
+
+}
+
+
+
+#' @description
+#' @param data points SpatVector
+#' @param feats feature(s) to plot. Leaving NULL plots all points
+#' @param ... additional params to pass
+#' Vectorized plotting workflow for giotttoPoints via base plot()
+#' @noRd
+plot_giotto_points_vector = function(data, feats = NULL, ...) {
+  args_list = list(...)
+
+  # base plot does not understand cex of 0
+  if(args_list$cex == 0) args_list$cex = 0.1
+
+  args_list$background = 'black'
+
+  if(is.null(feats)) {
+    args_list$x = data
+    args_list$col = 'white'
+    do.call('terra'::'plot', args_list)
+  } else {
+
+    args_list$x = terra::subset(data, terra::values(data)$feat_ID %in% feats)
+    if(length(feats) == 1L) {
+      args_list$col = 'white'
+    }
+    if(length(feats) > 1L) {
+      args_list$y = 'feat_ID'
+    }
+      do.call('terra'::'plot', args_list)
+
+  }
+
+}
+
+
+
+
+
+#' @name plot_giotto_polygon
 #' @title Plot a giotto polygon object
 #' @param x giottoPolygon object
 #' @param point_size (default = 0.1) size of plotted points when plotting centroids

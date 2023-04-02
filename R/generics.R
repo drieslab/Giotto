@@ -865,25 +865,14 @@ setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
+#' @param raster default = TRUE, whether to plot points as rasterized plot with
+#' size based on \code{size} param
+#' @param raster_size Default is 600. Only used when \code{raster} is TRUE
 #' @export
 setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
-          function(x, point_size = 0.1, feats = NULL, density = TRUE, ...) {
-            if(is.null(feats)) {
-              gpoint_coords = terra::crds(x[])
-              idx = sample(seq(nrow(gpoint_coords)))
-              if(isTRUE(density)) {
-                scattermore::scattermoreplot(gpoint_coords[idx, 1], gpoint_coords[idx, 2], asp = 1,
-                                             col = scales::viridis_pal(alpha = 0.1)(nrow(gpoint_coords)),
-                                             ...)
-              } else {
-                scattermore::scattermoreplot(gpoint_coords[, 1], gpoint_coords[, 2], asp = 1,
-                                             ...)
-              }
-
-
-            } else {
-              plot_giotto_points(x = x, point_size = point_size, feats = feats, ...)
-            }
+          function(x, point_size = 0, feats = NULL, raster = TRUE, raster_size = 600, ...) {
+            plot_giotto_points(x = x, point_size = point_size, feats = feats,
+                               raster = raster, raster_size = raster_size, ...)
           })
 
 
