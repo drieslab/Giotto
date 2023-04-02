@@ -24,6 +24,8 @@
 - Add `[` and `[<-` (empty) access generics to get the data from main slots of `giottoPolygon` and `giottoPoints`
 - Add cores detection to run on package attach. (`getOption('giotto.cores')`)
 - Add option to return as `giottoPoints` from `getFeatureInfo` (default is still `SpatVector`)
+- Add `spatVector_to_dt2` internal as a barebones alternative to `spatVector_to_dt()`
+- Add `getRainbowColors()` color palette
 - New `assign_objnames_2_list()` and `assign_listnames_2_obj()` internals for passing list names to object `@name` slots and vice versa
 - New test_that `test_createObject.R` script for `read` functions/S4 subobject creation
 - New test_that `test_accessors.R` script for `accessor` functions
@@ -39,6 +41,7 @@
 - Modify `cell_ID`, `feat_ID`, `cell_metadata`, `feat_metadata` slot initialization
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Change `changeGiottoInstructions()` to allow addition of new params and enforce logical class of known params
+- Update `plot()` for `giottoPoints` with faster rasterized plotting option. (Now used by default)
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
 - Update `loadGiotto()` and `saveGiotto()` with path.expand to expand provided file/directory paths

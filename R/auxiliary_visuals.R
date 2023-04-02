@@ -24,13 +24,11 @@ giotto_point = function(plot_method = c('ggplot', 'scattermore', 'scattermost'),
     ggplot2::geom_point(...)
   } else if(plot_method == 'scattermore') {
     package_check(pkg_name = "scattermore",
-                  repository = "github",
-                  github_repo = 'exaexa/scattermore')
+                  repository = 'CRAN')
     scattermore::geom_scattermore(...)
   } else if(plot_method == 'scattermost') {
     package_check(pkg_name = "scattermore",
-                  repository = "github",
-                  github_repo = 'exaexa/scattermore')
+                  repository = 'CRAN')
     scattermore::geom_scattermost(...)
   }
 
