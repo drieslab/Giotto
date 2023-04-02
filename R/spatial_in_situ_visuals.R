@@ -240,6 +240,10 @@ plot_feature_points_layer = function(ggobject,
                                      jitter = c(0,0),
                                      verbose = TRUE) {
 
+
+  # define plotting method
+  plot_method = match.arg(arg = plot_method, choices = c('ggplot', 'scattermore', 'scattermost'))
+
   # data.table vars
   feat_ID = NULL
 
@@ -262,6 +266,18 @@ plot_feature_points_layer = function(ggobject,
     pl = ggplot2::ggplot()
   }
 
+  # prepare color vector for scattermost
+  if(plot_method == 'scattermost') {
+    if(!is.null(feats_color_code)) {
+      scattermost_color = feats_color_code[spatial_feat_info_subset[['feat_ID']]]
+    } else {
+      feats_names = unique(spatial_feat_info_subset[[color]])
+      feats_color_code = getDistinctColors(length(feats_names))
+      names(feats_color_code) = feats_names
+      scattermost_color = feats_color_code[spatial_feat_info_subset[['feat_ID']]]
+    }
+  }
+
   pl = pl + giotto_point(plot_method = plot_method,
                          data = spatial_feat_info_subset,
                          ggplot2::aes_string(x = sdimx,
@@ -269,7 +285,11 @@ plot_feature_points_layer = function(ggobject,
                                              color = color,
                                              shape = shape),
                          size = point_size,
-                         show.legend = show_legend)
+                         show.legend = show_legend,
+
+                         # specific for scattermost
+                         scattermost_xy = spatial_feat_info_subset[,.(x,y)],
+                         scattermost_color = scattermost_color)
 
 
 
