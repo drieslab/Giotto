@@ -18,6 +18,9 @@
 expression and spat_info are not expected to exist.}
 
 \item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \description{
 data_access_params

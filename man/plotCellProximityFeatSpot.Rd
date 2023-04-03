@@ -6,7 +6,7 @@
 \usage{
 plotCellProximityFeatSpot(
   gobject,
-  cpfObject,
+  icfObject,
   method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap", "dotplot"),
   min_cells = 4,
   min_cells_expr_resi = 0.05,
@@ -28,7 +28,7 @@ plotCellProximityFeatSpot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cpfObject}{ICF (interaction changed feature) score object}
+\item{icfObject}{ICF (interaction changed feature) score object}
 
 \item{method}{plotting method to use}
 

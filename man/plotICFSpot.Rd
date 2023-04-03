@@ -6,7 +6,7 @@
 \usage{
 plotICFSpot(
   gobject,
-  cpfObject,
+  icfObject,
   source_type,
   source_markers,
   ICF_features,
@@ -21,7 +21,7 @@ plotICFSpot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cpfObject}{ICF (interaction changed feature) score object}
+\item{icfObject}{ICF (interaction changed feature) score object}
 
 \item{source_type}{cell type of the source cell}
 
