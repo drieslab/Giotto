@@ -233,6 +233,7 @@ plot_feature_points_layer = function(ggobject,
                                      color = 'feat_ID',
                                      shape = 'feat',
                                      point_size = 1.5,
+                                     stroke = NULL,
                                      show_legend = TRUE,
                                      plot_method = c('ggplot', 'scattermore', 'scattermost'),
                                      expand_counts = FALSE,
@@ -285,6 +286,7 @@ plot_feature_points_layer = function(ggobject,
                                              color = color,
                                              shape = shape),
                          size = point_size,
+                         stroke = stroke,
                          show.legend = show_legend,
 
                          # specific for scattermost
@@ -329,6 +331,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
 #' @param point_size size of the points
+#' @param line line size of point shapes
 #' @param expand_counts expand feature coordinate counts (see details)
 #' @param count_info_column column name with count information (if expand_counts = TRUE)
 #' @param jitter maximum x,y jitter provided as c(x, y)
@@ -376,6 +379,7 @@ spatInSituPlotPoints = function(gobject,
                                 sdimx = 'x',
                                 sdimy = 'y',
                                 point_size = 1.5,
+                                stroke = 0.5,
                                 expand_counts = FALSE,
                                 count_info_column = 'count',
                                 jitter = c(0,0),
@@ -540,6 +544,7 @@ spatInSituPlotPoints = function(gobject,
                                      color = 'feat_ID',
                                      shape = 'feat',
                                      point_size = point_size,
+                                     stroke = stroke,
                                      show_legend = show_legend,
                                      plot_method = plot_method)
 
