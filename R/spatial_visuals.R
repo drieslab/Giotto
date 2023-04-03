@@ -2367,17 +2367,24 @@ plot_spat_image_layer_ggplot = function(gg_obj,
         img_array = terra::as.array(gimage[[i]]@raster_object)
 
         # TODO: check if required, fixes NaN values
-        # replacing NA's by zero or another value directy in raster object?
+        # replacing NA's by zero or another value directly in raster object?
         # raster[is.na(raster[])] <- 0
         if(is.nan(max(img_array[,,1]))) {
           img_array[,,1][is.nan(img_array[,,1])] = max(img_array[,,1], na.rm = T)
         }
-        if(is.nan(max(img_array[,,2]))) {
-          img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+
+        if(dim(img_array)[3] > 1) {
+          if(is.nan(max(img_array[,,2]))) {
+            img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+          }
         }
-        if(is.nan(max(img_array[,,3]))) {
-          img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+
+        if(dim(img_array)[3] > 2) {
+          if(is.nan(max(img_array[,,3]))) {
+            img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+          }
         }
+
 
 
 
@@ -2437,11 +2444,17 @@ plot_spat_image_layer_ggplot = function(gg_obj,
       if(is.nan(max(img_array[,,1]))) {
         img_array[,,1][is.nan(img_array[,,1])] = max(img_array[,,1], na.rm = T)
       }
-      if(is.nan(max(img_array[,,2]))) {
-        img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+
+      if(dim(img_array)[3] > 1) {
+        if(is.nan(max(img_array[,,2]))) {
+          img_array[,,2][is.nan(img_array[,,2])] = max(img_array[,,2], na.rm = T)
+        }
       }
-      if(is.nan(max(img_array[,,3]))) {
-        img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+
+      if(dim(img_array)[3] > 2) {
+        if(is.nan(max(img_array[,,3]))) {
+          img_array[,,3][is.nan(img_array[,,3])] = max(img_array[,,3], na.rm = T)
+        }
       }
 
       img_array = img_array/max(img_array, na.rm = TRUE)
