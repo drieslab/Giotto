@@ -13,5 +13,5 @@ getDistinctColors(n)
 number of distinct colors
 }
 \description{
-Returns a number of distint colors based on the RGB scale
+Returns a number of distinct colors based on the RGB scale
 }
