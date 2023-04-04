@@ -4,7 +4,13 @@
 \alias{giotto_point}
 \title{giotto_point}
 \usage{
-giotto_point(plot_method = c("ggplot", "scattermore", "scattermost"), ...)
+giotto_point(
+  plot_method = c("ggplot", "scattermore", "scattermost"),
+  size = 1,
+  scattermost_xy = NULL,
+  scattermost_color = NULL,
+  ...
+)
 }
 \arguments{
 \item{\dots}{geom_point parameters}

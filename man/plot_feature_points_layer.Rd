@@ -15,6 +15,7 @@ plot_feature_points_layer(
   color = "feat_ID",
   shape = "feat",
   point_size = 1.5,
+  stroke = NULL,
   show_legend = TRUE,
   plot_method = c("ggplot", "scattermore", "scattermost"),
   expand_counts = FALSE,

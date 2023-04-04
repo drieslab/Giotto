@@ -1206,7 +1206,7 @@ plot_giotto_points = function(x,
 
 
 
-#' @description
+#' @description plot giotto points on a raster
 #' @param data points SpatVector
 #' @param feats feature(s) to plot. Leaving NULL plots all points
 #' Rasterized plotting workflow for giottoPoints via scattermore
@@ -1316,7 +1316,7 @@ plot_giotto_points_raster = function(data, feats = NULL, ...) {
 
 
 
-#' @description
+#' @description plot giotto points with a base plot
 #' @param data points SpatVector
 #' @param feats feature(s) to plot. Leaving NULL plots all points
 #' @param ... additional params to pass
