@@ -326,6 +326,9 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #' Default is \code{'all'} information available. \code{'subcellular'} loads the transcript
 #' coordinates only. \code{'aggregate'} loads the provided aggregated expression matrix.
 #' @param FOVs field of views to load (only affects subcellular data and images)
+#' @param remove_background_polygon try to remove background polygon (default: FALSE)
+#' @param background_algo algorithm to remove background polygon
+#' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
 #' @inheritParams createGiottoObjectSubcellular
 #' @import data.table
 #' @return a giotto object
@@ -365,6 +368,9 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #'
 createGiottoCosMxObject = function(cosmx_dir = NULL,
                                    data_to_use = c('all','subcellular','aggregate'),
+                                   remove_background_polygon = TRUE,
+                                   background_algo = c('range'),
+                                   remove_unvalid_polygons = TRUE,
                                    FOVs = NULL,
                                    instructions = NULL,
                                    cores = determine_cores(),
@@ -394,6 +400,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
     cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items,
                                                         FOVs = FOVs,
+                                                        remove_background_polygon = remove_background_polygon,
+                                                        background_algo = background_algo,
+                                                        remove_unvalid_polygons = remove_unvalid_polygons,
                                                         cores = cores,
                                                         verbose = verbose,
                                                         instructions = instructions)
@@ -413,6 +422,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
     cosmx_gobject = createGiottoCosMxObject_all(dir_items,
                                                 FOVs = FOVs,
+                                                remove_background_polygon = remove_background_polygon,
+                                                background_algo = background_algo,
+                                                remove_unvalid_polygons = remove_unvalid_polygons,
                                                 cores = cores,
                                                 verbose = verbose,
                                                 instructions = instructions)
@@ -443,6 +455,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @keywords internal
 createGiottoCosMxObject_subcellular = function(dir_items,
                                                FOVs = NULL,
+                                               remove_background_polygon = TRUE,
+                                               background_algo = c('range'),
+                                               remove_unvalid_polygons = TRUE,
                                                cores,
                                                verbose = TRUE,
                                                instructions = NULL) {
@@ -524,7 +539,10 @@ createGiottoCosMxObject_subcellular = function(dir_items,
         mask_method = 'guess',
         flip_vertical = TRUE,
         flip_horizontal = FALSE,
-        shift_horizontal_step = FALSE
+        shift_horizontal_step = FALSE,
+        remove_background_polygon = remove_background_polygon,
+        background_algo = background_algo,
+        remove_unvalid_polygons = remove_unvalid_polygons,
       ),
       instructions = instructions,
       cores = cores
@@ -683,6 +701,9 @@ createGiottoCosMxObject_all = function(dir_items,
   # 1. create subcellular giotto as spat_unit 'cell'
   cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items = dir_items,
                                                       FOVs = FOVs,
+                                                      remove_background_polygon = remove_background_polygon,
+                                                      background_algo = background_algo,
+                                                      remove_unvalid_polygons = remove_unvalid_polygons,
                                                       cores = cores,
                                                       verbose = verbose,
                                                       instructions = instructions)
