@@ -220,7 +220,10 @@ get_cell_id = function(gobject,
                                       spat_unit = spat_unit)
   }
 
-  return(slot(gobject, 'cell_ID')[[spat_unit]])
+  cell_IDs = slot(gobject, 'cell_ID')[[spat_unit]]
+  cell_IDs = as.character(cell_IDs)
+
+  return(cell_IDs)
 
 }
 
@@ -315,6 +318,7 @@ set_cell_id = function(gobject,
 
 
   # set values
+  cell_IDs = as.character(cell_IDs)
   slot(gobject, 'cell_ID')[[spat_unit]] = cell_IDs
 
   return(gobject)
@@ -349,7 +353,9 @@ get_feat_id = function(gobject,
                                       feat_type = feat_type)
   }
 
-  return(slot(gobject, 'feat_ID')[[feat_type]])
+  feat_IDs = slot(gobject, 'feat_ID')[[feat_type]]
+  feat_IDs = as.character(feat_IDs)
+  return(feat_IDs)
 
 }
 
@@ -449,7 +455,7 @@ set_feat_id = function(gobject,
   }
 
 
-
+  feat_IDs = as.character(feat_IDs)
   slot(gobject, 'feat_ID')[[feat_type]] = feat_IDs
 
   return(gobject)
