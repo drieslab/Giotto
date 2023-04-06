@@ -542,7 +542,7 @@ createGiottoCosMxObject_subcellular = function(dir_items,
         shift_horizontal_step = FALSE,
         remove_background_polygon = remove_background_polygon,
         background_algo = background_algo,
-        remove_unvalid_polygons = remove_unvalid_polygons,
+        remove_unvalid_polygons = remove_unvalid_polygons
       ),
       instructions = instructions,
       cores = cores
