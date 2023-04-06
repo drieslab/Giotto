@@ -91,15 +91,26 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
 #' @keywords internal
 libNorm_giotto = function(mymatrix, scalefactor){
 
-  libsizes = colSums_flex(mymatrix)
+  if(inherits(mymatrix, 'dgCMatrix')){ 
+    libsizes = colSums_flex(mymatrix)
 
-  if(any(libsizes == 0)) {
-    warning(wrap_txt('Total library size or counts for individual spat units are 0.
-                     This will likely result in normalization problems.
-                     filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
+    if(any(libsizes == 0)) {
+      warning(wrap_txt('Total library size or counts for individual spat units are 0.
+                      This will likely result in normalization problems.
+                      filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
+    }
+
+    norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+  } else { # for database expression
+    norm_expr <- mymatrix |>
+       dplyr::group_by(j) |>
+       dplyr::mutate(xnorm = (x / sum(x)) * scalefactor)  |>
+       dplyr::ungroup()
+    
+    duckdb::duckdb_register(con, "xnorm", norm_expr)
   }
 
-  norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+  return(norm_expr) #? return norm_expr
 
 }
 
@@ -113,6 +124,13 @@ logNorm_giotto = function(mymatrix, base, offset) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
+  } else if(methods::is(mymatrix, 'tbl')) { # for database
+    mymatrix <- tbl(con, "xnorm") |>
+       dplyr::group_by(j) |>
+       dplyr::mutate(xlognorm = log(xnorm + offset)/log(base)) |>
+       dplyr::ungroup()
+    
+    duckdb::duckdb_register(con, "xlognorm", mymatrix)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
@@ -2333,12 +2351,15 @@ rna_standard_normalization = function(gobject,
     warning('Caution: Standard normalization was developed for RNA data \n')
   }
 
-  feat_names = rownames(raw_expr[])
-  col_names = colnames(raw_expr[])
+  if(inherits(raw_expr, 'exprObj')) { #?: better way to do this?
+    feat_names = rownames(raw_expr[])
+    col_names = colnames(raw_expr[])
+  }
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+    
+    norm_expr = libNorm_giotto(mymatrix = raw_expr[], #?: can [] be used for both dgCMatrix and tbl class?
                                scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr[]
@@ -2359,8 +2380,13 @@ rna_standard_normalization = function(gobject,
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
 
-      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
-      norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+      if(inherits(raw_expr, 'dgCMatrix')){
+        norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+        norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+      } else { # database
+        norm_centered_expr = standardise_db(x = norm_expr, center = TRUE, scale = TRUE, by = "feat")
+        norm_cent_scaled_expr = standardise_db(x = norm_centered_expr, center = TRUE, scale = TRUE, by = "cell")
+      }
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
@@ -2369,9 +2395,14 @@ rna_standard_normalization = function(gobject,
     } else if(scale_order == 'first_cells') {
       if(verbose == TRUE) cat('\n first scale cells and then feats \n')
 
-      norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
-      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
+      if(inherits(raw_expr, 'dgCMatrix')){
+        norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
+        norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
+      } else { # database
+        norm_centered_expr = standardise_db(x = norm_expr, center = TRUE, scale = TRUE, by = "cell")
+        norm_cent_scaled_expr = standardise_db(x = norm_centered_expr, center = TRUE, scale = TRUE, by = "feat")
 
+      }
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
       #norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
@@ -2382,14 +2413,21 @@ rna_standard_normalization = function(gobject,
 
   } else if(scale_feats == TRUE) {
 
-    norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
-
+    if(inherits(raw_expr, 'dgCMatrix')){
+      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+    } else { # database
+      norm_scaled_expr = standardise_db(x = norm_expr, center = TRUE, scale = TRUE, by = "feat")
+    }
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
 
   } else if(scale_cells == TRUE) {
 
-    norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
+    if(inherits(raw_expr, 'dgCMatrix')){
+      norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
+    } else { # database
+      norm_scaled_expr = standardise_db(x = norm_scaled_expr, center = TRUE, scale = TRUE, by = "cell")
+    }
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -2400,17 +2438,21 @@ rna_standard_normalization = function(gobject,
 
 
   ## 4. add cell and gene names back
-  if(!is.null(norm_expr)) {
-    rownames(norm_expr) = feat_names
-    colnames(norm_expr) = col_names
-  }
-  if(!is.null(norm_scaled_expr)) {
-    rownames(norm_scaled_expr) = feat_names
-    colnames(norm_scaled_expr) = col_names
-  }
+  if(inherits(raw_expr, 'dgCMatrix')){
+       if(!is.null(norm_expr)) {
+          rownames(norm_expr) = feat_names
+          colnames(norm_expr) = col_names
+        }
+        if(!is.null(norm_scaled_expr)) {
+          rownames(norm_scaled_expr) = feat_names
+          colnames(norm_scaled_expr) = col_names
+        }
+  } 
+  #TODO: figure out where to store rownames, colnames for database
 
   ## 5. create and set exprObj
 
+  #TODO: update create_* functions to work with database
   norm_expr = create_expr_obj(name = 'normalized',
                               exprMat = norm_expr,
                               spat_unit = spat_unit,
@@ -2426,6 +2468,7 @@ rna_standard_normalization = function(gobject,
                                      misc = NULL)
 
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  #TODO: update create_* functions to work with database
   gobject = set_expression_values(gobject = gobject,
                                   values = norm_expr)
 
