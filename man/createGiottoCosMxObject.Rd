@@ -7,6 +7,9 @@
 createGiottoCosMxObject(
   cosmx_dir = NULL,
   data_to_use = c("all", "subcellular", "aggregate"),
+  remove_background_polygon = TRUE,
+  background_algo = c("range"),
+  remove_unvalid_polygons = TRUE,
   FOVs = NULL,
   instructions = NULL,
   cores = determine_cores(),
@@ -19,6 +22,12 @@ createGiottoCosMxObject(
 \item{data_to_use}{which type(s) of expression data to build the gobject with
 Default is \code{'all'} information available. \code{'subcellular'} loads the transcript
 coordinates only. \code{'aggregate'} loads the provided aggregated expression matrix.}
+
+\item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
+
+\item{background_algo}{algorithm to remove background polygon}
+
+\item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 

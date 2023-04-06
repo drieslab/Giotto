@@ -19,6 +19,7 @@ spatInSituPlotPoints(
   sdimx = "x",
   sdimy = "y",
   point_size = 1.5,
+  stroke = 0.5,
   expand_counts = FALSE,
   count_info_column = "count",
   jitter = c(0, 0),
@@ -134,6 +135,8 @@ left as \code{NULL}, the median value detected will be chosen}
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{verbose}{verbosity}
+
+\item{line}{line size of point shapes}
 }
 \value{
 ggplot

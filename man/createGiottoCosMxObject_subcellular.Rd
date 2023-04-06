@@ -7,6 +7,9 @@
 createGiottoCosMxObject_subcellular(
   dir_items,
   FOVs = NULL,
+  remove_background_polygon = TRUE,
+  background_algo = c("range"),
+  remove_unvalid_polygons = TRUE,
   cores,
   verbose = TRUE,
   instructions = NULL
@@ -14,6 +17,12 @@ createGiottoCosMxObject_subcellular(
 }
 \arguments{
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
+
+\item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
+
+\item{background_algo}{algorithm to remove background polygon}
+
+\item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 

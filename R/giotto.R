@@ -661,14 +661,14 @@ check_spatial_location_data = function(gobject) {
 
         spatial_cell_id_names = spatlocsDT[['cell_ID']]
 
-        spatial_cell_id_names = sort(spatial_cell_id_names)
-        expected_cell_ID_names = sort(expected_cell_ID_names)
+        # spatial_cell_id_names = sort(spatial_cell_id_names)
+        # expected_cell_ID_names = sort(expected_cell_ID_names)
 
-        if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
-          message('spatloc cell_IDs: ')
-          cat('  ', head(spatial_cell_id_names,3), '...', tail(spatial_cell_id_names,3), '\n')
-          message('expression cell_IDs: ')
-          cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
+        if(!setequal(spatial_cell_id_names, expected_cell_ID_names)) {
+          # message('spatloc cell_IDs: ')
+          # cat('  ', head(spatial_cell_id_names,3), '...', tail(spatial_cell_id_names,3), '\n')
+          # message('expression cell_IDs: ')
+          # cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
 
           stop('cell_IDs between spatial and expression information are not the same for: \n
                  spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
@@ -1969,11 +1969,14 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     visium_png_list = list(visium_png)
     names(visium_png_list) = c('image')
 
+    cell_metadata = spatial_results[,.(barcode, in_tissue, array_row, array_col)]
+    data.table::setnames(cell_metadata, 'barcode', 'cell_ID')
+
     giotto_object = createGiottoObject(expression = raw_matrix,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)])),
+                                       cell_metadata = list('cell' = list('rna' = cell_metadata)),
                                        images = visium_png_list)
     return(giotto_object)
 

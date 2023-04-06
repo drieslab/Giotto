@@ -30,7 +30,7 @@ determine_cores = function(cores = getOption('giotto.cores', default = NA),
 
 
 #' @title getDistinctColors
-#' @description Returns a number of distint colors based on the RGB scale
+#' @description Returns a number of distinct colors based on the RGB scale
 #' @param n number of colors wanted
 #' @return number of distinct colors
 #' @export
@@ -73,6 +73,28 @@ getDistinctColors <- function(n) {
   }
   return(col_vector)
 }
+
+
+
+
+#' @title getRainbowColors
+#' @description Returns a number of rainbow colors spaced around the spectrum.
+#' Only 100 unique colors will be supplied after which they are recycled.
+#' @param n number of colors wanted
+#' @return number of rainbow colors
+#' @export
+getRainbowColors = function(n) {
+
+  rcols = rev(grDevices::rainbow(100L, start = 0.1, end = 0.9))
+
+  if(n <= 0L) stop('Invalid n colors requested\n')
+  if(n < 100L) return(rcols[seq(1L, 100L, 100L/n)][seq(n)])
+  if(n == 100L) return(rcols)
+  if(n > 100L) return(rep(rcols, length.out = n))
+
+}
+
+
 
 
 #' @title get_os
@@ -1169,7 +1191,7 @@ loadGiotto = function(path_to_folder,
 
 
   ## 4. images
-  if(verbose) wrap_msg('\n3. read Giotto image information \n')
+  if(verbose) wrap_msg('\n4. read Giotto image information \n')
   image_files = list.files(path = paste0(path_to_folder, '/Images'))
   if(length(image_files) != 0) {
     image_names = unique(gsub(image_files, pattern = '_spatRaster.*', replacement = ''))

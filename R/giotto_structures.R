@@ -336,6 +336,17 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   spatVecDT = spatVector_to_dt(terra_polygon)
 
+  ## flip across axes ##
+  if(flip_vertical == TRUE) {
+    # terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
+    spatVecDT[, y := -y]
+  }
+
+  if(flip_horizontal == TRUE) {
+    # terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
+    spatVecDT[, x := -x]
+  }
+
   # guess mask method
   if(mask_method == 'guess') {
     uniq_geoms = length(unique(spatVecDT$geom))
@@ -359,14 +370,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   #names(terra_polygon) = 'mask'
 
-  ## flip axes ##
-  if(flip_vertical == TRUE) {
-    terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
-  }
 
-  if(flip_horizontal == TRUE) {
-    terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
-  }
 
   ## shift values ##
   if(shift_vertical_step == TRUE) {
@@ -615,7 +619,7 @@ spatVector_to_dt = function(spatvector,
 
   DT_geom = data.table::as.data.table(terra::geom(spatvector))
 
-  if(include_values == TRUE) {
+  if(isTRUE(include_values)) {
     DT_values = data.table::as.data.table(terra::values(spatvector))
     DT_values[, geom := 1:nrow(DT_values)]
     DT_full = data.table::merge.data.table(DT_geom, DT_values, by = 'geom')
@@ -624,6 +628,33 @@ spatVector_to_dt = function(spatvector,
     return(DT_geom)
   }
 }
+
+
+
+
+#' @title Convert spatVector to data.table
+#' @name spatVector_to_dt2
+#' @description convert spatVector to data.table. Faster and more barebones
+#' @keywords internal
+spatVector_to_dt2 = function(spatvector,
+                             include_values = TRUE) {
+
+  if(isTRUE(include_values)) {
+
+    DT_values = cbind(terra::crds(spatvector),
+                      terra::values(spatvector)) %>%
+      data.table::setDT()
+  } else {
+
+    DT_values = terra::crds(spatvector) %>%
+      data.table::as.data.table()
+  }
+
+  return(DT_values)
+}
+
+
+
 
 
 #' @title Convert data.table to polygon spatVector
