@@ -28,6 +28,9 @@ readExprMatrix = function(path,
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
+  
+  require(HDF5Array)
+  spM = methods::as(spM, 'HDF5Matrix')
 
   if(transpose == TRUE) {
     spM = t_flex(spM)

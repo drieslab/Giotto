@@ -107,8 +107,10 @@ libNorm_giotto = function(mymatrix, scalefactor){
 #' @keywords internal
 logNorm_giotto = function(mymatrix, base, offset) {
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
-    mymatrix = log(mymatrix + offset)/log(base)
+  if(methods::is(mymatrix, 'HDF5Matrix')) {
+    mymatrix@x = log(mymatrix + offset)/log(base)
+  # } else if(methods::is(mymatrix, 'DelayedMatrix')) {
+  #   mymatrix = log(mymatrix + offset)/log(base)
   } else if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
@@ -2415,7 +2417,14 @@ rna_standard_normalization = function(gobject,
   }
 
   ## 5. create and set exprObj
-
+  
+  ### keep HDF5 class if needed
+  if(inherits(slot(raw_expr, 'exprMat'), 'HDF5Matrix')) {
+    require(HDF5Array)
+    norm_expr = methods::as(norm_expr, 'HDF5Matrix')
+    norm_scaled_expr = methods::as(norm_scaled_expr, 'HDF5Matrix')
+  } 
+  
   norm_expr = create_expr_obj(name = 'normalized',
                               exprMat = norm_expr,
                               spat_unit = spat_unit,
