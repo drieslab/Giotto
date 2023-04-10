@@ -2524,6 +2524,7 @@ runDWLSDeconv = function(gobject,
 
   # verify if optional package is installed
   package_check(pkg_name = "quadprog", repository = "CRAN")
+  package_check(pkg_name = "Rfast", repository = "CRAN")
 
   ## check parameters ##
   if(is.null(name)) name = 'DWLS'

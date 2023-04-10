@@ -478,6 +478,9 @@ showClusterHeatmap <- function(gobject,
                                default_save_name = 'showClusterHeatmap',
                                ...) {
 
+  # package Check
+  package_check(pkg_name = 'ComplexHeatmap', repository = 'Bioc')
+
 
   ## deprecated arguments
   if(!is.null(genes)) {
