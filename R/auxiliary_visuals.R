@@ -1252,6 +1252,7 @@ plotMetaDataHeatmap = function(gobject,
                                x_text_angle = 45,
                                y_text_size = 10,
                                strip_text_size = 8,
+                               plot_title = NULL,
                                show_plot = NA,
                                return_plot = NA,
                                save_plot = NA,
@@ -1385,6 +1386,11 @@ plotMetaDataHeatmap = function(gobject,
                      axis.text.y = ggplot2::element_text(size = y_text_size),
                      legend.title = ggplot2::element_blank())
     pl <- pl + ggplot2::labs(x = metadata_cols, y = 'feats')
+    
+    if(!is.null(plot_title)) {
+      pl <- pl + ggplot2::ggtitle(plot_title) + 
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    }
 
 
     # print, return and save parameters
