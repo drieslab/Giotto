@@ -1038,7 +1038,7 @@ subset_giotto_polygon_object = function(gpolygon,
     poly_IDs = gpolygon@spatVector$poly_ID
     cell_id_bool = poly_IDs %in% cell_ids
     gpolygon@spatVector = gpolygon@spatVector[cell_id_bool]
-    gpolygon@unique_ID_cache = unique(poly_IDs) # update cache
+    gpolygon@unique_ID_cache = unique(poly_IDs[cell_id_bool]) # update cache
   }
 
   if(!is.null(gpolygon@spatVectorCentroids)) {
@@ -1151,6 +1151,7 @@ subset_giotto_points_object = function(gpoints,
       gpoints@spatVector = gpoints@spatVector[feat_id_bool]
     }
 
+    # spatial subset specific
     if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
 
       print('im1')
@@ -1167,7 +1168,11 @@ subset_giotto_points_object = function(gpoints,
 
       gpoints@spatVector = myspatvector_subset
       gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)] # update cache
+      return(gpoints)
     }
+
+    # for when no spatial subsetting happens
+    gpoints@unique_ID_cache = unique(terra::values(gpoints@spatVector)$feat_ID)
 
   }
 
@@ -1253,7 +1258,7 @@ subsetGiotto <- function(gobject,
                          x_min = NULL,
                          y_max = NULL,
                          y_min = NULL,
-                         verbose = TRUE,
+                         verbose = FALSE,
                          toplevel_params = 2) {
 
   # Set feat_type and spat_unit
