@@ -9,7 +9,8 @@ createGiottoCosMxObject_all(
   FOVs,
   cores,
   verbose = TRUE,
-  instructions = NULL
+  instructions = NULL,
+  ...
 )
 }
 \arguments{
