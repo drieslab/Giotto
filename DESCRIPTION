@@ -122,6 +122,7 @@ Collate:
     'classes.R'
     'clustering.R'
     'convenience.R'
+    'createEpiObject.R'
     'cross_section.R'
     'data_evaluation.R'
     'data_input.R'
