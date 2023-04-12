@@ -1240,7 +1240,7 @@ subsetGiotto <- function(gobject,
                          x_min = NULL,
                          y_max = NULL,
                          y_min = NULL,
-                         verbose = TRUE,
+                         verbose = FALSE,
                          toplevel_params = 2) {
 
   # Set feat_type and spat_unit
