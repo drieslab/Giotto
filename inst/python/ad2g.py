@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 import scipy
 import warnings
+from time import perf_counter
+
+__name__ = "ad2g"
+__package__ = "ad2g"
 
 ### Imports and safeguards
 def read_anndata_from_path(ad_path = None):
@@ -158,6 +162,8 @@ def parse_obsm_for_spat_locs(adata = None):
         spat_locs = pd.DataFrame(spat_locs, columns = colnames)
     
     spat_locs = spat_locs.astype(conv)
+    # Giotto y axis convention
+    spat_locs["sdimy"] = -1 * spat_locs["sdimy"]
     return spat_locs
 
 ### Metadata
@@ -241,7 +247,6 @@ def extract_NN_connectivities(adata = None, key_added = None):
     
     return connectivities
 
-
 def extract_NN_distances(adata = None, key_added = None):
     ad_guard(adata)
     
@@ -265,3 +270,102 @@ def extract_NN_info(adata = None, key_added = None):
         if type(nk) is dict:
             nn_info = pd.Series(nk)
     return nn_info
+
+def align_network_data(distances = None, weights = None):
+    idx_dist_not_sparse = distances.nonzero()
+    blank = [0 for i in range(len(idx_dist_not_sparse[0]))]
+    df = pd.DataFrame({"distance":blank.copy(), "weight":blank.copy(), "from":blank.copy(), "to":blank.copy()})
+    t0 = perf_counter()
+
+    d_nz = distances[idx_dist_not_sparse]
+    d_nz = np.array(d_nz).reshape(len(d_nz.T),)
+    w_nz = weights[idx_dist_not_sparse]
+    w_nz = np.array(w_nz).reshape(len(w_nz.T),)
+
+    df.loc[:,"distance"] = pd.Series(d_nz)
+    df.loc[:,"weight"] = pd.Series(w_nz)
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=(DeprecationWarning, FutureWarning))
+        # Ignoring the warning here because the desired behavior is maintained
+        df.loc[:,"from"] = pd.Series(idx_dist_not_sparse[0])
+        df.loc[:,"to"] = pd.Series(idx_dist_not_sparse[1])
+    
+    df.loc[:,"from"] += 1
+    df.loc[:,"to"] += 1
+    # for x, i in enumerate(zip(*dist_not_sparse)):
+    #     to = i[-1]
+    #     from_ = i[0]
+    #     dist = distances[from_,to]
+    #     weig = weights[from_,to]
+
+    #     # Correct indexing convention for export to R
+    #     from_ += 1
+    #     to += 1
+
+    #     df.iloc[x,:] = {"distance":dist, "weight":weig, "from":from_, "to":to}
+    t1 = perf_counter()
+    print("Network extraction time:",t1-t0)
+    return df
+
+## Spatial Network
+
+def find_SN_keys(adata = None, key_added = None):
+    sn_key_list = []
+    prefix = "spatial"
+    suffix = "_neighbors"
+
+    if key_added:
+        key_added = key_added + suffix
+        map_keys = adata.uns[key_added].keys()
+        for i in map_keys:
+            #if type(adata.uns[key_added][i]) == type(dict()): continue
+            sn_key_list.append(adata.uns[key_added][i])
+    else: 
+        map_key = prefix + suffix
+        tmp_keys = adata.uns[map_key].keys()
+        for i in tmp_keys:
+            #if type(adata.uns[pk][i]) == type(dict()): continue
+            sn_key_list.append(adata.uns[map_key][i])
+        
+    if len(sn_key_list) == 0:
+        sn_key_list = None
+    return sn_key_list
+
+def extract_SN_connectivities(adata = None, key_added = None):
+    ad_guard(adata)
+
+    connectivities = None
+    sn_key_list = find_SN_keys(adata = adata, key_added = key_added)
+
+    if type(sn_key_list) is type(None):
+        return connectivities
+    
+    for sk in sn_key_list:
+        if "connectivities" in sk:
+            connectivities = adata.obsp[sk]
+    
+    return connectivities
+
+def extract_SN_distances(adata = None, key_added = None):
+    ad_guard(adata)
+    
+    distances = None
+    sn_key_list = find_SN_keys(adata = adata, key_added = key_added)
+
+    if type(sn_key_list) is type(None):
+        return distances
+    
+    for sk in sn_key_list:
+        if "distances" in sk:
+            distances = adata.obsp[sk]
+    
+    return distances
+
+def extract_SN_info(adata = None, key_added = None):
+    ad_guard(adata)
+    sn_keys = find_SN_keys(adata, key_added=key_added)
+    sn_info = None
+    for sk in sn_keys:
+        if type(sk) is dict:
+            sn_info = pd.Series(sk)
+    return sn_info

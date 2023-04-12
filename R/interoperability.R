@@ -128,6 +128,9 @@ check_py_for_scanpy = function(){
 #' @param anndata_path path to the .h5ad file
 #' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
 #'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
+#' @param spatial_n_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors. 
+#'                            Cannot be the same as n_key_added.
+#' @param deluanay_spat_net binary parameter for spatial network. If TRUE, the spatial network is a deluanay network.
 #' @param spat_unit desired spatial unit for conversion, default NULL
 #' @param feat_type desired feature type for conversion, default NULL
 #' @param python_path path to python executable within a conda/miniconda environment
@@ -139,7 +142,8 @@ check_py_for_scanpy = function(){
 #' @export
 anndataToGiotto = function(anndata_path = NULL,
                            n_key_added = NULL,
-                           spatial_key_added = NULL,
+                           spatial_n_key_added = NULL,
+                           deluanay_spat_net = TRUE,
                            spat_unit = NULL,
                            feat_type = NULL,
                            python_path = NULL) {
@@ -151,6 +155,9 @@ anndataToGiotto = function(anndata_path = NULL,
 
   if(!file.exists(anndata_path)) {
     stop("The provided path to the AnnData .h5ad file does not exist.\n")
+  }
+  if (!is.null(n_key_added) && !is.null(spatial_n_key_added)){
+    if (n_key_added == spatial_n_key_added) stop("Arguments n_key_added and spatial_n_key_added may not take the same value.")
   }
 
   # Required step to properly initialize reticualte
@@ -176,10 +183,10 @@ anndataToGiotto = function(anndata_path = NULL,
   #Spatial locations sp ready
 
   ### Set up metadata
-  cm = extract_cell_metadata(adata)
-  cm = as.data.table(cm)
-  if ('leiden' %in% names(cm)) {
-    cm$leiden = as.numeric(cm$leiden)
+  cmeta = extract_cell_metadata(adata)
+  cmeta = as.data.table(cmeta)
+  if ('leiden' %in% names(cmeta)) {
+    cmeta$leiden = as.numeric(cmeta$leiden)
   }
 
   fm = extract_feat_metadata(adata)
@@ -192,10 +199,12 @@ anndataToGiotto = function(anndata_path = NULL,
                                 instructions = instrs)
 
   ### Add metadata
-  gobject = set_cell_metadata(gobject,
-                              metadata = cm)
-  gobject = set_feature_metadata(gobject,
-                                 metadata = fm)
+  cmeta = readCellMetadata(cmeta)
+  gobject = setCellMetadata(gobject,
+                            x = cmeta)
+  fm = readFeatMetadata(fm)
+  gobject = setFeatureMetadata(gobject,
+                               x = fm)
 
   spat_unit = set_default_spat_unit(gobject,
                                     spat_unit = spat_unit)
@@ -249,7 +258,7 @@ anndataToGiotto = function(anndata_path = NULL,
   ### Set up TSNE
   t = extract_tsne(adata)
   if (!is.null(t)) {
-    # Add UMAP to giottoObject
+    # Add TSNE to giottoObject
     dobj = create_dim_obj(name = 'tsne.ad',
                           spat_unit = spat_unit,
                           feat_type = feat_type,
@@ -271,18 +280,15 @@ anndataToGiotto = function(anndata_path = NULL,
 
   weights_ad = NULL
   weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
+  #adw = methods::as(weights_ad, "TsparseMatrix")
   if (!is.null(weights_ad)) {
     distances_ad = extract_NN_distances(adata, key_added = n_key_added)
-    ij_matrix = methods::as(distances_ad, "TsparseMatrix")
-    from_idx = ij_matrix@i + 1 #zero index!!!
-    to_idx = ij_matrix@j + 1 #zero index!!!
+
+    nn_dt = align_network_data(distances = weights_ad, weights = distances_ad)
 
     #pre-allocate DT variables
     from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
-    nn_dt = data.table::data.table(from = from_idx,
-                                   to = to_idx,
-                                   weight = weights_ad@x,
-                                   distance = distances_ad@x)
+    nn_dt = data.table::data.table(nn_dt)
 
     nn_dt[, from_cell_ID := cID[from]]
     nn_dt[, to_cell_ID := cID[to]]
@@ -304,13 +310,83 @@ anndataToGiotto = function(anndata_path = NULL,
       net_name = paste0(net_type, ".", nn_info["method"])
     }
 
+    netObj = createNearestNetObj(name = net_name,
+                                 network = nn_network_igraph,
+                                 spat_unit = spat_unit,
+                                 feat_type = feat_type)
+
     gobject = set_NearestNetwork(gobject = gobject,
-                                 nn_network = nn_network_igraph,
+                                 nn_network = netObj,
                                  spat_unit = spat_unit,
                                  feat_type = feat_type,
                                  nn_network_to_use = net_type,
                                  network_name = net_name,
                                  set_defaults = FALSE)
+  }
+
+  
+  ## Spatial Network
+  s_weights_ad = NULL
+  s_weights_ad = extract_SN_connectivities(adata, key_added = spatial_n_key_added)
+  if (!is.null(s_weights_ad)){
+    s_distances_ad = extract_SN_distances(adata, key_added = spatial_n_key_added)
+    ij_matrix = methods::as(s_distances_ad, "TsparseMatrix")
+    from_idx = ij_matrix@i + 1 #zero index!!!
+    to_idx = ij_matrix@j + 1 #zero index!!!
+    
+    #pre-allocate DT variables
+    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+    sn_dt = data.table::data.table(from = from_idx,
+                                   to = to_idx,
+                                   weight = s_weights_ad@x,
+                                   distance = s_distances_ad@x)
+    
+    sn_dt[, from_cell_ID := cID[from]]
+    sn_dt[, to_cell_ID := cID[to]]
+
+    sdimx = "sdimx"
+    sdimy = "sdimy"
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+
+    network_DT = data.table::data.table(from = sn_dt$from_cell_ID,
+                                                 to = sn_dt$to_cell_ID,
+                                                 xbegin_name = sp[sn_dt$from, sdimx],
+                                                 ybegin_name = sp[sn_dt$from, sdimy],
+                                                 xend_name = sp[sn_dt$to, sdimx],
+                                                 yend_name = sp[sn_dt$to, sdimy],
+                                                 weight = s_weights_ad@x,
+                                                 distance = s_distances_ad@x)
+    data.table::setnames(network_DT,
+                       old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                       new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+    data.table::setorder(network_DT, from, to)
+
+    dist_mean = get_distance(network_DT, method = "mean")
+    dist_median = get_distance(network_DT, method = "median")
+    cellShapeObj = list("meanCellDistance" = dist_mean,
+                      "medianCellDistance" = dist_median)
+
+    #TODO filter network? 
+    #TODO 3D handling?
+    if (deluanay_spat_net){
+      spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                  method = "delaunay",
+                                  networkDT=network_DT,
+                                  cellShapeObj = cellShapeObj)
+    } else {
+      spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                  method = "non-delaunay",
+                                  networkDT=network_DT,
+                                  cellShapeObj = cellShapeObj)
+    }
+    
+    gobject = set_spatialNetwork(gobject = gobject,
+                                 spatial_network = spatObj,
+                                 name = "Spat_Net_from_AnnData")
+
   }
 
   ### Layers
@@ -501,7 +577,7 @@ giottoToAnnData <- function(gobject = NULL,
   for (su in spat_unit){
     for (ft in names(gobject@expression[[su]])){
 
-      cm = get_cell_metadata(gobject = gobject,
+      cmeta = get_cell_metadata(gobject = gobject,
                              spat_unit = su,
                              feat_type = ft,
                              output = "data.table",
@@ -514,7 +590,7 @@ giottoToAnnData <- function(gobject = NULL,
                                 set_defaults = FALSE)
 
       adata_list[[adata_pos]] = set_adg_metadata(adata = adata_list[[adata_pos]],
-                                                 cell_meta = cm,
+                                                 cell_meta = cmeta,
                                                  feat_meta = fm)
 
       adata_pos = adata_pos + 1
