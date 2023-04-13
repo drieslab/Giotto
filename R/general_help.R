@@ -987,7 +987,10 @@ saveGiotto = function(gobject,
 
         # save raster
         filename = paste0(image_dir, '/', image, '_spatRaster')
-        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
+        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object,
+                           filename = filename,
+                           filetype = image_filetype,
+                           NAflag = NA) # test
       }
     }
   }
