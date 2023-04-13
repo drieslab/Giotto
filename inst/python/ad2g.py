@@ -314,18 +314,35 @@ def find_SN_keys(adata = None, key_added = None):
     prefix = "spatial"
     suffix = "_neighbors"
 
-    if key_added:
+    if key_added is None:
+        map_key = prefix + suffix
+        try:
+            tmp_keys = adata.uns[map_key].keys()
+        except KeyError:
+            tmp_keys = None
+            return None
+        
+        for i in tmp_keys:
+            #if type(adata.uns[pk][i]) == type(dict()): continue
+            sn_key_list.append(adata.uns[map_key][i])
+    elif ".txt" in key_added:
+        line_keys = []
+        with open(key_added) as f:
+            for line in f.readlines():
+                line = line.strip()
+                line_key_added = line + suffix
+                line_keys.append(line_key_added)
+        for key in line_keys:
+            map_keys = adata.uns[key].keys()
+            for i in map_keys:
+                sn_key_list.append(adata.uns[key][i])
+
+    elif key_added is not None:
         key_added = key_added + suffix
         map_keys = adata.uns[key_added].keys()
         for i in map_keys:
             #if type(adata.uns[key_added][i]) == type(dict()): continue
             sn_key_list.append(adata.uns[key_added][i])
-    else: 
-        map_key = prefix + suffix
-        tmp_keys = adata.uns[map_key].keys()
-        for i in tmp_keys:
-            #if type(adata.uns[pk][i]) == type(dict()): continue
-            sn_key_list.append(adata.uns[map_key][i])
         
     if len(sn_key_list) == 0:
         sn_key_list = None

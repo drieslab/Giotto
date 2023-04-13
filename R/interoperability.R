@@ -279,116 +279,147 @@ anndataToGiotto = function(anndata_path = NULL,
   # Need to create nnNetObj or igraph object to use with setter for NN
 
   weights_ad = NULL
-  weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
-  #adw = methods::as(weights_ad, "TsparseMatrix")
-  if (!is.null(weights_ad)) {
-    distances_ad = extract_NN_distances(adata, key_added = n_key_added)
+  num_NN_nets = length(n_key_added)
 
-    nn_dt = align_network_data(distances = weights_ad, weights = distances_ad)
-
-    #pre-allocate DT variables
-    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
-    nn_dt = data.table::data.table(nn_dt)
-
-    nn_dt[, from_cell_ID := cID[from]]
-    nn_dt[, to_cell_ID := cID[to]]
-    nn_dt[, uniq_ID := paste0(from,to)]
-    nn_dt[order(uniq_ID)]
-    nn_dt[,uniq_ID := NULL]
-    vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
-    nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
-
-    nn_info = extract_NN_info(adata = adata, key_added = n_key_added)
-
-    net_type = "kNN" # anndata default
-    if(("sNN" %in% n_key_added) & !is.null(n_key_added)){
-      net_type = "sNN"
-      net_name = paste0(n_key_added, ".", nn_info["method"])
-    } else if (!("sNN" %in% n_key_added) & !is.null(n_key_added)) {
-      net_name = paste0(n_key_added, ".", nn_info["method"])
-    } else {
-      net_name = paste0(net_type, ".", nn_info["method"])
-    }
-
-    netObj = createNearestNetObj(name = net_name,
-                                 network = nn_network_igraph,
-                                 spat_unit = spat_unit,
-                                 feat_type = feat_type)
-
-    gobject = set_NearestNetwork(gobject = gobject,
-                                 nn_network = netObj,
-                                 spat_unit = spat_unit,
-                                 feat_type = feat_type,
-                                 nn_network_to_use = net_type,
-                                 network_name = net_name,
-                                 set_defaults = FALSE)
+  if (is.null(n_key_added) && !is.null(extract_NN_connectivities(adata, key_added = n_key_added))) {
+    num_NN_nets = 1
   }
 
+  for (i in num_NN_nets){
+    if (inherits(n_key_added, "list")){ 
+      n_key_added_it = n_key_added[[i]]
+    } else {
+      n_key_added_it = n_key_added
+    }
+    
+    weights_ad = extract_NN_connectivities(adata, key_added = n_key_added_it)
+    #adw = methods::as(weights_ad, "TsparseMatrix")
+    if (!is.null(weights_ad)) {
+      distances_ad = extract_NN_distances(adata, key_added = n_key_added_it)
+
+      nn_dt = align_network_data(distances = weights_ad, weights = distances_ad)
+
+      #pre-allocate DT variables
+      from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+      nn_dt = data.table::data.table(nn_dt)
+
+      nn_dt[, from_cell_ID := cID[from]]
+      nn_dt[, to_cell_ID := cID[to]]
+      nn_dt[, uniq_ID := paste0(from,to)]
+      nn_dt[order(uniq_ID)]
+      nn_dt[,uniq_ID := NULL]
+      vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
+      nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
+
+      nn_info = extract_NN_info(adata = adata, key_added = n_key_added_it)
+
+      net_type = "kNN" # anndata default
+      if(("sNN" %in% n_key_added_it) & !is.null(n_key_added_it)){
+        net_type = "sNN"
+        net_name = paste0(n_key_added_it, ".", nn_info["method"])
+      } else if (!("sNN" %in% n_key_added_it) & !is.null(n_key_added_it)) {
+        net_name = paste0(n_key_added_it, ".", nn_info["method"])
+      } else {
+        net_name = paste0(net_type, ".", nn_info["method"])
+      }
+
+      netObj = createNearestNetObj(name = net_name,
+                                  network = nn_network_igraph,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
+
+      gobject = set_NearestNetwork(gobject = gobject,
+                                  nn_network = netObj,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  nn_network_to_use = net_type,
+                                  network_name = net_name,
+                                  set_defaults = FALSE)
+    }
+  }
   
   ## Spatial Network
   s_weights_ad = NULL
-  s_weights_ad = extract_SN_connectivities(adata, key_added = spatial_n_key_added)
-  if (!is.null(s_weights_ad)){
-    s_distances_ad = extract_SN_distances(adata, key_added = spatial_n_key_added)
-    ij_matrix = methods::as(s_distances_ad, "TsparseMatrix")
-    from_idx = ij_matrix@i + 1 #zero index!!!
-    to_idx = ij_matrix@j + 1 #zero index!!!
-    
-    #pre-allocate DT variables
-    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
-    sn_dt = data.table::data.table(from = from_idx,
-                                   to = to_idx,
-                                   weight = s_weights_ad@x,
-                                   distance = s_distances_ad@x)
-    
-    sn_dt[, from_cell_ID := cID[from]]
-    sn_dt[, to_cell_ID := cID[to]]
+  num_SN_nets = length(spatial_n_key_added) 
+  
+  # Check for the case where NULL is provided, since the
+  # anndata object takes the default value for SN
 
-    sdimx = "sdimx"
-    sdimy = "sdimy"
-    xbegin_name = paste0(sdimx,'_begin')
-    ybegin_name = paste0(sdimy,'_begin')
-    xend_name = paste0(sdimx,'_end')
-    yend_name = paste0(sdimy,'_end')
-
-    network_DT = data.table::data.table(from = sn_dt$from_cell_ID,
-                                                 to = sn_dt$to_cell_ID,
-                                                 xbegin_name = sp[sn_dt$from, sdimx],
-                                                 ybegin_name = sp[sn_dt$from, sdimy],
-                                                 xend_name = sp[sn_dt$to, sdimx],
-                                                 yend_name = sp[sn_dt$to, sdimy],
-                                                 weight = s_weights_ad@x,
-                                                 distance = s_distances_ad@x)
-    data.table::setnames(network_DT,
-                       old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
-                       new = c(xbegin_name, ybegin_name, xend_name, yend_name))
-    data.table::setorder(network_DT, from, to)
-
-    dist_mean = get_distance(network_DT, method = "mean")
-    dist_median = get_distance(network_DT, method = "median")
-    cellShapeObj = list("meanCellDistance" = dist_mean,
-                      "medianCellDistance" = dist_median)
-
-    #TODO filter network? 
-    #TODO 3D handling?
-    if (deluanay_spat_net){
-      spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
-                                  method = "delaunay",
-                                  networkDT=network_DT,
-                                  cellShapeObj = cellShapeObj)
-    } else {
-      spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
-                                  method = "non-delaunay",
-                                  networkDT=network_DT,
-                                  cellShapeObj = cellShapeObj)
-    }
-    
-    gobject = set_spatialNetwork(gobject = gobject,
-                                 spatial_network = spatObj,
-                                 name = "Spat_Net_from_AnnData")
-
+  if (is.null(spatial_n_key_added) && !is.null(extract_SN_connectivities(adata, key_added = spatial_n_key_added))) {
+    num_SN_nets = 1
   }
 
+  for (i in 1:num_SN_nets){
+
+    if (inherits(spatial_n_key_added, "list")){ 
+      spatial_n_key_added_it = spatial_n_key_added[[i]]
+    } else {
+      spatial_n_key_added_it = spatial_n_key_added
+    }
+
+    s_weights_ad = extract_SN_connectivities(adata, key_added = spatial_n_key_added_it)
+    if (!is.null(s_weights_ad)){
+      s_distances_ad = extract_SN_distances(adata, key_added = spatial_n_key_added_it)
+      ij_matrix = methods::as(s_distances_ad, "TsparseMatrix")
+      from_idx = ij_matrix@i + 1 #zero index!!!
+      to_idx = ij_matrix@j + 1 #zero index!!!
+      
+      #pre-allocate DT variables
+      from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+      sn_dt = data.table::data.table(from = from_idx,
+                                    to = to_idx,
+                                    weight = s_weights_ad@x,
+                                    distance = s_distances_ad@x)
+      
+      sn_dt[, from_cell_ID := cID[from]]
+      sn_dt[, to_cell_ID := cID[to]]
+
+      sdimx = "sdimx"
+      sdimy = "sdimy"
+      xbegin_name = paste0(sdimx,'_begin')
+      ybegin_name = paste0(sdimy,'_begin')
+      xend_name = paste0(sdimx,'_end')
+      yend_name = paste0(sdimy,'_end')
+
+      network_DT = data.table::data.table(from = sn_dt$from_cell_ID,
+                                                  to = sn_dt$to_cell_ID,
+                                                  xbegin_name = sp[sn_dt$from, sdimx],
+                                                  ybegin_name = sp[sn_dt$from, sdimy],
+                                                  xend_name = sp[sn_dt$to, sdimx],
+                                                  yend_name = sp[sn_dt$to, sdimy],
+                                                  weight = s_weights_ad@x,
+                                                  distance = s_distances_ad@x)
+      data.table::setnames(network_DT,
+                        old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                        new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+      data.table::setorder(network_DT, from, to)
+
+      dist_mean = get_distance(network_DT, method = "mean")
+      dist_median = get_distance(network_DT, method = "median")
+      cellShapeObj = list("meanCellDistance" = dist_mean,
+                        "medianCellDistance" = dist_median)
+
+      #TODO filter network? 
+      #TODO 3D handling?
+      if (deluanay_spat_net){
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                    method = "delaunay",
+                                    networkDT=network_DT,
+                                    cellShapeObj = cellShapeObj)
+      } else {
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                    method = "non-delaunay",
+                                    networkDT=network_DT,
+                                    cellShapeObj = cellShapeObj)
+      }
+      
+      gobject = set_spatialNetwork(gobject = gobject,
+                                  spatial_network = spatObj,
+                                  name = "Spat_Net_from_AnnData")
+
+    }
+  }
+  #browser()
   ### Layers
   lay_names = extract_layer_names(adata)
   if (!is.null(lay_names)) {
@@ -402,11 +433,12 @@ anndataToGiotto = function(anndata_path = NULL,
         lay@Dimnames[[1]] = fID
         lay@Dimnames[[2]] = cID
       }
+      layExprObj <- createExprObj(lay, name = l_n)
       gobject = set_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       name = l_n,
-                                      values = lay)
+                                      values = layExprObj)
     }
   }
 
@@ -437,6 +469,10 @@ anndataToGiotto = function(anndata_path = NULL,
 #'
 #' If multiple spatial units or feature types are specified, multiple
 #' AnnData object will be created and returned.
+#' 
+#' This function will create .txt files which will record any `key_added`
+#' parameters for networks. They are named after the corresponding spatial unit
+#' and feature type pair. 
 #'
 #' The save_directory will be created if it does not already exist.
 #' The default save_directory is the working directory.
@@ -805,6 +841,10 @@ giottoToAnnData <- function(gobject = NULL,
 
         }
 
+        fname_nn = paste0(su, "_", ft, "_nn_network_keys_added.txt")
+        network_name = network_name[!grepl("kNN.", network_name)]
+        if(length(network_name) != 0) write(network_name, fname_nn)
+
       }
       adata_pos = adata_pos + 1
     }
@@ -813,7 +853,73 @@ giottoToAnnData <- function(gobject = NULL,
   # Reset indexing variable
   adata_pos = 1
 
-  # Pipe non-expression data into AnnData object
+  try_get_SN = function(gobject,
+                        spat_unit,
+                        name,
+                        output,
+                        set_defaults,
+                        verbose) {
+    tryCatch(
+      {
+        spatial_net = get_spatialNetwork(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         name = name,
+                                         output = output,
+                                         set_defaults = set_defaults,
+                                         verbose = verbose)
+        return(spatial_net)
+      },
+      error = function(e) {
+        return(NULL)
+      }
+    )
+  }
+
+
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) { 
+      # Spatial networks do not have a feature type slot. 
+      # Iterate through anyways to properly assign to anndata objects
+      network_name = list_spatial_networks_names(gobject = gobject,
+                                                  spat_unit = su)
+      if (is.null(network_name)) {
+        next
+      }
+      for (sn_name in network_name) {
+        gob_SN = try_get_SN(gobject = gobject,
+                            spat_unit = su,
+                            name = sn_name,
+                            output = "networkDT",
+                            set_defaults = FALSE)
+
+        pidx = grep("spatial_network", names(gobject@parameters))
+        for (p in pidx) {
+          if (gobject@parameters[[p]]["name of spatial network"] == sn_name) {
+            current_param = gobject@parameters[[p]]
+            kval = current_param["k neighbours"]
+            maxdist = current_param["maximum distance threshold"]
+            dimused = current_param["dimensions used"]
+          }
+        }
+        
+        adata_list[[adata_pos]] = set_adg_sn(adata = adata_list[[adata_pos]],
+                                              df_SN = gob_SN,
+                                              net_name = sn_name,
+                                              n_neighbors = kval,
+                                              max_distance = maxdist,
+                                              dim_used = dimused)
+        
+        }
+
+      fname_sn = paste0(su,"_",ft, "_spatial_network_keys_added.txt")
+      if(length(network_name) != 0) write(network_name, fname_sn)
+      }
+
+    adata_pos = adata_pos + 1
+  }
+  
+  # Reset indexing variable
+  adata_pos = 1
 
   # Write AnnData object to .h5ad file
   # Verify it exists, and return upon success
