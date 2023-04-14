@@ -13,6 +13,7 @@
 
 
 ## Added
+- New implementations of `anndataToGiotto()` and `giottoToAnnData()` for Nearest Neighbor and Spatial Networks
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
 - Add `initialize()` method for `giotto`
 - Add exported `create` constructor functions for Giotto S4 subobjects

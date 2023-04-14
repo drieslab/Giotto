@@ -429,7 +429,7 @@ anndataToGiotto = function(anndata_path = NULL,
 
     }
   }
-  #browser()
+
   ### Layers
   lay_names = extract_layer_names(adata)
   if (!is.null(lay_names)) {
