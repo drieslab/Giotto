@@ -503,7 +503,7 @@ createCrossSection <- function(gobject,
   max_distance_to_section_plane = sectionThickness/2
 
   # calculate distances to cross section
-  spatial_locations_mat = cbind(spatial_locations,as.matrix(rep(1,dim(spatial_locations)[1])))
+  spatial_locations_mat = cbind(spatial_locations,as.matrix(rep(1,dim(spatial_locations_test)[1])))
   norm_vec <- function(x) sqrt(sum(x^2))
   distance_to_plane_vector = abs(spatial_locations_mat %*% as.matrix(plane_equation)/norm_vec(plane_equation[1:3]))
 
