@@ -436,13 +436,21 @@ createCrossSection <- function(gobject,
 ){
 
   # read spatial locations
-  spatial_locations = get_spatial_locations(gobject,
-                                            spat_loc_name = spat_loc_name)
-  spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations))]
-  spatial_locations = as.matrix(spatial_locations)
-  rownames(spatial_locations) = gobject@cell_ID
-  cell_ID_vec = c(1:nrow(spatial_locations))
-  names(cell_ID_vec) = rownames(spatial_locations)
+  spatial_locations = get_spatial_locations(gobject, spat_loc_name = "raw")
+  cell_IDs = spatial_locations[, "cell_ID"]
+  cell_IDs = cell_IDs$cell_ID
+  
+  colnames_to_extract = c("sdimx", "sdimy", "sdimz")
+  spatial_locations = spatial_locations[, colnames_to_extract]
+  
+  spatial_locations_test = spatial_locations$coordinates
+  
+  spatial_locations_test = spatial_locations@coordinates
+  spatial_locations_test = as.matrix(spatial_locations_test)
+  rownames(spatial_locations_test) = cell_IDs
+  
+  cell_ID_vec = c(1:nrow(spatial_locations_test))
+  names(cell_ID_vec) = rownames(spatial_locations_test)
 
   # generate section plane equation
 
