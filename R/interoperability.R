@@ -167,7 +167,11 @@ anndataToGiotto = function(anndata_path = NULL,
     stop("The provided path to the AnnData .h5ad file does not exist.\n")
   }
   if (!is.null(n_key_added) && !is.null(spatial_n_key_added)){
-    if (n_key_added == spatial_n_key_added) stop("Arguments n_key_added and spatial_n_key_added may not take the same value.")
+    for (n in n_key_added){
+      for (s in spatial_n_key_added) {
+        if (n == s) stop("Arguments n_key_added and spatial_n_key_added may not take the same value.")
+      }
+    }
   }
 
   # Required step to properly initialize reticualte
@@ -853,7 +857,11 @@ giottoToAnnData <- function(gobject = NULL,
 
         fname_nn = paste0(su, "_", ft, "_nn_network_keys_added.txt")
         network_name = network_name[!grepl("kNN.", network_name)]
-        if(length(network_name) != 0) write(network_name, fname_nn)
+        append_n = FALSE
+        if(length(network_name) != 0 ) {
+          if (nn_net_tu == "kNN") append_n = TRUE
+          write(network_name, fname_nn, append = append_n)
+        }
 
       }
       adata_pos = adata_pos + 1
