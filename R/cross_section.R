@@ -511,7 +511,7 @@ createCrossSection <- function(gobject,
   cell_subset = distance_to_plane_vector<=max_distance_to_section_plane
 
   # project the selected cells onto the section plane ###
-  cell_subset_spatial_locations = spatial_locations[cell_subset,]
+  cell_subset_spatial_locations = spatial_locations_test[cell_subset,]
 
   ## find a point on the section plane ##
   if (plane_equation["A"]!=0){
