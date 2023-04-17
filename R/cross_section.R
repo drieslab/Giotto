@@ -556,6 +556,7 @@ createCrossSection <- function(gobject,
     gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[name]] = crossSection_obj
 
     return(gobject)
+    return(crossSection_obj)
   }
   else {
     return(crossSection_obj)
