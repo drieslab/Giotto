@@ -553,7 +553,7 @@ createCrossSection <- function(gobject,
     if (name %in% cs_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
-    gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[name]] = crossSection_obj
+    gobject@spatial_network[[spatial_network_name]]$crossSectionObjects = crossSection_obj
 
     return(gobject)
     return(crossSection_obj)
