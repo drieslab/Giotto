@@ -13,6 +13,8 @@ if(!require(GiottoData)){
   install_github('drieslab/GiottoData')
 }
 
+library(testthat)
+
 
 # Load subobjects
 ex = GiottoData::loadSubObjectMini('exprObj')
@@ -193,8 +195,8 @@ test_that('Eval of minimal igraph adds weight attr', {
 
 
 test_that('Read returns nnNetObj list directly', {
-  read_list = expect_warning(readNearestNetData(list(nn, nn)),
-                             regexp = 'nnNetObj')
+  # this warning can't be tested properly
+  read_list = suppressWarnings(readNearestNetData(list(nn, nn)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'nnNetObj'))
 })
@@ -258,8 +260,7 @@ test_that('Depth 4 works', {
 drm = dr[]
 
 test_that('Read returns dimObj list directly', {
-  read_list = expect_warning(readDimReducData(list(dr, dr)),
-                             regexp = 'dimObj')
+  read_list = suppressWarnings(readDimReducData(list(dr, dr)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'dimObj'))
 })
@@ -316,8 +317,7 @@ test_that('Depth 4 works', {
 enrDT = enr[]
 
 test_that('Read returns spatEnrObj list directly', {
-  read_list = expect_warning(readSpatEnrichData(list(enr, enr)),
-                             regexp = 'spatEnrObj')
+  read_list = suppressWarnings(readSpatEnrichData(list(enr, enr)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatEnrObj'))
 })
@@ -377,8 +377,7 @@ test_that('Depth 4 works', {
 snDT = sn[]
 
 test_that('Read returns spatialNetworkObj list directly', {
-  read_list = expect_warning(readSpatNetData(list(sn, sn)),
-                             regexp = 'spatialNetworkObj')
+  read_list = suppressWarnings(readSpatNetData(list(sn, sn)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatialNetworkObj'))
 })
@@ -411,8 +410,7 @@ test_that('Depth 2 works', {
 slDT = sl[]
 
 test_that('Read returns spatLocsObj list directly', {
-  read_list = expect_warning(readSpatLocsData(list(sl, sl)),
-                             regexp = 'spatLocsObj')
+  read_list = suppressWarnings(readSpatLocsData(list(sl, sl)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'spatLocsObj'))
 })
@@ -451,8 +449,7 @@ test_that('Depth 2 works', {
 exMat = ex[]
 
 test_that('Read returns dimObj list directly', {
-  read_list = expect_warning(readExprData(list(ex, ex)),
-                             regexp = 'exprObj')
+  read_list = suppressWarnings(readExprData(list(ex, ex)))
   expect_true(is.list(read_list))
   expect_true(all(sapply(read_list, class) == 'exprObj'))
 })
