@@ -13,6 +13,8 @@ if(!require(GiottoData)){
   install_github('drieslab/GiottoData')
 }
 
+library(Giotto)
+library(testthat)
 
 # Load subobjects
 ex = GiottoData::loadSubObjectMini('exprObj')
@@ -403,9 +405,10 @@ test_that('Non-native throws error', {
 ## ------------------------------------------------------------------------ ##
 
 
+
 test_that('Native feature info is set directly', {
 
-  test_fi = expect_no_condition(setFeatureInfo(test, gpoints))
+  test_fi = expect_no_error(setFeatureInfo(test, gpoints))
 
   avail_fi = list_feature_info(test_fi)
   expect_s3_class(avail_fi, 'data.table')
@@ -416,19 +419,19 @@ test_that('Native feature info is set directly', {
 
 test_that('Native feature info is set with lists', { # issues currently happen with unnamed lists
 
-  # assign names by list names
-  test_fi = setFeatureInfo(test, gpoints = list(rna = gpoints,
-                                                protein = gpoints))
-  avail_fi = list_feature_info(test_fi)
-  expect_identical(avail_fi$feat_info, c('rna', 'protein'))
-  expect_identical(test_fi@feat_info$rna@feat_type, 'rna')
-  expect_identical(test_fi@feat_info$protein@feat_type, 'protein')
+  # assign names by list names - this now happens through read fxns only
+  # test_fi = setFeatureInfo(test, x = list(rna = gpoints,
+  #                                         protein = gpoints2))
+  # avail_fi = list_feature_info(test_fi)
+  # expect_identical(avail_fi$feat_info, c('rna', 'protein'))
+  # expect_identical(test_fi@feat_info$rna@feat_type, 'rna')
+  # expect_identical(test_fi@feat_info$protein@feat_type, 'protein')
 
   # assign names by feat_type tag
   gp_1 = gp_2 = gpoints
   featType(gp_1) = 'new1'
   featType(gp_2) = 'new2'
-  test_fi = setFeatureInfo(test, gpoints = list(gp_1, gp_2))
+  test_fi = setFeatureInfo(test, x = list(gp_1, gp_2))
 
   avail_fi = list_feature_info(test_fi)
   expect_identical(avail_fi$feat_info, c('new1', 'new2'))
@@ -453,7 +456,7 @@ test_that('Native spatial info is set directly', {
 test_that('Spatlocs is also set if centroids are available', {
 
   # spat_unit (polygon_name) not explicitly set
-  test_si = setPolygonInfo(test, gpoly)
+  test_si = setPolygonInfo(test, gpoly, centroids_to_spatlocs = TRUE)
 
   avail_spatlocs = list_spatial_locations(test_si)
   expect_s3_class(avail_spatlocs, 'data.table')
@@ -462,7 +465,7 @@ test_that('Spatlocs is also set if centroids are available', {
   expect_identical(avail_spatlocs$name, 'raw')
 
   # spat_unit (polygon_name) explicitly set
-  test_si = setPolygonInfo(test, gpoly, polygon_name = 'test_unit')
+  test_si = setPolygonInfo(test, gpoly, name = 'test_unit', centroids_to_spatlocs = TRUE)
 
   avail_spatlocs = list_spatial_locations(test_si)
   expect_s3_class(avail_spatlocs, 'data.table')
@@ -536,7 +539,7 @@ test_that('Spatlocs missing spat_unit in expr and spatial_info throws error', {
 
 
 test_that('Spatlocs spatID mismatch throws error', {
-  test_sl = setPolygonInfo(test_sl, gpoly, polygon_name = 'new')
+  test_sl = setPolygonInfo(test_sl, gpoly, name = 'new')
   # in spat_unit 'new', spatIDs have more entries (poly info) than the spatlocs
   # which are based on the later aggregated expression information
   expect_error(setSpatialLocations(test_sl, sl, spat_unit = 'new'),
@@ -555,7 +558,7 @@ test_that('Native spatLocsObj can be removed', {
   test_sl = setSpatialLocations(test_sl, sl)
 
   test_sl = setSpatialLocations(test_sl,
-                                spatlocs = NULL,
+                                x = NULL,
                                 spat_unit = 'aggregate',
                                 name = 'raw')
 

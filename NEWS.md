@@ -4,6 +4,7 @@
 # Giotto Suite 3.3.0 (2023-04-18)
 
 ## Breaking Changes
+- Set Suite as default branch
 - Removed all deprecated accessors from `accessors.R`
 - `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 - update `loadGiotto()` and `saveGiotto()` to allow using long strings as column names in the spatVector objects
