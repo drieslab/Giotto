@@ -1,7 +1,7 @@
 
 
 
-# Giotto Suite 3.2.1 (TBD)
+# Giotto Suite 3.3.0 (2023-04-18)
 
 ## Breaking Changes
 - Removed all deprecated accessors from `accessors.R`
@@ -42,6 +42,7 @@
 - Modify `cell_ID`, `feat_ID`, `cell_metadata`, `feat_metadata` slot initialization
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Change `changeGiottoInstructions()` to allow addition of new params and enforce logical class of known params
+- Update and fix bugs in `createGiottoCosMxObject()` associated with polygon placement and generation
 - Update `plot()` for `giottoPoints` with faster rasterized plotting option. (Now used by default)
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.
