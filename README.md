@@ -14,6 +14,17 @@ Commit](https://img.shields.io/github/last-commit/RubD/Giotto/master)
 Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/master)
 <!-- badges: end -->
 
+**Default branch change!**  
+With the release of
+[v3.3.0](https://github.com/drieslab/Giotto/releases/tag/v3.3.0) the
+default branch of Giotto has been moved from
+[@master](https://github.com/drieslab/Giotto/tree/master) to
+[@suite](https://github.com/drieslab/Giotto/tree/suite). If you want to
+install the original master version use
+`devtools::install_github("drieslab/Giotto@master")`. Visit the Giotto
+[Discussions](https://github.com/drieslab/Giotto/discussions) page for
+more information.
+
 **Website change!**  
 We have created a new [readthedocs
 website](https://giottosuite.readthedocs.io/en/latest/#) to further
@@ -47,13 +58,12 @@ multiple cells), spatial dimension (2D vs 3D), molecular modality
 
 ## References
 
--   [Dries, R., Zhu, Q. et al. Giotto: a toolbox for integrative
-    analysis and visualization of spatial expression data. Genome
-    Biology
-    (2021).](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02286-2)
--   [Dries, R., Chen, J. et al. Advances in spatial transcriptomic data
-    analysis. Genome Research
-    (2021).](https://genome.cshlp.org/content/31/10/1706.long)
--   [Del Rossi, N., Chen, J. et al. Analyzing Spatial Transcriptomics
-    Data Using Giotto. Current Protocols
-    (2022).](https://currentprotocols.onlinelibrary.wiley.com/doi/abs/10.1002/cpz1.405)
+- [Dries, R., Zhu, Q. et al. Giotto: a toolbox for integrative analysis
+  and visualization of spatial expression data. Genome Biology
+  (2021).](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02286-2)
+- [Dries, R., Chen, J. et al. Advances in spatial transcriptomic data
+  analysis. Genome Research
+  (2021).](https://genome.cshlp.org/content/31/10/1706.long)
+- [Del Rossi, N., Chen, J. et al. Analyzing Spatial Transcriptomics Data
+  Using Giotto. Current Protocols
+  (2022).](https://currentprotocols.onlinelibrary.wiley.com/doi/abs/10.1002/cpz1.405)
