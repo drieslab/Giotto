@@ -466,19 +466,35 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     dwls_int_cells = dwls_values[spot_pairs$int_cell_IDS,]
 
     # filter 0 and kept the data type
-    idx1 = which(dwls_target_cell > 0)
-    idx2 = which(colSums(dwls_int_cells) > 0)
-
-    if (length(idx1) > 1){
-      dwls_target_cell = dwls_target_cell[idx1]
-    }
-
-    if (length(idx2) > 1){
+    # rowSum(dwls) = c(1,1,1,1.....)
+    idx1 = which(dwls_target_cell > 0) #length(idx) must > 0
+    dwls_target_cell = dwls_target_cell[idx1]
+    
+    if (length(int_num) > 1){
+      idx2 = which(colSums(dwls_int_cells) > 0)
       dwls_int_cells = dwls_int_cells[, idx2]
+      # all the inteacted cells dwls have same cell type with proportion=1
+      if (length(idx2) == 1){
+        dwls_int_cells = matrix(dwls_int_cells, ncol = 1,
+                                dimnames = list(spot_pairs$int_cell_IDS,names(idx2)))
+      }
+    } else{
+      # target cell only contain 1 inteacted cell
+      idx2 = which(dwls_int_cells > 0)
+      dwls_int_cells = dwls_int_cells[idx2]
+      dwls_int_cells = matrix(dwls_int_cells,nrow=1,byrow = TRUE,
+                              dimnames = list(spot_pairs$int_cell_IDS,names(dwls_int_cells)))
     }
 
+    
     spot_proximity = dwls_target_cell %o% (dwls_int_cells * int_num)
     spot_proximity = apply(spot_proximity, 3, rowSums)
+        if (length(dwls_target_cell) == 1){
+      # change to the right data class
+      spot_proximity = matrix(spot_proximity,nrow=1,byrow = TRUE, 
+                              dimnames = list(names(dwls_target_cell),names(spot_proximity)))
+      
+    }
     spot_proximity = reshape2::melt(spot_proximity)
     spot_proximity = data.table::data.table(spot_proximity)
     spot_proximity[, c('Var1', 'Var2') := lapply(.SD, as.character),.SDcols = c('Var1', 'Var2')]
@@ -790,7 +806,7 @@ findICG_per_interaction_spot <- function(sel_int,
   # find other cells contribution to cell type
   dwls_all_cell = dwls_values[, sel_ct]
   dwls_all_cell = dwls_all_cell[dwls_all_cell > dwls_cutoff]
-  all_IDs = names(dwls_all_cell)
+  all_IDs = intersect(names(dwls_all_cell), colnames(proximityMat))
   other_IDs = setdiff(all_IDs, spec_IDs)
 
   other_ints = all_ints[cell_type == sel_ct]$unified_int
@@ -1574,7 +1590,7 @@ specific_CCCScores_spots = function(gobject,
 
     total_bool = rep(0, nrow(comScore))
 
-    all_cell_ids = gobject@cell_metadata$cell_ID
+    all_cell_ids = colnames(expr_residual)
     ## simulations ##
     for(sim in 1:random_iter) {
 
