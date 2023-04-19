@@ -15,9 +15,9 @@
 
 \S4method{plot}{giottoLargeImage,missing}(x, y, ...)
 
-\S4method{plot}{giottoPolygon,missing}(x, y, point_size = 0.1, type = c("poly", "centroid"), ...)
+\S4method{plot}{giottoPolygon,missing}(x, point_size = 0.1, type = c("poly", "centroid"), ...)
 
-\S4method{plot}{giottoPoints,missing}(x, y, point_size = 0.1, feats = NULL, ...)
+\S4method{plot}{giottoPoints,missing}(x, point_size = 0, feats = NULL, raster = TRUE, raster_size = 600, ...)
 
 \S4method{plot}{spatLocsObj,missing}(x, y, ...)
 
@@ -35,6 +35,11 @@
 \item{type}{what to plot: either 'poly' (default) or polygon 'centroid'}
 
 \item{feats}{specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)}
+
+\item{raster}{default = TRUE, whether to plot points as rasterized plot with
+size based on \code{size} param}
+
+\item{raster_size}{Default is 600. Only used when \code{raster} is TRUE}
 }
 \description{
 S4 generic for previewing Giotto's image and subcellular objects.

@@ -2,7 +2,6 @@
 % Please edit documentation in R/giotto_structures.R
 \name{createGiottoPolygonsFromDfr}
 \alias{createGiottoPolygonsFromDfr}
-\alias{evaluate_gpoly_dfr}
 \title{Create giotto polygons from dataframe}
 \usage{
 createGiottoPolygonsFromDfr(
@@ -13,8 +12,6 @@ createGiottoPolygonsFromDfr(
   skip_eval_dfr = FALSE,
   copy_dt = TRUE
 )
-
-evaluate_gpoly_dfr(input_dt, verbose = TRUE)
 }
 \arguments{
 \item{segmdfr}{data.frame-like object with polygon coordinate information (x, y, poly_ID)
@@ -49,12 +46,4 @@ the first `'character'` type column to be 'poly_ID' and the first two `'numeric'
 columns as 'x' and 'y' respectively. If this is also unsuccessful then poly_ID
 defaults to the 3rd column. 'x' and 'y' then default to the 1st and 2nd columns.
 }
-\section{Functions}{
-\itemize{
-\item \code{evaluate_gpoly_dfr()}: Examines provided data.frame type object
-for columns that should correspond to x/y vertices and the polygon ID. Returns
-a data.table with those key columns renamed to 'x', 'y', and 'poly_ID' if necessary.
-
-}}
 \concept{polygon}
-\keyword{internal}

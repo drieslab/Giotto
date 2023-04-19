@@ -15,7 +15,7 @@ makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
   ## check input
-  if(!is.list(sign_list)) {
+  if(!inherits(sign_list, 'list')) {
     stop('\n sign_list needs to be a list of signatures for each cell type / process \n')
   }
   if(length(sign_names) != length(sign_list)) {
@@ -350,7 +350,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # check parameters
   if(is.null(name)) name = 'PAGE'
@@ -1471,6 +1471,7 @@ spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
 
 
 #' @describeIn spatialAutoCor Global autocorrelation (single value returned)
+#'
 #' @param mc_nsim when \code{test_method = 'monte_carlo'} this is number of simulations
 #' to perform
 #' @param cor_name name to assign the results in global autocorrelation output
@@ -1623,8 +1624,10 @@ spatialAutoCorGlobal = function(gobject = NULL,
 
 
 #' @describeIn spatialAutoCor Local autocorrelation (values generated for each spatial ID)
+#'
 #' @param enrich_name name to assign local autocorrelation spatial enrichment results
 #' @param return_gobject (default = FALSE) whether to return results appended to
+#' @param output 'spatEnrObj' or 'data.table'
 #' metadata in the giotto object or as a data.table
 #' @details
 #' \strong{Local Methods:}
@@ -1785,6 +1788,9 @@ spatialAutoCorLocal = function(gobject = NULL,
 
 
 
+#' run_spat_autocor_global
+#'
+#' @keywords internal
 run_spat_autocor_global = function(use_values,
                                    feats,
                                    weight_matrix,
@@ -1792,6 +1798,9 @@ run_spat_autocor_global = function(use_values,
                                    test_method,
                                    mc_nsim,
                                    cor_name) {
+  # data.table vars
+  cell_ID = nsim = NULL
+
   nfeats = length(feats)
   if(test_method != 'none') step_size = ceiling(nfeats/100L)
   else step_size = step_size = ceiling(nfeats/10L)
@@ -1845,13 +1854,19 @@ run_spat_autocor_global = function(use_values,
 
 }
 
-
+#' run_spat_autocor_local
+#'
+#' @import data.table
+#' @keywords internal
 run_spat_autocor_local = function(use_values,
                                   feats,
                                   weight_matrix,
                                   method,
                                   test_method,
                                   IDs) {
+
+  cell_ID = NULL
+
   nfeats = length(feats)
   if(test_method != 'none') step_size = ceiling(nfeats/100L)
   else step_size = step_size = ceiling(nfeats/10L)
@@ -2509,6 +2524,7 @@ runDWLSDeconv = function(gobject,
 
   # verify if optional package is installed
   package_check(pkg_name = "quadprog", repository = "CRAN")
+  package_check(pkg_name = "Rfast", repository = "CRAN")
 
   ## check parameters ##
   if(is.null(name)) name = 'DWLS'

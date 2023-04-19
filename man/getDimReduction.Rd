@@ -11,7 +11,7 @@ getDimReduction(
   reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
-  output = c("dimObj", "data.table"),
+  output = c("dimObj", "matrix"),
   set_defaults = TRUE
 )
 }
@@ -28,10 +28,11 @@ getDimReduction(
 
 \item{name}{name of reduction results}
 
-\item{output}{object type to return as. Either 'dimObj' (default) or 'data.table
+\item{output}{object type to return as. Either 'dimObj' (default) or 'matrix'
 of the embedding coordinates.}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \value{
 dim reduction object (default) or dim reduction coordinates
@@ -58,7 +59,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},

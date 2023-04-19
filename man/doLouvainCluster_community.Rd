@@ -6,6 +6,8 @@
 \usage{
 doLouvainCluster_community(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   name = "louvain_clus",
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
@@ -20,6 +22,10 @@ doLouvainCluster_community(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{name}{name for cluster, default to "louvain_clus"}
 

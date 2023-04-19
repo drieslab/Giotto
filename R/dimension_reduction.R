@@ -1,49 +1,9 @@
 
 
-# * Dimension Reduction Object Creation ####
-
-#' @title create_dimObject
-#' @name create_dimObject
-#' @description Creates an object that stores a dimension reduction output
-#' @param name arbitrary name for object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
-#' @param reduction_method method used to reduce dimensions
-#' @param coordinates accepts the coordinates after dimension reduction
-#' @param misc any additional information will be added to this slot
-#' @param my_rownames rownames
-#' @keywords internal
-#' @return a dimObj
-create_dimObject = function(name = 'test',
-                            spat_unit = 'cell',
-                            feat_type = 'rna',
-                            reduction = 'cells',
-                            reduction_method = NULL,
-                            coordinates = NULL,
-                            misc = NULL,
-                            my_rownames = NULL) {
+# * Dimension Reduction Object Creation #
+# ! Moved to classes.R
 
 
-  number_of_dimensions = ncol(coordinates)
-  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
-
-  if(!is.null(my_rownames)) {
-    rownames(coordinates) = my_rownames
-  }
-
-  dimObj = new('dimObj',
-               name = name,
-               feat_type = feat_type,
-               spat_unit = spat_unit,
-               reduction = reduction,
-               reduction_method = reduction_method,
-               coordinates = coordinates,
-               misc = misc)
-
-  return(dimObj)
-
-}
 
 ## * PCA  ####
 # ---------- #
@@ -422,7 +382,7 @@ create_feats_to_use_matrix = function(gobject,
                           spat_unit = spat_unit,
                           feat_type = feat_type)
 
-  # for hvf genes
+  # for hvf features
   if(is.character(feats_to_use) & length(feats_to_use) == 1) {
     if(feats_to_use %in% colnames(feat_metadata)) {
       if(verbose == TRUE) {
@@ -527,7 +487,9 @@ runPCA <- function(gobject,
                                       feat_type = feat_type,
                                       spat_unit = spat_unit,
                                       values = values,
-                                      output = 'matrix')
+                                      output = 'exprObj')
+  provenance = prov(expr_values)
+  expr_values = expr_values[] # extract matrix
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -612,26 +574,22 @@ runPCA <- function(gobject,
     } else {
       my_row_names = rownames(expr_values)
     }
-    
-    dimObject = create_dimObject(name = name,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 reduction = reduction,
-                                 reduction_method = 'pca',
-                                 coordinates = pca_object$coords,
-                                 misc = list(eigenvalues = pca_object$eigenvalues,
-                                             loadings = pca_object$loadings),
-                                 my_rownames = my_row_names)
 
+    dimObject = create_dim_obj(name = name,
+                               feat_type = feat_type,
+                               spat_unit = spat_unit,
+                               provenance = provenance,
+                               reduction = reduction,
+                               reduction_method = 'pca',
+                               coordinates = pca_object$coords,
+                               misc = list(eigenvalues = pca_object$eigenvalues,
+                                           loadings = pca_object$loadings),
+                               my_rownames = my_row_names)
 
-    gobject = set_dimReduction(gobject = gobject, dimObject)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = dimObject)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-                               # spat_unit = spat_unit,
-                               # feat_type = feat_type,
-                               # reduction = reduction,
-                               # reduction_method = 'pca',
-                               # name = name,
-                               # dimObject = dimObject)
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_pca')
@@ -815,7 +773,10 @@ screePlot = function(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         values = values,
-                                        output = 'matrix')
+                                        output = 'exprObj')
+
+    provenance = prov(expr_values)
+    expr_values = expr_values[] # extract matrix
 
     # PCA implementation
     method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
@@ -842,15 +803,16 @@ screePlot = function(gobject,
         stop('only PCA methods from the irlba and factominer package have been implemented \n')
       }
 
-      dimObject = create_dimObject(name = name,
-                                   feat_type = feat_type,
-                                   spat_unit = spat_unit,
-                                   reduction = reduction,
-                                   reduction_method = 'pca',
-                                   coordinates = pca_object$coords,
-                                   misc = list(eigenvalues = pca_object$eigenvalues,
-                                               loadings = pca_object$loadings),
-                                   my_rownames = colnames(expr_values))
+      dimObject = create_dim_obj(name = name,
+                                 feat_type = feat_type,
+                                 spat_unit = spat_unit,
+                                 provenance = provenance,
+                                 reduction = reduction,
+                                 reduction_method = 'pca',
+                                 coordinates = pca_object$coords,
+                                 misc = list(eigenvalues = pca_object$eigenvalues,
+                                             loadings = pca_object$loadings),
+                                 my_rownames = colnames(expr_values))
 
       screeplot = create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
     }
@@ -1367,16 +1329,20 @@ runUMAP <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = get_dimReduction(gobject = gobject,
+      dimObj_to_use = get_dimReduction(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       output = 'data.table')
+                                       output = 'dimObj')
+
+      provenance = prov(dimObj_to_use)
+      matrix_to_use = dimObj_to_use[]
+
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      print(matrix_to_use[1:2,1:2])
+      #print(matrix_to_use[1:2,1:2])
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
@@ -1390,7 +1356,11 @@ runUMAP <- function(gobject,
                                           spat_unit = spat_unit,
                                           feat_type = feat_type,
                                           values = values,
-                                          output = 'matrix')
+                                          output = 'exprObj')
+
+      provenance = prov(expr_values)
+      expr_values = expr_values[] # extract matrix
+
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
@@ -1440,31 +1410,26 @@ runUMAP <- function(gobject,
                                              dim_type = 'umap')
 
       if(name %in% umap_names) {
-        cat('\n ', name, ' has already been used, will be overwritten \n')
+        message('\n ', name, ' has already been used, will be overwritten \n')
       }
 
 
       coordinates = uwot_clus
       rownames(coordinates) = rownames(matrix_to_use)
 
-      dimObject = create_dimObject(name = name,
-                                   feat_type = feat_type,
-                                   spat_unit = spat_unit,
-                                   reduction = reduction,
-                                   reduction_method = 'umap',
-                                   coordinates = coordinates,
-                                   misc = NULL)
+      dimObject = create_dim_obj(name = name,
+                                 feat_type = feat_type,
+                                 spat_unit = spat_unit,
+                                 reduction = reduction,
+                                 provenance = provenance,
+                                 reduction_method = 'umap',
+                                 coordinates = coordinates,
+                                 misc = NULL)
 
 
-      gobject = set_dimReduction(gobject = gobject,
-                       feat_type = feat_type,
-                       spat_unit = spat_unit,
-                       reduction = reduction,
-                       reduction_method = 'umap',
-                       name = name,
-                       dimObject = dimObject)
-
-      #gobject@dimension_reduction[[reduction]][[spat_unit]][['umap']][[name]] = dimObject
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObject)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
 
@@ -1485,7 +1450,7 @@ runUMAP <- function(gobject,
 
   } else if(reduction == 'feats') {
 
-    cat('\n Feats reduction is not yet implemented \n')
+    message('\n Feats reduction is not yet implemented \n')
 
   }
 
@@ -1499,12 +1464,12 @@ runUMAP <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param reduction cells or genes
+#' @param reduction cells or feats
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for tSNE run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param feats_to_use if dim_reduction_to_use = NULL, which features to use
 #' @param genes_to_use deprecated, use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param dims tSNE param: number of dimensions to return
@@ -1596,15 +1561,17 @@ runtSNE <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = get_dimReduction(gobject = gobject,
+      dimObj_to_use = get_dimReduction(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        reduction = reduction,
                                        reduction_method = dim_reduction_to_use,
                                        name = dim_reduction_name,
-                                       output = 'data.table')
-      matrix_to_use = matrix_to_use[, dimensions_to_use]
+                                       output = 'dimObj')
 
+      provenance = prov(dimObj_to_use)
+      matrix_to_use = dimObj_to_use[]
+      matrix_to_use = matrix_to_use[, dimensions_to_use]
 
     } else {
       ## using original matrix ##
@@ -1614,7 +1581,10 @@ runtSNE <- function(gobject,
                                           spat_unit = spat_unit,
                                           feat_type = feat_type,
                                           values = values,
-                                          output = 'matrix')
+                                          output = 'exprObj')
+
+      provenance = prov(expr_values)
+      expr_values = expr_values[] # extract matrix
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
@@ -1668,23 +1638,18 @@ runtSNE <- function(gobject,
       coordinates = tsne_clus$Y
       rownames(coordinates) = rownames(matrix_to_use)
 
-      dimObject = create_dimObject(name = name,
-                                   feat_type = feat_type,
-                                   spat_unit = spat_unit,
-                                   reduction = reduction,
-                                   reduction_method = 'tsne',
-                                   coordinates = coordinates,
-                                   misc = tsne_clus)
-
-      gobject = set_dimReduction(gobject = gobject,
+      dimObject = create_dim_obj(name = name,
                                  feat_type = feat_type,
                                  spat_unit = spat_unit,
+                                 provenance = provenance,
                                  reduction = reduction,
                                  reduction_method = 'tsne',
-                                 name = name,
-                                 dimObject = dimObject)
+                                 coordinates = coordinates,
+                                 misc = tsne_clus)
 
-      #gobject@dimension_reduction[[reduction]][['tsne']][[name]] <- dimObject
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_dimReduction(gobject = gobject, dimObject = dimObject)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
       ## update parameters used ##
       gobject = update_giotto_params(gobject, description = '_tsne')
@@ -1814,7 +1779,10 @@ runGiottoHarmony = function(gobject,
                                      reduction = reduction, # set to spat_unit?
                                      reduction_method = dim_reduction_to_use,
                                      name = dim_reduction_name,
-                                     output = 'data.table')
+                                     output = 'dimObj')
+    provenance = prov(matrix_to_use)
+    matrix_to_use = matrix_to_use[]
+
     matrix_to_use = matrix_to_use[, dimensions_to_use]
 
   } else {
@@ -1826,7 +1794,10 @@ runGiottoHarmony = function(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         values = values,
-                                        output = 'matrix')
+                                        output = 'exprObj')
+
+    provenance = prov(expr_values)
+    expr_values = expr_values[] # extract matrix
 
 
     ## subset matrix
@@ -1855,37 +1826,34 @@ runGiottoHarmony = function(gobject,
   colnames(harmony_results) =  paste0('Dim.', 1:ncol(harmony_results))
   rownames(harmony_results) = rownames(matrix_to_use)
 
-  harmdimObject = create_dimObject(name = name,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type,
-                                   reduction = reduction,
-                                   reduction_method = 'harmony',
-                                   coordinates = harmony_results,
-                                   misc = NULL)
+  harmdimObject = create_dim_obj(name = name,
+                                 spat_unit = spat_unit,
+                                 feat_type = feat_type,
+                                 provenance = provenance,
+                                 reduction = 'cells', # set to spat_unit?
+                                 reduction_method = 'harmony',
+                                 coordinates = harmony_results,
+                                 misc = NULL)
 
   # return giotto object or harmony results
   if(return_gobject == TRUE) {
 
     #harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
 
-    harmony_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
-                                              spat_unit = spat_unit, feat_type = feat_type,
+    harmony_names = list_dim_reductions_names(gobject = gobject,
+                                              data_type = reduction,
+                                              spat_unit = spat_unit,
+                                              feat_type = feat_type,
                                               dim_type = 'harmony')
 
     if(name %in% harmony_names) {
       cat('\n ', name, ' has already been used with harmony, will be overwritten \n')
     }
 
-    gobject = set_dimReduction(gobject = gobject,
-                               feat_type = feat_type,
-                               spat_unit = spat_unit,
-                               reduction = 'cells', # set to spat_unit?
-                               reduction_method = 'harmony',
-                               name = name,
-                               dimObject = harmdimObject)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = harmdimObject)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-
-    #gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']][[name]] = harmdimObject
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject,

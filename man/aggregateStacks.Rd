@@ -43,6 +43,7 @@ Other aggregate stacks:
 \code{\link{aggregateStacksExpression}()},
 \code{\link{aggregateStacksLocations}()},
 \code{\link{aggregateStacksPolygonOverlaps}()},
+\code{\link{aggregateStacksPolygonsOLD}()},
 \code{\link{aggregateStacksPolygons}()}
 }
 \concept{aggregate stacks}

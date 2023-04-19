@@ -22,10 +22,10 @@ get_cell_metadata(
 
 \item{output}{return as either 'data.table' or 'cellMetaObj'}
 
-\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)
-expression and spat_info are not expected to exist.}
+\item{copy_obj}{whether to deep copy/duplicate when getting the object (default = TRUE)}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Get cell metadata from giotto object

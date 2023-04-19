@@ -15,11 +15,15 @@ cal_expr_residual(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{expression values to use}
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
+
+\item{expression_values}{expression values to use (e.g. 'normalized', 'scaled', 'custom')}
 
 \item{ave_celltype_exp}{average expression matrix in cell types}
 }
 \description{
-Calculate gene expression residual (observed_exp - DWLS_predicted)
+Calculate feature expression residual (observed_exp - DWLS_predicted)
 }
 \keyword{internal}

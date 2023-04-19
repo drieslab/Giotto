@@ -11,7 +11,8 @@ set_cell_metadata(
   feat_type = NULL,
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  set_defaults = TRUE,
+  initialize = FALSE
 )
 }
 \arguments{
@@ -28,7 +29,11 @@ the object. Passing 'initialize' will reset the object.}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
@@ -40,9 +45,11 @@ Function to set cell metadata information into giotto object
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -57,7 +64,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

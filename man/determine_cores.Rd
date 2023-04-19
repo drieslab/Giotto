@@ -4,7 +4,11 @@
 \alias{determine_cores}
 \title{determine_cores}
 \usage{
-determine_cores(cores, min_cores = 1, max_cores = 10)
+determine_cores(
+  cores = getOption("giotto.cores", default = NA),
+  min_cores = 1,
+  max_cores = 10
+)
 }
 \value{
 numeric

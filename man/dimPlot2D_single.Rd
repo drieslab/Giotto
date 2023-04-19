@@ -57,9 +57,9 @@ dimPlot2D_single(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 
@@ -95,15 +95,19 @@ dimPlot2D_single(
 
 \item{show_other_cells}{display not selected cells}
 
-\item{other_cell_color}{color of not selected cells}
+\item{other_cell_color}{color for not selected cells}
 
-\item{other_point_size}{size of not selected cells}
+\item{other_point_size}{point size for not selected cells}
 
 \item{show_cluster_center}{plot center of selected clusters}
 
 \item{show_center_label}{plot label of selected clusters}
 
 \item{center_point_size}{size of center points}
+
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
 
 \item{label_size}{size of labels}
 
@@ -115,7 +119,7 @@ dimPlot2D_single(
 
 \item{point_size}{size of point (cell)}
 
-\item{point_alpha}{transparancy of point}
+\item{point_alpha}{transparency of points}
 
 \item{point_border_col}{color of border around points}
 
@@ -141,7 +145,7 @@ dimPlot2D_single(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

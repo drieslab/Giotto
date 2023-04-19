@@ -21,6 +21,10 @@ cellProximityEnrichmentSpots(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{cluster_column}{name of column to use for clusters}
@@ -29,11 +33,11 @@ cellProximityEnrichmentSpots(
 
 \item{number_of_simulations}{number of simulations to create expected observations}
 
-\item{adjust_method}{method to adjust p.values}
+\item{adjust_method}{method to adjust p.values (e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")}
 
-\item{set_seed}{use of seed}
+\item{set_seed}{use of seed. Default = TRUE}
 
-\item{seed_number}{seed number to use}
+\item{seed_number}{seed number to use. Default = 1234}
 }
 \value{
 List of cell Proximity scores (CPscores) in data.table format. The first

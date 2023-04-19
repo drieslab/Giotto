@@ -8,7 +8,8 @@ changeGiottoInstructions(
   gobject,
   params = NULL,
   new_values = NULL,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  init_gobject = TRUE
 )
 }
 \arguments{
@@ -18,11 +19,15 @@ changeGiottoInstructions(
 
 \item{new_values}{new value(s) for parameter(s)}
 
-\item{return_gobject}{(boolean) return giotto object}
+\item{return_gobject}{(boolean, default = TRUE) return giotto object}
+
+\item{init_gobject}{(boolean, default = TRUE) initialize gobject if returning}
 }
 \value{
 giotto object with one or more changed instructions
 }
 \description{
-Function to change one or more instructions from giotto object
+Function to change one or more instructions from giotto object.
+If more than one item is supplied to \code{params} and \code{new_values}, use
+a vector of values. Does not call \code{initialize} on the giotto object
 }

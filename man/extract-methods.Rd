@@ -46,6 +46,12 @@
 \alias{[,spatGridData,missing,missing,missing-method}
 \alias{[<-,spatGridData,missing,missing,ANY-method}
 \alias{[<-,spatGridData,missing,missing-method}
+\alias{[,giottoPoints,missing,missing,missing-method}
+\alias{[<-,giottoPoints,missing,missing,ANY-method}
+\alias{[<-,giottoPoints,missing,missing-method}
+\alias{[,giottoPolygon,missing,missing,missing-method}
+\alias{[<-,giottoPolygon,missing,missing,ANY-method}
+\alias{[<-,giottoPolygon,missing,missing-method}
 \title{Extract or replace parts of an object}
 \usage{
 \S4method{$}{coordDataDT}(x, name)
@@ -107,6 +113,14 @@
 \S4method{[}{spatGridData,missing,missing,missing}(x, i, j)
 
 \S4method{[}{spatGridData,missing,missing,ANY}(x, i, j) <- value
+
+\S4method{[}{giottoPoints,missing,missing,missing}(x, i, j)
+
+\S4method{[}{giottoPoints,missing,missing,ANY}(x, i, j) <- value
+
+\S4method{[}{giottoPolygon,missing,missing,missing}(x, i, j)
+
+\S4method{[}{giottoPolygon,missing,missing,ANY}(x, i, j) <- value
 }
 \arguments{
 \item{x}{Giotto S4 object to extract columns from}
@@ -180,6 +194,12 @@ or replace parts.
 
 
   Return \code{spatGridData} slot data.table object from giotto S4
+
+
+  Return \code{giottoPoints} spatVector slot
+
+
+  Return \code{giottoPolygon} spatVector slot
 }
 
 \section{\code{`[<-`} methods}{
@@ -208,5 +228,11 @@ or replace parts.
 
 
   Assign to \code{gridDT} slot in giotto S4
+
+
+  Assign to \code{spatVector} slot in giotto S4
+
+
+  Assign to \code{spatVector} slot in giottoPolygon
 }
 

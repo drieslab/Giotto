@@ -1,21 +1,29 @@
-python_path = NULL
-if(is.null(python_path)) {
-  installGiottoEnvironment()
+# python_path = NULL
+# if(is.null(python_path)) {
+#   installGiottoEnvironment()
+# }
+
+if(!require(remotes)){
+  install.packages('R.utils', repos = 'http://cran.us.r-project.org')
+}
+
+if(!require(remotes)){
+  install.packages('remotes', repos = 'http://cran.us.r-project.org')
+}
+
+if(!require(GiottoData)){
+  library(remotes)
+  install_github('drieslab/GiottoData')
 }
 
 ### TESTS FOR DATA IMPORT FUNCTIONS
 # ------------------------------------
 
-test_that("Spatial dataset was downloaded", {
+test_that("Expression matrix is read correctly", {
+  
   # getSpatialDataset
   GiottoData::getSpatialDataset(dataset = "scRNA_mouse_brain", directory = paste0(getwd(), "/testdata/"))
-
-  expect_true(file.exists("./testdata/brain_sc_expression_matrix.txt.gz"))
-  expect_true(file.exists("./testdata/brain_sc_metadata.csv"))
-})
-
-
-test_that("Expression matrix is read correctly", {
+  
   # readExprMatrix
   expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
 

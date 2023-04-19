@@ -11,7 +11,8 @@ get_feat_id(gobject, feat_type = NULL, set_defaults = TRUE)
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 }
 \description{
 Across a single modality/feature type, all feature information is
@@ -24,9 +25,11 @@ set_feat_id
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -42,7 +45,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

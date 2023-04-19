@@ -12,14 +12,14 @@ set_expression_values(
   name = "test",
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  set_defaults = TRUE,
+  initialize = FALSE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{values}{exprObj or matrix of expression values. If NULL, then the object
-will be removed.}
+\item{values}{exprObj If NULL, then the object will be removed.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
@@ -31,7 +31,11 @@ will be removed.}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning. Will be set to TRUE when called by the external}
 }
 \value{
 giotto object
@@ -42,15 +46,16 @@ Function to set expression values for giotto object
 \seealso{
 Other expression accessor functions: 
 \code{\link{getExpression}()},
-\code{\link{get_expression_values}()},
 \code{\link{setExpression}()}
 
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -65,7 +70,6 @@ Other functions to set data in giotto object:
 \code{\link{set_dimReduction}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

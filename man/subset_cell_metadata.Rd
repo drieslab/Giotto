@@ -15,11 +15,11 @@ subset_cell_metadata(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type (e.g. 'rna', 'protein')}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{cell_ids}{cell ids to keep}
 
-\item{spat_unit}{spatial unit (e.g. 'cell')}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{all_feat_types}{(boolean) applies subset operation across the whole gobject
 (ALL feature types), ignoring the \code{feat_type} input param. Defaults to TRUE.}

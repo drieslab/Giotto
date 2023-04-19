@@ -18,16 +18,16 @@ subsetGiotto(
   x_min = NULL,
   y_max = NULL,
   y_min = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   toplevel_params = 2
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type to use}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{cell_ids}{cell IDs to keep}
 

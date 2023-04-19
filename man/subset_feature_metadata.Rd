@@ -15,9 +15,9 @@ subset_feature_metadata(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type (e.g. 'rna', 'protein')}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{spat_unit}{spatial unit (e.g. 'cell')}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_ids}{feature ids to keep}
 

@@ -6,35 +6,37 @@
 \usage{
 setNearestNetwork(
   gobject,
-  nn_network,
+  x,
   spat_unit = NULL,
   feat_type = NULL,
-  nn_network_to_use = "sNN",
-  network_name = "sNN.pca",
+  nn_type = "sNN",
+  name = "sNN.pca",
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  initialize = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{nn_network}{nnNetObj or igraph nearest network object. Data.table not
-yet supported.}
+\item{x}{nnNetObj or list of nnNetObj. Passing NULL will remove a specified
+set of nearest neighbor network information from the gobject}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{nn_network_to_use}{"kNN" or "sNN"}
+\item{nn_type}{"kNN" or "sNN"}
 
-\item{network_name}{name of NN network to be used}
+\item{name}{name of NN network to be used
+yet supported.}
 
 \item{provenance}{provenance information (optional)}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
@@ -51,9 +53,11 @@ Other expression space nearest network accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setPolygonInfo}()},
@@ -68,7 +72,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

@@ -5,26 +5,44 @@
 \title{Set polygon info}
 \usage{
 setPolygonInfo(
-  gobject = NULL,
-  polygon_name = "cell",
-  gpolygon = NULL,
-  verbose = TRUE
+  gobject,
+  x,
+  name = "cell",
+  centroids_to_spatlocs = FALSE,
+  verbose = TRUE,
+  initialize = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons. Default "cell"}
+\item{x}{single object or named list of objects to set as polygon
+information (see details)}
 
-\item{gpolygon}{giotto polygon}
+\item{name}{(optional, character) name to assign to polygon and spatial unit
+that polygon might define. Only used for single giottoPolygon objects. Names
+are taken from a named list for multiple polygons.}
 
-\item{verbose}{verbosity}
+\item{centroids_to_spatlocs}{if centroid information is discovered, whether
+to additionally set them as a set of spatial locations (default = FALSE)}
+
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
 }
 \description{
-Set giotto polygon spatVector
+Set polygon information into Giotto object
+}
+\details{
+Inputs can be provided as either single objects or named lists of
+objects. If the list is not named, then a generic name of the template
+'cell_i' will be applied. \cr
+If an input is a character string, then it is assumed that it is a
+filepath. \cr
+For required formatting when reading tabular data or objects, see
+\code{\link{createGiottoPolygonsFromDfr}} details.
 }
 \seealso{
 Other polygon info data accessor functions: 
@@ -35,9 +53,11 @@ Other polygon info data accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -52,7 +72,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

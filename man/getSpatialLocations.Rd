@@ -7,7 +7,7 @@
 getSpatialLocations(
   gobject,
   spat_unit = NULL,
-  spat_loc_name = NULL,
+  name = NULL,
   output = c("spatLocsObj", "data.table"),
   copy_obj = TRUE,
   verbose = TRUE,
@@ -19,8 +19,6 @@ getSpatialLocations(
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
-
 \item{output}{what object type to get the spatial locations as. Default is as
 a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 
@@ -28,7 +26,10 @@ a 'spatLocsObj'. Returning as 'data.table' is also possible.}
 
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot, e.g. "raw")}
 }
 \value{
 data.table with coordinates or spatLocsObj depending on \code{output}
@@ -55,7 +56,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},
