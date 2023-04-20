@@ -4,28 +4,45 @@
 \alias{set_cell_id}
 \title{Set cell IDs for a given spatial unit}
 \usage{
-set_cell_id(gobject, spat_unit = NULL, cell_IDs, set_defaults = TRUE)
+set_cell_id(
+  gobject,
+  spat_unit = NULL,
+  cell_IDs,
+  set_defaults = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{cell_IDs}{character vector of cell IDs to set. Passing 'initialize' will
-reset the slot based on in order of preference: spatial_info then expression
-slots}
+\item{cell_IDs}{character vector of cell IDs to set. (See details)}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object with set cell_ID slot
 }
 \description{
+Setter function for the cell_ID slot. Directly replaces (sets)
+this slot
+}
+\details{
 Data for each spatial unit is expected to agree on a single set of cell_IDs
 that are shared across any feature types. These cell_IDs are stored within the
-giotto object's \code{cell_ID} slot. Getters and setters for this slot directly
-retrieve (get) or replace (set) this slot. Set \code{cell_IDs} \code{NULL} in order
-to delete the entry.
+giotto object's \code{cell_ID} slot. \cr
+
+Pass \code{NULL} to \code{cell_IDs} param in order to delete the entry. \cr
+Pass \code{'initialize'} to \code{cell_IDs} param in order to initialize the
+specified entry. \cr
+
+\strong{NOTE:} The main purpose of the setter is to initialize, as cell_ID values
+are AUTOMATICALLY updated every time \code{initialize()} is called on the
+giotto object.
 }
 \seealso{
 get_cell_id
@@ -33,9 +50,11 @@ get_cell_id
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -50,7 +69,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

@@ -4,7 +4,7 @@
 \alias{updateGiottoObject}
 \title{Update giotto object}
 \usage{
-gobject = updateGiottoObject(gobject)
+updateGiottoObject(gobject)
 }
 \arguments{
 \item{gobject}{giotto object to update}
@@ -18,5 +18,10 @@ Supported updates:
 \itemize{
   \item{3.2.0 update adding multiomics slot}
   \item{master branch to suite - TODO}
+}
+}
+\examples{
+\dontrun{
+gobject = updateGiottoObject(gobject)
 }
 }

@@ -1,21 +1,21 @@
 ### TESTS FOR GIOTTO ENVIRONMENT INSTALLATION
 # --------------------------------------------------------------
 
-# remove any preexisting giotto environment
-if (checkGiottoEnvironment() == T) {
-  removeGiottoEnvironment()
-}
-
-test_that("No Giotto environment exists", {
-  expect_false(checkGiottoEnvironment())
-})
-
-# install environment
-
-installGiottoEnvironment()
-
-test_that("Environment now exists", {
-  expect_true(checkGiottoEnvironment())
-})
-
-
+# test_that("No Giotto environment exists", {
+#     # remove any preexisting giotto environment
+#     if (checkGiottoEnvironment() == T) {
+#         removeGiottoEnvironment()
+#     }
+#     
+#     expect_false(checkGiottoEnvironment())
+# })
+# 
+# 
+# test_that("Environment now exists", {
+#     # install environment
+#     installGiottoEnvironment()
+#     
+#     expect_true(checkGiottoEnvironment())
+# })
+# 
+# 

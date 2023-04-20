@@ -15,7 +15,9 @@ cellProximityEnrichmentEachSpot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
 
 \item{spatial_network_name}{name of spatial network to use}
 

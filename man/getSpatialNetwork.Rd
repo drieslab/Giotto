@@ -24,7 +24,8 @@ getSpatialNetwork(
 \item{output}{object type to return as. Options: 'spatialNetworkObj' (default),
 'networkDT' and 'networkDT_before_filter' for data.table outputs.}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
 
 \item{copy_obj}{whether to copy/duplicate when getting the object (default = TRUE)}
 
@@ -52,7 +53,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialLocations}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_feature_info}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},

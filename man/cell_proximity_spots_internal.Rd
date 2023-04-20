@@ -7,7 +7,7 @@
 cell_proximity_spots_internal(cell_IDs, dwls_values)
 }
 \arguments{
-\item{cell_IDs}{cell_IDs get from gobject@cell_ID}
+\item{cell_IDs}{cell_IDs}
 
 \item{dwls_values}{data.table of cell type enrichment in each spot and multiply
 by cell number in each spot}

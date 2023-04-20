@@ -29,56 +29,64 @@ setGeneric('featIDs', function(x, feat_type, ...) standardGeneric('featIDs'))
 #' @export
 setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'missing'),
           function(x, ...) {
-            get_cell_id(gobject = x, ...)
+            as.character(get_cell_id(gobject = x, ...))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = 'giotto', spat_unit = 'character'),
           function(x, spat_unit, ...) {
-            get_cell_id(gobject = x, spat_unit, ...)
+            as.character(get_cell_id(gobject = x, spat_unit, ...))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = c('exprObj'), spat_unit = 'missing'),
           function(x, ...) {
-            colnames(x[])
+            as.character(colnames(x[]))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = c('spatLocsObj'), spat_unit = 'missing'),
           function(x, ...) {
-            x[]$cell_ID
+            as.character(x[]$cell_ID)
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = c('cellMetaObj'), spat_unit = 'missing'),
           function(x, ...) {
-            x[]$cell_ID
+            as.character(x[]$cell_ID)
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = c('spatialNetworkObj'), spat_unit = 'missing'),
           function(x, ...) {
-            unique(c(x[]$from, x[]$to))
+            as.character(unique(c(x[]$from, x[]$to)))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = 'dimObj', spat_unit = 'missing'),
           function(x, ...) {
-            rownames(x@coordinates)
+            as.character(rownames(x@coordinates))
           })
 #' @rdname spatIDs-generic
+#' @param use_cache use cached IDs if available (gpoly and gpoints only)
 #' @export
 setMethod('spatIDs', signature(x = 'giottoPolygon', spat_unit = 'missing'),
-          function(x, ...) {
-            unique(x@spatVector$poly_ID)
+          function(x, use_cache = TRUE, ...) {
+            # getting as list first is more performant
+            if(!all(is.na(x@unique_ID_cache)) & isTRUE(use_cache)) as.character(x@unique_ID_cache)
+            else as.character(unique(terra::as.list(x@spatVector)$poly_ID))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
           function(x, ...) {
-            cell_ID = NULL
-            x@enrichDT[, cell_ID]
+            as.character(x@enrichDT$cell_ID)
+          })
+#' @rdname spatIDs-generic
+#' @export
+setMethod('spatIDs', signature(x = 'nnNetObj', spat_unit = 'missing'),
+          function(x, ...) {
+            as.character(unique(names(igraph::V(x@igraph))))
           })
 
 
@@ -91,33 +99,189 @@ setMethod('spatIDs', signature(x = 'spatEnrObj', spat_unit = 'missing'),
 #' @export
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'missing'),
           function(x, ...) {
-            get_feat_id(gobject = x, ...)
+            as.character(get_feat_id(gobject = x, ...))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'giotto', feat_type = 'character'),
           function(x, feat_type, ...) {
-            get_feat_id(gobject = x, feat_type, ...)
+            as.character(get_feat_id(gobject = x, feat_type, ...))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'exprObj', feat_type = 'missing'),
           function(x, ...) {
-            rownames(x[])
+            as.character(rownames(x[]))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'giottoPoints', feat_type = 'missing'),
-          function(x, ...) {
-            unique(x@spatVector$feat_ID)
+          function(x, use_cache = TRUE, ...) {
+            # getting as list is more performant than directly using `$`
+            if(!all(is.na(x@unique_ID_cache)) & isTRUE(use_cache)) as.character(x@unique_ID_cache)
+            else as.character(unique(terra::as.list(x@spatVector)$feat_ID))
           })
 #' @rdname spatIDs-generic
 #' @export
 setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
           function(x, ...) {
-            colnames(x@enrichDT[, -'cell_ID'])
+            as.character(colnames(x@enrichDT[, -'cell_ID']))
           })
 # no features generic for dimObj
+
+
+
+
+
+
+
+
+# default spat unit ####
+#' @title Active spatial unit
+#' @name activeSpatUnit-generic
+#' @aliases activeSpatUnit activeSpatUnit<-
+#' @description Retrieve or set the active spatial unit. This value will be the
+#' default spatial unit that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
+setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit', signature(gobject = 'giotto'), function(gobject) {
+  su_try = try(instructions(gobject, 'active_spat_unit'), silent = TRUE)
+  if(inherits(su_try, 'try-error')) su_try = NULL
+  return(su_try)
+})
+
+
+#' @rdname activeSpatUnit-generic
+#' @export
+setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_spat_unit') = value
+            return(gobject)
+          })
+
+
+# default feature type ####
+#' @title Active feature type
+#' @name activeFeatType-generic
+#' @aliases activeFeatType activeFeatType<-
+#' @description Retrieve or set the active feature type. This value will be the
+#' default feature type that the giotto object uses.
+#' @inheritParams data_access_params
+setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
+setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType', signature(gobject = 'giotto'), function(gobject) {
+  ft_try = try(instructions(gobject, 'active_feat_type'), silent = TRUE)
+  if(inherits(ft_try, 'try-error')) ft_try = NULL
+  return(ft_try)
+})
+
+
+#' @rdname activeFeatType-generic
+#' @export
+setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, value) {
+            instructions(gobject, 'active_feat_type') = value
+            return(gobject)
+          })
+
+
+
+
+
+# instructions ####
+#' @title Access giotto instructions
+#' @name instructions-generic
+#' @aliases instructions instructions<-
+#' @description Retrieve or set giotto instructions. Specific instructions can
+#' be replaced using the \code{field} param. Additionally, when using
+#' instructions<-, \code{initialize()} will be called on the giotto object if
+#' initialize param is TRUE
+#' @inheritParams data_access_params
+#' @param param Specific param in instructions to access or modify
+#' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
+#' @param value value to set
+setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
+setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
+
+
+
+# Get instructions object
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions', signature(gobject = 'giotto', param = 'missing'),
+          function(gobject) {
+            return(showGiottoInstructions(gobject))
+          })
+
+# Set instructions object
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'missing', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'missing', initialize = 'logical', value = 'ANY'),
+          function(gobject, initialize, value) {
+            gobject = replaceGiottoInstructions(gobject,
+                                                instructions = value,
+                                                init_gobject = initialize)
+            return(gobject)
+          })
+
+# Get specific field
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions', signature(gobject = 'giotto', param = 'character'),
+          function(gobject, param) {
+            instrs = showGiottoInstructions(gobject = gobject)
+            return(readGiottoInstructions(giotto_instructions = instrs, param = param))
+          })
+
+# Set specific field
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'missing', value = 'ANY'),
+          function(gobject, param, initialize, value) {
+            gobject = changeGiottoInstructions(gobject = gobject,
+                                               params = param,
+                                               new_values = value,
+                                               return_gobject = TRUE,
+                                               init_gobject = TRUE)
+            return(gobject)
+          })
+#' @rdname instructions-generic
+#' @export
+setMethod('instructions<-',
+          signature(gobject = 'giotto', param = 'character', initialize = 'logical', value = 'ANY'),
+          function(gobject, param, initialize, value) {
+            gobject = changeGiottoInstructions(gobject = gobject,
+                                               params = param,
+                                               new_values = value,
+                                               return_gobject = TRUE,
+                                               init_gobject = initialize)
+            return(gobject)
+          })
+
+
+
+
+
+
 
 
 
@@ -144,6 +308,59 @@ setMethod('colnames', signature(x = 'exprObj'), function(x) colnames(x[]))
 #' @export
 setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
 
+
+
+
+
+
+
+
+# centroids() S4 generic ####
+#' @title centroids-generic
+#' @name centroids-generic
+#' @description Access centroids information from polygon objects
+#' @param x object
+#' @aliases centroids
+#' @details For giottoPolygon, if centroids already exist, pulls from
+#' \code{spatVectorCentroids} slot. Otherwise, generates from
+#' \code{spatVector} slot de novo
+#' @importMethodsFrom terra centroids
+NULL
+
+#' @rdname centroids-generic
+#' @export
+setMethod('centroids', signature(x = 'giottoPolygon'),
+          function(x) {
+            if(!is.null(x@spatVectorCentroids)) {
+              return(x@spatVectorCentroids)
+            } else {
+              return(terra::centroids(x@spatVector))
+            }
+          })
+
+
+
+#' @title overlaps-generic
+#' @name overlaps-generic
+#' @description Access list of overlaps information from object
+#' @param x object
+#' @aliases overlaps
+setGeneric('overlaps', function(x, ...) standardGeneric('overlaps'))
+# setGeneric('overlaps<-', function(x, value, ...) standardGeneric('overlaps<-'))
+
+#' @describeIn overlaps-generic Get overlaps information from giottoPolygon
+#' @param name (optional) name of overlaps information to retrieve
+#' @export
+setMethod('overlaps', signature(x = 'giottoPolygon'),
+          function(x, name = NULL) {
+            if(is.null(name)) {
+              # return entire list
+              return(x@overlaps)
+            } else {
+              # return named entry
+              return(x@overlaps[[name]])
+            }
+          })
 
 
 
@@ -247,14 +464,14 @@ setMethod('spin', signature(x = 'spatLocsObj'),
 # spatShift() S4 generic ####
 #' @name spatShift
 #' @title Spatially shift an object
+#' @param x object
 #' @param dx numeric. The shift on the x axis
 #' @param dy numeric. The shift on the y axis
 #' @param dz numeric. The shift on the z axis
+#' @param copy_obj Default = TRUE
 #' @param ... additional params to pass to methods
 #' @description Shift the spatial locations of an object
 #' @export
-NULL
-
 setGeneric('spatShift', function(x, ...) standardGeneric('spatShift'))
 
 #' @describeIn spatShift Shift the locations of a spatLocsObj
@@ -332,6 +549,8 @@ setMethod('nrow', signature('metaData'), function(x) nrow(x@metaDT))
 #' @export
 setMethod('nrow', signature('spatialNetworkObj'), function(x) nrow(x@networkDT))
 
+#' @rdname dims-generic
+#' @export
 setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
 
 # ncol() generic ####
@@ -356,6 +575,8 @@ setMethod('dim', signature('exprData'), function(x) dim(x@exprMat))
 #' @export
 setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 
+#' @rdname dims-generic
+#' @export
 setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 
 
@@ -394,6 +615,7 @@ setMethod('t', signature('spatialNetworkObj'), function(x) {
 
 # s3 methods
 #' @rdname transpose-generic
+#' @method t spatLocsObj
 #' @export
 t.spatLocsObj = function(x) {
   sdimy = sdimx = NULL
@@ -402,7 +624,9 @@ t.spatLocsObj = function(x) {
   return(x)
 }
 
+
 #' @rdname transpose-generic
+#' @method t spatialNetworkObj
 #' @export
 t.spatialNetworkObj = function(x) {
   sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
@@ -433,6 +657,7 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
           function(x) {
             pgp = new('packedGiottoPolygon')
             pgp@name = x@name
+            pgp@unique_ID_cache = x@unique_ID_cache
             pgp@packed_spatVector = terra::wrap(x@spatVector)
             if(!is.null(x@spatVectorCentroids)) {
               pgp@packed_spatVectorCentroids = terra::wrap(x@spatVectorCentroids)
@@ -475,6 +700,7 @@ setMethod('wrap', signature(x = 'giottoPoints'),
           function(x) {
             pgp = new('packedGiottoPoints')
             pgp@feat_type = x@feat_type
+            pgp@unique_ID_cache = x@unique_ID_cache
             pgp@packed_spatVector = terra::wrap(x@spatVector)
             pgp@networks = x@networks
             return(pgp)
@@ -493,6 +719,12 @@ setMethod('vect', signature(x = 'packedGiottoPolygon'),
             gp = new('giottoPolygon')
             gp@name = x@name
             gp@spatVector = terra::vect(x@packed_spatVector)
+
+            # new cache slot
+            if(!is.null(attr(x, 'unique_ID_cache'))) {
+              gp@unique_ID_cache = x@unique_ID_cache
+            } else gp@unique_ID_cache = spatIDs(gp)
+
             if(!is.null(x@packed_spatVectorCentroids)) {
               gp@spatVectorCentroids = terra::vect(x@packed_spatVectorCentroids)
             }
@@ -519,6 +751,12 @@ setMethod('vect', signature(x = 'packedGiottoPoints'),
             gp = new('giottoPoints')
             gp@feat_type = x@feat_type
             gp@spatVector = terra::vect(x@packed_spatVector)
+
+            # new cache slot
+            if(!is.null(attr(x, 'unique_ID_cache'))) {
+              gp@unique_ID_cache = x@unique_ID_cache
+            } else gp@unique_ID_cache = featIDs(gp)
+
             gp@networks = x@networks
             return(gp)
             }
@@ -609,54 +847,32 @@ NULL
 setMethod('plot', signature(x = 'giottoImage', y = 'missing'), function(x,y,...) plot_giottoImage_MG(giottoImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
+#' @importMethodsFrom terra plot
 #' @export
 setMethod('plot', signature(x = 'giottoLargeImage', y = 'missing'), function(x,y,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
+#' @importMethodsFrom terra plot
 #' @param point_size size of points when plotting giottoPolygon object centroids
 #' @param type what to plot: either 'poly' (default) or polygon 'centroid'
 #' @export
-setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'), function(x,
-                                                                          y,
-                                                                          point_size = 0.1,
-                                                                          type = c('poly', 'centroid'),
-                                                                          ...) {
-  type = match.arg(type, choices = c('poly', 'centroid'))
-  if(type == 'poly') {
-    terra::plot(x = x@spatVector, ...)
-  }
-  if(type == 'centroid') {
-    if(!is.null(x@spatVectorCentroids)) {
-      terra::plot(x = x@spatVectorCentroids, cex = point_size, ...)
-    } else {
-      cat('no centroids calculated\n')
-    }
-  }
-
-})
+setMethod('plot', signature(x = 'giottoPolygon', y = 'missing'),
+          function(x, point_size = 0.1, type = c('poly', 'centroid'), ...) {
+            plot_giotto_polygon(x = x, point_size = point_size, type = type, ...)
+          })
 
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 #' @param point_size size of points when plotting giottoPoints
 #' @param feats specific features to plot within giottoPoints object (defaults to NULL, meaning all available features)
+#' @param raster default = TRUE, whether to plot points as rasterized plot with
+#' size based on \code{size} param
+#' @param raster_size Default is 600. Only used when \code{raster} is TRUE
 #' @export
-setMethod('plot', signature(x = 'giottoPoints', y = 'missing'), function(x,
-                                                                         y,
-                                                                         point_size = 0.1,
-                                                                         feats = NULL,
-                                                                         ...) {
-
-  if(is.null(feats)) terra::plot(x = x@spatVector, cex = point_size, ...)
-  else if(length(feats) == 1) {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, ...)
-  }
-  else {
-    gp = x@spatVector
-    x_feat_subset = gp[gp$feat_ID %in% feats]
-    terra::plot(x = x_feat_subset, cex = point_size, 'feat_ID', ...)
-  }
-})
+setMethod('plot', signature(x = 'giottoPoints', y = 'missing'),
+          function(x, point_size = 0, feats = NULL, raster = TRUE, raster_size = 600, ...) {
+            plot_giotto_points(x = x, point_size = point_size, feats = feats,
+                               raster = raster, raster_size = raster_size, ...)
+          })
 
 
 #' @describeIn plot-generic Plot a spatLocsObj
@@ -794,6 +1010,7 @@ setMethod('spatUnit', signature = 'spatData', function(x) x@spat_unit)
 #' @describeIn spatUnit-generic Set spatial unit information
 #' @export
 setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
+  value = as.character(value)
   x@spat_unit = value
   x
 })
@@ -822,6 +1039,7 @@ setMethod('featType', signature = 'featData', function(x) x@feat_type)
 #' @describeIn featType-generic Set feature type information
 #' @export
 setMethod('featType<-', signature = 'featData', function(x, value) {
+  value = as.character(value)
   x@feat_type = value
   x
 })
@@ -848,6 +1066,7 @@ setMethod('objName', signature = 'nameData', function(x) x@name)
 #' @describeIn objName-generic Set name information
 #' @export
 setMethod('objName<-', signature = 'nameData', function(x, value) {
+  value = as.character(value)
   x@name = value
   x
 })
@@ -936,6 +1155,47 @@ setMethod('[', signature(x = 'coordDataDT', i = 'missing', j = 'ANY', drop = 'mi
             x@coordinates = x@coordinates[, j = j, with = FALSE]
             x
           })
+
+
+# setMethod('[', signature(x = 'giotto', i = 'character', j = 'missing', drop = 'missing'),
+#           function(x, i, spat_unit = NULL, feat_type = NULL, name = NULL) {
+#
+#             # set defaults
+#             spat_unit = set_default_spat_unit(gobject = x,
+#                                               spat_unit = spat_unit)
+#             feat_type = set_default_feat_type(gobject = x,
+#                                               spat_unit = spat_unit,
+#                                               feat_type = feat_type)
+#             if(is.null(name)) name = 1L
+#
+#             switch(i,
+#                    'expression' = slot(x, 'expression')[[spat_unit]][[feat_type]][[name]],
+#                    'spatial_locs' = slot(x, 'spatial_locs')[[spat_unit]][[name]],
+#                    'spatial_info' = slot(x, 'spatial_info')[[name]],
+#                    'feat_info' = slot(x, 'feat_info')[[feat_type]])
+#           })
+
+# setMethod('[', signature(x = 'giotto', i = 'character', j = 'numeric', drop = 'missing'),
+#           function(x, i, j, spat_unit = NULL, feat_type = NULL, name = NULL) {
+#
+#             avail_data = switch(i,
+#                                 'expression' = list_expression(gobject = x,
+#                                                                spat_unit = spat_unit,
+#                                                                feat_type = feat_type),
+#                                 'spatial_locs' = list_spatial_locations(gobject = x,
+#                                                                         spat_unit = spat_unit),
+#                                 'spatial_info' = list_spatial_info(gobject = x),
+#                                 'feat_info' = list_feature_info(gobject = x))
+#
+#             switch(i,
+#                    'expression' = get_expression_values(gobject = x,
+#                                                         spat_unit = avail_data$spat_unit[[j]],
+#                                                         feat_type = avail_data$feat_type[[j]],
+#                                                         values = avail_data$name[[j]],
+#                                                         output = 'exprObj',
+#                                                         set_defaults = FALSE))
+#
+#           })
 
 #' @rdname extract-methods
 #' @export
@@ -1197,6 +1457,57 @@ setMethod('[<-', signature(x = 'spatGridData', i = 'missing', j = 'missing', val
             x@gridDT = value
             x
           })
+
+# * giottoPoints ####
+#' @rdname extract-methods
+#' @section \code{`[`} methods:
+#'   Return \code{giottoPoints} spatVector slot
+#' @export
+setMethod('[', signature(x = 'giottoPoints', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@spatVector
+          })
+
+#' @rdname extract-methods
+#' @aliases [<-,giottoPoints,missing,missing,ANY-method [<-,giottoPoints,missing,missing-method
+#' @docType methods
+#' @section \code{`[<-`} methods:
+#'   Assign to \code{spatVector} slot in giotto S4
+#' @export
+setMethod('[<-', signature(x = 'giottoPoints', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@spatVector = value
+            x
+          })
+
+# * giottoPolygon ####
+#' @rdname extract-methods
+#' @section \code{`[`} methods:
+#'   Return \code{giottoPolygon} spatVector slot
+#' @export
+setMethod('[', signature(x = 'giottoPolygon', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) {
+            x@spatVector
+          })
+
+#' @rdname extract-methods
+#' @aliases [<-,giottoPolygon,missing,missing,ANY-method [<-,giottoPolygon,missing,missing-method
+#' @docType methods
+#' @section \code{`[<-`} methods:
+#'   Assign to \code{spatVector} slot in giottoPolygon
+#' @export
+setMethod('[<-', signature(x = 'giottoPolygon', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@spatVector = value
+            x
+          })
+
+
+
+
+
+
+
 
 
 

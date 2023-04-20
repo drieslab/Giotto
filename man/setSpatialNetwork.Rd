@@ -6,26 +6,30 @@
 \usage{
 setSpatialNetwork(
   gobject,
-  spatial_network,
+  x,
   spat_unit = NULL,
   name = NULL,
   provenance = NULL,
   verbose = TRUE,
-  set_defaults = TRUE
+  initialize = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatial_network}{spatial network}
+\item{x}{spatialNetworkObj or list of spatialNetworkObj to set. Passing NULL
+removes a specified set of spatial network information from the gobject.}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{name}{name of spatial network}
 
+\item{provenance}{provenance name}
+
 \item{verbose}{be verbose}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{initialize}{(default = FALSE) whether to initialize the gobject before
+returning}
 }
 \value{
 giotto object
@@ -42,9 +46,11 @@ Other spatial network data accessor functions:
 Other functions to set data in giotto object: 
 \code{\link{get_cell_id}()},
 \code{\link{get_feat_id}()},
+\code{\link{setCellMetadata}()},
 \code{\link{setDimReduction}()},
 \code{\link{setExpression}()},
 \code{\link{setFeatureInfo}()},
+\code{\link{setFeatureMetadata}()},
 \code{\link{setGiottoImage}()},
 \code{\link{setMultiomics}()},
 \code{\link{setNearestNetwork}()},
@@ -59,7 +65,6 @@ Other functions to set data in giotto object:
 \code{\link{set_expression_values}()},
 \code{\link{set_feat_id}()},
 \code{\link{set_feature_info}()},
-\code{\link{set_feature_metadata}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_multiomics}()},
 \code{\link{set_polygon_info}()},

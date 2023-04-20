@@ -1,0 +1,19 @@
+name: giotto_env
+channels:
+  - conda-forge
+  - vtraag
+  - defaults
+dependencies:
+  - python=3.6
+  - pip
+  - pip:
+    - smfishhmrf
+  - pandas==1.1.5
+  - networkx==2.6.3
+  - python-igraph==0.9.6
+  - leidenalg==0.8.7
+  - python.app==2: [osx]
+  - scikit-learn==0.24.2
+  - python-louvain==0.15
+# NOTE THAT THIS IS AN OLD, BUT STABLE, CONDA 
+# ENVIRONMENT CONFIGURATION FOR GIOTTO SUITE

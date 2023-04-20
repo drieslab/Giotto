@@ -13,110 +13,82 @@
 #' @param verbose be verbose
 #' @details Function in beta. Converts .gef object to Giotto object.
 #'
-#' There are six possible choices for bin_size: 1, 10, 20, 50, 100, 200.
+#' There are six possible choices for bin_size: bin1, bin10, bin20, bin50, bin100, bin200.
 #'
 #' See SAW pipeline for additional information about the gef file.
 #' @export
-gefToGiotto = function(gef_file, bin_size = '100', verbose = TRUE){
 
-   # data.table vars
-   genes = NULL
+gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = FALSE){
 
-   # package check
-   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
-   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+  # data.table vars
+  genes = y = sdimx = sdimy = cell_ID = count = NULL
 
-   # check if proper bin_size is selected. These are determined in SAW pipeline.
-   bin_size_options = c('1', '10', '20', '50', '100', '200')
-   if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size,
-                                              see details for choices.')
+  # package check
+  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+  if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
 
-   # step 1: read expression and gene data from gef file
-   if(isTRUE(verbose)) wrap_msg('reading in .gef file')
-   geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
-   exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
-   geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
+  # check if proper bin_size is selected. These are determined in SAW pipeline.
+  bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
+  if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size,see details for choices.')
 
-   # step 2: combine gene information from the geneDT to the exprDT
-   exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+  # step 1: read expression and gene data from gef file
+  if(isTRUE(verbose)) wrap_msg('reading in .gef file')
+  geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
+  exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
+  geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
 
-   # step 3: bin coordinates according to selected bin_size
-   #TODO: update bin_shift for other shapes, not just rect_vertices
-   bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
-   bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
-   bincoord = unique(exprDT[,.(x,y)])
-   if(isTRUE(verbose)) wrap_msg('shifting and binning coordinates')
-   data.table::setorder(bincoord, x, y)
-   data.table::setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
-   bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
-   bincoord[, cell_ID := paste0('bin', 1:.N)]
-   tx_data = exprDT[,.(genes, x, y, count)]
-   tx_data[, c('x', 'y') := list(x+bin_shift, y+bin_shift)]
+  # step 2: combine gene information from the geneDT to the exprDT
+  exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
 
-   # step 4: create rectangular polygons (grid) starting from the bin centroids
-   if(isTRUE(verbose)) wrap_msg('creating polygon stamp')
-   x = polyStamp(stamp_dt = rectVertices(dims = c(x = (bin_size_int - 1),
-                                                  y = (bin_size_int - 1))),
-                 spatlocs = bincoord[,.(cell_ID, sdimx, sdimy)])
-   pg = createGiottoPolygonsFromDfr(x)
+  # step 3: bin coordinates according to selected bin_size
+  #TODO: update bin_shift for other shapes, not just rect_vertices
+  bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
+  bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
+  bincoord = unique(exprDT[,.(x,y)])
+  if(isTRUE(verbose)) wrap_msg('shifting and binning coordinates')
+  data.table::setorder(bincoord, x, y)
+  data.table::setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
+  bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
+  bincoord[, cell_ID := paste0('bin', 1:.N)]
+  tx_data = exprDT[,.(genes, x, y, count)]
+  tx_data[, c('x', 'y') := list(x+bin_shift, y+bin_shift)]
 
-   # step 5: create giotto subcellular object
-   stereo = createGiottoObjectSubcellular(
-      gpoints = list(rna = tx_data),
-      gpolygons = list(cell = pg)
-   )
+  # step 4: create rectangular polygons (grid) starting from the bin centroids
+  if(isTRUE(verbose)) wrap_msg('creating polygon stamp')
+  x = polyStamp(stamp_dt = rectVertices(dims = c(x = (bin_size_int - 1),
+                                                 y = (bin_size_int - 1))),
+                spatlocs = bincoord[,.(cell_ID, sdimx, sdimy)])
+  pg = createGiottoPolygonsFromDfr(x)
 
-   stereo = addSpatialCentroidLocations(gobject = stereo)
-   if(isTRUE(verbose)) wrap_msg('giotto subcellular object created')
+  # step 5: create giotto subcellular object
+  stereo = createGiottoObjectSubcellular(
+    gpoints = list(rna = tx_data),
+    gpolygons = list(cell = pg)
+  )
 
-   return(stereo)
+  stereo = addSpatialCentroidLocations(gobject = stereo)
+  if(isTRUE(verbose)) wrap_msg('giotto subcellular object created')
+
+  return(stereo)
 }
 
 
 
 ## anndata object ####
 
-#' @title Convert anndata to Giotto
-#' @name anndataToGiotto
-#' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
-#' @param anndata_path path to the .h5ad file
-#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
-#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
-#' @param spat_unit desired spatial unit for conversion, default NULL
-#' @param feat_type desired feature type for conversion, default NULL
-#' @param python_path path to python executable within a conda/miniconda environment
-#' @return Giotto object
-#' @details Function in beta. Converts a .h5ad file into a Giotto object.
-#'    The returned Giotto Object will take default insructions with the
-#'    exception of the python path, which may be customized.
-#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
-#' @export
-anndataToGiotto = function(anndata_path = NULL,
-                           n_key_added = NULL,
-                           spatial_key_added = NULL,
-                           spat_unit = NULL,
-                           feat_type = NULL,
-                           python_path = NULL) {
 
-  # Preliminary file checks and guard clauses
-  if (is.null(anndata_path)) {
-    stop("Please provide a path to an AnnData .h5ad file for conversion.\n")
-  }
-
-  if(!file.exists(anndata_path)) {
-    stop("The provided path to the AnnData .h5ad file does not exist.\n")
-  }
-
-  # Required step to properly initialize reticualte
-  instrs = createGiottoInstructions(python_path = python_path)
-
+#' @title Check Scanpy Installation
+#' @name check_py_for_scanpy
+#' @description checks current python environment for scanpy 1.9.0
+#' @keywords internal
+check_py_for_scanpy = function(){
   # test if scanpy is found
   module_test = reticulate::py_module_available('scanpy')
   py_path = reticulate::py_config()$python
   genv_in_use = grepl(pattern = "giotto_env", x = py_path)
 
   if(module_test == FALSE && !genv_in_use) {
-    warning("scanpy python module is not installed:
+    stop(wrap_txt("scanpy python module is not installed:
             install in the environment or python path with:
 
             'pip install scanpy==1.9.0'
@@ -127,7 +99,7 @@ anndataToGiotto = function(anndata_path = NULL,
             reticulate::py_install(packages = 'scanpy==1.9.0',
                                    pip = TRUE)
             \n
-            ")
+            ",errWidth = TRUE))
   } else if (module_test == FALSE && genv_in_use) {
     cat ("Python module scanpy is required for conversion.
           Installing scanpy now in the Giotto Miniconda Environment.\n")
@@ -140,12 +112,72 @@ anndataToGiotto = function(anndata_path = NULL,
     full_envname = paste0(conda_path,'/envs/giotto_env')
 
     reticulate::py_install(packages = "scanpy==1.9.0",
-                        envname = full_envname,
-                        method = 'conda',
-                        conda = conda_full_path,
-                        pip = TRUE,
-                        python_version = py_ver)
+                           envname = full_envname,
+                           method = 'conda',
+                           conda = conda_full_path,
+                           pip = TRUE,
+                           python_version = py_ver)
   } else cat ("Required Python module scanpy has been previously installed. Proceeding with conversion.\n")
+
+}
+
+
+#' @title Convert anndata to Giotto
+#' @name anndataToGiotto
+#' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
+#' @param anndata_path path to the .h5ad file
+#' @param n_key_added equivalent of "key_added" argument from scanpy.pp.neighbors().
+#'                    If multiple spatial networks are in the anndata object, a list of key_added
+#'                            terms may be provided.
+#'                            If converting an anndata object from giottoToAnnData, a .txt file may be
+#'                            provided, which was generated in that function, 
+#'                                i.e. {spat_unit}_{feat_type}_nn_network_keys_added.txt
+#'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
+#' @param spatial_n_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors. 
+#'                            If multiple spatial networks are in the anndata object, a list of key_added
+#'                            terms may be provided.
+#'                            If converting an anndata object from giottoToAnnData, a .txt file may be
+#'                            provided, which was generated in that function, 
+#'                                i.e. {spat_unit}_{feat_type}_spatial_network_keys_added.txt
+#'                            Cannot be the same as n_key_added.
+#' @param deluanay_spat_net binary parameter for spatial network. If TRUE, the spatial network is a deluanay network.
+#' @param spat_unit desired spatial unit for conversion, default NULL
+#' @param feat_type desired feature type for conversion, default NULL
+#' @param python_path path to python executable within a conda/miniconda environment
+#' @return Giotto object
+#' @details Function in beta. Converts a .h5ad file into a Giotto object.
+#'    The returned Giotto Object will take default insructions with the
+#'    exception of the python path, which may be customized.
+#'    See \code{\link{changeGiottoInstructions}} to modify instructions after creation.
+#' @export
+anndataToGiotto = function(anndata_path = NULL,
+                           n_key_added = NULL,
+                           spatial_n_key_added = NULL,
+                           deluanay_spat_net = TRUE,
+                           spat_unit = NULL,
+                           feat_type = NULL,
+                           python_path = NULL) {
+
+  # Preliminary file checks and guard clauses
+  if (is.null(anndata_path)) {
+    stop("Please provide a path to an AnnData .h5ad file for conversion.\n")
+  }
+
+  if(!file.exists(anndata_path)) {
+    stop("The provided path to the AnnData .h5ad file does not exist.\n")
+  }
+  if (!is.null(n_key_added) && !is.null(spatial_n_key_added)){
+    for (n in n_key_added){
+      for (s in spatial_n_key_added) {
+        if (n == s) stop("Arguments n_key_added and spatial_n_key_added may not take the same value.")
+      }
+    }
+  }
+
+  # Required step to properly initialize reticualte
+  instrs = createGiottoInstructions(python_path = python_path)
+
+  check_py_for_scanpy()
 
   # Import ad2g, a python module for parsing anndata
   ad2g_path <- system.file("python","ad2g.py",package="Giotto")
@@ -165,10 +197,10 @@ anndataToGiotto = function(anndata_path = NULL,
   #Spatial locations sp ready
 
   ### Set up metadata
-  cm = extract_cell_metadata(adata)
-  cm = as.data.table(cm)
-  if ('leiden' %in% names(cm)) {
-    cm$leiden = as.numeric(cm$leiden)
+  cmeta = extract_cell_metadata(adata)
+  cmeta = as.data.table(cmeta)
+  if ('leiden' %in% names(cmeta)) {
+    cmeta$leiden = as.numeric(cmeta$leiden)
   }
 
   fm = extract_feat_metadata(adata)
@@ -181,10 +213,12 @@ anndataToGiotto = function(anndata_path = NULL,
                                 instructions = instrs)
 
   ### Add metadata
-  gobject = set_cell_metadata(gobject,
-                              metadata = cm)
-  gobject = set_feature_metadata(gobject,
-                              metadata = fm)
+  cmeta = readCellMetadata(cmeta)
+  gobject = setCellMetadata(gobject,
+                            x = cmeta)
+  fm = readFeatMetadata(fm)
+  gobject = setFeatureMetadata(gobject,
+                               x = fm)
 
   spat_unit = set_default_spat_unit(gobject,
                                     spat_unit = spat_unit)
@@ -199,22 +233,20 @@ anndataToGiotto = function(anndata_path = NULL,
     evs = p$eigenvalues
     loads = p$loadings
     # Add PCA to giottoObject
-    dobj = create_dimObject(name = 'pca.ad',
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            reduction_method = 'pca',
-                            coordinates = pca,
-                            misc = list(eigenvalues = evs,
-                                        loadings = loads),
-                            my_rownames = colnames(X))
-
-    gobject = set_dimReduction(gobject = gobject,
+    dobj = create_dim_obj(name = 'pca.ad',
                           spat_unit = spat_unit,
                           feat_type = feat_type,
+                          provenance = NULL,
                           reduction = 'cells',
                           reduction_method = 'pca',
-                          name = 'pca.ad',
-                          dimObject = dobj)
+                          coordinates = pca,
+                          misc = list(eigenvalues = evs,
+                                      loadings = loads),
+                          my_rownames = colnames(X))
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = dobj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   }
 
@@ -222,42 +254,38 @@ anndataToGiotto = function(anndata_path = NULL,
   u = extract_umap(adata)
   if (!is.null(u)) {
     # Add UMAP to giottoObject
-    dobj = create_dimObject(name = 'umap.ad',
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            reduction_method = 'umap',
-                            coordinates = u,
-                            misc = NULL,
-                            my_rownames = colnames(X))
-
-    gobject = set_dimReduction(gobject = gobject,
+    dobj = create_dim_obj(name = 'umap.ad',
                           spat_unit = spat_unit,
                           feat_type = feat_type,
+                          provenance = NULL,
                           reduction = 'cells',
                           reduction_method = 'umap',
-                          name = 'umap.ad',
-                          dimObject = dobj)
+                          coordinates = u,
+                          misc = NULL,
+                          my_rownames = colnames(X))
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = dobj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   }
   ### Set up TSNE
   t = extract_tsne(adata)
   if (!is.null(t)) {
-    # Add UMAP to giottoObject
-    dobj = create_dimObject(name = 'tsne.ad',
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            reduction_method = 'tsne',
-                            coordinates = t,
-                            misc = NULL,
-                            my_rownames = colnames(X))
-
-    gobject = set_dimReduction(gobject = gobject,
+    # Add TSNE to giottoObject
+    dobj = create_dim_obj(name = 'tsne.ad',
                           spat_unit = spat_unit,
                           feat_type = feat_type,
+                          provenance = NULL,
                           reduction = 'cells',
                           reduction_method = 'tsne',
-                          name = 'tsne.ad',
-                          dimObject = dobj)
+                          coordinates = t,
+                          misc = NULL,
+                          my_rownames = colnames(X))
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = dobj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   }
 
   ### NN Network
@@ -265,47 +293,145 @@ anndataToGiotto = function(anndata_path = NULL,
   # Need to create nnNetObj or igraph object to use with setter for NN
 
   weights_ad = NULL
-  weights_ad = extract_NN_connectivities(adata, key_added = n_key_added)
-  if (!is.null(weights_ad)) {
-    distances_ad = extract_NN_distances(adata, key_added = n_key_added)
-    ij_matrix = as(distances_ad, "TsparseMatrix")
-    from_idx = ij_matrix@i + 1 #zero index!!!
-    to_idx = ij_matrix@j + 1 #zero index!!!
+  num_NN_nets = length(n_key_added)
 
-    #pre-allocate DT variables
-    from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
-    nn_dt = data.table::data.table(from = from_idx,
-                                  to = to_idx,
-                                  weight = weights_ad@x,
-                                  distance = distances_ad@x)
+  if (is.null(n_key_added) && !is.null(extract_NN_connectivities(adata, key_added = n_key_added))) {
+    num_NN_nets = 1
+  }
 
-    nn_dt[, from_cell_ID := cID[from]]
-    nn_dt[, to_cell_ID := cID[to]]
-    nn_dt[, uniq_ID := paste0(from,to)]
-    nn_dt[order(uniq_ID)]
-    nn_dt[,uniq_ID := NULL]
-    vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
-    nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
-
-    nn_info = extract_NN_info(adata = adata, key_added = n_key_added)
-
-    net_type = "kNN" # anndata default
-    if(("sNN" %in% n_key_added) & !is.null(n_key_added)){
-      net_type = "sNN"
-      net_name = paste0(n_key_added, ".", nn_info["method"])
-    } else if (!("sNN" %in% n_key_added) & !is.null(n_key_added)) {
-      net_name = paste0(n_key_added, ".", nn_info["method"])
+  for (i in num_NN_nets){
+    if (inherits(n_key_added, "list")){ 
+      n_key_added_it = n_key_added[[i]]
     } else {
-      net_name = paste0(net_type, ".", nn_info["method"])
+      n_key_added_it = n_key_added
+    }
+    
+    weights_ad = extract_NN_connectivities(adata, key_added = n_key_added_it)
+    #adw = methods::as(weights_ad, "TsparseMatrix")
+    if (!is.null(weights_ad)) {
+      distances_ad = extract_NN_distances(adata, key_added = n_key_added_it)
+
+      nn_dt = align_network_data(distances = weights_ad, weights = distances_ad)
+
+      #pre-allocate DT variables
+      from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+      nn_dt = data.table::data.table(nn_dt)
+
+      nn_dt[, from_cell_ID := cID[from]]
+      nn_dt[, to_cell_ID := cID[to]]
+      nn_dt[, uniq_ID := paste0(from,to)]
+      nn_dt[order(uniq_ID)]
+      nn_dt[,uniq_ID := NULL]
+      vert = unique(x = c(nn_dt$from_cell_ID, nn_dt$to_cell_ID))
+      nn_network_igraph = igraph::graph_from_data_frame(nn_dt[,.(from_cell_ID, to_cell_ID, weight, distance)], directed = TRUE, vertices = vert)
+
+      nn_info = extract_NN_info(adata = adata, key_added = n_key_added_it)
+
+      net_type = "kNN" # anndata default
+      if(("sNN" %in% n_key_added_it) & !is.null(n_key_added_it)){
+        net_type = "sNN"
+        net_name = paste0(n_key_added_it, ".", nn_info["method"])
+      } else if (!("sNN" %in% n_key_added_it) & !is.null(n_key_added_it)) {
+        net_name = paste0(n_key_added_it, ".", nn_info["method"])
+      } else {
+        net_name = paste0(net_type, ".", nn_info["method"])
+      }
+
+      netObj = createNearestNetObj(name = net_name,
+                                  network = nn_network_igraph,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type)
+
+      gobject = set_NearestNetwork(gobject = gobject,
+                                  nn_network = netObj,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  nn_network_to_use = net_type,
+                                  network_name = net_name,
+                                  set_defaults = FALSE)
+    }
+  }
+  
+  ## Spatial Network
+  s_weights_ad = NULL
+  num_SN_nets = length(spatial_n_key_added) 
+  
+  # Check for the case where NULL is provided, since the
+  # anndata object takes the default value for SN
+
+  if (is.null(spatial_n_key_added) && !is.null(extract_SN_connectivities(adata, key_added = spatial_n_key_added))) {
+    num_SN_nets = 1
+  }
+
+  for (i in 1:num_SN_nets){
+
+    if (inherits(spatial_n_key_added, "list")){ 
+      spatial_n_key_added_it = spatial_n_key_added[[i]]
+    } else {
+      spatial_n_key_added_it = spatial_n_key_added
     }
 
-    gobject = set_NearestNetwork(gobject = gobject,
-                                nn_network = nn_network_igraph,
-                                spat_unit = spat_unit,
-                                feat_type = feat_type,
-                                nn_network_to_use = net_type,
-                                network_name = net_name,
-                                set_defaults = FALSE)
+    s_weights_ad = extract_SN_connectivities(adata, key_added = spatial_n_key_added_it)
+    if (!is.null(s_weights_ad)){
+      s_distances_ad = extract_SN_distances(adata, key_added = spatial_n_key_added_it)
+      ij_matrix = methods::as(s_distances_ad, "TsparseMatrix")
+      from_idx = ij_matrix@i + 1 #zero index!!!
+      to_idx = ij_matrix@j + 1 #zero index!!!
+      
+      #pre-allocate DT variables
+      from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
+      sn_dt = data.table::data.table(from = from_idx,
+                                    to = to_idx,
+                                    weight = s_weights_ad@x,
+                                    distance = s_distances_ad@x)
+      
+      sn_dt[, from_cell_ID := cID[from]]
+      sn_dt[, to_cell_ID := cID[to]]
+
+      sdimx = "sdimx"
+      sdimy = "sdimy"
+      xbegin_name = paste0(sdimx,'_begin')
+      ybegin_name = paste0(sdimy,'_begin')
+      xend_name = paste0(sdimx,'_end')
+      yend_name = paste0(sdimy,'_end')
+
+      network_DT = data.table::data.table(from = sn_dt$from_cell_ID,
+                                                  to = sn_dt$to_cell_ID,
+                                                  xbegin_name = sp[sn_dt$from, sdimx],
+                                                  ybegin_name = sp[sn_dt$from, sdimy],
+                                                  xend_name = sp[sn_dt$to, sdimx],
+                                                  yend_name = sp[sn_dt$to, sdimy],
+                                                  weight = s_weights_ad@x,
+                                                  distance = s_distances_ad@x)
+      data.table::setnames(network_DT,
+                        old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                        new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+      data.table::setorder(network_DT, from, to)
+
+      dist_mean = get_distance(network_DT, method = "mean")
+      dist_median = get_distance(network_DT, method = "median")
+      cellShapeObj = list("meanCellDistance" = dist_mean,
+                        "medianCellDistance" = dist_median)
+
+      #TODO filter network? 
+      #TODO 3D handling?
+      if (deluanay_spat_net){
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                    method = "delaunay",
+                                    networkDT=network_DT,
+                                    cellShapeObj = cellShapeObj)
+      } else {
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+                                    method = "non-delaunay",
+                                    networkDT=network_DT,
+                                    cellShapeObj = cellShapeObj)
+      }
+      
+      gobject = set_spatialNetwork(gobject = gobject,
+                                  spatial_network = spatObj,
+                                  name = "Spat_Net_from_AnnData")
+
+    }
   }
 
   ### Layers
@@ -321,11 +447,12 @@ anndataToGiotto = function(anndata_path = NULL,
         lay@Dimnames[[1]] = fID
         lay@Dimnames[[2]] = cID
       }
+      layExprObj <- createExprObj(lay, name = l_n)
       gobject = set_expression_values(gobject = gobject,
-                                  spat_unit = spat_unit,
-                                  feat_type = feat_type,
-                                  name = l_n,
-                                  values = lay)
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      name = l_n,
+                                      values = layExprObj)
     }
   }
 
@@ -356,6 +483,10 @@ anndataToGiotto = function(anndata_path = NULL,
 #'
 #' If multiple spatial units or feature types are specified, multiple
 #' AnnData object will be created and returned.
+#' 
+#' This function will create .txt files which will record any `key_added`
+#' parameters for networks. They are named after the corresponding spatial unit
+#' and feature type pair. 
 #'
 #' The save_directory will be created if it does not already exist.
 #' The default save_directory is the working directory.
@@ -433,10 +564,10 @@ giottoToAnnData <- function(gobject = NULL,
       for (en in expr_names) {
         if (en == "raw") {
           raw_x = get_expression_values(gobject = gobject,
-                                values = en,
-                                spat_unit = su,
-                                feat_type = ft,
-                                output = "matrix")
+                                        values = en,
+                                        spat_unit = su,
+                                        feat_type = ft,
+                                        output = "matrix")
 
           adata = ad_obj(x = raw_x)
         } else {
@@ -448,7 +579,7 @@ giottoToAnnData <- function(gobject = NULL,
                                     feat_type = ft,
                                     output = "matrix")
 
-          if ("dgeMatrix" %in% class(x)) x = as(x,'array')
+          if ("dgeMatrix" %in% class(x)) x = methods::as(x,'array')
 
           adata = set_adg_layer_data(adata = adata,
                                      lay = x,
@@ -496,7 +627,7 @@ giottoToAnnData <- function(gobject = NULL,
   for (su in spat_unit){
     for (ft in names(gobject@expression[[su]])){
 
-      cm = get_cell_metadata(gobject = gobject,
+      cmeta = get_cell_metadata(gobject = gobject,
                              spat_unit = su,
                              feat_type = ft,
                              output = "data.table",
@@ -509,7 +640,7 @@ giottoToAnnData <- function(gobject = NULL,
                                 set_defaults = FALSE)
 
       adata_list[[adata_pos]] = set_adg_metadata(adata = adata_list[[adata_pos]],
-                                                 cell_meta = cm,
+                                                 cell_meta = cmeta,
                                                  feat_meta = fm)
 
       adata_pos = adata_pos + 1
@@ -530,21 +661,21 @@ giottoToAnnData <- function(gobject = NULL,
                                   name,
                                   output,
                                   set_defaults) {
-  tryCatch(
-    {
-    dim_red = get_dimReduction(gobject = gobject,
-                               spat_unit = spat_unit,
-                               feat_type = feat_type,
-                               reduction = reduction,
-                               reduction_method = reduction_method,
-                               name = name,
-                               output = output,
-                               set_defaults = set_defaults)
-    return(dim_red)
-    },
-    error = function(e) {
-      return(NULL)
-    }
+    tryCatch(
+      {
+        dim_red = get_dimReduction(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   reduction = reduction,
+                                   reduction_method = reduction_method,
+                                   name = name,
+                                   output = output,
+                                   set_defaults = set_defaults)
+        return(dim_red)
+      },
+      error = function(e) {
+        return(NULL)
+      }
     )
   }
 
@@ -669,20 +800,20 @@ giottoToAnnData <- function(gobject = NULL,
                         network_name,
                         output,
                         set_defaults) {
-  tryCatch(
-    {
-    nearest_net = get_NearestNetwork(gobject = gobject,
-                                     spat_unit = spat_unit,
-                                     feat_type = feat_type,
-                                     nn_network_to_use = nn_network_to_use,
-                                     network_name = network_name,
-                                     output = output,
-                                     set_defaults = set_defaults)
-    return(nearest_net)
-    },
-    error = function(e) {
-      return(NULL)
-    }
+    tryCatch(
+      {
+        nearest_net = get_NearestNetwork(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type,
+                                         nn_network_to_use = nn_network_to_use,
+                                         network_name = network_name,
+                                         output = output,
+                                         set_defaults = set_defaults)
+        return(nearest_net)
+      },
+      error = function(e) {
+        return(NULL)
+      }
     )
   }
 
@@ -724,6 +855,14 @@ giottoToAnnData <- function(gobject = NULL,
 
         }
 
+        fname_nn = paste0(su, "_", ft, "_nn_network_keys_added.txt")
+        network_name = network_name[!grepl("kNN.", network_name)]
+        append_n = FALSE
+        if(length(network_name) != 0 ) {
+          if (nn_net_tu == "kNN") append_n = TRUE
+          write(network_name, fname_nn, append = append_n)
+        }
+
       }
       adata_pos = adata_pos + 1
     }
@@ -732,7 +871,73 @@ giottoToAnnData <- function(gobject = NULL,
   # Reset indexing variable
   adata_pos = 1
 
-  # Pipe non-expression data into AnnData object
+  try_get_SN = function(gobject,
+                        spat_unit,
+                        name,
+                        output,
+                        set_defaults,
+                        verbose) {
+    tryCatch(
+      {
+        spatial_net = get_spatialNetwork(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         name = name,
+                                         output = output,
+                                         set_defaults = set_defaults,
+                                         verbose = verbose)
+        return(spatial_net)
+      },
+      error = function(e) {
+        return(NULL)
+      }
+    )
+  }
+
+
+  for (su in spat_unit) {
+    for (ft in names(gobject@expression[[su]])) { 
+      # Spatial networks do not have a feature type slot. 
+      # Iterate through anyways to properly assign to anndata objects
+      network_name = list_spatial_networks_names(gobject = gobject,
+                                                  spat_unit = su)
+      if (is.null(network_name)) {
+        next
+      }
+      for (sn_name in network_name) {
+        gob_SN = try_get_SN(gobject = gobject,
+                            spat_unit = su,
+                            name = sn_name,
+                            output = "networkDT",
+                            set_defaults = FALSE)
+
+        pidx = grep("spatial_network", names(gobject@parameters))
+        for (p in pidx) {
+          if (gobject@parameters[[p]]["name of spatial network"] == sn_name) {
+            current_param = gobject@parameters[[p]]
+            kval = current_param["k neighbours"]
+            maxdist = current_param["maximum distance threshold"]
+            dimused = current_param["dimensions used"]
+          }
+        }
+        
+        adata_list[[adata_pos]] = set_adg_sn(adata = adata_list[[adata_pos]],
+                                              df_SN = gob_SN,
+                                              net_name = sn_name,
+                                              n_neighbors = kval,
+                                              max_distance = maxdist,
+                                              dim_used = dimused)
+        
+        }
+
+      fname_sn = paste0(su,"_",ft, "_spatial_network_keys_added.txt")
+      if(length(network_name) != 0) write(network_name, fname_sn)
+      }
+
+    adata_pos = adata_pos + 1
+  }
+  
+  # Reset indexing variable
+  adata_pos = 1
 
   # Write AnnData object to .h5ad file
   # Verify it exists, and return upon success
@@ -981,8 +1186,8 @@ giottoToSeurat <- function(gobject,
   loc_2 <- loc_use[,c('sdimx','sdimy')]
   colnames(loc_2) <- c('spatial_1','spatial_2')
   sobj[['spatial']] <- Seurat::CreateDimReducObject(embeddings = as.matrix(loc_2),
-                                            assay = names(sobj@assays)[1],
-                                            key = 'spatial_')
+                                                    assay = names(sobj@assays)[1],
+                                                    key = 'spatial_')
 
 
 
@@ -1096,8 +1301,10 @@ seuratToGiotto_OLD <- function(obj_use = NULL,
                             obj_use[[i]]@feature.loadings,
                             obj_use[[i]]@feature.loadings.projected)
       names(dimReduc_misc) <- c('eigenvalues','loadings','loadings_projected')
-      dimObject <- create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
-                                             coordinates = dimReduc_coords,misc = dimReduc_misc)
+      dimObject <- create_dim_obj(name = dimReduc_name,
+                                  reduction_method = dimReduc_method,
+                                  coordinates = dimReduc_coords,
+                                  misc = dimReduc_misc)
       test@dimension_reduction[['cells']][[dimReduc_method]][[dimReduc_name]] <- dimObject
     }
   }
@@ -1141,12 +1348,12 @@ seuratToGiotto = function(sobject,
 
     exp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay)
     if(!is.null(sobject@assays$SCT)){
-        normexp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = 'SCT')
-      }
+      normexp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = 'SCT')
+    }
 
-      if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@data)){
-        normexp = Seurat::GetAssayData(object = sobject, slot = "data", assay = spatial_assay)
-      }
+    if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@data)){
+      normexp = Seurat::GetAssayData(object = sobject, slot = "data", assay = spatial_assay)
+    }
 
     # Cell Metadata
     cell_metadata = sobject@meta.data
@@ -1166,14 +1373,16 @@ seuratToGiotto = function(sobject,
         if (length(dim_load) > 0){
           colnames(dim_load) = paste0('Dim.',1:ncol(dim_load))
         }
-        dimReduc = list(type = "cells",
-                        spat_unit = "cell",
-                        name = x,
-                        reduction_method = x,
-                        coordinates = dim_coord,
-                        feat_type = 'rna',
-                        misc =list(eigenvalues = dim_eig, loadings = dim_load))
-        return (dimReduc)
+        dimReduc = create_dim_obj(name = x,
+                                  reduction = 'cells',
+                                  reduction_method = x,
+                                  spat_unit = 'cell',
+                                  feat_type = 'rna',
+                                  provenance = NULL,
+                                  coordinates = dim_coord,
+                                  misc = list(eigenvalues = dim_eig, loadings = dim_load))
+
+        return(dimReduc)
       })
       # names(dimReduc_list) <- dim_reduction
     }
@@ -1253,11 +1462,14 @@ seuratToGiotto = function(sobject,
 #'
 #' @return A SpatialExperiment object that contains data from the input Giotto object.
 #' @examples
+#' \dontrun{
 #' mini_gobject <- GiottoData::loadGiottoMini('vizgen')
 #' giottoToSpatialExperiment(mini_gobject)
-#'
+#' }
 #' @export
 giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
+
+  spat_unit = NULL
 
   # Load required packages
   # package_check(pkg_name = "SummarizedExperiment", repository = 'Bioc') # SP should load this?
@@ -1290,9 +1502,9 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
       names(exprMat)[1] <- giottoExpr[1]$name
       # Creating SPE object with first expression matrix
       spe <- SpatialExperiment::SpatialExperiment(assays = exprMat)
-      assayNames(spe) <- paste0(giottoExpr[1]$name, "_",
-                                giottoExpr[1]$feat_type, "_",
-                                spatialUnits[su])
+      SummarizedExperiment::assayNames(spe) <- paste0(giottoExpr[1]$name, "_",
+                                                      giottoExpr[1]$feat_type, "_",
+                                                      spatialUnits[su])
       giottoExpr <- giottoExpr[-1, ]
     } else{
       stop("The input Giotto object must contain atleast one expression matrix.")
@@ -1384,7 +1596,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
         SingleCellExperiment::colPair(spe, giottoNearestNetworks[i]$name) <- S4Vectors::SelfHits(
           cell1, cell2, nnode=ncol(spe),
           nn_network[, -1:-2] #removing from and to
-          )
+        )
       }
     } else{
       if(verbose) message("No nearest networks found in the input Giotto object")
@@ -1408,7 +1620,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
         SingleCellExperiment::colPair(spe, giottoSpatialNetworks[i]$name) <- S4Vectors::SelfHits(
           cell1, cell2, nnode=ncol(spe),
           sp_network[, -1:-2] #removing from and to
-          )
+        )
       }
     } else{
       if(verbose) message("No spatial networks found in the input Giotto object")
@@ -1466,11 +1678,14 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' networks.
 #' @param verbose A boolean value specifying if progress messages should
 #' be displayed or not. Default \code{TRUE}.
+#' @import data.table
 #' @return Giotto object
 #' @examples
+#' \dontrun{
 #' library(SpatialExperiment)
 #' example(read10xVisium, echo = FALSE)
 #' spatialExperimentToGiotto(spe)
+#' }
 #' @export
 spatialExperimentToGiotto <- function(spe,
                                       nn_network = NULL,
@@ -1478,8 +1693,8 @@ spatialExperimentToGiotto <- function(spe,
                                       verbose = TRUE){
 
   # Create Giotto object with first matrix
-  exprMats <- assays(spe)
-  exprMatsNames <- assayNames(spe)
+  exprMats <- SummarizedExperiment::assays(spe)
+  exprMatsNames <- SummarizedExperiment::assayNames(spe)
   firstMatrix <- exprMats[[1]]
 
   #check unique colnames
@@ -1501,34 +1716,36 @@ spatialExperimentToGiotto <- function(spe,
   }
 
   # Phenotype Data
-  pData <- colData(spe)
+  pData <- SummarizedExperiment::colData(spe)
   if(nrow(pData) > 0){
     if(verbose) message("Copying phenotype data")
     giottoObj <- addCellMetadata(gobject = giottoObj, new_metadata = as.data.table(pData))
   }
 
   # Feature Metadata
-  fData <- rowData(spe)
+  fData <- SummarizedExperiment::rowData(spe)
   if(nrow(fData) > 0){
     if(verbose) message("Copying feature metadata")
     giottoObj <- addFeatMetadata(gobject = giottoObj, new_metadata = as.data.table(fData))
   }
 
   # Reduced Dimensions
-  redDims <- reducedDims(spe)
-  redDimsNames <- reducedDimNames(spe)
+  redDims <- SingleCellExperiment::reducedDims(spe)
+  redDimsNames <- SingleCellExperiment::reducedDimNames(spe)
   if(length(redDims) > 0){
     for(i in seq(length(redDims))){
       if(verbose) message("Copying reduced dimensions")
-      dimRedObj <- create_dimObject(name = redDimsNames[i],
-                                             coordinates = redDims[[i]],
-                                             reduction_method = redDimsNames[i])
+      dimRedObj <- create_dim_obj(name = redDimsNames[i],
+                                  coordinates = redDims[[i]],
+                                  reduction_method = redDimsNames[i])
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       giottoObj <- set_dimReduction(gobject = giottoObj, dimObject = dimRedObj)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
   }
 
   # Spatial Locations
-  spatialLocs <- spatialCoords(spe)
+  spatialLocs <- SpatialExperiment::spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
     if(verbose) message("Copying spatial locations")
     spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
@@ -1536,17 +1753,17 @@ spatialExperimentToGiotto <- function(spe,
   }
 
   # Spatial Images
-  spatialImages <- imgData(spe)
+  spatialImages <- SpatialExperiment::imgData(spe)
   if(nrow(spatialImages) > 0){
     for(i in seq(nrow(spatialImages))){
       if(verbose) message("Copying spatial images")
-      spImg <- getImg(spe,
-                      spatialImages[i, "sample_id"],
-                      spatialImages[i, "image_id"])
-      mObject <- magick::image_read(as.raster(spImg))
+      spImg <- SpatialExperiment::getImg(spe,
+                                         spatialImages[i, "sample_id"],
+                                         spatialImages[i, "image_id"])
+      mObject <- magick::image_read(grDevices::as.raster(spImg))
       giottoImage <- createGiottoImage(gobject = giottoObj,
-                                                mg_object = mObject,
-                                                scale_factor = spatialImages[i, "scaleFactor"])
+                                       mg_object = mObject,
+                                       scale_factor = spatialImages[i, "scaleFactor"])
       giottoObj <- addGiottoImage(gobject = giottoObj,
                                   images = list(giottoImage))
 
@@ -1554,7 +1771,7 @@ spatialExperimentToGiotto <- function(spe,
   }
 
   # Networks
-  networks <- colPairs(spe)
+  networks <- SingleCellExperiment::colPairs(spe)
   # Spatial Networks
   if(!is.null(sp_network)){
     if(sp_network %in% names(networks)){
@@ -1563,8 +1780,8 @@ spatialExperimentToGiotto <- function(spe,
         spatNetObj <- create_spat_net_obj(
           networkDT = as.data.table(networks[[sp_network[i]]]))
         giottoObj <- set_spatialNetwork(gobject = giottoObj,
-                                                 spatial_network = spatNetObj,
-                                                 name = sp_network[i])
+                                        spatial_network = spatNetObj,
+                                        name = sp_network[i])
         networks[[sp_network[i]]] <- NULL
       }
     }
@@ -1576,8 +1793,8 @@ spatialExperimentToGiotto <- function(spe,
       for(i in seq(nn_network)){
         if(verbose) message("Copying nearest neighbour networks")
         giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                                 nn_network = networks[[nn_network[i]]],
-                                                 network_name = nn_network[i])
+                                        nn_network = networks[[nn_network[i]]],
+                                        network_name = nn_network[i])
         networks[[nn_network[i]]] <- NULL
       }
     }
@@ -1588,8 +1805,8 @@ spatialExperimentToGiotto <- function(spe,
     for(i in seq(networks)){
       if(verbose) message("Copying additional networks")
       giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                               nn_network = networks[[i]],
-                                               network_name = names(networks)[i])
+                                      nn_network = networks[[i]],
+                                      network_name = names(networks)[i])
     }
   }
 

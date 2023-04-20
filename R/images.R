@@ -245,6 +245,8 @@ createGiottoImage = function(gobject = NULL,
 #' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
 #' @param use_rast_ext Use extent from input raster object
 #' @param image_transformations vector of sequential image transformations - under construction
+#' @param flip_vertical flip raster in a vertical manner
+#' @param flip_horizontal flip raster in a horizontal manner
 #' @param xmax_bound,xmin_bound,ymax_bound,ymin_bound assign min and max x and y
 #'   values for image spatial placement
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
@@ -257,6 +259,8 @@ createGiottoLargeImage = function(raster_object,
                                   extent = NULL,
                                   use_rast_ext = FALSE,
                                   image_transformations = NULL,
+                                  flip_vertical = FALSE,
+                                  flip_horizontal = FALSE,
                                   xmax_bound = NULL,
                                   xmin_bound = NULL,
                                   ymax_bound = NULL,
@@ -351,6 +355,19 @@ createGiottoLargeImage = function(raster_object,
   }
 
 
+  ## transformations
+
+  ## flip axes ##
+  if(flip_vertical == TRUE) {
+    raster_object = terra::flip(raster_object, direction = 'vertical')
+  }
+
+  if(flip_horizontal == TRUE) {
+    raster_object = terra::flip(raster_object, direction = 'horizontal')
+  }
+
+
+
   ## 3. Assign raster_object to giottoLargeImage
   g_imageL@raster_object = raster_object
 
@@ -358,6 +375,11 @@ createGiottoLargeImage = function(raster_object,
   g_imageL@resolution = terra::res(g_imageL@raster_object) # (x,y)
   names(g_imageL@resolution) = c('x','y')
   g_imageL@scale_factor = (1/g_imageL@resolution)
+
+
+
+
+
 
   ## 5. Get image characteristics by sampling
   sampleValues = stats::na.omit(terra::spatSample(raster_object,
@@ -406,6 +428,8 @@ createGiottoLargeImage = function(raster_object,
 #' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
 #' @param use_rast_ext Use extent from input raster object
 #' @param image_transformations vector of sequential image transformations - under construction
+#' @param flip_vertical flip raster in a vertical manner
+#' @param flip_horizontal flip raster in a horizontal manner
 #' @param xmax_bound,xmin_bound,ymax_bound,ymin_bound assign min and max x and y
 #'   values for image spatial placement
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
@@ -419,6 +443,8 @@ createGiottoLargeImageList = function(raster_objects,
                                       extent = NULL,
                                       use_rast_ext = FALSE,
                                       image_transformations = NULL,
+                                      flip_vertical = FALSE,
+                                      flip_horizontal = FALSE,
                                       xmax_bound = NULL,
                                       xmin_bound = NULL,
                                       ymax_bound = NULL,
@@ -443,6 +469,8 @@ createGiottoLargeImageList = function(raster_objects,
                                       extent = extent,
                                       use_rast_ext = use_rast_ext,
                                       image_transformations = image_transformations,
+                                      flip_vertical = flip_vertical,
+                                      flip_horizontal = flip_horizontal,
                                       xmax_bound = xmax_bound,
                                       xmin_bound = xmin_bound,
                                       ymax_bound = ymax_bound,
@@ -1492,7 +1520,7 @@ plot_giottoLargeImage = function(gobject = NULL,
   raster_object = giottoLargeImage@raster_object
 
   # plot
-  if(asRGB == TRUE | raster_object@ptr$rgb == TRUE | terra::nlyr(raster_object) == 3) {
+  if(isTRUE(asRGB) | terra::has.RGB(raster_object) | terra::nlyr(raster_object) == 3) {
     # Determine likely image bitdepth
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))

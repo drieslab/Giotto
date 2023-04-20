@@ -4,14 +4,26 @@
 \alias{get_feature_info}
 \title{Get feature info}
 \usage{
-get_feature_info(gobject, feat_type = NULL, set_defaults = TRUE)
+get_feature_info(
+  gobject,
+  feat_type = NULL,
+  set_defaults = TRUE,
+  return_giottoPoints = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when}
+\item{set_defaults}{set default spat_unit and feat_type. Change to FALSE only when
+expression and spat_info are not expected to exist.}
+
+\item{return_giottoPoints}{return as a giottoPoints object}
+}
+\value{
+a SpatVector (default) or giottoPoints object depending on value of
+return_giottoPoints
 }
 \description{
 Get giotto points spatVector
@@ -36,7 +48,6 @@ Other functions to get data from giotto object:
 \code{\link{getSpatialNetwork}()},
 \code{\link{get_NearestNetwork}()},
 \code{\link{get_dimReduction}()},
-\code{\link{get_expression_values}()},
 \code{\link{get_giottoImage}()},
 \code{\link{get_multiomics}()},
 \code{\link{get_polygon_info}()},

@@ -65,6 +65,8 @@ setClass('coordDataDT',
          slots = list(coordinates = 'data.table'),
          prototype = prototype(coordinates = data.table::data.table()))
 
+
+# * Initialize ####
 setMethod('initialize', 'coordDataDT',
           function(.Object, ...) {
             .Object = methods::callNextMethod()
@@ -74,6 +76,7 @@ setMethod('initialize', 'coordDataDT',
             }
             .Object
           })
+
 
 # setClass('coordDataMT',
 #          slots = list(coordinates = 'matrix'),
@@ -106,6 +109,7 @@ setMethod('initialize', 'metaData',
 
 
 # ** enrData ####
+#' enrData
 setClass('enrData',
          contains = 'VIRTUAL',
          slots = list(method = 'character',
@@ -275,114 +279,78 @@ setClass('spatFeatData',
 ## Giotto class ####
 
 
-## * Check ####
+## * Check ###
 # Giotto class
 
-#TODO
-# @title Check Giotto Object
-# @name check_giottoObj
-# @description check function for S4 giotto object
-# @param object giotto object to check
-# @keywords internal
-# checkGiottoObj = function(object) {
+
+# #' @title Check Giotto Object
+# #' @name check_giottoObj
+# #' @description check function for S4 giotto object
+# #' @param object giotto object to check
+# #' @keywords internal
+# #' @noRd
+# check_giotto_obj = function(object) {
 #
-#   # !!! (validity check still under construction) !!!
-#   # Add check class definition when finished
 #
 #   errors = character()
 #   ch = box_chars()
 #
-#   gDataSlots = list(expression = 'expression',
-#                     expression_feat = 'expression_feat',
-#                     spatial_locs = 'spatial_locs',
-#                     spatial_info = 'spatial_info',
-#                     feat_info = 'feat_info',
-#                     cell_metadata = 'cell_metadata',
-#                     feat_metadata = 'feat_metadata',
-#                     cell_ID = 'cell_ID',
-#                     feat_ID = 'feat_ID',
-#                     spatial_network = 'spatial_network',
-#                     spatial_grid = 'spatial_grid',
-#                     spatial_enrichment = 'spatial_enrichment',
-#                     dimension_reduction = 'dimension_reduction',
-#                     nn_network = 'nn_network')
 #
+#   ## Validate Nesting ##
+#   ## ---------------- ##
 #
-#   if(!is.null(slot(object, 'expression'))) {
-#     avail_expr = list_expression(object)
-#     for(expr in seq(nrow(avail_expr)))
-#     if(!inherits(slot(object, 'expression')[[avail_expr[[expr]]]][[avail_expr[[expr]]]][[avail_expr[[expr]]]], 'data.table')) {
-#       TODO
+#   slot_depths = giotto_slot_depths()
+#   for(slot_i in seq(nrow(slot_depths))) {
+#
+#     slot_data = slot(object, slot_depths$slot[[slot_i]])
+#     if(!is.null(slot_data)) {
+#       if(depth(slot_data, method = 'min') != slot_depths$depth[[slot_i]]) {
+#         msg = wrap_txt('Invalid nesting discovered for',
+#                        slot_depths$slot[[slot_i]],
+#                        'slot')
+#         errors = c(errors, msg)
+#       }
 #     }
 #   }
+
+
+
+
+  # ## Match spatial units and feature types ##
+  #
+  # # Find existing spat_units in source data
+  # uniqueSrcSU = list_expression(object)$spat_unit
+  # uniqueSrcSU = unique(uniqueSrcSU, list_spatial_info_names(object))
+  #
+  # # Find existing feat_types in source data
+  # uniqueSrcFT = list_expression(object)$feat_type
+  # uniqueSrcFT = unique(uniqueSrcFT, list_feature_info_names(object))
+  #
+  # # Find existing spat_units and feat_types within other data slots
+  # uniqueDatSU = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$spat_unit)
+  # uniqueDatFT = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$feat_type)
+
+  # # If any spat_units exist, ensure that associated objects have identical cell_IDs
+  # if(length(uniqueSU) > 0) {
+  #   for(SU in seq_along(uniqueSU)) {
+  #
+  #     all(lapply(gDataSlots, function(x) {
+  #       list_giotto_data(gobject = object,
+  #                        slot = x)
+  #     }))
+  #   }
+  # }
 #
 #
 #
 #
 #
-#   ## Match spatial units and feature types ##
-#
-#   # Find existing spat_units in source data
-#   uniqueSrcSU = list_expression(object)$spat_unit
-#   uniqueSrcSU = unique(uniqueSrcSU, list_spatial_info_names(object))
-#
-#   # Find existing feat_types in source data
-#   uniqueSrcFT = list_expression(object)$feat_type
-#   uniqueSrcFT = unique(uniqueSrcFT, list_feature_info_names(object))
-#
-#   # Find existing spat_units and feat_types within other data slots
-#   uniqueDatSU = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$spat_unit)
-#   uniqueDatFT = lapply(gDataSlots, function(x) list_giotto_data(gobject = object, slot = x)$feat_type)
-#
-#   # # If any spat_units exist, ensure that associated objects have identical cell_IDs
-#   # if(length(uniqueSU) > 0) {
-#   #   for(SU in seq_along(uniqueSU)) {
-#   #
-#   #     all(lapply(gDataSlots, function(x) {
-#   #       list_giotto_data(gobject = object,
-#   #                        slot = x)
-#   #     }))
-#   #   }
-#   # }
-#
-#
-#   # cell_ID slot
-#   slot_cell_ID = slot(object, 'cell_ID')
-#
-#   ## check nesting depth
-#   if(depth(slot_cell_ID) != 1) {
-#     msg = paste0('Nesting depth of cell_ID is ', depth(slot_cell_ID), '.
-#         Should be 1. Ex:
-#         \t.
-#         \t', ch$b,'spat_unit
-#         \t', ch$s, ch$b,'cell IDs\n')
-#     errors = c(errors, msg)
-#   }
-#
-#   for(spat_unit in names(slot_cell_ID)) {
-#     if(!inherits(slot_cell_ID[[spat_unit]], 'character')) {
-#       msg = paste0('cell_ID slot info for spat_unit "', spat_unit,'" is of class "',
-#                    class(slot_cell_ID[[spat_unit]]), '".\n    Should be "character"\n')
-#       errors = c(errors, msg)
-#     }
-#   }
 #
 #
 #   if(length(errors) == 0) TRUE else errors
 # }
 
-## Test Functions
-# test_valid = function(object) {
-#   print('valid_run')
-#   return(TRUE)
-# }
-#
-# setMethod('initialize', signature = 'giotto',
-#           function(.Object, ...) {
-#             .Object = methods::callNextMethod()
-#             print('init_run')
-#             .Object
-#           })
+
 
 
 
@@ -399,7 +367,10 @@ setClass('spatFeatData',
 #'   \item{3.2.0 update adding multiomics slot}
 #'   \item{master branch to suite - TODO}
 #' }
-#' @usage gobject = updateGiottoObject(gobject)
+#' @examples
+#' \dontrun{
+#' gobject = updateGiottoObject(gobject)
+#' }
 #' @export
 updateGiottoObject = function(gobject) {
 
@@ -500,14 +471,462 @@ giotto <- setClass(
     nn_network = NULL,
     images = NULL,
     largeImages = NULL,
-    parameters = NULL,
+    parameters = list(),
     instructions = NULL,
     offset_file = NULL,
     OS_platform = NULL,
     join_info = NULL,
     multiomics = NULL
   )
+
+  # validity = check_giotto_obj
 )
+
+
+
+
+
+
+
+
+##### * Initialize ####
+#' @noRd
+#' @keywords internal
+setMethod('initialize', signature('giotto'), function(.Object, ...) {
+
+  .Object = callNextMethod()
+
+  # a = list(...)
+
+
+# TODO
+  ## set slots ##
+  ## --------- ##
+
+  # if('spatial_info' %in% names(a)) {
+  #   .Object = setPolygonInfo(.Object, gpolygon = a$spatial_info)
+  # }
+  # if('expression' %in% names(a)) {
+  #   .Object = setExpression(.Object, values = a$expression)
+  # }
+
+
+
+
+  # message('initialize Giotto run\n\n')  # debug
+
+
+  ## set instructions ##
+  ## ---------------- ##
+
+  # set default instructions (no recursive initialize)
+  if(is.null(instructions(.Object))) {
+    instructions(.Object, initialize = FALSE) = createGiottoInstructions()
+  }
+
+  ## test python module availability ##
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
+  my_python_path = instructions(.Object, 'python_path')
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
+  }
+
+
+
+  ## Slot Detection ##
+  ## -------------- ##
+
+  # detect expression and subcellular data
+  avail_expr = list_expression(.Object)
+  avail_si = list_spatial_info(.Object)
+  avail_fi = list_feature_info(.Object)
+
+  used_spat_units = unique(c(avail_expr$spat_unit, avail_si$spat_info))
+  used_feat_types = unique(c(avail_expr$feat_type, avail_fi$feat_info))
+
+  # detect ID slots
+  avail_cid = list_cell_id_names(.Object)
+  avail_fid = list_cell_id_names(.Object)
+
+  # detect metadata slots
+  avail_cm = list_cell_metadata(.Object)
+  avail_fm = list_feat_metadata(.Object)
+
+  # detect spatial location slot
+  avail_sl = list_spatial_locations(.Object)
+
+  # detect nearest network slot
+  avail_nn = list_nearest_networks(.Object)
+
+  # detect dimension reduction slot
+  avail_dr = list_dim_reductions(.Object)
+
+  # detect spatial network slot
+  avail_sn = list_spatial_networks(.Object)
+
+  # detect spatial enrichment slot
+  avail_se = list_spatial_enrichments(.Object)
+
+
+  ## Perform any subobject updates ##
+  ## ----------------------------- ##
+
+  # Feature Info #
+  if(!is.null(avail_fi)) {
+    info_list = get_feature_info_list(.Object)
+    # update S4 object if needed
+    info_list = lapply(info_list, function(info) {
+      try_val = try(validObject(info), silent = TRUE)
+      if(inherits(try_val, 'try-error')) {
+        info = updateGiottoPointsObject(info)
+      }
+      return(info)
+    })
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    .Object = setFeatureInfo(gobject = .Object,
+                             x = info_list,
+                             verbose = FALSE,
+                             initialize = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  }
+
+
+  # Spatial Info #
+  if(!is.null(avail_si)) {
+    info_list = get_polygon_info_list(.Object)
+
+    # update S4 object if needed
+    info_list = lapply(info_list, function(info) {
+      try_val = try(validObject(info), silent = TRUE)
+      if(inherits(try_val, 'try-error')) {
+        info = updateGiottoPolygonObject(info)
+      }
+      return(info)
+    })
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    .Object = setPolygonInfo(gobject = .Object,
+                             x = info_list,
+                             verbose = FALSE,
+                             centroids_to_spatlocs = FALSE,
+                             initialize = FALSE)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  }
+
+
+
+
+
+
+  ## Set active/default spat_unit and feat_type ##
+  ## ------------------------------------------ ##
+
+  # detect if actives are set in giotto instructions
+  active_su = try(instructions(.Object, 'active_spat_unit'), silent = TRUE)
+  active_ft = try(instructions(.Object, 'active_feat_type'), silent = TRUE)
+
+  # determine actives using defaults if data exists then set
+  if(inherits(active_su, 'try-error')) {
+    if(!is.null(avail_expr) | !is.null(avail_si)) {
+      active_su = set_default_spat_unit(gobject = .Object)
+      instructions(.Object, 'active_spat_unit', initialize = FALSE) = active_su
+    }
+  }
+  if(inherits(active_ft, 'try-error')) {
+    if(!is.null(avail_expr) | !is.null(avail_fi)) {
+      active_ft = set_default_feat_type(gobject = .Object,
+                                        spat_unit = active_su)
+      instructions(.Object, 'active_feat_type', initialize = FALSE) = active_ft
+    }
+  }
+
+
+
+
+
+
+  ## Set expression_feat ##
+  ## ------------------- ##
+  e_feat = used_feat_types
+  if('rna' %in% e_feat) {
+    rna_idx = which(e_feat == 'rna')
+    e_feat = c(e_feat[rna_idx], e_feat[-rna_idx])
+  }
+  .Object@expression_feat = e_feat
+
+
+
+
+
+  ## Ensure Consistent IDs ##
+  ## --------------------- ##
+
+  # cell IDs can be expected to be constant across a spatial unit
+
+  # expression
+  if(!is.null(avail_expr)) {
+    unique_expr_sets = unique(avail_expr[, .(spat_unit, feat_type)])
+
+    for(set_i in nrow(unique_expr_sets)) {
+      exp_list = get_expression_values_list(
+        gobject = .Object,
+        spat_unit = unique_expr_sets$spat_unit[[set_i]],
+        feat_type = unique_expr_sets$feat_type[[set_i]],
+        output = 'exprObj',
+        set_defaults = FALSE
+      )
+
+      exp_list_names = lapply(exp_list, spatIDs)
+      list_match = sapply(exp_list_names, setequal, exp_list_names[[1L]])
+      if(!all(list_match)) {
+        print(list_match)
+        warning(wrap_text(
+          'spat_unit:', unique_expr_sets$spat_unit[[set_i]], '/',
+          'feat_type:', unique_expr_sets$feat_type[[set_i]],
+          '\nNot all expression matrices share the same cell_IDs'
+        ))
+      }
+    }
+  }
+
+
+
+
+  # MIGHT BE CHANGED IN THE FUTURE
+  # feat_IDs cannot be expected to be constant across spat units.
+
+
+
+
+
+
+
+  ## ID initialization ##
+  ## ----------------- ##
+
+  # Must be after default spat_unit/feat_type are set.
+  # feat_ID initialization depends on active spat_unit
+
+
+  # Initialization of cell_ID and feat_ID slots. These slots hold their     #
+  # respective IDs for each spatial unit and feature type respectively.     #
+  #                                                                         #
+  # cell_metadata and feat_metadata slots are initialized off these slots.  #
+  #                                                                         #
+  # expression information is PREFERRED for ID initialization.              #
+  # subcellular information, being raw data may also be used.               #
+
+  .Object = init_cell_and_feat_IDs(gobject = .Object)
+
+
+
+
+
+  ## Metadata initialization ##
+  ## ----------------------- ##
+
+  # Initialization of all spat_unit/feat_type combinations if the metadata  #
+  # does not currently exist.                                               #
+
+  # provenance is always updated from matched expression info if existing
+
+
+
+  for(spatial_unit in used_spat_units) {
+    for(feature_type in used_feat_types) {
+
+      provenance = NULL
+      # get expression for provenance info
+      if(!is.null(avail_expr)) {
+        if(nrow(avail_expr[spat_unit == spatial_unit &
+                           feat_type == feature_type]) != 0L) {
+          provenance = prov(get_expression_values(
+            gobject = .Object,
+            spat_unit = spatial_unit,
+            feat_type = feature_type,
+            output = 'exprObj',
+            set_defaults = FALSE
+          ))
+        }
+      }
+
+      # initialize if no metadata exists OR none for this spat/feat
+
+      # cell metadata
+      if(is.null(avail_cm)) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_cell_metadata(
+            gobject = .Object,
+            metadata = 'initialize',
+            spat_unit = spatial_unit,
+            feat_type = feature_type,
+            verbose = FALSE,
+            set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      } else if(nrow(avail_cm[spat_unit == spatial_unit &
+                              feat_type == feature_type]) == 0L) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_cell_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
+
+      # feature metadata
+      if(is.null(avail_fm)) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_feature_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      } else if(nrow(avail_fm[spat_unit == spatial_unit &
+                              feat_type == feature_type]) == 0L) {
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        .Object = set_feature_metadata(
+          gobject = .Object,
+          metadata = 'initialize',
+          spat_unit = spatial_unit,
+          feat_type = feature_type,
+          verbose = FALSE,
+          set_defaults = FALSE
+        )
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      }
+
+
+      # update provenance (always happens for all metadata objects)
+      if(is.null(provenance)) next() # skip if no provenance info
+
+      cm = get_cell_metadata(gobject = .Object,
+                             spat_unit = spatial_unit,
+                             feat_type = feature_type,
+                             output = 'cellMetaObj',
+                             copy_obj = FALSE,
+                             set_defaults = FALSE)
+      fm = get_feature_metadata(gobject = .Object,
+                                spat_unit = spatial_unit,
+                                feat_type = feature_type,
+                                output = 'featMetaObj',
+                                copy_obj = FALSE,
+                                set_defaults = FALSE)
+      prov(cm) = provenance
+      prov(fm) = provenance
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      .Object = set_cell_metadata(gobject = .Object, metadata = cm, verbose = FALSE)
+      .Object = set_feature_metadata(gobject = .Object, metadata = fm, verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    }
+  }
+
+
+
+  ## Metadata ##
+  ## ------------- ##
+
+  if(!is.null(avail_cm)) {
+    check_cell_metadata(gobject = .Object) # modifies by reference
+  }
+
+  if(!is.null(avail_fm)) {
+    check_feat_metadata(gobject = .Object) # modifies by reference
+  }
+
+
+  ## Spatial locations ##
+  ## ----------------- ##
+
+  if(!is.null(avail_expr) & !is.null(avail_sl)) {
+    # 1. ensure spatial locations and expression matrices have the same cell IDs
+    # 2. give cell IDs if not provided
+    check_spatial_location_data(gobject = .Object) # modifies by reference
+  }
+
+
+
+  ## Spatial network ##
+  ## --------------- ##
+
+  if(!is.null(avail_sl) & !is.null(avail_sn)) {
+    # 1. ensure vertices have same IDs as seen in spat_unit for gobject
+    # 2. ensure spatial locations of same spat_unit exists
+    check_spatial_networks(gobject = .Object)
+  }
+
+
+
+  ## Spatial enrichment ##
+  ## ------------------ ##
+
+  if(!is.null(avail_sl) & !is.null(avail_se)) {
+    # 1. ensure IDs in enrichment match gobject for same spat_unit
+    # 2. ensure spatial locations exist for same spat_unit
+    check_spatial_enrichment(gobject = .Object)
+  }
+
+
+
+  ## Nearest networks ##
+  ## ---------------- ##
+
+  if(!is.null(avail_expr) & !is.null(avail_nn)) {
+    check_nearest_networks(gobject = .Object)
+  }
+
+
+
+  ## Dimension reduction ##
+  ## ------------------- ##
+
+  if(!is.null(avail_dr)) {
+    .Object = check_dimension_reduction(gobject = .Object)
+  }
+
+
+
+  ## Spatial info ##
+  ## ------------ ##
+
+  if(!is.null(avail_si) & !is.null(avail_sl)) {
+    check_spatial_info(gobject = .Object)
+  }
+
+
+
+
+
+  ## validity check ##
+  ## -------------- ##
+  obj_valid = try(validObject(.Object), silent = TRUE)
+  if(inherits(obj_valid, 'try-error')) {
+    .Object = updateGiottoObject(.Object)
+    validObject(.Object)
+  }
+
+
+
+  .Object
+
+})
+
+
+
+
+
+
+
 
 
 
@@ -525,8 +944,20 @@ setMethod(
   f = "show",
   signature = "giotto",
   definition = function(object) {
+    spat_unit = feat_type = prints = name = img_type = name = NULL
 
     cat("An object of class",  class(object), "\n")
+
+
+    # active spat_unit and feat_type
+    active_su = try(instructions(object, 'active_spat_unit'), silent = TRUE)
+    active_ft = try(instructions(object, 'active_feat_type'), silent = TRUE)
+    if(!inherits(active_su, 'try-error')) {
+      cat('>Active spat_unit: ', active_su, '\n')
+    }
+    if(!inherits(active_ft, 'try-error')) {
+      cat('>Active feat_type: ', active_ft, '\n')
+    }
 
 
     cat('[SUBCELLULAR INFO]\n')
@@ -706,27 +1137,6 @@ check_expr_obj = function(object) {
     errors = c(errors, msg)
   }
 
-  # TODO Check expr matrix class
-  # if(!inherits(slot(object, 'exprMat'), c('dgeMatrix', 'dgCMatrix'))) {
-  #   msg = paste0(obj_info, 'Expression matrix should be provided as either dgCmatrix (sparse)',
-  #                ' or dgeMatrix (dense) from the Matrix package.\n')
-  #   errors = c(errors, msg)
-  # }
-  #
-  # if(inherits(slot(object, 'exprMat'), 'dgCMatrix')) {
-  #   if(!isTRUE(slot(object, 'sparse'))) {
-  #     msg = paste0(obj_info, 'Contains a dgCmatrix. Slot sparse should be TRUE')
-  #     errors = c(errors, msg)
-  #   }
-  # }
-  #
-  # if(inherits(slot(object, 'exprMat'), 'dgeMatrix')) {
-  #   if(isTRUE(slot(object, 'sparse'))) {
-  #     msg = paste0(obj_info, 'Contains a dgematrix. Slot sparse should be FALSE')
-  #     errors = c(errors, msg)
-  #   }
-  # }
-
   if(length(errors) == 0) TRUE else errors
 }
 
@@ -747,6 +1157,32 @@ check_expr_obj = function(object) {
 setClass('exprObj',
          contains = c('nameData', 'exprData', 'spatFeatData', 'miscData'),
          validity = check_expr_obj)
+
+
+## * Initialize
+# setMethod('initialize', 'exprObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('exprMat' %in% names(a)) {
+#               exprMat = a$exprMat
+#               if(is.null(exprMat)) exprMat = matrix()
+#               else {
+#                 # Convert matrix input to preferred format
+#                 exprMat = evaluate_expr_matrix(exprMat)
+#               }
+#
+#               # return to arg list
+#               a$exprMat = exprMat
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
+
 
 ## * Show ####
 # exprObj Class
@@ -944,6 +1380,12 @@ check_dim_obj = function(object) {
     errors = c(errors, msg)
   }
 
+  # This check applied using check_dimension_reduction()
+  # if(!inherits(rownames(object@coordinates, 'character'))) {
+  #   msg = 'Dim reduction coordinate rownames must be character'
+  #   errors = c(errors, msg)
+  # }
+
   if(length(errors) == 0) TRUE else errors
 }
 
@@ -1034,7 +1476,7 @@ S3toS4dimObj = function(object) {
 
 ## nnNetObj ####
 
-### * Definition ####
+## * Definition ####
 # nnNetObj Class
 
 #' @title S4 nnNetObj
@@ -1049,6 +1491,70 @@ S3toS4dimObj = function(object) {
 #' @export
 setClass('nnNetObj',
          contains = c('nameData', 'nnData', 'spatFeatData', 'miscData'))
+
+
+
+
+
+## * Initialize
+# setMethod('initialize', 'nnNetObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('igraph' %in% names(a)) {
+#               igraph = a$igraph
+#               if(is.null(igraph)) igraph = NULL
+#               else {
+#                 # Convert igraph input to preferred format
+#                 igraph = evaluate_nearest_networks(igraph)
+#               }
+#
+#               # return to arg list
+#               a$igraph = igraph
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
+
+
+
+
+
+## * Show ####
+#' show method for nnNetObj class
+#' @param object nearest neigbor network object
+#' @aliases show,nnNetObj-method
+#' @docType methods
+#' @importFrom methods show
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('nnNetObj'), function(object) {
+
+    cat("An object of class",  class(object), ':', object@name, '\n')
+    if(!is.null(object@nn_type)) cat('--| Contains nearest neighbor network generated with:', object@nn_type, '\n')
+    if(!is.null(object@feat_type) & !is.null(object@spat_unit)) {
+      cat('----| for feat_type:', object@feat_type, '\n')
+      cat('----|     spat_unit:', object@spat_unit, '\n')
+    }
+    if(!is.null(object@provenance)) cat('----|     provenance:', object@provenance, '\n\n')
+
+    if(!is.null(object@igraph)) {
+      print(object@igraph)
+      cat('\n\n')
+    }
+
+    if(!is.null(object@misc)) {
+      cat('Additional included info:\n')
+      print(names(object@misc))
+      cat('\n')
+    }
+
+  })
+
 
 
 
@@ -1084,6 +1590,7 @@ check_spat_locs_obj = function(object) {
     errors = c(errors, msg)
   }
 
+  # Allow check_spatial_location_data() to compensate for missing cell_ID
   if(!'cell_ID' %in% colnames(slot(object, 'coordinates'))) {
     msg = 'Column "cell_ID" for cell ID was not found'
     errors = c(errors, msg)
@@ -1106,6 +1613,37 @@ check_spat_locs_obj = function(object) {
 setClass('spatLocsObj',
          contains = c('nameData', 'coordDataDT', 'spatData', 'miscData'),
          validity = check_spat_locs_obj)
+
+
+
+
+## * Initialize
+# setMethod('initialize', 'spatLocsObj',
+#           function(.Object, ...) {
+#
+#             # expand args
+#             a = list(.Object = .Object, ...)
+#
+#             # evaluate data
+#             if('coordinates' %in% names(a)) {
+#               coordinates = a$coordinates
+#               if(is.null(coordinates)) {
+#                 coordinates = data.table::data.table(
+#                   sdimx = NA_real_,
+#                   sdimy = NA_real_,
+#                   cell_ID = NA_character_
+#                 )
+#               } else {
+#                 coordinates = evaluate_spatial_locations(coordinates)
+#               }
+#
+#               # return to arg list
+#               a$coordinates = coordinates
+#             }
+#
+#             .Object = do.call('methods'::'callNextMethod', a)
+#             .Object
+#           })
 
 
 
@@ -1211,6 +1749,8 @@ setClass('spatialNetworkObj',
 #' @aliases show,spatialNetworkObj-method
 #' @docType methods
 #' @importFrom methods show
+#' @importFrom graphics segments
+
 #' @rdname show-methods
 setMethod(
   f = "show", signature('spatialNetworkObj'), function(object) {
@@ -1484,6 +2024,7 @@ setMethod(
 #' @slot spatVector terra spatVector to store polygon shapes
 #' @slot spatVectorCentroids centroids of polygon shapes
 #' @slot overlaps information about overlapping points and polygons
+#' @slot unique_ID_cache cached unique spatial IDs that should match the spatVector slot
 #' @details holds polygon data
 #'
 #' @export
@@ -1494,15 +2035,60 @@ giottoPolygon = setClass(
   slots = c(
     spatVector = "ANY",
     spatVectorCentroids = "ANY",
-    overlaps = "ANY"
+    overlaps = "ANY",
+    unique_ID_cache = 'character'
   ),
 
   prototype = list(
     spatVector = NULL,
     spatVectorCentroids = NULL,
-    overlaps = NULL
+    overlaps = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
+
+
+#' @title Update giotto polygon object
+#' @name updateGiottoPolygonObject
+#' @param gpoly giotto polygon object
+#' @export
+updateGiottoPolygonObject = function(gpoly) {
+  if(!inherits(gpoly, 'giottoPolygon')) {
+    stop('This function is only for giottoPoints')
+  }
+
+  # 3.2.X adds cacheing of IDs
+  if(is.null(attr(gpoly, 'unique_ID_cache'))) {
+    attr(gpoly, 'unique_ID_cache') = unique(as.list(gpoly@spatVector)$poly_ID)
+  }
+
+  gpoly
+}
+
+
+# * show ####
+setMethod('show', signature = 'giottoPolygon', function(object) {
+
+  cat('An object of class giottoPolygon with name "', object@name, '"\n', sep = '')
+  cat('Spatial Information:\n')
+  print(object@spatVector)
+
+  if(!is.null(object@spatVectorCentroids)) {
+    cat(' centroids   : calculated\n')
+  } else {
+    cat(' centroids   : NULL\n')
+  }
+
+  if(!is.null(object@overlaps)) {
+    cat(' overlaps    : calculated')
+  } else {
+    cat(' overlaps    : NULL')
+  }
+
+})
+
 
 
 # for use with wrap() generic
@@ -1512,12 +2098,14 @@ setClass('packedGiottoPolygon',
          slots = c(
            packed_spatVector = 'ANY',
            packed_spatVectorCentroids = 'ANY',
-           packed_overlaps = 'ANY'
+           packed_overlaps = 'ANY',
+           unique_ID_cache = 'character'
          ),
          prototype = list(
            packed_spatVector = NULL,
            packed_spatVectorCentroids = NULL,
-           packed_overlaps = NULL
+           packed_overlaps = NULL,
+           unique_ID_cache = NA_character_
          ))
 
 
@@ -1541,24 +2129,66 @@ setMethod("show", signature(object='packedGiottoPolygon'),
 #' @slot feat_type name of feature type
 #' @slot spatVector terra spatVector to store point shapes
 #' @slot networks feature networks
+#' @slot unique_ID_cache cached unique feature IDs that should match the spatVector slot
 #' @details Contains vector-type feature data
 #'
 #' @export
 giottoPoints <- setClass(
   Class = "giottoPoints",
+  contains = c('featData'),
 
   slots = c(
-    feat_type = "ANY",
     spatVector = "ANY",
-    networks = "ANY"
+    networks = "ANY",
+    unique_ID_cache = 'character'
   ),
 
   prototype = list(
-    feat_type = NULL,
     spatVector = NULL,
-    networks = NULL
+    networks = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
+
+
+#' @title Update giotto points object
+#' @name updateGiottoPointsObject
+#' @param gpoints giotto points object
+#' @export
+updateGiottoPointsObject = function(gpoints) {
+  if(!inherits(gpoints, 'giottoPoints')) {
+    stop('This function is only for giottoPoints')
+  }
+
+  # 3.2.X adds cacheing of IDs
+  if(is.null(attr(gpoints, 'unique_ID_cache'))) {
+    attr(gpoints, 'unique_ID_cache') = unique(as.list(gpoints@spatVector)$feat_ID)
+  }
+
+  gpoints
+}
+
+
+
+
+# * show ####
+setMethod('show', signature = 'giottoPoints', function(object) {
+
+  cat('An object of class giottoPoints with feature type "', object@feat_type, '"\n', sep = '')
+  cat('Feature Information:\n')
+  print(object@spatVector)
+
+  if(!is.null(object@networks)) {
+    cat(' feat. net.  :')
+    print(object@networks)
+  }
+
+})
+
+
+
 
 
 
@@ -1569,14 +2199,19 @@ setClass(
   slots = c(
     feat_type = 'character',
     packed_spatVector = 'ANY',
-    networks = 'ANY'
+    networks = 'ANY',
+    unique_ID_cache = 'character'
   ),
   prototype = list(
     feat_type = NA_character_,
     packed_spatVector = NULL,
-    networks = NULL
+    networks = NULL,
+    unique_ID_cache = NA_character_
   )
 )
+
+
+
 
 
 setMethod("show", signature(object='packedGiottoPoints'),
@@ -1825,18 +2460,38 @@ setMethod(
 
 
 
-# Internal constructor functions for S4 subobjects ####
+# constructor functions for S4 subobjects ####
 
 #' @title Create S4 exprObj
-#' @name create_expr_obj
+#' @name createExprObj
 #' @description Create an S4 exprObj
+#' @param expression_data expression data
 #' @param name name of exprObj
-#' @param exprMat matrix of expression information
 #' @param spat_unit spatial unit of expression (e.g. 'cell')
 #' @param feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of expression information (if applicable)
 #' @param misc misc
+createExprObj = function(expression_data,
+                         name = 'test',
+                         spat_unit = 'cell',
+                         feat_type = 'rna',
+                         provenance = NULL,
+                         misc = NULL) {
+
+  exprMat = evaluate_expr_matrix(expression_data)
+
+  create_expr_obj(name = name,
+                  exprMat = exprMat,
+                  spat_unit = spat_unit,
+                  feat_type = feat_type,
+                  provenance = provenance,
+                  misc = misc)
+}
+
+
+#' @param exprMat matrix of expression information
 #' @keywords internal
+#' @noRd
 create_expr_obj = function(name = 'test',
                            exprMat = NULL,
                            spat_unit = 'cell',
@@ -1856,21 +2511,46 @@ create_expr_obj = function(name = 'test',
 }
 
 
+
+
+
 #' @title Create S4 cellMetaObj
-#' @name create_cell_meta_obj
+#' @name createCellMetaObj
 #' @description Create an S4 cellMetaObj
 #' @param metadata metadata info
 #' @param col_desc (optional) character vector describing columns of the metadata
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc
+#' @param verbose be verbose
+#' @export
+createCellMetaObj = function(metadata,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             col_desc = NULL,
+                             verbose = TRUE) {
+
+  metadata = evaluate_cell_metadata(metadata = metadata,
+                                    verbose = verbose)
+
+  create_cell_meta_obj(metaDT = metadata,
+                       col_desc = col_desc,
+                       spat_unit = spat_unit,
+                       feat_type = feat_type,
+                       provenance = provenance)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_cell_meta_obj = function(metaDT = NULL,
                                 col_desc = NA_character_,
                                 spat_unit = 'cell',
                                 feat_type = 'rna',
                                 provenance = NULL) {
+
+  if(is.null(col_desc)) col_desc = NA_character_
 
   if(is.null(metaDT)) metaDT = data.table::data.table(cell_ID = NA_character_)
 
@@ -1883,21 +2563,47 @@ create_cell_meta_obj = function(metaDT = NULL,
 }
 
 
+
+
+
 #' @title Create S4 featMetaObj
-#' @name create_feat_meta_obj
+#' @name createFeatMetaObj
 #' @description Create an S4 featMetaObj
 #' @param metadata metadata info
 #' @param col_desc (optional) character vector describing columns of the metadata
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc
+#' @param verbose be verbose
+#' @export
+createFeatMetaObj = function(metadata,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             provenance = NULL,
+                             col_desc = NULL,
+                             verbose = TRUE) {
+
+  metadata = evaluate_feat_metadata(metadata = metadata,
+                                    verbose = verbose)
+
+  create_feat_meta_obj(metaDT = metadata,
+                       col_desc = col_desc,
+                       spat_unit = spat_unit,
+                       feat_type = feat_type,
+                       provenance = provenance)
+}
+
+
+
 #' @keywords internal
+#' @noRd
 create_feat_meta_obj = function(metaDT = NULL,
                                 col_desc = NA_character_,
                                 spat_unit = 'cell',
                                 feat_type = 'rna',
                                 provenance = NULL) {
+
+  if(is.null(col_desc)) col_desc = NA_character_
 
   if(is.null(metaDT)) metaDT = data.table::data.table(feat_ID = NA_character_)
 
@@ -1910,19 +2616,52 @@ create_feat_meta_obj = function(metaDT = NULL,
 }
 
 
+
+
+
+
+
 #' @title Create S4 dimObj
-#' @name create_dim_obj
+#' @name createDimObj
 #' @description Create an S4 dimObj
-#' @param name name of dimObj
-#' @param reduction_method method used to generate dimension reduction
 #' @param coordinates embedding coordinates
+#' @param name name of dimObj
+#' @param reduction reduction on columns (e.g. cells) or rows (e.g. features)
+#' @param reduction_method method used to generate dimension reduction
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @param my_rownames (optional) if needed, set coordinates rowname values here
+#' @export
+createDimObj = function(coordinates,
+                        name = 'test',
+                        spat_unit = 'cell',
+                        feat_type = 'rna',
+                        method = NULL,
+                        reduction = 'cells',
+                        provenance = NULL,
+                        misc = NULL,
+                        my_rownames = NULL) {
+
+  coordinates = evaluate_dimension_reduction(coordinates)
+
+  create_dim_obj(name = name,
+                 reduction = reduction,
+                 reduction_method = method,
+                 coordinates = coordinates,
+                 spat_unit = spat_unit,
+                 feat_type = feat_type,
+                 provenance = provenance,
+                 misc = misc,
+                 my_rownames = my_rownames)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_dim_obj = function(name = 'test',
-                          reduction = NA_character_,
+                          reduction = 'cells',
                           reduction_method = NA_character_,
                           coordinates = NULL,
                           spat_unit = 'cell',
@@ -1931,36 +2670,75 @@ create_dim_obj = function(name = 'test',
                           misc = NULL,
                           my_rownames = NULL) {
 
+  if(is.null(reduction_method)) reduction_method = NA_character_
+
   number_of_dimensions = ncol(coordinates)
-  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
+  colnames(coordinates) = paste0('Dim.', seq(number_of_dimensions))
 
   if(!is.null(my_rownames)) {
-    rownames(coordinates) = my_rownames
+    rownames(coordinates) = as.character(my_rownames)
   }
 
-  return(new('dimObj',
-             name = name,
-             reduction = reduction,
-             reduction_method = reduction_method,
-             coordinates = coordinates,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = provenance,
-             misc = misc))
+  new('dimObj',
+      name = name,
+      reduction = reduction,
+      reduction_method = reduction_method,
+      coordinates = coordinates,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = if(is.null(provenance)) spat_unit else provenance, # assumed
+      misc = misc)
 }
 
 
+
+
+
+
+
+
 #' @title Create S4 nnNetObj
-#' @name create_nn_net_obj
+#' @name createNearestNetObj
 #' @description Create an S4 nnNetObj
 #' @param name name of nnNetObj
 #' @param nn_type type of nearest neighbor network
-#' @param igraph igraph object containing nearest neighbor information
+#' @param network igraph object or data.frame containing nearest neighbor
+#' information (see details)
 #' @slot spat_unit spatial unit of data
 #' @slot feat_type feature type of data
 #' @slot provenance origin of aggregated information (if applicable)
 #' @param misc misc
+#' @details igraph and dataframe-like inputs must include certain information.
+#' For igraph, it must have, at minimum vertex 'name' attributes and 'distance'
+#' edge attribute.
+#' dataframe-like inputs must have 'from', 'to', and 'distance' columns
+#' @export
+createNearestNetObj = function(name = 'test',
+                               network,
+                               nn_type = NULL,
+                               spat_unit = 'cell',
+                               feat_type = 'rna',
+                               provenance = NULL,
+                               misc = NULL) {
+
+  if(is.null(network)) igraph = NULL
+  else {
+    # convert igraph input to preferred format
+    igraph = evaluate_nearest_networks(network)
+  }
+
+  create_nn_net_obj(name = name,
+                    igraph = igraph,
+                    nn_type = nn_type,
+                    spat_unit = spat_unit,
+                    feat_type = feat_type,
+                    provenance = provenance,
+                    misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_nn_net_obj = function(name = 'test',
                              nn_type = NA_character_,
                              igraph = NULL,
@@ -1968,60 +2746,134 @@ create_nn_net_obj = function(name = 'test',
                              feat_type = 'rna',
                              provenance = NULL,
                              misc = NULL) {
-  return(new('nnNetObj',
-             name = name,
-             nn_type = nn_type,
-             igraph = igraph,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = provenance,
-             misc = misc))
+
+  if(is.null(nn_type)) nn_type = NA_character_
+
+  new('nnNetObj',
+      name = name,
+      nn_type = nn_type,
+      igraph = igraph,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
+
+
+
 
 
 #' @title Create S4 spatLocsObj
 #' @name create_spat_locs_obj
 #' @description Create an S4 spatLocsObj
-#' @param name name of spatLocsObj
 #' @param coordinates spatial coordinates
+#' @param name name of spatLocsObj
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param provenance origin data of aggregated expression information (if applicable)
 #' @param misc misc
+#' @export
+createSpatLocsObj = function(coordinates,
+                             name = 'test',
+                             spat_unit = 'cell',
+                             provenance = NULL,
+                             misc = NULL,
+                             verbose = TRUE) {
+
+  # convert coordinates input to preferred format
+  coordinates = evaluate_spatial_locations(spatial_locs = coordinates,
+                                           verbose = verbose)
+
+  create_spat_locs_obj(name = name,
+                       coordinates = coordinates,
+                       spat_unit = spat_unit,
+                       provenance = provenance,
+                       misc = misc)
+}
+
+
+
 #' @keywords internal
+#' @noRd
 create_spat_locs_obj = function(name = 'test',
                                 coordinates = NULL,
                                 spat_unit = 'cell',
                                 provenance = NULL,
                                 misc = NULL) {
 
-  if(is.null(coordinates)) coordinates = data.table::data.table(sdimx = NA_real_,
-                                                                sdimy = NA_real_,
-                                                                cell_ID = NA_character_)
+  if(is.null(coordinates)) {
+    coordinates = data.table::data.table(
+      sdimx = NA_real_,
+      sdimy = NA_real_,
+      cell_ID = NA_character_
+    )
+  }
 
-  return(new('spatLocsObj',
-             name = name,
-             coordinates = coordinates,
-             spat_unit = spat_unit,
-             provenance = provenance,
-             misc = misc))
+  # set cell_ID col if missing to conform to spatialLocationsObj validity
+  # should already never be the case after evaluation
+  if(!'cell_ID' %in% colnames(coordinates)) coordinates[, cell_ID := NA_character_]
+
+  new('spatLocsObj',
+      name = name,
+      coordinates = coordinates,
+      spat_unit = spat_unit,
+      provenance = provenance,
+      misc = misc)
 }
 
 
 
+
+
+
+
+
 #' @title Create S4 spatialNetworkObj
-#' @name create_spat_net_obj
+#' @name createSpatNetObj
+#' @param network network data with connections, distances, and weightings
 #' @param name name of spatialNetworkObj
-#' @param method method used to generate spatial network
-#' @param parameters additional method-specific parameters used during spatial network generation
-#' @param outputObj network geometry object
-#' @param networkDT data.table of network connections, distances, and weightings
-#' @param networkDT_before_filter unfiltered data.table  of network connections, distances, and weightings
-#' @param cellShapeObj network cell shape information
-#' @param crossSectionObjects crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @param networkDT_before_filter (optional) unfiltered data.table  of network connections, distances, and weightings
 #' @param spat_unit spatial unit tag
-#' @param provenance origin of aggregated information (if applicable)
+#' @param method method used to generate spatial network
+#' @param parameters (optional) additional method-specific parameters used during spatial network generation
+#' @param outputObj (optional) network geometry object
+#' @param cellShapeObj (optional) network cell shape information
+#' @param crossSectionObjects (optional) crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @param provenance (optional) origin of aggregated information (if applicable)
 #' @param misc misc
+#' @export
+createSpatNetObj = function(network,
+                            name = 'test',
+                            networkDT_before_filter = NULL,
+                            method = NULL,
+                            spat_unit = 'cell',
+                            provenance = NULL,
+                            parameters = NULL,
+                            outputObj = NULL,
+                            cellShapeObj = NULL,
+                            crossSectionObjects = NULL,
+                            misc = NULL) {
+
+  networkDT = evaluate_spatial_network(network)
+
+  create_spat_net_obj(name = name,
+                      method = method,
+                      parameters = parameters,
+                      outputObj = outputObj,
+                      networkDT = networkDT,
+                      networkDT_before_filter = networkDT_before_filter,
+                      cellShapeObj = cellShapeObj,
+                      crossSectionObjects = crossSectionObjects,
+                      spat_unit = spat_unit,
+                      provenance = provenance,
+                      misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_spat_net_obj = function(name = 'test',
                                method = NA_character_,
                                parameters = NULL,
@@ -2034,33 +2886,61 @@ create_spat_net_obj = function(name = 'test',
                                provenance = NULL,
                                misc = NULL ) {
 
-  return(new('spatialNetworkObj',
-             name = name,
-             method = method,
-             parameters = parameters,
-             outputObj = outputObj,
-             networkDT = networkDT,
-             networkDT_before_filter = networkDT_before_filter,
-             cellShapeObj = cellShapeObj,
-             crossSectionObjects = crossSectionObjects,
-             spat_unit = spat_unit,
-             provenance = provenance,
-             misc = misc))
+  if(is.null(method)) method = NA_character_
+
+  new('spatialNetworkObj',
+      name = name,
+      method = method,
+      parameters = parameters,
+      outputObj = outputObj,
+      networkDT = networkDT,
+      networkDT_before_filter = networkDT_before_filter,
+      cellShapeObj = cellShapeObj,
+      crossSectionObjects = crossSectionObjects,
+      spat_unit = spat_unit,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
 
 
 
 #' @title Create S4 spatEnrObj
 #' @name create_spat_enr_obj
+#' @param enrichment_data spatial enrichment results, provided a dataframe-like object
 #' @param name name of S4 spatEnrObj
 #' @param method method used to generate spatial enrichment information
-#' @param enrichDT spatial enrichment results, provided as a data.table
 #' @param spat_unit spatial unit of aggregated expression (e.g. 'cell')
 #' @param feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of aggregated expression information (if applicable)
-#' @param misc misc additional information about he spatial enrichment or how it
+#' @param misc misc additional information about the spatial enrichment or how it
 #' was generated
+#' @export
+createSpatEnrObj = function(enrichment_data,
+                            name = 'test',
+                            spat_unit = 'cell',
+                            feat_type = 'rna',
+                            method = NULL,
+                            provenance = NULL,
+                            misc = NULL,
+                            verbose = TRUE) {
+
+  enrichDT = evaluate_spatial_enrichment(enrichment_data, verbose = verbose)
+
+  create_spat_enr_obj(name = name,
+                      method = method,
+                      enrichDT = enrichment_data,
+                      spat_unit = spat_unit,
+                      feat_type = feat_type,
+                      provenance = provenance,
+                      misc = misc)
+}
+
+
 #' @keywords internal
+#' @noRd
 create_spat_enr_obj = function(name = 'test',
                                method = NA_character_,
                                enrichDT = NULL,
@@ -2069,16 +2949,28 @@ create_spat_enr_obj = function(name = 'test',
                                provenance = NULL,
                                misc = NULL) {
 
-  return(new('spatEnrObj',
-             name = name,
-             method = method,
-             enrichDT = enrichDT,
-             spat_unit = spat_unit,
-             feat_type = feat_type,
-             provenance = provenance,
-             misc = misc))
+  if(is.null(method)) method = NA_character_
 
+  new('spatEnrObj',
+      name = name,
+      method = method,
+      enrichDT = enrichDT,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      provenance = provenance,
+      misc = misc)
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 #' @title Create S4 spatialGridObj
@@ -2110,6 +3002,213 @@ create_spat_grid_obj = function(name = 'test',
              feat_type = feat_type,
              provenance = provenance,
              misc = misc))
+}
+
+
+
+
+
+
+
+#' @title Create feature network object
+#' @name create_featureNetwork_object
+#' @param name name to assign the created feature network object
+#' @param network_datatable network data.table object
+#' @param network_lookup_id network lookup id
+#' @param full fully connected status
+#' @keywords internal
+create_featureNetwork_object = function(name = 'feat_network',
+                                        network_datatable = NULL,
+                                        network_lookup_id = NULL,
+                                        full = NULL) {
+
+
+  # create minimum giotto points object
+  f_network = featureNetwork(name = name,
+                             network_datatable = NULL,
+                             network_lookup_id = NULL,
+                             full = NULL)
+
+  ## 1. check network data.table object
+  if(!methods::is(network_datatable, 'data.table')) {
+    stop("network_datatable needs to be a network data.table object")
+  }
+  f_network@network_datatable = network_datatable
+
+  ## 2. provide network fully connected status
+  f_network@full = full
+
+  ## 3. provide feature network name
+  f_network@name = name
+
+  ## 4. network lookup id
+  f_network@network_lookup_id = network_lookup_id
+
+  # giotoPoints object
+  return(f_network)
+
+}
+
+
+# create Giotto points from data.frame or spatVector
+
+#' @title Create giotto points object
+#' @name createGiottoPoints
+#' @description Creates Giotto point object from a structured dataframe-like object
+#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat_ID)
+#' @param feat_type feature type
+#' @param verbose be verbose
+#' @param unique_IDs (optional) character vector of unique IDs present within
+#' the spatVector data. Provided for cacheing purposes
+#' @return giottoPoints
+#' @concept polygon
+#' @export
+createGiottoPoints = function(x,
+                              feat_type = 'rna',
+                              verbose = TRUE,
+                              unique_IDs = NULL) {
+
+  if(inherits(x, 'data.frame')) {
+
+    spatvec = create_spatvector_object_from_dfr(x = x,
+                                                verbose = verbose)
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = spatvec,
+                                           unique_IDs = unique_IDs)
+
+  } else if(inherits(x, 'spatVector')) {
+
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = x,
+                                           unique_IDs = unique_IDs)
+
+  } else {
+
+    stop('Class ', class(x), ' is not supported')
+
+  }
+
+  return(g_points)
+
+}
+
+
+
+#' @title Create giotto points object
+#' @name create_giotto_points_object
+#' @param feat_type feature type
+#' @param spatVector terra spatVector object containing point data
+#' @param networks (optional) feature network object
+#' @param unique_IDs (optional) unique IDs in spatVector for cacheing
+#' @keywords internal
+create_giotto_points_object = function(feat_type = 'rna',
+                                       spatVector = NULL,
+                                       networks = NULL,
+                                       unique_IDs = NULL) {
+
+  if(is.null(feat_type)) feat_type = NA # compliance with featData class
+
+  # create minimum giotto points object
+  g_points = giottoPoints(feat_type = feat_type,
+                          spatVector = NULL,
+                          networks = NULL)
+
+  ## 1. check terra spatVector object
+  if(!inherits(spatVector, 'SpatVector')) {
+    stop("spatVector needs to be a spatVector object from the terra package")
+  }
+
+  g_points@spatVector = spatVector
+
+  ## 2. provide feature id
+  g_points@feat_type = feat_type
+
+  ## 3. feature_network object
+  g_points@networks = networks
+
+  ## 4. feat_ID cacheing
+  if(is.null(unique_IDs)) {
+    g_points@unique_ID_cache = featIDs(g_points)
+  } else {
+    g_points@unique_ID_cache = unique_IDs
+  }
+
+  # giottoPoints object
+  return(g_points)
+
+}
+
+
+
+
+
+
+
+
+## extension of spatVector object
+## name should match the cellular structure
+
+#' @title Create a giotto polygon object
+#' @name create_giotto_polygon_object
+#' @param name name of polygon object
+#' @param spatVector SpatVector of polygons
+#' @param spatVectorCentroids (optional) SpatVector of polygon centroids
+#' @param overlaps (optional) feature overlaps of polygons
+#' @param unique_IDs unique polygon IDs for cacheing
+#' @keywords internal
+create_giotto_polygon_object = function(name = 'cell',
+                                        spatVector = NULL,
+                                        spatVectorCentroids = NULL,
+                                        overlaps = NULL,
+                                        unique_IDs = NULL) {
+
+
+  # create minimum giotto
+  g_polygon = giottoPolygon(name = name,
+                            spatVector = NULL,
+                            spatVectorCentroids = NULL,
+                            overlaps = NULL)
+
+  ## 1. check spatVector object
+  if(!methods::is(spatVector, 'SpatVector')) {
+    stop("spatVector needs to be a SpatVector object from the terra package")
+  }
+
+  g_polygon@spatVector = spatVector
+
+
+  ## 2. centroids need to be of similar length as polygons
+  if(!is.null(spatVectorCentroids)) {
+    if(!methods::is(spatVectorCentroids, 'SpatVector')) {
+      stop("spatVectorCentroids needs to be a spatVector object from the terra package")
+    }
+
+    l_centroids = nrow(terra::values(spatVectorCentroids))
+    l_polygons = nrow(terra::values(spatVector))
+
+    if(l_centroids == l_polygons) {
+      g_polygon@spatVectorCentroids = spatVectorCentroids
+    } else {
+      stop('number of centroids does not equal number of polygons')
+    }
+
+  }
+
+  ## 3. overlaps info
+  g_polygon@overlaps = overlaps
+
+  ## 4. spat_ID cacheing
+  if(is.null(unique_IDs)) {
+    g_polygon@unique_ID_cache = spatIDs(g_polygon)
+  } else {
+    g_polygon@unique_ID_cache = unique_IDs
+  }
+
+  # provide name
+  g_polygon@name = name
+
+  # giotto polygon object
+  return(g_polygon)
 }
 
 

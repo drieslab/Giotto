@@ -160,10 +160,10 @@ createGiottoMerscopeObject = function(merscope_dir,
                                       cores = NA,
                                       verbose = TRUE) {
 
+  fovs = NULL
+
   # 0. setup
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
+  merscope_dir = path.expand(merscope_dir)
 
   poly_z_indices = as.integer(poly_z_indices)
   if(any(poly_z_indices < 1)) stop(wrap_txt(
@@ -218,6 +218,7 @@ createGiottoMerscopeObject = function(merscope_dir,
 
 #' @describeIn createGiottoMerscopeObject Create giotto object with 'subcellular' workflow
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
+#' @import data.table
 #' @keywords internal
 createGiottoMerscopeObject_subcellular = function(data_list,
                                                   calculate_overlap = TRUE,
@@ -228,6 +229,8 @@ createGiottoMerscopeObject_subcellular = function(data_list,
                                                                                new_spat_unit = 'cell'),
                                                   cores = NA,
                                                   verbose = TRUE) {
+
+  feat_coord = neg_coord = cellLabel_dir = instructions = NULL
 
   # unpack data_list
   poly_info = data_list$poly_info
@@ -323,7 +326,11 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #' Default is \code{'all'} information available. \code{'subcellular'} loads the transcript
 #' coordinates only. \code{'aggregate'} loads the provided aggregated expression matrix.
 #' @param FOVs field of views to load (only affects subcellular data and images)
+#' @param remove_background_polygon try to remove background polygon (default: FALSE)
+#' @param background_algo algorithm to remove background polygon
+#' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
 #' @inheritParams createGiottoObjectSubcellular
+#' @import data.table
 #' @return a giotto object
 #' @export
 #' @details
@@ -361,15 +368,16 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #'
 createGiottoCosMxObject = function(cosmx_dir = NULL,
                                    data_to_use = c('all','subcellular','aggregate'),
+                                   remove_background_polygon = TRUE,
+                                   background_algo = c('range'),
+                                   remove_unvalid_polygons = TRUE,
                                    FOVs = NULL,
                                    instructions = NULL,
-                                   cores = NA,
+                                   cores = determine_cores(),
                                    verbose = TRUE) {
 
   # 0. setup
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
+  cosmx_dir = path.expand(cosmx_dir)
 
   # determine data to use
   data_to_use = match.arg(arg = data_to_use, choices = c('all','subcellular','aggregate'))
@@ -392,6 +400,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
     cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items,
                                                         FOVs = FOVs,
+                                                        remove_background_polygon = remove_background_polygon,
+                                                        background_algo = background_algo,
+                                                        remove_unvalid_polygons = remove_unvalid_polygons,
                                                         cores = cores,
                                                         verbose = verbose,
                                                         instructions = instructions)
@@ -411,6 +422,9 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
     cosmx_gobject = createGiottoCosMxObject_all(dir_items,
                                                 FOVs = FOVs,
+                                                remove_background_polygon = remove_background_polygon,
+                                                background_algo = background_algo,
+                                                remove_unvalid_polygons = remove_unvalid_polygons,
                                                 cores = cores,
                                                 verbose = verbose,
                                                 instructions = instructions)
@@ -441,9 +455,14 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @keywords internal
 createGiottoCosMxObject_subcellular = function(dir_items,
                                                FOVs = NULL,
+                                               remove_background_polygon = TRUE,
+                                               background_algo = c('range'),
+                                               remove_unvalid_polygons = TRUE,
                                                cores,
                                                verbose = TRUE,
                                                instructions = NULL) {
+
+  target = fov = NULL
 
   # load tx detections and FOV offsets
   data_list = load_cosmx_folder_subcellular(dir_items = dir_items,
@@ -520,7 +539,10 @@ createGiottoCosMxObject_subcellular = function(dir_items,
         mask_method = 'guess',
         flip_vertical = TRUE,
         flip_horizontal = FALSE,
-        shift_horizontal_step = FALSE
+        shift_horizontal_step = FALSE,
+        remove_background_polygon = remove_background_polygon,
+        background_algo = background_algo,
+        remove_unvalid_polygons = remove_unvalid_polygons
       ),
       instructions = instructions,
       cores = cores
@@ -607,7 +629,7 @@ createGiottoCosMxObject_aggregate = function(dir_items,
                                              verbose = TRUE,
                                              instructions = NULL) {
 
-
+  data_to_use = fov = NULL
 
   data_list = load_cosmx_folder_aggregate(dir_items = dir_items,
                                           cores = cores,
@@ -672,6 +694,9 @@ createGiottoCosMxObject_aggregate = function(dir_items,
 #' @keywords internal
 createGiottoCosMxObject_all = function(dir_items,
                                        FOVs,
+                                       remove_background_polygon = TRUE,
+                                       background_algo = c('range'),
+                                       remove_unvalid_polygons = TRUE,
                                        cores,
                                        verbose = TRUE,
                                        instructions = NULL) {
@@ -679,6 +704,9 @@ createGiottoCosMxObject_all = function(dir_items,
   # 1. create subcellular giotto as spat_unit 'cell'
   cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items = dir_items,
                                                       FOVs = FOVs,
+                                                      remove_background_polygon = remove_background_polygon,
+                                                      background_algo = background_algo,
+                                                      remove_unvalid_polygons = remove_unvalid_polygons,
                                                       cores = cores,
                                                       verbose = verbose,
                                                       instructions = instructions)
@@ -856,6 +884,7 @@ createGiottoXeniumObject = function(xenium_dir,
                                     verbose = TRUE) {
 
   # 0. setup
+  xenium_dir = path.expand(xenium_dir)
 
   # Determine data to load
   data_to_use = match.arg(arg = data_to_use, choices = c('subcellular','aggregate'))

@@ -30,6 +30,7 @@ aggregate polygons overlap information from different z-stacks
 Other aggregate stacks: 
 \code{\link{aggregateStacksExpression}()},
 \code{\link{aggregateStacksLocations}()},
+\code{\link{aggregateStacksPolygonsOLD}()},
 \code{\link{aggregateStacksPolygons}()},
 \code{\link{aggregateStacks}()}
 }

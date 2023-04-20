@@ -15,6 +15,17 @@ Latest](https://img.shields.io/github/commits-since/drieslab/Giotto/latest/suite
 [![R-CMD-check](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+**Default branch change!**  
+With the release of
+[v3.3.0](https://github.com/drieslab/Giotto/releases/tag/v3.3.0) the
+default branch of Giotto has been moved from
+[@master](https://github.com/drieslab/Giotto/tree/master) to
+[@suite](https://github.com/drieslab/Giotto/tree/suite). If you want to
+install the original master version use
+`devtools::install_github("drieslab/Giotto@master")`. Visit the Giotto
+[Discussions](https://github.com/drieslab/Giotto/discussions) page for
+more information.
+
 **Github Repository changes!**  
 The Giotto github repository has moved to
 <https://github.com/drieslab/Giotto> and the associated spatial datasets

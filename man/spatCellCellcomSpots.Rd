@@ -12,14 +12,14 @@ spatCellCellcomSpots(
   spatial_network_name = "Delaunay_network",
   cluster_column = "cell_ID",
   random_iter = 1000,
-  gene_set_1,
-  gene_set_2,
+  feature_set_1,
+  feature_set_2,
   min_observations = 2,
   expression_values = c("normalized", "scaled", "custom"),
   detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
-  adjust_target = c("genes", "cells"),
+  adjust_target = c("features", "cells"),
   do_parallel = TRUE,
   cores = NA,
   set_seed = TRUE,
@@ -30,23 +30,31 @@ spatCellCellcomSpots(
 \arguments{
 \item{gobject}{giotto object to use}
 
+\item{spat_unit}{spatial unit (e.g. 'cell')}
+
+\item{feat_type}{feature type (e.g. 'rna')}
+
+\item{ave_celltype_exp}{Matrix with average expression per cell type}
+
 \item{spatial_network_name}{spatial network to use for identifying interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
 
 \item{random_iter}{number of iterations}
 
-\item{gene_set_1}{first specific gene set from gene pairs}
+\item{feature_set_1}{first specific feature set from feature pairs}
 
-\item{gene_set_2}{second specific gene set from gene pairs}
+\item{feature_set_2}{second specific feature set from feature pairs}
 
 \item{min_observations}{minimum number of interactions needed to be considered}
+
+\item{expression_values}{(e.g. 'normalized', 'scaled', 'custom')}
 
 \item{detailed}{provide more detailed information (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
 
-\item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+\item{adjust_target}{adjust multiple hypotheses at the cell or feature level}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
@@ -56,18 +64,18 @@ spatCellCellcomSpots(
 
 \item{seed_number}{seed number}
 
-\item{verbose}{verbose}
+\item{verbose}{verbose (e.g. 'a little', 'a lot', 'none')}
 }
 \value{
-Cell-Cell communication scores for gene pairs based on spatial interaction
+Cell-Cell communication scores for feature pairs based on spatial interaction
 }
 \description{
 Spatial Cell-Cell communication scores based on spatial expression of interacting cells at spots resolution
 }
 \details{
-Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+Statistical framework to identify if pairs of features (such as ligand-receptor combinations)
 are expressed at higher levels than expected based on a reshuffled null distribution
-of gene expression values in cells that are spatially in proximity to eachother..
+of feature expression values in cells that are spatially in proximity to eachother..
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}
  \item{lig_cell_type:}{ cell type to assess expression level of ligand }

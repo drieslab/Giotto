@@ -87,12 +87,14 @@ to perform}
 
 \item{cor_name}{name to assign the results in global autocorrelation output}
 
-\item{return_gobject}{(default = FALSE) whether to return results appended to
-metadata in the giotto object or as a data.table}
+\item{return_gobject}{(default = FALSE) whether to return results appended to}
 
 \item{verbose}{be verbose}
 
 \item{enrich_name}{name to assign local autocorrelation spatial enrichment results}
+
+\item{output}{'spatEnrObj' or 'data.table'
+metadata in the giotto object or as a data.table}
 }
 \description{
 Find spatial autocorrelation. Note that \code{spatialAutoCorGlobal}

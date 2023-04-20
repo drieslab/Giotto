@@ -5,12 +5,8 @@
 \title{Convert polygon to raster}
 \usage{
 polygon_to_raster(polygon, field = NULL)
-
-polygon_to_raster(polygon, field = NULL)
 }
 \description{
-function to convert terra SpatVector Polygon shape into a terra SpatRaster
-
 convert polygon to raster
 }
 \keyword{internal}

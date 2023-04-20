@@ -15,7 +15,7 @@ createNearestNetwork(
   feats_to_use = NULL,
   genes_to_use = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  name = "sNN.pca",
+  name = NULL,
   return_gobject = TRUE,
   k = 30,
   minimum_shared = 5,
@@ -27,9 +27,9 @@ createNearestNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{type}{sNN or kNN}
 
@@ -45,7 +45,8 @@ createNearestNetwork(
 
 \item{expression_values}{expression values to use}
 
-\item{name}{arbitrary name for NN network}
+\item{name}{arbitrary name for NN network. Defaults to
+[type].[dim_reduction_to_use]}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
