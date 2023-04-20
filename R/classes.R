@@ -4,19 +4,16 @@
 #' @title NULL or char class union
 #' @description class to allow either NULL or character
 #' @keywords internal
-#' @noRd
 setClassUnion('nullOrChar', c('NULL', 'character'))
 
 #' @title NULL or list class union
 #' @description class to allow either NULL or list
 #' @keywords internal
-#' @noRd
 setClassUnion('nullOrList', c('NULL', 'list'))
 
 #' @title NULL or data.table class union
 #' @description class to allow either NULL or data.table
 #' @keywords internal
-#' @noRd
 setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
 ## * Define external classes ####
@@ -25,8 +22,8 @@ setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 #' @name data.table-class
 #' @aliases data.table
 #' @family data.table
+#'
 #' @exportClass data.table
-#' @noRd
 setOldClass('data.table')
 
 
