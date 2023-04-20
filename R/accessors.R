@@ -3355,10 +3355,13 @@ set_spatialGrid = function(gobject,
   }
 
   ## 5. check if specified name has already been used
-  potential_names = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])
-  if(name %in% potential_names) {
-    wrap_msg('> "', name, '" already exists and will be replaced with new spatial grid \n')
+  if(isTRUE(verbose)) {
+    potential_names = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])
+    if(name %in% potential_names) {
+      wrap_msg('> "', name, '" already exists and will be replaced with new spatial grid \n')
+    }
   }
+
 
   ## TODO: 2. check input for spatial grid
   if(!inherits(spatial_grid, 'spatialGridObj')) stop('spatial_grid to set must be S4 "spatialGridObj"\n')

@@ -112,7 +112,7 @@ estimateCellCellDistance <- function(gobject,
                                      method=c("mean","median")
                                      ){
 
-  delaunay_network_DT = gobject@spatial_network[[spatial_network_name]]$networkDT
+  delaunay_network_DT = gobject@spatial_network[[thickness_unit]][[spatial_network_name]]@networkDT
 
   CellCellDistance = get_distance(networkDT= delaunay_network_DT,
                                               method=method)
@@ -436,14 +436,21 @@ createCrossSection <- function(gobject,
 ){
 
   # read spatial locations
-  spatial_locations = get_spatial_locations(gobject,
-                                            spat_loc_name = spat_loc_name)
-  spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),
-                                        with = F]
-  spatial_locations = as.matrix(spatial_locations)
-  rownames(spatial_locations) = gobject@cell_ID
-  cell_ID_vec = c(1:nrow(spatial_locations))
-  names(cell_ID_vec) = rownames(spatial_locations)
+  spatial_locations = get_spatial_locations(gobject, spat_loc_name = spat_loc_name)
+  cell_IDs = spatial_locations[, "cell_ID"]
+  cell_IDs = cell_IDs$cell_ID
+  
+  colnames_to_extract = c("sdimx", "sdimy", "sdimz")
+  spatial_locations = spatial_locations[, colnames_to_extract]
+  
+  spatial_locations_test = spatial_locations$coordinates
+  
+  spatial_locations_test = spatial_locations@coordinates
+  spatial_locations_test = as.matrix(spatial_locations_test)
+  rownames(spatial_locations_test) = cell_IDs
+  
+  cell_ID_vec = c(1:nrow(spatial_locations_test))
+  names(cell_ID_vec) = rownames(spatial_locations_test)
 
   # generate section plane equation
 
@@ -496,7 +503,7 @@ createCrossSection <- function(gobject,
   max_distance_to_section_plane = sectionThickness/2
 
   # calculate distances to cross section
-  spatial_locations_mat = cbind(spatial_locations,as.matrix(rep(1,dim(spatial_locations)[1])))
+  spatial_locations_mat = cbind(spatial_locations_test,as.matrix(rep(1,dim(spatial_locations_test)[1])))
   norm_vec <- function(x) sqrt(sum(x^2))
   distance_to_plane_vector = abs(spatial_locations_mat %*% as.matrix(plane_equation)/norm_vec(plane_equation[1:3]))
 
@@ -504,7 +511,7 @@ createCrossSection <- function(gobject,
   cell_subset = distance_to_plane_vector<=max_distance_to_section_plane
 
   # project the selected cells onto the section plane ###
-  cell_subset_spatial_locations = spatial_locations[cell_subset,]
+  cell_subset_spatial_locations = spatial_locations_test[cell_subset,]
 
   ## find a point on the section plane ##
   if (plane_equation["A"]!=0){
@@ -549,6 +556,7 @@ createCrossSection <- function(gobject,
     gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[name]] = crossSection_obj
 
     return(gobject)
+    
   }
   else {
     return(crossSection_obj)
