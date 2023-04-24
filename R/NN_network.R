@@ -209,7 +209,7 @@ createNearestNetwork <- function(gobject,
   }
 
 
-print(nn_network_igraph) # debug
+
 
   # set default name
   if(is.null(name)) name = paste0(type, '.', dim_reduction_to_use)
