@@ -40,6 +40,10 @@ by default, all spatial units will be used in conversion.
 If multiple spatial units or feature types are specified, multiple
 AnnData object will be created and returned.
 
+This function will create .txt files which will record any `key_added`
+parameters for networks. They are named after the corresponding spatial unit
+and feature type pair. 
+
 The save_directory will be created if it does not already exist.
 The default save_directory is the working directory.
 }

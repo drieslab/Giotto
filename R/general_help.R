@@ -252,7 +252,7 @@ giotto_alloc_dt_slots = function(gobject) {
       sg = get_spatialGrid(gobject = gobject,
                            spat_unit = avail_sg[sg_i, spat_unit],
                            feat_type = avail_sg[sg_i, feat_type],
-                           name = avail_sg[sg_i, feat_type],
+                           name = avail_sg[sg_i, name],
                            return_grid_Obj = TRUE)
       if(!is.null(sg[])) {
         sg[] = data.table::setalloccol(sg[])
@@ -987,7 +987,10 @@ saveGiotto = function(gobject,
 
         # save raster
         filename = paste0(image_dir, '/', image, '_spatRaster')
-        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object, filename = filename, filetype = image_filetype)
+        terra::writeRaster(x = gobject@largeImages[[image]]@raster_object,
+                           filename = filename,
+                           filetype = image_filetype,
+                           NAflag = NA) # test
       }
     }
   }
@@ -1205,8 +1208,10 @@ loadGiotto = function(path_to_folder,
   }
 
   if(isTRUE(reconnect_giottoImage)) {
-    if(list_images(gobject)[img_type == 'image', .N] > 0) {
-      gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
+    if(!is.null(list_images(gobject))) {
+      if(list_images(gobject)[img_type == 'image', .N] > 0) {
+        gobject = reconnectGiottoImage(gobject, reconnect_type = 'image')
+      }
     }
   }
 
