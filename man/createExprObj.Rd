@@ -10,7 +10,8 @@ createExprObj(
   spat_unit = "cell",
   feat_type = "rna",
   provenance = NULL,
-  misc = NULL
+  misc = NULL,
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix")
 )
 }
 \arguments{

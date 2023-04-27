@@ -2473,9 +2473,10 @@ createExprObj = function(expression_data,
                          spat_unit = 'cell',
                          feat_type = 'rna',
                          provenance = NULL,
-                         misc = NULL) {
+                         misc = NULL,
+                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
 
-  exprMat = evaluate_expr_matrix(expression_data)
+  exprMat = evaluate_expr_matrix(expression_data, expression_matrix_class = expression_matrix_class)
 
   create_expr_obj(name = name,
                   exprMat = exprMat,
