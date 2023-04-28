@@ -4,7 +4,12 @@
 \alias{readExprMatrix}
 \title{Read expression matrix}
 \usage{
-readExprMatrix(path, cores = determine_cores(), transpose = FALSE)
+readExprMatrix(
+  path,
+  cores = determine_cores(),
+  transpose = FALSE,
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix")
+)
 }
 \arguments{
 \item{path}{path to the expression matrix}
