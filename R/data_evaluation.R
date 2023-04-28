@@ -35,12 +35,13 @@
 #' @noRd
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
-                                cores = determine_cores()) {
+                                cores = determine_cores(),
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
 
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores)
+    mymatrix = readExprMatrix(inputmatrix, cores = cores, expression_matrix_class = expression_matrix_class)
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
   } else if(inherits(inputmatrix, 'DelayedMatrix')) {
@@ -64,7 +65,7 @@ evaluate_expr_matrix = function(inputmatrix,
 
   } else if(inherits(inputmatrix, 'exprObj')) {
 
-    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores)
+    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores, expression_matrix_class = expression_matrix_class)
     mymatrix = inputmatrix
 
   }

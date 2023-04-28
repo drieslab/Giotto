@@ -31,6 +31,7 @@ plotMetaDataHeatmap(
   x_text_angle = 45,
   y_text_size = 10,
   strip_text_size = 8,
+  plot_title = NULL,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
