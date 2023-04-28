@@ -117,10 +117,11 @@ Suggests:
 Collate:
     'NN_network.R'
     'accessors.R'
+    'classes.R'
+    'assert.R'
     'auxiliary_giotto.R'
     'auxiliary_visuals.R'
     'cell_segmentation.R'
-    'classes.R'
     'clustering.R'
     'convenience.R'
     'createEpiObject.R'
