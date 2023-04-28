@@ -17,7 +17,9 @@
 #' @export
 readExprMatrix = function(path,
                           cores = determine_cores(),
-                          transpose = FALSE) {
+                          transpose = FALSE,
+                          expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')
+                          ) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
@@ -28,7 +30,12 @@ readExprMatrix = function(path,
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
-
+  
+  if(expression_matrix_class[1] == 'HDF5Matrix') {
+    require(HDF5Array)
+    spM = methods::as(spM, 'HDF5Matrix')
+  }
+  
   if(transpose == TRUE) {
     spM = t_flex(spM)
   }
@@ -78,7 +85,8 @@ readExprData = function(data_list,
                         cores = determine_cores(),
                         default_feat_type = NULL,
                         verbose = TRUE,
-                        provenance = NULL) {
+                        provenance = NULL,
+                        expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
 
   read_expression_data(
     expr_list = data_list,
@@ -86,7 +94,8 @@ readExprData = function(data_list,
     cores = cores,
     default_feat_type = default_feat_type,
     verbose = verbose,
-    provenance = provenance
+    provenance = provenance,
+    expression_matrix_class = expression_matrix_class
   )
 
 }
@@ -100,7 +109,8 @@ read_expression_data = function(expr_list = NULL,
                                 default_spat_unit = NULL,
                                 default_feat_type = NULL,
                                 verbose = TRUE,
-                                provenance = NULL) {
+                                provenance = NULL,
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
 
   # import box characters
   ch = box_chars()
@@ -258,7 +268,8 @@ read_expression_data = function(expr_list = NULL,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
-            misc = NULL
+            misc = NULL,
+            expression_matrix_class = expression_matrix_class
           )
         )
       }

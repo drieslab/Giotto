@@ -701,7 +701,8 @@ createGiottoCosMxObject_all = function(dir_items,
                                        remove_unvalid_polygons = TRUE,
                                        cores,
                                        verbose = TRUE,
-                                       instructions = NULL) {
+                                       instructions = NULL,
+                                       ...) {
 
   # 1. create subcellular giotto as spat_unit 'cell'
   cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items = dir_items,

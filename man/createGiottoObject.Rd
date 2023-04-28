@@ -26,6 +26,7 @@ createGiottoObject(
   instructions = NULL,
   cores = determine_cores(),
   raw_exprs = NULL,
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix"),
   verbose = TRUE
 )
 }

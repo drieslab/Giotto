@@ -1251,7 +1251,7 @@ plot_giotto_points_raster = function(data, feats = NULL, ...) {
       args_list$x = dataDT$x
       args_list$y = dataDT$y
       args_list$col = 'white'
-      do.call('scattermore'::'scattermoreplot', args_list)
+      do.call(scattermore::scattermoreplot, args_list)
 
     } else if(length(feats) == 1L) {
 
@@ -1264,7 +1264,7 @@ plot_giotto_points_raster = function(data, feats = NULL, ...) {
       args_list$x = dataDT$x
       args_list$y = dataDT$y
       args_list$col = 'white'
-      do.call('scattermore'::'scattermoreplot', args_list)
+      do.call(scattermore::scattermoreplot, args_list)
 
     } else {
 
@@ -1292,7 +1292,7 @@ plot_giotto_points_raster = function(data, feats = NULL, ...) {
       rect(u[1], u[3], u[2], u[4], col = 'black', border = NA)
       par(new = TRUE)
 
-      do.call('scattermore'::'scattermoreplot', args_list)
+      do.call(scattermore::scattermoreplot, args_list)
       legend(x = 'topright',
              inset = c(-1.3/dev.size()[1], 0),
              legend = feats,
@@ -1320,7 +1320,7 @@ plot_giotto_points_raster = function(data, feats = NULL, ...) {
 #' @param data points SpatVector
 #' @param feats feature(s) to plot. Leaving NULL plots all points
 #' @param ... additional params to pass
-#' Vectorized plotting workflow for giotttoPoints via base plot()
+#' Vectorized plotting workflow for giottoPoints via base plot()
 #' @noRd
 plot_giotto_points_vector = function(data, feats = NULL, ...) {
   args_list = list(...)
@@ -1333,7 +1333,7 @@ plot_giotto_points_vector = function(data, feats = NULL, ...) {
   if(is.null(feats)) {
     args_list$x = data
     args_list$col = 'white'
-    do.call('terra'::'plot', args_list)
+    do.call(terra::plot, args_list)
   } else {
 
     args_list$x = terra::subset(data, terra::values(data)$feat_ID %in% feats)
@@ -1343,7 +1343,7 @@ plot_giotto_points_vector = function(data, feats = NULL, ...) {
     if(length(feats) > 1L) {
       args_list$y = 'feat_ID'
     }
-      do.call('terra'::'plot', args_list)
+      do.call(terra::plot, args_list)
 
   }
 

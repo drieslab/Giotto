@@ -45,6 +45,7 @@ NULL
 
 # Read Functions ####
 
+#' read_data_params
 #' @name read_data_params
 #' @param data_list (nested) list of input data to read
 #' @param default_spat_unit (optional) default spat_unit to use

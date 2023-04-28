@@ -4,16 +4,19 @@
 #' @title NULL or char class union
 #' @description class to allow either NULL or character
 #' @keywords internal
+#' @noRd
 setClassUnion('nullOrChar', c('NULL', 'character'))
 
 #' @title NULL or list class union
 #' @description class to allow either NULL or list
 #' @keywords internal
+#' @noRd
 setClassUnion('nullOrList', c('NULL', 'list'))
 
 #' @title NULL or data.table class union
 #' @description class to allow either NULL or data.table
 #' @keywords internal
+#' @noRd
 setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
 ## * Define external classes ####
@@ -22,8 +25,8 @@ setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 #' @name data.table-class
 #' @aliases data.table
 #' @family data.table
-#'
 #' @exportClass data.table
+#' @noRd
 setOldClass('data.table')
 
 
@@ -34,7 +37,8 @@ setOldClass('data.table')
 # VIRTUAL CLASSES ####
 
 # ** nameData Class ####
-#'
+#' @keywords internal
+#' @noRd
 setClass('nameData',
          contains = 'VIRTUAL',
          slots = list(name = 'character'),
@@ -42,7 +46,8 @@ setClass('nameData',
 
 # ** exprData Class ####
 #' Basic class for classes with expression information
-#'
+#' @keywords internal
+#' @noRd
 setClass('exprData',
          contains = 'VIRTUAL',
          slots = list(exprMat = 'ANY'),
@@ -57,6 +62,8 @@ setClass('exprData',
 #' information is stored within data.table objects and should work similarly to
 #' data.table when interacting with some basic generic operators for data
 #' retreival and setting.
+#' @keywords internal
+#' @noRd
 setClass('coordDataDT',
          contains = 'VIRTUAL',
          slots = list(coordinates = 'data.table'),
@@ -86,6 +93,8 @@ setMethod('initialize', 'coordDataDT',
 #' Classes that inherit from this class will contain a metadata slot that stores
 #' information in a data.table and should work similarly to data.table when interacting
 #' with some basic generic operators for data retrieval and setting
+#' @keywords internal
+#' @noRd
 setClass('metaData',
          contains = 'VIRTUAL',
          slots = list(metaDT = 'data.table',
@@ -107,6 +116,8 @@ setMethod('initialize', 'metaData',
 
 # ** enrData ####
 #' enrData
+#' @keywords internal
+#' @noRd
 setClass('enrData',
          contains = 'VIRTUAL',
          slots = list(method = 'character',
@@ -127,6 +138,8 @@ setMethod('initialize', 'enrData',
 
 
 # ** nnData ####
+#' @keywords internal
+#' @noRd
 setClass('nnData',
          contains = 'VIRTUAL',
          slots = list(nn_type = 'character',
@@ -136,6 +149,8 @@ setClass('nnData',
 
 
 # ** spatNetData ####
+#' @keywords internal
+#' @noRd
 setClass('spatNetData',
          contains = 'VIRTUAL',
          slots = list(method = 'character',
@@ -166,6 +181,8 @@ setMethod('initialize', 'spatNetData',
 
 
 # ** spatGridData ####
+#' @keywords internal
+#' @noRd
 setClass('spatGridData',
          contains = 'VIRTUAL',
          slots = list(method = 'character',
@@ -196,6 +213,8 @@ setMethod('initialize', 'spatGridData',
 #' information and polygons that are provided as multiple z layers. Provenance
 #' is Giotto's method of mapping this aggregated information back to the original
 #' z layers that were used in its generation.
+#' @keywords internal
+#' @noRd
 setClass('provData',
          contains = 'VIRTUAL',
          slots = list(provenance = 'ANY'),
@@ -211,7 +230,8 @@ setClass('provData',
 #' Subcellular information such as poly data in \code{spatial_info} slot essentially define their
 #' own spatial units. Within slots that deal with classes that contain spatData,
 #' there is a nesting structure that first nests by spatial unit.
-#'
+#' @keywords internal
+#' @noRd
 setClass('spatData',
          contains = c('provData', 'VIRTUAL'),
          slots = list(spat_unit = 'character'), # not allowed to be NULL
@@ -229,7 +249,8 @@ setClass('spatData',
 #' which feature type the data is. Within slots that deal with classes that contain
 #' featData, there is a nesting structure that usually first nests by spatial unit
 #' and then by feature type
-#'
+#' @keywords internal
+#' @noRd
 setClass('featData',
          contains = 'VIRTUAL',
          slots = list(feat_type = 'character'), # not allowed to be NULL
@@ -260,6 +281,8 @@ setClass('miscData',
 
 # ** spatFeatData ####
 #' Superclass for classes that contain both spatial and feature data
+#' @keywords internal
+#' @noRd
 setClass('spatFeatData',
          contains = c('spatData', 'featData', 'VIRTUAL'))
 
@@ -2473,9 +2496,10 @@ createExprObj = function(expression_data,
                          spat_unit = 'cell',
                          feat_type = 'rna',
                          provenance = NULL,
-                         misc = NULL) {
+                         misc = NULL,
+                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
 
-  exprMat = evaluate_expr_matrix(expression_data)
+  exprMat = evaluate_expr_matrix(expression_data, expression_matrix_class = expression_matrix_class)
 
   create_expr_obj(name = name,
                   exprMat = exprMat,
