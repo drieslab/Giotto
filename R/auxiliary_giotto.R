@@ -1181,8 +1181,8 @@ subset_feature_info_data = function(feat_info,
 
   res_list = list()
   for(feat in names(feat_info)) {
-
-    print(feat)
+    
+    if(verbose) print(feat)
 
     if(feat == feat_type) {
 

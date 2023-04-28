@@ -120,7 +120,7 @@ read_expression_data = function(expr_list = NULL,
 
 
   # 1. get depth of list
-  # if(verbose == TRUE) print(str(expr_list))
+
   list_depth = depth(expr_list)
 
 
@@ -666,7 +666,7 @@ read_spatial_location_data = function(spat_loc_list,
 
 
   # 1. get depth of list
-  # if(verbose == TRUE) print(str(spat_loc_list))
+
   list_depth = depth(spat_loc_list)
 
   # no expression information
@@ -1908,7 +1908,7 @@ extract_polygon_list = function(polygonlist,
 
   }
 
-  # print(final_list)
+
   return(final_list)
 
 }

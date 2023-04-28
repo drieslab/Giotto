@@ -388,8 +388,8 @@ createGiottoPolygonsFromMask = function(maskfile,
     shift_horizontal_step = 0
   }
 
-  print(shift_horizontal_step)
-  print(shift_vertical_step)
+  #print(shift_horizontal_step) uneccessary to print?
+  #print(shift_vertical_step) uneccessary to print?
 
   terra_polygon = terra::shift(terra_polygon,
                                dx = shift_horizontal_step,
@@ -401,7 +401,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
     if(background_algo == 'range') {
       backgr_poly_id = identify_background_range_polygons(terra_polygon)
-      print(backgr_poly_id)
+      #print(backgr_poly_id) uneccessary to print?
     }
 
     terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['poly_ID']] != backgr_poly_id)
@@ -1850,7 +1850,7 @@ calculateOverlapPolygonImages = function(gobject,
 
   }
 
-  print('0. create image list')
+  if (verbose) print('0. create image list')
 
   image_vector_c = do.call('c', image_list)
 
@@ -1878,7 +1878,7 @@ calculateOverlapPolygonImages = function(gobject,
   }
 
 
-  print('1. start extraction')
+  if (verbose) print('1. start extraction')
 
   extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
                                                            y = poly_info_spatvector_sf,
@@ -1888,10 +1888,10 @@ calculateOverlapPolygonImages = function(gobject,
   dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
 
   # prepare output
-  print(dt_exact)
+  if (verbose) print(dt_exact)
   colnames(dt_exact)[2:(length(image_names)+1)] = image_names # probably not needed anymore
   dt_exact[, coverage_fraction := NULL]
-  print(dt_exact)
+  if (verbose) print(dt_exact)
 
   if(return_gobject) {
 
@@ -2015,12 +2015,12 @@ calculateOverlapSerial = function(gobject,
   final_result = list()
   for(i in 1:total_nr_groups) {
 
-    print((total_nr_groups-i))
+    if (verbose) print((total_nr_groups-i))
 
     selected_poly_ID_names = poly_ID_names[names(poly_ID_names) == i]
     selected_spatvec = spatvec[spatvec$poly_ID %in% selected_poly_ID_names]
 
-    # print(selected_spatvec)
+
 
     spatvec_result = overlap_points_per_polygon(spatvec = selected_spatvec,
                                                 pointvec = pointvec,
@@ -2363,7 +2363,7 @@ overlapToMatrixMultiPoly = function(gobject,
                                       value.var = 'V1', fill = 0)
   overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
 
   #combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
@@ -2371,7 +2371,7 @@ overlapToMatrixMultiPoly = function(gobject,
   #overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
   #                              match(combined_cell_IDs, colnames(overlapmatrix))]
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
   if(return_gobject == TRUE) {
     gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
@@ -2438,7 +2438,7 @@ overlapImagesToMatrix = function(gobject,
     cell_IDs = unique(as.character(aggr_comb$poly_ID))
     feat_IDs = unique(as.character(aggr_comb$feat_ID))
 
-    #print(feat_IDs[1:10])
+
 
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
@@ -2705,7 +2705,7 @@ combineFeatureOverlapData = function(gobject,
                                        feat_type = feat,
                                        output = 'data.table')
 
-      # print(feat_meta)
+
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2737,7 +2737,7 @@ combineFeatureOverlapData = function(gobject,
 
     }
 
-    # print(comb_dt)
+
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt

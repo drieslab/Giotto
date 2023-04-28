@@ -557,10 +557,12 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
 
     # create and add giotto image objects
-    if(isTRUE(verbose)) message('Attaching image files...')
-    print(composite_dir)
-    print(cellOverlay_dir)
-    print(compartmentLabel_dir)
+    if(isTRUE(verbose)) {
+      message('Attaching image files...')
+      print(composite_dir)
+      print(cellOverlay_dir)
+      print(compartmentLabel_dir)
+    }
 
     gImage_list = list()
 
@@ -1023,9 +1025,11 @@ createGiottoXeniumObject_subcellular = function(data_list,
   tx_dt_filtered = tx_dt[qv >= qv_threshold]
   n_after = tx_dt_filtered[,.N]
 
-  cat('Number of feature points removed: ',
+  if(verbose) {
+    cat('Number of feature points removed: ',
       n_before - n_after,
       ' out of ', n_before, '\n')
+  }
 
   if(isTRUE(verbose)) message('> splitting detections by feat_type')
   # discover feat_IDs for each feat_type
@@ -1449,7 +1453,7 @@ load_merscope_folder = function(dir_items,
 
     img_list = lapply_flex(bound_stains_types, function(stype) {
       img_paths = Sys.glob(paths = file.path(dir_items$`image info`, paste0('*',stype,'*')))
-      # print(img_paths)
+
       lapply_flex(img_paths, function(img) {
         createGiottoLargeImage(raster_object = img)
       }, cores = cores)
