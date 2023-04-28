@@ -12,7 +12,8 @@ createGiottoCosMxObject_all(
   remove_unvalid_polygons = TRUE,
   cores,
   verbose = TRUE,
-  instructions = NULL
+  instructions = NULL,
+  ...
 )
 }
 \arguments{
