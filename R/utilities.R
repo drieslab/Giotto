@@ -12,7 +12,7 @@
 mean_flex = function(x, ...) {
 
   if(inherits(mymatrix, 'HDF5Matrix')) {
-    return(Matrix::mean(x, ...)) 
+    return(Matrix::mean(x, ...))
   } else if(inherits(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
   } else if(inherits(x, 'Matrix')) {
@@ -106,7 +106,7 @@ colSums_flex = function(mymatrix) {
 colMeans_flex = function(mymatrix) {
 
   if(inherits(mymatrix, 'HDF5Matrix')) {
-    return(Matrix::colMeans(mymatrix)) 
+    return(Matrix::colMeans(mymatrix))
   # } else if(inherits(mymatrix, 'DelayedMatrix')) {
   #   return(DelayedMatrixStats::colMeans2(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
@@ -810,25 +810,6 @@ degrees = function(rad) {
 
 
 
-
-# guard functions ####
-
-#' @inheritParams data_access_params
-#' @param n Frames back in which to evaluate the gobject param
-#' @keywords internal
-#' @noRd
-guard_against_notgiotto = function(gobject, n = 1L, ...) {
-  fn_name = deparse(sys.calls()[[sys.nframe() - n]])
-  orig_name = deparse(eval(call('substitute', as.name(substitute(gobject)), parent.frame())))
-  if(!hasArg(gobject)) stop(wrap_txt(fn_name, ':\ngiotto object must be given',
-                                     errWidth = TRUE),
-                            call. = FALSE)
-  if(!inherits(gobject, 'giotto')) {
-    stop(wrap_txt(fn_name, ':\n', orig_name, 'is not a giotto object',
-                  errWidth = TRUE),
-         call. = FALSE)
-  }
-}
 
 
 
