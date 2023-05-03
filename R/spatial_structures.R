@@ -2207,8 +2207,8 @@ createSpatialDefaultGrid <- function(gobject,
     # parent function name
     cl = sys.call(-1)
 
-    print('cl = ')
-    print(cl)
+    # print('cl = ')
+    # print(cl)
 
     if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_grid')

@@ -11,6 +11,7 @@
 #' @param matrix_result_name Default = 'theta_weighted_matrix'
 #' @param w_name_modality_1 name for modality 1 weights
 #' @param w_name_modality_2 name for modality 2 weights
+#' @param verbose be verbose
 #'
 #' @return A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.
 #' @export
@@ -24,7 +25,8 @@ runWNN <- function(gobject,
                    integrated_feat_type = NULL,
                    matrix_result_name = NULL,
                    w_name_modality_1 = NULL,
-                   w_name_modality_2 = NULL) {
+                   w_name_modality_2 = NULL,
+                   verbose = FALSE) {
 
   # validate Giotto object
   if (!inherits(gobject, "giotto")) {
@@ -108,7 +110,7 @@ runWNN <- function(gobject,
 
   ## modality1 modality1
 
-  print(paste("Calculating low dimensional cell-cell distances for", modality_1))
+  if(verbose) print(paste("Calculating low dimensional cell-cell distances for", modality_1))
 
   calculate_all_cell_distances <- function(cell_b) {
     dimensions_cell_a_b <- pca_1[c(cell_a, cell_b),]
@@ -128,7 +130,7 @@ runWNN <- function(gobject,
 
   ## modality2 modality2
 
-  print(paste("Calculating low dimensional cell-cell distances for", modality_2))
+  if(verbose) print(paste("Calculating low dimensional cell-cell distances for", modality_2))
 
   calculate_all_cell_distances <- function(cell_b) {
     dimensions_cell_a_b <- pca_2[c(cell_a, cell_b),]
@@ -148,7 +150,7 @@ runWNN <- function(gobject,
 
   ######################## within-modality prediction ############################
 
-  print("Calculating within-modality prediction")
+  if(verbose) print("Calculating within-modality prediction")
 
   ### predicted modality1 modality1
   predicted_1_1 <- list()
@@ -170,7 +172,7 @@ runWNN <- function(gobject,
 
   ######################## cross-modality prediction ############################
 
-  print("Calculating cross-modality prediction")
+  if(verbose) print("Calculating cross-modality prediction")
 
   ## predicted modality1 modality2
   predicted_1_2 <- list()
@@ -192,7 +194,7 @@ runWNN <- function(gobject,
 
   ###################### calculate jaccard similarities ##########################
 
-  print("Calculating Jaccard similarities")
+  if(verbose) print("Calculating Jaccard similarities")
 
   ## modality1 modality1
   sNN_1 <- createNearestNetwork(gobject,
@@ -223,7 +225,7 @@ runWNN <- function(gobject,
 
   sNN_2 <- igraph::as_data_frame(sNN_2)
 
-  print("Calculating kernel bandwidths")
+  if(verbose) print("Calculating kernel bandwidths")
 
   # cell-specific kernel bandwidth.
 
@@ -263,7 +265,7 @@ runWNN <- function(gobject,
 
   ###################### cell-specific modality weights ##########################
 
-  print("Calculating modality weights")
+  if(verbose) print("Calculating modality weights")
 
   ## modality1 modality1
   theta_1_1 <- list()
@@ -338,7 +340,7 @@ runWNN <- function(gobject,
 
   ##################### ratio of affinities ######################################
 
-  print("Calculating WNN")
+  if(verbose) print("Calculating WNN")
 
   epsilon = 10^-4
 
@@ -511,7 +513,7 @@ runIntegratedUMAP <- function(gobject,
 
   ######################### Calculate integrated UMAP ############################
 
-  print("Calculating integrated UMAP")
+
 
   #### using nn_network pre-calculation
   set.seed(4567)

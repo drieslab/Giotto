@@ -170,6 +170,7 @@ cell_proximity_spots = function(cell_IDs,
 #' @param adjust_method method to adjust p.values (e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")
 #' @param set_seed use of seed. Default = TRUE
 #' @param seed_number seed number to use. Default = 1234
+#' @param verbose be verbose
 #'
 #' @return List of cell Proximity scores (CPscores) in data.table format. The first
 #' data.table (raw_sim_table) shows the raw observations of both the original and
@@ -192,7 +193,8 @@ cellProximityEnrichmentSpots <- function(gobject,
                                                            "holm", "hochberg", "hommel",
                                                            "BY"),
                                          set_seed = TRUE,
-                                         seed_number = 1234) {
+                                         seed_number = 1234,
+                                         verbose = FALSE) {
 
   # p.adj test
   sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
@@ -224,7 +226,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   dwls_values_adjust = dwls_values * cells_in_spot
 
   # compute cell-type/cell-type interactions
-  print("1/5 Computing cell-type/cell-type interactions")
+  if(verbose) print("1/5 Computing cell-type/cell-type interactions")
 
   orig_pairs_external = spatial_network_annot[, .N, by = c('from', 'to')]
   table_orig_results = cell_proximity_spots(cell_IDs = pDataDT(gobject)$cell_ID,
@@ -234,7 +236,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   table_orig_results[, round := 'original']
 
   # make simulated network
-  print("2/5 Make simulated network")
+  if(verbose) print("2/5 Make simulated network")
 
   sample_dt = make_simulated_network(gobject = gobject,
                                      spat_unit = spat_unit,
@@ -282,7 +284,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   table_results <- do.call('rbind', list(table_results, create_missing_for_orig, create_missing_for_sim))
 
   ## p-values
-  print("3/5 Calculating p-values")
+  if(verbose) print("3/5 Calculating p-values")
 
   combo_list = rep(NA, length = length(unique(table_results$unified_int)))
   p_high = rep(NA, length = length(unique(table_results$unified_int)))
@@ -316,7 +318,7 @@ cellProximityEnrichmentSpots <- function(gobject,
 
 
   # depletion or enrichment in barplot format
-  print("4/5 Depletion or enrichment in barplot format")
+  if(verbose) print("4/5 Depletion or enrichment in barplot format")
 
   table_mean_results <- table_results[, .(mean(V1)), by = c('orig', 'unified_int', 'type_int')]
   table_mean_results_dc <- data.table::dcast.data.table(data = table_mean_results, formula = type_int+unified_int~orig, value.var = 'V1')
@@ -330,7 +332,7 @@ cellProximityEnrichmentSpots <- function(gobject,
 
   # adjust p-values for mht
 
-  print("5/5 Calculating adjust p-values for mht")
+  if(verbose) print("5/5 Calculating adjust p-values for mht")
 
   # data.table variables
   p.adj_higher = p.adj_lower = p_lower_orig = p_higher_orig = PI_value = int_ranking = NULL
@@ -962,6 +964,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
+#' @param verbose be verbose
 #'
 #' @return icfObject that contains the differential feat scores
 #' @details Function to calculate if features expression residual are differentially expressed in cell types
@@ -1002,7 +1005,8 @@ findICFSpot <- function(gobject,
                         do_parallel = TRUE,
                         cores = 2,
                         set_seed = TRUE,
-                        seed_number = 1234) {
+                        seed_number = 1234,
+                        verbose = FALSE) {
   
   # data.table variables
   unified_int = NULL
@@ -1074,7 +1078,7 @@ findICFSpot <- function(gobject,
     for(i in 1:length(all_ints$unified_int)) {
 
       x = all_ints$unified_int[i]
-      print(x)
+
 
       tempres = findICF_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
@@ -1643,7 +1647,7 @@ specific_CCCScores_spots = function(gobject,
                                     adjust_target = c('features', 'cells'),
                                     set_seed = FALSE,
                                     seed_number = 1234,
-                                    verbose = T){
+                                    verbose = FALSE){
 
   # data.table variables
   from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
@@ -1659,7 +1663,7 @@ specific_CCCScores_spots = function(gobject,
   cell_direction_1 = paste0(cell_type_1,'--',cell_type_2)
   cell_direction_2 = paste0(cell_type_2,'--',cell_type_1)
 
-  print(paste0('Processing specific CCC Scores: ', cell_direction_1))
+  if(verbose) print(paste0('Processing specific CCC Scores: ', cell_direction_1))
 
   proxi_1 = proximityMat[cell_direction_1,]
   proxi_2 = proximityMat[cell_direction_2,]
@@ -1885,6 +1889,11 @@ spatCellCellcomSpots = function(gobject,
 
   # code start
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
+  if(verbose %in% c('a little', 'none')) {
+      specific_verbose = F
+    } else {
+      specific_verbose = T
+  }
 
   ## check if spatial network exists ##
   spat_networks = names(gobject@spatial_network[[spat_unit]])
@@ -1983,12 +1992,6 @@ spatCellCellcomSpots = function(gobject,
       cell_type_2 = combn_DT[row][['V2']]
 
       if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
-
-      if(verbose %in% c('a little', 'none')) {
-        specific_verbose = F
-      } else {
-        specific_verbose = T
-      }
 
       specific_scores = specific_CCCScores_spots(gobject = gobject,
                                                  spat_unit = spat_unit,

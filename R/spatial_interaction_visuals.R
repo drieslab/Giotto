@@ -428,7 +428,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
                               spatial_network[unified_int %in% interaction_name]$from))
 
-  print(cell_IDs_to_keep)
+  #print(cell_IDs_to_keep)
 
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"--")
@@ -619,7 +619,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
   }
 
 
-  cat('create 2D plotly plot')
+  #create 2D plotly plot
 
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
@@ -823,7 +823,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 
   # if 3 dimensions are defined create a 3D plot
 
-  cat('create 3D plotly plot')
+  # create 3D plotly plot
 
   pl <- plotly::plot_ly()
 
