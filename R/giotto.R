@@ -1300,9 +1300,9 @@ createGiottoObject = function(expression,
                               cores = determine_cores(),
                               raw_exprs = NULL,
                               expression_matrix_class = c('dgCMatrix', 'HDF5Matrix'),
-                              verbose = TRUE) {
+                              verbose = FALSE) {
 
-  debug_msg = FALSE # for debug help
+  debug_msg = FALSE # for reading debug help
   initialize_per_step = FALSE
 
   # create minimum giotto
@@ -2030,7 +2030,7 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          largeImages_list_params = NULL,
                                          instructions = NULL,
                                          cores = NA,
-                                         verbose = TRUE) {
+                                         verbose = FALSE) {
 
   # data.table vars
   poly_ID = cell_ID = feat_ID = x = y = NULL
@@ -2824,7 +2824,7 @@ joinGiottoObjects = function(gobject_list,
                              x_padding = NULL,
                              y_padding = NULL,
                              # dry_run = FALSE,
-                             verbose = TRUE) {
+                             verbose = FALSE) {
 
   # define for data.table
   sdimz = cell_ID = sdimx = sdimy = name = NULL
