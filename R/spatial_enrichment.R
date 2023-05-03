@@ -266,7 +266,7 @@ do_page_permutation = function(gobject,
     overlap_i=intersect(gene_i,rownames(gobject@expression$rna$normalized))
     if (length(overlap_i)<=5){
       output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
-      print(output)
+
     } else {
       available_ct<-c(available_ct,i)
     }
@@ -362,7 +362,7 @@ runPAGEEnrich_OLD <- function(gobject,
     overlap_i=intersect(gene_i,rownames(expr_values))
     if (length(overlap_i)<=5){
       output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
-      print(output)
+
     } else {
       available_ct<-c(available_ct,i)
     }
@@ -433,7 +433,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
       if (length(overlap_i)<=5){
         output = paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. It will be removed.")
-        print(output)
+
       } else {
         available_ct = c(available_ct, i)
       }
@@ -2111,7 +2111,7 @@ enrich_deconvolution <- function(expr,
   }
   rownames(enrich_matrix)<-rownames(ct_exp)
   colnames(enrich_matrix)<-colnames(ct_exp)
-  # print(enrich_matrix)
+
   #####page enrich
   enrich_result<-enrich_analysis(log_expr,enrich_matrix)
   #####initialize dwls matrix
@@ -2137,7 +2137,7 @@ enrich_deconvolution <- function(expr,
     select_sig_exp<-ct_exp[uniq_ct_gene,ct]
     cluster_i_cell<-which(cluster_info==cluster_sort[i])
     cluster_cell_exp<-expr[uniq_ct_gene,cluster_i_cell]
-    # print(cluster_cell_exp)
+
     cluster_i_dwls<-optimize_deconvolute_dwls(cluster_cell_exp,select_sig_exp)
     dwls_results[ct,cluster_i_cell]<-cluster_i_dwls
   }
@@ -2171,7 +2171,7 @@ spot_deconvolution<-function(expr,
   dwls_results<-matrix(0,nrow =dim(ct_exp)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(ct_exp)
   colnames(dwls_results)<-colnames(expr)
-  #print(binary_matrix)
+
   for (i in 1:length(cluster_sort)){
     cluster_i_matrix<-binary_matrix[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_matrix,value = TRUE)
@@ -2347,7 +2347,7 @@ optimize_solveDampenedWLS<-function(S,
     changes = c(changes, change)
   }
 
-  #print(round(solution/sum(solution),5))
+
   return(solution/sum(solution))
 }
 

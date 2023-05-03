@@ -660,7 +660,7 @@ binSpectSingleMatrix = function(expression_matrix,
                                 group_size = 'automatic',
                                 do_parallel = TRUE,
                                 cores = NA,
-                                verbose = TRUE,
+                                verbose = FALSE,
                                 set.seed = NULL) {
 
 
@@ -748,7 +748,8 @@ binSpectSingleMatrix = function(expression_matrix,
                                             do_parallel = do_parallel,
                                             cores = cores,
                                             calc_hub = calc_hub,
-                                            hub_min_int = hub_min_int)
+                                            hub_min_int = hub_min_int,
+                                            verbose = verbose)
 
   } else if(implementation == 'data.table') {
 
@@ -3165,7 +3166,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
                                                   subset_feats = subset_feats,
                                                   b = network_smoothing)
 
-    #print(knn_av_expr_matrix[1:4, 1:4])
+
 
     cor_spat_matrix = cor_flex(t_flex(as.matrix(knn_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
@@ -3341,7 +3342,7 @@ detectSpatialCorFeats <- function(gobject,
                                                   b = network_smoothing)
 
 
-    #print(knn_av_expr_matrix[1:4, 1:4])
+
 
     cor_spat_matrix = cor_flex(t_flex(as.matrix(knn_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
