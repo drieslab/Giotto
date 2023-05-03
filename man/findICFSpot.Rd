@@ -22,7 +22,8 @@ findICFSpot(
   do_parallel = TRUE,
   cores = 2,
   set_seed = TRUE,
-  seed_number = 1234
+  seed_number = 1234,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ findICFSpot(
 \item{set_seed}{set a seed for reproducibility}
 
 \item{seed_number}{seed number}
+
+\item{verbose}{be verbose}
 }
 \value{
 icfObject that contains the differential feat scores

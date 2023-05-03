@@ -15,7 +15,8 @@ cellProximityEnrichmentSpots(
   adjust_method = c("none", "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
     "BY"),
   set_seed = TRUE,
-  seed_number = 1234
+  seed_number = 1234,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ cellProximityEnrichmentSpots(
 \item{set_seed}{use of seed. Default = TRUE}
 
 \item{seed_number}{seed number to use. Default = 1234}
+
+\item{verbose}{be verbose}
 }
 \value{
 List of cell Proximity scores (CPscores) in data.table format. The first
