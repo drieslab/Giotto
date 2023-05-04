@@ -53,6 +53,8 @@ that are provided in the expression slot.
 
 \item{\code{instructions}}{slot for global function instructions}
 
+\item{\code{dbInfo}}{slot for database backend}
+
 \item{\code{offset_file}}{offset file used to stitch together image fields}
 
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}

@@ -17,6 +17,7 @@ compatibility with earlier versions
 Supported updates:
 \itemize{
   \item{3.2.0 update adding multiomics slot}
+  \item{3.4.0 update adding dbInfo slot}
   \item{master branch to suite - TODO}
 }
 }

@@ -14,6 +14,7 @@
 #' @param transpose transpose matrix
 #' @return sparse matrix
 #' @details The expression matrix needs to have both unique column names and row names
+#' @family functions to read expression matrices
 #' @export
 readExprMatrix = function(path,
                           cores = determine_cores(),
@@ -40,6 +41,39 @@ readExprMatrix = function(path,
 
 
 
+#' @name readExprMatrixDB
+#' @title Read a flat file in as dbMatrix
+#' @description
+#' Function to read an expression matrix into a database backend.
+#' @param path path to the expression matrix
+#' @param remote_name name of remote table in database
+#' @param remote_path path to database. Default is tempdir()
+#' @param cores number of cores to use when reading
+#' @param transpose transpose matrix
+#' @param overwrite whether to overwrite remote table
+#' @family functions to read expression matrices
+#' @export
+readExprMatrixDB = function(path,
+                            remote_name = 'test',
+                            remote_path = ':temp:',
+                            cores = determine_cores(),
+                            transpose = FALSE,
+                            overwrite = FALSE,
+                            ...) {
+  # check if path is a character vector and exists
+  if(!is.character(path)) stop('path needs to be character vector')
+  if(!file.exists(path)) stop('the path: ', path, ' does not exist')
+  if(remote_path %in% c(':temp:', ':memory:'))
+    warning(wrap_txt('remote_path is', paste0('\'', remote_path, '\''),
+                     '\nexpression data will not be persistent'))
+
+  args_list = c(as.list(environment()), list(...))
+  names(args_list)[names(args_list) == 'path'] = 'matrix'
+  # uses default callback of IJX formatting
+  db_mat = do.call(GiottoDB::createDBMatrix, args = args_list)
+  if(isTRUE(transpose)) t(db_mat)
+  db_mat
+}
 
 
 
@@ -53,9 +87,12 @@ readExprMatrix = function(path,
 #' @param expr_list (nested) list of expression input data
 #' @param sparse (boolean, default = TRUE) read matrix data in a sparse manner
 #' @param cores number of cores to use
+#' @param expression_matrix_class type of matrix to use
+#' @param remote_dir (backend specific) path to backend. Default is tempdir()
 #' @param default_feat_type default feature type to use
 #' @param verbose be verbose
 #' @param provenance provenance information
+#' @param ... additional params to pass
 #' @details
 #'
 #' mylistA = list('a' = matrix(1:5), 'b' = matrix(1:5))
@@ -76,17 +113,28 @@ readExprMatrix = function(path,
 readExprData = function(data_list,
                         sparse = TRUE,
                         cores = determine_cores(),
+                        expression_matrix_class = c('Matrix', 'HDF5Array', 'dbMatrix'),
+                        remote_dir = ':temp:',
+                        db_extension = '.duckdb',
                         default_feat_type = NULL,
                         verbose = TRUE,
-                        provenance = NULL) {
+                        provenance = NULL,
+                        ...) {
+
+  expression_matrix_class = match.arg(expression_matrix_class,
+                                      choices = c('Matrix', 'HDF5Array', 'dbMatrix'))
 
   read_expression_data(
     expr_list = data_list,
     sparse = sparse,
     cores = cores,
+    expression_matrix_class = expression_matrix_class,
+    remote_dir = remote_dir,
+    db_extension = db_extension,
     default_feat_type = default_feat_type,
     verbose = verbose,
-    provenance = provenance
+    provenance = provenance,
+    ...
   )
 
 }
@@ -97,10 +145,14 @@ readExprData = function(data_list,
 read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
                                 cores = determine_cores(),
+                                expression_matrix_class = 'Matrix',
+                                remote_dir = ':temp:',
+                                db_extension = '.duckdb',
                                 default_spat_unit = NULL,
                                 default_feat_type = NULL,
                                 verbose = TRUE,
-                                provenance = NULL) {
+                                provenance = NULL,
+                                ...) {
 
   # import box characters
   ch = box_chars()
@@ -258,6 +310,11 @@ read_expression_data = function(expr_list = NULL,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
+            expression_matrix_class = expression_matrix_class,
+            db_extension = db_extension,
+            sparse = sparse,
+            cores = cores,
+            remote_dir = remote_dir,
             misc = NULL
           )
         )

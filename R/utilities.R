@@ -15,6 +15,8 @@ mean_flex = function(x, ...) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
   } else if(inherits(x, 'Matrix')) {
     return(Matrix::mean(x, ...))
+  } else if(inherits(x, 'dbMatrix')) {
+    return(GiottoDB::mean(x, ...))
   } else {
     return(base::mean(x, ...))
   }
@@ -34,6 +36,8 @@ rowSums_flex = function(mymatrix) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix))
+  } else if(inherits(mymatrix, 'dbMatrix')) {
+    return(GiottoDB::rowSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
     temp_res = matrixStats::rowSums2(temp_matrix)
@@ -58,6 +62,8 @@ rowMeans_flex = function(mymatrix) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::rowMeans(mymatrix))
+  } else if(inherits(mymatrix, 'dbMatrix')) {
+    return(GiottoDB::rowMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
     temp_res = matrixStats::rowMeans2(temp_matrix)
@@ -81,6 +87,8 @@ colSums_flex = function(mymatrix) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::colSums(mymatrix))
+  } else if(inherits(mymatrix, 'dbMatrix')) {
+    return(GiottoDB::colSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
     temp_res = matrixStats::colSums2(temp_matrix)
@@ -103,6 +111,8 @@ colMeans_flex = function(mymatrix) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
     return(Matrix::colMeans(mymatrix))
+  } else if(inherits(mymatrix, 'dbMatrix')) {
+    return(GiottoDB::colMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
     temp_res = matrixStats::colMeans2(temp_matrix)
@@ -130,6 +140,8 @@ t_flex = function(mymatrix) {
     return(t(mymatrix))
   } else if(inherits(mymatrix, 'spatialNetworkObj')) {
     return(t(mymatrix))
+  } else if(inherits(mymatrix, 'dbMatrix')) {
+    return(GiottoDB::t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)
     mymatrix = base::t(mymatrix)
@@ -147,6 +159,7 @@ t_flex = function(mymatrix) {
 cor_flex = function(x, ...) {
   x = as.matrix(x)
   return(stats::cor(x, ...))
+  # TODO make dbMatrix compatible
 }
 
 
@@ -274,9 +287,23 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 #' @param x matrix
 #' @param center center data
 #' @param scale scale data
+#' @param by normalize by 'row' or 'col'
+#' @param ... additional params to pass
 #' @keywords internal
 #' @return standardized matrix
-standardise_flex = function (x, center = TRUE, scale = TRUE) {
+standardise_flex = function (x,
+                             center = TRUE,
+                             scale = TRUE,
+                             by = c('row', 'col'),
+                             ...) {
+  by = match.arg(by, choices = c('row', 'col'))
+
+  if(inherits(x, 'dbMatrix')) {
+    y = standardise_db(x = x, center = center, scale = scale, by = by, ...)
+    return(y)
+  }
+
+  if(by == 'row') x = t_flex(x)
 
   if (center & scale) {
     y = t_flex(x) - colMeans_flex(x)
@@ -293,6 +320,9 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
   } else {
     y = x
   }
+
+  if(by == 'row') y = t_flex(y)
+  return(y)
 }
 
 #' @title standardise_db
@@ -301,23 +331,31 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
 #' @param x expression database tbl
 #' @param center center data
 #' @param scale scale data
-#' @param by feat or cell
+#' @param by normalize by 'row' or 'col'
+#' @param ... additional params to pass
 #' @keywords internal
 #' @return standardized database table
-standardise_db = function (x, center = TRUE, scale = TRUE, by = c('feat', 'cell')) {
-  
-  i = match.arg(by, c('feat', 'cell')) 
-  
+standardise_db = function (x,
+                           center = TRUE,
+                           scale = TRUE,
+                           by = c('row', 'col'),
+                           ...) {
+
+  i = switch(as.character(by),
+             'row' = 'i',
+             'col' = 'j',
+             stop('\'by\' must be one of "row" or "col"\n'))
+
   if (center & scale) {
-    colMeans <- x |>
+    colMeans <- x[] |>
        group_by(i) |> #scale feats
        summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
 
-    centered_expr <- x |>
+    centered_expr <- x[] |>
        inner_join(colMeans, by = i) |>
        group_by(i) |> #scale feats
        mutate(xlognorm_centered = (xlognorm - mean_i)) |>
-       select('feat', 'cell', xlognorm_centered) |>
+       select('i', 'j', xlognorm_centered) |>
        ungroup()
 
     scaled_expr <- centered_expr |>
@@ -326,40 +364,40 @@ standardise_db = function (x, center = TRUE, scale = TRUE, by = c('feat', 'cell'
                  sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
                  .groups = "drop") |>
        ungroup()
-    
+
     res <- centered_expr |>
        inner_join(scaled_expr, by = i) |>
        group_by(i) |> #scale feats
        mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
-       select('feat', 'cell', xlognorm_centered_scaled)
+       select('i', 'j', xlognorm_centered_scaled)
 
   } else if (center & !scale) {
-    colMeans <- x |>
+    colMeans <- x[] |>
        group_by(i) |> #scale feats
        summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
 
-    res <- x |>
+    res <- x[] |>
        inner_join(colMeans, by = i) |>
        group_by(i) |> #scale feats
        mutate(xlognorm_centered = (xlognorm - mean_i)) |>
-       select('feat', 'cell', xlognorm_centered) |>
+       select('i', 'j', xlognorm_centered) |>
        ungroup()
-    
+
   } else if (!center & scale) {
-    scaled_expr <- x |>
+    scaled_expr <- x[] |>
        group_by(i) |> # scale feats
        summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
                  sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
                  .groups = "drop") |>
        ungroup()
 
-    res <- x |>
+    res <- x[] |>
           inner_join(scaled_expr, by = i) |>
           group_by(i) |> #scale feats
           mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
-          select('feat', 'cell', xlognorm_centered_scaled)
+          select('i', 'j', xlognorm_centered_scaled)
   } else {
-    res = x
+    res = x[]
   }
 
   return(res)

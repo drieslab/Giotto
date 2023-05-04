@@ -6,7 +6,8 @@
 
 
 ## Added
-
+- New GiottoDB extension for out-of-memory database backend
+- New `dbInfo` slot in gobject for working with DB backend
 
 ## Changes
 

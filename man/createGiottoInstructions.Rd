@@ -15,6 +15,7 @@ createGiottoInstructions(
   units = NULL,
   height = NULL,
   width = NULL,
+  db_path = NULL,
   is_docker = FALSE,
   plot_count = 0,
   fiji_path = NULL
@@ -40,6 +41,8 @@ createGiottoInstructions(
 \item{height}{height of plots}
 
 \item{width}{width of  plots}
+
+\item{db_path}{path to directory to save database backend}
 
 \item{is_docker}{using docker implementation of Giotto (defaults to FALSE)}
 

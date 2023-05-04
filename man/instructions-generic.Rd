@@ -31,13 +31,17 @@ instructions(gobject, param, ...)
 
 \item{param}{Specific param in instructions to access or modify}
 
+\item{...}{additional params to pass}
+
 \item{initialize}{(boolean, default = TRUE) whether to initialize the giotto object}
 
 \item{value}{value to set}
 }
 \description{
 Retrieve or set giotto instructions. Specific instructions can
-be replaced using the \code{field} param. Additionally, when using
-instructions<-, \code{initialize()} will be called on the giotto object if
-initialize param is TRUE
+be replaced using the \code{field} param.
+Additionally, when using the instructions<- replacement function,
+\code{initialize()} will be called on the giotto object by default to update
+the object with the changes, but this can be prevented by passing the param
+\code{initialize = FALSE}.
 }

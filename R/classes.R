@@ -17,17 +17,10 @@ setClassUnion('nullOrList', c('NULL', 'list'))
 #' @description class to allow either NULL or data.table
 #' @keywords internal
 #' @noRd
+setOldClass('data.table')
 setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
-## * Define external classes ####
 
-#' data.table S4 class for method dispatch
-#' @name data.table-class
-#' @aliases data.table
-#' @family data.table
-#' @exportClass data.table
-#' @noRd
-setOldClass('data.table')
 
 
 
@@ -385,6 +378,7 @@ setClass('spatFeatData',
 #' Supported updates:
 #' \itemize{
 #'   \item{3.2.0 update adding multiomics slot}
+#'   \item{3.4.0 update adding dbInfo slot}
 #'   \item{master branch to suite - TODO}
 #' }
 #' @examples
@@ -402,6 +396,12 @@ updateGiottoObject = function(gobject) {
   if(is.null(attr(gobject, 'multiomics'))) {
     attr(gobject, 'multiomics') = NA
     gobject@multiomics = NULL
+  }
+
+  # 3.4.0 release adds dbInfo slot
+  if(is.null(attr(gobject, 'dbInfo'))) {
+    attr(gobject, 'dbInfo') = NA
+    gobject@dbInfo = NULL
   }
 
   return(gobject)
@@ -434,6 +434,7 @@ updateGiottoObject = function(gobject) {
 #' @slot largeImages slot to store giottoLargeImage objects
 #' @slot parameters slot to save parameters that have been used
 #' @slot instructions slot for global function instructions
+#' @slot dbInfo slot for database backend
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @slot join_info information about joined Giotto objects
@@ -467,6 +468,7 @@ giotto <- setClass(
     largeImages = "ANY",
     parameters = "ANY",
     instructions = "ANY",
+    dbInfo = 'ANY',
     offset_file = "ANY",
     OS_platform = "ANY",
     join_info = "ANY",
@@ -493,6 +495,7 @@ giotto <- setClass(
     largeImages = NULL,
     parameters = list(),
     instructions = NULL,
+    dbInfo = NULL,
     offset_file = NULL,
     OS_platform = NULL,
     join_info = NULL,
@@ -701,7 +704,7 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
       list_match = sapply(exp_list_names, setequal, exp_list_names[[1L]])
       if(!all(list_match)) {
         print(list_match)
-        warning(wrap_text(
+        warning(wrap_txt(
           'spat_unit:', unique_expr_sets$spat_unit[[set_i]], '/',
           'feat_type:', unique_expr_sets$feat_type[[set_i]],
           '\nNot all expression matrices share the same cell_IDs'
@@ -2490,22 +2493,54 @@ setMethod(
 #' @param spat_unit spatial unit of expression (e.g. 'cell')
 #' @param feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of expression information (if applicable)
+#' @param matrix_type type of matrix to use
+#' @param cores number of cores to use
+#' @param remote_dir (optional) directory of remote backend. Default is tempdir()
+#' @param db_extension (optional) database file extension
+#' @param ... additional params to pass to matrix reading functions
 #' @param misc misc
 createExprObj = function(expression_data,
                          name = 'test',
                          spat_unit = 'cell',
                          feat_type = 'rna',
                          provenance = NULL,
-                         misc = NULL) {
+                         expression_matrix_class = c('Matrix', 'HDF5Matrix', 'dbMatrix'),
+                         sparse = TRUE,
+                         cores = determine_cores(),
+                         remote_dir = ':temp:',
+                         db_extension = '.duckdb',
+                         misc = NULL,
+                         ...) {
+  expression_matrix_class = match.arg(
+    expression_matrix_class, choices = c('Matrix', 'HDF5Matrix', 'dbMatrix')
+  )
+  # Backends: check package and establish remote_dir
+  switch(expression_matrix_class,
+         'dbMatrix' = {
+           package_check('GiottoDB', repository = 'github', github_repo = 'drieslab/GiottoDB')
+           remote_dir = GiottoDB::getDBPath(path = remote_dir, extension = db_extension)
+         },
+         'DelayedArray' = {
+           package_check('HDF5Array', repository = 'Bioc')
+           remote_dir
+           # TODO figure out remote directory/h5 folder
+         })
 
-  exprMat = evaluate_expr_matrix(expression_data)
+
+  exprMat = evaluate_expr_matrix(inputmatrix = expression_data,
+                                 sparse = sparse,
+                                 expression_matrix_class = expression_matrix_class,
+                                 remote_dir = remote_dir,
+                                 remote_name = paste(spat_unit, feat_type, name, sep = '_'),
+                                 cores = cores,
+                                 ...)
 
   create_expr_obj(name = name,
                   exprMat = exprMat,
                   spat_unit = spat_unit,
                   feat_type = feat_type,
                   provenance = provenance,
-                  misc = misc)
+                  misc = list('matrix_type' = expression_matrix_class))
 }
 
 
