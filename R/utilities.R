@@ -341,66 +341,67 @@ standardise_db = function (x,
                            by = c('row', 'col'),
                            ...) {
 
-  i = switch(as.character(by),
-             'row' = 'i',
-             'col' = 'j',
-             stop('\'by\' must be one of "row" or "col"\n'))
-
-  if (center & scale) {
-    colMeans <- x[] |>
-       group_by(i) |> #scale feats
-       summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
-
-    centered_expr <- x[] |>
-       inner_join(colMeans, by = i) |>
-       group_by(i) |> #scale feats
-       mutate(xlognorm_centered = (xlognorm - mean_i)) |>
-       select('i', 'j', xlognorm_centered) |>
-       ungroup()
-
-    scaled_expr <- centered_expr |>
-       group_by(i) |> # scale feats
-       summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
-                 sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
-                 .groups = "drop") |>
-       ungroup()
-
-    res <- centered_expr |>
-       inner_join(scaled_expr, by = i) |>
-       group_by(i) |> #scale feats
-       mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
-       select('i', 'j', xlognorm_centered_scaled)
-
-  } else if (center & !scale) {
-    colMeans <- x[] |>
-       group_by(i) |> #scale feats
-       summarise(mean_i = mean(xlognorm, na.rm = TRUE), .groups = "drop")
-
-    res <- x[] |>
-       inner_join(colMeans, by = i) |>
-       group_by(i) |> #scale feats
-       mutate(xlognorm_centered = (xlognorm - mean_i)) |>
-       select('i', 'j', xlognorm_centered) |>
-       ungroup()
-
-  } else if (!center & scale) {
-    scaled_expr <- x[] |>
-       group_by(i) |> # scale feats
-       summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
-                 sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
-                 .groups = "drop") |>
-       ungroup()
-
-    res <- x[] |>
-          inner_join(scaled_expr, by = i) |>
-          group_by(i) |> #scale feats
-          mutate(xlognorm_centered_scaled = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
-          select('i', 'j', xlognorm_centered_scaled)
-  } else {
-    res = x[]
-  }
-
-  return(res)
+   i = switch(as.character(by),
+              'row' = 'i',
+              'col' = 'j',
+              stop('\'by\' must be one of "row" or "col"\n'))
+   
+   if (center & scale) {
+      colMeans <- x[] |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::summarise(mean_i = mean(x, na.rm = TRUE), .groups = "drop")
+      
+      centered_expr <- x[] |>
+         dplyr::inner_join(colMeans, by = i) |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::mutate(xlognorm_centered = (x - mean_i)) |>
+         dplyr::select('i', 'j', xlognorm_centered) |>
+         dplyr::ungroup()
+      
+      scaled_expr <- centered_expr |>
+         dplyr::group_by(i) |> # scale feats
+         dplyr::summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                   sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
+                   .groups = "drop") |>
+         dplyr::ungroup()
+      
+      res <- centered_expr |>
+         dplyr::inner_join(scaled_expr, by = i) |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::mutate(x = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
+         dplyr::select(i, j, x)
+      
+   } else if (center & !scale) {
+      colMeans <- x[] |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::summarise(mean_i = mean(x, na.rm = TRUE), .groups = "drop")
+      
+      res <- x[] |>
+         dplyr::inner_join(colMeans, by = i) |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::mutate(x = (x - mean_i)) |>
+         dplyr::select(i, j, x) |>
+         dplyr::ungroup()
+      
+   } else if (!center & scale) {
+      
+      scaled_expr <- x[] |>
+         dplyr::group_by(i) |> # scale feats
+         dplyr::summarise(sqrtsumsq = sqrt(sum(x^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                   sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
+                   .groups = "drop") |>
+         dplyr::ungroup()
+      
+      res <- x[] |>
+         dplyr::inner_join(scaled_expr, by = i) |>
+         dplyr::group_by(i) |> #scale feats
+         dplyr::mutate(x = (x / sqrtsumsq * sqrtNrow)) |>
+         dplyr::select(i, j, x)
+   } else {
+      res = x[]
+   }
+   
+   return(res)
 }
 
 
