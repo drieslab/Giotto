@@ -25,32 +25,62 @@
 #' @description Evaluate expression matrices that are provided as input and converts
 #' them to preferred format for Giotto object. A filepath can also be provided through
 #' \code{inputmatrix} param. If this is done, the function will attempt to read the
-#' matrix file in using \code{\link{readExprMatrix}}.
+#' matrix file in using a function determined by the expression_matrix_class param.
+#' If a path is supplied through db_dir remote_dir then a database backend will be used.
+#' This will require installation of the \pkg{GiottoDB} extension.
 #' @param inputmatrix inputmatrix to evaluate
 #' @param sparse create sparse matrix (default = TRUE)
+#' @param remote_dir path to remote backend. Default is tempdir()
+#' @param remote_name (database backend specific) name of table on database
+#' @param expression_matrix_class class of matrix to read in as
 #' @param cores how many cores to use
+#' @param ... additional params to pass to matrix reading functions
 #' @return sparse matrix
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
 #' @keywords internal
 #' @noRd
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
-                                cores = determine_cores()) {
+                                expression_matrix_class = c('Matrix', 'DelayedArray', 'dbMatrix'),
+                                remote_dir = ':temp:',
+                                remote_name = 'test',
+                                cores = determine_cores(),
+                                ...) {
+
+  expression_matrix_class = match.arg(arg = expression_matrix_class,
+                          choices = c('Matrix', 'DelayedArray', 'dbMatrix'))
 
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores)
+    mymatrix = switch(
+      expression_matrix_class,
+      'Matrix' = readExprMatrix(inputmatrix, cores = cores),
+      'DelayedArray' = stop('under construction\n'), # TODO
+      'dbMatrix' = readExprMatrixDB(
+        path = inputmatrix,
+        remote_name = remote_name,
+        remote_path = remote_dir,
+        cores = cores,
+        ...
+      )
+    )
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
   } else if(inherits(inputmatrix, 'DelayedMatrix')) {
     mymatrix = inputmatrix
+  } else if(inherits(inputmatrix, 'dbMatrix')) {
+    mymatrix = GiottoDB::computeDBMatrix(x = inputmatrix,
+                                         remote_name = remote_name,
+                                         temporary = FALSE,
+                                         overwrite = TRUE)
   } else if(inherits(inputmatrix, 'data.table')) {
     if(sparse == TRUE) {
       # force sparse class
       mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
                                 dimnames = list(inputmatrix[[1]],
-                                                colnames(inputmatrix[,-1])), sparse = TRUE)
+                                                colnames(inputmatrix[,-1])),
+                                sparse = TRUE)
     } else {
       # let Matrix decide
       mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
@@ -64,7 +94,9 @@ evaluate_expr_matrix = function(inputmatrix,
 
   } else if(inherits(inputmatrix, 'exprObj')) {
 
-    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores)
+    inputmatrix[] = evaluate_expr_matrix(inputmatrix = inputmatrix[],
+                                         sparse = sparse,
+                                         cores = cores)
     mymatrix = inputmatrix
 
   }

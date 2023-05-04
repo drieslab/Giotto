@@ -694,6 +694,9 @@ createGiottoCosMxObject_aggregate = function(dir_items,
 #' @keywords internal
 createGiottoCosMxObject_all = function(dir_items,
                                        FOVs,
+                                       remove_background_polygon = TRUE,
+                                       background_algo = c('range'),
+                                       remove_unvalid_polygons = TRUE,
                                        cores,
                                        verbose = TRUE,
                                        instructions = NULL) {

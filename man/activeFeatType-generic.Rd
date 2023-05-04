@@ -12,10 +12,14 @@ activeFeatType(gobject, ...)
 
 \S4method{activeFeatType}{giotto}(gobject)
 
-\S4method{activeFeatType}{giotto,character}(gobject) <- value
+\S4method{activeFeatType}{giotto,character}(gobject, ...) <- value
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{...}{additional params to pass to \code{\link{instructions}}}
+
+\item{value}{feature type to set as active}
 }
 \description{
 Retrieve or set the active feature type. This value will be the

@@ -12,10 +12,14 @@ activeSpatUnit(gobject, ...)
 
 \S4method{activeSpatUnit}{giotto}(gobject)
 
-\S4method{activeSpatUnit}{giotto,character}(gobject) <- value
+\S4method{activeSpatUnit}{giotto,character}(gobject, ...) <- value
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{...}{additional params to pass to \code{\link{instructions}}}
+
+\item{value}{spatial unit to set as active}
 }
 \description{
 Retrieve or set the active spatial unit. This value will be the

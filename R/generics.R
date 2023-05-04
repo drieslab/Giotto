@@ -142,9 +142,11 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 #' @aliases activeSpatUnit activeSpatUnit<-
 #' @description Retrieve or set the active spatial unit. This value will be the
 #' default spatial unit that the giotto object uses.
+#' @param value spatial unit to set as active
+#' @param ... additional params to pass to \code{\link{instructions}}
 #' @inheritParams data_access_params
 setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
-setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+setGeneric('activeSpatUnit<-', function(gobject, ..., value) standardGeneric('activeSpatUnit<-'))
 
 #' @rdname activeSpatUnit-generic
 #' @export
@@ -158,8 +160,8 @@ setMethod('activeSpatUnit', signature(gobject = 'giotto'), function(gobject) {
 #' @rdname activeSpatUnit-generic
 #' @export
 setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character'),
-          function(gobject, value) {
-            instructions(gobject, 'active_spat_unit') = value
+          function(gobject, ..., value) {
+            instructions(gobject, param = 'active_spat_unit', ...) = value
             return(gobject)
           })
 
@@ -170,9 +172,11 @@ setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character')
 #' @aliases activeFeatType activeFeatType<-
 #' @description Retrieve or set the active feature type. This value will be the
 #' default feature type that the giotto object uses.
+#' @param value feature type to set as active
+#' @param ... additional params to pass to \code{\link{instructions}}
 #' @inheritParams data_access_params
 setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
-setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+setGeneric('activeFeatType<-', function(gobject, ..., value) standardGeneric('activeFeatType<-'))
 
 #' @rdname activeFeatType-generic
 #' @export
@@ -186,10 +190,60 @@ setMethod('activeFeatType', signature(gobject = 'giotto'), function(gobject) {
 #' @rdname activeFeatType-generic
 #' @export
 setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character'),
-          function(gobject, value) {
+          function(gobject, ..., value) {
             instructions(gobject, 'active_feat_type') = value
             return(gobject)
           })
+
+
+
+
+# dbPath ####
+#' @title Database backend path
+#' @name dbPath-generic
+#' @aliases dbPath dbPath<-
+#' @description Retrieve or set the database backend path in the Giotto instructions.
+#' Immediately updates the hash ID contained within any existing GiottoDB backendInfo
+#' object in the gobject dbInfo slot.
+#' When dbData objects access that backendInfo object for reconnection, they will
+#' also update their hash ID values
+#' @inheritParams data_access_params
+setGeneric('dbPath', function(gobject, ...) standardGeneric('dbPath'))
+setGeneric('dbPath<-', function(gobject, ..., value) standardGeneric('dbPath<-'))
+
+
+#' @rdname dbPath-generic
+#' @export
+setMethod('dbPath', signature(gobject = 'giotto'), function(gobject) {
+  package_check(pkg_name = 'GiottoDB',
+                repository = 'github',
+                github_repo = 'drieslab/GiottoDB')
+  return(instructions(gobject, 'db_path'))
+})
+
+
+#' @rdname dbPath-generic
+#' @export
+setMethod('dbPath<-', signature(gobject = 'giotto', value = 'character'),
+          function(gobject, extension = '.duckdb', ..., value) {
+            package_check(pkg_name = 'GiottoDB',
+                          repository = 'github',
+                          github_repo = 'drieslab/GiottoDB')
+
+            instructions(gobject, param = 'db_path', ...) = value
+
+            # if existing, get backendInfo and set into dbInfo slot
+            # if(!is.null(gobject@dbInfo)) {
+            #
+            #   GiottoDB::backendID(gobject@dbInfo) =
+            #
+            # }
+
+
+
+            return(gobject)
+          })
+
 
 
 
@@ -200,15 +254,18 @@ setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character')
 #' @name instructions-generic
 #' @aliases instructions instructions<-
 #' @description Retrieve or set giotto instructions. Specific instructions can
-#' be replaced using the \code{field} param. Additionally, when using
-#' instructions<-, \code{initialize()} will be called on the giotto object if
-#' initialize param is TRUE
+#' be replaced using the \code{field} param.
+#' Additionally, when using the instructions<- replacement function,
+#' \code{initialize()} will be called on the giotto object by default to update
+#' the object with the changes, but this can be prevented by passing the param
+#' \code{initialize = FALSE}.
 #' @inheritParams data_access_params
 #' @param param Specific param in instructions to access or modify
 #' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
+#' @param ... additional params to pass
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, param, initialize, ..., value) standardGeneric('instructions<-'))
 
 
 
@@ -296,6 +353,7 @@ setMethod('instructions<-',
 #' @description Retrieve or set the row or column names of an object
 #' @param x object
 #' @return A character vector of row or col names
+#' @noRd
 if(!isGeneric('colnames')) setOldClass('colnames')
 if(!isGeneric('rownames')) setOldClass('rownames')
 

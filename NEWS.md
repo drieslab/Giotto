@@ -1,9 +1,22 @@
 
 
-
-# Giotto Suite 3.2.1 (TBD)
+# Giotto Suite 3.3.1 (Release TBD)
 
 ## Breaking Changes
+
+
+## Added
+- New GiottoDB extension for out-of-memory database backend
+- New `dbInfo` slot in gobject for working with DB backend
+
+## Changes
+
+
+
+# Giotto Suite 3.3.0 (2023-04-18)
+
+## Breaking Changes
+- Set Suite as default branch
 - Removed all deprecated accessors from `accessors.R`
 - `set_default_feat_type()` error downgraded to warning when no `feat_type`s exist for given `spat_unit`
 - update `loadGiotto()` and `saveGiotto()` to allow using long strings as column names in the spatVector objects
@@ -13,6 +26,7 @@
 
 
 ## Added
+- New implementations of `anndataToGiotto()` and `giottoToAnnData()` for Nearest Neighbor and Spatial Networks
 - New `check_py_for_scanpy()` function, shifting code around in `anndataToGiotto()`
 - Add `initialize()` method for `giotto`
 - Add exported `create` constructor functions for Giotto S4 subobjects
@@ -41,6 +55,7 @@
 - Modify `cell_ID`, `feat_ID`, `cell_metadata`, `feat_metadata` slot initialization
 - Update `read_expression_data()` and `evaluate_expr_matrix()` to be compatible with `exprObj`
 - Change `changeGiottoInstructions()` to allow addition of new params and enforce logical class of known params
+- Update and fix bugs in `createGiottoCosMxObject()` associated with polygon placement and generation
 - Update `plot()` for `giottoPoints` with faster rasterized plotting option. (Now used by default)
 - Fix bug in `doLouvainCluster()` (sub)functions and made them compatible with new Giotto Suite framework.
 - Fix bug in `gefToGiotto()` bin_size arguments.

@@ -16,6 +16,7 @@
 #' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
+#' @param db_path path to directory to save database backend
 #' @param is_docker using docker implementation of Giotto (defaults to FALSE)
 #' @param plot_count [global option] start count for creating automatic unique plots
 #' @param fiji_path path to fiji executable
@@ -32,6 +33,7 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      units = NULL,
                                      height = NULL,
                                      width = NULL,
+                                     db_path = NULL,
                                      is_docker = FALSE,
                                      plot_count = 0,
                                      fiji_path = NULL) {
@@ -121,6 +123,7 @@ createGiottoInstructions <- function(python_path =  NULL,
     units = units,
     height = height,
     width = width,
+    db_path = db_path,
     is_docker = is_docker
   )
 
@@ -140,6 +143,7 @@ create_giotto_instructions = function(python_path = NULL,
                                       units = NULL,
                                       height = NULL,
                                       width = NULL,
+                                      db_path = NULL,
                                       is_docker = NULL) {
   instructions_list = list(python_path = python_path,
                            show_plot = show_plot,
@@ -151,6 +155,7 @@ create_giotto_instructions = function(python_path = NULL,
                            units = units,
                            height = height,
                            width = width,
+                           db_path = db_path,
                            is_docker = is_docker)
   class(instructions_list) = c('giottoInstructions', 'list')
   return(instructions_list)
@@ -1287,6 +1292,7 @@ shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRU
 #' @export
 createGiottoObject = function(expression,
                               expression_feat = 'rna',
+                              expression_matrix_class = 'Matrix',
                               spatial_locs = NULL,
                               spatial_info = NULL,
                               calc_poly_centroids = FALSE,
@@ -1304,6 +1310,8 @@ createGiottoObject = function(expression,
                               largeImages = NULL,
                               offset_file = NULL,
                               instructions = NULL,
+                              remote_dir = ':temp:',
+                              db_extension = '.duckdb',
                               cores = determine_cores(),
                               raw_exprs = NULL,
                               verbose = TRUE) {
@@ -1398,6 +1406,9 @@ createGiottoObject = function(expression,
                                    sparse = TRUE,
                                    cores = cores,
                                    default_feat_type = expression_feat,
+                                   expression_matrix_class = expression_matrix_class,
+                                   remote_dir = remote_dir,
+                                   db_extension = db_extension,
                                    verbose = debug_msg)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setExpression(gobject = gobject,
