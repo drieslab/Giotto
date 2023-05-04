@@ -103,7 +103,7 @@ browser()
   if(inherits(mymatrix, 'dbMatrix')) {
     mymatrix[] = mymatrix[] %>%
       dplyr::group_by(j) %>%
-      dplyr::mutate(x = (x / sum(x)) * scalefactor) %>%
+      dplyr::mutate(x = (as.numeric(x) / sum(x)) * scalefactor) %>% 
       dplyr::ungroup() %>%
       dplyr::collapse()
     norm_expr = mymatrix
@@ -129,7 +129,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
   } else if(methods::is(mymatrix, 'dbMatrix')) {
     mymatrix[] = mymatrix[] %>%
       dplyr::group_by(j) %>%
-      dplyr::mutate(xlognorm = log(xnorm + offset)/log(base)) %>%
+      dplyr::mutate(xlognorm = log(as.numeric(x) + offset)/log(base)) %>%
       dplyr::ungroup() %>%
       dplyr::collapse()
 
