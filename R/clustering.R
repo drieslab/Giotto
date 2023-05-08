@@ -75,7 +75,7 @@ doLeidenCluster = function(gobject,
                                      network_name = network_name,
                                      output = 'igraph')
 
-  #print(igraph_object)
+
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -121,7 +121,7 @@ doLeidenCluster = function(gobject,
   }
 
 
-  #print(network_edge_dt)
+
 
   ## do python leiden clustering
   reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
@@ -136,7 +136,7 @@ doLeidenCluster = function(gobject,
   ident_clusters_DT = data.table::data.table(cell_ID = pyth_leid_result[[1]], 'name' = pyth_leid_result[[2]])
   data.table::setnames(ident_clusters_DT, 'name', name)
 
-  #print(ident_clusters_DT)
+
 
   ## add clusters to metadata ##
   if(return_gobject == TRUE) {
@@ -2402,18 +2402,18 @@ mergeClusters <- function(gobject,
 
     if(all(res == F)) {
 
-      #print('not in list yet')
+
       finallist[[start_i]] = c(first_clus, second_clus)
       start_i = start_i + 1
 
     } else if(length(res[res == T]) == 2) {
 
-      #print('do nothing')
+
       NULL
 
     } else {
 
-      #print('already in list')
+
       who = which(res == TRUE)[[1]]
       finallist[[who]] = unique(c(finallist[[who]], first_clus, second_clus))
 
@@ -2637,7 +2637,7 @@ getDendrogramSplits = function(gobject,
 
   cordend = stats::as.dendrogram(object = corclus)
 
-  ## print dendrogram ##
+
   if(show_dend == TRUE) {
     # plot dendrogram
     graphics::plot(cordend)

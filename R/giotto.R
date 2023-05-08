@@ -661,14 +661,7 @@ check_spatial_location_data = function(gobject) {
 
         spatial_cell_id_names = spatlocsDT[['cell_ID']]
 
-        # spatial_cell_id_names = sort(spatial_cell_id_names)
-        # expected_cell_ID_names = sort(expected_cell_ID_names)
-
         if(!setequal(spatial_cell_id_names, expected_cell_ID_names)) {
-          # message('spatloc cell_IDs: ')
-          # cat('  ', head(spatial_cell_id_names,3), '...', tail(spatial_cell_id_names,3), '\n')
-          # message('expression cell_IDs: ')
-          # cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
 
           stop('cell_IDs between spatial and expression information are not the same for: \n
                  spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
@@ -736,7 +729,7 @@ check_spatial_networks = function(gobject) {
                            'name:', su_sn$name[[obj_i]], '\n',
                            'Spatial network vertex names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_sn$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -786,7 +779,7 @@ check_spatial_enrichment = function(gobject) {
                            'name:', su_se$name[[obj_i]], '\n',
                            'Spatial enrichment IDs are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_se_name[[obj_i]])) # debug
+
       })
     }
   }
@@ -880,7 +873,7 @@ check_dimension_reduction = function(gobject) {
                            'name:', su_dr$name[[obj_i]], '\n',
                            'Dimension reduction coord names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_dr$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -933,7 +926,7 @@ check_nearest_networks = function(gobject) {
                            'name:', su_nn$name[[obj_i]], '\n',
                            'Nearest network vertex names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_nn$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -983,7 +976,7 @@ check_spatial_info = function(gobject) {
                            'spatloc name:', su_sloc$name[[obj_i]], '\n',
                            'cell IDs in spatial locations are missing from spatial polygon info'))
         }
-        # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -1307,9 +1300,9 @@ createGiottoObject = function(expression,
                               cores = determine_cores(),
                               raw_exprs = NULL,
                               expression_matrix_class = c('dgCMatrix', 'HDF5Matrix'),
-                              verbose = TRUE) {
+                              verbose = FALSE) {
 
-  debug_msg = FALSE # for debug help
+  debug_msg = FALSE # for reading debug help
   initialize_per_step = FALSE
 
   # create minimum giotto
@@ -2037,7 +2030,7 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          largeImages_list_params = NULL,
                                          instructions = NULL,
                                          cores = NA,
-                                         verbose = TRUE) {
+                                         verbose = FALSE) {
 
   # data.table vars
   poly_ID = cell_ID = feat_ID = x = y = NULL
@@ -2153,8 +2146,6 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
     gobject@cell_ID[[poly]] = unique_poly_names
   }
 
-  #gobject@cell_ID = gobject@spatial_info[['cell']]@spatVector$poly_ID
-  #gobject@cell_ID = gobject@spatial_info[[1]]@spatVector$poly_ID
 
   ## extract points information ##
   ## -------------------------- ##
@@ -2833,7 +2824,7 @@ joinGiottoObjects = function(gobject_list,
                              x_padding = NULL,
                              y_padding = NULL,
                              # dry_run = FALSE,
-                             verbose = TRUE) {
+                             verbose = FALSE) {
 
   # define for data.table
   sdimz = cell_ID = sdimx = sdimy = name = NULL
@@ -3583,7 +3574,7 @@ joinGiottoObjects = function(gobject_list,
     savelist_centroids = list()
     for(gobj_i in seq_along(updated_object_list)) {
 
-      #print(updated_object_list[[gobj_i]]@spatial_info[[spat_info]])
+
 
       spat_information_vector = updated_object_list[[gobj_i]]@spatial_info[[spat_info]]@spatVector
       savelist_vector[[gobj_i]] = spat_information_vector

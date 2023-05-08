@@ -23,7 +23,7 @@ specific_CCCScores_spots(
   adjust_target = c("features", "cells"),
   set_seed = FALSE,
   seed_number = 1234,
-  verbose = T
+  verbose = FALSE
 )
 }
 \arguments{

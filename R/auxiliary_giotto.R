@@ -1082,7 +1082,7 @@ subset_spatial_info_data = function(spatial_info,
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
-      #print(spat_subset)
+
       res_list[[spat_info]] = spat_subset
 
     } else {
@@ -1122,7 +1122,8 @@ subset_giotto_points_object = function(gpoints,
                                        x_min = NULL,
                                        x_max = NULL,
                                        y_min = NULL,
-                                       y_max = NULL) {
+                                       y_max = NULL,
+                                       verbose = FALSE) {
 
   # define for data.table [] subset
   x = NULL
@@ -1138,17 +1139,17 @@ subset_giotto_points_object = function(gpoints,
     # spatial subset specific
     if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
 
-      print('im1')
+      if(verbose) print('im1')
 
       myspatvector = gpoints@spatVector
       spatDT = spatVector_to_dt(myspatvector)
 
-      print('im2')
+      if(verbose) print('im2')
 
       spatDT_subset = spatDT[x >= x_min & x <= x_max & y >= y_min & y <= y_max]
       myspatvector_subset = dt_to_spatVector_points(dt = spatDT_subset)
 
-      print('im3')
+      if(verbose) print('im3')
 
       gpoints@spatVector = myspatvector_subset
       gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)] # update cache
@@ -1177,12 +1178,13 @@ subset_feature_info_data = function(feat_info,
                                     x_min = NULL,
                                     x_max = NULL,
                                     y_min = NULL,
-                                    y_max = NULL) {
+                                    y_max = NULL,
+                                    verbose = FALSE) {
 
   res_list = list()
   for(feat in names(feat_info)) {
-
-    print(feat)
+    
+    if(verbose) print(feat)
 
     if(feat == feat_type) {
 
@@ -1191,7 +1193,8 @@ subset_feature_info_data = function(feat_info,
                                                 x_min = x_min,
                                                 x_max = x_max,
                                                 y_min = y_min,
-                                                y_max = y_max)
+                                                y_max = y_max,
+                                                verbose = verbose)
 
       res_list[[feat]] = feat_subset
 
@@ -1288,8 +1291,8 @@ subsetGiotto <- function(gobject,
   }
 
 
-  #print(cell_ids[1:10])
-  #print(feat_ids[1:10])
+
+
 
 
 
@@ -1310,7 +1313,7 @@ subsetGiotto <- function(gobject,
 
 
   # filter spatial locations
-  #print(spat_unit)
+
   gobject = subset_spatial_locations(gobject = gobject,
                                      cell_ids = cell_ids,
                                      spat_unit = spat_unit)
@@ -1415,7 +1418,8 @@ subsetGiotto <- function(gobject,
                                                  x_max = x_max,
                                                  x_min = x_min,
                                                  y_max = y_max,
-                                                 y_min = y_min)
+                                                 y_min = y_min,
+                                                 verbose = verbose)
 
     if(verbose == TRUE) cat('completed 12: subsetted spatial feature data \n')
   }
@@ -1446,8 +1450,11 @@ subsetGiotto <- function(gobject,
                                      'feats removed' = feats_removed)
   gobject@parameters = parameters_list
 
-  print(gobject@spatial_info)
-  print(gobject@spatial_locs)
+  if(verbose){
+    print(gobject@spatial_info)
+    print(gobject@spatial_locs)
+  }
+  
 
   return(initialize(gobject))
 
@@ -1693,7 +1700,7 @@ subsetGiottoLocsSubcellular = function(gobject,
                                        y_max = NULL,
                                        z_max = NULL,
                                        z_min = NULL,
-                                       verbose = TRUE) {
+                                       verbose = FALSE) {
 
   # only to be used if there is no aggregated information #
   if(!is.null(gobject@expression)) {
@@ -1734,7 +1741,8 @@ subsetGiottoLocsSubcellular = function(gobject,
                                                  x_max = x_max,
                                                  x_min = x_min,
                                                  y_max = y_max,
-                                                 y_min = y_min)
+                                                 y_min = y_min,
+                                                 verbose = verbose)
 
     if(verbose == TRUE) cat('subsetted spatial feature data \n')
   } else {
@@ -4045,7 +4053,7 @@ addCellStatistics <- function(gobject,
                                     output = 'exprObj')
 
   # calculate stats
-  #print('ok 1')
+
   cell_stats = data.table::data.table(cells = colnames(expr_data[]),
                                       nr_feats = colSums_flex(expr_data[] > detection_threshold),
                                       perc_feats = (colSums_flex(expr_data[] > detection_threshold)/nrow(expr_data[]))*100,
@@ -4076,8 +4084,8 @@ addCellStatistics <- function(gobject,
     }
 
 
-    #print('ok 2')
-    #print(cell_stats)
+
+
     gobject = addCellMetadata(gobject = gobject,
                               feat_type = feat_type,
                               spat_unit = spat_unit,

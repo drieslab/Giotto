@@ -1175,7 +1175,7 @@ loadGiotto = function(path_to_folder,
 
           # read in original column names and assign to spatVector
           spatVector_names = fread(input = overlap_paths_colnames[spat_i], header = FALSE)[['V1']]
-          print(spatVector_names)
+          if (verbose) print(spatVector_names)
           names(spatVector) = spatVector_names
 
           feat_name = gsub(overlap_filenames[spat_i], pattern = paste0('_', overlap_search_term[sv_i]), replacement = '')
@@ -1714,7 +1714,7 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
       fov_info = read_file$featuredata
 
       # update progress
-      print(basename(hdf5_boundary_selected_list[[bound_i]]))
+      if(verbose) print(basename(hdf5_boundary_selected_list[[bound_i]]))
       elapsed = (proc.time() - init)[[3L]]
       step_time = elapsed/bound_i
       est = (hdf5_list_length * step_time) - elapsed
@@ -1900,7 +1900,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                                         H5Fopen_flags = H5Fopen_flags)
 
                               # update progress
-                              print(basename(hdf5_boundary_selected_list[[bound_i]]))
+                              if(verbose) print(basename(hdf5_boundary_selected_list[[bound_i]]))
                               if(bound_i %% 5 == 0) {
                                 pb()
                               }

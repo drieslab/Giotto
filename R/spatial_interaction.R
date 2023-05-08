@@ -616,7 +616,7 @@ do_multi_permuttest_random = function(expr_values,
 
   result = lapply(X = 1:n, FUN = function(x) {
 
-    #print('lapply')
+
 
     seed_number = seed_number_list[x]
 
@@ -648,16 +648,16 @@ do_permuttest = function(expr_values,
                          seed_number = 1234) {
 
 
-  print(' ')
-  print('do_permuttest')
-  print(' ')
+  #print(' ')
+  #print('do_permuttest')
+  #print(' ')
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = feats = p_higher = p_lower = perm_sel = NULL
   perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
 
   ## original data
-  print('ok1')
+  #print('ok1')
   original = do_permuttest_original(expr_values = expr_values,
                                     select_ind = select_ind, other_ind = other_ind,
                                     name = 'orig',
@@ -665,7 +665,7 @@ do_permuttest = function(expr_values,
                                     offset = offset)
 
   ## random permutations
-  print('ok2')
+  #print('ok2')
   random_perms = do_multi_permuttest_random(expr_values = expr_values,
                                             n = n_perm,
                                             select_ind = select_ind,
@@ -724,9 +724,9 @@ do_cell_proximity_test = function(expr_values,
                                                        "BY", "fdr", "none"))
   mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
 
-  print(' ')
-  print('do_cell_proximity_test')
-  print(' ')
+  #print(' ')
+  #print('do_cell_proximity_test')
+  #print(' ')
 
   if(diff_test == 'permutation') {
     result = do_permuttest(expr_values = expr_values,
@@ -917,7 +917,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
       return(NULL)
     }
 
-    print('second')
+    #print('second')
 
     result_cells = do_cell_proximity_test(expr_values = expr_values,
                                           select_ind = sel_ind1, other_ind = all_ind1,
@@ -1045,7 +1045,7 @@ findInteractionChangedFeats = function(gobject,
   ## metadata
   cell_metadata = pDataDT(gobject, feat_type = feat_type)
 
-  print(cell_metadata)
+
 
   ## annotated spatial network
   annot_spatnetwork = annotateSpatialNetwork(gobject,
@@ -1093,7 +1093,7 @@ findInteractionChangedFeats = function(gobject,
     for(i in 1:length(all_interactions)) {
 
       x = all_interactions[i]
-      print(x)
+      
 
       tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
@@ -1120,7 +1120,7 @@ findInteractionChangedFeats = function(gobject,
 
   final_result = do.call('rbind', fin_result)
 
-  print(final_result)
+
 
   # data.table variables
   spec_int = cell_type = int_cell_type = type_int = NULL

@@ -9,6 +9,18 @@
 
 
 ## Changes
+- Removed various print() and cat() statements throughout. 
+- Changed default verbose argument to FALSE for createGiottoObject
+- Changed default verbose argument to FALSE for joinGiottoObjects
+- Changed default verbose argument to FALSE for createGiottoObjectSubcellular
+- Default verbose = FALSE argument added to cellProximityEnrichmentSpots
+- Default verbose = FALSE argument added to specific_CCCScores_spots
+- Default verbose = FALSE argument added to runWNN
+- Default verbose = FALSE argument added to subset_giotto_points_object 
+- Default verbose = FALSE argument added to subset_feature_info_data 
+- Default verbose = FALSE argument added to subsetGiotto
+- Default verbose = FALSE argument added to subsetGiottoLocsSubcellular 
+- Default verbose = FALSE argument added to createGiottoXeniumObject_subcellular
 
 
 

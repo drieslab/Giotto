@@ -15,7 +15,8 @@ runWNN(
   integrated_feat_type = NULL,
   matrix_result_name = NULL,
   w_name_modality_1 = NULL,
-  w_name_modality_2 = NULL
+  w_name_modality_2 = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ runWNN(
 \item{w_name_modality_1}{name for modality 1 weights}
 
 \item{w_name_modality_2}{name for modality 2 weights}
+
+\item{verbose}{be verbose}
 }
 \value{
 A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.

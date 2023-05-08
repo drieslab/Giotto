@@ -979,7 +979,7 @@ jackstrawPlot = function(gobject,
 
     ## results ##
     nr_sign_components = jtest$r
-    cat('number of estimated significant components: ', nr_sign_components, '\n')
+    if(verbose) cat('number of estimated significant components: ', nr_sign_components, '\n')
     final_results = jtest$p
     jackplot = create_jackstrawplot(jackstraw_data = final_results, ncp = ncp, ylim = ylim, threshold = threshold)
 
@@ -1342,7 +1342,7 @@ runUMAP <- function(gobject,
 
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      #print(matrix_to_use[1:2,1:2])
+
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 

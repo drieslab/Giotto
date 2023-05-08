@@ -187,13 +187,13 @@ expand_feature_info = function(spatial_feat_info,
     if(!count_info_column %in% colnames(spatial_feat_info)) stop('count_info_column ', count_info_column, ' does not exist')
 
     if(isTRUE(verbose)) {wrap_msg('Start expanding feature information based on count column')}
-    #print(spatial_feat_info)
+
 
     extra_feats = spatial_feat_info[get(count_info_column) > 1]
     extra_feats = extra_feats[,rep(get(count_info_column), get(count_info_column)), by = .(feat_ID, x, y, feat, spat_unit)]
     spatial_feat_info = rbind(extra_feats[,.(feat_ID, x, y, feat, spat_unit)], spatial_feat_info[get(count_info_column) == 1, .(feat_ID, x, y, feat, spat_unit)])
 
-    #print(spatial_feat_info)
+
 
   }
 

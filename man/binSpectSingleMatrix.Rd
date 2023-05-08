@@ -26,7 +26,7 @@ binSpectSingleMatrix(
   group_size = "automatic",
   do_parallel = TRUE,
   cores = NA,
-  verbose = TRUE,
+  verbose = FALSE,
   set.seed = NULL
 )
 }
