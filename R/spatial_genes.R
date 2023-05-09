@@ -2406,8 +2406,9 @@ detectSpatialPatterns <- function(gobject,
                                   ncp = 100,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
-
-
+##########################################################################################
+  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
@@ -2961,7 +2962,7 @@ do_spatial_knn_smoothing = function(expression_matrix,
   feat_ID = value = NULL
 
   # merge spatial network with expression data
-  expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, feat_ID := rownames(expr_values)]
+  expr_values_dt = data.table::as.data.table(as.matrix(expr_values)); expr_values_dt[, feat_ID := rownames(expr_values)]
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'feat_ID', variable.name = 'cell_ID')
 
 

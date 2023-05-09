@@ -11,7 +11,7 @@
 #' @keywords internal
 mean_flex = function(x, ...) {
 
-  if(inherits(mymatrix, 'HDF5Matrix')) {
+  if(inherits(x, 'HDF5Matrix')) {
     return(Matrix::mean(x, ...))
   } else if(inherits(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats

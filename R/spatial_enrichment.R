@@ -2584,7 +2584,7 @@ runDWLSDeconv = function(gobject,
                                         ct_exp = filter_Sig,
                                         binary_matrix = binarize_proportion)
   deconvolutionDT = data.table::data.table(cell_ID = colnames(spot_proportion))
-  deconvolutionDT = cbind(deconvolutionDT, as.data.table(t(spot_proportion)))
+  deconvolutionDT = cbind(deconvolutionDT, data.table::as.data.table(t(spot_proportion)))
 
   # create spatial enrichment object
   enrObj = create_spat_enr_obj(name = name,
