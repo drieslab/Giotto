@@ -2406,8 +2406,9 @@ detectSpatialPatterns <- function(gobject,
                                   ncp = 100,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
-
-
+##########################################################################################
+  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
