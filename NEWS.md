@@ -6,7 +6,9 @@
 
 
 ## Added
-
+- new file `feature_set_enrichment.R`
+- added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
+- added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
 
 ## Changes
 - Removed various print() and cat() statements throughout. 
