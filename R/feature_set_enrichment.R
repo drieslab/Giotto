@@ -59,7 +59,11 @@ doFeatureSetEnrichment <- function(dryrun = TRUE,
   # set don't run to false as a start
   dont_run = FALSE
 
-  #TODO ADD SYSTEM CHECK FOR JAVA 
+  # SYSTEM CHECK FOR JAVA 
+  java_not_installed = as.logical(system("java -version"))
+  # returns 0 if java is installed (i.e., command runs successfully), 1 otherwise
+  if(java_not_installed) stop(wrap_txt("Java must be installed for doFeatureSetEnrichment() to run. Please install Java: https://www.java.com/en/download/", errWidth = TRUE))
+
 
   mode = match.arg(mode, choices = c("Abs_max_of_probes",
                                      "Max_probe",
@@ -76,7 +80,7 @@ doFeatureSetEnrichment <- function(dryrun = TRUE,
 
   # check for path to GSEA tool
   if(is.null(path_to_GSEA)) stop('Path to the GSEA directory needs to be provided \n')
-  if(!file.exists(path_to_GSEA)) stop('Path to the GSRA directory does not exist \n')
+  if(!file.exists(path_to_GSEA)) stop('Path to the GSEA directory does not exist \n')
   
   path_to_GSEA = paste0('"',path_to_GSEA,'"')
   
@@ -163,7 +167,7 @@ doFeatureSetEnrichment <- function(dryrun = TRUE,
     Giotto:::wrap_msg('DRYRUN VERSION \n \n')
     print(created_command)
   } else {
-    Giotto:::wrap_msg('START REAL VERSION \n \n')
+    Giotto:::wrap_msg('START GSEA RUN \n \n')
     
     system(created_command)
   }
