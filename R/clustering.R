@@ -184,6 +184,83 @@ doLeidenCluster = function(gobject,
 
 }
 
+#' @title doGiottoClustree
+#' @name doGiottoClustree
+#' @description cluster cells using leiden methodology to visualize different resolutions
+#' @param gobject giotto object
+#' @param res_vector vector of different resolutions to test 
+#' @param res_seq list of float numbers indicating start, end, and step size for resolution testing, i.e. (0.1, 0.6, 0.1)
+#' @param return_gobject default FALSE. See details for more info.
+#' @param show_plot by default, pulls from provided gobject instructions
+#' @param save_plot by default, pulls from provided gobject instructions
+#' @param return_plot by default, pulls from provided gobject instructions
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name name of saved plot, defaut "clustree"
+#' @return a plot object (default), OR a giotto object (if specified)
+#' @details This function tests different resolutions for Leiden clustering and provides a visualization
+#' of cluster sizing as resolution varies. 
+#' 
+#' By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
+#' 
+#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information 
+#' will be returned. 
+#' @seealso \code{\link{doLeidenCluster}}
+#' @export
+doGiottoClustree <- function(gobject, 
+                             res_vector = NULL,
+                             res_seq = NULL,
+                             return_gobject = FALSE,
+                             show_plot = NA,
+                             save_plot = NA,
+                             return_plot = NA,
+                             save_param = list(),
+                             default_save_name = "clustree", ...){
+
+  package_check(pkg_name = "clustree", repository = "CRAN")
+  ## setting resolutions to use
+  if(is.null(res_vector)){
+    if(!is.null(res_seq)){
+      res_vector = seq(res_seq[1], res_seq[2], res_seq[3])
+    } else stop("Please input res_vector or res_seq parameters")
+  }
+  
+  ## performing multiple leiden clusters at resolutions specified
+  for (i in res_vector){
+    gobject = doLeidenCluster(gobject = gobject, resolution = i, name = paste0("leiden_clustree_", print(i), ...))
+  }
+  
+  ## plotting clustree graph
+  pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## add
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return gobject with all newly developed leiden clusters
+  if(return_gobject == TRUE){
+    return(gobject)
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
+
 
 #' @title doLouvainCluster_community
 #' @name doLouvainCluster_community
