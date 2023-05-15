@@ -141,6 +141,8 @@ evaluate_cell_metadata = function(metadata,
                      Setting temporary NA values'))
     # set temporary NA values
     metadata[, cell_ID := NA_character_]
+    # re-order so that cell_ID is the first column
+    data.table::setcolorder(metadata, neworder = "cell_ID")
 
   }
 
