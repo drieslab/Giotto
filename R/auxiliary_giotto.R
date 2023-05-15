@@ -99,16 +99,17 @@ libNorm_giotto = function(mymatrix, scalefactor){
                       filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
     }
 
-browser()
-  if(inherits(mymatrix, 'dbMatrix')) {
-    mymatrix[] = mymatrix[] %>%
-      dplyr::group_by(j) %>%
-      dplyr::mutate(x = (as.numeric(x) / sum(x)) * scalefactor) %>% 
-      dplyr::ungroup() %>%
-      dplyr::collapse()
-    norm_expr = mymatrix
 
-    # duckdb::duckdb_register(con, "xnorm", norm_expr)
+  if(inherits(mymatrix, 'dbMatrix')) {
+    # mymatrix[] = mymatrix[] %>%
+    #   dplyr::group_by(j) %>%
+    #   dplyr::mutate(x = (as.numeric(x) / sum(x, na.rm = TRUE)) * scalefactor) %>%
+    #   dplyr::ungroup() %>%
+    #   dplyr::collapse()
+    # norm_expr = mymatrix
+    norm_expr = mymatrix %>%
+      GiottoDB::giotto_libNorm_dbMatrix(scalefactor = scalefactor)
+
   } else {
     norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
   }
@@ -128,12 +129,9 @@ logNorm_giotto = function(mymatrix, base, offset) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else if(methods::is(mymatrix, 'dbMatrix')) {
     mymatrix[] = mymatrix[] %>%
-      dplyr::group_by(j) %>%
-      dplyr::mutate(xlognorm = log(as.numeric(x) + offset)/log(base)) %>%
-      dplyr::ungroup() %>%
+      dplyr::mutate(x = log(as.numeric(x) + offset)/log(base)) %>%
       dplyr::collapse()
 
-    # duckdb::duckdb_register(con, "xlognorm", mymatrix)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
@@ -1799,6 +1797,8 @@ subsetGiottoLocsSubcellular = function(gobject,
 }
 
 
+### filter Giotto object ####
+
 #' @title filterDistributions
 #' @name filterDistributions
 #' @description show gene or cell distribution after filtering on expression threshold
@@ -2367,8 +2367,7 @@ rna_standard_normalization = function(gobject,
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
     norm_expr = libNorm_giotto(mymatrix = raw_expr[],
-                               scalefactor = scalefactor,
-                               matrix_type = matrix_type)
+                               scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr[]
   }
@@ -2377,8 +2376,7 @@ rna_standard_normalization = function(gobject,
   if(log_norm == TRUE) {
     norm_expr = logNorm_giotto(mymatrix = norm_expr,
                                base = logbase,
-                               offset = log_offset,
-                               matrix_type = matrix_type)
+                               offset = log_offset)
   }
 
   ## 3. scale
@@ -2388,7 +2386,7 @@ rna_standard_normalization = function(gobject,
 
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
-
+browser()
       norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE, by = 'row')
       norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE, by = 'col')
 
@@ -2440,15 +2438,17 @@ rna_standard_normalization = function(gobject,
   }
 
   ## 5. create and set exprObj
-  norm_expr = createExprObj(name = 'normalized',
-                            exprMat = norm_expr,
+  # external creation function used in order to trigger evaluation and write
+  # for remote implementations
+  norm_expr = createExprObj(expression_data = norm_expr,
+                            name = 'normalized',
                             spat_unit = spat_unit,
                             feat_type = feat_type,
                             provenance = raw_expr@provenance,
                             misc = raw_expr@misc)
 
-  norm_scaled_expr = createExprObj(name = 'scaled',
-                                   exprMat = norm_scaled_expr,
+  norm_scaled_expr = createExprObj(expression_data = norm_scaled_expr,
+                                   name = 'scaled',
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
                                    provenance = raw_expr@provenance,

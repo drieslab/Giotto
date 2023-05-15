@@ -4,7 +4,7 @@
 \alias{standardise_db}
 \title{standardise_db}
 \usage{
-standardise_db(x, center = TRUE, scale = TRUE, by = c("feat", "cell"))
+standardise_db(x, center = TRUE, scale = TRUE, by = c("row", "col"), ...)
 }
 \arguments{
 \item{x}{expression database tbl}
@@ -13,7 +13,9 @@ standardise_db(x, center = TRUE, scale = TRUE, by = c("feat", "cell"))
 
 \item{scale}{scale data}
 
-\item{by}{feat or cell}
+\item{by}{normalize by 'row' or 'col'}
+
+\item{...}{additional params to pass}
 }
 \value{
 standardized database table

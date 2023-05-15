@@ -1588,7 +1588,10 @@ set_expression_values = function(gobject,
 
     # prune if empty
     if(length(gobject@expression[[spat_unit]][[feat_type]]) == 0) {
-      gobject@expression = NULL
+      gobject@expression[[spat_unit]] = NULL
+      if(length(gobject@expression[[spat_unit]] == 0)) {
+        gobject@expression = list()
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))

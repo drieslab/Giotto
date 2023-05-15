@@ -10,7 +10,13 @@ createExprObj(
   spat_unit = "cell",
   feat_type = "rna",
   provenance = NULL,
-  misc = NULL
+  expression_matrix_class = c("Matrix", "HDF5Matrix", "dbMatrix"),
+  sparse = TRUE,
+  cores = determine_cores(),
+  remote_dir = ":temp:",
+  db_extension = ".duckdb",
+  misc = NULL,
+  ...
 )
 }
 \arguments{
@@ -24,7 +30,17 @@ createExprObj(
 
 \item{provenance}{origin data of expression information (if applicable)}
 
+\item{cores}{number of cores to use}
+
+\item{remote_dir}{(optional) directory of remote backend. Default is tempdir()}
+
+\item{db_extension}{(optional) database file extension}
+
 \item{misc}{misc}
+
+\item{...}{additional params to pass to matrix reading functions}
+
+\item{matrix_type}{type of matrix to use}
 }
 \description{
 Create an S4 exprObj
