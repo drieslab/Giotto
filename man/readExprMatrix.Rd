@@ -22,3 +22,8 @@ Function to read an expression matrix into a sparse matrix.
 \details{
 The expression matrix needs to have both unique column names and row names
 }
+\seealso{
+Other functions to read expression matrices: 
+\code{\link{readExprMatrixDB}()}
+}
+\concept{functions to read expression matrices}

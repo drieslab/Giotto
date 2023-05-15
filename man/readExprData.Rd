@@ -8,9 +8,13 @@ readExprData(
   data_list,
   sparse = TRUE,
   cores = determine_cores(),
+  expression_matrix_class = c("Matrix", "HDF5Array", "dbMatrix"),
+  remote_dir = ":temp:",
+  db_extension = ".duckdb",
   default_feat_type = NULL,
   verbose = TRUE,
-  provenance = NULL
+  provenance = NULL,
+  ...
 )
 }
 \arguments{
@@ -18,11 +22,17 @@ readExprData(
 
 \item{cores}{number of cores to use}
 
+\item{expression_matrix_class}{type of matrix to use}
+
+\item{remote_dir}{(backend specific) path to backend. Default is tempdir()}
+
 \item{default_feat_type}{default feature type to use}
 
 \item{verbose}{be verbose}
 
 \item{provenance}{provenance information}
+
+\item{...}{additional params to pass}
 
 \item{expr_list}{(nested) list of expression input data}
 }

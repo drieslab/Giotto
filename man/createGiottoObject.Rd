@@ -7,6 +7,7 @@
 createGiottoObject(
   expression,
   expression_feat = "rna",
+  expression_matrix_class = "Matrix",
   spatial_locs = NULL,
   spatial_info = NULL,
   calc_poly_centroids = FALSE,
@@ -24,6 +25,8 @@ createGiottoObject(
   largeImages = NULL,
   offset_file = NULL,
   instructions = NULL,
+  remote_dir = ":temp:",
+  db_extension = ".duckdb",
   cores = determine_cores(),
   raw_exprs = NULL,
   verbose = TRUE

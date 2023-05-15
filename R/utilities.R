@@ -1,7 +1,22 @@
 
 
-## General utility functions ##
 
+# flex(ible) functions ####
+# INTERNAL
+# Giotto's way of providing easy access and dispatch to externally defined methods
+# for commonly used generic functions such as those defined from base R.
+# Can also be utilized to ensure that alternative or improved methods for the
+# respective classes are used.
+#
+# Flex functions should ALWAYS be used instead of the normal generics within
+# Giotto's code.
+#
+# This approach promotes modularity as it allows Giotto functions using methods
+# defined within optional packages to be written WITHOUT the need to install said
+# packages alongside Giotto so that their methods can be imported.
+#
+# Note that used methods from packages that are already under 'Imports' can and
+# should also be imported with @importFrom
 
 
 #' @title mean_flex
@@ -298,12 +313,12 @@ standardise_flex = function (x,
                              ...) {
   by = match.arg(by, choices = c('row', 'col'))
 
-  if(inherits(x, 'dbMatrix')) {
-    y = standardise_db(x = x, center = center, scale = scale, by = by, ...)
-    return(y)
-  }
+  # if(inherits(x, 'dbMatrix')) {
+  #   y = standardise_db(x = x, center = center, scale = scale, by = by, ...)
+  #   return(y)
+  # }
 
-  if(by == 'row') x = t_flex(x)
+  if(by == 'row') x = t_flex(x) # row transpose start
 
   if (center & scale) {
     y = t_flex(x) - colMeans_flex(x)
@@ -315,20 +330,21 @@ standardise_flex = function (x,
     y = t_flex(y)
   }
   else if (!center & scale) {
-    csd = matrixStats::colSds(x)
+    csd = if(inherits('dbMatrix')) GiottoDB::colSds(x)
+    else matrixStats::colSds(x)
     y = t_flex(t_flex(x) / csd )
   } else {
     y = x
   }
 
-  if(by == 'row') y = t_flex(y)
+  if(by == 'row') y = t_flex(y) # row transpose end
   return(y)
 }
 
 #' @title standardise_db
 #' @name standardise_db
-#' @description standardizes a database table
-#' @param x expression database tbl
+#' @description standardizes a dbMatrix
+#' @param x dbMatrix
 #' @param center center data
 #' @param scale scale data
 #' @param by normalize by 'row' or 'col'
@@ -340,70 +356,77 @@ standardise_db = function (x,
                            scale = TRUE,
                            by = c('row', 'col'),
                            ...) {
+browser()
+   MARGIN = switch(as.character(by),
+                   'row' = dplyr::sym('i'),
+                   'col' = dplyr::sym('j'),
+                   stop('\'by\' must be one of "row" or "col"\n'))
 
-   i = switch(as.character(by),
-              'row' = 'i',
-              'col' = 'j',
-              stop('\'by\' must be one of "row" or "col"\n'))
-   
    if (center & scale) {
-      colMeans <- x[] |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::summarise(mean_i = mean(x, na.rm = TRUE), .groups = "drop")
-      
-      centered_expr <- x[] |>
-         dplyr::inner_join(colMeans, by = i) |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::mutate(xlognorm_centered = (x - mean_i)) |>
-         dplyr::select('i', 'j', xlognorm_centered) |>
-         dplyr::ungroup()
-      
-      scaled_expr <- centered_expr |>
-         dplyr::group_by(i) |> # scale feats
-         dplyr::summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
-                   sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
-                   .groups = "drop") |>
-         dplyr::ungroup()
-      
-      res <- centered_expr |>
-         dplyr::inner_join(scaled_expr, by = i) |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::mutate(x = (xlognorm_centered / sqrtsumsq * sqrtNrow)) |>
-         dplyr::select(i, j, x)
-      
+      col_means <- x[] %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::summarise(mean_x = mean(x, na.rm = TRUE), .groups = "drop") %>%
+        dplyr::ungroup()
+
+      centered_expr <- x[] %>%
+        dplyr::inner_join(col_means, by = as.character(MARGIN)) %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::mutate(xlognorm_centered = (x - mean_x)) %>%
+        dplyr::select('i', 'j', xlognorm_centered) %>%
+        dplyr::ungroup()
+
+      scaled_expr <- centered_expr %>%
+        dplyr::group_by(!!MARGIN) %>% # scale feats
+        dplyr::summarise(sqrtsumsq = sqrt(sum(xlognorm_centered^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                         sqrtNrow = sqrt(dplyr::n() - 1), # sqrt((dim(x)[1] - 1))
+                         .groups = "drop") %>%
+        dplyr::ungroup()
+
+      x[] <- centered_expr %>%
+        dplyr::inner_join(scaled_expr, by = as.character(MARGIN)) %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::mutate(x = (xlognorm_centered / sqrtsumsq * sqrtNrow)) %>%
+        dplyr::select(i, j, x) %>%
+        dplyr::ungroup()
+
    } else if (center & !scale) {
-      colMeans <- x[] |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::summarise(mean_i = mean(x, na.rm = TRUE), .groups = "drop")
-      
-      res <- x[] |>
-         dplyr::inner_join(colMeans, by = i) |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::mutate(x = (x - mean_i)) |>
-         dplyr::select(i, j, x) |>
-         dplyr::ungroup()
-      
+      col_means <- x[] %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::summarise(mean_x = mean(x, na.rm = TRUE), .groups = "drop") %>%
+        dplyr::ungroup()
+
+      x[] <- x[] %>%
+        dplyr::inner_join(col_means, by = as.character(MARGIN)) %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::mutate(x = (x - mean_x)) %>%
+        dplyr::select(i, j, x) %>%
+        dplyr::ungroup()
+
    } else if (!center & scale) {
-      
-      scaled_expr <- x[] |>
-         dplyr::group_by(i) |> # scale feats
-         dplyr::summarise(sqrtsumsq = sqrt(sum(x^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
-                   sqrtNrow = sqrt(n() - 1), # sqrt((dim(x)[1] - 1))
-                   .groups = "drop") |>
-         dplyr::ungroup()
-      
-      res <- x[] |>
-         dplyr::inner_join(scaled_expr, by = i) |>
-         dplyr::group_by(i) |> #scale feats
-         dplyr::mutate(x = (x / sqrtsumsq * sqrtNrow)) |>
-         dplyr::select(i, j, x)
-   } else {
-      res = x[]
+
+      scaled_expr <- x[] %>%
+        dplyr::group_by(!!MARGIN) %>% # scale feats
+        dplyr::summarise(sqrtsumsq = sqrt(sum(x^2, na.rm = TRUE)), #sqrt(rowSums_flex(y^2))
+                         sqrtNrow = sqrt(dplyr::n() - 1), # sqrt((dim(x)[1] - 1))
+                         .groups = "drop") %>%
+        dplyr::ungroup()
+
+      x[] <- x[] %>%
+        dplyr::inner_join(scaled_expr, by = as.character(MARGIN)) %>%
+        dplyr::group_by(!!MARGIN) %>% #scale feats
+        dplyr::mutate(x = (x / sqrtsumsq * sqrtNrow)) %>%
+        dplyr::ungroup()
    }
-   
-   return(res)
+
+   return(x)
 }
 
+
+
+
+
+
+# General utility functions ####
 
 #' @title Test if list element exists
 #' @name list_element_exists
@@ -507,36 +530,14 @@ depth <- function(this,
 
 # Import from methods ####
 
-#' See \code{methods::\link[methods]{slot}} for details.
-#'
-#' @rdname slot
-#' @name slot
-#' @keywords internal
-#' @export
 #' @importFrom methods slot slot<-
-#' @usage slot(object, name)
-NULL
-
-
-#' See \code{methods::\link[methods]{validObject}} for details.
-#'
-#' @rdname validObject
-#' @name validObject
-#' @keywords internal
-#' @export
-#' @importFrom methods validObject
-#' @usage validObject(object, test = FALSE, complete = FALSE)
-NULL
-
-
-#' See \code{methods::\link[methods]{slotNames}} for details.
-#'
-#' @rdname slotNames
-#' @name slotNames
-#' @keywords internal
 #' @importFrom methods slotNames
-#' @usage slotNames(object)
+#' @importFrom methods validObject
+#' @importFrom methods callNextMethod
+#' @keywords internal
+#' @noRd
 NULL
+
 
 
 

@@ -4,7 +4,7 @@
 \alias{standardise_flex}
 \title{standardise_flex}
 \usage{
-standardise_flex(x, center = TRUE, scale = TRUE)
+standardise_flex(x, center = TRUE, scale = TRUE, by = c("row", "col"), ...)
 }
 \arguments{
 \item{x}{matrix}
@@ -12,6 +12,10 @@ standardise_flex(x, center = TRUE, scale = TRUE)
 \item{center}{center data}
 
 \item{scale}{scale data}
+
+\item{by}{normalize by 'row' or 'col'}
+
+\item{...}{additional params to pass}
 }
 \value{
 standardized matrix

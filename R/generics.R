@@ -1,5 +1,8 @@
 # Methods and Generics ####
 
+# Methods Imports ####
+
+
 # NOTE: initialize generics are in classes.R #
 
 
@@ -472,7 +475,6 @@ setMethod('spin', signature(x = 'giottoPolygon'),
           })
 
 #' @describeIn spin-generic Spin a giottoPoints object
-#' @importMethodsFrom terra spin
 #' @export
 setMethod('spin', signature(x = 'giottoPoints'),
           function(x, angle, x0 = NULL, y0 = NULL) {
@@ -486,7 +488,6 @@ setMethod('spin', signature(x = 'giottoPoints'),
           })
 
 #' @describeIn spin-generic Spin a spatLocsObj
-#' @importMethodsFrom terra spin
 #' @param z0 spatLocsObj specific. Numeric. z-coordinate of the center of rotation.
 #' Depending on if z data is present, defaults to either 0 or center z val if not given.
 #' @param xy_angle spatLocsObj specific. xy plane rotation in degrees.
@@ -735,7 +736,6 @@ setMethod('wrap', signature(x = 'giottoPolygon'),
 
 
 #' @describeIn wrap-generic Wrap giotto
-#' @importMethodsFrom terra wrap
 #' @export
 setMethod('wrap', signature(x = 'giotto'),
           function(x) {
@@ -752,7 +752,6 @@ setMethod('wrap', signature(x = 'giotto'),
 
 
 #' @describeIn wrap-generic Wrap giottoPoints
-#' @importMethodsFrom terra wrap
 #' @export
 setMethod('wrap', signature(x = 'giottoPoints'),
           function(x) {
@@ -802,7 +801,6 @@ setMethod('vect', signature(x = 'packedGiottoPolygon'),
 
 
 #' @describeIn wrap-generic Unwrap giottoPolygon
-#' @importMethodsFrom terra vect
 #' @export
 setMethod('vect', signature(x = 'packedGiottoPoints'),
           function(x) {
@@ -822,7 +820,6 @@ setMethod('vect', signature(x = 'packedGiottoPoints'),
 
 
 #' @describeIn wrap-generic Unwrap giotto
-#' @importMethodsFrom terra vect
 #' @export
 setMethod('vect', signature(x = 'packedGiotto'),
           function(x) {
@@ -892,11 +889,12 @@ setMethod("rbind", "giottoPolygon", function(..., deparse.level = 1) {
 #' @title Preview a Giotto spatial object
 #' @name plot-generic
 #' @description S4 generic for previewing Giotto's image and subcellular objects.
-#' @include classes.R
+#' @aliases plot
 #' @param x giotto image, giottoPolygon, or giottoPoints object
 #' @param y Not used.
 #' @param \dots additional parameters to pass
-#' @aliases plot
+#' @importMethodsFrom terra plot
+#' @include classes.R
 #' @family plot
 NULL
 
@@ -905,12 +903,10 @@ NULL
 setMethod('plot', signature(x = 'giottoImage', y = 'missing'), function(x,y,...) plot_giottoImage_MG(giottoImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
-#' @importMethodsFrom terra plot
 #' @export
 setMethod('plot', signature(x = 'giottoLargeImage', y = 'missing'), function(x,y,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
-#' @importMethodsFrom terra plot
 #' @param point_size size of points when plotting giottoPolygon object centroids
 #' @param type what to plot: either 'poly' (default) or polygon 'centroid'
 #' @export

@@ -1,22 +1,8 @@
 # MISC ####
 ## * Define class unions ####
 
-#' @title NULL or char class union
-#' @description class to allow either NULL or character
-#' @keywords internal
-#' @noRd
-setClassUnion('nullOrChar', c('NULL', 'character'))
-
-#' @title NULL or list class union
-#' @description class to allow either NULL or list
-#' @keywords internal
-#' @noRd
+# Create signatures to allow NULL in addition to expected type
 setClassUnion('nullOrList', c('NULL', 'list'))
-
-#' @title NULL or data.table class union
-#' @description class to allow either NULL or data.table
-#' @keywords internal
-#' @noRd
 setOldClass('data.table')
 setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
@@ -2499,6 +2485,7 @@ setMethod(
 #' @param db_extension (optional) database file extension
 #' @param ... additional params to pass to matrix reading functions
 #' @param misc misc
+#' @export
 createExprObj = function(expression_data,
                          name = 'test',
                          spat_unit = 'cell',
@@ -2526,12 +2513,11 @@ createExprObj = function(expression_data,
            # TODO figure out remote directory/h5 folder
          })
 
-
   exprMat = evaluate_expr_matrix(inputmatrix = expression_data,
                                  sparse = sparse,
                                  expression_matrix_class = expression_matrix_class,
                                  remote_dir = remote_dir,
-                                 remote_name = paste(spat_unit, feat_type, name, sep = '_'),
+                                 remote_name = paste('expr', spat_unit, feat_type, name, sep = '_'),
                                  cores = cores,
                                  ...)
 
