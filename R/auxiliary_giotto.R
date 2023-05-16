@@ -129,7 +129,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else if(methods::is(mymatrix, 'dbMatrix')) {
     mymatrix[] = mymatrix[] %>%
-      dplyr::mutate(x = log(as.numeric(x) + offset)/log(base)) %>%
+      dplyr::mutate(x = log(x + offset)/log(base)) %>%
       dplyr::collapse()
 
   } else {
@@ -2386,7 +2386,7 @@ rna_standard_normalization = function(gobject,
 
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
-browser()
+
       norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE, by = 'row')
       norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE, by = 'col')
 
