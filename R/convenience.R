@@ -1919,3 +1919,161 @@ load_xenium_folder_parquet = function(path_list,
   return(data_list)
 
 }
+
+
+## ArchR ####
+
+#' Create an ArchR project and run LSI dimension reduction
+#'
+#' @param fragmentsPath A character vector containing the paths to the input 
+#' files to use to generate the ArrowFiles. 
+#' These files can be in one of the following formats: (i) scATAC tabix files, 
+#' (ii) fragment files, or (iii) bam files.
+#' @param genome A string indicating the default genome to be used for all ArchR 
+#' functions. Currently supported values include "hg19","hg38","mm9", and "mm10". 
+#' This value is stored as a global environment variable, not part of the ArchRProject. 
+#' This can be overwritten on a per-function basis using the given function's 
+#' geneAnnotationand genomeAnnotation parameter. For something other than one of 
+#' the currently supported, see createGeneAnnnotation() and createGenomeAnnnotation()
+#' @param createArrowFiles_params list of parameters passed to `ArchR::createArrowFiles`
+#' @param ArchRProject_params list of parameters passed to `ArchR::ArchRProject`
+#' @param addIterativeLSI_params list of parameters passed to `ArchR::addIterativeLSI`
+#' @param threads number of threads to use. Default = `ArchR::getArchRThreads()`
+#' @param force Default = FALSE
+#' @param verbose Default = TRUE
+#'
+#' @return An ArchR project with GeneScoreMatrix, TileMatrix, and TileMatrix-based LSI
+#' @export
+#'
+createArchRProj <- function(fragmentsPath,
+                            genome = c('hg19', 'hg38', 'mm9', 'mm10'),
+                            createArrowFiles_params = list(sampleNames = 'sample1',
+                                                           minTSS = 0,
+                                                           minFrags = 0,
+                                                           maxFrags = 1e+07,
+                                                           minFragSize = 10,
+                                                           maxFragSize = 2000,
+                                                           offsetPlus = 0,
+                                                           offsetMinus = 0,
+                                                           TileMatParams = list(tileSize = 5000)),
+                            ArchRProject_params = list(outputDirectory = getwd(),
+                                                       copyArrows = FALSE),
+                            addIterativeLSI_params = list(),
+                            threads = getArchRThreads(),
+                            force = FALSE,
+                            verbose = TRUE) {
+  
+  if(!requireNamespace('ArchR')) {
+    wrap_msg('ArchR is needed. Install the package using remotes::install_github("GreenleafLab/ArchR")')
+  } else {require(ArchR)}
+  
+  ## Add reference genome
+  wrap_msg('Loading reference genome')
+  ArchR::addArchRGenome(genome)
+  
+  # Creating Arrow Files
+  wrap_msg('Creating Arrow files')
+  ArrowFiles <- do.call(ArchR::createArrowFiles,
+                        c(inputFiles = fragmentsPath,
+                          verbose = verbose,
+                          force = force,
+                          createArrowFiles_params)
+  )
+  
+  # Creating an ArchRProject 
+  wrap_msg('Creating ArchRProject')
+  proj <- do.call(ArchR::ArchRProject,
+                  c(list(ArrowFiles = ArrowFiles),
+                    threads = threads,
+                    ArchRProject_params)
+  )
+  
+  # Data normalization and dimensionality reduction 
+  wrap_msg('Running dimension reduction')
+  proj <- do.call(ArchR::addIterativeLSI,
+                  c(ArchRProj = proj,
+                    verbose = verbose,
+                    name = "IterativeLSI",
+                    threads = threads,
+                    force = force,
+                    addIterativeLSI_params)
+  )
+}
+
+#' Create a Giotto object from an ArchR project 
+#' 
+#' @param archRproj 
+#' @param expression expression information
+#' @param expression_feat Giotto object available features (e.g. atac, rna, ...)
+#' @param spatial_locs data.table or data.frame with coordinates for cell centroids
+#' @param sampleNames A character vector containing the ArchR project sample name
+#' @param ... additional arguments passed to `createGiottoObject`
+#'
+#' @return A Giotto object with at least an atac or epigenetic modality
+#' 
+#' @export
+#' 
+createGiottoObjectfromArchR <- function(archRproj,
+                                        expression = NULL,
+                                        expression_feat = 'atac',
+                                        spatial_locs = NULL,
+                                        sampleNames = 'sample1',
+                                        ...) {
+  # extract GeneScoreMatrix
+  GeneScoreMatrix_summarizedExperiment <- ArchR::getMatrixFromProject(archRproj)
+  GeneScoreMatrix <- slot(slot(GeneScoreMatrix_summarizedExperiment, 'assays'), 'data')[['GeneScoreMatrix']]
+  
+  ## get cell names
+  cell_names <- colnames(GeneScoreMatrix)
+  cell_names <- gsub(paste0(sampleNames,'#'),'',cell_names)
+  cell_names <- gsub('-1','',cell_names)
+  
+  ## get gene names
+  gene_names <- slot(GeneScoreMatrix_summarizedExperiment,'elementMetadata')[['name']]
+  
+  ## replace colnames with cell names
+  colnames(GeneScoreMatrix) <- cell_names
+  
+  ## replace rownames with gene names
+  rownames(GeneScoreMatrix) <- gene_names
+  
+  ## filter spatial locations
+  if(!is.null(spatial_locs)) {
+    x <- read.csv(spatial_locs)
+    x <- x[x$cell_ID %in% cell_names,]
+    spatial_locs = x
+  }
+  
+  # Creating GiottoObject 
+  wrap_msg('Creating GiottoObject')
+  
+  if(!is.null(expression)) {
+    gobject <- createGiottoObject(expression = list(GeneScoreMatrix = GeneScoreMatrix, 
+                                                    raw = expression),
+                                  expression_feat = expression_feat,
+                                  spatial_locs = spatial_locs,
+                                  ...)
+  } else {
+    gobject <- createGiottoObject(expression = list(GeneScoreMatrix = GeneScoreMatrix),
+                                  expression_feat = expression_feat,
+                                  spatial_locs = spatial_locs,
+                                  ...)
+  }
+  
+  dimension_reduction = Giotto::createDimObj(coordinates = slot(archRproj,'reducedDims')[['IterativeLSI']][['matSVD']],
+                                             name = 'lsi',
+                                             spat_unit = 'cell',
+                                             feat_type = expression_feat,
+                                             method = 'lsi')
+  gobject = setDimReduction(gobject,
+                            dimension_reduction,
+                            spat_unit = 'cell',
+                            feat_type = expression_feat,
+                            name = 'lsi',
+                            reduction_method = 'lsi')
+  
+  return(gobject)
+}
+
+
+
