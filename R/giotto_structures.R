@@ -917,6 +917,10 @@ polyStamp = function(stamp_dt,
                      y_col = 'sdimy',
                      verbose = TRUE) {
 
+  if(inherits(spatlocs, 'spatLocsObj')) {
+      spatlocs = spatlocs[]
+   }
+
   if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
     stop(wrap_txt('Not all colnames found in spatlocs'))
   }
