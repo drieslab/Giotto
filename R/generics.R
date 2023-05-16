@@ -650,7 +650,7 @@ setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 #' @importMethodsFrom terra t
 #' @aliases t
 NULL
-# if(!isGeneric('t')) setOldClass('t', where = as.environment("package:Giotto"))
+
 
 #' @rdname transpose-generic
 #' @export

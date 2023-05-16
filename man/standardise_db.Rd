@@ -7,7 +7,7 @@
 standardise_db(x, center = TRUE, scale = TRUE, by = c("row", "col"), ...)
 }
 \arguments{
-\item{x}{expression database tbl}
+\item{x}{dbMatrix}
 
 \item{center}{center data}
 
@@ -21,6 +21,6 @@ standardise_db(x, center = TRUE, scale = TRUE, by = c("row", "col"), ...)
 standardized database table
 }
 \description{
-standardizes a database table
+standardizes a dbMatrix
 }
 \keyword{internal}

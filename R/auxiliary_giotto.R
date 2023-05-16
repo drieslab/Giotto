@@ -2429,12 +2429,12 @@ rna_standard_normalization = function(gobject,
 
   ## 4. add cell and gene names back
   if(!is.null(norm_expr)) {
-     rownames(norm_expr) = feat_names
-     colnames(norm_expr) = col_names
-   }
-   if(!is.null(norm_scaled_expr)) {
-     rownames(norm_scaled_expr) = feat_names
-     colnames(norm_scaled_expr) = col_names
+    rownames(norm_expr) = feat_names
+    colnames(norm_expr) = col_names
+  }
+  if(!is.null(norm_scaled_expr)) {
+    rownames(norm_scaled_expr) = feat_names
+    colnames(norm_scaled_expr) = col_names
   }
 
   ## 5. create and set exprObj
