@@ -11,6 +11,7 @@
 - added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
 
 ## Changes
+- Add check for spatLocsObj for spatlocs in polyStamp()
 - Removed various print() and cat() statements throughout. 
 - Changed default verbose argument to FALSE for createGiottoObject
 - Changed default verbose argument to FALSE for joinGiottoObjects
