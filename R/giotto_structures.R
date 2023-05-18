@@ -910,36 +910,41 @@ rbind2_giotto_polygon_hetero = function(x, y, new_name, add_list_ID = TRUE) {
 #' @param verbose be verbose
 #' @return returns a data.table of polygon vertices
 #' @export
-polyStamp = function(stamp_dt,
-                     spatlocs,
-                     id_col = 'cell_ID',
-                     x_col = 'sdimx',
-                     y_col = 'sdimy',
-                     verbose = TRUE) {
-
+polyStamp <- function(stamp_dt,
+                      spatlocs,
+                      id_col = 'cell_ID',
+                      x_col = 'sdimx',
+                      y_col = 'sdimy',
+                      verbose = TRUE) {
+  
   if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
     stop(wrap_txt('Not all colnames found in spatlocs'))
   }
-
+  
   # define polys relative to centroid
   stamp_centroid = c(x = mean(stamp_dt[['x']]),
-                     y = mean(stamp_dt[['y']]))
+                    y = mean(stamp_dt[['y']]))
   rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
                                         y = stamp_dt$y - stamp_centroid[['y']])
-
-  # generate poly vertices around given spatlocs
-  poly_dt = apply(X = spatlocs,
-                  MARGIN = 1,
-                  function(r) {
-                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[[x_col]]),
-                                                  y = rel_vertices[['y']] + as.numeric(r[[y_col]]),
-                                                  poly_ID = as.character(r[[id_col]])))
-                  })
-
+  
+  # generate poly vertices around given spatlocs using cross join
+  poly_dt = data.table::CJ(1:nrow(spatlocs), 1:nrow(rel_vertices), sorted = FALSE)
+  colnames(poly_dt) = c("spatlocs_idx", "rel_vertices_idx")
+  
+  poly_dt[, c(x_col, y_col) := {
+    spat_row = spatlocs[spatlocs_idx]
+    rel_row = rel_vertices[rel_vertices_idx]
+    list(spat_row[[x_col]] + rel_row$x, spat_row[[y_col]] + rel_row$y)
+  }]
+  
+  poly_dt[, poly_ID := spatlocs[poly_dt$spatlocs_idx, id_col, with = FALSE]]
+  
   if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons stamped')
-
-  return(do.call(rbind, poly_dt))
-
+  
+  res <- poly_dt[, c(x_col, y_col, "poly_ID"), with = FALSE]
+  setnames(res, c(x_col, y_col), c("x", "y"))
+  
+  return(res)
 }
 
 
