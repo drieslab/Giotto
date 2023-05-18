@@ -910,7 +910,7 @@ rbind2_giotto_polygon_hetero = function(x, y, new_name, add_list_ID = TRUE) {
 #' @param verbose be verbose
 #' @return returns a data.table of polygon vertices
 #' @export
-polyStamp <- function(stamp_dt,
+polyStamp = function(stamp_dt,
                       spatlocs,
                       id_col = 'cell_ID',
                       x_col = 'sdimx',
