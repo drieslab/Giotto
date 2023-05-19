@@ -1500,7 +1500,8 @@ binSpect = function(gobject,
                     knn_params = NULL,
                     set.seed = NULL,
                     bin_matrix = NULL,
-                    summarize = c('p.value', 'adj.p.value')) {
+                    summarize = c('p.value', 'adj.p.value'),
+                    return_gobject = F) {
 
 
   if(!is.null(spatial_network_k)) {
@@ -1568,8 +1569,22 @@ binSpect = function(gobject,
 
   }
 
-  return(output)
+  #return(output)
 
+  if(return_gobject==TRUE){
+    if("binSpect.pval" %in% names(fDataDT(gobject, spat_unit = spat_unit, feat_type = feat_type))){
+      removeFeatAnnotation(gobject, spat_unit = spat_unit, feat_type = feat_type, columns=c("binSpect.pval"))
+    }
+    result_dt = data.table::data.table(feats=ranktest$feats, pval=ranktest$adj.p.value)
+    data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
+    gobject<-addFeatMetadata(gobject, 
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             result_dt, by_column=T, column_feat_ID="feats")
+    return(gobject)
+  }else{
+    return(output)
+  }
 }
 
 
