@@ -9,7 +9,7 @@
 - new file `feature_set_enrichment.R`
 - added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
 - added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
-- - New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline.
+- New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline.
 - New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object.
 
 ## Changes
