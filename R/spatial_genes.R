@@ -1572,9 +1572,9 @@ binSpect = function(gobject,
   #return(output)
 
   if(return_gobject==TRUE){
-    if("binSpect.pval" %in% names(fDataDT(gobject, spat_unit = spat_unit, feat_type = feat_type))){
-      removeFeatAnnotation(gobject, spat_unit = spat_unit, feat_type = feat_type, columns=c("binSpect.pval"))
-    }
+    #if("binSpect.pval" %in% names(fDataDT(gobject, spat_unit = spat_unit, feat_type = feat_type))){
+    #  removeFeatAnnotation(gobject, spat_unit = spat_unit, feat_type = feat_type, columns=c("binSpect.pval"))
+    #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
     gobject<-addFeatMetadata(gobject, 
