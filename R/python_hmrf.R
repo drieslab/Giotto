@@ -1436,7 +1436,7 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
 addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf') 
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
-    stop("\n HMRFoutput needs to be output from doHMRF extend \n")
+    stop("\n HMRFoutput needs to be output from doHMRF_V2() \n")
   }
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
