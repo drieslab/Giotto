@@ -6,15 +6,16 @@
 
 
 ## Added
+- added new function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
 - new file `feature_set_enrichment.R`
 - added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
 - added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
-- - New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline.
-- New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object.
+- New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline
+- New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object
 
 ## Changes
 - Add check for spatLocsObj for spatlocs in polyStamp()
-- Removed various print() and cat() statements throughout. 
+- Removed various print() and cat() statements throughout 
 - Changed default verbose argument to FALSE for createGiottoObject
 - Changed default verbose argument to FALSE for joinGiottoObjects
 - Changed default verbose argument to FALSE for createGiottoObjectSubcellular

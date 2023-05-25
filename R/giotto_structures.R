@@ -2850,3 +2850,66 @@ rescalePolygons = function(gobject,
 
 
 }
+
+#' @title Tessellate Spatial Locations
+#' @name tessellateSpatLocs
+#' @description Generates a tessellated grid of spatial locations based on the input spatial locations.
+#' @param spat_locs Spatial locations to be tessellated.
+#' @param shape Shape of the tessellation grid. Available options are "hexagon" and "square".
+#' @param radius Radius size of the tessellation grid.
+#' @return A giotto object containing the tessellated spatial locations.
+#' @details This function generates a tessellated grid of spatial locations based on the input spatial locations. The shape of the tessellation grid can be either hexagonal or square. The radius parameter determines the size of the grid cells or the bin size.
+#' @concept spatial location
+#' @export
+tessellateSpatLocs <- function(spat_locs, shape = c('hexagon', 'square'), radius) {
+   shape <- match.arg(shape, choices = c('hexagon', 'square'))
+   
+   # Calculate the minimum difference between the x and y coordinates of the points in spat_locs
+   x_range <- range(spat_locs$sdimx)
+   y_range <- range(spat_locs$sdimy)
+   
+   # Check if radius size exceeds x,y range
+   if((diff(x_range) / radius < 1) && (diff(y_range) / radius < 1)){
+      stop(wrap_msg("Please choose a smaller radius size for tessellation."))
+   }
+   
+   if (shape == "hexagon") {
+      
+      # Get the hexagon vertices
+      hex_dt <- Giotto::hexVertices(radius, major_axis = 'v')
+      
+      # Create a tessellation grid of points where the hexagons will be centered
+      # Adjust the y-sequence spacing to be 1.5*radius for hexagonal packing
+      y_seq <- seq(min(spat_locs$sdimy), max(spat_locs$sdimy), by = radius * 1.5)
+      centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+         x_start <- if(i %% 2 == 0) min(spat_locs$sdimx) else min(spat_locs$sdimx) + radius * sqrt(3) / 2
+         x_seq <- seq(x_start, max(spat_locs$sdimx), by = radius * sqrt(3))
+         data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+      }))
+      
+      centers$cell_ID <- 1:nrow(centers)
+      
+      # Call polyStamp function to generate the tessellated grid
+      res <- Giotto::polyStamp(hex_dt, centers)
+   } else if (shape == "square") {
+      
+      # Define a data.table with the vertices of a square centered around (0,0)
+      square_dt <- Giotto::rectVertices(dims = c(x = (radius - 1),
+                                                 y = (radius - 1)))
+      
+      # Create a tessellation grid of points where the squares will be centered
+      x_seq <- seq(min(spat_locs$sdimx), max(spat_locs$sdimx), by = radius)
+      y_seq <- seq(min(spat_locs$sdimy), max(spat_locs$sdimy), by = radius)
+      centers <- expand.grid(sdimx = x_seq, sdimy = y_seq)
+      centers$cell_ID <- 1:nrow(centers)
+      setDT(centers)
+      
+      # Call polyStamp function to generate the tessellated grid
+      res <- Giotto::polyStamp(square_dt, centers)
+   } else {
+      
+      stop(wrap_txt("Please select valid shape option: hexagon OR square"))
+   }
+   
+   return(res)
+}
