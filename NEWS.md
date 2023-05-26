@@ -6,6 +6,7 @@
 
 
 ## Added
+- added new function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
 - added new function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
 - new file `feature_set_enrichment.R`
 - added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
