@@ -424,12 +424,17 @@ removeGiottoEnvironment = function(mini_path = NULL, verbose = TRUE) {
 #' @keywords internal
 set_giotto_python_path = function(python_path = NULL) {
 
-  if(!is.null(python_path)) {
+  # If a path is provided by the user and it exists,
+  # direct reticulate to said execuatable and exit immediately
+  if(!is.null(python_path) && file.exists(python_path)) {
     message('\n external python path provided and will be used \n')
     python_path = as.character(python_path)
     reticulate::use_python(required = T, python = python_path)
+    return (python_path)
   }
 
+  # Otherwise, check the OS and if a Giotto Environment exists
+  # use that executable
   os_specific_system = get_os()
   conda_path = reticulate::miniconda_path()
   if(os_specific_system == 'osx') {
@@ -445,7 +450,6 @@ set_giotto_python_path = function(python_path = NULL) {
   giotto_environment_installed = checkGiottoEnvironment(mini_install_path = conda_path,
                                                         verbose = FALSE)
 
-  ## if a python path is provided, use that path
   if(giotto_environment_installed == TRUE) {
 
     wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
