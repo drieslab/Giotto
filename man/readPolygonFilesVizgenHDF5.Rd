@@ -17,10 +17,11 @@ readPolygonFilesVizgenHDF5(
   smooth_vertices = 60L,
   set_neg_to_zero = FALSE,
   H5Fopen_flags = "H5F_ACC_RDWR",
-  cores = NA,
+  cores = determine_cores(),
   create_gpoly_parallel = TRUE,
   create_gpoly_bin = FALSE,
   verbose = TRUE,
+  output = c("giottoPolygon", "data.table"),
   polygon_feat_types = NULL
 )
 }
@@ -61,10 +62,14 @@ Accepts integer values as an binning size when generating giottoPolygon objects}
 
 \item{verbose}{be verbose}
 
+\item{output}{whether to return as list of giottoPolygon or data.table}
+
 \item{polygon_feat_types}{deprecated. Use \code{z_indices}}
 }
 \description{
-Read and create polygons for all cells, or for only selected FOVs.
+Read polygon info for all cells or for only selected FOVs from
+Vizgen HDF5 files. Data is returned as a list of giottoPolygons or data.tables
+of the requested z indices.
 }
 \details{
 Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
