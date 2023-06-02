@@ -716,11 +716,13 @@ viewHMRFresults3D <- function(gobject,
 
 #' @title sampling_sp_genes
 #' @name sampling_sp_genes
+#' @description function to select a set of spatial genes
 #' @param clust spatial gene clusters
-#' @param sample_rate sampling rate
+#' @param sample_rate sampling rate, takes values equal or greater than 1
 #' @param target target length of gene list
 #' @param seed random seed
-#' @description function to select a set of spatial genes
+#' @details 
+#' This function samples a subset of spatial genes among different clusters, with size n = target. Number of samples from each cluster denpends on the relative proportion of each cluster. Changing from equal size by setting sample_rate = 1 to with exact proportion of each cluster by setting sample_rate = +Inf 
 #' @keywords internal
 sampling_sp_genes = function(clust,
                              sample_rate=2,
@@ -767,9 +769,13 @@ sampling_sp_genes = function(clust,
 
 
 #' @title numPts_below_line
-#' @param myVector TBD
-#' @param slope TBD
-#' @param x TBD
+#' @name numPts_below_line
+#' @description function to calculate the number of data points below a given line 
+#' @param myVector input sequence of sorted positive values from smallest to greatest
+#' @param slope slope to compare
+#' @param x location point of the line to compare, integer from 1 to length of myVector 
+#' @details 
+#' This function calculates the number of data points in a sorted sequence below a line with given slope through a certain point on this sequence.
 #' @keywords internal
 numPts_below_line <- function(myVector,
                               slope,
@@ -782,14 +788,18 @@ numPts_below_line <- function(myVector,
 
 
 #' @title filterSpatialGenes
-#' @keywords internal
+#' @name filterSpatialGenes
+#' @description function to filter gene list with existing spatial gene sets
 #' @param gobject Giotto object
-#' @param spat_unit
-#' @param feat_type
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spatial_genes input gene list
 #' @param max max number of genes selected from spatial test
-#' @param name name of spatial test
+#' @param name name of spatial gene test for the filtering
 #' @param method method of spatial gene selection
+#' @details 
+#' This function filters given gene list with the gene sets of selected spatial gene test in Giotto, also controls the total size of the gene set with given max number.
+#' @keywords external
 #' @export
 filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spatial_genes, max=2500, 
                                name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
@@ -860,11 +870,14 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
 
 
 #' @title chooseAvailableSpatialGenes
+#' @name chooseAvailableSpatialGenes
+#' @description function to find the test name for existing spatial gene sets in Giotto
+#' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @details 
+#' This function outputs the available test name for existing spatial gene sets in Giotto, which could be used in parameter ‘name’ in filterSpatialGenes(). Priorities for showing the spatial gene test names are ‘binSpect’ > ‘silhouetteRankTest’ > ‘silhouetteRank’.
 #' @keywords internal
-#' @param gobject 
-#' @param spat_unit
-#' @param feat_type
-#' @export
 chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NULL){
   gx = fDataDT(gobject,spat_unit = NULL,feat_type = NULL)
   eval1 = 'binSpect.pval' %in% names(gx)
@@ -883,11 +896,16 @@ chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NUL
 
 
 #' @title checkAndFixSpatialGenes
+#' @name checkAndFixSpatialGenes
+#' @description function to check the selected test name for spatial gene set in Giotto object
+#' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param use_spatial_genes test name of spatial gene set to check
+#' @param use_score logical variable to select silhouetteRank score
+#' @details 
+#' This function checks the user specified test name of spatial gene set in Giotto object. SilhouetteRank works only with score, and SilhouetteRankTest works only with pval. Use parameter use_score to specify.
 #' @keywords internal
-#' @param gobject TBD
-#' @param use_spatial_genes TBD
-#' @param use_score TBD
-#' @export
 checkAndFixSpatialGenes <- function(gobject, 
                                     spat_unit = NULL,
                                     feat_type = NULL,
@@ -933,43 +951,41 @@ checkAndFixSpatialGenes <- function(gobject,
 
 
 
-#' @name initHMRF_V2
+
 #' @title initHMRF_V2
+#' @name initHMRF_V2
 #' @description Run initialzation for HMRF model
-#' @keywords external
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
 #' @param use_spatial_genes which of Giotto's spatial genes to use
-#' @param user_gene_list user-specified genes (optional)
+#' @param use_score use score as gene selection criterion (applies when use_spatial_genes=silhouetteRank)
 #' @param gene_list_from_top total spatial genes before sampling
+#' @param filter_method filter genes by top or by elbow method, prior to sampling
+#' @param user_gene_list user-specified genes (optional)
+#' @param use_pca if PCA is used on the spatial gene expression value for clustering
+#' @param use_pca_dim dimensions of the PCs of the selected expression
 #' @param gene_samples number of spatial gene subset to use for HMRF
 #' @param gene_sampling_rate parameter (1-50) controlling proportion of gene samples from different module when sampling, 1 corresponding to equal gene samples between different modules; 50 corresponding to gene samples proportional to module size.
 #' @param gene_sampling_seed random number seed to sample spatial genes
+#' @param use_metagene if metagene expression is used for clustering
+#' @param cluster_metagene number of metagenes to use
+#' @param top_metagene = number of genes in each cluster for the metagene calculation
+#' @param existing_dim_reduction_to_use name of dimension reduction method to use 
+#' @param existing_dim_reduction_name name of dimension reduction result to use as the expression value for clustering
+#' @param existing_dimensions_to_use integers to selected dimensions in the specified dimension reduction result, set to NULL to select all
 #' @param hmrf_seed random number seed to generate initial mean vector of HMRF model
-#' @param filter_method filter genes by top or by elbow method, prior to sampling
-#' @param use_score use score as gene selection criterion (applies when use_spatial_genes=silhouetteRank)
-#' @param k  number of HMRF domains
+#' @param cl.method clustering method to calculate the initial mean vector, selecting from 'km', 'leiden', or 'louvain'
+#' @param resolution.cl resolution of Leiden or Louvain clustering
+#' @param k number of HMRF domains
 #' @param tolerance error tolerance threshold
+#' @param zscore type of zscore to use 
 #' @param nstart number of Kmeans initializations from which to select the best initialization
 #' @param factor_step dampened factor step
-#' @return A list (see details)
-#' @details There are two steps to running HMRF. This is the first step, the initialization.
-#' First, user specify which of Giotto's spatial genes to run, through use_spatial_genes.
-#' Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes
-#' that are not significantly spatial, as determined by filter_method. If filter_method is none,
-#' then top 2500 (gene_list_from_top) genes ranked by pvalue are considered spatial.
-#' If filter_method is elbow, then the exact cutoff is determined by the elbow in the
-#' -log10Pvalue vs. gene rank plot.
-#' Second, the filtered gene set is subject to sampling to select 500
-#' (controlled by gene_samples) genes for running HMRF.
-#' Third, once spatial genes are finalized, we are ready to initialize HMRF.
-#' This consists of running a K-means algorithm to determine initial centroids (nstart, hmrf_seed) of HMRF.
-#' The initialization is then finished.
-#' This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist. This information is needed for the second step, doHMRF.
-#'
+#' @details 
+#' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run, through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for clustering, listed with selection priority: 1. use PCA of the spatial gene expressions (selected by use_pca); 2. use metagene expressions (selected by use_metagene); 3. sampling to select 500 spatial genes (controlled by gene_samples). Third, once spatial genes are finalized, we are using clustering method to initialize HMRF. There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters), spat_unit, feat_type. This information is needed for the second step, doHMRF.
 #' @export
 initHMRF_V2 = 
   function (gobject, 
@@ -978,18 +994,18 @@ initHMRF_V2 =
             expression_values = c("scaled", "normalized", "custom"), 
             spatial_network_name = "Delaunay_network", 
             use_spatial_genes = c("binSpect","silhouetteRank"), 
+            use_score = FALSE, 
             gene_list_from_top = 2500, 
+            filter_method = c("none", "elbow"), 
+            user_gene_list = NULL, 
+            use_pca = FALSE,
+            use_pca_dim = 1:20,
             gene_samples = 500, 
             gene_sampling_rate = 2, 
             gene_sampling_seed = 10, 
-            filter_method = c("none", "elbow"), 
-            user_gene_list = NULL, 
-            use_score = FALSE, 
-            use_metagene = F,
+            use_metagene = FALSE,
             cluster_metagene = 50,
             top_metagene = 20,
-            use_pca = F,
-            use_pca_dim = 1:20,
             existing_dim_reduction_to_use = NULL,
             existing_dim_reduction_name = NULL,
             existing_dimensions_to_use = NULL,
@@ -1317,21 +1333,14 @@ initHMRF_V2 =
 #' @title doHMRF_V2
 #' @name doHMRF_V2
 #' @description function to run HMRF model
-#' @keywords external
-#' @param HMRF_init_obj return list of initHMRF() function
-#' @param betas NULL value of beta will provide default values based on feature numbers, otherwise, a vector of three values: initial beta, beta increment, and number of betas
-#' @return A list (see details)
-#' @details This function will run a HMRF model after initialization of HMRF.
-#' Of note is the beta parameter, the smoothing parameter. We recommend running a range of betas,
-#` hence betas specify what this range is.
-#' For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40.
-#' betas=c(0,5,2) will run for betas: 0, 5, 10
-#' Setting the beta can use the following guideline.
-#' If number of genes N is 10<N<50, set betas=c(0, 1, 20)
+#' @param HMRF_init_obj initialization object list returned from initHMRF() function
+#' @param betas beta value of the HMRF model, controlling the smoothness of clustering. NULL value of beta will provide default values based on feature numbers, otherwise, a vector of three values: initial beta, beta increment, and number of betas
+#' @details 
+#' This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter. If the users are interested in selecting results from different smoothness, we recommend running a range of betas, hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40. betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the following guideline.
+#' If number of features N is 10<N<50, set betas=c(0, 1, 20)
 #' If 50<N<100, set betas=c(0, 2, 25)
 #' If 100<N<500, set betas=c(0, 5, 20)
-#' Returns a list with class, probability, and model log-likelihood value.
-#'
+#' Returns a list of results for betas, spat_unit and feat_type. Result for each beta is a list with probability(normalized or non-normalized), class, and model log-likelihood value.
 #' @export
 doHMRF_V2 = function (HMRF_init_obj, betas = NULL) 
 {
@@ -1427,12 +1436,12 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
 #' @title addHMRF_V2
 #' @name addHMRF_V2
 #' @description function to add HMRF Domain Type to cell meta data
-#' @keywords external
 #' @param gobject giotto object
 #' @param HMRFoutput result object from HMRF model
-#' @param name name of hmrf models
+#' @param name name of HMRF models
+#' @details 
+#' This function appends HMRF domain clusters to corresponding cell meta data for all the beta values, with the given HMRF model names. For example, if name = ‘hmrf1’ and name of result in HMRFoutput is ‘k=8 b=0.00’, the appended cell meta data column will be named with ‘hmrf1 k=8 b=0.00’
 #' @export
-
 addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf') 
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
@@ -1461,7 +1470,6 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 #' @title viewHMRFresults_V2
 #' @name viewHMRFresults_V2
 #' @description function to view HMRF results with multiple betas
-#' @keywords external
 #' @param gobject giotto object
 #' @param k number of clusters in hmrf results
 #' @param betas values of beta to plot
@@ -1478,8 +1486,9 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 #' @param default_save_name names of figure file to save
 #' @param return_plot if function return a plot
 #' @param save_param other saving parameters
+#' @details 
+#' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name), matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 #' @export
-
 viewHMRFresults_V2 =
   function (gobject, k, betas,
             hmrf_name,
