@@ -1965,7 +1965,7 @@ create_giotto_polygons_vizgen = function(z_read_DT,
                                          create_gpoly_parallel = TRUE,
                                          create_gpoly_bin = FALSE,
                                          verbose = TRUE) {
-  checkmate::assert_data_table(z_read_DT)
+  checkmate::assert_list(z_read_DT)
   checkmate::assert_numeric(smooth_vertices)
 
   if(isTRUE(verbose)) wrap_msg('start creating polygons')
