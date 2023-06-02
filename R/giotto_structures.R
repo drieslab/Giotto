@@ -2851,7 +2851,7 @@ rescalePolygons = function(gobject,
 
 }
 
-#' @title Tessellate Spatial Locations
+#' @title tessellateSpatLocs
 #' @name tessellateSpatLocs
 #' @description Generates a tessellated grid of spatial locations based on the input spatial locations.
 #' @param spat_locs Spatial locations to be tessellated.
@@ -2911,5 +2911,45 @@ tessellateSpatLocs <- function(spat_locs, shape = c('hexagon', 'square'), radius
       stop(wrap_txt("Please select valid shape option: hexagon OR square"))
    }
    
+   return(res)
+}
+
+#' @title makePseudoVisium
+#' @name makePseudoVisium
+#' @description Generates a pseudo-visium grid of spots based on the input spatial locations
+#' @param spat_locs Spatial locations of giotto object with columns sdimx and sdimy
+#' @param center_center_distance_um Center-to-center distance of input spat_locs in micrometers
+#' @return A data.table of vertices for the pseudo-visium spots. 
+#' @details This function generates a pseudo-Visium grid of spots based on the input spatial locations. The center-to-center distance parameter is used to determine the size of the spots
+#' @concept spatial location
+#' @export
+makePseudoVisium <- function(spat_locs = NULL,
+                           center_center_distance_um = 0.5) {
+   # Visium default scale parameters
+   visium_radius_um=27.5
+   visium_center_center_dist_um=100
+   visium_gap_um=45
+   
+   # Compute metrics to visium scale
+   radius = visium_radius_um / center_center_distance_um
+   gap = (visium_gap_um / visium_radius_um) * radius 
+   
+   # Define a data.table with the vertices of a circle centered around (0,0)
+   stamp_dt <- Giotto::circleVertices(radius = radius, npoints = 100)
+   
+   # Create a grid of y points where the circles will be centered
+   y_seq <- seq(min(spat_locs$sdimy), max(spat_locs$sdimy), by = 2*radius + gap)
+   
+   # Stagger center point of circles to match visium staggered grid
+   centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+      x_start <- if(i %% 2 == 0) min(spat_locs$sdimx) + (2*radius+gap)/2 else min(spat_locs$sdimx)
+      x_seq <- seq(x_start, max(spat_locs$sdimx), by = 2*radius+gap)
+      data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+   }))
+   centers$cell_ID <- 1:nrow(centers)
+   
+   # Call polyStamp function on centers to generate the pseudo-visium grid
+   res <- Giotto::polyStamp(stamp_dt, centers)
+      
    return(res)
 }
