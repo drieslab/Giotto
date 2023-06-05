@@ -974,13 +974,13 @@ doKmeans <- function(gobject,
                                         output = 'exprObj')
 
     # subset expression matrix
-    if(!is.null(genes_to_use)) {
+    if(!is.null(feats_to_use)) {
       expr_values[] = expr_values[][rownames(expr_values[]) %in% feats_to_use, ]
     }
 
     # features as columns
     # cells as rows
-    matrix_to_use = t_flex(expr_values)
+    matrix_to_use = t_flex(expr_values[])
 
   }
 

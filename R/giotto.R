@@ -1780,7 +1780,13 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     # get matrix counts
     h5_results = get10Xmatrix_h5(path_to_data = h5_visium_path, gene_ids = h5_gene_ids)
     raw_matrix = h5_results[['Gene Expression']]
-    
+
+    protein_exp_matrix = NULL
+    if ('Antibody Capture' %in% names(h5_results)){
+      protein_exp_matrix = h5_results[['Antibody Capture']]
+    }
+
+
     # spatial locations
     spatial_results = data.table::fread(h5_tissue_positions_path)
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
@@ -1865,12 +1871,28 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        instructions = instructions,
                                        cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
+
     
-    
-    
-    
-    return(giotto_object)
-    
+    if(!is.null(protein_exp_matrix)){
+      protein_expr_obj = createExprObj(protein_exp_matrix,
+                                       name = "raw",
+                                       spat_unit = "cell",
+                                       feat_type = "protein",
+                                       provenance = "cell")
+      giotto_object = set_expression_values(giotto_object,
+                                            protein_expr_obj,
+                                            name = "raw",
+                                            spat_unit = "cell",
+                                            feat_type = "protein",
+                                            provenance = "cell",
+                                            set_defaults = FALSE, 
+                                            verbose = verbose)
+      giotto_object = set_feat_id(giotto_object, 
+                                  feat_type = "protein",
+                                  feat_IDs = rownames(protein_expr_obj),
+                                  set_defaults = FALSE,
+                                  verbose = verbose)
+    }
     
   } else {
     
@@ -2002,10 +2024,9 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          images = visium_png_list)
     }
     
-    return(giotto_object)
-    
   }
   
+  return(giotto_object)
 }
 
 

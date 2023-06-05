@@ -1207,7 +1207,7 @@ subset_feature_info_data = function(feat_info,
   
   res_list = list()
   for(feat in names(feat_info)) {
-    
+
     if(verbose) print(feat)
     
     if(feat == feat_type) {
@@ -1488,8 +1488,7 @@ subsetGiotto <- function(gobject,
     print(gobject@spatial_info)
     print(gobject@spatial_locs)
   }
-  
-  
+
   return(initialize(gobject))
   
 }
@@ -2474,7 +2473,7 @@ rna_standard_normalization = function(gobject,
   }
   
   ## 5. create and set exprObj
-  
+
   ### write h5 file if needed
   if(!is.null(h5_file)) {
     HDF5Array::writeHDF5Array(x = norm_expr,
@@ -3622,13 +3621,25 @@ removeCellAnnotation <- function(gobject,
   if(is.null(columns)) {
     stop('\t You need to provide a vector of metadata column names to remove \t')
   }
-  
-  gobject@cell_metadata[[spat_unit]][[feat_type]][, (columns) := NULL]
-  
+
+
+  # get cell metadata
+  cell_metadata = get_cell_metadata(gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type,
+                                    output = 'cellMetaObj',
+                                    copy_obj = TRUE)
+  # remove columns
+  cell_metadata[] = cell_metadata[][, (columns) := NULL]
+
+  # return giotto object or cell metadata
   if(return_gobject == TRUE) {
+    gobject = set_cell_metadata(gobject,
+                                metadata = cell_metadata,
+                                verbose = FALSE)
     return(gobject)
   } else {
-    gobject@cell_metadata[[spat_unit]][[feat_type]]
+    cell_metadata[]
   }
   
 }
@@ -3663,15 +3674,26 @@ removeFeatAnnotation <- function(gobject,
   if(is.null(columns)) {
     stop('\t You need to provide a vector of metadata column names to remove \t')
   }
-  
-  gobject@feat_metadata[[spat_unit]][[feat_type]][, (columns) := NULL]
-  
+
+  # get feat metadata
+  feat_metadata = get_feature_metadata(gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'featMetaObj',
+                                       copy_obj = TRUE)
+  # remove columns
+  feat_metadata[] = feat_metadata[][, (columns) := NULL]
+
+  # return giotto object or cell metadata
   if(return_gobject == TRUE) {
+    gobject = set_feature_metadata(gobject,
+                                   metadata = feat_metadata,
+                                   verbose = FALSE)
     return(gobject)
   } else {
-    gobject@gene_metadata[[spat_unit]][[feat_type]]
+    feat_metadata[]
   }
-  
+
 }
 
 
