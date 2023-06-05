@@ -722,7 +722,9 @@ viewHMRFresults3D <- function(gobject,
 #' @param target target length of gene list
 #' @param seed random seed
 #' @details 
-#' This function samples a subset of spatial genes among different clusters, with size n = target. Number of samples from each cluster denpends on the relative proportion of each cluster. Changing from equal size by setting sample_rate = 1 to with exact proportion of each cluster by setting sample_rate = +Inf 
+#' This function samples a subset of spatial genes among different clusters, with size n = target.
+#' Number of samples from each cluster denpends on the relative proportion of each cluster.
+#' Changing from equal size by setting sample_rate = 1 to with exact proportion of each cluster by setting sample_rate = +Inf 
 #' @keywords internal
 sampling_sp_genes = function(clust,
                              sample_rate=2,
@@ -798,7 +800,8 @@ numPts_below_line <- function(myVector,
 #' @param name name of spatial gene test for the filtering
 #' @param method method of spatial gene selection
 #' @details 
-#' This function filters given gene list with the gene sets of selected spatial gene test in Giotto, also controls the total size of the gene set with given max number.
+#' This function filters given gene list with the gene sets of selected spatial gene test in Giotto, 
+#' also controls the total size of the gene set with given max number.
 #' @keywords external
 #' @export
 filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spatial_genes, max=2500, 
@@ -876,7 +879,9 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @details 
-#' This function outputs the available test name for existing spatial gene sets in Giotto, which could be used in parameter ‘name’ in filterSpatialGenes(). Priorities for showing the spatial gene test names are ‘binSpect’ > ‘silhouetteRankTest’ > ‘silhouetteRank’.
+#' This function outputs the available test name for existing spatial gene sets in Giotto, 
+#' which could be used in parameter ‘name’ in `filterSpatialGenes`. 
+#' Priorities for showing the spatial gene test names are ‘binSpect’ > ‘silhouetteRankTest’ > ‘silhouetteRank’.
 #' @keywords internal
 chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NULL){
   gx = fDataDT(gobject,spat_unit = NULL,feat_type = NULL)
@@ -904,7 +909,8 @@ chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NUL
 #' @param use_spatial_genes test name of spatial gene set to check
 #' @param use_score logical variable to select silhouetteRank score
 #' @details 
-#' This function checks the user specified test name of spatial gene set in Giotto object. SilhouetteRank works only with score, and SilhouetteRankTest works only with pval. Use parameter use_score to specify.
+#' This function checks the user specified test name of spatial gene set in Giotto object. 
+#' SilhouetteRank works only with score, and SilhouetteRankTest works only with pval. Use parameter use_score to specify.
 #' @keywords internal
 checkAndFixSpatialGenes <- function(gobject, 
                                     spat_unit = NULL,
@@ -985,7 +991,20 @@ checkAndFixSpatialGenes <- function(gobject,
 #' @param nstart number of Kmeans initializations from which to select the best initialization
 #' @param factor_step dampened factor step
 #' @details 
-#' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run, through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for clustering, listed with selection priority: 1. use PCA of the spatial gene expressions (selected by use_pca); 2. use metagene expressions (selected by use_metagene); 3. sampling to select 500 spatial genes (controlled by gene_samples). Third, once spatial genes are finalized, we are using clustering method to initialize HMRF. There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters), spat_unit, feat_type. This information is needed for the second step, doHMRF.
+#' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run, 
+#' through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that 
+#' are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes 
+#' ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in 
+#' the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for 
+#' clustering, listed with selection priority: 
+#'    1. use PCA of the spatial gene expressions (selected by use_pca)
+#'    2. use metagene expressions (selected by use_metagene)
+#'    3. sampling to select 500 spatial genes (controlled by gene_samples). 
+#' Third, once spatial genes are finalized, we are using clustering method to initialize HMRF. 
+#' There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is
+#' then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), 
+#' blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters), 
+#' spat_unit, feat_type. This information is needed for the second step, doHMRF.
 #' @export
 initHMRF_V2 = 
   function (gobject, 
@@ -1336,7 +1355,10 @@ initHMRF_V2 =
 #' @param HMRF_init_obj initialization object list returned from initHMRF() function
 #' @param betas beta value of the HMRF model, controlling the smoothness of clustering. NULL value of beta will provide default values based on feature numbers, otherwise, a vector of three values: initial beta, beta increment, and number of betas
 #' @details 
-#' This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter. If the users are interested in selecting results from different smoothness, we recommend running a range of betas, hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40. betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the following guideline.
+#' This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter. 
+#' If the users are interested in selecting results from different smoothness, we recommend running a range of betas, 
+#' hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40. 
+#' betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the following guideline:
 #' If number of features N is 10<N<50, set betas=c(0, 1, 20)
 #' If 50<N<100, set betas=c(0, 2, 25)
 #' If 100<N<500, set betas=c(0, 5, 20)
@@ -1487,7 +1509,8 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 #' @param return_plot if function return a plot
 #' @param save_param other saving parameters
 #' @details 
-#' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name), matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
+#' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name), 
+#' matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 #' @export
 viewHMRFresults_V2 =
   function (gobject, k, betas,
