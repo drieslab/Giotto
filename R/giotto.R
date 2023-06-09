@@ -1859,7 +1859,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     } else {
       visium_png_list = NULL
     }
-    
+
     # Create cell_ID column for metadata
     cell_ID = NULL
     colnames(spatial_results)[colnames(spatial_results) == "barcode"] = "cell_ID"
@@ -1872,7 +1872,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
 
-    
+
     if(!is.null(protein_exp_matrix)){
       protein_expr_obj = createExprObj(protein_exp_matrix,
                                        name = "raw",
@@ -1885,15 +1885,16 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                             spat_unit = "cell",
                                             feat_type = "protein",
                                             provenance = "cell",
-                                            set_defaults = FALSE, 
+                                            set_defaults = FALSE,
                                             verbose = verbose)
-      giotto_object = set_feat_id(giotto_object, 
+      giotto_object = set_feat_id(giotto_object,
                                   feat_type = "protein",
                                   feat_IDs = rownames(protein_expr_obj),
                                   set_defaults = FALSE,
                                   verbose = verbose)
     }
-    
+
+
   } else {
     
     if(verbose) message("A structured visium directory will be used \n")
@@ -1922,14 +1923,14 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
     spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
-    
-    if(inherits(raw_matrix, 'list')) {
+
+
+    if(is.list(raw_matrix)) {
       spatial_results = spatial_results[match(colnames(raw_matrix[[1]]), barcode)]
-      
-    } else {
+    } else{
       spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
-      
     }
+
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
     colnames(spatial_locs) = c('sdimx', 'sdimy')
     
@@ -2005,15 +2006,15 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     
     cell_metadata = spatial_results[,.(barcode, in_tissue, array_row, array_col)]
     data.table::setnames(cell_metadata, 'barcode', 'cell_ID')
-    
-    if(inherits(raw_matrix, 'list')) {
-      giotto_object = createGiottoObject(expression = list(raw = raw_matrix[[1]], 
+
+    if(is.list(raw_matrix)) {
+      giotto_object = createGiottoObject(expression = list(raw = raw_matrix[[1]],
                                                            raw = raw_matrix[[2]]),
                                          expression_feat = c('rna', 'protein'),
                                          spatial_locs = spatial_locs,
                                          instructions = instructions,
-                                         cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)],
-                                                                            'protein' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
+                                         cell_metadata = list('cell' = list('rna' = cell_metadata,
+                                                                            'protein' = cell_metadata)),
                                          images = visium_png_list)
     } else {
       giotto_object = createGiottoObject(expression = raw_matrix,
@@ -2023,7 +2024,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          cell_metadata = list('cell' = list('rna' = cell_metadata)),
                                          images = visium_png_list)
     }
-    
+
   }
   
   return(giotto_object)
