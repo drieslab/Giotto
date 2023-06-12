@@ -19,6 +19,7 @@
 - New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object
 
 ## Changes
+- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility.
 - Add check for spatLocsObj for spatlocs in polyStamp()
 - Removed various print() and cat() statements throughout 
 - Changed default verbose argument to FALSE for createGiottoObject

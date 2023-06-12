@@ -2243,23 +2243,29 @@ h5read_vizgen = function(h5File,
 #' @export
 getGEFtxCoords = function(gef_file,
                           bin_size = 'bin100') {
+   
+   # data.table vars
+   genes = NULL
+   
+   # package check
+   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+   
+   # Step 1: Parse tx coords
+   exprDT = rhdf5::h5read(file = gef_file, 
+                             name = paste0('geneExp/', bin_size, '/expression'))
+   setDT(exprDT)
 
-  # data.table vars
-  genes = NULL
-
-  # package check
-  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
-  if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
-
-  # step 1: read expression and gene data from gef file
-  geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
-  exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
-  geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
-
-  # step 2: combine gene information from the geneDT to the exprDT
-  exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
-
-  return(exprDT)
+   # Step 2: Parse gene expression info using index
+   geneDT = rhdf5::h5read(file = gef_file, 
+                             name = paste0('geneExp/', bin_size, '/gene'))
+   setDT(geneDT)
+   
+   # Step 3: Combine read expression and gene data by repeating count (match offset index)
+   # See STOMICS file format manual for more information about exprDT and geneDT
+   exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+   
+   return(exprDT)
 
 }
 
