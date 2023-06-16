@@ -28,6 +28,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                                      alt_spat_unit = NULL,
                                      feat_type = NULL,
                                      clus_name = "kmeans",
+                                     return_plot = FALSE,
                                      verbose = FALSE){
   # Guards
   if(!c("giotto") %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
@@ -96,24 +97,27 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                             by_column = T,
                             column_cell_ID = 'cell_ID')
   
-  spatInSituPlotPoints(gobject = gobject, 
-                       spat_unit = spat_unit,
-                       polygon_feat_type = spat_unit,
-                       show_polygon = T,
-                       feat_type = feat_type,
-                       feats = NULL,
-                       polygon_fill = 'resize_switch',
-                       polygon_fill_as_factor = TRUE,
-                       polygon_line_size = 0.1,
-                       polygon_color = 'white',
-                       coord_fix_ratio = 1,
-                       polygon_fill_code = c(switch = 'red', same = 'gray'))
+  poly_plot = spatInSituPlotPoints(gobject = gobject, 
+                                   spat_unit = spat_unit,
+                                   polygon_feat_type = spat_unit,
+                                   show_polygon = T,
+                                   feat_type = feat_type,
+                                   feats = NULL,
+                                   polygon_fill = 'resize_switch',
+                                   polygon_fill_as_factor = TRUE,
+                                   polygon_line_size = 0.1,
+                                   polygon_color = 'white',
+                                   coord_fix_ratio = 1,
+                                   polygon_fill_code = c(switch = 'red', same = 'gray'),
+                                   return_plot = return_plot)
 
   num_cells_switched = sum(getCellMetadata(gobject)$resize_switch == 'switch')
-  if(verbose) print(paste0(num_cells_switched, " cells switched clusters."))
   num_cells_same = sum(getCellMetadata(gobject)$resize_switch == 'same')
+  if(verbose) print(paste0(num_cells_switched, " cells switched clusters."))
   if(verbose) print(paste0(num_cells_same, " cells remained in the same cluster."))
-
+  
+  if (return_plot) return(poly_plot)
+  
   return (gobject)
 
 }
