@@ -6,6 +6,12 @@
 
 
 ## Added
+- new file `poly_influence.R`
+- added new function `showPolygonSizeInfluence()` within `poly_influence.R` to show if cells switch clusters when across resized polygon annotations 
+- added new function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
+- added new function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
+- added new function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
+- added new function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
 - new file `feature_set_enrichment.R`
 - added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
 - added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
