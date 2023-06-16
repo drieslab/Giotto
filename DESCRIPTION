@@ -141,6 +141,7 @@ Collate:
     'images.R'
     'interactivity.R'
     'interoperability.R'
+    'poly_influence.r'
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
