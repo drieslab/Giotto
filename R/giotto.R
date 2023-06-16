@@ -1300,7 +1300,7 @@ createGiottoObject = function(expression,
                               cores = determine_cores(),
                               raw_exprs = NULL,
                               expression_matrix_class = c('dgCMatrix', 'HDF5Matrix','rhdf5'),
-                              h5_file = 'my_giotto_object.h5',
+                              h5_file = NULL,
                               verbose = FALSE) {
   
   debug_msg = FALSE # for reading debug help
@@ -1394,8 +1394,8 @@ createGiottoObject = function(expression,
                                    cores = cores,
                                    default_feat_type = expression_feat,
                                    verbose = debug_msg,
-                                   expression_matrix_class = expression_matrix_class,
-                                   h5_file = h5_file)
+                                   expression_matrix_class = expression_matrix_class)#,
+                                   #h5_file = h5_file)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setExpression(gobject = gobject,
                             x = expression_data,
