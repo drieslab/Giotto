@@ -2497,9 +2497,13 @@ createExprObj = function(expression_data,
                          feat_type = 'rna',
                          provenance = NULL,
                          misc = NULL,
-                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
+                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                         h5_file = 'my_giotto_object.h5') {
 
-  exprMat = evaluate_expr_matrix(expression_data, expression_matrix_class = expression_matrix_class)
+  exprMat = evaluate_expr_matrix(expression_data, 
+                                 expression_matrix_class = expression_matrix_class, 
+                                 feat_type = feat_type,
+                                 h5_file = h5_file)
 
   create_expr_obj(name = name,
                   exprMat = exprMat,

@@ -36,12 +36,17 @@
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
                                 cores = determine_cores(),
-                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
+                                feat_type = 'rna',
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                                h5_file = 'my_giotto_object.h5') {
 
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores, expression_matrix_class = expression_matrix_class)
+    mymatrix = readExprMatrix(inputmatrix, cores = cores, 
+                              expression_matrix_class = expression_matrix_class, 
+                              feat_type = feat_type,
+                              h5_file = h5_file)
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
   } else if(inherits(inputmatrix, 'DelayedMatrix')) {

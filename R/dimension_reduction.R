@@ -456,6 +456,7 @@ runPCA <- function(gobject,
                    set_seed = TRUE,
                    seed_number = 1234,
                    verbose = TRUE,
+                   h5_file = NULL,
                    ...) {
 
 
@@ -489,6 +490,20 @@ runPCA <- function(gobject,
                                       values = values,
                                       output = 'exprObj')
   provenance = prov(expr_values)
+  
+  if(is.character(slot(expr_values, 'exprMat'))) {
+    expr_path = slot(expr_values, 'exprMat')
+    
+    expr_values = HDF5Array::h5mread(filepath = h5_file,
+                                     name = expr_path)
+    
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+                                              name = expr_path)
+    
+    rownames(expr_values) = expr_dimnames[[1]]
+    colnames(expr_values) = expr_dimnames[[2]]
+  }
+  
   expr_values = expr_values[] # extract matrix
 
   ## subset matrix
