@@ -1640,12 +1640,19 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 
           if(verbose) message("Copying spatial image: ", img@name)
 
-          spe <- SpatialExperiment::addImg(spe,
-                                           sample_id = spe$sample_id[i],
-                                           image_id = img@name,
-                                           imageSource = img@file_path,
-                                           scaleFactor = mean(img@scale_factor),
-                                           load = TRUE)
+          tryCatch(
+            expr = {
+              spe <- SpatialExperiment::addImg(spe,
+                                               sample_id = spe$sample_id[i],
+                                               image_id = img@name,
+                                               imageSource = img@file_path,
+                                               scaleFactor = mean(img@scale_factor),
+                                               load = TRUE)
+            },
+            error = function(e){
+              message("Error copying spatial image: ", img@name, ". Please check if the image path is correct and the image exists at that path.")
+            }
+          )  
         }
         else{
           if(verbose) message("\t - Skipping image with NULL file path: ", img@name)
