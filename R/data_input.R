@@ -20,7 +20,7 @@ readExprMatrix = function(path,
                           transpose = FALSE,
                           feat_type = 'rna',
                           expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
-                          h5_file = 'my_giotto_object.h5') {
+                          h5_file = NULL) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
@@ -32,31 +32,35 @@ readExprMatrix = function(path,
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
   
+  if(transpose == TRUE) {
+    spM = t_flex(spM)
+  }
+  
   if(expression_matrix_class[1] == 'HDF5Matrix') {
     require(HDF5Array)
     spM = methods::as(spM, 'HDF5Matrix')
   }
   
   if(expression_matrix_class[1] == 'rhdf5') {
-    rhdf5::h5createGroup(h5_file, paste0("expression/",feat_type))
+    if(is.null(h5_file)) {
+      stop(wrap_txt('h5_file can not be NULL, please provide a file name',
+                    errWidth = TRUE))
+    }
+    
+    rhdf5::h5createGroup(h5_file, paste0('expression/',feat_type))
     
     spM = as.matrix(DT[,-1])
     colnames(spM) = colnames(DT[,-1])
     rownames(spM) = DT[[1]]
     
-    #rhdf5::h5write(spM, h5_file, paste0("expression/",feat_type,"/raw"))
     HDF5Array::writeHDF5Array(spM, 
                               h5_file,
-                              name = paste0("expression/",feat_type,"/raw"),
+                              name = paste0('expression/',feat_type,'/raw'),
                               with.dimnames=TRUE)
     
-    spM = paste0("expression/",feat_type,"/raw")
+    spM = paste0('expression/',feat_type,'/raw')
   }
   
-  if(transpose == TRUE) {
-    spM = t_flex(spM)
-  }
-
   return(spM)
 }
 
@@ -104,7 +108,7 @@ readExprData = function(data_list,
                         verbose = TRUE,
                         provenance = NULL,
                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
-                        h5_file = 'my_giotto_object.h5') {
+                        h5_file = NULL) {
 
   read_expression_data(
     expr_list = data_list,
@@ -130,7 +134,7 @@ read_expression_data = function(expr_list = NULL,
                                 verbose = TRUE,
                                 provenance = NULL,
                                 expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
-                                h5_file = 'my_giotto_object.h5') {
+                                h5_file = NULL) {
 
   # import box characters
   ch = box_chars()

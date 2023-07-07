@@ -206,8 +206,7 @@ calculateHVF <- function(gobject,
                          save_plot = NA,
                          save_param = list(),
                          default_save_name = 'HVFplot',
-                         return_gobject = TRUE,
-                         h5_file = NULL) {
+                         return_gobject = TRUE) {
 
   # set data.table variables to NULL
   sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_feats = feats = var = NULL
@@ -227,13 +226,13 @@ calculateHVF <- function(gobject,
                                       values = values,
                                       output = 'matrix')
   
-  if(is.character(expr_values)) {
+  if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = expr_values
     
-    expr_values = HDF5Array::h5mread(filepath = h5_file,
+    expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                      name = expr_path)
     
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = expr_path)
     
     rownames(expr_values) = expr_dimnames[[1]]

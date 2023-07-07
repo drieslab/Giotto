@@ -462,8 +462,7 @@ subset_expression_data = function(gobject,
                                   feat_type,
                                   spat_unit,
                                   all_spat_units,
-                                  all_feat_types,
-                                  h5_file = NULL) {
+                                  all_feat_types) {
   
   
   
@@ -492,9 +491,11 @@ subset_expression_data = function(gobject,
                                         values = expression_name,
                                         output = 'exprObj')
         
-        if(methods::is(S4_expr@exprMat, 'character')) {
-          expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
-                                                    name = paste0('/expression/',feat_type_name,'/',expression_name))
+        if(!is.null(slot(gobject, 'h5_file'))) {
+          expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                                    name = paste0('/expression/',
+                                                                  feat_type_name,'/',
+                                                                  expression_name))
           g_cell_IDs = expr_dimnames[[2]]
           g_feat_IDs = expr_dimnames[[1]]
           
@@ -514,15 +515,17 @@ subset_expression_data = function(gobject,
         }
         
         # for HDF5Array
-        if(methods::is(S4_expr@exprMat, 'character')) {
-          x = HDF5Array::h5mread(filepath = h5_file,
-                                 name = paste0('/expression/',feat_type_name, '/',expression_name),
+        if(!is.null(slot(gobject, 'h5_file'))) {
+          x = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
+                                 name = paste0('/expression/',
+                                               feat_type_name, '/',
+                                               expression_name),
                                  starts = list(filter_bool_feats, filter_bool_cells))
           colnames(x) = cell_ids
           rownames(x) = feat_ids
           
           HDF5Array::writeHDF5Array(x, 
-                                    filepath = h5_file,
+                                    filepath = slot(gobject, 'h5_file'),
                                     name = paste0('/expression/',feat_type_name, '/filtered'),
                                     with.dimnames = TRUE)
           S4_expr@exprMat = paste0('/expression/',feat_type_name, '/filtered')
@@ -1253,7 +1256,6 @@ subset_feature_info_data = function(feat_info,
 #' @param x_max,x_min,y_max,y_min minimum and maximum x and y coordinates to keep for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
-#' @param h5_file path to HDF5 file.
 #' @return giotto object
 #' @details Subsets a Giotto object for a specific spatial unit and feature type
 #' @export
@@ -1271,8 +1273,7 @@ subsetGiotto <- function(gobject,
                          y_max = NULL,
                          y_min = NULL,
                          verbose = FALSE,
-                         toplevel_params = 2,
-                         h5_file = NULL) {
+                         toplevel_params = 2) {
   
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1292,8 +1293,8 @@ subsetGiotto <- function(gobject,
     warning('gene_ids argument is deprecated, use feat_ids argument in the future \n')
   }
   
-  if(!is.null(h5_file)) {
-    g_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+  if(!is.null(slot(gobject, 'h5_file'))) {
+    g_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                            name =  paste0("/expression/",feat_type,"/raw"))
     g_cell_IDs = g_dimnames[[2]]
     g_feat_IDs = g_dimnames[[1]]
@@ -1340,8 +1341,7 @@ subsetGiotto <- function(gobject,
                                    feat_type = feat_type,
                                    spat_unit = spat_unit,
                                    all_spat_units = all_spat_units,
-                                   all_feat_types = all_feat_types,
-                                   h5_file = h5_file)
+                                   all_feat_types = all_feat_types)
   
   if(verbose) cat('completed 2: subset expression data \n')
   
@@ -2202,7 +2202,6 @@ filterCombinations <- function(gobject,
 #' @param tag_cell_name column name for tagged cells in metadata
 #' @param tag_feats tag features in metadata vs. remove features
 #' @param tag_feats_name column name for tagged features in metadata
-#' @param h5_file path to HDF5 file.
 #' @param verbose verbose
 #'
 #' @return giotto object
@@ -2229,7 +2228,6 @@ filterGiotto = function(gobject,
                         tag_cell_name = 'tag',
                         tag_feats = FALSE,
                         tag_feats_name = 'tag',
-                        h5_file = NULL,
                         verbose = TRUE) {
   
   # data.table vars
@@ -2263,10 +2261,10 @@ filterGiotto = function(gobject,
                                       values = values,
                                       output = 'matrix')
   
-  if(inherits(expr_values, 'character')) {
-    expr_values = rhdf5::h5read(file = h5_file, 
+  if(!is.null(slot(gobject, 'h5_file'))) {
+    expr_values = rhdf5::h5read(file = slot(gobject, 'h5_file'), 
                                 name = paste0('expression/',feat_type,'/',values))
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = paste0('expression/',feat_type,'/',values))
     rownames(expr_values) = expr_dimnames[[1]]
     colnames(expr_values) = expr_dimnames[[2]]
@@ -2318,8 +2316,7 @@ filterGiotto = function(gobject,
                                  all_spat_units = all_spat_units,
                                  all_feat_types = all_feat_types,
                                  poly_info = poly_info,
-                                 verbose = verbose,
-                                 h5_file = h5_file)
+                                 verbose = verbose)
   
   ## print output ##
   removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
@@ -2388,23 +2385,57 @@ rna_standard_normalization = function(gobject,
                                       scale_feats = TRUE,
                                       scale_cells = TRUE,
                                       scale_order = c('first_feats', 'first_cells'),
-                                      verbose = TRUE,
-                                      h5_file = NULL) {
+                                      verbose = TRUE) {
   
   # check feature type compatibility
   if(!feat_type %in% c('rna', 'RNA')) {
     warning('Caution: Standard normalization was developed for RNA data \n')
   }
   
-  feat_names = rownames(raw_expr[])
-  col_names = colnames(raw_expr[])
+  # evaluate provenance before modifying raw_expr in case h5_file exists
+  if(isS4(raw_expr)) {
+    provenance = raw_expr@provenance
+  } else {provenance = NULL}
+  
+  # read h5_file if slot exists
+  if(!is.null(slot(gobject, 'h5_file'))) {
+    path_expr = slot(raw_expr, 'exprMat')
+    
+    raw_expr = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'), 
+                                  name = path_expr,
+                                  as.sparse = TRUE)
+    
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                              name = path_expr)
+
+    rownames(raw_expr) = expr_dimnames[[1]]
+    colnames(raw_expr) = expr_dimnames[[2]]
+    
+    feat_names = expr_dimnames[[1]]
+    col_names = expr_dimnames[[2]]
+    
+  } else {
+    feat_names = rownames(raw_expr[])
+    col_names = colnames(raw_expr[])
+  }
+  
+  
   
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
-                               scalefactor = scalefactor)
+    if(inherits(raw_expr, 'SparseArraySeed')) {
+      norm_expr = libNorm_giotto(mymatrix = raw_expr,
+                                 scalefactor = scalefactor)
+    } else {
+      norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+                                 scalefactor = scalefactor)
+    }
+    
   } else {
-    norm_expr = raw_expr[]
+    
+    if(inherits(raw_expr, 'SparseArraySeed')) { norm_expr = raw_expr
+    } else { norm_expr = raw_expr[] }
+    
   }
   
   ## 2. lognormalize
@@ -2475,15 +2506,15 @@ rna_standard_normalization = function(gobject,
   ## 5. create and set exprObj
 
   ### write h5 file if needed
-  if(!is.null(h5_file)) {
+  if(!is.null(slot(gobject, 'h5_file'))) {
     HDF5Array::writeHDF5Array(x = norm_expr,
-                              filepath = h5_file,
+                              filepath = slot(gobject, 'h5_file'),
                               name = paste0('/expression/',feat_type,'/normalized'),
                               with.dimnames = TRUE)
     norm_expr = paste0('/expression/',feat_type,'/normalized')
     
     HDF5Array::writeHDF5Array(x = norm_scaled_expr,
-                              filepath = h5_file,
+                              filepath = slot(gobject, 'h5_file'),
                               name = paste0('/expression/',feat_type,'/scaled'),
                               with.dimnames = TRUE)
     norm_scaled_expr = paste0('/expression/',feat_type,'/scaled')
@@ -2496,9 +2527,6 @@ rna_standard_normalization = function(gobject,
   #   norm_scaled_expr = methods::as(norm_scaled_expr, 'HDF5Matrix')
   # } 
   
-  if(isS4(raw_expr)) {
-    provenance = raw_expr@provenance
-  } else {provenance = NULL}
   
   
   norm_expr = create_expr_obj(name = 'normalized',
@@ -2709,8 +2737,7 @@ normalizeGiotto = function(gobject,
                            scale_order = c('first_feats', 'first_cells'),
                            theta = 100,
                            update_slot = 'scaled',
-                           verbose = TRUE,
-                           h5_file = NULL) {
+                           verbose = TRUE) {
   
   
   
@@ -2735,19 +2762,6 @@ normalizeGiotto = function(gobject,
                                    values = values,
                                    output = 'exprObj')
   
-  if(!is.null(h5_file)) {
-    path_expr = slot(raw_expr, 'exprMat')
-    
-    raw_expr = HDF5Array::h5mread(filepath = h5_file, 
-                                  name = path_expr)
-    
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
-                                              name = path_expr)
-    
-    rownames(raw_expr) = expr_dimnames[[1]]
-    colnames(raw_expr) = expr_dimnames[[2]]
-  }
-  
   norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'pearson_resid', 'osmFISH'))
   
   # normalization according to standard methods
@@ -2765,8 +2779,7 @@ normalizeGiotto = function(gobject,
                                          scale_feats = scale_feats,
                                          scale_cells = scale_cells,
                                          scale_order = scale_order,
-                                         verbose = verbose,
-                                         h5_file = h5_file)
+                                         verbose = verbose)
     
     
   }
@@ -3978,8 +3991,7 @@ addFeatStatistics <- function(gobject,
                               spat_unit = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
-                              return_gobject = TRUE,
-                              h5_file = NULL) {
+                              return_gobject = TRUE) {
   
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -3996,13 +4008,13 @@ addFeatStatistics <- function(gobject,
                                     values = expression_values,
                                     output = 'exprObj')
   
-  if(!is.null(h5_file)) {
+  if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = slot(expr_data, 'exprMat')
     
-    expr_data = HDF5Array::h5mread(filepath = h5_file,
+    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                    name = expr_path)
     
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = expr_path)
     
     rownames(expr_data) = expr_dimnames[[1]]
@@ -4158,8 +4170,7 @@ addCellStatistics <- function(gobject,
                               spat_unit = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
-                              return_gobject = TRUE,
-                              h5_file = NULL) {
+                              return_gobject = TRUE) {
   
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -4176,13 +4187,13 @@ addCellStatistics <- function(gobject,
                                     values = expression_values,
                                     output = 'exprObj')
   
-  if(!is.null(h5_file)) {
+  if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = slot(expr_data, 'exprMat')
     
-    expr_data = HDF5Array::h5mread(filepath = h5_file,
+    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                    name = expr_path)
     
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = h5_file,
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = expr_path)
     
     rownames(expr_data) = expr_dimnames[[1]]
@@ -4289,8 +4300,7 @@ addStatistics <- function(gobject,
                           spat_unit = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           detection_threshold = 0,
-                          return_gobject = TRUE,
-                          h5_file = NULL) {
+                          return_gobject = TRUE) {
   
   
   
@@ -4307,8 +4317,7 @@ addStatistics <- function(gobject,
                                  spat_unit = spat_unit,
                                  expression_values = expression_values,
                                  detection_threshold = detection_threshold,
-                                 return_gobject = return_gobject,
-                                 h5_file = h5_file)
+                                 return_gobject = return_gobject)
   
   if(return_gobject == TRUE) {
     gobject = feat_stats
@@ -4320,8 +4329,7 @@ addStatistics <- function(gobject,
                                  spat_unit = spat_unit,
                                  expression_values = expression_values,
                                  detection_threshold = detection_threshold,
-                                 return_gobject = return_gobject,
-                                 h5_file = h5_file)
+                                 return_gobject = return_gobject)
   
   if(return_gobject == TRUE) {
     gobject = cell_stats

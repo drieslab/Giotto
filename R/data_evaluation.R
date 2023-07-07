@@ -38,7 +38,7 @@ evaluate_expr_matrix = function(inputmatrix,
                                 cores = determine_cores(),
                                 feat_type = 'rna',
                                 expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
-                                h5_file = 'my_giotto_object.h5') {
+                                h5_file = NULL) {
 
 
   if(inherits(inputmatrix, 'character')) {
@@ -66,7 +66,7 @@ evaluate_expr_matrix = function(inputmatrix,
 
   } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
 
-    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
+    mymatrix = methods::as(as.matrix(inputmatrix), 'sparseMatrix')
 
   } else if(inherits(inputmatrix, 'exprObj')) {
 
