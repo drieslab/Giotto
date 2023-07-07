@@ -1310,7 +1310,8 @@ createGiottoObject = function(expression,
   gobject = giotto(expression_feat = expression_feat,
                    offset_file = offset_file,
                    instructions = instructions,
-                   OS_platform = .Platform[['OS.type']])
+                   OS_platform = .Platform[['OS.type']],
+                   h5_file = h5_file)
   
   
   ## data.table vars
@@ -1394,8 +1395,8 @@ createGiottoObject = function(expression,
                                    cores = cores,
                                    default_feat_type = expression_feat,
                                    verbose = debug_msg,
-                                   expression_matrix_class = expression_matrix_class)#,
-                                   #h5_file = h5_file)
+                                   expression_matrix_class = expression_matrix_class,
+                                   h5_file = h5_file)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setExpression(gobject = gobject,
                             x = expression_data,
