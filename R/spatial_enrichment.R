@@ -575,6 +575,9 @@ PAGE_DT_method = function(sign_matrix,
 
   mergetest = data.table::merge.data.table(sub_ct_DT, geneFold_DT, by = 'gene')
   mergetest = mergetest[, mean(fc), by = .(cell_type, cell_ID, nr_markers)]
+  if (is.integer(mergetest$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+    mergetest$cell_ID = as.character(mergetest$cell_ID)
+  }
   mergetest = data.table::merge.data.table(mergetest, cellColMeanSd, by = 'cell_ID')
   mergetest[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 
