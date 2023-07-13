@@ -657,6 +657,9 @@ PAGE_DT_method = function(sign_matrix,
 
       mergetest_perm_sub = data.table::merge.data.table(cell_type_perm_DT_sub, geneFold_DT, allow.cartesian = TRUE)
       mergetest_perm_sub = mergetest_perm_sub[, mean(fc), by = .(cell_type, cell_ID, nr_markers, round)]
+      if (is.integer(mergetest_perm_sub$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+        mergetest_perm_sub$cell_ID = as.character(mergetest_perm_sub$cell_ID)
+      }
       mergetest_perm_sub = data.table::merge.data.table(mergetest_perm_sub, cellColMeanSd, by = 'cell_ID')
       mergetest_perm_sub[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 
