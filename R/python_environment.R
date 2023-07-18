@@ -428,55 +428,54 @@ set_giotto_python_path = function(python_path = NULL) {
     message('\n external python path provided and will be used \n')
     python_path = as.character(python_path)
     reticulate::use_python(required = T, python = python_path)
-  }
-
-  os_specific_system = get_os()
-  conda_path = reticulate::miniconda_path()
-  if(os_specific_system == 'osx') {
-    python_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
-  } else if(os_specific_system == 'windows') {
-    python_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
-  } else if(os_specific_system == 'linux') {
-    python_path = paste0(conda_path, "/envs/giotto_env/bin/python")
-  }
-
-
-  # check if giotto environment exists
-  giotto_environment_installed = checkGiottoEnvironment(mini_install_path = conda_path,
-                                                        verbose = FALSE)
-
-  ## if a python path is provided, use that path
-  if(giotto_environment_installed == TRUE) {
-
-    wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
-    #python_path = return_giotto_environment_path_executable()
-    reticulate::use_python(required = T, python = python_path)
-
   } else {
-
-    wrap_msg('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
-
-    if(.Platform[['OS.type']] == 'unix') {
-      python_path = try(system('which python3', intern = T))
-    } else if(.Platform[['OS.type']] == 'windows') {
-      python_path = try(system('where python3', intern = T))
+    os_specific_system = get_os()
+    conda_path = reticulate::miniconda_path()
+    if(os_specific_system == 'osx') {
+      python_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
+    } else if(os_specific_system == 'windows') {
+      python_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
+    } else if(os_specific_system == 'linux') {
+      python_path = paste0(conda_path, "/envs/giotto_env/bin/python")
     }
-
-    if(inherits(python_path, 'try-error')) {
-      wrap_msg('\n no default python path found, install python and/or use strategy 1 or 2 \n')
-      python_path = NULL
-    } else {
-      python_path = python_path
+  
+  
+    # check if giotto environment exists
+    giotto_environment_installed = checkGiottoEnvironment(mini_install_path = conda_path,
+                                                          verbose = FALSE)
+  
+    ## if a python path is provided, use that path
+    if(giotto_environment_installed == TRUE) {
+  
+      wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
+      #python_path = return_giotto_environment_path_executable()
       reticulate::use_python(required = T, python = python_path)
-      wrap_msg('\n A default python path was found: ', python_path, ' and will be used\n')
+  
+    } else {
+  
+      wrap_msg('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
+  
+      if(.Platform[['OS.type']] == 'unix') {
+        python_path = try(system('which python3', intern = T))
+      } else if(.Platform[['OS.type']] == 'windows') {
+        python_path = try(system('where python3', intern = T))
+      }
+  
+      if(inherits(python_path, 'try-error')) {
+        wrap_msg('\n no default python path found, install python and/or use strategy 1 or 2 \n')
+        python_path = NULL
+      } else {
+        python_path = python_path
+        reticulate::use_python(required = T, python = python_path)
+        wrap_msg('\n A default python path was found: ', python_path, ' and will be used\n')
+      }
+  
+      wrap_msg('\n If this is not the correct python path, either')
+      wrap_msg('\n 1. use installGiottoEnvironment() to install a local miniconda python environment along with required modules')
+      wrap_msg('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed')
+  
     }
-
-    wrap_msg('\n If this is not the correct python path, either')
-    wrap_msg('\n 1. use installGiottoEnvironment() to install a local miniconda python environment along with required modules')
-    wrap_msg('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed')
-
   }
-
   return(python_path)
 }
 
