@@ -36,12 +36,17 @@
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
                                 cores = determine_cores(),
-                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
+                                feat_type = 'rna',
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                                h5_file = NULL) {
 
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores, expression_matrix_class = expression_matrix_class)
+    mymatrix = readExprMatrix(inputmatrix, cores = cores, 
+                              expression_matrix_class = expression_matrix_class, 
+                              feat_type = feat_type,
+                              h5_file = h5_file)
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
   } else if(inherits(inputmatrix, 'DelayedMatrix')) {
@@ -61,7 +66,7 @@ evaluate_expr_matrix = function(inputmatrix,
 
   } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
 
-    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
+    mymatrix = methods::as(as.matrix(inputmatrix), 'sparseMatrix')
 
   } else if(inherits(inputmatrix, 'exprObj')) {
 
@@ -141,6 +146,8 @@ evaluate_cell_metadata = function(metadata,
                      Setting temporary NA values'))
     # set temporary NA values
     metadata[, cell_ID := NA_character_]
+    # re-order so that cell_ID is the first column
+    data.table::setcolorder(metadata, neworder = "cell_ID")
 
   }
 

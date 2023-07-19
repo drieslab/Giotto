@@ -281,15 +281,26 @@ set_cell_id = function(gobject,
 
     # get cell ID values
     if(spat_unit %in% expr_avail$spat_unit) { # preferred from expression
-
-      cell_IDs = spatIDs(get_expression_values(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = expr_avail$feat_type[[1L]],
-        values = expr_avail$name[[1L]],
-        output = 'exprObj',
-        set_defaults = TRUE
-      ))
+      
+      if(!is.null(slot(gobject, 'h5_file'))) {
+        expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                                  name = paste0('expression/',
+                                                                expr_avail$feat_type[[1L]],'/',
+                                                                expr_avail$name[[1L]]))
+        cell_IDs = expr_dimnames[[2]]
+        
+      } else {
+        cell_IDs = spatIDs(get_expression_values(
+          gobject = gobject,
+          spat_unit = spat_unit,
+          feat_type = expr_avail$feat_type[[1L]],
+          values = expr_avail$name[[1L]],
+          output = 'exprObj',
+          set_defaults = TRUE
+        ))
+      }
+      
+      
 
       # IDs = lapply(seq(nrow(expr_avail)), function(expr_i) {
       #   ex_ID = spatIDs(
@@ -431,14 +442,24 @@ set_feat_id = function(gobject,
       # })
       # feat_IDs = unique(unlist(IDs))
 
-      feat_IDs = featIDs(get_expression_values(
-        gobject = gobject,
-        spat_unit = expr_avail$spat_unit[[1L]],
-        feat_type = feat_type,
-        values = expr_avail$name[[1L]],
-        set_defaults = FALSE,
-        output = 'exprObj'
-      ))
+      if(!is.null(slot(gobject, 'h5_file'))) {
+        expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                                  name = paste0('expression/',
+                                                                feat_type,'/',
+                                                                expr_avail$name[[1L]]))
+        feat_IDs = expr_dimnames[[1]]
+        
+      } else {
+        feat_IDs = featIDs(get_expression_values(
+          gobject = gobject,
+          spat_unit = expr_avail$spat_unit[[1L]],
+          feat_type = feat_type,
+          values = expr_avail$name[[1L]],
+          set_defaults = FALSE,
+          output = 'exprObj'
+        ))
+      }
+      
 
     } else if(feat_type %in% fi_avail$feat_info) { # fallback to feature info
 

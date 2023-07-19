@@ -660,7 +660,7 @@ binSpectSingleMatrix = function(expression_matrix,
                                 group_size = 'automatic',
                                 do_parallel = TRUE,
                                 cores = NA,
-                                verbose = TRUE,
+                                verbose = FALSE,
                                 set.seed = NULL) {
 
 
@@ -748,7 +748,8 @@ binSpectSingleMatrix = function(expression_matrix,
                                             do_parallel = do_parallel,
                                             cores = cores,
                                             calc_hub = calc_hub,
-                                            hub_min_int = hub_min_int)
+                                            hub_min_int = hub_min_int,
+                                            verbose = verbose)
 
   } else if(implementation == 'data.table') {
 
@@ -1499,7 +1500,8 @@ binSpect = function(gobject,
                     knn_params = NULL,
                     set.seed = NULL,
                     bin_matrix = NULL,
-                    summarize = c('p.value', 'adj.p.value')) {
+                    summarize = c('p.value', 'adj.p.value'),
+                    return_gobject = F) {
 
 
   if(!is.null(spatial_network_k)) {
@@ -1567,8 +1569,22 @@ binSpect = function(gobject,
 
   }
 
-  return(output)
+  #return(output)
 
+  if(return_gobject==TRUE){
+    #if("binSpect.pval" %in% names(fDataDT(gobject, spat_unit = spat_unit, feat_type = feat_type))){
+    #  removeFeatAnnotation(gobject, spat_unit = spat_unit, feat_type = feat_type, columns=c("binSpect.pval"))
+    #}
+    result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
+    data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
+    gobject<-addFeatMetadata(gobject, 
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             result_dt, by_column=T, column_feat_ID="feats")
+    return(gobject)
+  }else{
+    return(output)
+  }
 }
 
 
@@ -2405,8 +2421,9 @@ detectSpatialPatterns <- function(gobject,
                                   ncp = 100,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
-
-
+##########################################################################################
+  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
@@ -2960,7 +2977,7 @@ do_spatial_knn_smoothing = function(expression_matrix,
   feat_ID = value = NULL
 
   # merge spatial network with expression data
-  expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, feat_ID := rownames(expr_values)]
+  expr_values_dt = data.table::as.data.table(as.matrix(expr_values)); expr_values_dt[, feat_ID := rownames(expr_values)]
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'feat_ID', variable.name = 'cell_ID')
 
 
@@ -3165,7 +3182,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
                                                   subset_feats = subset_feats,
                                                   b = network_smoothing)
 
-    #print(knn_av_expr_matrix[1:4, 1:4])
+
 
     cor_spat_matrix = cor_flex(t_flex(as.matrix(knn_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
@@ -3341,7 +3358,7 @@ detectSpatialCorFeats <- function(gobject,
                                                   b = network_smoothing)
 
 
-    #print(knn_av_expr_matrix[1:4, 1:4])
+
 
     cor_spat_matrix = cor_flex(t_flex(as.matrix(knn_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)

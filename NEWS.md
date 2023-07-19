@@ -6,9 +6,34 @@
 
 
 ## Added
-
+- new file `poly_influence.R`
+- added new function `showPolygonSizeInfluence()` within `poly_influence.R` to show if cells switch clusters when across resized polygon annotations 
+- added new function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
+- added new function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
+- added new function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
+- added new function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
+- new file `feature_set_enrichment.R`
+- added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
+- added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
+- New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline.
+- New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object.
 
 ## Changes
+- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance.
+- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility.
+- Add check for spatLocsObj for spatlocs in polyStamp()
+- Removed various print() and cat() statements throughout. 
+- Changed default verbose argument to FALSE for createGiottoObject
+- Changed default verbose argument to FALSE for joinGiottoObjects
+- Changed default verbose argument to FALSE for createGiottoObjectSubcellular
+- Default verbose = FALSE argument added to cellProximityEnrichmentSpots
+- Default verbose = FALSE argument added to specific_CCCScores_spots
+- Default verbose = FALSE argument added to runWNN
+- Default verbose = FALSE argument added to subset_giotto_points_object 
+- Default verbose = FALSE argument added to subset_feature_info_data 
+- Default verbose = FALSE argument added to subsetGiotto
+- Default verbose = FALSE argument added to subsetGiottoLocsSubcellular 
+- Default verbose = FALSE argument added to createGiottoXeniumObject_subcellular
 
 
 

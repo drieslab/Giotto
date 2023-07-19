@@ -266,7 +266,7 @@ do_page_permutation = function(gobject,
     overlap_i=intersect(gene_i,rownames(gobject@expression$rna$normalized))
     if (length(overlap_i)<=5){
       output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
-      print(output)
+
     } else {
       available_ct<-c(available_ct,i)
     }
@@ -362,7 +362,7 @@ runPAGEEnrich_OLD <- function(gobject,
     overlap_i=intersect(gene_i,rownames(expr_values))
     if (length(overlap_i)<=5){
       output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
-      print(output)
+
     } else {
       available_ct<-c(available_ct,i)
     }
@@ -433,7 +433,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
       if (length(overlap_i)<=5){
         output = paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. It will be removed.")
-        print(output)
+
       } else {
         available_ct = c(available_ct, i)
       }
@@ -575,6 +575,9 @@ PAGE_DT_method = function(sign_matrix,
 
   mergetest = data.table::merge.data.table(sub_ct_DT, geneFold_DT, by = 'gene')
   mergetest = mergetest[, mean(fc), by = .(cell_type, cell_ID, nr_markers)]
+  if (is.integer(mergetest$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+    mergetest$cell_ID = as.character(mergetest$cell_ID)
+  }
   mergetest = data.table::merge.data.table(mergetest, cellColMeanSd, by = 'cell_ID')
   mergetest[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 
@@ -654,6 +657,9 @@ PAGE_DT_method = function(sign_matrix,
 
       mergetest_perm_sub = data.table::merge.data.table(cell_type_perm_DT_sub, geneFold_DT, allow.cartesian = TRUE)
       mergetest_perm_sub = mergetest_perm_sub[, mean(fc), by = .(cell_type, cell_ID, nr_markers, round)]
+      if (is.integer(mergetest_perm_sub$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+        mergetest_perm_sub$cell_ID = as.character(mergetest_perm_sub$cell_ID)
+      }
       mergetest_perm_sub = data.table::merge.data.table(mergetest_perm_sub, cellColMeanSd, by = 'cell_ID')
       mergetest_perm_sub[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 
@@ -2111,7 +2117,7 @@ enrich_deconvolution <- function(expr,
   }
   rownames(enrich_matrix)<-rownames(ct_exp)
   colnames(enrich_matrix)<-colnames(ct_exp)
-  # print(enrich_matrix)
+
   #####page enrich
   enrich_result<-enrich_analysis(log_expr,enrich_matrix)
   #####initialize dwls matrix
@@ -2137,7 +2143,7 @@ enrich_deconvolution <- function(expr,
     select_sig_exp<-ct_exp[uniq_ct_gene,ct]
     cluster_i_cell<-which(cluster_info==cluster_sort[i])
     cluster_cell_exp<-expr[uniq_ct_gene,cluster_i_cell]
-    # print(cluster_cell_exp)
+
     cluster_i_dwls<-optimize_deconvolute_dwls(cluster_cell_exp,select_sig_exp)
     dwls_results[ct,cluster_i_cell]<-cluster_i_dwls
   }
@@ -2171,7 +2177,7 @@ spot_deconvolution<-function(expr,
   dwls_results<-matrix(0,nrow =dim(ct_exp)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(ct_exp)
   colnames(dwls_results)<-colnames(expr)
-  #print(binary_matrix)
+
   for (i in 1:length(cluster_sort)){
     cluster_i_matrix<-binary_matrix[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_matrix,value = TRUE)
@@ -2347,7 +2353,7 @@ optimize_solveDampenedWLS<-function(S,
     changes = c(changes, change)
   }
 
-  #print(round(solution/sum(solution),5))
+
   return(solution/sum(solution))
 }
 
@@ -2584,7 +2590,7 @@ runDWLSDeconv = function(gobject,
                                         ct_exp = filter_Sig,
                                         binary_matrix = binarize_proportion)
   deconvolutionDT = data.table::data.table(cell_ID = colnames(spot_proportion))
-  deconvolutionDT = cbind(deconvolutionDT, as.data.table(t(spot_proportion)))
+  deconvolutionDT = cbind(deconvolutionDT, data.table::as.data.table(t(spot_proportion)))
 
   # create spatial enrichment object
   enrObj = create_spat_enr_obj(name = name,

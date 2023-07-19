@@ -388,8 +388,8 @@ createGiottoPolygonsFromMask = function(maskfile,
     shift_horizontal_step = 0
   }
 
-  print(shift_horizontal_step)
-  print(shift_vertical_step)
+  #print(shift_horizontal_step) uneccessary to print?
+  #print(shift_vertical_step) uneccessary to print?
 
   terra_polygon = terra::shift(terra_polygon,
                                dx = shift_horizontal_step,
@@ -401,7 +401,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
     if(background_algo == 'range') {
       backgr_poly_id = identify_background_range_polygons(terra_polygon)
-      print(backgr_poly_id)
+      #print(backgr_poly_id) uneccessary to print?
     }
 
     terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['poly_ID']] != backgr_poly_id)
@@ -910,36 +910,45 @@ rbind2_giotto_polygon_hetero = function(x, y, new_name, add_list_ID = TRUE) {
 #' @param verbose be verbose
 #' @return returns a data.table of polygon vertices
 #' @export
-polyStamp = function(stamp_dt,
-                     spatlocs,
-                     id_col = 'cell_ID',
-                     x_col = 'sdimx',
-                     y_col = 'sdimy',
-                     verbose = TRUE) {
-
-  if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
-    stop(wrap_txt('Not all colnames found in spatlocs'))
-  }
-
-  # define polys relative to centroid
-  stamp_centroid = c(x = mean(stamp_dt[['x']]),
-                     y = mean(stamp_dt[['y']]))
-  rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
-                                        y = stamp_dt$y - stamp_centroid[['y']])
-
-  # generate poly vertices around given spatlocs
-  poly_dt = apply(X = spatlocs,
-                  MARGIN = 1,
-                  function(r) {
-                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[[x_col]]),
-                                                  y = rel_vertices[['y']] + as.numeric(r[[y_col]]),
-                                                  poly_ID = as.character(r[[id_col]])))
-                  })
-
-  if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons stamped')
-
-  return(do.call(rbind, poly_dt))
-
+polyStamp <- function(stamp_dt,
+                      spatlocs,
+                      id_col = 'cell_ID',
+                      x_col = 'sdimx',
+                      y_col = 'sdimy',
+                      verbose = TRUE) {
+   
+   if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
+      stop(wrap_txt('Not all colnames found in spatlocs'))
+   }
+   
+   # define polys relative to centroid
+   stamp_centroid = c(x = mean(stamp_dt[['x']]),
+                      y = mean(stamp_dt[['y']]))
+   rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
+                                         y = stamp_dt$y - stamp_centroid[['y']])
+   
+   # generate poly vertices around given spatlocs
+   poly_dt = data.table::CJ(1:nrow(spatlocs), 1:nrow(rel_vertices), sorted = FALSE)
+   colnames(poly_dt) = c("spatlocs_idx", "rel_vertices_idx")
+   
+  # compute the absolute coordinates of the polygon vertices for each spatial location
+   poly_dt[, c(x_col, y_col) := {
+      spat_row = spatlocs[spatlocs_idx]
+      rel_row = rel_vertices[rel_vertices_idx]
+      list(spat_row[[x_col]] + rel_row$x, spat_row[[y_col]] + rel_row$y)
+   }]
+   
+   # add a new column 'poly_ID' to 'poly_dt' with the ID of each spatial location.
+   poly_dt[, poly_ID := spatlocs[poly_dt$spatlocs_idx, id_col, with = FALSE]]
+   poly_dt$poly_ID <- as.character(poly_dt$poly_ID)
+   
+   if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons stamped')
+   
+   res <- poly_dt[, c(x_col, y_col, "poly_ID"), with = FALSE]
+   setnames(res, c(x_col, y_col), c("x", "y"))
+   
+   return(res)
+   
 }
 
 
@@ -1850,7 +1859,7 @@ calculateOverlapPolygonImages = function(gobject,
 
   }
 
-  print('0. create image list')
+  if (verbose) print('0. create image list')
 
   image_vector_c = do.call('c', image_list)
 
@@ -1878,7 +1887,7 @@ calculateOverlapPolygonImages = function(gobject,
   }
 
 
-  print('1. start extraction')
+  if (verbose) print('1. start extraction')
 
   extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
                                                            y = poly_info_spatvector_sf,
@@ -1888,10 +1897,10 @@ calculateOverlapPolygonImages = function(gobject,
   dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
 
   # prepare output
-  print(dt_exact)
+  if (verbose) print(dt_exact)
   colnames(dt_exact)[2:(length(image_names)+1)] = image_names # probably not needed anymore
   dt_exact[, coverage_fraction := NULL]
-  print(dt_exact)
+  if (verbose) print(dt_exact)
 
   if(return_gobject) {
 
@@ -2015,12 +2024,12 @@ calculateOverlapSerial = function(gobject,
   final_result = list()
   for(i in 1:total_nr_groups) {
 
-    print((total_nr_groups-i))
+    if (verbose) print((total_nr_groups-i))
 
     selected_poly_ID_names = poly_ID_names[names(poly_ID_names) == i]
     selected_spatvec = spatvec[spatvec$poly_ID %in% selected_poly_ID_names]
 
-    # print(selected_spatvec)
+
 
     spatvec_result = overlap_points_per_polygon(spatvec = selected_spatvec,
                                                 pointvec = pointvec,
@@ -2363,7 +2372,7 @@ overlapToMatrixMultiPoly = function(gobject,
                                       value.var = 'V1', fill = 0)
   overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
 
   #combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
@@ -2371,7 +2380,7 @@ overlapToMatrixMultiPoly = function(gobject,
   #overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
   #                              match(combined_cell_IDs, colnames(overlapmatrix))]
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
   if(return_gobject == TRUE) {
     gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
@@ -2438,7 +2447,7 @@ overlapImagesToMatrix = function(gobject,
     cell_IDs = unique(as.character(aggr_comb$poly_ID))
     feat_IDs = unique(as.character(aggr_comb$feat_ID))
 
-    #print(feat_IDs[1:10])
+
 
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
@@ -2705,7 +2714,7 @@ combineFeatureOverlapData = function(gobject,
                                        feat_type = feat,
                                        output = 'data.table')
 
-      # print(feat_meta)
+
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2737,7 +2746,7 @@ combineFeatureOverlapData = function(gobject,
 
     }
 
-    # print(comb_dt)
+
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt
@@ -2845,4 +2854,107 @@ rescalePolygons = function(gobject,
   }
 
 
+}
+
+#' @title tessellateSpatLocs
+#' @name tessellateSpatLocs
+#' @description Generates a tessellated grid of spatial locations based on the input spatial locations.
+#' @param spat_locs Spatial locations to be tessellated.
+#' @param shape Shape of the tessellation grid. Available options are "hexagon" and "square".
+#' @param radius Radius size of the tessellation grid.
+#' @return A giotto object containing the tessellated spatial locations.
+#' @details This function generates a tessellated grid of spatial locations based on the input spatial locations. The shape of the tessellation grid can be either hexagonal or square. The radius parameter determines the size of the grid cells or the bin size.
+#' @concept spatial location
+#' @export
+tessellateSpatLocs <- function(spat_locs, shape = c('hexagon', 'square'), radius) {
+   shape <- match.arg(shape, choices = c('hexagon', 'square'))
+   
+   # Calculate the minimum difference between the x and y coordinates of the points in spat_locs
+   x_range <- range(spat_locs$sdimx)
+   y_range <- range(spat_locs$sdimy)
+   
+   # Check if radius size exceeds x,y range
+   if((diff(x_range) / radius < 1) && (diff(y_range) / radius < 1)){
+      stop(wrap_msg("Please choose a smaller radius size for tessellation."))
+   }
+   
+   if (shape == "hexagon") {
+      
+      # Get the hexagon vertices
+      hex_dt <- Giotto::hexVertices(radius, major_axis = 'v')
+      
+      # Create a tessellation grid of points where the hexagons will be centered
+      # Adjust the y-sequence spacing to be 1.5*radius for hexagonal packing
+      y_seq <- seq(min(spat_locs$sdimy), max(spat_locs$sdimy), by = radius * 1.5)
+      centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+         x_start <- if(i %% 2 == 0) min(spat_locs$sdimx) else min(spat_locs$sdimx) + radius * sqrt(3) / 2
+         x_seq <- seq(x_start, max(spat_locs$sdimx), by = radius * sqrt(3))
+         data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+      }))
+      
+      centers$cell_ID <- 1:nrow(centers)
+      
+      # Call polyStamp function to generate the tessellated grid
+      res <- Giotto::polyStamp(hex_dt, centers)
+   } else if (shape == "square") {
+      
+      # Define a data.table with the vertices of a square centered around (0,0)
+      square_dt <- Giotto::rectVertices(dims = c(x = (radius - 1),
+                                                 y = (radius - 1)))
+      
+      # Create a tessellation grid of points where the squares will be centered
+      x_seq <- seq(min(spat_locs$sdimx), max(spat_locs$sdimx), by = radius)
+      y_seq <- seq(min(spat_locs$sdimy), max(spat_locs$sdimy), by = radius)
+      centers <- expand.grid(sdimx = x_seq, sdimy = y_seq)
+      centers$cell_ID <- 1:nrow(centers)
+      setDT(centers)
+      
+      # Call polyStamp function to generate the tessellated grid
+      res <- Giotto::polyStamp(square_dt, centers)
+   } else {
+      
+      stop(wrap_txt("Please select valid shape option: hexagon OR square"))
+   }
+   
+   return(res)
+}
+
+#' @title makePseudoVisium
+#' @name makePseudoVisium
+#' @description Generates a pseudo-visium grid of spots based on the input spatial locations
+#' @param spat_locs Spatial locations of giotto object with columns sdimx and sdimy
+#' @param center_center_distance_um Center-to-center distance of input spat_locs in micrometers
+#' @return A data.table of vertices for the pseudo-visium spots. 
+#' @details This function generates a pseudo-Visium grid of spots based on the input spatial locations. The center-to-center distance parameter is used to determine the size of the spots
+#' @concept spatial location
+#' @export
+makePseudoVisium <- function(spat_locs = NULL,
+                              center_center_distance_um = 0.5) {
+  # Visium default scale parameters
+  visium_radius_um=27.5
+  visium_center_center_dist_um=100
+  visium_gap_um=45
+  
+  # Compute metrics to visium scale
+  radius = visium_radius_um / center_center_distance_um
+  gap = (visium_gap_um / visium_radius_um) * radius 
+  
+  # Define a data.table with the vertices of a circle centered around (0,0)
+  stamp_dt <- Giotto::circleVertices(radius = radius, npoints = 100)
+  
+  # Create a grid of y points where the circles will be centered
+  y_seq <- seq(min(spat_locs$sdimy) + radius, max(spat_locs$sdimy) - radius, by = 2*radius + gap)
+  
+  # Stagger center point of circles to match visium staggered grid
+  centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+    x_start <- if(i %% 2 == 0) min(spat_locs$sdimx) + radius + (2*radius+gap)/2 else min(spat_locs$sdimx) + radius
+    x_seq <- seq(x_start, max(spat_locs$sdimx) - radius, by = 2*radius+gap)
+    data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+  }))
+  centers$cell_ID <- 1:nrow(centers)
+  
+  # Call polyStamp function on centers to generate the pseudo-visium grid
+  res <- Giotto::polyStamp(stamp_dt, centers)
+  
+  return(res)
 }

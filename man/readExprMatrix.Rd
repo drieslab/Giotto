@@ -8,7 +8,9 @@ readExprMatrix(
   path,
   cores = determine_cores(),
   transpose = FALSE,
-  expression_matrix_class = c("dgCMatrix", "HDF5Matrix")
+  feat_type = "rna",
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix", "rhdf5"),
+  h5_file = NULL
 )
 }
 \arguments{

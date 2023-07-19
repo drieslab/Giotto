@@ -802,7 +802,7 @@ addGiottoImageMG = function(gobject,
     if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
 
     if((length(scale_factor) == length(images)) || length(scale_factor) == 1) {
-      cat('scale_factor(s) external to giottoImage have been given and will be used')
+      #cat('scale_factor(s) external to giottoImage have been given and will be used')
       ext_scale_factor = TRUE
     } else {
       stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are images are provided')
@@ -2073,7 +2073,7 @@ addGiottoLargeImage = function(gobject = NULL,
     if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
 
     if((length(scale_factor) == length(largeImages)) || length(scale_factor) == 1) {
-      cat('scale_factor(s) external to giottoImage have been given and will be used')
+      #cat('scale_factor(s) external to giottoImage have been given and will be used')
       ext_scale_factor = TRUE
     } else {
       stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are largeImages are provided')
@@ -2277,7 +2277,7 @@ plotGiottoImage = function(gobject = NULL,
   }
 
   # Select plotting function
-  cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
+  # cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
 
   if(image_type == 'image') {
     plot_giottoImage_MG(giottoImage = img_obj)

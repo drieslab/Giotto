@@ -470,7 +470,8 @@ giotto <- setClass(
     offset_file = "ANY",
     OS_platform = "ANY",
     join_info = "ANY",
-    multiomics = "ANY"
+    multiomics = "ANY",
+    h5_file = "ANY"
 
   ),
 
@@ -496,7 +497,8 @@ giotto <- setClass(
     offset_file = NULL,
     OS_platform = NULL,
     join_info = NULL,
-    multiomics = NULL
+    multiomics = NULL,
+    h5_file = NULL
   )
 
   # validity = check_giotto_obj
@@ -2497,9 +2499,13 @@ createExprObj = function(expression_data,
                          feat_type = 'rna',
                          provenance = NULL,
                          misc = NULL,
-                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix')) {
+                         expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                         h5_file = NULL) {
 
-  exprMat = evaluate_expr_matrix(expression_data, expression_matrix_class = expression_matrix_class)
+  exprMat = evaluate_expr_matrix(expression_data, 
+                                 expression_matrix_class = expression_matrix_class, 
+                                 feat_type = feat_type,
+                                 h5_file = h5_file)
 
   create_expr_obj(name = name,
                   exprMat = exprMat,
