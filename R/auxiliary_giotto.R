@@ -3030,8 +3030,6 @@ combine_matrices = function(mat_list,
   # data.table vars
   i = j = x = NULL
 
-  feats_list = list()
-  sample_list = list()
   DT_list = list()
 
   # loop through all matrices
@@ -3048,45 +3046,56 @@ combine_matrices = function(mat_list,
 
     mat_feats = mat@Dimnames[[1]]
     names(mat_feats) = 1:mat@Dim[[1]]
-    feats_list[[mat_i]] = mat_feats
 
     mat_samples = mat@Dimnames[[2]]
     names(mat_samples) = 1:mat@Dim[[2]]
-    sample_list[[mat_i]] = mat_samples
 
     matDT = data.table::as.data.table(Matrix::summary(mat))
     matDT[, c('i','j') := list(mat_feats[i], mat_samples[j])]
     DT_list[[mat_i]] = matDT
   }
 
-  # find all combined unique features
-  combined_feats = sort(unique(unlist(feats_list)))
-  combined_feats_index = 1:length(combined_feats)
-  names(combined_feats_index) = combined_feats
-
-  # find all combined unique samples
-  combined_samples = sort(unique(unlist(sample_list)))
-  combined_samples_index = 1:length(combined_samples)
-  names(combined_samples_index) = combined_samples
 
   # combine matrices in data.table format and aggregate (sum by default)
   new_dt = data.table::rbindlist(l = DT_list)
-  new_dt[, c('i','j') := list(combined_feats_index[i], combined_samples_index[j])]
+
   if(summarize == 'sum') {
-    new_dt[, x := sum(x), by = .(i, j)]
+    test = new_dt[, sum(x), by = .(i,j)]
+  } else {
+    'not implemented yet'
   }
 
+
+  # get unique feature and sample names
+  featnames = 1:length(unique(test$i))
+  names(featnames) = unique(test$i)
+
+  samplenames = 1:length(unique(test$j))
+  names(samplenames) = unique(test$j)
+
+  # convert i and j to numericals for dgCmatrix
+  test[, i2 := featnames[i]]
+  test[, j2 := samplenames[j]]
+
+
   # convert triplet data.table to sparseMatrix
-  combined_matrix = Matrix::sparseMatrix(i = new_dt$i,
-                                         j = new_dt$j,
-                                         x = new_dt$x,
-                                         dims = c(length(combined_feats), length(combined_samples)),
-                                         dimnames = list(combined_feats, combined_samples))
+  featnames_rev = names(featnames)
+  names(featnames_rev) = featnames
+
+  samplenames_rev = names(samplenames)
+  names(samplenames_rev) = samplenames
+
+  combined_matrix = Matrix::sparseMatrix(i = test$i2,
+                                         j = test$j2,
+                                         x = test$V1,
+                                         dims = c(length(featnames), length(samplenames)),
+                                         dimnames = list(featnames_rev, samplenames_rev))
 
 
   return(combined_matrix)
 
 }
+
 
 #' @title aggregateStacksExpression
 #' @name aggregateStacksExpression
