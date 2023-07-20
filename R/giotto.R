@@ -1709,7 +1709,7 @@ createGiottoObject = function(expression,
 
 #' @title Create a giotto object from 10x visium data
 #' @name createGiottoVisiumObject
-#' @description creates Giotto object directly from a 10X visium folder
+#' @description Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
 #' @param visium_dir path to the 10X visium directory [required]
 #' @param expr_data raw or filtered data (see details)
 #' @param gene_column_index which column index to select (see details)
