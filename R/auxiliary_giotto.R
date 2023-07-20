@@ -3031,6 +3031,8 @@ combine_matrices = function(mat_list,
   i = j = x = NULL
 
   DT_list = list()
+  feats_list = list()
+  samples_list = list()
 
   # loop through all matrices
   # create a triplet data.table (i, j, x)
@@ -3046,9 +3048,11 @@ combine_matrices = function(mat_list,
 
     mat_feats = mat@Dimnames[[1]]
     names(mat_feats) = 1:mat@Dim[[1]]
+    feats_list[[mat_i]] = mat_feats
 
     mat_samples = mat@Dimnames[[2]]
     names(mat_samples) = 1:mat@Dim[[2]]
+    samples_list[[mat_i]] = mat_samples
 
     matDT = data.table::as.data.table(Matrix::summary(mat))
     matDT[, c('i','j') := list(mat_feats[i], mat_samples[j])]
@@ -3065,18 +3069,19 @@ combine_matrices = function(mat_list,
     'not implemented yet'
   }
 
+  # feature list
+  all_features = unique(unlist(feats_list))
+  featnames = 1:length(all_features)
+  names(featnames) = all_features
 
-  # get unique feature and sample names
-  featnames = 1:length(unique(test$i))
-  names(featnames) = unique(test$i)
-
-  samplenames = 1:length(unique(test$j))
-  names(samplenames) = unique(test$j)
+  # sample list
+  all_samples = unique(unlist(samples_list))
+  samplenames = 1:length(all_samples)
+  names(samplenames) = all_samples
 
   # convert i and j to numericals for dgCmatrix
   test[, i2 := featnames[i]]
   test[, j2 := samplenames[j]]
-
 
   # convert triplet data.table to sparseMatrix
   featnames_rev = names(featnames)
