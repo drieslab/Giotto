@@ -18,7 +18,8 @@
 #' @param image_transformations vector of sequential image transformations
 #' @param negative_y Map image to negative y spatial values if TRUE during automatic
 #'   alignment. Meaning that origin is in upper left instead of lower left.
-#' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
+#' @param do_manual_adj (default = FALSE) flag to use manual adj values instead
+#' of automatic alignment when given a gobject or spatlocs
 #' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjustment of the maximum or maximum x or y-value to align the image
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @param x_shift,y_shift shift image along x or y axes
