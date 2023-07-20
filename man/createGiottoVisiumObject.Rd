@@ -37,7 +37,8 @@ createGiottoVisiumObject(
 
 \item{h5_tissue_positions_path}{path to tissue locations (.csv file)}
 
-\item{h5_image_png_path}{path to tissue .png file (optional)}
+\item{h5_image_png_path}{path to tissue .png file (optional). Image autoscaling
+looks for matches in the filename for either 'hires' or 'lowres'}
 
 \item{h5_json_scalefactors_path}{path to .json scalefactors (optional)}
 
@@ -63,7 +64,7 @@ createGiottoVisiumObject(
 giotto object
 }
 \description{
-creates Giotto object directly from a 10X visium folder
+Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
 }
 \details{
 If starting from a Visium 10X directory:

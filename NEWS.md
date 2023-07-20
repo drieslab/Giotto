@@ -34,7 +34,11 @@
 - Default verbose = FALSE argument added to subsetGiotto
 - Default verbose = FALSE argument added to subsetGiottoLocsSubcellular 
 - Default verbose = FALSE argument added to createGiottoXeniumObject_subcellular
-
+- Update `readPolygonFilesVizgenHDF5()` add option to return as `data.table` and skip `giottoPolygon` creation. Downstream `giottoPolygon` creation refactored as new internal function
+- Fix bug in `createGiottoObject()` that will not allow object creation without supplied expression information
+- Update cell segmentation workflow to check for *deepcell* and *PIL* python packages
+- Update cell segmentation workflow to return grayscale mask images instead of RGB
+- Update `createGiottoVisiumObject()` image h5 scalefactors reading to use partial matching for whether hi or lowres image is supplied
 
 
 # Giotto Suite 3.3.0 (2023-04-18)

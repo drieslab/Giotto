@@ -6,7 +6,8 @@ Created on Tue Feb 7 01:00:00 2022
 """
 
 from deepcell.applications import Mesmer
-from matplotlib import pyplot as plt
+from deepcell.utils.plot_utils import create_rgb_image
+from PIL import Image
 import numpy as np
 import glob
 
@@ -26,6 +27,9 @@ def python_segment_image(app, image_matrix, file_name):
     segmentation_predictions_nuc = app.predict(image_matrix, image_mpp=0.5, compartment='nuclear')
 
     # Save
-    plt.imsave(file_name, segmentation_predictions_nuc[0, ..., 0])
+    I = segmentation_predictions_nuc[0, ..., 0]
+    I8 = (((I - I.min()) / (I.max() - I.min())) * 255.9).astype(np.uint8)
+    img = Image.fromarray(I8)
+    img.save(file_name)
 
     return 'Segmentation Concluded'

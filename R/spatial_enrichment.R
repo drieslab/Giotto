@@ -186,6 +186,9 @@ makeSignMatrixRank = function(sc_matrix,
   if(methods::is(sc_matrix, "sparseMatrix")){
     sc_matrix = Matrix::as.matrix(sc_matrix)
   }
+  if(inherits(sc_matrix, 'exprObj')) {
+    sc_matrix = sc_matrix[]
+  }
 
   # select ties_method
   ties_method =  match.arg(ties_method, choices = c("random", "max"))
