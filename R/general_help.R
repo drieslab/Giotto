@@ -1796,7 +1796,9 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 
 #' @title readPolygonFilesVizgenHDF5
 #' @name readPolygonFilesVizgenHDF5
-#' @description Read and create polygons for all cells, or for only selected FOVs.
+#' @description Read polygon info for all cells or for only selected FOVs from
+#' Vizgen HDF5 files. Data is returned as a list of giottoPolygons or data.tables
+#' of the requested z indices.
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param fovs subset of fovs to use
 #' @param z_indices z indices of polygons to use
@@ -1818,6 +1820,7 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 #' @param create_gpoly_bin (Optional, default = FALSE) Parallelization option.
 #' Accepts integer values as an binning size when generating giottoPolygon objects
 #' @param verbose be verbose
+#' @param output whether to return as list of giottoPolygon or data.table
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
 #' @export
@@ -1833,16 +1836,17 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       smooth_vertices = 60L,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
-                                      cores = NA,
+                                      cores = determine_cores(),
                                       create_gpoly_parallel = TRUE,
                                       create_gpoly_bin = FALSE,
                                       verbose = TRUE,
+                                      output = c('giottoPolygon', 'data.table'),
                                       polygon_feat_types = NULL) {
 
   # necessary pkgs
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
 
-  cores = determine_cores(cores)
+  output = match.arg(output, choices = c('giottoPolygon', 'data.table'))
 
   # deprecation
   if(!is.null(polygon_feat_types)) {
@@ -1930,10 +1934,41 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   if(!is.null(custom_polygon_names)) poly_names = custom_polygon_names
   else poly_names = z_names
 
-  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
-                               start creating polygons')
+  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files')
 
-  # create Giotto polygons and add them to gobject
+  # outputs
+  if(output == 'giottoPolygon') {
+    create_giotto_polygons_vizgen(z_read_DT = z_read_DT,
+                                  poly_names = poly_names,
+                                  set_neg_to_zero = set_neg_to_zero,
+                                  calc_centroids = calc_centroids,
+                                  smooth_polygons = smooth_polygons,
+                                  smooth_vertices = smooth_vertices,
+                                  create_gpoly_parallel = create_gpoly_parallel,
+                                  create_gpoly_bin = create_gpoly_bin,
+                                  verbose = verbose)
+  }
+  if(output == 'data.table') z_read_DT
+}
+
+
+
+
+#' @keywords internal
+#' @noRd
+create_giotto_polygons_vizgen = function(z_read_DT,
+                                         poly_names = names(z_read_DT),
+                                         set_neg_to_zero = FALSE,
+                                         calc_centroids = FALSE,
+                                         smooth_polygons = TRUE,
+                                         smooth_vertices = 60L,
+                                         create_gpoly_parallel = TRUE,
+                                         create_gpoly_bin = FALSE,
+                                         verbose = TRUE) {
+  checkmate::assert_list(z_read_DT)
+  checkmate::assert_numeric(smooth_vertices)
+
+  if(isTRUE(verbose)) wrap_msg('start creating polygons')
 
   # **** sequential method ****
   if(!isTRUE(create_gpoly_parallel)) {
