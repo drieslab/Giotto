@@ -1,10 +1,16 @@
+
+#' @include giotto_structures.R
+NULL
+
 # Methods and Generics ####
 
 # NOTE: initialize generics are in classes.R #
 
 
 
-# spatIDs and featIDs generic ####
+# Giotto Object Settings ####
+
+## spatIDs and featIDs generic ####
 #' @title Spatial and feature IDs
 #' @name spatIDs-generic
 #' @description Get the cell IDs (termed spatial IDs to better reflect when not at
@@ -136,7 +142,7 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 
 
 
-# default spat unit ####
+## default spat unit ####
 #' @title Active spatial unit
 #' @name activeSpatUnit-generic
 #' @aliases activeSpatUnit activeSpatUnit<-
@@ -164,7 +170,7 @@ setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character')
           })
 
 
-# default feature type ####
+## default feature type ####
 #' @title Active feature type
 #' @name activeFeatType-generic
 #' @aliases activeFeatType activeFeatType<-
@@ -195,7 +201,7 @@ setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character')
 
 
 
-# instructions ####
+## instructions ####
 #' @title Access giotto instructions
 #' @name instructions-generic
 #' @aliases instructions instructions<-
@@ -289,31 +295,6 @@ setMethod('instructions<-',
 
 
 
-# colnames and rownames generics ####
-#' @title Row and column names
-#' @name row-plus-colnames-generic
-#' @aliases colnames rownames
-#' @description Retrieve or set the row or column names of an object
-#' @param x object
-#' @return A character vector of row or col names
-if(!isGeneric('colnames')) setOldClass('colnames')
-if(!isGeneric('rownames')) setOldClass('rownames')
-
-
-#' @rdname row-plus-colnames-generic
-#' @export
-setMethod('colnames', signature(x = 'exprObj'), function(x) colnames(x[]))
-
-#' @rdname row-plus-colnames-generic
-#' @export
-setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
-
-
-
-
-
-
-
 
 # centroids() S4 generic ####
 #' @title centroids-generic
@@ -340,13 +321,30 @@ setMethod('centroids', signature(x = 'giottoPolygon'),
 
 
 
+
+#' @name spatShift
+#' @title Spatially shift an object
+#' @param x object
+#' @param dx numeric. The shift on the x axis
+#' @param dy numeric. The shift on the y axis
+#' @param dz numeric. The shift on the z axis
+#' @param copy_obj Default = TRUE
+#' @param ... additional params to pass to methods
+#' @description Shift the spatial locations of an object
+#' @export
+setGeneric('spatShift', function(x, ...) standardGeneric('spatShift'))
+
+
+
+
+
+
 #' @title overlaps-generic
 #' @name overlaps-generic
 #' @description Access list of overlaps information from object
 #' @param x object
 #' @aliases overlaps
 setGeneric('overlaps', function(x, ...) standardGeneric('overlaps'))
-# setGeneric('overlaps<-', function(x, value, ...) standardGeneric('overlaps<-'))
 
 #' @describeIn overlaps-generic Get overlaps information from giottoPolygon
 #' @param name (optional) name of overlaps information to retrieve
@@ -368,134 +366,10 @@ setMethod('overlaps', signature(x = 'giottoPolygon'),
 
 
 
-# spin() S4 generic ####
-
-#' @title Spin an object
-#' @name spin-generic
-#' @description Spin (rotate) an object spatially (limited to xy rotations)
-#' @param x object
-#' @param angle numeric. Angle of rotation in degrees
-#' @param x0 numeric. x-coordinate of the center of rotation. Defaults to center x val if not given.
-#' @param y0 numeric. y-coordinate of the center of rotation. Defaults to center y val if not given.
-NULL
-
-#' @describeIn spin-generic Spin a giottoPolygon object
-#' @importMethodsFrom terra spin
-#' @include giotto_structures.R
-#' @export
-setMethod('spin', signature(x = 'giottoPolygon'),
-          function(x, angle, x0 = NULL, y0 = NULL) {
-            if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
-            if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
-            return(do_gpoly(x = x, what = 'terra'::'spin', args = list(angle = angle, x0 = x0, y0 = y0)))
-            # x@spatVector = terra::spin(x = x@spatVector,
-            #                            angle = angle,
-            #                            x0 = x0,
-            #                            y0 = y0)
-            # if(!is.null(x@spatVectorCentroids)) {
-            #   x@spatVectorCentroids = terra::spin(x = x@spatVectorCentroids,
-            #                                       angle = angle,
-            #                                       x0 = x0,
-            #                                       y0 = y0)
-            # }
-            # if(!is.null(x@overlaps)) {
-            #   lapply(x@overlaps, function(overlap) {
-            #     if(inherits(overlap, 'SpatVector')) {
-            #       terra::spin(x = overlap,
-            #                   angle = angle,
-            #                   x0 = x0,
-            #                   y0 = y0)
-            #     } else {
-            #       overlap
-            #     }
-            #   })
-            # }
-            # return(x)
-          })
-
-#' @describeIn spin-generic Spin a giottoPoints object
-#' @importMethodsFrom terra spin
-#' @export
-setMethod('spin', signature(x = 'giottoPoints'),
-          function(x, angle, x0 = NULL, y0 = NULL) {
-            if(is.null(x0)) x0 = terra::mean(terra::ext(x@spatVector))[1]
-            if(is.null(y0)) y0 = terra::mean(terra::ext(x@spatVector))[2]
-            x@spatVector = terra::spin(x@spatVector,
-                                       angle = angle,
-                                       x0 = x0,
-                                       y0 = y0)
-            return(x)
-          })
-
-#' @describeIn spin-generic Spin a spatLocsObj
-#' @importMethodsFrom terra spin
-#' @param z0 spatLocsObj specific. Numeric. z-coordinate of the center of rotation.
-#' Depending on if z data is present, defaults to either 0 or center z val if not given.
-#' @param xy_angle spatLocsObj specific. xy plane rotation in degrees.
-#' Overrides angle param
-#' @param zy_angle spatLocsObj specific. zy plane rotation
-#' @param xz_angle spatLocsObj specific. xz plane rotation
-#' @export
-setMethod('spin', signature(x = 'spatLocsObj'),
-          function(x, angle = NULL, x0 = NULL, y0 = NULL, z0 = NULL,
-                   xy_angle = NULL, zy_angle = NULL, xz_angle = NULL) {
-            if(!is.null(angle)) xy_angle = angle
-            if(is.null(xy_angle)) xy_angle = 0
-            if(is.null(zy_angle)) zy_angle = 0
-            if(is.null(xz_angle)) xz_angle = 0
-            angles = c(xy = xy_angle, zy = zy_angle, xz = xz_angle)
-            angles = radians(angles)
-
-            if(is.null(x0)) x0 = mean(c(min(x[]$sdimx), max(x[]$sdimx)))
-            if(is.null(y0)) y0 = mean(c(min(x[]$sdimy), max(x[]$sdimy)))
-            if('sdimz' %in% colnames(x[])) {
-              if(is.null(z0)) z0 = mean(c(min(x[]$sdimz), max(x[]$sdimz)))
-              else z0 = 0
-            }
-            x[] = rotate_spatial_locations(spatlocs = x[],
-                                           rotateradians = angles,
-                                           rcenter = c(x = x0, y = y0, z = z0))
-            return(x)
-          })
 
 
 
-
-# spatShift() S4 generic ####
-#' @name spatShift
-#' @title Spatially shift an object
-#' @param x object
-#' @param dx numeric. The shift on the x axis
-#' @param dy numeric. The shift on the y axis
-#' @param dz numeric. The shift on the z axis
-#' @param copy_obj Default = TRUE
-#' @param ... additional params to pass to methods
-#' @description Shift the spatial locations of an object
-#' @export
-setGeneric('spatShift', function(x, ...) standardGeneric('spatShift'))
-
-#' @describeIn spatShift Shift the locations of a spatLocsObj
-#' @export
-setMethod('spatShift', signature('spatLocsObj'), function(x, dx = 0, dy = 0, dz = 0,
-                                                          copy_obj = TRUE, ...) {
-  x[] = shift_spatial_locations(spatlocs = x[], dx = dx, dy = dy, dz = dz, ...)
-  return(x)
-})
-#' @describeIn spatShift Shift the locations of a spatialNetworkObj
-#' @export
-setMethod('spatShift', signature('spatialNetworkObj'), function(x, dx = 0, dy = 0, dz = 0,
-                                                                copy_obj = TRUE, ...) {
-  x@networkDT = shift_spatial_network(spatnet = x@networkDT,
-                                      dx = dx, dy = dy, dz = dz, ...)
-  if(!is.null(x@networkDT_before_filter)) {
-    x@networkDT_before_filter = shift_spatial_network(spatnet = x@networkDT_before_filter,
-                                                      dx = dx, dy = dy, dz = dz, ...)
-  }
-  return(x)
-})
-
-
-
+# Object Characteristics ####
 
 #' @title Dimensions of giotto objects
 #' @name dims-generic
@@ -505,7 +379,12 @@ setMethod('spatShift', signature('spatialNetworkObj'), function(x, dx = 0, dy = 
 #' @param x object to check dimensions of
 NULL
 
-# nrow() S4 generic ####
+
+
+
+
+
+## nrow() S4 generic ####
 
 if(!isGeneric('nrow')) setOldClass('nrow')
 if(!isGeneric('ncol')) setOldClass('ncol')
@@ -553,7 +432,7 @@ setMethod('nrow', signature('spatialNetworkObj'), function(x) nrow(x@networkDT))
 #' @export
 setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
 
-# ncol() generic ####
+## ncol() generic ####
 
 #' @describeIn dims-generic Find cols of giotto S4s with Matrix based \code{exprMat} slots
 #' @export
@@ -565,7 +444,7 @@ setMethod('ncol', signature('metaData'), function(x) ncol(x@metaDT))
 
 setMethod('nrow', signature('enrData'), function(x) nrow(x@enrichDT))
 
-# dim() generic ####
+## dim() generic ####
 
 #' @describeIn dims-generic Find dimensions of giotto S4s with Matrix based \code{exprMat} slots
 #' @export
@@ -581,65 +460,38 @@ setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 
 
 
-# t() generic ####
 
-# S4 methods
-#' @title Transpose
-#' @name transpose-generic
-#' @param x object to be transposed
-#' @importMethodsFrom Matrix t
-#' @importMethodsFrom terra t
-#' @aliases t
-NULL
-# if(!isGeneric('t')) setOldClass('t', where = as.environment("package:Giotto"))
 
-#' @rdname transpose-generic
+
+
+
+## colnames and rownames generics ####
+#' @title Row and column names
+#' @name row-plus-colnames-generic
+#' @aliases colnames rownames
+#' @description Retrieve or set the row or column names of an object
+#' @param x object
+#' @return A character vector of row or col names
+if(!isGeneric('colnames')) setOldClass('colnames')
+if(!isGeneric('rownames')) setOldClass('rownames')
+
+
+#' @rdname row-plus-colnames-generic
 #' @export
-setMethod('t', signature('spatLocsObj'), function(x) {
-  sdimy = sdimx = NULL
-  x = data.table::copy(x)
-  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
-  return(x)
-})
-#' @rdname transpose-generic
+setMethod('colnames', signature(x = 'exprObj'), function(x) colnames(x[]))
+
+#' @rdname row-plus-colnames-generic
 #' @export
-setMethod('t', signature('spatialNetworkObj'), function(x) {
-  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
-  x = data.table::copy(x)
-  x@networkDT[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
-  if(!is.null(x@networkDT_before_filter)) {
-    x@networkDT_before_filter[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
-  }
-  return(x)
-})
-
-# s3 methods
-#' @rdname transpose-generic
-#' @method t spatLocsObj
-#' @export
-t.spatLocsObj = function(x) {
-  sdimy = sdimx = NULL
-  x = data.table::copy(x)
-  x@coordinates[, c('sdimx', 'sdimy') := .(sdimy, sdimx)]
-  return(x)
-}
+setMethod('rownames', signature(x = 'exprObj'), function(x) rownames(x[]))
 
 
-#' @rdname transpose-generic
-#' @method t spatialNetworkObj
-#' @export
-t.spatialNetworkObj = function(x) {
-  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = NULL
-  x = data.table::copy(x)
-  x@networkDT[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
-  if(!is.null(x@networkDT_before_filter)) {
-    x@networkDT_before_filter[, c('sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') := .(sdimy_begin, sdimx_begin, sdimy_end, sdimx_end)]
-  }
-  return(x)
-}
 
 
-# wrap() generic ####
+
+
+
+# terra-based object serialization ####
+## wrap() generic ####
 
 #' @title Wrap giotto terra pointer information
 #' @name wrap-generic
@@ -708,7 +560,7 @@ setMethod('wrap', signature(x = 'giottoPoints'),
 )
 
 
-# unwrap methods ####
+## unwrap methods ####
 # For compatibility before terra 1.6.41, vect will be used
 
 #' @describeIn wrap-generic Unwrap giottoPolygon
@@ -778,6 +630,9 @@ setMethod('vect', signature(x = 'packedGiotto'),
             gobj@feat_info = lapply(x@packed_feat_info, vect)
             return(gobj)
           })
+
+
+
 
 
 
@@ -959,9 +814,9 @@ setMethod('copy', signature(x = 'coordDataDT'), function(x) {
 
 
 
+# Giotto subnesting ####
 
-
-# prov() S4 generic ####
+## prov() S4 generic ####
 #' @title Provenance information
 #' @name prov-generic
 #' @description access and set provenance slot of S4 subobject
@@ -989,7 +844,7 @@ setMethod('prov<-', signature = 'provData', function(x, value) {
 
 
 
-# spatUnit() S4 generic ####
+## spatUnit() S4 generic ####
 #' @title Spatial unit information
 #' @name spatUnit-generic
 #' @description access and set spat_unit slot of S4 subobject
@@ -1018,7 +873,7 @@ setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
 
 
 
-# featType() S4 generic ####
+## featType() S4 generic ####
 #' @title Feature type information
 #' @name featType-generic
 #' @description access and set feat_type slot of S4 subobject
@@ -1047,7 +902,7 @@ setMethod('featType<-', signature = 'featData', function(x, value) {
 
 
 
-# objName() generic ####
+## objName() generic ####
 #' @title Giotto object name information
 #' @name objName-generic
 #' @description access and set name slot fo S4 subobject

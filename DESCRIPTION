@@ -30,6 +30,7 @@ Depends:
     methods
 Imports:
     BiocSingular,
+    checkmate,
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
@@ -137,6 +138,7 @@ Collate:
     'giotto.R'
     'giotto_viewer.R'
     'globals.R'
+    'spatial_manipulation.R'
     'image_registration.R'
     'images.R'
     'interactivity.R'
