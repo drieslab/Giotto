@@ -1857,7 +1857,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   segm_to_use = paste0('p_', (segm_to_use - 1L))
 
   # data.table vars
-  x = y = z = cell_id = poly_ID = file_id = my_id = NULL
+  x = y = z = NULL
 
   # provide your own custom names
   if(!is.null(custom_polygon_names)) {
@@ -1889,7 +1889,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                start extracting .hdf5 information')
 
   # open selected polygon files
-  hdf5_list_length = length(hdf5_boundary_selected_list)
+  # hdf5_list_length = length(hdf5_boundary_selected_list)
 
   # append data from all FOVs to single list
   init = Sys.time()
@@ -1967,6 +1967,9 @@ create_giotto_polygons_vizgen = function(z_read_DT,
                                          verbose = TRUE) {
   checkmate::assert_list(z_read_DT)
   checkmate::assert_numeric(smooth_vertices)
+
+  # data.table vars
+  x = y = cell_id = poly_ID = NULL
 
   if(isTRUE(verbose)) wrap_msg('start creating polygons')
 
@@ -2108,6 +2111,102 @@ create_giotto_polygons_vizgen = function(z_read_DT,
   return(smooth_cell_polygons_list)
 
 }
+
+
+
+
+
+
+
+#' @title Read MERSCOPE polygons from parquet
+#' @name readPolygonVizgenParquet
+#' @description
+#' Read Vizgen exported cell boundary parquet files as giottoPolyons. The z level
+#' can be selected.
+#' @param file parquet file to load
+#' @param z_index either 'all' or a numeric vector of z_indices to get polygons for
+#' @param verbose be verbose
+#' @keywords internal
+#' @export
+readPolygonVizgenParquet = function(file,
+                                    z_index = 'all',
+                                    verbose = TRUE) {
+
+  # package checks
+  package_check('arrow')
+  package_check('sf')
+  package_check('dplyr')
+
+
+  checkmate::assert_file_exists(file)
+  if(!setequal(z_index, 'all')) {
+    checkmate::assert_numeric(z_index)
+  } else {
+    checkmate::assert_true(identical(z_index, 'all'))
+  }
+
+  # NSE vars
+  ZIndex = NULL
+
+  # 1. determine z indices to get
+  avail_z_idx = arrow::open_dataset(file) %>%
+    dplyr::distinct(ZIndex) %>%
+    dplyr::pull() %>%
+    # dplyr::pull(as_vector = TRUE) %>% # switch to this in future and add arrow version requirement
+    sort()
+
+  get_z_idx = if(setequal(z_index, 'all')) {
+    avail_z_idx
+  } else if(is.numeric(z_index)) {
+    z_index = as.integer(z_index)
+    if(!all(z_index %in% avail_z_idx)) {
+      stop(paste('Not all z indices found in cell boundaries.\n Existing indices are:', paste(avail_z_idx, collapse = ' ')))
+    }
+    z_index
+  }
+  if(isTRUE(verbose)) message('loading poly z_indices: ', paste(get_z_idx, collapse = ' '))
+
+
+  # 2. collect by z index filter and convert WKB to multipolygon
+  multipolygons = future.apply::future_lapply(
+    get_z_idx,
+    function(z_idx) {
+      # set schema
+      schema = arrow::open_dataset(file)$schema
+      schema$EntityID = arrow::string()
+
+      # read and convert
+      arrow::open_dataset(file, schema = schema) %>%
+        dplyr::filter(ZIndex == z_idx) %>%
+        dplyr::collect() %>%
+        dplyr::mutate(Geometry = sf::st_as_sfc(Geometry))
+    },
+    future.seed = TRUE
+  )
+  names(multipolygons) = lapply(multipolygons, function(x) paste0('z', unique(x$ZIndex)))
+
+
+  # 3. convert to giottoPolygons and append meta
+  out = lapply(seq_along(multipolygons), function(i) {
+    # append poly IDs and meta
+    poly_table = multipolygons[[i]]
+    sv = terra::vect(poly_table$Geometry)
+    sv$poly_ID = poly_table$EntityID
+    sv$z_level = poly_table$ZLevel
+
+    gpoly = giottoPolygon(
+      name = names(multipolygons)[[i]],
+      spatVector = sv,
+      unique_ID_cache = poly_table$EntityID
+    )
+  })
+
+  return(out)
+}
+
+
+
+
 
 
 
@@ -2278,28 +2377,28 @@ h5read_vizgen = function(h5File,
 #' @export
 getGEFtxCoords = function(gef_file,
                           bin_size = 'bin100') {
-   
+
    # data.table vars
    genes = NULL
-   
+
    # package check
    package_check(pkg_name = 'rhdf5', repository = 'Bioc')
    if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
-   
+
    # Step 1: Parse tx coords
-   exprDT = rhdf5::h5read(file = gef_file, 
+   exprDT = rhdf5::h5read(file = gef_file,
                              name = paste0('geneExp/', bin_size, '/expression'))
    setDT(exprDT)
 
    # Step 2: Parse gene expression info using index
-   geneDT = rhdf5::h5read(file = gef_file, 
+   geneDT = rhdf5::h5read(file = gef_file,
                              name = paste0('geneExp/', bin_size, '/gene'))
    setDT(geneDT)
-   
+
    # Step 3: Combine read expression and gene data by repeating count (match offset index)
    # See STOMICS file format manual for more information about exprDT and geneDT
    exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
-   
+
    return(exprDT)
 
 }

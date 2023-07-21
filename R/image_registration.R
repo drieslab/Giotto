@@ -1,3 +1,6 @@
+
+#' @include spatial_manipulation.R
+
 ### Image registration and creation of registered Giotto object ####
 
 
