@@ -4,7 +4,13 @@
 \alias{aggregateStacksPolygons}
 \title{aggregateStacksPolygons}
 \usage{
-aggregateStacksPolygons(gobject, spat_units, new_spat_unit = "aggregate")
+aggregateStacksPolygons(
+  gobject,
+  spat_units,
+  new_spat_unit = "aggregate",
+  for_loop = FALSE,
+  for_loop_group_size = 100
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +18,10 @@ aggregateStacksPolygons(gobject, spat_units, new_spat_unit = "aggregate")
 \item{spat_units}{spatial units to aggregate}
 
 \item{new_spat_unit}{new name for aggregated spatial unit}
+
+\item{for_loop}{aggregate polygons in for loop (default = FALSE)}
+
+\item{for_loop_group_size}{size of polygon groups to aggregate in each loop}
 }
 \value{
 giotto object

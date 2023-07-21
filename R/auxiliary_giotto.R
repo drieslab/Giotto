@@ -3337,7 +3337,9 @@ aggregateStacksPolygonsOLD = function(gobject,
 #' @description combines/aggregates polygons with the same cell ID from different z-stacks
 #' @keywords internal
 combine_stack_spatVectors = function(gobject,
-                                     spat_units) {
+                                     spat_units,
+                                     for_loop = FALSE,
+                                     for_loop_group_size = 100) {
 
 
   # 1. combine all spatVectors across all stacks
@@ -3354,20 +3356,37 @@ combine_stack_spatVectors = function(gobject,
   }
   stack_spatvector = do.call('rbind', stack_list)
 
+  # TODO: check if all stackspatvectors are identical
+  # skip polygon aggregation step and simply keep one spatvector
+  # dt_z0 = spatVector_to_dt(stackspatvector_z0)
+  # dt_z1 = spatVector_to_dt(stackspatvector_z1)
+  # identical(dt_z0[,.(x,y)], dt_z1[,.(x,y)])
+
+
+
   # 2. make sure spatvectors are valid
   stack_spatvector = terra::makeValid(stack_spatvector)
 
-
   # 3. aggregate individual cells/polys
   all_poly_ids = sort(unique(stack_spatvector$poly_ID))
-  poly_list = list()
-  for(selected_poly_i in 1:length(all_poly_ids)) {
-    selected_poly_id = all_poly_ids[[selected_poly_i]]
-    selected_poly = stack_spatvector[stack_spatvector$poly_ID == selected_poly_id]
-    selected_poly_aggr = terra::aggregate(selected_poly, by = 'poly_ID', dissolve = TRUE)
-    poly_list[[selected_poly_i]] = selected_poly_aggr
+
+  # run in for loop if data is very very big
+  if(isTRUE(for_loop)) {
+    poly_list = list()
+    poly_id_groups = split(all_poly_ids, ceiling(seq_along(all_poly_ids)/for_loop_group_size))
+
+     for(group_i in 1:length(poly_id_groups)) {
+      selected_poly_ids = poly_id_groups[[group_i]]
+      selected_poly = stack_spatvector[stack_spatvector$poly_ID %in% selected_poly_ids]
+      selected_poly_aggr = terra::aggregate(selected_poly, by = 'poly_ID', dissolve = TRUE)
+      poly_list[[group_i]] = selected_poly_aggr
+    }
+    aggr_spatvectors = do.call('rbind', poly_list)
+
+  } else {
+    aggr_spatvectors = terra::aggregate(stack_spatvector, by = 'poly_ID', dissolve = TRUE)
   }
-  aggr_spatvectors = do.call('rbind', poly_list)
+
 
   # 4. add valid information to aggregated spatvector
   aggr_spatvectors[['valid']] = terra::is.valid(aggr_spatvectors)
@@ -3384,18 +3403,24 @@ combine_stack_spatVectors = function(gobject,
 #' @param gobject giotto object
 #' @param spat_units spatial units to aggregate
 #' @param new_spat_unit new name for aggregated spatial unit
+#' @param for_loop aggregate polygons in for loop (default = FALSE)
+#' @param for_loop_group_size size of polygon groups to aggregate in each loop
 #' @return giotto object
 #' @family aggregate stacks
 #' @export
 #'
 aggregateStacksPolygons = function(gobject,
                                    spat_units,
-                                   new_spat_unit = 'aggregate') {
+                                   new_spat_unit = 'aggregate',
+                                   for_loop = FALSE,
+                                   for_loop_group_size = 100) {
 
 
   # aggregate spatvectors
   aggregated_spatVec = combine_stack_spatVectors(gobject = gobject,
-                                                 spat_units = spat_units)
+                                                 spat_units = spat_units,
+                                                 for_loop = for_loop,
+                                                 for_loop_group_size = for_loop_group_size)
 
   gpolygon = create_giotto_polygon_object(name = new_spat_unit,
                                           spatVector = aggregated_spatVec,
@@ -3466,6 +3491,8 @@ aggregateStacksPolygonOverlaps = function(gobject,
 #' @param values values to use
 #' @param summarize_expression method to summarize expression information
 #' @param summarize_locations method to summarize spatial location information
+#' @param for_loop aggregate polygons in for loop (default = FALSE)
+#' @param for_loop_group_size size of polygon groups to aggregate in each loop
 #' @param new_spat_unit new name for aggregated spatial unit
 #' @param verbose verbosity
 #' @return giotto object
@@ -3479,6 +3506,8 @@ aggregateStacks = function(gobject,
                            values,
                            summarize_expression = 'sum',
                            summarize_locations = 'mean',
+                           for_loop = FALSE,
+                           for_loop_group_size = 100,
                            new_spat_unit = 'aggregate',
                            verbose = TRUE) {
 
@@ -3507,7 +3536,9 @@ aggregateStacks = function(gobject,
   }
   gobject = aggregateStacksPolygons(gobject = gobject,
                                     spat_units = spat_units,
-                                    new_spat_unit = new_spat_unit)
+                                    new_spat_unit = new_spat_unit,
+                                    for_loop = for_loop,
+                                    for_loop_group_size = for_loop_group_size)
   if(isTRUE(verbose)) {
     wrap_msg('2. Aggregating polygon data completed')
   }

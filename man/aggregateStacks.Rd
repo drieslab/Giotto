@@ -11,7 +11,10 @@ aggregateStacks(
   values,
   summarize_expression = "sum",
   summarize_locations = "mean",
-  new_spat_unit = "aggregate"
+  for_loop = FALSE,
+  for_loop_group_size = 100,
+  new_spat_unit = "aggregate",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -27,7 +30,13 @@ aggregateStacks(
 
 \item{summarize_locations}{method to summarize spatial location information}
 
+\item{for_loop}{aggregate polygons in for loop (default = FALSE)}
+
+\item{for_loop_group_size}{size of polygon groups to aggregate in each loop}
+
 \item{new_spat_unit}{new name for aggregated spatial unit}
+
+\item{verbose}{verbosity}
 }
 \value{
 giotto object
