@@ -4,7 +4,12 @@
 \alias{combine_stack_spatVectors}
 \title{combine_stack_spatVectors}
 \usage{
-combine_stack_spatVectors(gobject, spat_units)
+combine_stack_spatVectors(
+  gobject,
+  spat_units,
+  for_loop = FALSE,
+  for_loop_group_size = 100
+)
 }
 \description{
 combines/aggregates polygons with the same cell ID from different z-stacks
