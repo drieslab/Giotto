@@ -1856,13 +1856,17 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     } else {
       visium_png_list = NULL
     }
+    
+    # Create cell_ID column for metadata
+    cell_ID = NULL
+    colnames(spatial_results)[colnames(spatial_results) == "barcode"] = "cell_ID"
 
     # create Giotto object
     giotto_object = createGiottoObject(expression = raw_matrix,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)])),
+                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
     return(giotto_object)
 
