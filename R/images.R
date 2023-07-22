@@ -1494,6 +1494,13 @@ cropGiottoLargeImage = function(gobject = NULL,
 #' @param asRGB (optional) [boolean] force RGB plotting if not automatically detected
 #' @param stretch character. Option to stretch the values to increase contrast: "lin"
 #' linear or "hist" (histogram)
+#' @param maxcell positive integer. Maximum number of image cells to use for the plot
+#' @param col character. Colors for single channel images. The default is
+#' grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1). It can also be a
+#' data.frame with two columns (value, color) to get a "classes" type legend or with
+#' three columns (from, to, color) to get an "interval" type legend
+#' @param ... additional params to pass to terra::plot or terra::plotRGB depending
+#' depending on image type
 #' @return plot
 #' @keywords internal
 plot_giottoLargeImage = function(gobject = NULL,
@@ -1506,7 +1513,10 @@ plot_giottoLargeImage = function(gobject = NULL,
                                  ymin_crop = NULL,
                                  max_intensity = NULL,
                                  asRGB = FALSE,
-                                 stretch = NULL) {
+                                 stretch = NULL,
+                                 maxcell = 5e5,
+                                 col = grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1),
+                                 ...) {
 
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
@@ -1536,16 +1546,20 @@ plot_giottoLargeImage = function(gobject = NULL,
                    stretch = stretch,
                    smooth = TRUE,
                    mar = c(3,5,1.5,1),
-                   asp = 1)
+                   maxcell = maxcell,
+                   asp = 1,
+                   ...)
   } else {
     if(is.null(stretch)) stretch = 'lin'
-    terra::plotRGB(raster_object,
-                   axes = TRUE,
-                   r = 1,g = 1,b = 1,
-                   stretch = stretch,
-                   smooth = TRUE,
-                   mar = c(3,5,1.5,1),
-                   asp = 1)
+    terra::plot(raster_object,
+                col = col,
+                axes = TRUE,
+                stretch = stretch,
+                smooth = TRUE,
+                mar = c(3,5,1.5,1),
+                maxcell = maxcell,
+                legend = FALSE,
+                ...)
   }
 
 }
