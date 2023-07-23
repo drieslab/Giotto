@@ -23,8 +23,7 @@
 - New file `spatial_manipulation.R`
 - Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`
 - Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`
-- Add access to terra plotting params through ... param for `giottoLargeImage` `plot()` method.
-- Add params for `maxcell` and `col` for `giottoLargeImage` `plot()` method that respectively control how many image cells max are used and what colors are used when plotting single-channel images.
+- Add access to terra plotting params for `giottoLargeImage` `plot()` method.
 
 ## Changes
 - Fix bug in `combine_matrices()`
