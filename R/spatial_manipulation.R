@@ -556,9 +556,9 @@ flip_gpoly = function(gpoly,
   if(grepl(direction, 'vertical') & !is.null(y0)) {
     y_min = as.numeric(e$ymin)
     dy = y0 - y_min
-    gpoly = Giotto:::do_gpoly(x = gpoly,
-                              what = terra::shift,
-                              args = list(dy = 2 * dy))
+    gpoly = do_gpoly(x = gpoly,
+                     what = terra::shift,
+                     args = list(dy = 2 * dy))
   }
   if(grepl(direction, 'horizontal') & !is.null(x0)) {
     x_min = as.numeric(e$xmin)
