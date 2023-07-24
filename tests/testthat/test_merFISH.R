@@ -3,23 +3,12 @@
 #   installGiottoEnvironment()
 # }
 
-suppressWarnings({
-  if(!require(remotes)){
-    install.packages('R.utils', repos = 'http://cran.us.r-project.org')
-    install.packages('remotes', repos = 'http://cran.us.r-project.org')
-  }
-
-  if(!require(GiottoData)){
-    remotes::install_github('drieslab/GiottoData')
-  }
-
-  require(testthat)
-})
+require(testthat)
 
 # install Giotto environment if missing
-if(!checkGiottoEnvironment()) {
-  install_giotto_environment()
-}
+# if(!checkGiottoEnvironment()) {
+#   install_giotto_environment()
+# }
 
 GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
 
