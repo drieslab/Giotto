@@ -6,19 +6,28 @@
 
 
 ## Added
-- new file `poly_influence.R`
-- added new function `showPolygonSizeInfluence()` within `poly_influence.R` to show if cells switch clusters when across resized polygon annotations 
-- added new function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
-- added new function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
-- added new function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
-- added new function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
-- new file `feature_set_enrichment.R`
-- added new function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
-- added new function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
-- New createArchRProj() and CreateGiottoObjectFromArchR() functions to create a Giotto object with ATAC or epigenetic features using the ArchR pipeline.
-- New giottoMasterToSuite() function to convert a Giotto object created with the master version to a Giotto suite object.
+- New file `poly_influence.R`
+- New function `showPolygonSizeInfluence()` within `poly_influence.R` to show if cells switch clusters when across resized polygon annotations 
+- New function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
+- New function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
+- New function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
+- New function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
+- New file `feature_set_enrichment.R`
+- New function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
+- New function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
+- New `createArchRProj()` and `CreateGiottoObjectFromArchR()` functions to create a `giotto` object with ATAC or epigenetic features using the *ArchR* pipeline.
+- New `giottoMasterToSuite()` function to convert a `giotto` object created with the master version to a Giotto suite object.
+- New `readPolygonVizgenParquet()` for updated parquet outputs
+- Add *checkmate* to Imports for assertions checking
+- Add exported `create` function for `exprObj` creation
+- New file `spatial_manipulation.R`
+- Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`
+- Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`
 
 ## Changes
+- Fix bug in `combine_matrices()`
+- Fix bug in `createGiottoObject()` that will not allow object creation without supplied expression information
+- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance.
 - Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility.
 - Add check for spatLocsObj for spatlocs in polyStamp()
 - Removed various print() and cat() statements throughout. 
@@ -33,7 +42,10 @@
 - Default verbose = FALSE argument added to subsetGiotto
 - Default verbose = FALSE argument added to subsetGiottoLocsSubcellular 
 - Default verbose = FALSE argument added to createGiottoXeniumObject_subcellular
-
+- Update `readPolygonFilesVizgenHDF5()` add option to return as `data.table` and skip `giottoPolygon` creation. Downstream `giottoPolygon` creation refactored as new internal function
+- Update cell segmentation workflow to check for *deepcell* and *PIL* python packages
+- Update cell segmentation workflow to return grayscale mask images instead of RGB
+- Update `createGiottoVisiumObject()` image h5 scalefactors reading to use partial matching for whether hi or lowres image is supplied
 
 
 # Giotto Suite 3.3.0 (2023-04-18)

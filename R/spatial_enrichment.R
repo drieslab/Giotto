@@ -186,6 +186,9 @@ makeSignMatrixRank = function(sc_matrix,
   if(methods::is(sc_matrix, "sparseMatrix")){
     sc_matrix = Matrix::as.matrix(sc_matrix)
   }
+  if(inherits(sc_matrix, 'exprObj')) {
+    sc_matrix = sc_matrix[]
+  }
 
   # select ties_method
   ties_method =  match.arg(ties_method, choices = c("random", "max"))
@@ -575,6 +578,9 @@ PAGE_DT_method = function(sign_matrix,
 
   mergetest = data.table::merge.data.table(sub_ct_DT, geneFold_DT, by = 'gene')
   mergetest = mergetest[, mean(fc), by = .(cell_type, cell_ID, nr_markers)]
+  if (is.integer(mergetest$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+    mergetest$cell_ID = as.character(mergetest$cell_ID)
+  }
   mergetest = data.table::merge.data.table(mergetest, cellColMeanSd, by = 'cell_ID')
   mergetest[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 
@@ -654,6 +660,9 @@ PAGE_DT_method = function(sign_matrix,
 
       mergetest_perm_sub = data.table::merge.data.table(cell_type_perm_DT_sub, geneFold_DT, allow.cartesian = TRUE)
       mergetest_perm_sub = mergetest_perm_sub[, mean(fc), by = .(cell_type, cell_ID, nr_markers, round)]
+      if (is.integer(mergetest_perm_sub$cell_ID) && is.character(cellColMeanSd$cell_ID)){
+        mergetest_perm_sub$cell_ID = as.character(mergetest_perm_sub$cell_ID)
+      }
       mergetest_perm_sub = data.table::merge.data.table(mergetest_perm_sub, cellColMeanSd, by = 'cell_ID')
       mergetest_perm_sub[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
 

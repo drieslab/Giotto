@@ -2493,6 +2493,7 @@ setMethod(
 #' @param feat_type feature type of expression (e.g. 'rna', 'protein')
 #' @param provenance origin data of expression information (if applicable)
 #' @param misc misc
+#' @export
 createExprObj = function(expression_data,
                          name = 'test',
                          spat_unit = 'cell',
@@ -2502,8 +2503,8 @@ createExprObj = function(expression_data,
                          expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
                          h5_file = NULL) {
 
-  exprMat = evaluate_expr_matrix(expression_data, 
-                                 expression_matrix_class = expression_matrix_class, 
+  exprMat = evaluate_expr_matrix(expression_data,
+                                 expression_matrix_class = expression_matrix_class,
                                  feat_type = feat_type,
                                  h5_file = h5_file)
 
