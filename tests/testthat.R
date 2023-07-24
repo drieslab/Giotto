@@ -17,7 +17,7 @@ suppressWarnings({
   }
 
   if(!require(GiottoData)){
-    remotes::install_github('drieslab/GiottoData')
+    remotes::install_github('drieslab/GiottoData', build = FALSE)
   }
 })
 
