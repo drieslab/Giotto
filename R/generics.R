@@ -861,12 +861,25 @@ setGeneric('spatUnit<-', function(x, value) standardGeneric('spatUnit<-'))
 #' @export
 setMethod('spatUnit', signature = 'spatData', function(x) x@spat_unit)
 
+#' @describeIn spatUnit-generic Get spatial unit information
+#' @export
+setMethod('spatUnit', signature('giottoPolygon'), function(x) x@name)
+
 
 #' @describeIn spatUnit-generic Set spatial unit information
 #' @export
 setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
   value = as.character(value)
   x@spat_unit = value
+  x
+})
+
+# giottoPolygon name describes the same thing as the spat_unit
+#' @describeIn spatUnit-generic Set giottoPolygon spat_unit
+#' @export
+setMethod('spatUnit<-', signature('giottoPolygon'), function(x, value) {
+  value = as.character(value)
+  x@name = value
   x
 })
 
@@ -918,11 +931,24 @@ setGeneric('objName<-', function(x, value) standardGeneric('objName<-'))
 #' @export
 setMethod('objName', signature = 'nameData', function(x) x@name)
 
+#' @describeIn objName-generic Get name giottoPoints
+#' @export
+setMethod('objName', signature = 'giottoPoints', function(x) x@feat_type)
+
 #' @describeIn objName-generic Set name information
 #' @export
 setMethod('objName<-', signature = 'nameData', function(x, value) {
   value = as.character(value)
   x@name = value
+  x
+})
+
+# name describes the same thing as feat_type for giottoPoints
+#' @describeIn objName-generic Set name giottoPoints
+#' @export
+setMethod('objName<-', signature = 'giottoPoints', function(x, value) {
+  value = as.character(value)
+  x@feat_type = value
   x
 })
 

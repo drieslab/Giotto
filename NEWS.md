@@ -48,6 +48,7 @@
 - Update cell segmentation workflow to return grayscale mask images instead of RGB
 - Update `createGiottoVisiumObject()` image h5 scalefactors reading to use partial matching for whether hi or lowres image is supplied
 - Update `giottoLargeImage` `plot()` method to use `terra::plot()` instead of `terra::plotRGB()` for grayscale images
+- Remove unnecessary prints from `subsetGiotto()`
 
 
 # Giotto Suite 3.3.0 (2023-04-18)

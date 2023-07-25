@@ -1088,7 +1088,8 @@ subset_spatial_info_data = function(spatial_info,
                                     cell_ids,
                                     poly_info = 'cell',
                                     feat_ids,
-                                    feat_type = NULL) {
+                                    feat_type = NULL,
+                                    verbose = TRUE) {
 
 
   # set feat type
@@ -1099,11 +1100,11 @@ subset_spatial_info_data = function(spatial_info,
   res_list = list()
   for(spat_info in names(spatial_info)) {
 
-    cat('for ', spat_info, '\n')
+    if(verbose) cat('for ', spat_info, '\n')
 
     if(spat_info %in% poly_info) {
 
-      cat('--> ', spat_info, ' found back in polygon layer: ', poly_info, '\n')
+      if(verbose) cat('--> ', spat_info, ' found back in polygon layer: ', poly_info, '\n')
 
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
@@ -1152,9 +1153,8 @@ subset_giotto_points_object = function(gpoints,
                                        y_max = NULL,
                                        verbose = FALSE) {
 
-  # define for data.table [] subset
-  x = NULL
-  y = NULL
+  # data.table vars
+  x = y = feat_ID = NULL
 
   if(!is.null(gpoints@spatVector)) {
 
@@ -1383,8 +1383,6 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 6: subset feature metadata \n')
 
-  # data.table variables
-  to = from = V = NULL
 
   ## spatial network & grid ##
   # cell spatial network
@@ -1406,7 +1404,7 @@ subsetGiotto <- function(gobject,
                                        feat_type = feat_type,
                                        cell_ids = cell_ids)
 
-  if(verbose == TRUE) cat('completed 8: subsetted dimension reductions \n')
+  if(verbose) cat('completed 8: subsetted dimension reductions \n')
 
 
   ## nn network ##
@@ -1415,7 +1413,7 @@ subsetGiotto <- function(gobject,
                                    feat_type = feat_type,
                                    cell_ids =  cell_ids)
 
-  if(verbose == TRUE) cat('completed 9: subsetted nearest network(s) \n')
+  if(verbose) cat('completed 9: subsetted nearest network(s) \n')
 
 
   ## spatial enrichment ##
@@ -1424,7 +1422,7 @@ subsetGiotto <- function(gobject,
                                       feat_type = feat_type,
                                       cell_ids = cell_ids)
 
-  if(verbose == TRUE) cat('completed 10: subsetted spatial enrichment results \n')
+  if(verbose) cat('completed 10: subsetted spatial enrichment results \n')
 
   ## spatial info
   if(!is.null(gobject@spatial_info)) {
@@ -1435,11 +1433,12 @@ subsetGiotto <- function(gobject,
                                                       feat_type = feat_type,
                                                       cell_ids = cell_ids,
                                                       feat_ids = feat_ids,
-                                                      poly_info = select_poly_info)
+                                                      poly_info = select_poly_info,
+                                                      verbose = verbose)
 
     }
 
-    if(verbose == TRUE) cat('completed 11: subsetted spatial information data \n')
+    if(verbose) cat('completed 11: subsetted spatial information data \n')
   }
 
 
@@ -1455,17 +1454,18 @@ subsetGiotto <- function(gobject,
                                                  y_min = y_min,
                                                  verbose = verbose)
 
-    if(verbose == TRUE) cat('completed 12: subsetted spatial feature data \n')
+    if(verbose) cat('completed 12: subsetted spatial feature data \n')
   }
 
 
 
   ## update parameters used ##
-  nframes = sys.nframe()
-  if(verbose == TRUE) cat('number of frames: ', nframes, '\n')
 
-  parent = sys.parent()
-  if(verbose == TRUE) cat('sys parent: ', parent, '\n')
+  # nframes = sys.nframe()
+  # if(verbose) cat('number of frames: ', nframes, '\n')
+  #
+  # parent = sys.parent()
+  # if(verbose) cat('sys parent: ', parent, '\n')
 
   parameters_info = update_giotto_params(gobject,
                                          description = '_subset',
@@ -1484,10 +1484,10 @@ subsetGiotto <- function(gobject,
                                      'feats removed' = feats_removed)
   gobject@parameters = parameters_list
 
-  if(verbose){
-    print(gobject@spatial_info)
-    print(gobject@spatial_locs)
-  }
+  # if(verbose){
+  #   print(gobject@spatial_info)
+  #   print(gobject@spatial_locs)
+  # }
 
   return(initialize(gobject))
 
@@ -1574,7 +1574,7 @@ subsetGiottoLocs = function(gobject,
 
     } else {
       spat_loc_name = NULL
-      cat('No spatial locations or spatial info have been found \n')
+      wrap_msg('No spatial locations or spatial info have been found \n')
       return(NULL)
     }
   }
@@ -1668,8 +1668,8 @@ subsetGiottoLocsMulti = function(gobject,
 
     cat('\n \n')
 
-    if(verbose) cat('Start subset on location for spatial unit: ', spat_unit_selected,
-                    'and polygon information layers: ', poly_info_selected, '\n')
+    if(verbose) wrap_msg('Start subset on location for spatial unit: ', spat_unit_selected,
+                         'and polygon information layers: ', poly_info_selected, '\n')
 
 
     if(return_gobject == TRUE) {
@@ -1758,7 +1758,7 @@ subsetGiottoLocsSubcellular = function(gobject,
 
     # TODO: make it possible for multiple feature types
 
-    feats_list = slot(miniviz, 'feat_info')
+    feats_list = slot(gobject, 'feat_info')
     cropped_feats = lapply(feats_list[[feat_type]], function(x) {
       sv = slot(x, 'spatVector')
       sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
@@ -1790,7 +1790,7 @@ subsetGiottoLocsSubcellular = function(gobject,
   if(!is.null(gobject@spatial_info)) {
 
     # get the associated poly_IDs
-    polys_list = slot(testg, 'spatial_info')
+    polys_list = slot(gobject, 'spatial_info')
     cropped_IDs = lapply(polys_list, function(x) {
       sv = slot(x, 'spatVector')
       sv = terra::crop(sv, terra::ext(x_min, x_max, y_min, y_max))
