@@ -404,6 +404,12 @@ updateGiottoObject = function(gobject) {
     gobject@multiomics = NULL
   }
 
+  # 3.3.1 release adds h5_file slot
+  if(is.null(attr(gobject, 'h5_file'))) {
+    attr(gobject, 'h5_file') = NA
+    gobject@h5_file = NULL
+  }
+
   return(gobject)
 }
 
@@ -517,6 +523,7 @@ giotto <- setClass(
 setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   .Object = callNextMethod()
+  .Object = updateGiottoObject(.Object)
 
   # a = list(...)
 
@@ -931,11 +938,7 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   ## validity check ##
   ## -------------- ##
-  obj_valid = try(validObject(.Object), silent = TRUE)
-  if(inherits(obj_valid, 'try-error')) {
-    .Object = updateGiottoObject(.Object)
-    validObject(.Object)
-  }
+  methods::validObject(.Object)
 
 
 
@@ -1020,6 +1023,12 @@ setMethod(
     if(!is.null(avail_sn)) {
       cat('spatial networks -----------------\n')
       mini_avail_print(avail_sn)
+    }
+
+    avail_se = list_spatial_enrichments(object)
+    if(!is.null(avail_se)) {
+      cat('spatial enrichments --------------\n')
+      mini_avail_print(avail_se)
     }
 
     avail_dim = list_dim_reductions(object)

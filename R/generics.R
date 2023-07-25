@@ -150,7 +150,7 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 #' default spatial unit that the giotto object uses.
 #' @inheritParams data_access_params
 setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
-setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+setGeneric('activeSpatUnit<-', function(gobject, ..., value) standardGeneric('activeSpatUnit<-'))
 
 #' @rdname activeSpatUnit-generic
 #' @export
@@ -178,7 +178,7 @@ setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character')
 #' default feature type that the giotto object uses.
 #' @inheritParams data_access_params
 setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
-setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+setGeneric('activeFeatType<-', function(gobject, ..., value) standardGeneric('activeFeatType<-'))
 
 #' @rdname activeFeatType-generic
 #' @export
@@ -214,7 +214,7 @@ setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character')
 #' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, param, initialize, ..., value) standardGeneric('instructions<-'))
 
 
 
