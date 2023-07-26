@@ -710,7 +710,7 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
       list_match = sapply(exp_list_names, setequal, exp_list_names[[1L]])
       if(!all(list_match)) {
         print(list_match)
-        warning(wrap_text(
+        warning(wrap_txt(
           'spat_unit:', unique_expr_sets$spat_unit[[set_i]], '/',
           'feat_type:', unique_expr_sets$feat_type[[set_i]],
           '\nNot all expression matrices share the same cell_IDs'
@@ -1702,7 +1702,7 @@ setMethod(
     show_prov(object)
 
     cat('   ------------------------\n\npreview:\n')
-    if(!is.null(slot(object, 'coordinates'))) show(slot(object, 'coordinates'))
+    if(!is.null(slot(object, 'coordinates'))) show(head(slot(object, 'coordinates'), 3L))
 
     cat('\nranges:\n')
     try(expr = print(sapply(slot(object, 'coordinates')[,.(sdimx,sdimy)], range)),

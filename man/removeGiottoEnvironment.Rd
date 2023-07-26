@@ -7,7 +7,7 @@
 removeGiottoEnvironment(mini_path = NULL, verbose = TRUE)
 }
 \arguments{
-\item{mini_path}{path to anaconda/miniconda. 
+\item{mini_path}{path to anaconda/miniconda.
 Default: reticulate::miniconda_path()
 i.e. "C:/my/conda/lives/here" OR "C:\\my\\conda\\lives\\here"}
 

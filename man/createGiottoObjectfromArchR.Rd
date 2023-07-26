@@ -14,7 +14,7 @@ createGiottoObjectfromArchR(
 )
 }
 \arguments{
-\item{archRproj}{}
+\item{archRproj}{ArchR project}
 
 \item{expression}{expression information}
 

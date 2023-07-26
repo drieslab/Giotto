@@ -33,7 +33,7 @@ doFeatureSetEnrichment(
 
 \item{output_folder}{path to which the GSEA results will be saved. Default is current working directory.}
 
-\item{name_analysis_folder}{default output subdirectory prefix to which results are saved. 
+\item{name_analysis_folder}{default output subdirectory prefix to which results are saved.
 Will live within output_folder; equivalent of "Analysis Name" in GSEA Application.}
 
 \item{collapse}{only 'false' is supported. This will use your dataset as-is, in the original format.}
@@ -68,10 +68,10 @@ https://www.gsea-msigdb.org/gsea/msigdb/index.jsp or zipped folder https://www.g
 3. create ranked gene lists
 format: data.table or data.frame with 2 columns
 column 1 = gene symbols, column 2 = weight or rank metric
-for more details, see: 
+for more details, see:
 https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#RNK:_Ranked_list_file_format_.28.2A.rnk.29
 
-For more information on parameter convetions, 
+For more information on parameter convetions,
 please reference GSEA's documentation here:
 https://www.gsea-msigdb.org/gsea/doc/GSEAUserGuideTEXT.htm#_Syntax
 }
