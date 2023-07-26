@@ -5,14 +5,20 @@
 \alias{objName}
 \alias{objName<-}
 \alias{objName,nameData-method}
+\alias{objName,giottoPoints-method}
 \alias{objName<-,nameData-method}
+\alias{objName<-,giottoPoints-method}
 \title{Giotto object name information}
 \usage{
 objName(x)
 
 \S4method{objName}{nameData}(x)
 
+\S4method{objName}{giottoPoints}(x)
+
 \S4method{objName}{nameData}(x) <- value
+
+\S4method{objName}{giottoPoints}(x) <- value
 }
 \arguments{
 \item{x}{a Giotto S4 class subobject with name data}
@@ -26,6 +32,10 @@ access and set name slot fo S4 subobject
 \itemize{
 \item \code{objName(nameData)}: Get name information
 
+\item \code{objName(giottoPoints)}: Get name giottoPoints
+
 \item \code{objName(nameData) <- value}: Set name information
+
+\item \code{objName(giottoPoints) <- value}: Set name giottoPoints
 
 }}

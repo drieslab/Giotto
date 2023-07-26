@@ -2451,7 +2451,7 @@ rna_standard_normalization = function(gobject,
     scale_order = match.arg(arg = scale_order, choices = c('first_feats', 'first_cells'))
 
     if(scale_order == 'first_feats') {
-      if(verbose == TRUE) cat('\n first scale feats and then cells \n')
+      if(isTRUE(verbose)) wrap_msg('\n first scale feats and then cells \n')
 
       norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
       norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE)
@@ -2461,7 +2461,7 @@ rna_standard_normalization = function(gobject,
       #norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
 
     } else if(scale_order == 'first_cells') {
-      if(verbose == TRUE) cat('\n first scale cells and then feats \n')
+      if(isTRUE(verbose)) wrap_msg('\n first scale cells and then feats \n')
 
       norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
       norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
