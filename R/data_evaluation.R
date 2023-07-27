@@ -43,8 +43,8 @@ evaluate_expr_matrix = function(inputmatrix,
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores, 
-                              expression_matrix_class = expression_matrix_class, 
+    mymatrix = readExprMatrix(inputmatrix, cores = cores,
+                              expression_matrix_class = expression_matrix_class,
                               feat_type = feat_type,
                               h5_file = h5_file)
   } else if(inherits(inputmatrix, 'Matrix')) {
@@ -120,7 +120,7 @@ evaluate_cell_metadata = function(metadata,
     metadata = path.expand(metadata)
     if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
                                              errWidth = TRUE))
-    metadata = data::fread(input = metadata, nThread = cores)
+    metadata = data.table::fread(input = metadata, nThread = cores)
   } else {
     metadata = tryCatch(
       data.table::setDT(metadata),
@@ -181,7 +181,7 @@ evaluate_feat_metadata = function(metadata,
     metadata = path.expand(metadata)
     if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
                                              errWidth = TRUE))
-    metadata = data::fread(input = metadata, nThread = cores)
+    metadata = data.table::fread(input = metadata, nThread = cores)
   } else {
     metadata = tryCatch(
       data.table::setDT(metadata),
