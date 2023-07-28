@@ -636,12 +636,38 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 
 
 
+## Spatial Genomics ####
 
-
-
-
-
-
+#' @title Create Spatial Genomics Giotto Object
+#' @name createSpatialGenomicsObject
+#' @param sg_dir full path to the exported Spatial Genomics directory
+#' @param instructions new instructions (e.g. result from createGiottoInstructions)
+#' @description Given the path to a Spatial Genomics data directory, creates a 
+#' Giotto object.
+#' @export
+createSpatialGenomicsObject <- function(sg_dir = NULL,
+                                        instructions = NULL) {
+  # Find files in Spatial Genomics directory
+  dapi = list.files(sg_dir, full.names = TRUE, pattern = 'DAPI')
+  mask = list.files(sg_dir, full.names = TRUE, pattern = 'mask')
+  tx = list.files(sg_dir, full.names = TRUE, pattern = 'transcript')
+  # Create Polygons
+  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F, 
+                                       shift_horizontal_step = F, 
+                                       flip_horizontal = F, flip_vertical = F)
+  # Create Points
+  tx = data.table::fread(tx)
+  gpoints = createGiottoPoints(tx)
+  dim(tx)
+  # Create object and add image
+  gimg = createGiottoLargeImage(dapi, use_rast_ext = TRUE)
+  sg = createGiottoObjectSubcellular(gpoints = list('rna' = gpoints),
+                                     gpolygons = list('cell' = gpoly),
+                                     instructions = intructions)
+  sg = addGiottoLargeImage(sg, largeImages = list(image = gimg))
+  # Return SG object
+  return(sg)
+}
 
 
 
