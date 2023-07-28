@@ -458,7 +458,9 @@ setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 #' @export
 setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 
-
+#' @rdname dims-generic
+#' @export
+setMethod('dim', signature('giottoLargeImage'), function(x) dim(x@raster_object))
 
 
 
@@ -935,9 +937,32 @@ setMethod('objName', signature = 'nameData', function(x) x@name)
 #' @export
 setMethod('objName', signature = 'giottoPoints', function(x) x@feat_type)
 
-#' @describeIn objName-generic Set name information
+#' @rdname objName-generic
+#' @export
+setMethod('objName', signature('giottoLargeImage'), function(x) x@name)
+
+#' @rdname objName-generic
+#' @export
+setMethod('objName', signature('giottoImage'), function(x) x@name)
+
+#' @rdname objName-generic
 #' @export
 setMethod('objName<-', signature = 'nameData', function(x, value) {
+  value = as.character(value)
+  x@name = value
+  x
+})
+
+#' @rdname objName-generic
+#' @export
+setMethod('objName<-', signature = 'giottoImage', function(x, value) {
+  value = as.character(value)
+  x@name = value
+  x
+})
+
+#' @rdname objName-generic
+setMethod('objName<-', signature('giottoLargeImage'), function(x, value) {
   value = as.character(value)
   x@name = value
   x

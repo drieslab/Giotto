@@ -6,6 +6,9 @@
 \alias{ext,giottoPolygon-method}
 \alias{ext,giottoPoints-method}
 \alias{ext,spatialNetworkObj-method}
+\alias{ext,giottoLargeImage-method}
+\alias{ext<-,giottoLargeImage,SpatExtent-method}
+\alias{ext<-,ANY,ANY-method}
 \title{Get a SpatExtent}
 \usage{
 \S4method{ext}{spatLocsObj}(x, ...)
@@ -15,6 +18,12 @@
 \S4method{ext}{giottoPoints}(x, ...)
 
 \S4method{ext}{spatialNetworkObj}(x, ...)
+
+\S4method{ext}{giottoLargeImage}(x, ...)
+
+\S4method{ext}{giottoLargeImage,SpatExtent}(x) <- value
+
+\S4method{ext}{ANY,ANY}(x) <- value
 }
 \arguments{
 \item{x}{spatial object}

@@ -21,8 +21,8 @@
 - Add *checkmate* to Imports for assertions checking
 - Add exported `create` function for `exprObj` creation
 - New file `spatial_manipulation.R`
-- Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`
-- Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`
+- Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `giottoLargeImage`
+- Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`, `giottoLargeImage`
 - Add access to terra plotting params for `giottoLargeImage` `plot()` method.
 
 ## Changes

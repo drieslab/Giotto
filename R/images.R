@@ -1504,6 +1504,7 @@ cropGiottoLargeImage = function(gobject = NULL,
 #' grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1). It can also be a
 #' data.frame with two columns (value, color) to get a "classes" type legend or with
 #' three columns (from, to, color) to get an "interval" type legend
+#' @param asp numeric. (default = 1) specific aspect ratio to use
 #' @param ... additional params to pass to terra::plot or terra::plotRGB depending
 #' depending on image type
 #' @return plot
@@ -1525,6 +1526,7 @@ plot_giottoLargeImage = function(gobject = NULL,
                                  legend = FALSE,
                                  maxcell = 5e5,
                                  col = grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1),
+                                 asp = 1,
                                  ...) {
 
   # Get giottoLargeImage and check and perform crop if needed
@@ -1556,6 +1558,7 @@ plot_giottoLargeImage = function(gobject = NULL,
                    smooth = smooth,
                    mar = mar,
                    maxcell = maxcell,
+                   asp = asp,
                    ...)
   } else {
     if(is.null(stretch)) stretch = 'lin'
@@ -1567,6 +1570,7 @@ plot_giottoLargeImage = function(gobject = NULL,
                 mar = mar,
                 maxcell = maxcell,
                 legend = legend,
+                asp = asp,
                 ...)
   }
 
