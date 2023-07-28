@@ -1640,12 +1640,19 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 
           if(verbose) message("Copying spatial image: ", img@name)
 
-          spe <- SpatialExperiment::addImg(spe,
-                                           sample_id = spe$sample_id[i],
-                                           image_id = img@name,
-                                           imageSource = img@file_path,
-                                           scaleFactor = mean(img@scale_factor),
-                                           load = TRUE)
+          tryCatch(
+            expr = {
+              spe <- SpatialExperiment::addImg(spe,
+                                               sample_id = spe$sample_id[i],
+                                               image_id = img@name,
+                                               imageSource = img@file_path,
+                                               scaleFactor = mean(img@scale_factor),
+                                               load = TRUE)
+            },
+            error = function(e){
+              message("Error copying spatial image: ", img@name, ". Please check if the image path is correct and the image exists at that path.")
+            }
+          )  
         }
         else{
           if(verbose) message("\t - Skipping image with NULL file path: ", img@name)
@@ -1670,6 +1677,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' Utility function to convert a SpatialExperiment object to a Giotto object
 #'
 #' @param spe Input SpatialExperiment object to convert to a Giotto object.
+#' @param python_path Specify the path to python. 
 #' @param nn_network Specify the name of the nearest neighbour network(s)
 #' in the input SpatialExperiment object. Default \code{NULL} will use
 #' all existing networks.
@@ -1687,11 +1695,15 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' spatialExperimentToGiotto(spe)
 #' }
 #' @export
-spatialExperimentToGiotto <- function(spe,
+spatialExperimentToGiotto <- function(spe, 
+                                      python_path,
                                       nn_network = NULL,
                                       sp_network = NULL,
                                       verbose = TRUE){
 
+  # Create giotto instructions and set python path
+  instrs <- createGiottoInstructions(python_path = python_path)
+  
   # Create Giotto object with first matrix
   exprMats <- SummarizedExperiment::assays(spe)
   exprMatsNames <- SummarizedExperiment::assayNames(spe)
@@ -1703,7 +1715,8 @@ spatialExperimentToGiotto <- function(spe,
   }
 
   if(verbose) message("Creating Giotto object with ", exprMatsNames[1], " matrix")
-  suppressWarnings(suppressMessages(giottoObj <- createGiottoObject(expression = firstMatrix)))
+  suppressWarnings(suppressMessages(giottoObj <- createGiottoObject(expression = firstMatrix, 
+                                                                    instructions = instrs)))
   exprMats[[1]] <- NULL
   exprMatsNames <- exprMatsNames[-1]
 
@@ -1749,7 +1762,8 @@ spatialExperimentToGiotto <- function(spe,
   if(ncol(spatialLocs) > 0){
     if(verbose) message("Copying spatial locations")
     spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
-    giottoObj <- set_spatial_locations(gobject = giottoObj, spatlocs = cbind(spatialLocsDT, cell_ID = colnames(spe)))
+    spatLocsObj <- Giotto:::create_spat_locs_obj(name = "spatLocs", coordinates = spatialLocsDT)
+    giottoObj <- set_spatial_locations(gobject = giottoObj, spatlocs = spatLocsObj)
   }
 
   # Spatial Images
