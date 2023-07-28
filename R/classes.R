@@ -2469,27 +2469,22 @@ setMethod(
   signature = "giottoLargeImage",
   definition = function(object) {
 
-    cat("An object of class '",  class(object), "' with name ", object@name, "\n \n")
+    e = ext(object)
+    img_dim = dim(object)[c(2,1,3)] # x, y, layers
+    x_scalefactor = diff(e[c(1,2)]) / img_dim[1]
+    y_scalefactor = diff(e[c(3,4)]) / img_dim[2]
 
-    cat("Image boundaries are: \n")
-    print(terra::ext(object@raster_object)[1:4])
-
-    cat("Original image boundaries are: \n")
-    print(object@overall_extent[1:4])
-
-    cat("\n Scale factor: \n")
-    print(object@scale_factor)
-
-    cat("\n Resolution: \n")
-    print(object@resolution)
-
-    cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
-        'Estimated minimum intensity is: ', object@min_intensity, ' \n')
-
-    if(object@is_int == TRUE) cat('Values are integers')
-    if(object@is_int == FALSE) cat('Values are floating point')
-
-    cat('\n File path is: ', object@file_path, '\n')
+    show_class_and_name(object)
+    cat("Image extent            :", show_ext(object))
+    cat("Original image extent   :", show_ext(object@overall_extent))
+    cat('Scale factor            :', paste(x_scalefactor, y_scalefactor, sep = ', '), '(x, y)\n')
+    cat("Resolution              :", paste(1/x_scalefactor, 1/y_scalefactor, sep = ', '), '(x, y)\n')
+    cat('Layers                  :' , img_dim[3], '\n')
+    cat('Estimated max intensity :', object@max_intensity, '\n')
+    cat('Estimated min intensity :', object@min_intensity, '\n')
+    if(object@is_int == TRUE) cat('Values                  : integers\n')
+    if(object@is_int == FALSE) cat('Values                  : floating point\n')
+    cat(paste0('File path               : \'', object@file_path, '\'\n'))
 
   }
 )
@@ -2531,7 +2526,10 @@ show_prov = function(object) {
   if(!is.null(object@provenance)) cat('provenance:', object@provenance, '\n')
 }
 
-
+#' @noRd
+show_ext = function(object) {
+  paste0(paste0(ext(object)[], collapse = (', ')), ' (xmin, xmax, ymin, ymax)\n')
+}
 
 
 
