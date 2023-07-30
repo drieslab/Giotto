@@ -11,7 +11,7 @@
 - New function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
 - New function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
 - New function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
-- New function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
+- New function `tessellate()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
 - New file `feature_set_enrichment.R`
 - New function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
 - New function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
