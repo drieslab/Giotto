@@ -423,13 +423,16 @@ removeGiottoEnvironment = function(mini_path = NULL, verbose = TRUE) {
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
 #' @description sets the python path
+#' @param python_path character. Full path to python executable
+#' @param verbose be verbose
 #' @keywords internal
-set_giotto_python_path = function(python_path = NULL) {
+set_giotto_python_path = function(python_path = NULL,
+                                  verbose = TRUE) {
 
   # If a path is provided by the user and it exists,
-  # direct reticulate to said execuatable and exit immediately
+  # direct reticulate to said executable and exit immediately
   if(!is.null(python_path) && file.exists(python_path)) {
-    message('\n external python path provided and will be used \n')
+    if(verbose) wrap_msg('\n external python path provided and will be used \n')
     python_path = as.character(python_path)
     reticulate::use_python(required = T, python = python_path)
     return (python_path)
@@ -454,13 +457,13 @@ set_giotto_python_path = function(python_path = NULL) {
 
   if(giotto_environment_installed == TRUE) {
 
-    wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
+    if(verbose) wrap_msg('\n no external python path was provided, but a giotto python environment was found and will be used \n')
     #python_path = return_giotto_environment_path_executable()
     reticulate::use_python(required = T, python = python_path)
 
   } else {
 
-    wrap_msg('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
+    if(verbose) wrap_msg('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
 
     if(.Platform[['OS.type']] == 'unix') {
       python_path = try(system('which python3', intern = T))
@@ -474,7 +477,7 @@ set_giotto_python_path = function(python_path = NULL) {
     } else {
       python_path = python_path
       reticulate::use_python(required = T, python = python_path)
-      wrap_msg('\n A default python path was found: ', python_path, ' and will be used\n')
+      if(verbose) wrap_msg('\n A default python path was found: ', python_path, ' and will be used\n')
     }
 
     wrap_msg('\n If this is not the correct python path, either')
