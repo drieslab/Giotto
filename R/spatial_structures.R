@@ -505,10 +505,10 @@ createSpatialWeightMatrix = function(gobject,
 
   method = match.arg(method, choices = c('distance', 'adjacency'))
 
-  sn = get_spatialNetwork(gobject = gobject,
-                          spat_unit = spat_unit,
-                          name = spatial_network_to_use,
-                          output = 'spatialNetworkObj')
+  sn = getSpatialNetwork(gobject = gobject,
+                         spat_unit = spat_unit,
+                         name = spatial_network_to_use,
+                         output = 'spatialNetworkObj')
   if(is.null(sn)) stop('Specified spatial network not found')
 
   # 2. calculate weights
