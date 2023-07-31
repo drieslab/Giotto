@@ -1968,10 +1968,10 @@ evaluate_autocor_input = function(gobject,
   # End output is weight_matrix
   if(isTRUE(use_sn)) {
     #SPATNET=================================================================#
-    sn = get_spatialNetwork(gobject = gobject,
-                            spat_unit = spat_unit,
-                            name = spatial_network_to_use,
-                            output = 'spatialNetworkObj')
+    sn = getSpatialNetwork(gobject = gobject,
+                           spat_unit = spat_unit,
+                           name = spatial_network_to_use,
+                           output = 'spatialNetworkObj')
     weight_matrix = slot(sn, 'misc')$weight_matrix[[wm_name]]
 
     # if no weight_matrix already generated...
