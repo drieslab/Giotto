@@ -3019,7 +3019,7 @@ spatQueryGiottoPolygons = function(gobject,
   guard_against_notgiotto(gobject)
   if(!is.null(name)) checkmate::assert_character(name)
   checkmate::assert_list(filters, types = 'character')
-  if(length(filters < 2)) stop(wrap_txt('At least two elements in filters are needed.'))
+  if(!length(filters <= 2)) stop(wrap_txt('At least two elements in filters are needed.'))
 
   if(isTRUE(clip) & is.null(name)) {
     stop(wrap_txt('If clip is true, a value to \'name\' param should be provided.'))
@@ -3071,7 +3071,7 @@ spatQueryGiottoPolygons = function(gobject,
     sv1 = terra::intersect(sv1,sv2)
   }
 
-  names(sv1) = c('poly_ID', rev(spat_unit)[2:length(spat_units)])
+  names(sv1) = c('poly_ID', rev(spat_units)[2:length(spat_units)])
   poly = giottoPolygon(spatVector = sv1,
                        name = name,
                        unique_ID_cache = unique(sv1$poly_ID))
