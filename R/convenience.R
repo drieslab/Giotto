@@ -1723,7 +1723,6 @@ read_xenium_folder = function(xenium_dir,
   agg_expr_path = NULL
   if(isTRUE(h5_expression)) { # h5 expression matrix loading is default
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'h5', dir_items$`cell feature matrix`)]
-    h5_gene_ids = match.arg(arg = h5_gene_ids, choices = c('symbols', 'ensembl'))
   } else if(load_format == 'zarr') {
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'zarr', dir_items$`cell feature matrix`)]
   } else { # No parquet for aggregated expression - default to normal 10x loading

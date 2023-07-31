@@ -1217,7 +1217,8 @@ loadGiotto = function(path_to_folder,
 
 
   ## 5. Update python path
-  identified_python_path = set_giotto_python_path(python_path = python_path)
+  identified_python_path = set_giotto_python_path(python_path = python_path,
+                                                  verbose = verbose)
   gobject = changeGiottoInstructions(gobject = gobject,
                                      params = c('python_path'),
                                      new_values = c(identified_python_path))
