@@ -1397,7 +1397,8 @@ createGiottoXeniumObject_subcellular = function(data_list,
   # generate centroids
   if(isTRUE(verbose)) message('Calculating polygon centroids...')
   xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
-                                               poly_info = c(names(bound_dt_list)))
+                                               poly_info = c(names(bound_dt_list)),
+                                               provenance = as.list(names(bound_dt_list)))
 
   # add in feature metadata
   # xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
