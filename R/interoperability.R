@@ -1762,7 +1762,7 @@ spatialExperimentToGiotto <- function(spe,
   spatialLocs <- SpatialExperiment::spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
     if(verbose) message("Copying spatial locations")
-    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
+    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = colnames(spe))
     spatLocsObj <- Giotto:::create_spat_locs_obj(name = "spatLocs", coordinates = spatialLocsDT)
     giottoObj <- set_spatial_locations(gobject = giottoObj, spatlocs = spatLocsObj)
   }
