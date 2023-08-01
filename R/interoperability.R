@@ -1807,9 +1807,10 @@ spatialExperimentToGiotto <- function(spe,
     if(nn_network %in% names(networks)){
       for(i in seq(nn_network)){
         if(verbose) message("Copying nearest neighbour networks")
+        nnNetObj <- Giotto:::create_nn_net_obj(name = nn_network[i], 
+                                               igraph = networks[[nn_network[i]]])
         giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                        nn_network = networks[[nn_network[i]]],
-                                        network_name = nn_network[i])
+                                        nn_network = nnNetObj)
         networks[[nn_network[i]]] <- NULL
       }
     }
@@ -1819,9 +1820,10 @@ spatialExperimentToGiotto <- function(spe,
   if(length(networks) > 0){
     for(i in seq(networks)){
       if(verbose) message("Copying additional networks")
+      nnNetObj <- Giotto:::create_nn_net_obj(name = names(networks)[i], 
+                                             igraph = networks[[i]])
       giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                      nn_network = networks[[i]],
-                                      network_name = names(networks)[i])
+                                      nn_network = nnNetObj)
     }
   }
 
