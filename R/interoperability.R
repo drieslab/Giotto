@@ -1724,7 +1724,8 @@ spatialExperimentToGiotto <- function(spe,
   if(length(exprMats) > 0){
     for(i in seq(exprMats)){
       if(verbose) message("Copying expression matrix: ", exprMatsNames[i])
-      giottoObj <- set_expression_values(gobject = giottoObj, name = exprMatsNames[i], values = exprMats[[i]])
+      exprObj <- create_expr_obj(name = exprMatsNames[i], exprMat = exprMats[[i]])
+      giottoObj <- set_expression_values(gobject = giottoObj, values = exprObj)
     }
   }
 
