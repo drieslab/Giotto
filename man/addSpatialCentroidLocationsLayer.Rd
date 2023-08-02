@@ -10,7 +10,6 @@ addSpatialCentroidLocationsLayer(
   feat_type = NULL,
   provenance = poly_info,
   spat_loc_name = "raw",
-  init_metadata = TRUE,
   return_gobject = TRUE
 )
 }
@@ -25,9 +24,6 @@ addSpatialCentroidLocationsLayer(
 not provided, provenance will default to \code{poly_info}}
 
 \item{spat_loc_name}{name to give to the created spatial locations}
-
-\item{init_metadata}{initialize cell and feature metadata for this spatial unit
-(default = TRUE, but should be turned off if generated earlier in the workflow)}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 }

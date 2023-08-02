@@ -3552,7 +3552,6 @@ aggregateStacks = function(gobject,
                                         poly_info = new_spat_unit,
                                         provenance = spat_units,
                                         spat_loc_name = 'raw',
-                                        init_metadata = FALSE, # already done in aggregate expression
                                         return_gobject = TRUE)
 
   if(isTRUE(verbose)) {
