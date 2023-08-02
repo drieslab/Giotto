@@ -1,6 +1,6 @@
 
 
-# Giotto Suite 3.3.1 (Release TBD)
+# Giotto Suite 3.3.1 (2023-08-02)
 
 ## Breaking Changes
 - Change `checkGiottoEnvironment()`. Downgrade from error to message and return FALSE when a provided directory does not exist
