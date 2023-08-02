@@ -1724,7 +1724,8 @@ spatialExperimentToGiotto <- function(spe,
   if(length(exprMats) > 0){
     for(i in seq(exprMats)){
       if(verbose) message("Copying expression matrix: ", exprMatsNames[i])
-      giottoObj <- set_expression_values(gobject = giottoObj, name = exprMatsNames[i], values = exprMats[[i]])
+      exprObj <- create_expr_obj(name = exprMatsNames[i], exprMat = exprMats[[i]])
+      giottoObj <- set_expression_values(gobject = giottoObj, values = exprObj)
     }
   }
 
@@ -1761,7 +1762,7 @@ spatialExperimentToGiotto <- function(spe,
   spatialLocs <- SpatialExperiment::spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
     if(verbose) message("Copying spatial locations")
-    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = rownames(spatialLocs))
+    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = colnames(spe))
     spatLocsObj <- Giotto:::create_spat_locs_obj(name = "spatLocs", coordinates = spatialLocsDT)
     giottoObj <- set_spatial_locations(gobject = giottoObj, spatlocs = spatLocsObj)
   }
@@ -1806,9 +1807,10 @@ spatialExperimentToGiotto <- function(spe,
     if(nn_network %in% names(networks)){
       for(i in seq(nn_network)){
         if(verbose) message("Copying nearest neighbour networks")
+        nnNetObj <- Giotto:::create_nn_net_obj(name = nn_network[i], 
+                                               igraph = networks[[nn_network[i]]])
         giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                        nn_network = networks[[nn_network[i]]],
-                                        network_name = nn_network[i])
+                                        nn_network = nnNetObj)
         networks[[nn_network[i]]] <- NULL
       }
     }
@@ -1818,9 +1820,10 @@ spatialExperimentToGiotto <- function(spe,
   if(length(networks) > 0){
     for(i in seq(networks)){
       if(verbose) message("Copying additional networks")
+      nnNetObj <- Giotto:::create_nn_net_obj(name = names(networks)[i], 
+                                             igraph = networks[[i]])
       giottoObj <- set_NearestNetwork(gobject = giottoObj,
-                                      nn_network = networks[[i]],
-                                      network_name = names(networks)[i])
+                                      nn_network = nnNetObj)
     }
   }
 
