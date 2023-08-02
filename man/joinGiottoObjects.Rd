@@ -13,7 +13,7 @@ joinGiottoObjects(
   y_shift = NULL,
   x_padding = NULL,
   y_padding = NULL,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

@@ -4,7 +4,14 @@
 \alias{readExprMatrix}
 \title{Read expression matrix}
 \usage{
-readExprMatrix(path, cores = determine_cores(), transpose = FALSE)
+readExprMatrix(
+  path,
+  cores = determine_cores(),
+  transpose = FALSE,
+  feat_type = "rna",
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix", "rhdf5"),
+  h5_file = NULL
+)
 }
 \arguments{
 \item{path}{path to the expression matrix}

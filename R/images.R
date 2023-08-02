@@ -18,7 +18,8 @@
 #' @param image_transformations vector of sequential image transformations
 #' @param negative_y Map image to negative y spatial values if TRUE during automatic
 #'   alignment. Meaning that origin is in upper left instead of lower left.
-#' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
+#' @param do_manual_adj (default = FALSE) flag to use manual adj values instead
+#' of automatic alignment when given a gobject or spatlocs
 #' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjustment of the maximum or maximum x or y-value to align the image
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @param x_shift,y_shift shift image along x or y axes
@@ -802,7 +803,7 @@ addGiottoImageMG = function(gobject,
     if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
 
     if((length(scale_factor) == length(images)) || length(scale_factor) == 1) {
-      cat('scale_factor(s) external to giottoImage have been given and will be used')
+      #cat('scale_factor(s) external to giottoImage have been given and will be used')
       ext_scale_factor = TRUE
     } else {
       stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are images are provided')
@@ -1493,6 +1494,19 @@ cropGiottoLargeImage = function(gobject = NULL,
 #' @param asRGB (optional) [boolean] force RGB plotting if not automatically detected
 #' @param stretch character. Option to stretch the values to increase contrast: "lin"
 #' linear or "hist" (histogram)
+#' @param axes boolean. Default = TRUE. Whether to draw axes
+#' @param smooth boolean. default = TRUE. whether to apply smoothing on the image
+#' @param mar plot margins default = c(3,5,1.5,1)
+#' @param legend whether to plot legend of color scale (grayscale only).
+#' default = FALSE
+#' @param maxcell positive integer. Maximum number of image cells to use for the plot
+#' @param col character. Colors for single channel images. The default is
+#' grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1). It can also be a
+#' data.frame with two columns (value, color) to get a "classes" type legend or with
+#' three columns (from, to, color) to get an "interval" type legend
+#' @param asp numeric. (default = 1) specific aspect ratio to use
+#' @param ... additional params to pass to terra::plot or terra::plotRGB depending
+#' depending on image type
 #' @return plot
 #' @keywords internal
 plot_giottoLargeImage = function(gobject = NULL,
@@ -1505,7 +1519,15 @@ plot_giottoLargeImage = function(gobject = NULL,
                                  ymin_crop = NULL,
                                  max_intensity = NULL,
                                  asRGB = FALSE,
-                                 stretch = NULL) {
+                                 stretch = NULL,
+                                 axes = TRUE,
+                                 smooth = TRUE,
+                                 mar = c(3,5,1.5,1),
+                                 legend = FALSE,
+                                 maxcell = 5e5,
+                                 col = grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1),
+                                 asp = 1,
+                                 ...) {
 
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
@@ -1520,7 +1542,7 @@ plot_giottoLargeImage = function(gobject = NULL,
   raster_object = giottoLargeImage@raster_object
 
   # plot
-  if(isTRUE(asRGB) | terra::has.RGB(raster_object) | terra::nlyr(raster_object) == 3) {
+  if(isTRUE(asRGB) | terra::has.RGB(raster_object) | terra::nlyr(raster_object) >= 3) {
     # Determine likely image bitdepth
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
@@ -1529,22 +1551,27 @@ plot_giottoLargeImage = function(gobject = NULL,
     }
 
     terra::plotRGB(raster_object,
-                   axes = TRUE,
+                   axes = axes,
                    r = 1,g = 2,b = 3,
                    scale = max_intensity,
                    stretch = stretch,
-                   smooth = TRUE,
-                   mar = c(3,5,1.5,1),
-                   asp = 1)
+                   smooth = smooth,
+                   mar = mar,
+                   maxcell = maxcell,
+                   asp = asp,
+                   ...)
   } else {
     if(is.null(stretch)) stretch = 'lin'
-    terra::plotRGB(raster_object,
-                   axes = TRUE,
-                   r = 1,g = 1,b = 1,
-                   stretch = stretch,
-                   smooth = TRUE,
-                   mar = c(3,5,1.5,1),
-                   asp = 1)
+    terra::plot(raster_object,
+                col = col,
+                axes = axes,
+                stretch = stretch,
+                smooth = smooth,
+                mar = mar,
+                maxcell = maxcell,
+                legend = legend,
+                asp = asp,
+                ...)
   }
 
 }
@@ -2073,7 +2100,7 @@ addGiottoLargeImage = function(gobject = NULL,
     if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
 
     if((length(scale_factor) == length(largeImages)) || length(scale_factor) == 1) {
-      cat('scale_factor(s) external to giottoImage have been given and will be used')
+      #cat('scale_factor(s) external to giottoImage have been given and will be used')
       ext_scale_factor = TRUE
     } else {
       stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are largeImages are provided')
@@ -2277,7 +2304,7 @@ plotGiottoImage = function(gobject = NULL,
   }
 
   # Select plotting function
-  cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
+  # cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
 
   if(image_type == 'image') {
     plot_giottoImage_MG(giottoImage = img_obj)

@@ -117,6 +117,338 @@ read_data_folder = function(spat_method = NULL,
 
 
 
+
+
+## Visium ####
+
+#' @title Create a giotto object from 10x visium data
+#' @name createGiottoVisiumObject
+#' @description Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
+#' @param visium_dir path to the 10X visium directory [required]
+#' @param expr_data raw or filtered data (see details)
+#' @param gene_column_index which column index to select (see details)
+#' @param h5_visium_path path to visium 10X .h5 file
+#' @param h5_gene_ids gene names as symbols (default) or ensemble gene ids
+#' @param h5_tissue_positions_path path to tissue locations (.csv file)
+#' @param h5_image_png_path path to tissue .png file (optional). Image autoscaling
+#' looks for matches in the filename for either 'hires' or 'lowres'
+#' @param h5_json_scalefactors_path path to .json scalefactors (optional)
+#' @param png_name select name of png to use (see details)
+#' @param do_manual_adj flag to use manual adj values instead of automatic image alignment
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param cores how many cores or threads to use to read data if paths are provided
+#' @param verbose be verbose
+#' @return giotto object
+#' @details
+#' If starting from a Visium 10X directory:
+#' \itemize{
+#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
+#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
+#'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
+#'   \item{the file scalefactors_json.json will be detected automaticated and used to attempt to align the data}
+#' }
+#'
+#' If starting from a Visium 10X .h5 file
+#' \itemize{
+#'   \item{h5_visium_path: full path to .h5 file: /your/path/to/visium_file.h5}
+#'   \item{h5_tissue_positions_path: full path to spatial locations file: /you/path/to/tissue_positions_list.csv}
+#'   \item{h5_image_png_path: full path to png: /your/path/to/images/tissue_lowres_image.png}
+#'   \item{h5_json_scalefactors_path: full path to .json file: /your/path/to/scalefactors_json.json}
+#' }
+#'
+#' @export
+createGiottoVisiumObject = function(visium_dir = NULL,
+                                    expr_data = c('raw', 'filter'),
+                                    gene_column_index = 1,
+                                    h5_visium_path = NULL,
+                                    h5_gene_ids = c('symbols', 'ensembl'),
+                                    h5_tissue_positions_path = NULL,
+                                    h5_image_png_path = NULL,
+                                    h5_json_scalefactors_path = NULL,
+                                    png_name = NULL,
+                                    do_manual_adj = FALSE,
+                                    xmax_adj = 0,
+                                    xmin_adj = 0,
+                                    ymax_adj = 0,
+                                    ymin_adj = 0,
+                                    instructions = NULL,
+                                    cores = NA,
+                                    verbose = TRUE) {
+
+  # data.table vars
+  barcode = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
+  if(!is.null(h5_visium_path)) {
+
+    if(verbose) wrap_msg("A path to an .h5 10X file was provided and will be used \n")
+
+    if(!file.exists(h5_visium_path)) stop("The provided path ", h5_visium_path, " does not exist \n")
+
+    # spatial locations
+    if(is.null(h5_tissue_positions_path)) stop("A path to the tissue positions (.csv) needs to be provided to h5_tissue_positions_path \n")
+    if(!file.exists(h5_tissue_positions_path)) stop("The provided path ", h5_tissue_positions_path, " does not exist \n")
+
+    # get matrix counts
+    h5_results = get10Xmatrix_h5(path_to_data = h5_visium_path, gene_ids = h5_gene_ids)
+    raw_matrix = h5_results[['Gene Expression']]
+
+    protein_exp_matrix = NULL
+    if ('Antibody Capture' %in% names(h5_results)){
+      protein_exp_matrix = h5_results[['Antibody Capture']]
+    }
+
+
+    # spatial locations
+    spatial_results = data.table::fread(h5_tissue_positions_path)
+    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
+    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+    colnames(spatial_locs) = c('sdimx', 'sdimy')
+
+    # image (optional)
+    if(!is.null(h5_image_png_path)) {
+
+      if(!file.exists(h5_image_png_path))
+        stop("The provided h5 image path ", h5_image_png_path,
+             " does not exist. Set to NULL to exclude or provide the correct path.\n")
+      png_name = basename(h5_image_png_path) # used for name pattern matching only
+
+      ## if auto alignment info is provided
+      check_h5_scalefactor = checkmate::check_file_exists(h5_json_scalefactors_path)
+      if(isTRUE(check_h5_scalefactor)) {
+        json_info = jsonlite::read_json(h5_json_scalefactors_path)
+        scale_factor = NA_real_ # initial value
+
+        # lowres auto #
+        if(grepl('lowres', png_name)) {
+          if(isTRUE(verbose) & !isTRUE(do_manual_adj)) {
+            wrap_msg('png and scalefactors paths are found and automatic alignment for the \'lowres\' image will be attempted\n\n')
+          }
+          scale_factor = json_info[['tissue_lowres_scalef']]
+        }
+
+        # hires auto #
+        if(grepl('hires', png_name)) {
+          if(isTRUE(verbose) & !isTRUE(do_manual_adj)) {
+            wrap_msg('png and scalefactors paths are found and automatic alignment for the \'hires\' image will be attempted\n\n')
+          }
+          scale_factor = json_info[['tissue_hires_scalef']]
+        }
+
+        # if no match, error
+        if(is.na(scale_factor)) {
+          stop(wrap_txt('\'h5_image_png_path\' filename did not partial match either \'lowres\' or \'hires\'.
+                        Ensure specified image is the Visium lowres or hires image and rename accordingly'))
+        }
+
+      } else {
+        # No auto align info given #
+        # Default to scalefactor of 1
+        warning(wrap_txt('No \'h5_json_scalefactors_path\' provided.
+                         Image scale_factor defaulting to 1'))
+        scale_factor = 1
+        do_manual_adj = FALSE
+      }
+
+      # create image
+      visium_png = createGiottoImage(gobject = NULL,
+                                     spatial_locs = spatial_locs,
+                                     mg_object = h5_image_png_path,
+                                     name = 'image',
+                                     scale_factor = scale_factor,
+                                     do_manual_adj = do_manual_adj,
+                                     xmax_adj = xmax_adj,
+                                     xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj,
+                                     ymin_adj = ymin_adj)
+
+      visium_png_list = list(visium_png)
+      names(visium_png_list) = c('image')
+    } else {
+      visium_png_list = NULL
+    }
+
+    # Create cell_ID column for metadata
+    cell_ID = NULL
+    colnames(spatial_results)[colnames(spatial_results) == "barcode"] = "cell_ID"
+
+    # create Giotto object
+    giotto_object = createGiottoObject(expression = raw_matrix,
+                                       expression_feat = 'rna',
+                                       spatial_locs = spatial_locs,
+                                       instructions = instructions,
+                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
+                                       images = visium_png_list)
+
+
+    if(!is.null(protein_exp_matrix)){
+      protein_expr_obj = createExprObj(protein_exp_matrix,
+                                       name = "raw",
+                                       spat_unit = "cell",
+                                       feat_type = "protein",
+                                       provenance = "cell")
+      giotto_object = set_expression_values(giotto_object,
+                                            protein_expr_obj,
+                                            name = "raw",
+                                            spat_unit = "cell",
+                                            feat_type = "protein",
+                                            provenance = "cell",
+                                            set_defaults = FALSE,
+                                            verbose = verbose)
+      giotto_object = set_feat_id(giotto_object,
+                                  feat_type = "protein",
+                                  feat_IDs = rownames(protein_expr_obj),
+                                  set_defaults = FALSE,
+                                  verbose = verbose)
+    }
+
+
+  } else {
+
+    if(verbose) message("A structured visium directory will be used \n")
+
+    ## check arguments
+    if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
+    visium_dir = path.expand(visium_dir)
+    if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
+    expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
+
+    # set number of cores automatically, but with limit of 10
+    cores = determine_cores(cores)
+    data.table::setDTthreads(threads = cores)
+
+    ## matrix
+    if(expr_data == 'raw') {
+      data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
+      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+    } else if(expr_data == 'filter') {
+      data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
+      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+    }
+
+    ## spatial locations and image
+    spatial_path = paste0(visium_dir, '/', 'spatial/')
+    # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+    spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
+    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+
+
+    if(is.list(raw_matrix)) {
+      spatial_results = spatial_results[match(colnames(raw_matrix[[1]]), barcode)]
+    } else{
+      spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
+    }
+
+    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+    colnames(spatial_locs) = c('sdimx', 'sdimy')
+
+    ## spatial image
+    if(is.null(png_name)) {
+      png_list = list.files(spatial_path, pattern = "*.png")
+      png_name = png_list[1]
+    }
+    png_path = paste0(spatial_path,'/',png_name)
+    if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
+
+
+
+
+
+    if(png_name == 'tissue_lowres_image.png') {
+
+      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
+
+      if(file.exists(scalefactors_path)) {
+        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
+
+        json_info = jsonlite::read_json(scalefactors_path)
+        scale_factor = json_info[['tissue_lowres_scalef']]
+
+        visium_png = createGiottoImage(gobject = NULL,
+                                       spatial_locs = spatial_locs,
+                                       mg_object = png_path,
+                                       name = 'image',
+                                       scale_factor = scale_factor,
+                                       do_manual_adj = do_manual_adj,
+                                       xmax_adj = xmax_adj,
+                                       xmin_adj = xmin_adj,
+                                       ymax_adj = ymax_adj,
+                                       ymin_adj = ymin_adj)
+
+      }
+    } else if(png_name == 'tissue_hires_image.png') {
+
+      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
+
+      if(file.exists(scalefactors_path)) {
+        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
+
+        json_info = jsonlite::read_json(scalefactors_path)
+        scale_factor = json_info[['tissue_hires_scalef']]
+
+        visium_png = createGiottoImage(gobject = NULL,
+                                       spatial_locs = spatial_locs,
+                                       mg_object = png_path,
+                                       name = 'image',
+                                       scale_factor = scale_factor,
+                                       do_manual_adj = do_manual_adj,
+                                       xmax_adj = xmax_adj,
+                                       xmin_adj = xmin_adj,
+                                       ymax_adj = ymax_adj,
+                                       ymin_adj = ymin_adj)
+
+      }
+    } else {
+      visium_png = createGiottoImage(gobject = NULL,
+                                     spatial_locs =  spatial_locs,
+                                     mg_object = png_path,
+                                     name = 'image',
+                                     xmax_adj = xmax_adj,
+                                     xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj,
+                                     ymin_adj = ymin_adj)
+    }
+
+    visium_png_list = list(visium_png)
+    names(visium_png_list) = c('image')
+
+    cell_metadata = spatial_results[,.(barcode, in_tissue, array_row, array_col)]
+    data.table::setnames(cell_metadata, 'barcode', 'cell_ID')
+
+    if(is.list(raw_matrix)) {
+      giotto_object = createGiottoObject(expression = list(raw = raw_matrix[[1]],
+                                                           raw = raw_matrix[[2]]),
+                                         expression_feat = c('rna', 'protein'),
+                                         spatial_locs = spatial_locs,
+                                         instructions = instructions,
+                                         cell_metadata = list('cell' = list('rna' = cell_metadata,
+                                                                            'protein' = cell_metadata)),
+                                         images = visium_png_list)
+    } else {
+      giotto_object = createGiottoObject(expression = raw_matrix,
+                                         expression_feat = 'rna',
+                                         spatial_locs = spatial_locs,
+                                         instructions = instructions,
+                                         cell_metadata = list('cell' = list('rna' = cell_metadata)),
+                                         images = visium_png_list)
+    }
+
+  }
+
+  return(giotto_object)
+}
+
+
+
+
+
+
+
+
 ## MERSCOPE ####
 
 #' @title Create Vizgen MERSCOPE Giotto Object
@@ -304,12 +636,38 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 
 
 
+## Spatial Genomics ####
 
-
-
-
-
-
+#' @title Create Spatial Genomics Giotto Object
+#' @name createSpatialGenomicsObject
+#' @param sg_dir full path to the exported Spatial Genomics directory
+#' @param instructions new instructions (e.g. result from createGiottoInstructions)
+#' @description Given the path to a Spatial Genomics data directory, creates a 
+#' Giotto object.
+#' @export
+createSpatialGenomicsObject <- function(sg_dir = NULL,
+                                        instructions = NULL) {
+  # Find files in Spatial Genomics directory
+  dapi = list.files(sg_dir, full.names = TRUE, pattern = 'DAPI')
+  mask = list.files(sg_dir, full.names = TRUE, pattern = 'mask')
+  tx = list.files(sg_dir, full.names = TRUE, pattern = 'transcript')
+  # Create Polygons
+  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F, 
+                                       shift_horizontal_step = F, 
+                                       flip_horizontal = F, flip_vertical = F)
+  # Create Points
+  tx = data.table::fread(tx)
+  gpoints = createGiottoPoints(tx)
+  dim(tx)
+  # Create object and add image
+  gimg = createGiottoLargeImage(dapi, use_rast_ext = TRUE)
+  sg = createGiottoObjectSubcellular(gpoints = list('rna' = gpoints),
+                                     gpolygons = list('cell' = gpoly),
+                                     instructions = intructions)
+  sg = addGiottoLargeImage(sg, largeImages = list(image = gimg))
+  # Return SG object
+  return(sg)
+}
 
 
 
@@ -557,10 +915,12 @@ createGiottoCosMxObject_subcellular = function(dir_items,
 
 
     # create and add giotto image objects
-    if(isTRUE(verbose)) message('Attaching image files...')
-    print(composite_dir)
-    print(cellOverlay_dir)
-    print(compartmentLabel_dir)
+    if(isTRUE(verbose)) {
+      message('Attaching image files...')
+      print(composite_dir)
+      print(cellOverlay_dir)
+      print(compartmentLabel_dir)
+    }
 
     gImage_list = list()
 
@@ -699,7 +1059,8 @@ createGiottoCosMxObject_all = function(dir_items,
                                        remove_unvalid_polygons = TRUE,
                                        cores,
                                        verbose = TRUE,
-                                       instructions = NULL) {
+                                       instructions = NULL,
+                                       ...) {
 
   # 1. create subcellular giotto as spat_unit 'cell'
   cosmx_gobject = createGiottoCosMxObject_subcellular(dir_items = dir_items,
@@ -1023,9 +1384,11 @@ createGiottoXeniumObject_subcellular = function(data_list,
   tx_dt_filtered = tx_dt[qv >= qv_threshold]
   n_after = tx_dt_filtered[,.N]
 
-  cat('Number of feature points removed: ',
-      n_before - n_after,
-      ' out of ', n_before, '\n')
+  if(verbose) {
+    cat('Number of feature points removed: ',
+        n_before - n_after,
+        ' out of ', n_before, '\n')
+  }
 
   if(isTRUE(verbose)) message('> splitting detections by feat_type')
   # discover feat_IDs for each feat_type
@@ -1060,7 +1423,8 @@ createGiottoXeniumObject_subcellular = function(data_list,
   # generate centroids
   if(isTRUE(verbose)) message('Calculating polygon centroids...')
   xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
-                                               poly_info = c(names(bound_dt_list)))
+                                               poly_info = c(names(bound_dt_list)),
+                                               provenance = as.list(names(bound_dt_list)))
 
   # add in feature metadata
   # xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
@@ -1360,7 +1724,6 @@ read_xenium_folder = function(xenium_dir,
   agg_expr_path = NULL
   if(isTRUE(h5_expression)) { # h5 expression matrix loading is default
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'h5', dir_items$`cell feature matrix`)]
-    h5_gene_ids = match.arg(arg = h5_gene_ids, choices = c('symbols', 'ensembl'))
   } else if(load_format == 'zarr') {
     agg_expr_path = dir_items$`cell feature matrix`[grepl(pattern = 'zarr', dir_items$`cell feature matrix`)]
   } else { # No parquet for aggregated expression - default to normal 10x loading
@@ -1449,7 +1812,7 @@ load_merscope_folder = function(dir_items,
 
     img_list = lapply_flex(bound_stains_types, function(stype) {
       img_paths = Sys.glob(paths = file.path(dir_items$`image info`, paste0('*',stype,'*')))
-      # print(img_paths)
+
       lapply_flex(img_paths, function(img) {
         createGiottoLargeImage(raster_object = img)
       }, cores = cores)
@@ -1914,3 +2277,191 @@ load_xenium_folder_parquet = function(path_list,
   return(data_list)
 
 }
+
+
+## ArchR ####
+
+#' Create an ArchR project and run LSI dimension reduction
+#'
+#' @param fragmentsPath A character vector containing the paths to the input
+#' files to use to generate the ArrowFiles.
+#' These files can be in one of the following formats: (i) scATAC tabix files,
+#' (ii) fragment files, or (iii) bam files.
+#' @param genome A string indicating the default genome to be used for all ArchR
+#' functions. Currently supported values include "hg19","hg38","mm9", and "mm10".
+#' This value is stored as a global environment variable, not part of the ArchRProject.
+#' This can be overwritten on a per-function basis using the given function's
+#' geneAnnotationand genomeAnnotation parameter. For something other than one of
+#' the currently supported, see createGeneAnnnotation() and createGenomeAnnnotation()
+#' @param createArrowFiles_params list of parameters passed to `ArchR::createArrowFiles`
+#' @param ArchRProject_params list of parameters passed to `ArchR::ArchRProject`
+#' @param addIterativeLSI_params list of parameters passed to `ArchR::addIterativeLSI`
+#' @param threads number of threads to use. Default = `ArchR::getArchRThreads()`
+#' @param force Default = FALSE
+#' @param verbose Default = TRUE
+#'
+#' @return An ArchR project with GeneScoreMatrix, TileMatrix, and TileMatrix-based LSI
+#' @export
+#'
+createArchRProj <- function(fragmentsPath,
+                            genome = c('hg19', 'hg38', 'mm9', 'mm10'),
+                            createArrowFiles_params = list(sampleNames = 'sample1',
+                                                           minTSS = 0,
+                                                           minFrags = 0,
+                                                           maxFrags = 1e+07,
+                                                           minFragSize = 10,
+                                                           maxFragSize = 2000,
+                                                           offsetPlus = 0,
+                                                           offsetMinus = 0,
+                                                           TileMatParams = list(tileSize = 5000)),
+                            ArchRProject_params = list(outputDirectory = getwd(),
+                                                       copyArrows = FALSE),
+                            addIterativeLSI_params = list(),
+                            threads = getArchRThreads(),
+                            force = FALSE,
+                            verbose = TRUE) {
+
+  if(!requireNamespace('ArchR')) {
+    wrap_msg('ArchR is needed. Install the package using remotes::install_github("GreenleafLab/ArchR")')
+  } else {require(ArchR)}
+
+  ## Add reference genome
+  wrap_msg('Loading reference genome')
+  ArchR::addArchRGenome(genome)
+
+  # Creating Arrow Files
+  wrap_msg('Creating Arrow files')
+  ArrowFiles <- do.call(ArchR::createArrowFiles,
+                        c(inputFiles = fragmentsPath,
+                          verbose = verbose,
+                          force = force,
+                          createArrowFiles_params)
+  )
+
+  # Creating an ArchRProject
+  wrap_msg('Creating ArchRProject')
+  proj <- do.call(ArchR::ArchRProject,
+                  c(list(ArrowFiles = ArrowFiles),
+                    threads = threads,
+                    ArchRProject_params)
+  )
+
+  # Data normalization and dimensionality reduction
+  wrap_msg('Running dimension reduction')
+  proj <- do.call(ArchR::addIterativeLSI,
+                  c(ArchRProj = proj,
+                    verbose = verbose,
+                    name = "IterativeLSI",
+                    threads = threads,
+                    force = force,
+                    addIterativeLSI_params)
+  )
+}
+
+#' Create a Giotto object from an ArchR project
+#'
+#' @param archRproj ArchR project
+#' @param expression expression information
+#' @param expression_feat Giotto object available features (e.g. atac, rna, ...)
+#' @param spatial_locs data.table or data.frame with coordinates for cell centroids
+#' @param sampleNames A character vector containing the ArchR project sample name
+#' @param ... additional arguments passed to `createGiottoObject`
+#'
+#' @return A Giotto object with at least an atac or epigenetic modality
+#'
+#' @export
+#'
+createGiottoObjectfromArchR <- function(archRproj,
+                                        expression = NULL,
+                                        expression_feat = 'atac',
+                                        spatial_locs = NULL,
+                                        sampleNames = 'sample1',
+                                        ...) {
+  # extract GeneScoreMatrix
+  GeneScoreMatrix_summarizedExperiment = ArchR::getMatrixFromProject(archRproj)
+  GeneScoreMatrix = slot(slot(GeneScoreMatrix_summarizedExperiment, 'assays'), 'data')[['GeneScoreMatrix']]
+
+  ## get cell names
+  cell_names = colnames(GeneScoreMatrix)
+  cell_names = gsub(paste0(sampleNames,'#'),'',cell_names)
+  cell_names = gsub('-1','',cell_names)
+
+  ## get gene names
+  gene_names = slot(GeneScoreMatrix_summarizedExperiment,'elementMetadata')[['name']]
+
+  ## replace colnames with cell names
+  colnames(GeneScoreMatrix) = cell_names
+
+  ## replace rownames with gene names
+  rownames(GeneScoreMatrix) = gene_names
+
+
+  if(!is.null(expression)) {
+    expression_matrix = data.table::fread(expression)
+
+    expression_cell_names = colnames(expression_matrix)
+    cell_names = intersect(cell_names, expression_cell_names)
+
+    expression_matrix = Matrix::Matrix(as.matrix(expression_matrix[,-1]),
+                                       dimnames = list(expression_matrix[[1]],
+                                                       colnames(expression_matrix[,-1])),
+                                       sparse = T)
+
+    expression = expression_matrix[, cell_names]
+
+    GeneScoreMatrix = GeneScoreMatrix[, cell_names]
+  }
+
+
+  ## filter spatial locations
+  if(!is.null(spatial_locs)) {
+    x = read.csv(spatial_locs)
+    x = x[x$cell_ID %in% cell_names,]
+    spatial_locs = x
+  }
+
+  # Creating GiottoObject
+  wrap_msg('Creating GiottoObject')
+
+  if(!is.null(expression)) {
+    gobject <- createGiottoObject(expression = list(GeneScoreMatrix = GeneScoreMatrix,
+                                                    raw = expression),
+                                  expression_feat = expression_feat,
+                                  spatial_locs = spatial_locs,
+                                  ...)
+  } else {
+    gobject <- createGiottoObject(expression = list(GeneScoreMatrix = GeneScoreMatrix),
+                                  expression_feat = expression_feat,
+                                  spatial_locs = spatial_locs,
+                                  ...)
+  }
+
+  # add LSI dimension reduction
+  coordinates = slot(archRproj,'reducedDims')[['IterativeLSI']][['matSVD']]
+
+  ## clean cell names
+  lsi_cell_names = rownames(coordinates)
+  lsi_cell_names = gsub(paste0(sampleNames,'#'),'',lsi_cell_names)
+  lsi_cell_names = gsub('-1','',lsi_cell_names)
+
+  rownames(coordinates) = lsi_cell_names
+
+  coordinates = coordinates[cell_names,]
+
+  dimension_reduction = Giotto::createDimObj(coordinates = coordinates,
+                                             name = 'lsi',
+                                             spat_unit = 'cell',
+                                             feat_type = expression_feat[1],
+                                             method = 'lsi')
+  gobject <- setDimReduction(gobject,
+                             dimension_reduction,
+                             spat_unit = 'cell',
+                             feat_type = expression_feat[1],
+                             name = 'lsi',
+                             reduction_method = 'lsi')
+
+  return(gobject)
+}
+
+
+

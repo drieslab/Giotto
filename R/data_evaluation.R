@@ -35,12 +35,18 @@
 #' @noRd
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
-                                cores = determine_cores()) {
+                                cores = determine_cores(),
+                                feat_type = 'rna',
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                                h5_file = NULL) {
 
 
   if(inherits(inputmatrix, 'character')) {
     inputmatrix = path.expand(inputmatrix)
-    mymatrix = readExprMatrix(inputmatrix, cores = cores)
+    mymatrix = readExprMatrix(inputmatrix, cores = cores,
+                              expression_matrix_class = expression_matrix_class,
+                              feat_type = feat_type,
+                              h5_file = h5_file)
   } else if(inherits(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
   } else if(inherits(inputmatrix, 'DelayedMatrix')) {
@@ -60,11 +66,11 @@ evaluate_expr_matrix = function(inputmatrix,
 
   } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
 
-    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
+    mymatrix = methods::as(as.matrix(inputmatrix), 'sparseMatrix')
 
   } else if(inherits(inputmatrix, 'exprObj')) {
 
-    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores)
+    inputmatrix[] = evaluate_expr_matrix(inputmatrix[], sparse = sparse, cores = cores, expression_matrix_class = expression_matrix_class)
     mymatrix = inputmatrix
 
   }
@@ -114,7 +120,7 @@ evaluate_cell_metadata = function(metadata,
     metadata = path.expand(metadata)
     if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
                                              errWidth = TRUE))
-    metadata = data::fread(input = metadata, nThread = cores)
+    metadata = data.table::fread(input = metadata, nThread = cores)
   } else {
     metadata = tryCatch(
       data.table::setDT(metadata),
@@ -175,7 +181,7 @@ evaluate_feat_metadata = function(metadata,
     metadata = path.expand(metadata)
     if(!file.exists(metadata)) stop(wrap_txt('path to metadata does not exist',
                                              errWidth = TRUE))
-    metadata = data::fread(input = metadata, nThread = cores)
+    metadata = data.table::fread(input = metadata, nThread = cores)
   } else {
     metadata = tryCatch(
       data.table::setDT(metadata),

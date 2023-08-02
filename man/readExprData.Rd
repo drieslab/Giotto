@@ -10,7 +10,9 @@ readExprData(
   cores = determine_cores(),
   default_feat_type = NULL,
   verbose = TRUE,
-  provenance = NULL
+  provenance = NULL,
+  expression_matrix_class = c("dgCMatrix", "HDF5Matrix", "rhdf5"),
+  h5_file = NULL
 )
 }
 \arguments{

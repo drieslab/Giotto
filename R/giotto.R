@@ -36,7 +36,7 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      plot_count = 0,
                                      fiji_path = NULL) {
 
-  # pyton path to use
+  # python path to use
   if(is_docker){
     python_path = set_giotto_python_path(python_path = "/usr/bin/python3") # fixed in docker version
   }  else{
@@ -661,14 +661,7 @@ check_spatial_location_data = function(gobject) {
 
         spatial_cell_id_names = spatlocsDT[['cell_ID']]
 
-        # spatial_cell_id_names = sort(spatial_cell_id_names)
-        # expected_cell_ID_names = sort(expected_cell_ID_names)
-
         if(!setequal(spatial_cell_id_names, expected_cell_ID_names)) {
-          # message('spatloc cell_IDs: ')
-          # cat('  ', head(spatial_cell_id_names,3), '...', tail(spatial_cell_id_names,3), '\n')
-          # message('expression cell_IDs: ')
-          # cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
 
           stop('cell_IDs between spatial and expression information are not the same for: \n
                  spatial unit: ', spat_unit_i, ' and coordinates: ', coord_i, ' \n')
@@ -736,7 +729,7 @@ check_spatial_networks = function(gobject) {
                            'name:', su_sn$name[[obj_i]], '\n',
                            'Spatial network vertex names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_sn$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -786,7 +779,7 @@ check_spatial_enrichment = function(gobject) {
                            'name:', su_se$name[[obj_i]], '\n',
                            'Spatial enrichment IDs are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_se_name[[obj_i]])) # debug
+
       })
     }
   }
@@ -880,7 +873,7 @@ check_dimension_reduction = function(gobject) {
                            'name:', su_dr$name[[obj_i]], '\n',
                            'Dimension reduction coord names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_dr$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -933,7 +926,7 @@ check_nearest_networks = function(gobject) {
                            'name:', su_nn$name[[obj_i]], '\n',
                            'Nearest network vertex names are not all found in gobject IDs'))
         }
-        # print(paste(su_i, su_nn$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -983,7 +976,7 @@ check_spatial_info = function(gobject) {
                            'spatloc name:', su_sloc$name[[obj_i]], '\n',
                            'cell IDs in spatial locations are missing from spatial polygon info'))
         }
-        # print(paste(su_i, su_sloc$name[[obj_i]])) # debug
+
       })
     }
   }
@@ -1010,211 +1003,6 @@ check_feature_info = function(gobject) {
 
 
 
-#### Spatial manipulations ####
-
-#  TODO Following 3 functions need wrapper function for working with spatlocs and spat_info
-#  Additionally add way to refer to subsets of spatial locations by list_ID
-
-
-#' @title Scale spatial locations
-#' @name scale_spatial_locations
-#' @description Simple scaling of spatial locations by given \code{scale_factor}.
-#' Values will be scaled from the coordinate origin or coordinates provided through
-#' \code{scenter} param.
-#' @param spatlocs spatial locations information to scale
-#' @param scale_factor scaling factor to apply to coordinates.
-#' @param scenter center from which to scale spatial coordinates. Given as vector
-#' of xy(z) coordinates.
-#' @details \code{scale_factor} either given as a single value where it will be applied to
-#' x, y, and z (if available) dimensions or as a vector of named values for 'x',
-#' 'y', (and 'z').
-#' @keywords internal
-scale_spatial_locations = function(spatlocs,
-                                   scale_factor = c(x=1,y=1,z=1),
-                                   scenter = c(x=0,y=0,z=0)) {
-
-  hasZ = 'sdimz' %in% names(spatlocs)
-
-  if(length(scale_factor) == 1) scale_factor = c(x = scale_factor, y = scale_factor, z = scale_factor)
-  if(!all(names(scenter) %in% c('x','y','z'))) stop('scenter value names not recognized')
-  if(!all(names(scale_factor) %in% c('x','y','z'))) stop('scale_factor value names not recognized')
-
-  # Adjust for scaling center
-  spatlocs$sdimx = spatlocs$sdimx - scenter[['x']]
-  spatlocs$sdimy = spatlocs$sdimy - scenter[['y']]
-
-  # Perform scale
-  spatlocs$sdimx = spatlocs$sdimx*scale_factor[['x']]
-  spatlocs$sdimy = spatlocs$sdimy*scale_factor[['y']]
-
-  if(isTRUE(hasZ)) {
-    # Adjust for scaling z center
-    spatlocs$sdimz = spatlocs$sdimz - scenter[['z']]
-
-    # Perform z scale
-    spatlocs$sdimz = spatlocs$sdimx*scale_factor[['z']]
-
-    # Revert z scaling center adjustments
-    spatlocs$sdimz = spatlocs$sdimz + scenter[['z']]
-  }
-
-  # Revert scaling center adjustments
-  spatlocs$sdimx = spatlocs$sdimx + scenter[['x']]
-  spatlocs$sdimy = spatlocs$sdimy + scenter[['y']]
-
-  return(spatlocs)
-}
-
-
-# internal for deprecation
-xy_translate_spatial_locations = function(...) {
-  .Deprecated(new = 'shift_spatial_locations')
-
-  shift_spatial_locations(...)
-}
-
-
-#' @title Shift spatial locations
-#' @name shift_spatial_locations
-#' @description Shift given coordinates by given translation values
-#' @param spatlocs spatial locations to use
-#' @param dx value to shift coordinates in the positive x direction
-#' @param dy value to shift coordinates in the positive y direction
-#' @param dz value to shift coordinates in the positive z direction
-#' @param xtranslate deprecated. use dx
-#' @param ytranslate deprecated. use dy
-#' @param ztranslate deprecated. use dz
-#' @param copy_obj copy/duplicate object (default = TRUE)
-#' @keywords internal
-shift_spatial_locations = function(spatlocs,
-                                   dx = 0,
-                                   dy = 0,
-                                   dz = 0,
-                                   xtranslate = NULL,
-                                   ytranslate = NULL,
-                                   ztranslate = NULL,
-                                   copy_obj = TRUE) {
-  sdimx = sdimy = sdimz = NULL
-
-  if(!is.null(xtranslate)) {
-    warning(wrap_txt('xtranslate is deprecated. use dx'))
-    dx = xtranslate
-  }
-  if(!is.null(ytranslate)) {
-    warning(wrap_txt('ytranslate is deprecated. use dy'))
-    dy = ytranslate
-  }
-  if(!is.null(ztranslate)) {
-    warning(wrap_txt('ztranslate is deprecated. use dz'))
-    dz = ztranslate
-  }
-
-  spatlocs[, sdimx := sdimx + dx]
-  spatlocs[, sdimy := sdimy + dy]
-  if('sdimz' %in% names(spatlocs)) spatlocs[, sdimz := sdimz + dz]
-
-  return(spatlocs)
-}
-
-
-
-#' @title Rotate spatial locations
-#' @name rotate_spatial_locations
-#' @description Rotate given spatlocs by given radians
-#' @param spatlocs spatial locations to use
-#' @param rotateradians Named vector of radians for rotation along each of the 3 coordinate
-#' axes. If only a single value is provided, it will be treated as xy rotation.
-#' @param rcenter center of rotation given as vector xy(z) coordinates (defaults to coordinate center)
-#' @details Radians are provided through \code{rotateradians} param as a named vector
-#' with values for \code{xy} (yaw), \code{zy} (pitch), \code{xz} (roll)
-#' @keywords internal
-rotate_spatial_locations = function(spatlocs,
-                                    rotateradians = c(xy=0,zy=0,xz=0),
-                                    rcenter = c(x=0,y=0,z=0)) {
-
-  if(length(rotateradians) == 1) rotateradians = c(xy=rotateradians,zy=0,xz=0)
-  if(!all(names(rotateradians) %in% c('xy','zy','xz'))) stop('rotateradians value names not recognized')
-  if(!all(names(rcenter) %in% c('x','y','z'))) stop('rcenter value names not recognized')
-  hasZ = 'sdimz' %in% names(spatlocs)
-
-  # xy center of rotation adjustment
-  spatlocs$sdimx = spatlocs$sdimx - rcenter[['x']]
-  spatlocs$sdimy = spatlocs$sdimy - rcenter[['y']]
-
-  xvals = spatlocs$sdimx
-  yvals = spatlocs$sdimy
-
-  # Perform rotation XY
-  if(rotateradians[['xy']] != 0) {
-    spatlocs$sdimx = xvals*cos(rotateradians[['xy']]) + yvals*sin(rotateradians[['xy']])
-    spatlocs$sdimy = -xvals*sin(rotateradians[['xy']]) + yvals*cos(rotateradians[['xy']])
-  }
-
-  # if z values are available
-  if(isTRUE(hasZ)) {
-    # z center of rotation adjustment
-    spatlocs$sdimz = spatlocs$sdimz - rcenter[['z']]
-
-    zvals = spatlocs$sdimz
-
-    # Perform rotations
-    if(rotateradians[['zy']] != 0) {
-      spatlocs$sdimz = zvals*cos(rotateradians[['zy']]) + yvals*sin(rotateradians[['zy']])
-      spatlocs$sdimy = -zvals*sin(rotateradians[['zy']]) + yvals*cos(rotateradians[['zy']])
-    }
-
-    if(rotateradians[['xz']] != 0) {
-      spatlocs$sdimx = xvals*cos(rotateradians[['xz']]) + zvals*sin(rotateradians[['xz']])
-      spatlocs$sdimz = -xvals*sin(rotateradians[['xz']]) + zvals*cos(rotateradians[['xz']])
-    }
-
-    # Revert z center of rotation adjustment
-    spatlocs$sdimz = spatlocs$sdimz + rcenter[['z']]
-  }
-
-  # Revert xy center of rotation adjustment
-  spatlocs$sdimx = spatlocs$sdimx + rcenter[['x']]
-  spatlocs$sdimy = spatlocs$sdimy + rcenter[['y']]
-
-  return(spatlocs)
-}
-
-
-
-
-
-
-
-
-# See function spatShift in generics.R
-#' @name shift_spatial_network
-#' @title Shift spatial network
-#' @description Shift spatial network coordinates
-#' @param spatnet spatial network data.table
-#' @param dx distance to shift on x axis
-#' @param dy distance to shift on y axis
-#' @param dz distance to shift on z axis
-#' @param copy_obj copy/duplicate object (default = TRUE)
-#' @keywords internal
-shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRUE) {
-  sdimx_begin = sdimx_end = sdimy_begin = sdimy_end = sdimz_begin = sdimz_end = NULL
-
-  # if 3D info present
-  is3D = FALSE
-  if(all(c('sdimz_begin', 'sdimz_end') %in% colnames(spatnet))) is3D = TRUE
-
-  if(copy_obj) spatnet = data.table::copy(spatnet)
-
-  spatnet[, `:=`(sdimx_begin = sdimx_begin + dx,
-                 sdimx_end = sdimx_end + dx,
-                 sdimy_begin = sdimy_begin + dy,
-                 sdimy_end = sdimy_end + dy)]
-  if(is3D) {
-    spatnet[, `:=`(sdimz_begin = sdimz_begin + dz,
-                   sdimz_end = sdimz_end + dz)]
-  }
-  return(spatnet)
-}
 
 
 
@@ -1306,16 +1094,19 @@ createGiottoObject = function(expression,
                               instructions = NULL,
                               cores = determine_cores(),
                               raw_exprs = NULL,
-                              verbose = TRUE) {
+                              expression_matrix_class = c('dgCMatrix', 'HDF5Matrix','rhdf5'),
+                              h5_file = NULL,
+                              verbose = FALSE) {
 
-  debug_msg = FALSE # for debug help
+  debug_msg = FALSE # for reading debug help
   initialize_per_step = FALSE
 
   # create minimum giotto
   gobject = giotto(expression_feat = expression_feat,
                    offset_file = offset_file,
                    instructions = instructions,
-                   OS_platform = .Platform[['OS.type']])
+                   OS_platform = .Platform[['OS.type']],
+                   h5_file = h5_file)
 
 
   ## data.table vars
@@ -1358,7 +1149,7 @@ createGiottoObject = function(expression,
                              verbose = verbose,
                              initialize = initialize_per_step)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-  if(isTRUE(verbose)) wrap_msg('--- finished spatial info ---\n\n')
+    if(isTRUE(verbose)) wrap_msg('--- finished spatial info ---\n\n')
   }
 
 
@@ -1392,13 +1183,15 @@ createGiottoObject = function(expression,
   }
 
 
-  if(!is.null(expression)) {
+  if(!missing(expression)) {
 
     expression_data = readExprData(data_list = expression,
                                    sparse = TRUE,
                                    cores = cores,
                                    default_feat_type = expression_feat,
-                                   verbose = debug_msg)
+                                   verbose = debug_msg,
+                                   expression_matrix_class = expression_matrix_class,
+                                   h5_file = h5_file)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     gobject = setExpression(gobject = gobject,
                             x = expression_data,
@@ -1413,10 +1206,9 @@ createGiottoObject = function(expression,
     # Set up gobject cell_ID and feat_ID slots based on expression matrices
     gobject = init_cell_and_feat_IDs(gobject) # needed when initialize per step is FALSE
 
-
+    if(verbose) message('--- finished expression data ---\n')
   }
 
-  if(verbose) message('--- finished expression data ---\n')
 
 
 
@@ -1503,8 +1295,8 @@ createGiottoObject = function(expression,
                                             sdimy = second_col)
 
       dummySpatLocObj = createSpatLocsObj(name = 'raw',
-                                             coordinates = spatial_locs,
-                                             spat_unit = spat_unit)
+                                          coordinates = spatial_locs,
+                                          spat_unit = spat_unit)
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
       gobject = set_spatial_locations(gobject, spatlocs = dummySpatLocObj)
@@ -1710,283 +1502,7 @@ createGiottoObject = function(expression,
 
 
 
-#' @title Create a giotto object from 10x visium data
-#' @name createGiottoVisiumObject
-#' @description creates Giotto object directly from a 10X visium folder
-#' @param visium_dir path to the 10X visium directory [required]
-#' @param expr_data raw or filtered data (see details)
-#' @param gene_column_index which column index to select (see details)
-#' @param h5_visium_path path to visium 10X .h5 file
-#' @param h5_gene_ids gene names as symbols (default) or ensemble gene ids
-#' @param h5_tissue_positions_path path to tissue locations (.csv file)
-#' @param h5_image_png_path path to tissue .png file (optional)
-#' @param h5_json_scalefactors_path path to .json scalefactors (optional)
-#' @param png_name select name of png to use (see details)
-#' @param do_manual_adj flag to use manual adj values instead of automatic image alignment
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
-#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
-#' @param cores how many cores or threads to use to read data if paths are provided
-#' @param verbose be verbose
-#' @return giotto object
-#' @details
-#' If starting from a Visium 10X directory:
-#' \itemize{
-#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
-#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
-#'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
-#'   \item{the file scalefactors_json.json will be detected automaticated and used to attempt to align the data}
-#' }
-#'
-#' If starting from a Visium 10X .h5 file
-#' \itemize{
-#'   \item{h5_visium_path: full path to .h5 file: /your/path/to/visium_file.h5}
-#'   \item{h5_tissue_positions_path: full path to spatial locations file: /you/path/to/tissue_positions_list.csv}
-#'   \item{h5_image_png_path: full path to png: /your/path/to/images/tissue_lowres_image.png}
-#'   \item{h5_json_scalefactors_path: full path to .json file: /your/path/to/scalefactors_json.json}
-#' }
-#'
-#' @export
-createGiottoVisiumObject = function(visium_dir = NULL,
-                                    expr_data = c('raw', 'filter'),
-                                    gene_column_index = 1,
-                                    h5_visium_path = NULL,
-                                    h5_gene_ids = c('symbols', 'ensembl'),
-                                    h5_tissue_positions_path = NULL,
-                                    h5_image_png_path = NULL,
-                                    h5_json_scalefactors_path = NULL,
-                                    png_name = NULL,
-                                    do_manual_adj = FALSE,
-                                    xmax_adj = 0,
-                                    xmin_adj = 0,
-                                    ymax_adj = 0,
-                                    ymin_adj = 0,
-                                    instructions = NULL,
-                                    cores = NA,
-                                    verbose = TRUE) {
 
-  # data.table: set global variable
-  barcode = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
-
-  if(!is.null(h5_visium_path)) {
-
-    if(verbose) wrap_msg("A path to an .h5 10X file was provided and will be used \n")
-
-    if(!file.exists(h5_visium_path)) stop("The provided path ", h5_visium_path, " does not exist \n")
-
-    # spatial locations
-    if(is.null(h5_tissue_positions_path)) stop("A path to the tissue positions (.csv) needs to be provided to h5_tissue_positions_path \n")
-    if(!file.exists(h5_tissue_positions_path)) stop("The provided path ", h5_tissue_positions_path, " does not exist \n")
-
-    # get matrix counts
-    h5_results = get10Xmatrix_h5(path_to_data = h5_visium_path, gene_ids = h5_gene_ids)
-    raw_matrix = h5_results[['Gene Expression']]
-
-    # spatial locations
-    spatial_results = data.table::fread(h5_tissue_positions_path)
-    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
-    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
-    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
-    colnames(spatial_locs) = c('sdimx', 'sdimy')
-
-    # image (optional)
-    if(!is.null(h5_image_png_path)) {
-
-
-      if(!file.exists(h5_image_png_path)) stop("The provided path ", h5_image_png_path,
-                                               " does not exist. Set to NULL to exclude or provide the correct path. \n")
-
-
-      ## check if automatic alignment can be done
-      png_name = basename(h5_image_png_path)
-
-      if(png_name == 'tissue_lowres_image.png') {
-        if(file.exists(h5_json_scalefactors_path)) {
-          if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
-
-          json_info = jsonlite::read_json(h5_json_scalefactors_path)
-          scale_factor = json_info[['tissue_lowres_scalef']]
-
-          visium_png = createGiottoImage(gobject = NULL,
-                                         spatial_locs = spatial_locs,
-                                         mg_object = h5_image_png_path,
-                                         name = 'image',
-                                         scale_factor = scale_factor,
-                                         do_manual_adj = do_manual_adj,
-                                         xmax_adj = xmax_adj,
-                                         xmin_adj = xmin_adj,
-                                         ymax_adj = ymax_adj,
-                                         ymin_adj = ymin_adj)
-
-        }
-      } else if(png_name == 'tissue_hires_image.png') {
-        if(file.exists(h5_json_scalefactors_path)) {
-          if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
-
-          json_info = jsonlite::read_json(h5_json_scalefactors_path)
-          scale_factor = json_info[['tissue_hires_scalef']]
-
-          visium_png = createGiottoImage(gobject = NULL,
-                                         spatial_locs = spatial_locs,
-                                         mg_object = h5_image_png_path,
-                                         name = 'image',
-                                         scale_factor = scale_factor,
-                                         do_manual_adj = do_manual_adj,
-                                         xmax_adj = xmax_adj,
-                                         xmin_adj = xmin_adj,
-                                         ymax_adj = ymax_adj,
-                                         ymin_adj = ymin_adj)
-
-        }
-      } else {
-        visium_png = createGiottoImage(gobject = NULL,
-                                       spatial_locs =  spatial_locs,
-                                       mg_object = h5_image_png_path,
-                                       name = 'image',
-                                       xmax_adj = xmax_adj,
-                                       xmin_adj = xmin_adj,
-                                       ymax_adj = ymax_adj,
-                                       ymin_adj = ymin_adj)
-      }
-
-      visium_png_list = list(visium_png)
-      names(visium_png_list) = c('image')
-    } else {
-      visium_png_list = NULL
-    }
-    
-    # Create cell_ID column for metadata
-    cell_ID = NULL
-    colnames(spatial_results)[colnames(spatial_results) == "barcode"] = "cell_ID"
-
-    # create Giotto object
-    giotto_object = createGiottoObject(expression = raw_matrix,
-                                       expression_feat = 'rna',
-                                       spatial_locs = spatial_locs,
-                                       instructions = instructions,
-                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(cell_ID, in_tissue, array_row, array_col)])),
-                                       images = visium_png_list)
-    return(giotto_object)
-
-
-  } else {
-
-    if(verbose) message("A structured visium directory will be used \n")
-
-    ## check arguments
-    if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
-    visium_dir = path.expand(visium_dir)
-    if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
-    expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
-
-    # set number of cores automatically, but with limit of 10
-    cores = determine_cores(cores)
-    data.table::setDTthreads(threads = cores)
-
-    ## matrix
-    if(expr_data == 'raw') {
-      data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
-      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
-    } else if(expr_data == 'filter') {
-      data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
-      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
-    }
-
-    ## spatial locations and image
-    spatial_path = paste0(visium_dir, '/', 'spatial/')
-    # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
-    spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
-    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
-    spatial_results = spatial_results[match(colnames(raw_matrix), barcode)]
-    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
-    colnames(spatial_locs) = c('sdimx', 'sdimy')
-
-    ## spatial image
-    if(is.null(png_name)) {
-      png_list = list.files(spatial_path, pattern = "*.png")
-      png_name = png_list[1]
-    }
-    png_path = paste0(spatial_path,'/',png_name)
-    if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
-
-
-
-
-
-    if(png_name == 'tissue_lowres_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
-
-      if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
-
-        json_info = jsonlite::read_json(scalefactors_path)
-        scale_factor = json_info[['tissue_lowres_scalef']]
-
-        visium_png = createGiottoImage(gobject = NULL,
-                                       spatial_locs = spatial_locs,
-                                       mg_object = png_path,
-                                       name = 'image',
-                                       scale_factor = scale_factor,
-                                       do_manual_adj = do_manual_adj,
-                                       xmax_adj = xmax_adj,
-                                       xmin_adj = xmin_adj,
-                                       ymax_adj = ymax_adj,
-                                       ymin_adj = ymin_adj)
-
-      }
-    } else if(png_name == 'tissue_hires_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
-
-       if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
-
-        json_info = jsonlite::read_json(scalefactors_path)
-        scale_factor = json_info[['tissue_hires_scalef']]
-
-        visium_png = createGiottoImage(gobject = NULL,
-                                       spatial_locs = spatial_locs,
-                                       mg_object = png_path,
-                                       name = 'image',
-                                       scale_factor = scale_factor,
-                                       do_manual_adj = do_manual_adj,
-                                       xmax_adj = xmax_adj,
-                                       xmin_adj = xmin_adj,
-                                       ymax_adj = ymax_adj,
-                                       ymin_adj = ymin_adj)
-
-      }
-    } else {
-      visium_png = createGiottoImage(gobject = NULL,
-                                     spatial_locs =  spatial_locs,
-                                     mg_object = png_path,
-                                     name = 'image',
-                                     xmax_adj = xmax_adj,
-                                     xmin_adj = xmin_adj,
-                                     ymax_adj = ymax_adj,
-                                     ymin_adj = ymin_adj)
-    }
-
-    visium_png_list = list(visium_png)
-    names(visium_png_list) = c('image')
-
-    cell_metadata = spatial_results[,.(barcode, in_tissue, array_row, array_col)]
-    data.table::setnames(cell_metadata, 'barcode', 'cell_ID')
-
-    giotto_object = createGiottoObject(expression = raw_matrix,
-                                       expression_feat = 'rna',
-                                       spatial_locs = spatial_locs,
-                                       instructions = instructions,
-                                       cell_metadata = list('cell' = list('rna' = cell_metadata)),
-                                       images = visium_png_list)
-    return(giotto_object)
-
-  }
-
-}
 
 
 
@@ -2039,7 +1555,7 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
                                          largeImages_list_params = NULL,
                                          instructions = NULL,
                                          cores = NA,
-                                         verbose = TRUE) {
+                                         verbose = FALSE) {
 
   # data.table vars
   poly_ID = cell_ID = feat_ID = x = y = NULL
@@ -2155,8 +1671,6 @@ createGiottoObjectSubcellular = function(gpolygons = NULL,
     gobject@cell_ID[[poly]] = unique_poly_names
   }
 
-  #gobject@cell_ID = gobject@spatial_info[['cell']]@spatVector$poly_ID
-  #gobject@cell_ID = gobject@spatial_info[[1]]@spatVector$poly_ID
 
   ## extract points information ##
   ## -------------------------- ##
@@ -2835,7 +2349,7 @@ joinGiottoObjects = function(gobject_list,
                              x_padding = NULL,
                              y_padding = NULL,
                              # dry_run = FALSE,
-                             verbose = TRUE) {
+                             verbose = FALSE) {
 
   # define for data.table
   sdimz = cell_ID = sdimx = sdimy = name = NULL
@@ -3507,7 +3021,7 @@ joinGiottoObjects = function(gobject_list,
 
   for(spat_unit in names(first_obj@cell_metadata)) {
 
-     for(feat_type in names(first_obj@cell_metadata[[spat_unit]])) {
+    for(feat_type in names(first_obj@cell_metadata[[spat_unit]])) {
 
       savelist = list()
       for(gobj_i in seq_along(updated_object_list)) {
@@ -3572,7 +3086,7 @@ joinGiottoObjects = function(gobject_list,
   ## spatial info
   if(isTRUE(verbose)) wrap_msg('5. spatial polygon information \n')
 
-    available_spat_info = unique(unlist(all_spatinfo_list))
+  available_spat_info = unique(unlist(all_spatinfo_list))
 
   if(isTRUE(verbose)) {
     wrap_msg ('available_spat_info: \n')
@@ -3585,7 +3099,7 @@ joinGiottoObjects = function(gobject_list,
     savelist_centroids = list()
     for(gobj_i in seq_along(updated_object_list)) {
 
-      #print(updated_object_list[[gobj_i]]@spatial_info[[spat_info]])
+
 
       spat_information_vector = updated_object_list[[gobj_i]]@spatial_info[[spat_info]]@spatVector
       savelist_vector[[gobj_i]] = spat_information_vector
@@ -3619,7 +3133,7 @@ joinGiottoObjects = function(gobject_list,
 
 
   for(feat in first_features) {
-  # for(feat in comb_gobject@expression_feat) {
+    # for(feat in comb_gobject@expression_feat) {
 
     savelist_vector = list()
 

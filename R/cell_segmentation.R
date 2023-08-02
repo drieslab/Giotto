@@ -22,6 +22,9 @@ doCellSegmentation <- function(raster_img,
                                overlapping_pixels = 50,
                                python_path = NULL){
 
+  package_check('deepcell', repository = 'pip')
+  package_check('PIL', repository = 'pip')
+
   # python path (requires use of gobject)
   # if(is.null(python_path)) {
   #   python_path = readGiottoInstructions(gobject, param = "python_path")

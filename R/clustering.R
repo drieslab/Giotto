@@ -75,7 +75,7 @@ doLeidenCluster = function(gobject,
                                      network_name = network_name,
                                      output = 'igraph')
 
-  #print(igraph_object)
+
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -121,7 +121,7 @@ doLeidenCluster = function(gobject,
   }
 
 
-  #print(network_edge_dt)
+
 
   ## do python leiden clustering
   reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
@@ -136,7 +136,7 @@ doLeidenCluster = function(gobject,
   ident_clusters_DT = data.table::data.table(cell_ID = pyth_leid_result[[1]], 'name' = pyth_leid_result[[2]])
   data.table::setnames(ident_clusters_DT, 'name', name)
 
-  #print(ident_clusters_DT)
+
 
   ## add clusters to metadata ##
   if(return_gobject == TRUE) {
@@ -182,6 +182,83 @@ doLeidenCluster = function(gobject,
   }
 
 
+}
+
+#' @title doGiottoClustree
+#' @name doGiottoClustree
+#' @description cluster cells using leiden methodology to visualize different resolutions
+#' @param gobject giotto object
+#' @param res_vector vector of different resolutions to test 
+#' @param res_seq list of float numbers indicating start, end, and step size for resolution testing, i.e. (0.1, 0.6, 0.1)
+#' @param return_gobject default FALSE. See details for more info.
+#' @param show_plot by default, pulls from provided gobject instructions
+#' @param save_plot by default, pulls from provided gobject instructions
+#' @param return_plot by default, pulls from provided gobject instructions
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name name of saved plot, defaut "clustree"
+#' @return a plot object (default), OR a giotto object (if specified)
+#' @details This function tests different resolutions for Leiden clustering and provides a visualization
+#' of cluster sizing as resolution varies. 
+#' 
+#' By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
+#' 
+#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information 
+#' will be returned. 
+#' @seealso \code{\link{doLeidenCluster}}
+#' @export
+doGiottoClustree <- function(gobject, 
+                             res_vector = NULL,
+                             res_seq = NULL,
+                             return_gobject = FALSE,
+                             show_plot = NA,
+                             save_plot = NA,
+                             return_plot = NA,
+                             save_param = list(),
+                             default_save_name = "clustree", ...){
+
+  package_check(pkg_name = "clustree", repository = "CRAN")
+  ## setting resolutions to use
+  if(is.null(res_vector)){
+    if(!is.null(res_seq)){
+      res_vector = seq(res_seq[1], res_seq[2], res_seq[3])
+    } else stop("Please input res_vector or res_seq parameters")
+  }
+  
+  ## performing multiple leiden clusters at resolutions specified
+  for (i in res_vector){
+    gobject = doLeidenCluster(gobject = gobject, resolution = i, name = paste0("leiden_clustree_", print(i), ...))
+  }
+  
+  ## plotting clustree graph
+  pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## add
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return gobject with all newly developed leiden clusters
+  if(return_gobject == TRUE){
+    return(gobject)
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 }
 
 
@@ -897,13 +974,13 @@ doKmeans <- function(gobject,
                                         output = 'exprObj')
 
     # subset expression matrix
-    if(!is.null(genes_to_use)) {
+    if(!is.null(feats_to_use)) {
       expr_values[] = expr_values[][rownames(expr_values[]) %in% feats_to_use, ]
     }
 
     # features as columns
     # cells as rows
-    matrix_to_use = t_flex(expr_values)
+    matrix_to_use = t_flex(expr_values[])
 
   }
 
@@ -2402,18 +2479,18 @@ mergeClusters <- function(gobject,
 
     if(all(res == F)) {
 
-      #print('not in list yet')
+
       finallist[[start_i]] = c(first_clus, second_clus)
       start_i = start_i + 1
 
     } else if(length(res[res == T]) == 2) {
 
-      #print('do nothing')
+
       NULL
 
     } else {
 
-      #print('already in list')
+
       who = which(res == TRUE)[[1]]
       finallist[[who]] = unique(c(finallist[[who]], first_clus, second_clus))
 
@@ -2637,7 +2714,7 @@ getDendrogramSplits = function(gobject,
 
   cordend = stats::as.dendrogram(object = corclus)
 
-  ## print dendrogram ##
+
   if(show_dend == TRUE) {
     # plot dendrogram
     graphics::plot(cordend)

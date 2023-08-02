@@ -24,7 +24,7 @@ createGiottoObjectSubcellular(
   largeImages_list_params = NULL,
   instructions = NULL,
   cores = NA,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{
