@@ -42,6 +42,7 @@ spatInSituPlotPoints(
   background_color = "black",
   show_legend = TRUE,
   plot_method = c("ggplot", "scattermore", "scattermost"),
+  plot_last = c("polygons", "points"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -123,6 +124,8 @@ left as \code{NULL}, the median value detected will be chosen}
 \item{show_legend}{show legend}
 
 \item{plot_method}{method to plot points}
+
+\item{plot_last}{which layer to show on top of plot, polygons (default) or points.}
 
 \item{show_plot}{show plots}
 

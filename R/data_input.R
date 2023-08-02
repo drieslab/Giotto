@@ -17,7 +17,10 @@
 #' @export
 readExprMatrix = function(path,
                           cores = determine_cores(),
-                          transpose = FALSE) {
+                          transpose = FALSE,
+                          feat_type = 'rna',
+                          expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                          h5_file = NULL) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
@@ -28,11 +31,36 @@ readExprMatrix = function(path,
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
-
+  
   if(transpose == TRUE) {
     spM = t_flex(spM)
   }
-
+  
+  if(expression_matrix_class[1] == 'HDF5Matrix') {
+    require(HDF5Array)
+    spM = methods::as(spM, 'HDF5Matrix')
+  }
+  
+  if(expression_matrix_class[1] == 'rhdf5') {
+    if(is.null(h5_file)) {
+      stop(wrap_txt('h5_file can not be NULL, please provide a file name',
+                    errWidth = TRUE))
+    }
+    
+    rhdf5::h5createGroup(h5_file, paste0('expression/',feat_type))
+    
+    spM = as.matrix(DT[,-1])
+    colnames(spM) = colnames(DT[,-1])
+    rownames(spM) = DT[[1]]
+    
+    HDF5Array::writeHDF5Array(spM, 
+                              h5_file,
+                              name = paste0('expression/',feat_type,'/raw'),
+                              with.dimnames=TRUE)
+    
+    spM = paste0('expression/',feat_type,'/raw')
+  }
+  
   return(spM)
 }
 
@@ -78,7 +106,9 @@ readExprData = function(data_list,
                         cores = determine_cores(),
                         default_feat_type = NULL,
                         verbose = TRUE,
-                        provenance = NULL) {
+                        provenance = NULL,
+                        expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                        h5_file = NULL) {
 
   read_expression_data(
     expr_list = data_list,
@@ -86,7 +116,9 @@ readExprData = function(data_list,
     cores = cores,
     default_feat_type = default_feat_type,
     verbose = verbose,
-    provenance = provenance
+    provenance = provenance,
+    expression_matrix_class = expression_matrix_class,
+    h5_file = h5_file
   )
 
 }
@@ -100,7 +132,9 @@ read_expression_data = function(expr_list = NULL,
                                 default_spat_unit = NULL,
                                 default_feat_type = NULL,
                                 verbose = TRUE,
-                                provenance = NULL) {
+                                provenance = NULL,
+                                expression_matrix_class = c('dgCMatrix', 'HDF5Matrix', 'rhdf5'),
+                                h5_file = NULL) {
 
   # import box characters
   ch = box_chars()
@@ -120,7 +154,7 @@ read_expression_data = function(expr_list = NULL,
 
 
   # 1. get depth of list
-  # if(verbose == TRUE) print(str(expr_list))
+
   list_depth = depth(expr_list)
 
 
@@ -227,6 +261,15 @@ read_expression_data = function(expr_list = NULL,
 
 
   if(length(obj_list) > 0L) {
+    
+    if(expression_matrix_class[1] == 'rhdf5') {
+      if(file.exists(h5_file)) {
+        wrap_txt("h5_file already exists, contents will be overwritten")
+        file.remove(h5_file)}
+      
+      rhdf5::h5createFile(h5_file)
+      rhdf5::h5createGroup(h5_file,"expression")
+    }
 
     return_list = lapply(seq_along(obj_list), function(obj_i) {
 
@@ -258,7 +301,9 @@ read_expression_data = function(expr_list = NULL,
             spat_unit = spat_unit,
             feat_type = feat_type,
             provenance = if(is_empty_char(provenance)) spat_unit else provenance, # assumed
-            misc = NULL
+            misc = NULL,
+            expression_matrix_class = expression_matrix_class,
+            h5_file = h5_file
           )
         )
       }
@@ -666,7 +711,7 @@ read_spatial_location_data = function(spat_loc_list,
 
 
   # 1. get depth of list
-  # if(verbose == TRUE) print(str(spat_loc_list))
+
   list_depth = depth(spat_loc_list)
 
   # no expression information
@@ -1908,7 +1953,7 @@ extract_polygon_list = function(polygonlist,
 
   }
 
-  # print(final_list)
+
   return(final_list)
 
 }

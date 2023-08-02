@@ -1175,7 +1175,7 @@ loadGiotto = function(path_to_folder,
 
           # read in original column names and assign to spatVector
           spatVector_names = fread(input = overlap_paths_colnames[spat_i], header = FALSE)[['V1']]
-          print(spatVector_names)
+          if (verbose) print(spatVector_names)
           names(spatVector) = spatVector_names
 
           feat_name = gsub(overlap_filenames[spat_i], pattern = paste0('_', overlap_search_term[sv_i]), replacement = '')
@@ -1217,7 +1217,8 @@ loadGiotto = function(path_to_folder,
 
 
   ## 5. Update python path
-  identified_python_path = set_giotto_python_path(python_path = python_path)
+  identified_python_path = set_giotto_python_path(python_path = python_path,
+                                                  verbose = verbose)
   gobject = changeGiottoInstructions(gobject = gobject,
                                      params = c('python_path'),
                                      new_values = c(identified_python_path))
@@ -1714,7 +1715,7 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
       fov_info = read_file$featuredata
 
       # update progress
-      print(basename(hdf5_boundary_selected_list[[bound_i]]))
+      if(verbose) print(basename(hdf5_boundary_selected_list[[bound_i]]))
       elapsed = (proc.time() - init)[[3L]]
       step_time = elapsed/bound_i
       est = (hdf5_list_length * step_time) - elapsed
@@ -1796,7 +1797,9 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 
 #' @title readPolygonFilesVizgenHDF5
 #' @name readPolygonFilesVizgenHDF5
-#' @description Read and create polygons for all cells, or for only selected FOVs.
+#' @description Read polygon info for all cells or for only selected FOVs from
+#' Vizgen HDF5 files. Data is returned as a list of giottoPolygons or data.tables
+#' of the requested z indices.
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param fovs subset of fovs to use
 #' @param z_indices z indices of polygons to use
@@ -1818,6 +1821,7 @@ readPolygonFilesVizgenHDF5_old = function(boundaries_path,
 #' @param create_gpoly_bin (Optional, default = FALSE) Parallelization option.
 #' Accepts integer values as an binning size when generating giottoPolygon objects
 #' @param verbose be verbose
+#' @param output whether to return as list of giottoPolygon or data.table
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
 #' @export
@@ -1833,16 +1837,17 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       smooth_vertices = 60L,
                                       set_neg_to_zero = FALSE,
                                       H5Fopen_flags = "H5F_ACC_RDWR",
-                                      cores = NA,
+                                      cores = determine_cores(),
                                       create_gpoly_parallel = TRUE,
                                       create_gpoly_bin = FALSE,
                                       verbose = TRUE,
+                                      output = c('giottoPolygon', 'data.table'),
                                       polygon_feat_types = NULL) {
 
   # necessary pkgs
   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
 
-  cores = determine_cores(cores)
+  output = match.arg(output, choices = c('giottoPolygon', 'data.table'))
 
   # deprecation
   if(!is.null(polygon_feat_types)) {
@@ -1853,7 +1858,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   segm_to_use = paste0('p_', (segm_to_use - 1L))
 
   # data.table vars
-  x = y = z = cell_id = poly_ID = file_id = my_id = NULL
+  x = y = z = NULL
 
   # provide your own custom names
   if(!is.null(custom_polygon_names)) {
@@ -1885,7 +1890,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                start extracting .hdf5 information')
 
   # open selected polygon files
-  hdf5_list_length = length(hdf5_boundary_selected_list)
+  # hdf5_list_length = length(hdf5_boundary_selected_list)
 
   # append data from all FOVs to single list
   init = Sys.time()
@@ -1900,7 +1905,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                                         H5Fopen_flags = H5Fopen_flags)
 
                               # update progress
-                              print(basename(hdf5_boundary_selected_list[[bound_i]]))
+                              if(verbose) print(basename(hdf5_boundary_selected_list[[bound_i]]))
                               if(bound_i %% 5 == 0) {
                                 pb()
                               }
@@ -1930,10 +1935,44 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   if(!is.null(custom_polygon_names)) poly_names = custom_polygon_names
   else poly_names = z_names
 
-  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files
-                               start creating polygons')
+  if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files')
 
-  # create Giotto polygons and add them to gobject
+  # outputs
+  if(output == 'giottoPolygon') {
+    create_giotto_polygons_vizgen(z_read_DT = z_read_DT,
+                                  poly_names = poly_names,
+                                  set_neg_to_zero = set_neg_to_zero,
+                                  calc_centroids = calc_centroids,
+                                  smooth_polygons = smooth_polygons,
+                                  smooth_vertices = smooth_vertices,
+                                  create_gpoly_parallel = create_gpoly_parallel,
+                                  create_gpoly_bin = create_gpoly_bin,
+                                  verbose = verbose)
+  }
+  if(output == 'data.table') z_read_DT
+}
+
+
+
+
+#' @keywords internal
+#' @noRd
+create_giotto_polygons_vizgen = function(z_read_DT,
+                                         poly_names = names(z_read_DT),
+                                         set_neg_to_zero = FALSE,
+                                         calc_centroids = FALSE,
+                                         smooth_polygons = TRUE,
+                                         smooth_vertices = 60L,
+                                         create_gpoly_parallel = TRUE,
+                                         create_gpoly_bin = FALSE,
+                                         verbose = TRUE) {
+  checkmate::assert_list(z_read_DT)
+  checkmate::assert_numeric(smooth_vertices)
+
+  # data.table vars
+  x = y = cell_id = poly_ID = NULL
+
+  if(isTRUE(verbose)) wrap_msg('start creating polygons')
 
   # **** sequential method ****
   if(!isTRUE(create_gpoly_parallel)) {
@@ -2073,6 +2112,102 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   return(smooth_cell_polygons_list)
 
 }
+
+
+
+
+
+
+
+#' @title Read MERSCOPE polygons from parquet
+#' @name readPolygonVizgenParquet
+#' @description
+#' Read Vizgen exported cell boundary parquet files as giottoPolyons. The z level
+#' can be selected.
+#' @param file parquet file to load
+#' @param z_index either 'all' or a numeric vector of z_indices to get polygons for
+#' @param verbose be verbose
+#' @keywords internal
+#' @export
+readPolygonVizgenParquet = function(file,
+                                    z_index = 'all',
+                                    verbose = TRUE) {
+
+  # package checks
+  package_check('arrow')
+  package_check('sf')
+  package_check('dplyr')
+
+
+  checkmate::assert_file_exists(file)
+  if(!setequal(z_index, 'all')) {
+    checkmate::assert_numeric(z_index)
+  } else {
+    checkmate::assert_true(identical(z_index, 'all'))
+  }
+
+  # NSE vars
+  ZIndex = NULL
+
+  # 1. determine z indices to get
+  avail_z_idx = arrow::open_dataset(file) %>%
+    dplyr::distinct(ZIndex) %>%
+    dplyr::pull() %>%
+    # dplyr::pull(as_vector = TRUE) %>% # switch to this in future and add arrow version requirement
+    sort()
+
+  get_z_idx = if(setequal(z_index, 'all')) {
+    avail_z_idx
+  } else if(is.numeric(z_index)) {
+    z_index = as.integer(z_index)
+    if(!all(z_index %in% avail_z_idx)) {
+      stop(paste('Not all z indices found in cell boundaries.\n Existing indices are:', paste(avail_z_idx, collapse = ' ')))
+    }
+    z_index
+  }
+  if(isTRUE(verbose)) message('loading poly z_indices: ', paste(get_z_idx, collapse = ' '))
+
+
+  # 2. collect by z index filter and convert WKB to multipolygon
+  multipolygons = future.apply::future_lapply(
+    get_z_idx,
+    function(z_idx) {
+      # set schema
+      schema = arrow::open_dataset(file)$schema
+      schema$EntityID = arrow::string()
+
+      # read and convert
+      arrow::open_dataset(file, schema = schema) %>%
+        dplyr::filter(ZIndex == z_idx) %>%
+        dplyr::collect() %>%
+        dplyr::mutate(Geometry = sf::st_as_sfc(Geometry))
+    },
+    future.seed = TRUE
+  )
+  names(multipolygons) = lapply(multipolygons, function(x) paste0('z', unique(x$ZIndex)))
+
+
+  # 3. convert to giottoPolygons and append meta
+  out = lapply(seq_along(multipolygons), function(i) {
+    # append poly IDs and meta
+    poly_table = multipolygons[[i]]
+    sv = terra::vect(poly_table$Geometry)
+    sv$poly_ID = poly_table$EntityID
+    sv$z_level = poly_table$ZLevel
+
+    gpoly = giottoPolygon(
+      name = names(multipolygons)[[i]],
+      spatVector = sv,
+      unique_ID_cache = poly_table$EntityID
+    )
+  })
+
+  return(out)
+}
+
+
+
+
 
 
 
@@ -2244,22 +2379,28 @@ h5read_vizgen = function(h5File,
 getGEFtxCoords = function(gef_file,
                           bin_size = 'bin100') {
 
-  # data.table vars
-  genes = NULL
+   # data.table vars
+   genes = NULL
 
-  # package check
-  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
-  if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+   # package check
+   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
 
-  # step 1: read expression and gene data from gef file
-  geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
-  exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
-  geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
+   # Step 1: Parse tx coords
+   exprDT = rhdf5::h5read(file = gef_file,
+                             name = paste0('geneExp/', bin_size, '/expression'))
+   setDT(exprDT)
 
-  # step 2: combine gene information from the geneDT to the exprDT
-  exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+   # Step 2: Parse gene expression info using index
+   geneDT = rhdf5::h5read(file = gef_file,
+                             name = paste0('geneExp/', bin_size, '/gene'))
+   setDT(geneDT)
 
-  return(exprDT)
+   # Step 3: Combine read expression and gene data by repeating count (match offset index)
+   # See STOMICS file format manual for more information about exprDT and geneDT
+   exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+
+   return(exprDT)
 
 }
 

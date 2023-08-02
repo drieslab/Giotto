@@ -179,24 +179,14 @@ calculate_centroids_polygons = function(gpolygon,
                                         name = 'centroids',
                                         append_gpolygon = TRUE) {
 
-  terra_polygon_centroids = terra::centroids(gpolygon@spatVector)
+  terra_polygon_centroids = terra::centroids(slot(gpolygon, 'spatVector'))
 
-  if(append_gpolygon == TRUE) {
-
-    gpolygon = create_giotto_polygon_object(name = gpolygon@name,
-                                            spatVector = gpolygon@spatVector,
-                                            spatVectorCentroids = terra_polygon_centroids)
-
+  if(isTRUE(append_gpolygon)) {
+    slot(gpolygon, 'spatVectorCentroids') = terra_polygon_centroids
+    gpolygon
   } else {
-
-    gpolygon = create_giotto_polygon_object(name = name,
-                                            spatVector = terra_polygon_centroids,
-                                            spatVectorCentroids = NULL)
-
+    terra_polygon_centroids
   }
-
-  return(gpolygon)
-
 }
 
 
@@ -388,8 +378,8 @@ createGiottoPolygonsFromMask = function(maskfile,
     shift_horizontal_step = 0
   }
 
-  print(shift_horizontal_step)
-  print(shift_vertical_step)
+  #print(shift_horizontal_step) uneccessary to print?
+  #print(shift_vertical_step) uneccessary to print?
 
   terra_polygon = terra::shift(terra_polygon,
                                dx = shift_horizontal_step,
@@ -401,7 +391,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
     if(background_algo == 'range') {
       backgr_poly_id = identify_background_range_polygons(terra_polygon)
-      print(backgr_poly_id)
+      #print(backgr_poly_id) uneccessary to print?
     }
 
     terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['poly_ID']] != backgr_poly_id)
@@ -584,7 +574,8 @@ gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
                                                            vertices = vertices,
                                                            k = k,
                                                            set_neg_to_zero = set_neg_to_zero)
-  if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly, append_gpolygon = TRUE)
+  if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly,
+                                                                  append_gpolygon = TRUE)
 
   slot(gpoly, 'spatVector') = terra::wrap(slot(gpoly, 'spatVector'))
   if(isTRUE(calc_centroids)) {
@@ -910,35 +901,44 @@ rbind2_giotto_polygon_hetero = function(x, y, new_name, add_list_ID = TRUE) {
 #' @param verbose be verbose
 #' @return returns a data.table of polygon vertices
 #' @export
-polyStamp = function(stamp_dt,
-                     spatlocs,
-                     id_col = 'cell_ID',
-                     x_col = 'sdimx',
-                     y_col = 'sdimy',
-                     verbose = TRUE) {
+polyStamp <- function(stamp_dt,
+                      spatlocs,
+                      id_col = 'cell_ID',
+                      x_col = 'sdimx',
+                      y_col = 'sdimy',
+                      verbose = TRUE) {
 
-  if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
-    stop(wrap_txt('Not all colnames found in spatlocs'))
-  }
+   if(!all(c(id_col, x_col, y_col) %in% colnames(spatlocs))) {
+      stop(wrap_txt('Not all colnames found in spatlocs'))
+   }
 
-  # define polys relative to centroid
-  stamp_centroid = c(x = mean(stamp_dt[['x']]),
-                     y = mean(stamp_dt[['y']]))
-  rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
-                                        y = stamp_dt$y - stamp_centroid[['y']])
+   # define polys relative to centroid
+   stamp_centroid = c(x = mean(stamp_dt[['x']]),
+                      y = mean(stamp_dt[['y']]))
+   rel_vertices = data.table::data.table(x = stamp_dt$x - stamp_centroid[['x']],
+                                         y = stamp_dt$y - stamp_centroid[['y']])
 
-  # generate poly vertices around given spatlocs
-  poly_dt = apply(X = spatlocs,
-                  MARGIN = 1,
-                  function(r) {
-                    return(data.table::data.table(x = rel_vertices[['x']] + as.numeric(r[[x_col]]),
-                                                  y = rel_vertices[['y']] + as.numeric(r[[y_col]]),
-                                                  poly_ID = as.character(r[[id_col]])))
-                  })
+   # generate poly vertices around given spatlocs
+   poly_dt = data.table::CJ(1:nrow(spatlocs), 1:nrow(rel_vertices), sorted = FALSE)
+   colnames(poly_dt) = c("spatlocs_idx", "rel_vertices_idx")
 
-  if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons stamped')
+  # compute the absolute coordinates of the polygon vertices for each spatial location
+   poly_dt[, c(x_col, y_col) := {
+      spat_row = spatlocs[spatlocs_idx]
+      rel_row = rel_vertices[rel_vertices_idx]
+      list(spat_row[[x_col]] + rel_row$x, spat_row[[y_col]] + rel_row$y)
+   }]
 
-  return(do.call(rbind, poly_dt))
+   # add a new column 'poly_ID' to 'poly_dt' with the ID of each spatial location.
+   poly_dt[, poly_ID := spatlocs[poly_dt$spatlocs_idx, id_col, with = FALSE]]
+   poly_dt$poly_ID <- as.character(poly_dt$poly_ID)
+
+   if(isTRUE(verbose)) wrap_msg(nrow(spatlocs), 'polygons generated')
+
+   res <- poly_dt[, c(x_col, y_col, "poly_ID"), with = FALSE]
+   setnames(res, c(x_col, y_col), c("x", "y"))
+
+   return(res)
 
 }
 
@@ -1358,8 +1358,6 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param provenance (optional) provenance to assign to generated spatLocsObj. If
 #' not provided, provenance will default to \code{poly_info}
-#' @param init_metadata initialize cell and feature metadata for this spatial unit
-#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
@@ -1371,7 +1369,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             feat_type = NULL,
                                             provenance = poly_info,
                                             spat_loc_name = 'raw',
-                                            init_metadata = TRUE,
                                             return_gobject = TRUE) {
 
   # data.table vars
@@ -1430,32 +1427,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
-    # cell metadata
-    # new spatial locations come with new cell and feature metadata
-    if(isTRUE(init_metadata)) {
-      for(type in feat_type) {
-        cm = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = gpoly_IDs),
-                                  col_desc = c('unique IDs for each cell'),
-                                  spat_unit = poly_info,
-                                  feat_type = type,
-                                  provenance = poly_info)
-
-        gfeat_IDs = get_feat_id(gobject, feat_type = type)
-        fm = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = gfeat_IDs),
-                                  col_desc = c('unique IDs for each feature'),
-                                  spat_unit = poly_info,
-                                  feat_type = type,
-                                  provenance = poly_info)
-
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
-        gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
-        # gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
-        # gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      }
-    }
-
 
     # add centroids information
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -1485,8 +1456,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param provenance (optional) provenance to assign to generated spatLocsObj. If
 #' not provided, provenance will default to \code{poly_info}
-#' @param init_metadata initialize cell and feature metadata for this spatial unit
-#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
@@ -1499,7 +1468,6 @@ addSpatialCentroidLocations = function(gobject,
                                        feat_type = NULL,
                                        spat_loc_name = 'raw',
                                        provenance = poly_info,
-                                       init_metadata = TRUE,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
 
@@ -1518,7 +1486,6 @@ addSpatialCentroidLocations = function(gobject,
     provenance = list(provenance)
     names(provenance) = poly_info
   }
-
 
 
   potential_polygon_names = list_spatial_info_names(gobject)
@@ -1542,7 +1509,6 @@ addSpatialCentroidLocations = function(gobject,
                                                    feat_type = feat_type,
                                                    provenance = provenance[[poly_layer]],
                                                    spat_loc_name = spat_loc_name,
-                                                   init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
       } else {
 
@@ -1551,7 +1517,6 @@ addSpatialCentroidLocations = function(gobject,
                                                                      feat_type = feat_type,
                                                                      provenance = provenance[[poly_layer]],
                                                                      spat_loc_name = spat_loc_name,
-                                                                     init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)
 
       }
@@ -1559,7 +1524,7 @@ addSpatialCentroidLocations = function(gobject,
     }
   }
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
     return(gobject)
   } else {
     return_list
@@ -1816,7 +1781,7 @@ calculateOverlapPolygonImages = function(gobject,
   if(is.null(poly_info@spatVectorCentroids)) {
     poly_info = calculate_centroids_polygons(gpolygon = poly_info,
                                              name = 'centroids',
-                                             append_gpolygon = T)
+                                             append_gpolygon = TRUE)
   }
 
 
@@ -1850,7 +1815,7 @@ calculateOverlapPolygonImages = function(gobject,
 
   }
 
-  print('0. create image list')
+  if (verbose) print('0. create image list')
 
   image_vector_c = do.call('c', image_list)
 
@@ -1878,7 +1843,7 @@ calculateOverlapPolygonImages = function(gobject,
   }
 
 
-  print('1. start extraction')
+  if (verbose) print('1. start extraction')
 
   extract_intensities_exact = exactextractr::exact_extract(x = image_vector_c,
                                                            y = poly_info_spatvector_sf,
@@ -1888,10 +1853,10 @@ calculateOverlapPolygonImages = function(gobject,
   dt_exact = data.table::as.data.table(do.call('rbind', extract_intensities_exact))
 
   # prepare output
-  print(dt_exact)
+  if (verbose) print(dt_exact)
   colnames(dt_exact)[2:(length(image_names)+1)] = image_names # probably not needed anymore
   dt_exact[, coverage_fraction := NULL]
-  print(dt_exact)
+  if (verbose) print(dt_exact)
 
   if(return_gobject) {
 
@@ -2015,12 +1980,12 @@ calculateOverlapSerial = function(gobject,
   final_result = list()
   for(i in 1:total_nr_groups) {
 
-    print((total_nr_groups-i))
+    if (verbose) print((total_nr_groups-i))
 
     selected_poly_ID_names = poly_ID_names[names(poly_ID_names) == i]
     selected_spatvec = spatvec[spatvec$poly_ID %in% selected_poly_ID_names]
 
-    # print(selected_spatvec)
+
 
     spatvec_result = overlap_points_per_polygon(spatvec = selected_spatvec,
                                                 pointvec = pointvec,
@@ -2363,7 +2328,7 @@ overlapToMatrixMultiPoly = function(gobject,
                                       value.var = 'V1', fill = 0)
   overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
 
   #combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
@@ -2371,7 +2336,7 @@ overlapToMatrixMultiPoly = function(gobject,
   #overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
   #                              match(combined_cell_IDs, colnames(overlapmatrix))]
 
-  #print(overlapmatrix[1:4, 1:4])
+
 
   if(return_gobject == TRUE) {
     gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
@@ -2438,7 +2403,7 @@ overlapImagesToMatrix = function(gobject,
     cell_IDs = unique(as.character(aggr_comb$poly_ID))
     feat_IDs = unique(as.character(aggr_comb$feat_ID))
 
-    #print(feat_IDs[1:10])
+
 
     # create cell and feature metadata
     S4_cell_meta = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = cell_IDs),
@@ -2705,7 +2670,7 @@ combineFeatureOverlapData = function(gobject,
                                        feat_type = feat,
                                        output = 'data.table')
 
-      # print(feat_meta)
+
 
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
@@ -2737,7 +2702,7 @@ combineFeatureOverlapData = function(gobject,
 
     }
 
-    # print(comb_dt)
+
 
     comb_dt[, 'feat' := feat]
     res_list[[feat]] = comb_dt
@@ -2830,7 +2795,8 @@ rescalePolygons = function(gobject,
   S4_polygon = create_giotto_polygon_object(name = name,
                                             spatVector = rescaled_original)
   if(calculate_centroids) {
-    S4_polygon = calculate_centroids_polygons(gpolygon = S4_polygon, append_gpolygon = TRUE)
+    S4_polygon = calculate_centroids_polygons(gpolygon = S4_polygon,
+                                              append_gpolygon = TRUE)
   }
 
 
@@ -2846,3 +2812,258 @@ rescalePolygons = function(gobject,
 
 
 }
+
+#' @title tessellate
+#' @name tessellate
+#' @description Generates a tessellated grid of polygons within the provided spatial extent
+#' @param extent SpatExtent or anything else a SpatExtent can be extracted or created from
+#' @param shape Shape of the tessellation grid. Available options are "hexagon" and "square".
+#' @param radius numeric. Radius size of the tessellation grid.
+#' @param name name of giottoPolygons grid to make
+#' @return A giottoPolygon
+#' @details This function generates a tessellated grid of spatial locations based on the input spatial locations. The shape of the tessellation grid can be either hexagonal or square. The radius parameter determines the size of the grid cells or the bin size.
+#' @concept spatial location
+#' @export
+tessellate <- function(extent, shape = c('hexagon', 'square'), radius, name = 'grid') {
+   shape <- match.arg(shape, choices = c('hexagon', 'square'))
+   e = ext(extent)[]
+   checkmate::assert_numeric(radius)
+
+   # Calculate the minimum difference between the x and y coordinates of the points in spat_locs
+   x_range <- c(e[['xmin']], e[['xmax']])
+   y_range <- c(e[['ymin']], e[['ymax']])
+
+   # Check if radius size exceeds x,y range
+   if((diff(x_range) / radius < 1) && (diff(y_range) / radius < 1)){
+      stop(wrap_txt("Please choose a smaller radius size for tessellation."))
+   }
+
+   if (shape == "hexagon") {
+
+      # Get the hexagon vertices
+      hex_dt <- hexVertices(radius, major_axis = 'v')
+
+      # Create a tessellation grid of points where the hexagons will be centered
+      # Adjust the y-sequence spacing to be 1.5*radius for hexagonal packing
+      y_seq <- seq(e[['ymin']], e[['ymax']], by = radius * 1.5)
+      centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+         x_start <- if(i %% 2 == 0) e[['xmin']] else e[['xmin']] + radius * sqrt(3) / 2
+         x_seq <- seq(x_start, e[['xmax']], by = radius * sqrt(3))
+         data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+      }))
+
+      centers$cell_ID <- 1:nrow(centers)
+
+      # Call polyStamp function to generate the tessellated grid
+      res <- polyStamp(hex_dt, centers)
+   } else if (shape == "square") {
+
+      # Define a data.table with the vertices of a square centered around (0,0)
+      square_dt <- rectVertices(dims = c(x = (radius - 1),
+                                                 y = (radius - 1)))
+
+      # Create a tessellation grid of points where the squares will be centered
+      x_seq <- seq(e[['xmin']], e[['xmax']], by = radius)
+      y_seq <- seq(e[['ymin']], e[['ymax']], by = radius)
+      centers <- expand.grid(sdimx = x_seq, sdimy = y_seq)
+      centers$cell_ID <- 1:nrow(centers)
+      setDT(centers)
+
+      # Call polyStamp function to generate the tessellated grid
+      res <- polyStamp(square_dt, centers)
+
+   } else {
+
+      stop(wrap_txt("Please select valid shape option: hexagon OR square"))
+   }
+
+   createGiottoPolygonsFromDfr(res,
+                               name = name,
+                               verbose = FALSE,
+                               skip_eval_dfr = TRUE,
+                               copy_dt = FALSE)
+}
+
+#' @title makePseudoVisium
+#' @name makePseudoVisium
+#' @description Generates a pseudo-visium grid of spots across a provided spatial extent
+#' @param extent SpatExtent or anything else a SpatExtent can be extracted or created from
+#' @param micron_size size of a micrometer relative to spatial coordinates
+#' @param name character. (default is 'pseudo_visium') Name of giottoPolygon object to create
+#' @return A giottoPolygon for the pseudo-visium spots.
+#' @details This function generates a pseudo-Visium grid of spots based on the input spatial locations.
+#' The micron_size param is used to determine the size of the spots
+#' @concept spatial location
+#' @export
+makePseudoVisium <- function(extent = NULL,
+                             micron_size = 1,
+                             name = 'pseudo_visium') {
+
+  e = ext(extent)[]
+
+  # Visium default scale parameters
+  visium_radius_um=27.5
+  visium_center_center_dist_um=100
+  visium_gap_um=45
+
+  # Compute metrics to visium scale
+  radius = visium_radius_um / micron_size
+  gap = (visium_gap_um / visium_radius_um) * radius
+
+  # Define a data.table with the vertices of a circle centered around (0,0)
+  stamp_dt <- circleVertices(radius = radius, npoints = 100)
+
+  # Create a grid of y points where the circles will be centered
+  y_seq <- seq(e[['ymin']] + radius, e[['ymax']] - radius, by = 2*radius + gap)
+
+  # Stagger center point of circles to match visium staggered grid
+  centers <- data.table::rbindlist(lapply(1:length(y_seq), function(i) {
+    x_start <- if(i %% 2 == 0) e[['xmin']] + radius + (2*radius+gap)/2 else e[['xmin']] + radius
+    x_seq <- seq(x_start, e[['xmax']] - radius, by = 2*radius+gap)
+    data.table::data.table(sdimx = x_seq, sdimy = y_seq[i])
+  }))
+  centers$cell_ID <- paste0('spot_', 1:nrow(centers))
+
+  # Call polyStamp function on centers to generate the pseudo-visium grid
+  res <- polyStamp(stamp_dt, centers)
+
+  createGiottoPolygonsFromDfr(res,
+                              name = name,
+                              skip_eval_dfr = TRUE,
+                              copy_dt = FALSE)
+}
+
+
+
+
+
+
+
+
+
+
+
+## * spatial queries ####
+
+# If the polys are to be clipped, then the returned info MUST be a new polygon
+# object
+
+#' @title Spatially query polygons within Giotto object
+#' @name spatQueryGiottoPolygons
+#' @description Recursively select polygons based on a list of spatial filters.
+#' Results will be returned as a new polygon-based spatial unit with selection
+#' information recorded in the associated cell metadata. The final item in provided
+#' in param \code{filters} is the layer of information being queried.
+#' @param gobject Giotto object
+#' @param filters list of characters. Named list of IDs to query on as spatial filters
+#' where the names designate the spatial unit to use and the character values
+#' should either be 'all' or a vector of cell_IDs to use.
+#' @param name (optional) character. If not NULL, a new spatial unit of this name
+#' will be generated from the results
+#' @param feat_type (optional) May be changed in future. Determines which feature
+#' type metadata in which hierarchical selection information is stored.
+#' @param clip boolean. Default = FALSE. Whether final round of querying should
+#' return polygons clipped by the polygons used to select them. If TRUE, a value
+#' must be provided to \code{name} param to generate a new spatial unit
+#' @return giottoPolygon
+# #' @seealso [spatQueryGiottoSpatLocs()]
+#' @export
+spatQueryGiottoPolygons = function(gobject,
+                                   filters,
+                                   name = 'query_polys',
+                                   feat_type = NULL,
+                                   clip = TRUE) {
+  guard_against_notgiotto(gobject)
+  if(!is.null(name)) checkmate::assert_character(name)
+  checkmate::assert_list(filters, types = 'character')
+  if(!length(filters <= 2)) stop(wrap_txt('At least two elements in filters are needed.'))
+
+  if(isTRUE(clip) & is.null(name)) {
+    stop(wrap_txt('If clip is true, a value to \'name\' param should be provided.'))
+  }
+
+  # check spat units input
+  spat_units = names(filters)
+  if(any(sapply(spat_units, is_empty_char)))
+    stop(wrap_txt('All elements in filters list must be named by the spatial units being used.'))
+  avail_polys = list_spatial_info_names(gobject)
+  missing_polys = spat_units[!spat_units %in% avail_polys]
+
+  last_info = tail(spat_units, 1) # get final spatial info layer
+  if(is.null(name)) name = last_info # replace poly and meta if name not supplied
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = last_info,
+                                    feat_type = feat_type)
+  # cell_meta = getCellMetadata(gobject = gobject,
+  #                             spat_unit = last_info,
+  #                             feat_type = feat_type,
+  #                             output = 'cellMetaObj',
+  #                             copy_obj = TRUE)
+  # spatUnit(cell_meta) = name
+  # prov(cell_meta) = name
+
+  # function to get subsetted spatvector
+  get_sv = function(gobject, spat_unit, cell_id) {
+    # 'all' is passed, use all spatIDs found for that spat unit
+    if(identical(cell_id, 'all')) IDs = spatIDs(gobject, spat_unit = spat_unit)
+    else IDs = cell_id
+    sv = getPolygonInfo(gobject = gobject,
+                        polygon_name = spat_unit,
+                        return_giottoPolygon = FALSE)
+    sv[sv$poly_ID %in% IDs]
+  }
+
+  # get first poly
+  sv1 = get_sv(gobject = gobject,
+               spat_unit = spat_units[1L],
+               cell_id = filters[[spat_units[1L]]])
+
+  # iterate
+  # sv1 is the filter poly
+  # sv2 is the data poly
+  for(unit in spat_units[2:length(spat_units)]) {
+    sv2 = get_sv(gobject = gobject,
+                     spat_unit = unit,
+                     cell_id = filters[[unit]])
+    sv1 = terra::intersect(sv1,sv2)
+  }
+
+  names(sv1) = c('poly_ID', rev(spat_units)[2:length(spat_units)])
+  poly = giottoPolygon(spatVector = sv1,
+                       name = name,
+                       unique_ID_cache = unique(sv1$poly_ID))
+
+  # extract relationships which have been appended to sv1 for each intersect
+  # info for each new layer appended on the left, with at least the 'poly_ID'
+  # column being added each time. Expected layout:
+  # final_data_lyr, ..., filter_lyr4, filter_lyr3, filter_lyr2, filter_lyr1
+  #
+  # final_data_lyr should remain named as poly_ID, but the others should be
+  # renamed as their respective spatial units
+
+  # rels = terra::values(sv1) %>%
+  #   data.table::setDT()
+  #
+  # hierarchy_info_idx = which(names(rels) == 'poly_ID')
+  # rels = rels[, ..hierarchy_info_idx]
+  # data.table::setnames(rels, new = c('cell_ID', rev(spat_units)[2:length(spat_units)]))
+
+  # merge in relationship info
+  # cell_meta[] = merge(cell_meta[], rels)
+
+
+  # set values
+  gobject = setPolygonInfo(gobject = gobject, x = poly, initialize = FALSE)
+  # gobject = setCellMetadata(gobject = gobject, x = cell_meta)
+
+
+  return(gobject)
+}
+
+
+
+
+
+
+
+

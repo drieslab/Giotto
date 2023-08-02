@@ -1,20 +1,5 @@
 
-
-if(!require(remotes)){
-  install.packages('R.utils', repos = 'http://cran.us.r-project.org')
-}
-
-if(!require(remotes)){
-  install.packages('remotes', repos = 'http://cran.us.r-project.org')
-}
-
-if(!require(GiottoData)){
-  library(remotes)
-  install_github('drieslab/GiottoData')
-}
-
-library(Giotto)
-library(testthat)
+require(testthat)
 
 # Load subobjects
 ex = GiottoData::loadSubObjectMini('exprObj')

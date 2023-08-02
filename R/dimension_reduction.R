@@ -488,8 +488,31 @@ runPCA <- function(gobject,
                                       spat_unit = spat_unit,
                                       values = values,
                                       output = 'exprObj')
+  
   provenance = prov(expr_values)
-  expr_values = expr_values[] # extract matrix
+  
+  if(!is.null(slot(gobject, 'h5_file'))) {
+    expr_path = slot(expr_values, 'exprMat')
+    
+    expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
+                                     name = paste0('expression/',
+                                                   feat_type,'/',
+                                                   values))
+    
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                              name = paste0('expression/',
+                                                            feat_type,'/',
+                                                            values))
+    
+    rownames(expr_values) = expr_dimnames[[1]]
+    colnames(expr_values) = expr_dimnames[[2]]
+    
+  } else {
+    expr_values = expr_values[] # extract matrix
+  }
+  
+ 
+  
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -501,7 +524,7 @@ runPCA <- function(gobject,
                                              verbose = verbose)
   }
 
-
+  
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
 
@@ -531,6 +554,8 @@ runPCA <- function(gobject,
     } else {
       stop('only PCA methods from the BiocSingular and factominer package have been implemented \n')
     }
+    
+   
 
   } else {
     # PCA on genes
@@ -555,6 +580,8 @@ runPCA <- function(gobject,
     }
 
   }
+  
+  print("finished runPCA_factominer, method == factominer")
 
 
   if(return_gobject == TRUE) {
@@ -979,7 +1006,7 @@ jackstrawPlot = function(gobject,
 
     ## results ##
     nr_sign_components = jtest$r
-    cat('number of estimated significant components: ', nr_sign_components, '\n')
+    if(verbose) cat('number of estimated significant components: ', nr_sign_components, '\n')
     final_results = jtest$p
     jackplot = create_jackstrawplot(jackstraw_data = final_results, ncp = ncp, ylim = ylim, threshold = threshold)
 
@@ -1342,7 +1369,7 @@ runUMAP <- function(gobject,
 
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      #print(matrix_to_use[1:2,1:2])
+
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
@@ -1357,10 +1384,26 @@ runUMAP <- function(gobject,
                                           feat_type = feat_type,
                                           values = values,
                                           output = 'exprObj')
-
-      provenance = prov(expr_values)
-      expr_values = expr_values[] # extract matrix
-
+      
+      
+      if(!is.null(slot(gobject, 'h5_file'))) {
+        expr_path = slot(expr_values, 'exprMat')
+        
+        expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
+                                         name = expr_path)
+        
+        expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                                  name = expr_path)
+        
+        rownames(expr_values) = expr_dimnames[[1]]
+        colnames(expr_values) = expr_dimnames[[2]]
+      } else {
+        
+        provenance = prov(expr_values)
+        expr_values = expr_values[] # extract matrix
+        
+      }
+   
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,

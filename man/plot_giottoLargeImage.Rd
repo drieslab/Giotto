@@ -15,7 +15,15 @@ plot_giottoLargeImage(
   ymin_crop = NULL,
   max_intensity = NULL,
   asRGB = FALSE,
-  stretch = NULL
+  stretch = NULL,
+  axes = TRUE,
+  smooth = TRUE,
+  mar = c(3, 5, 1.5, 1),
+  legend = FALSE,
+  maxcell = 5e+05,
+  col = grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1),
+  asp = 1,
+  ...
 )
 }
 \arguments{
@@ -35,6 +43,27 @@ plot_giottoLargeImage(
 
 \item{stretch}{character. Option to stretch the values to increase contrast: "lin"
 linear or "hist" (histogram)}
+
+\item{axes}{boolean. Default = TRUE. Whether to draw axes}
+
+\item{smooth}{boolean. default = TRUE. whether to apply smoothing on the image}
+
+\item{mar}{plot margins default = c(3,5,1.5,1)}
+
+\item{legend}{whether to plot legend of color scale (grayscale only).
+default = FALSE}
+
+\item{maxcell}{positive integer. Maximum number of image cells to use for the plot}
+
+\item{col}{character. Colors for single channel images. The default is
+grDevices::grey.colors(n = 256, start = 0, end = 1, gamma = 1). It can also be a
+data.frame with two columns (value, color) to get a "classes" type legend or with
+three columns (from, to, color) to get an "interval" type legend}
+
+\item{asp}{numeric. (default = 1) specific aspect ratio to use}
+
+\item{...}{additional params to pass to terra::plot or terra::plotRGB depending
+depending on image type}
 }
 \value{
 plot

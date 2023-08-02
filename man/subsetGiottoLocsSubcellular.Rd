@@ -14,7 +14,7 @@ subsetGiottoLocsSubcellular(
   y_max = NULL,
   z_max = NULL,
   z_min = NULL,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

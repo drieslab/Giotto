@@ -11,7 +11,9 @@
 #' @keywords internal
 mean_flex = function(x, ...) {
 
-  if(inherits(x, 'dgCMatrix')) {
+  if(inherits(x, 'HDF5Matrix')) {
+    return(Matrix::mean(x, ...))
+  } else if(inherits(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
   } else if(inherits(x, 'Matrix')) {
     return(Matrix::mean(x, ...))
@@ -28,8 +30,11 @@ mean_flex = function(x, ...) {
 #' @keywords internal
 rowSums_flex = function(mymatrix) {
 
-  if(inherits(mymatrix, 'DelayedMatrix')) {
-    return(DelayedMatrixStats::rowSums2(mymatrix))
+  if(inherits(mymatrix, 'HDF5Matrix')) {
+    return(Matrix::rowSums(mymatrix))
+  # } else if(inherits(mymatrix, 'DelayedMatrix')) {
+  #   print("This is an DelayedMatrix")
+  #   return(DelayedMatrixStats::rowSums2(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
@@ -51,9 +56,10 @@ rowSums_flex = function(mymatrix) {
 rowMeans_flex = function(mymatrix) {
 
   # replace by MatrixGenerics?
-
-  if(inherits(mymatrix, 'DelayedMatrix')) {
-    return(DelayedMatrixStats::rowMeans2(mymatrix))
+  if(inherits(mymatrix, 'HDF5Matrix')) {
+    return(Matrix::rowMeans(mymatrix))
+  # } else  if(inherits(mymatrix, 'DelayedMatrix')) {
+  #   return(DelayedMatrixStats::rowMeans2(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
@@ -75,8 +81,10 @@ rowMeans_flex = function(mymatrix) {
 #' @keywords internal
 colSums_flex = function(mymatrix) {
 
-  if(inherits(mymatrix, 'DelayedMatrix')) {
-    return(DelayedMatrixStats::colSums2(mymatrix))
+  if(inherits(mymatrix, 'HDF5Matrix')) {
+    return(Matrix::colSums(mymatrix))
+  # } else if(inherits(mymatrix, 'DelayedMatrix')) {
+  #   return(DelayedMatrixStats::colSums2(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
@@ -97,8 +105,10 @@ colSums_flex = function(mymatrix) {
 #' @keywords internal
 colMeans_flex = function(mymatrix) {
 
-  if(inherits(mymatrix, 'DelayedMatrix')) {
-    return(DelayedMatrixStats::colMeans2(mymatrix))
+  if(inherits(mymatrix, 'HDF5Matrix')) {
+    return(Matrix::colMeans(mymatrix))
+  # } else if(inherits(mymatrix, 'DelayedMatrix')) {
+  #   return(DelayedMatrixStats::colMeans2(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
@@ -120,8 +130,11 @@ colMeans_flex = function(mymatrix) {
 #' @keywords internal
 t_flex = function(mymatrix) {
 
-  if(inherits(mymatrix, 'DelayedMatrix')) {
-    return(t(mymatrix))
+  if(inherits(mymatrix, 'HDF5Matrix')) {
+    require(HDF5Array)
+    return(methods::as(t(mymatrix), 'HDF5Matrix'))
+  # } else if(inherits(mymatrix, 'DelayedMatrix')) {
+  #   return(t(mymatrix))
   } else if(inherits(mymatrix, 'dgCMatrix')) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
   } else if(inherits(mymatrix, 'Matrix')) {
@@ -797,25 +810,6 @@ degrees = function(rad) {
 
 
 
-
-# guard functions ####
-
-#' @inheritParams data_access_params
-#' @param n Frames back in which to evaluate the gobject param
-#' @keywords internal
-#' @noRd
-guard_against_notgiotto = function(gobject, n = 1L, ...) {
-  fn_name = deparse(sys.calls()[[sys.nframe() - n]])
-  orig_name = deparse(eval(call('substitute', as.name(substitute(gobject)), parent.frame())))
-  if(!hasArg(gobject)) stop(wrap_txt(fn_name, ':\ngiotto object must be given',
-                                     errWidth = TRUE),
-                            call. = FALSE)
-  if(!inherits(gobject, 'giotto')) {
-    stop(wrap_txt(fn_name, ':\n', orig_name, 'is not a giotto object',
-                  errWidth = TRUE),
-         call. = FALSE)
-  }
-}
 
 
 

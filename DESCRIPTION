@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 3.3.0
+Version: 3.3.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -30,6 +30,7 @@ Depends:
     methods
 Imports:
     BiocSingular,
+    checkmate,
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
@@ -81,7 +82,6 @@ Suggests:
     ggdendro,
     ggforce,
     ggraph,
-    ggrepel,
     HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
@@ -117,10 +117,11 @@ Suggests:
 Collate:
     'NN_network.R'
     'accessors.R'
+    'classes.R'
+    'assert.R'
     'auxiliary_giotto.R'
     'auxiliary_visuals.R'
     'cell_segmentation.R'
-    'classes.R'
     'clustering.R'
     'convenience.R'
     'cross_section.R'
@@ -129,16 +130,19 @@ Collate:
     'dd.R'
     'differential_expression.R'
     'dimension_reduction.R'
+    'feature_set_enrichment.R'
     'general_help.R'
     'giotto_structures.R'
     'generics.R'
     'giotto.R'
     'giotto_viewer.R'
     'globals.R'
+    'spatial_manipulation.R'
     'image_registration.R'
     'images.R'
     'interactivity.R'
     'interoperability.R'
+    'poly_influence.R'
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
