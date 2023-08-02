@@ -179,24 +179,14 @@ calculate_centroids_polygons = function(gpolygon,
                                         name = 'centroids',
                                         append_gpolygon = TRUE) {
 
-  terra_polygon_centroids = terra::centroids(gpolygon@spatVector)
+  terra_polygon_centroids = terra::centroids(slot(gpolygon, 'spatVector'))
 
-  if(append_gpolygon == TRUE) {
-
-    gpolygon = create_giotto_polygon_object(name = gpolygon@name,
-                                            spatVector = gpolygon@spatVector,
-                                            spatVectorCentroids = terra_polygon_centroids)
-
+  if(isTRUE(append_gpolygon)) {
+    slot(gpolygon, 'spatVectorCentroids') = terra_polygon_centroids
+    gpolygon
   } else {
-
-    gpolygon = create_giotto_polygon_object(name = name,
-                                            spatVector = terra_polygon_centroids,
-                                            spatVectorCentroids = NULL)
-
+    terra_polygon_centroids
   }
-
-  return(gpolygon)
-
 }
 
 
@@ -584,7 +574,8 @@ gpoly_from_dfr_smoothed_wrapped = function(segmdfr,
                                                            vertices = vertices,
                                                            k = k,
                                                            set_neg_to_zero = set_neg_to_zero)
-  if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly, append_gpolygon = TRUE)
+  if(isTRUE(calc_centroids)) gpoly = calculate_centroids_polygons(gpolygon = gpoly,
+                                                                  append_gpolygon = TRUE)
 
   slot(gpoly, 'spatVector') = terra::wrap(slot(gpoly, 'spatVector'))
   if(isTRUE(calc_centroids)) {
@@ -1367,8 +1358,6 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param provenance (optional) provenance to assign to generated spatLocsObj. If
 #' not provided, provenance will default to \code{poly_info}
-#' @param init_metadata initialize cell and feature metadata for this spatial unit
-#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
 #'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
@@ -1380,7 +1369,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             feat_type = NULL,
                                             provenance = poly_info,
                                             spat_loc_name = 'raw',
-                                            init_metadata = TRUE,
                                             return_gobject = TRUE) {
 
   # data.table vars
@@ -1439,32 +1427,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
-    # cell metadata
-    # new spatial locations come with new cell and feature metadata
-    if(isTRUE(init_metadata)) {
-      for(type in feat_type) {
-        cm = create_cell_meta_obj(metaDT = data.table::data.table(cell_ID = gpoly_IDs),
-                                  col_desc = c('unique IDs for each cell'),
-                                  spat_unit = poly_info,
-                                  feat_type = type,
-                                  provenance = poly_info)
-
-        gfeat_IDs = get_feat_id(gobject, feat_type = type)
-        fm = create_feat_meta_obj(metaDT = data.table::data.table(feat_ID = gfeat_IDs),
-                                  col_desc = c('unique IDs for each feature'),
-                                  spat_unit = poly_info,
-                                  feat_type = type,
-                                  provenance = poly_info)
-
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject = set_cell_metadata(gobject, metadata = cm, verbose = FALSE)
-        gobject = set_feature_metadata(gobject, metadata = fm, verbose = FALSE)
-        # gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
-        # gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      }
-    }
-
 
     # add centroids information
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -1494,8 +1456,6 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param provenance (optional) provenance to assign to generated spatLocsObj. If
 #' not provided, provenance will default to \code{poly_info}
-#' @param init_metadata initialize cell and feature metadata for this spatial unit
-#' (default = TRUE, but should be turned off if generated earlier in the workflow)
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
@@ -1508,7 +1468,6 @@ addSpatialCentroidLocations = function(gobject,
                                        feat_type = NULL,
                                        spat_loc_name = 'raw',
                                        provenance = poly_info,
-                                       init_metadata = TRUE,
                                        return_gobject = TRUE,
                                        verbose = TRUE) {
 
@@ -1527,7 +1486,6 @@ addSpatialCentroidLocations = function(gobject,
     provenance = list(provenance)
     names(provenance) = poly_info
   }
-
 
 
   potential_polygon_names = list_spatial_info_names(gobject)
@@ -1551,7 +1509,6 @@ addSpatialCentroidLocations = function(gobject,
                                                    feat_type = feat_type,
                                                    provenance = provenance[[poly_layer]],
                                                    spat_loc_name = spat_loc_name,
-                                                   init_metadata = init_metadata,
                                                    return_gobject = return_gobject)
       } else {
 
@@ -1560,7 +1517,6 @@ addSpatialCentroidLocations = function(gobject,
                                                                      feat_type = feat_type,
                                                                      provenance = provenance[[poly_layer]],
                                                                      spat_loc_name = spat_loc_name,
-                                                                     init_metadata = init_metadata,
                                                                      return_gobject = return_gobject)
 
       }
@@ -1568,7 +1524,7 @@ addSpatialCentroidLocations = function(gobject,
     }
   }
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
     return(gobject)
   } else {
     return_list
@@ -1825,7 +1781,7 @@ calculateOverlapPolygonImages = function(gobject,
   if(is.null(poly_info@spatVectorCentroids)) {
     poly_info = calculate_centroids_polygons(gpolygon = poly_info,
                                              name = 'centroids',
-                                             append_gpolygon = T)
+                                             append_gpolygon = TRUE)
   }
 
 
@@ -2839,7 +2795,8 @@ rescalePolygons = function(gobject,
   S4_polygon = create_giotto_polygon_object(name = name,
                                             spatVector = rescaled_original)
   if(calculate_centroids) {
-    S4_polygon = calculate_centroids_polygons(gpolygon = S4_polygon, append_gpolygon = TRUE)
+    S4_polygon = calculate_centroids_polygons(gpolygon = S4_polygon,
+                                              append_gpolygon = TRUE)
   }
 
 
@@ -3037,13 +2994,13 @@ spatQueryGiottoPolygons = function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = last_info,
                                     feat_type = feat_type)
-  cell_meta = getCellMetadata(gobject = gobject,
-                              spat_unit = last_info,
-                              feat_type = feat_type,
-                              output = 'cellMetaObj',
-                              copy_obj = TRUE)
-  spatUnit(cell_meta) = name
-  prov(cell_meta) = name
+  # cell_meta = getCellMetadata(gobject = gobject,
+  #                             spat_unit = last_info,
+  #                             feat_type = feat_type,
+  #                             output = 'cellMetaObj',
+  #                             copy_obj = TRUE)
+  # spatUnit(cell_meta) = name
+  # prov(cell_meta) = name
 
   # function to get subsetted spatvector
   get_sv = function(gobject, spat_unit, cell_id) {
@@ -3083,20 +3040,21 @@ spatQueryGiottoPolygons = function(gobject,
   #
   # final_data_lyr should remain named as poly_ID, but the others should be
   # renamed as their respective spatial units
-  rels = terra::values(sv1) %>%
-    data.table::setDT()
 
-  hierarchy_info_idx = which(names(rels) == 'poly_ID')
-  rels = rels[, ..hierarchy_info_idx]
-  data.table::setnames(rels, new = c('cell_ID', rev(spat_units)[2:length(spat_units)]))
+  # rels = terra::values(sv1) %>%
+  #   data.table::setDT()
+  #
+  # hierarchy_info_idx = which(names(rels) == 'poly_ID')
+  # rels = rels[, ..hierarchy_info_idx]
+  # data.table::setnames(rels, new = c('cell_ID', rev(spat_units)[2:length(spat_units)]))
 
   # merge in relationship info
-  cell_meta[] = merge(cell_meta[], rels)
+  # cell_meta[] = merge(cell_meta[], rels)
 
 
   # set values
   gobject = setPolygonInfo(gobject = gobject, x = poly, initialize = FALSE)
-  gobject = setCellMetadata(gobject = gobject, x = cell_meta)
+  # gobject = setCellMetadata(gobject = gobject, x = cell_meta)
 
 
   return(gobject)
