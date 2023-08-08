@@ -23,7 +23,7 @@ all existing networks.}
 
 \item{sp_network}{Specify the name of the spatial network(s) in the input
 SpatialExperiment object. Default \code{NULL} will use all existing
-networks.}
+networks. This can be a vector of multiple network names.}
 
 \item{verbose}{A boolean value specifying if progress messages should
 be displayed or not. Default \code{TRUE}.}

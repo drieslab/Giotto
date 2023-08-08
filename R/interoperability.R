@@ -1683,7 +1683,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' all existing networks.
 #' @param sp_network Specify the name of the spatial network(s) in the input
 #' SpatialExperiment object. Default \code{NULL} will use all existing
-#' networks.
+#' networks. This can be a vector of multiple network names.
 #' @param verbose A boolean value specifying if progress messages should
 #' be displayed or not. Default \code{TRUE}.
 #' @import data.table
@@ -1798,9 +1798,8 @@ spatialExperimentToGiotto <- function(spe,
         networkDT = as.data.table(networks[[sp_network[i]]])
         networkDT$to <-colnames(spe)[networkDT$to]
         networkDT$from <- colnames(spe)[networkDT$from]
-        networkDT
         spatNetObj <- create_spat_net_obj(
-          networkDT = networkDT )
+          networkDT = networkDT)
         giottoObj <- set_spatialNetwork(gobject = giottoObj,
                                         spatial_network = spatNetObj,
                                         name = sp_network[i])
