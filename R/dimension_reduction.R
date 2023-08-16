@@ -1385,6 +1385,7 @@ runUMAP <- function(gobject,
                                           values = values,
                                           output = 'exprObj')
       
+      provenance = prov(expr_values)
       
       if(!is.null(slot(gobject, 'h5_file'))) {
         expr_path = slot(expr_values, 'exprMat')
@@ -1398,10 +1399,7 @@ runUMAP <- function(gobject,
         rownames(expr_values) = expr_dimnames[[1]]
         colnames(expr_values) = expr_dimnames[[2]]
       } else {
-        
-        provenance = prov(expr_values)
         expr_values = expr_values[] # extract matrix
-        
       }
    
       ## subset matrix
