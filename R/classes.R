@@ -404,6 +404,12 @@ updateGiottoObject = function(gobject) {
     gobject@multiomics = NULL
   }
 
+  # 3.3.1 release adds h5_file slot
+  if(is.null(attr(gobject, 'h5_file'))) {
+    attr(gobject, 'h5_file') = NA
+    gobject@h5_file = NULL
+  }
+
   return(gobject)
 }
 
@@ -517,6 +523,7 @@ giotto <- setClass(
 setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   .Object = callNextMethod()
+  .Object = updateGiottoObject(.Object)
 
   # a = list(...)
 
@@ -703,7 +710,7 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
       list_match = sapply(exp_list_names, setequal, exp_list_names[[1L]])
       if(!all(list_match)) {
         print(list_match)
-        warning(wrap_text(
+        warning(wrap_txt(
           'spat_unit:', unique_expr_sets$spat_unit[[set_i]], '/',
           'feat_type:', unique_expr_sets$feat_type[[set_i]],
           '\nNot all expression matrices share the same cell_IDs'
@@ -931,11 +938,7 @@ setMethod('initialize', signature('giotto'), function(.Object, ...) {
 
   ## validity check ##
   ## -------------- ##
-  obj_valid = try(validObject(.Object), silent = TRUE)
-  if(inherits(obj_valid, 'try-error')) {
-    .Object = updateGiottoObject(.Object)
-    validObject(.Object)
-  }
+  methods::validObject(.Object)
 
 
 
@@ -1020,6 +1023,12 @@ setMethod(
     if(!is.null(avail_sn)) {
       cat('spatial networks -----------------\n')
       mini_avail_print(avail_sn)
+    }
+
+    avail_se = list_spatial_enrichments(object)
+    if(!is.null(avail_se)) {
+      cat('spatial enrichments --------------\n')
+      mini_avail_print(avail_se)
     }
 
     avail_dim = list_dim_reductions(object)
@@ -1218,11 +1227,11 @@ setClass('exprObj',
 setMethod(
   f = "show", signature('exprObj'), function(object) {
 
-    cat("An object of class",  class(object), "\n")
+    show_class_and_name(object)
 
     # print spat/feat and provenance info
-    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "', slot(object, 'feat_type'),'" \n'))
-    if(!is.null(slot(object, 'provenance'))) cat('  Provenance: ', unlist(slot(object, 'provenance')),'\n')
+    show_spat_and_feat(object)
+    show_prov(object)
 
     cat('\ncontains:\n')
     # preview matrix
@@ -1303,12 +1312,14 @@ setClass('cellMetaObj',
          validity = check_cell_meta_obj)
 
 
+# * Show ####
 setMethod('show', signature('cellMetaObj'), function(object) {
 
   cat('An object of class', class(object), '\n')
-  cat('Provenance:', slot(object, 'provenance'), '\n')
-  # TODO print spat/feat
-  if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
+  show_spat_and_feat(object)
+  show_prov(object)
+  cat('\n')
+  if(!is.null(object[])) print(head(object[], 3L))
 
 })
 
@@ -1358,12 +1369,14 @@ setClass('featMetaObj',
          validity = check_feat_meta_obj)
 
 
+# * Show ####
 setMethod('show', signature('featMetaObj'), function(object) {
 
   cat('An object of class', class(object), '\n')
-  cat('Provenance:', slot(object, 'provenance'), '\n')
-  # TODO print spat/feat
-  if(!is.null(slot(object, 'metaDT'))) print(slot(object, 'metaDT'))
+  show_spat_and_feat(object)
+  show_prov(object)
+  cat('\n')
+  if(!is.null(object[])) print(head(object[], 3L))
 
 })
 
@@ -1453,7 +1466,7 @@ setClass('dimObj',
 setMethod(
   f = "show", signature('dimObj'), function(object) {
 
-    cat("An object of class",  class(object), "\n")
+    show_class_and_name(object)
     if(!is.null(object@reduction_method)) cat('--| Contains dimension reduction generated with:', object@reduction_method, '\n')
     if(!is.null(object@feat_type) & !is.null(object@spat_unit)) {
       cat('----| for feat_type:', object@feat_type, '\n')
@@ -1556,7 +1569,7 @@ setClass('nnNetObj',
 setMethod(
   f = "show", signature('nnNetObj'), function(object) {
 
-    cat("An object of class",  class(object), ':', object@name, '\n')
+    show_class_and_name(object)
     if(!is.null(object@nn_type)) cat('--| Contains nearest neighbor network generated with:', object@nn_type, '\n')
     if(!is.null(object@feat_type) & !is.null(object@spat_unit)) {
       cat('----| for feat_type:', object@feat_type, '\n')
@@ -1684,12 +1697,12 @@ setMethod(
 
     sdimx = sdimy = NULL
 
-    cat("An object of class",  class(object), "\n")
-    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '"\n'))
-    if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
+    show_class_and_name(object)
+    show_spat(object)
+    show_prov(object)
 
     cat('   ------------------------\n\npreview:\n')
-    if(!is.null(slot(object, 'coordinates'))) show(slot(object, 'coordinates'))
+    if(!is.null(slot(object, 'coordinates'))) show(head(slot(object, 'coordinates'), 3L))
 
     cat('\nranges:\n')
     try(expr = print(sapply(slot(object, 'coordinates')[,.(sdimx,sdimy)], range)),
@@ -1777,10 +1790,10 @@ setClass('spatialNetworkObj',
 setMethod(
   f = "show", signature('spatialNetworkObj'), function(object) {
 
-    cat("An object of class",  class(object), "\n")
+    show_class_and_name(object)
     if(!is.na(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
-    if(!is.na(object@spat_unit)) cat('for spatial unit: "', object@spat_unit, '"\n', sep = '')
-    if(!is.null(object@provenance)) cat('provenance:', object@provenance, '\n')
+    show_spat(object)
+    show_prov(object)
 
     if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
     if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')
@@ -1906,7 +1919,7 @@ setMethod(
     # define for data.table
     x_start = x_end = y_start = y_end = z_start = z_end = NULL
 
-    cat("An object of class",  class(object), "\n")
+    show_class_and_name(object)
     cat('Contains annotations for spatial unit: "', slot(object, 'spat_unit'),'"', sep = '')
     if(!is.na(slot(object, 'feat_type'))) {
       cat(' and feature type: "', slot(object, 'feat_type'), '"\n', sep = '')
@@ -2006,21 +2019,20 @@ setClass('spatEnrObj',
 setMethod(
   f = "show", signature('spatEnrObj'), function(object) {
 
-    cat("An object of class",  class(object), "\n")
-    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "',
-               slot(object, 'feat_type'), '"\n'))
-    if(!is.null(slot(object, 'provenance'))) cat('provenance:', slot(object, 'provenance'), '\n')
+    show_class_and_name(object)
+    show_spat_and_feat(object)
+    show_prov(object)
 
     cat('   ------------------------\n\npreview:\n')
     if(!is.null(slot(object, 'enrichDT'))) {
       enr_cols = ncol(slot(object, 'enrichDT'))
       if(enr_cols > 10L) {
-        show(slot(object, 'enrichDT')[1:4, 1:10])
+        show(slot(object, 'enrichDT')[1:3, 1:10])
         cat(rep(' ', times = getOption('width')/2.5 - 10L), rep('.', 20L),'\n', sep = '')
-        show(slot(object, 'enrichDT')[1:4, 'cell_ID'])
+        show(slot(object, 'enrichDT')[1:3, 'cell_ID'])
         cat('...', enr_cols - 11L, ' cols omitted\n', sep = '')
       } else {
-        show(slot(object, 'enrichDT')[1:4])
+        show(slot(object, 'enrichDT')[1:3])
       }
     }
 
@@ -2093,7 +2105,8 @@ updateGiottoPolygonObject = function(gpoly) {
 # * show ####
 setMethod('show', signature = 'giottoPolygon', function(object) {
 
-  cat('An object of class giottoPolygon with name "', object@name, '"\n', sep = '')
+  cat('An object of class giottoPolygon\n')
+  show_spat(object)
   cat('Spatial Information:\n')
   print(object@spatVector)
 
@@ -2198,7 +2211,8 @@ updateGiottoPointsObject = function(gpoints) {
 # * show ####
 setMethod('show', signature = 'giottoPoints', function(object) {
 
-  cat('An object of class giottoPoints with feature type "', object@feat_type, '"\n', sep = '')
+  cat('An object of class giottoPoints\n')
+  show_feat(object)
   cat('Feature Information:\n')
   print(object@spatVector)
 
@@ -2455,30 +2469,72 @@ setMethod(
   signature = "giottoLargeImage",
   definition = function(object) {
 
-    cat("An object of class '",  class(object), "' with name ", object@name, "\n \n")
+    e = ext(object)
+    img_dim = dim(object)[c(2,1,3)] # x, y, layers
+    x_scalefactor = diff(e[c(1,2)]) / img_dim[1]
+    y_scalefactor = diff(e[c(3,4)]) / img_dim[2]
 
-    cat("Image boundaries are: \n")
-    print(terra::ext(object@raster_object)[1:4])
-
-    cat("Original image boundaries are: \n")
-    print(object@overall_extent[1:4])
-
-    cat("\n Scale factor: \n")
-    print(object@scale_factor)
-
-    cat("\n Resolution: \n")
-    print(object@resolution)
-
-    cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
-        'Estimated minimum intensity is: ', object@min_intensity, ' \n')
-
-    if(object@is_int == TRUE) cat('Values are integers')
-    if(object@is_int == FALSE) cat('Values are floating point')
-
-    cat('\n File path is: ', object@file_path, '\n')
+    show_class_and_name(object)
+    cat("Image extent            :", show_ext(object))
+    cat("Original image extent   :", show_ext(object@overall_extent))
+    cat('Scale factor            :', paste(x_scalefactor, y_scalefactor, sep = ', '), '(x, y)\n')
+    cat("Resolution              :", paste(1/x_scalefactor, 1/y_scalefactor, sep = ', '), '(x, y)\n')
+    cat('Layers                  :' , img_dim[3], '\n')
+    cat('Estimated max intensity :', object@max_intensity, '\n')
+    cat('Estimated min intensity :', object@min_intensity, '\n')
+    if(object@is_int == TRUE) cat('Values                  : integers\n')
+    if(object@is_int == FALSE) cat('Values                  : floating point\n')
+    cat(paste0('File path               : \'', object@file_path, '\'\n'))
 
   }
 )
+
+
+
+
+
+
+
+
+
+# show helpers ####
+
+#' @noRd
+show_class_and_name = function(object) {
+  cat("An object of class ",  class(object), ' : \"', objName(object), '\"\n', sep = '')
+}
+
+#' @noRd
+show_spat_and_feat = function(object) {
+  show_spat(object)
+  show_feat(object)
+  # cat(paste0('for spatial unit: "', spatUnit(object), '" and feature type: "', featType(object),'" \n'))
+}
+
+#' @noRd
+show_spat = function(object) {
+  cat(paste0('spat_unit : "', spatUnit(object), '\"\n'))
+}
+
+#' @noRd
+show_feat = function(object) {
+  cat(paste0('feat_type : "', featType(object), '\"\n'))
+}
+
+#' @noRd
+show_prov = function(object) {
+  if(!is.null(object@provenance)) cat('provenance:', object@provenance, '\n')
+}
+
+#' @noRd
+show_ext = function(object) {
+  paste0(paste0(ext(object)[], collapse = (', ')), ' (xmin, xmax, ymin, ymax)\n')
+}
+
+
+
+
+
 
 
 

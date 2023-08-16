@@ -281,14 +281,14 @@ set_cell_id = function(gobject,
 
     # get cell ID values
     if(spat_unit %in% expr_avail$spat_unit) { # preferred from expression
-      
+
       if(!is.null(slot(gobject, 'h5_file'))) {
         expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                                   name = paste0('expression/',
                                                                 expr_avail$feat_type[[1L]],'/',
                                                                 expr_avail$name[[1L]]))
         cell_IDs = expr_dimnames[[2]]
-        
+
       } else {
         cell_IDs = spatIDs(get_expression_values(
           gobject = gobject,
@@ -299,8 +299,8 @@ set_cell_id = function(gobject,
           set_defaults = TRUE
         ))
       }
-      
-      
+
+
 
       # IDs = lapply(seq(nrow(expr_avail)), function(expr_i) {
       #   ex_ID = spatIDs(
@@ -448,7 +448,7 @@ set_feat_id = function(gobject,
                                                                 feat_type,'/',
                                                                 expr_avail$name[[1L]]))
         feat_IDs = expr_dimnames[[1]]
-        
+
       } else {
         feat_IDs = featIDs(get_expression_values(
           gobject = gobject,
@@ -459,7 +459,7 @@ set_feat_id = function(gobject,
           output = 'exprObj'
         ))
       }
-      
+
 
     } else if(feat_type %in% fi_avail$feat_info) { # fallback to feature info
 
@@ -1475,7 +1475,6 @@ setExpression = function(gobject,
                                  nospec_name = nospec_name)
   # checked by internal setter to determine if called by external
 
-
   # SINGLE INPUT
   # 3. if input is exprObj or NULL, pass to internal
   if(is.null(x) | inherits(x, 'exprObj')) {
@@ -1609,7 +1608,13 @@ set_expression_values = function(gobject,
 
     # prune if empty
     if(length(gobject@expression[[spat_unit]][[feat_type]]) == 0) {
-      gobject@expression = NULL
+      gobject@expression[[spat_unit]][[feat_type]] = NULL
+      if(length(gobject@expression[[spat_unit]]) == 0) {
+        gobject@expression[[spat_unit]] = NULL
+        if(length(gobject@expression) == 0) {
+          gobject@expression = NULL
+        }
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))
@@ -2003,7 +2008,10 @@ set_spatial_locations = function(gobject,
 
     # prune if empty
     if(length(gobject@spatial_locs[[spat_unit]]) == 0) {
-      gobject@spatial_locs = NULL
+      gobject@spatial_locs[[spat_unit]] = NULL
+      if(length(gobject@spatial_locs) == 0) {
+        gobject@spatial_locs = NULL
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))
@@ -2399,7 +2407,19 @@ set_dimReduction = function(gobject,
 
     # prune if empty
     if(length(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]]) == 0L) {
-      gobject@dimension_reduction = NULL
+      gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]] = NULL
+      if(length(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]]) == 0) {
+        gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]] = NULL
+        if(length(gobject@dimension_reduction[[reduction]][[spat_unit]]) == 0) {
+          gobject@dimension_reduction[[reduction]][[spat_unit]] = NULL
+          if(length(gobject@dimension_reduction[[reduction]]) == 0) {
+            gobject@dimension_reduction[[reduction]] = NULL
+            if(length(gobject@dimension_reduction) == 0) {
+              gobject@dimension_reduction = NULL
+            }
+          }
+        }
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))
@@ -2790,7 +2810,16 @@ set_NearestNetwork = function(gobject,
 
     # prune if empty
     if(length(gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]]) == 0L) {
-      gobject@nn_network = NULL
+      gobject@nn_network[[spat_unit]][[feat_type]][[nn_type]] = NULL
+      if(length(gobject@nn_network[[spat_unit]][[feat_type]]) == 0) {
+        gobject@nn_network[[spat_unit]][[feat_type]] = NULL
+        if(length(gobject@nn_network[[spat_unit]]) == 0) {
+          gobject@nn_network[[spat_unit]] = NULL
+          if(length(gobject@nn_network) == 0) {
+            gobject@nn_network = NULL
+          }
+        }
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))
@@ -3154,7 +3183,10 @@ set_spatialNetwork = function(gobject,
 
     # prune if empty
     if(length(gobject@spatial_network[[spat_unit]]) == 0L) {
-      gobject@spatial_network = NULL
+      gobject@spatial_network[[spat_unit]] = NULL
+      if(length(gobject@spatial_network) == 0L) {
+        gobject@spatial_network = NULL
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))
@@ -3757,7 +3789,7 @@ set_polygon_info = function(gobject,
     gobject@spatial_info[[name]] = NULL
 
     # prune if empty
-    if(length(gobject@spatial_info[[name]]) == 0L) {
+    if(length(gobject@spatial_info) == 0L) {
       gobject@spatial_info = NULL
     }
 
@@ -4068,7 +4100,7 @@ set_feature_info = function(gobject,
     gobject@feat_info[[feat_type]] = NULL
 
     # prune if empty
-    if(length(gobject@feat_info[[feat_type]]) == 0L) {
+    if(length(gobject@feat_info) == 0L) {
       gobject@feat_info = NULL
     }
 
@@ -4438,7 +4470,13 @@ set_spatial_enrichment = function(gobject,
 
     # prune if empty
     if(length(gobject@spatial_enrichment[[spat_unit]][[feat_type]]) == 0L) {
-      gobject@spatial_enrichment = NULL
+      gobject@spatial_enrichment[[spat_unit]][[feat_type]] = NULL
+      if(length(gobject@spatial_enrichment[[spat_unit]]) == 0L) {
+        gobject@spatial_enrichment[[spat_unit]] = NULL
+        if(length(gobject@spatial_enrichment) == 0L) {
+          gobject@spatial_enrichment = NULL
+        }
+      }
     }
 
     if(isTRUE(initialize)) return(initialize(gobject))

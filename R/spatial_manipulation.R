@@ -5,6 +5,8 @@
 #' @importMethodsFrom Matrix t
 #' @importMethodsFrom terra t
 #' @importMethodsFrom terra ext
+#' @importMethodsFrom terra ext<-
+#' @importClassesFrom terra SpatExtent
 NULL
 
 # Spatially manipulate objects ####
@@ -58,9 +60,8 @@ setMethod('flip', signature(x = 'spatialNetworkObj'),
 #' @describeIn flip-generic Flip a giottoLargeImage
 #' @export
 setMethod('flip', signature(x = 'giottoLargeImage'),
-          function(x, direction = 'vertical', ...) {
-            x@raster_object = terra::flip(x@raster_object)
-            x
+          function(x, direction = 'vertical', x0 = 0, y0 = 0, ...) {
+            flip_large_image(image = x, direction = direction, x0 = x0, y0 = y0)
           })
 
 #' @describeIn flip-generic Flip a SpatExtent
@@ -184,6 +185,25 @@ setMethod('spatShift', signature('spatialNetworkObj'), function(x, dx = 0, dy = 
   return(x)
 })
 
+#' @rdname spatShift
+#' @export
+setMethod('spatShift', signature('giottoPolygon'), function(x, dx = 0, dy = 0, copy_obj = FALSE, ...) {
+  shift_gpoly(gpoly = x, dx = dx, dy = dy, copy_obj = copy_obj, ...)
+})
+
+#' @rdname spatShift
+#' @export
+setMethod('spatShift', signature('giottoPoints'), function(x, dx = 0, dy = 0, copy_obj = FALSE, ...) {
+  shift_gpoints(gpoints = x, dx = dx, dy = dy, copy_obj = copy_obj, ...)
+})
+
+#' @rdname spatShift
+#' @export
+setMethod('spatShift', signature('giottoLargeImage'), function(x, dx = 0, dy = 0, copy_obj = FALSE, ...) {
+  shift_large_image(image = x, dx = dx, dy = dy, copy_obj = copy_obj, ...)
+})
+
+
 
 
 
@@ -284,7 +304,26 @@ setMethod('ext', signature('spatialNetworkObj'), function(x, ...) {
   terra::ext(c(x[][, range(c(sdimx_begin, sdimx_end))], x[][, range(c(sdimy_begin, sdimy_end))]))
 })
 
+#' @rdname ext-generic
+#' @export
+setMethod('ext', signature('giottoLargeImage'), function(x, ...) {
+  terra::ext(x@raster_object)
+})
 
+#' @rdname ext-generic
+#' @export
+setMethod('ext<-', signature(x = 'giottoLargeImage', value = 'SpatExtent'), function(x, value) {
+  terra::ext(x@raster_object) = value
+  x
+})
+
+# Convert numeric inputs to SpatExtent and have terra deal with inconsistencies
+#' @rdname ext-generic
+#' @export
+setMethod('ext<-', signature(x = 'ANY', value = 'ANY'), function(x, value) {
+  value = terra::ext(value)
+  methods::callGeneric(x, value)
+})
 
 
 
@@ -448,6 +487,59 @@ shift_spatial_network = function(spatnet, dx = 0, dy = 0, dz = 0, copy_obj = TRU
 
 
 
+#' @rdname spatShift
+#' @param ... additional params to pass
+#' @keywords internal
+#' @noRd
+shift_large_image = function(image,
+                             dx = 0,
+                             dy = 0,
+                             copy_obj = FALSE,
+                             ...) {
+  if(copy_obj) image@raster_object = terra::deepcopy(image@raster_object)
+
+  if(!all(dx == 0, dy == 0)) {
+    image@raster_object = terra::shift(image@raster_object, dx = dx, dy = dy, ...)
+  }
+  image
+}
+
+#' @rdname spatShift
+#' @keywords internal
+#' @noRd
+shift_gpoints = function(gpoints,
+                         dx = 0,
+                         dy = 0,
+                         copy_obj = FALSE,
+                         ...) {
+  if(copy_obj) gpoints@spatVector = terra::deepcopy(gpoints@spatVector)
+
+  if(!all(dx == 0, dy == 0)) {
+    gpoints@spatVector = terra::shift(gpoints@spatVector, dx = dx, dy = dy, ...)
+  }
+  gpoints
+}
+
+#' @rdname spatShift
+#' @keywords internal
+#' @noRd
+shift_gpoly = function(gpoly,
+                       dx = 0,
+                       dy = 0,
+                       copy_obj = FALSE,
+                       ...) {
+  if(copy_obj) gpoly@spatVector = terra::deepcopy(gpoly@spatVector)
+
+  if(!all(dx == 0, dy == 0)) {
+    gpoly = do_gpoly(gpoly,
+                     what = terra::shift,
+                     args = list(dx = dx,
+                                 dy = dy,
+                                 ...))
+  }
+  gpoly
+}
+
 
 
 
@@ -556,9 +648,9 @@ flip_gpoly = function(gpoly,
   if(grepl(direction, 'vertical') & !is.null(y0)) {
     y_min = as.numeric(e$ymin)
     dy = y0 - y_min
-    gpoly = Giotto:::do_gpoly(x = gpoly,
-                              what = terra::shift,
-                              args = list(dy = 2 * dy))
+    gpoly = do_gpoly(x = gpoly,
+                     what = terra::shift,
+                     args = list(dy = 2 * dy))
   }
   if(grepl(direction, 'horizontal') & !is.null(x0)) {
     x_min = as.numeric(e$xmin)
@@ -573,6 +665,58 @@ flip_gpoly = function(gpoly,
 }
 
 
+
+
+
+
+
+#' @name flip_large_image
+#' @title Flip a giottoLargeImage object
+#' @description Flip a giottoPoints over a designated x or y value depending on
+#' direction param input. Note that this behavior is different from terra's
+#' implementation of flip for SpatVectors where flips happen over the extent
+#' @param image giottoLargeImage
+#' @param direction character. Direction to flip. Should be either partial match to 'vertical' or 'horizontal'
+#' @param x0 x value to flip horizontally over (ignored for vertical). Pass NULL
+#' to flip over the extent
+#' @param y0 y value to flip vertically over (ignored for horizontal). Pass NULL
+#' to flip over the extent
+#' @keywords internal
+#' @noRd
+flip_large_image = function(image,
+                            direction = 'vertical',
+                            x0 = 0,
+                            y0 = 0) {
+  checkmate::assertClass(image, 'giottoLargeImage')
+  checkmate::assert_character(direction)
+  if(!is.null(x0)) {
+    checkmate::assert_numeric(x0)
+  }
+  if(!is.null(y0)) {
+    checkmate::assert_numeric(y0)
+  }
+
+  # 1. perform flip
+  e = ext(image)
+  image@raster_object = terra::flip(image@raster_object,
+                                    direction = direction)
+
+  # 2. perform shift to match line of symmetry
+  if(grepl(direction, 'vertical') & !is.null(y0)) {
+    y_range = as.numeric(c(e$ymin, e$ymax))
+    dy = 2*y0 - y_range[1] - y_range[2]
+    image = spatShift(x = image, dy = dy)
+  }
+  if(grepl(direction, 'horizontal') & !is.null(x0)) {
+    x_range = as.numeric(c(e$xmin, e$xmax))
+    dx = 2*x0 - x_range[1] - x_range[2]
+    image = spatShift(x = image, dx = dx)
+  }
+
+  # 3. return
+  return(image)
+
+}
 
 
 #' @name flip_gpoints

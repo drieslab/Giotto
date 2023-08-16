@@ -150,7 +150,7 @@ setMethod('featIDs', signature(x = 'spatEnrObj', feat_type = 'missing'),
 #' default spatial unit that the giotto object uses.
 #' @inheritParams data_access_params
 setGeneric('activeSpatUnit', function(gobject, ...) standardGeneric('activeSpatUnit'))
-setGeneric('activeSpatUnit<-', function(gobject, value, ...) standardGeneric('activeSpatUnit<-'))
+setGeneric('activeSpatUnit<-', function(gobject, ..., value) standardGeneric('activeSpatUnit<-'))
 
 #' @rdname activeSpatUnit-generic
 #' @export
@@ -178,7 +178,7 @@ setMethod('activeSpatUnit<-', signature(gobject = 'giotto', value = 'character')
 #' default feature type that the giotto object uses.
 #' @inheritParams data_access_params
 setGeneric('activeFeatType', function(gobject, ...) standardGeneric('activeFeatType'))
-setGeneric('activeFeatType<-', function(gobject, value, ...) standardGeneric('activeFeatType<-'))
+setGeneric('activeFeatType<-', function(gobject, ..., value) standardGeneric('activeFeatType<-'))
 
 #' @rdname activeFeatType-generic
 #' @export
@@ -214,7 +214,7 @@ setMethod('activeFeatType<-', signature(gobject = 'giotto', value = 'character')
 #' @param initialize (boolean, default = TRUE) whether to initialize the giotto object
 #' @param value value to set
 setGeneric('instructions', function(gobject, param, ...) standardGeneric('instructions'))
-setGeneric('instructions<-', function(gobject, param, initialize, value, ...) standardGeneric('instructions<-'))
+setGeneric('instructions<-', function(gobject, param, initialize, ..., value) standardGeneric('instructions<-'))
 
 
 
@@ -458,7 +458,9 @@ setMethod('dim', signature('metaData'), function(x) dim(x@metaDT))
 #' @export
 setMethod('dim', signature('enrData'), function(x) dim(x@enrichDT))
 
-
+#' @rdname dims-generic
+#' @export
+setMethod('dim', signature('giottoLargeImage'), function(x) dim(x@raster_object))
 
 
 
@@ -861,12 +863,25 @@ setGeneric('spatUnit<-', function(x, value) standardGeneric('spatUnit<-'))
 #' @export
 setMethod('spatUnit', signature = 'spatData', function(x) x@spat_unit)
 
+#' @describeIn spatUnit-generic Get spatial unit information
+#' @export
+setMethod('spatUnit', signature('giottoPolygon'), function(x) x@name)
+
 
 #' @describeIn spatUnit-generic Set spatial unit information
 #' @export
 setMethod('spatUnit<-', signature = 'spatData', function(x, value) {
   value = as.character(value)
   x@spat_unit = value
+  x
+})
+
+# giottoPolygon name describes the same thing as the spat_unit
+#' @describeIn spatUnit-generic Set giottoPolygon spat_unit
+#' @export
+setMethod('spatUnit<-', signature('giottoPolygon'), function(x, value) {
+  value = as.character(value)
+  x@name = value
   x
 })
 
@@ -918,11 +933,47 @@ setGeneric('objName<-', function(x, value) standardGeneric('objName<-'))
 #' @export
 setMethod('objName', signature = 'nameData', function(x) x@name)
 
-#' @describeIn objName-generic Set name information
+#' @describeIn objName-generic Get name giottoPoints
+#' @export
+setMethod('objName', signature = 'giottoPoints', function(x) x@feat_type)
+
+#' @rdname objName-generic
+#' @export
+setMethod('objName', signature('giottoLargeImage'), function(x) x@name)
+
+#' @rdname objName-generic
+#' @export
+setMethod('objName', signature('giottoImage'), function(x) x@name)
+
+#' @rdname objName-generic
 #' @export
 setMethod('objName<-', signature = 'nameData', function(x, value) {
   value = as.character(value)
   x@name = value
+  x
+})
+
+#' @rdname objName-generic
+#' @export
+setMethod('objName<-', signature = 'giottoImage', function(x, value) {
+  value = as.character(value)
+  x@name = value
+  x
+})
+
+#' @rdname objName-generic
+setMethod('objName<-', signature('giottoLargeImage'), function(x, value) {
+  value = as.character(value)
+  x@name = value
+  x
+})
+
+# name describes the same thing as feat_type for giottoPoints
+#' @describeIn objName-generic Set name giottoPoints
+#' @export
+setMethod('objName<-', signature = 'giottoPoints', function(x, value) {
+  value = as.character(value)
+  x@feat_type = value
   x
 })
 

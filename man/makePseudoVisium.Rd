@@ -4,20 +4,23 @@
 \alias{makePseudoVisium}
 \title{makePseudoVisium}
 \usage{
-makePseudoVisium(spat_locs = NULL, center_center_distance_um = 0.5)
+makePseudoVisium(extent = NULL, micron_size = 1, name = "pseudo_visium")
 }
 \arguments{
-\item{spat_locs}{Spatial locations of giotto object with columns sdimx and sdimy}
+\item{extent}{SpatExtent or anything else a SpatExtent can be extracted or created from}
 
-\item{center_center_distance_um}{Center-to-center distance of input spat_locs in micrometers}
+\item{micron_size}{size of a micrometer relative to spatial coordinates}
+
+\item{name}{character. (default is 'pseudo_visium') Name of giottoPolygon object to create}
 }
 \value{
-A data.table of vertices for the pseudo-visium spots.
+A giottoPolygon for the pseudo-visium spots.
 }
 \description{
-Generates a pseudo-visium grid of spots based on the input spatial locations
+Generates a pseudo-visium grid of spots across a provided spatial extent
 }
 \details{
-This function generates a pseudo-Visium grid of spots based on the input spatial locations. The center-to-center distance parameter is used to determine the size of the spots
+This function generates a pseudo-Visium grid of spots based on the input spatial locations.
+The micron_size param is used to determine the size of the spots
 }
 \concept{spatial location}

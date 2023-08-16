@@ -3,7 +3,7 @@
 # Giotto Suite 3.3.1 (Release TBD)
 
 ## Breaking Changes
-
+- Change `checkGiottoEnvironment()`. Downgrade from error to message and return FALSE when a provided directory does not exist
 
 ## Added
 - New file `poly_influence.R`
@@ -11,7 +11,7 @@
 - New function `showCellProportionSwitchedPie()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a pie chart
 - New function `showCellProportionSwitchedSankey()` within `poly_influence.R` to visualize results from `showPolygonSizeInfluence()` in a Sankey diagram
 - New function `makePseudoVisium()` within `giotto_structure.R` to generate a pseudo visium grid of circular spots 
-- New function `tessellateSpatLocs()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
+- New function `tessellate()` within `giotto_structure.R` to generate a grid of hexagons or squares for spatial binning
 - New file `feature_set_enrichment.R`
 - New function `doFeatureSetEnrichment()` within `feature_set_enrichment.R` for GSEA analysis
 - New function `doGiottoClustree()` within `clustering.R` for visualizations of leiden clusters at varying resolutions
@@ -21,8 +21,8 @@
 - Add *checkmate* to Imports for assertions checking
 - Add exported `create` function for `exprObj` creation
 - New file `spatial_manipulation.R`
-- Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`
-- Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`
+- Add `ext()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `giottoLargeImage`
+- Add `flip()` methods for `giottoPolygon`, `giottoPoints`, `spatialNetworkObj`, `spatLocsObj`, `SpatExtent`, `giottoLargeImage`
 - Add access to terra plotting params for `giottoLargeImage` `plot()` method.
 
 ## Changes
@@ -48,6 +48,8 @@
 - Update cell segmentation workflow to return grayscale mask images instead of RGB
 - Update `createGiottoVisiumObject()` image h5 scalefactors reading to use partial matching for whether hi or lowres image is supplied
 - Update `giottoLargeImage` `plot()` method to use `terra::plot()` instead of `terra::plotRGB()` for grayscale images
+- Remove unnecessary prints from `subsetGiotto()`
+- Fix bug in `readCellMetadata()` and `readFeatMetadata()`
 
 
 # Giotto Suite 3.3.0 (2023-04-18)

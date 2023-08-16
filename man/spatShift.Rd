@@ -4,6 +4,9 @@
 \alias{spatShift}
 \alias{spatShift,spatLocsObj-method}
 \alias{spatShift,spatialNetworkObj-method}
+\alias{spatShift,giottoPolygon-method}
+\alias{spatShift,giottoPoints-method}
+\alias{spatShift,giottoLargeImage-method}
 \title{Spatially shift an object}
 \usage{
 spatShift(x, ...)
@@ -11,6 +14,12 @@ spatShift(x, ...)
 \S4method{spatShift}{spatLocsObj}(x, dx = 0, dy = 0, dz = 0, copy_obj = TRUE, ...)
 
 \S4method{spatShift}{spatialNetworkObj}(x, dx = 0, dy = 0, dz = 0, copy_obj = TRUE, ...)
+
+\S4method{spatShift}{giottoPolygon}(x, dx = 0, dy = 0, copy_obj = FALSE, ...)
+
+\S4method{spatShift}{giottoPoints}(x, dx = 0, dy = 0, copy_obj = FALSE, ...)
+
+\S4method{spatShift}{giottoLargeImage}(x, dx = 0, dy = 0, copy_obj = FALSE, ...)
 }
 \arguments{
 \item{x}{object}

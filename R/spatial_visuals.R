@@ -2706,7 +2706,6 @@ spatPlot2D_single = function(gobject,
 
     } else if(!is.null(largeImage_name)) {
       # If there is input to largeImage_name arg
-
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_largeImage_resample(gobject = gobject,
                                                largeImage_name = largeImage_name,

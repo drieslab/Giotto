@@ -6,6 +6,7 @@
 \usage{
 spatialExperimentToGiotto(
   spe,
+  python_path,
   nn_network = NULL,
   sp_network = NULL,
   verbose = TRUE
@@ -14,13 +15,15 @@ spatialExperimentToGiotto(
 \arguments{
 \item{spe}{Input SpatialExperiment object to convert to a Giotto object.}
 
+\item{python_path}{Specify the path to python.}
+
 \item{nn_network}{Specify the name of the nearest neighbour network(s)
 in the input SpatialExperiment object. Default \code{NULL} will use
 all existing networks.}
 
 \item{sp_network}{Specify the name of the spatial network(s) in the input
 SpatialExperiment object. Default \code{NULL} will use all existing
-networks.}
+networks. This can be a vector of multiple network names.}
 
 \item{verbose}{A boolean value specifying if progress messages should
 be displayed or not. Default \code{TRUE}.}

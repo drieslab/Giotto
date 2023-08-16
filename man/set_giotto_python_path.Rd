@@ -4,7 +4,12 @@
 \alias{set_giotto_python_path}
 \title{set_giotto_python_path}
 \usage{
-set_giotto_python_path(python_path = NULL)
+set_giotto_python_path(python_path = NULL, verbose = TRUE)
+}
+\arguments{
+\item{python_path}{character. Full path to python executable}
+
+\item{verbose}{be verbose}
 }
 \description{
 sets the python path
