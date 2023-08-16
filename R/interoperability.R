@@ -1683,7 +1683,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' all existing networks.
 #' @param sp_network Specify the name of the spatial network(s) in the input
 #' SpatialExperiment object. Default \code{NULL} will use all existing
-#' networks.
+#' networks. This can be a vector of multiple network names.
 #' @param verbose A boolean value specifying if progress messages should
 #' be displayed or not. Default \code{TRUE}.
 #' @import data.table
@@ -1731,6 +1731,9 @@ spatialExperimentToGiotto <- function(spe,
 
   # Phenotype Data
   pData <- SummarizedExperiment::colData(spe)
+  
+  # To handle cell_ID duplication issues
+  if ("cell_ID" %in% colnames(pData)) {pData$`cell_ID` <- NULL} 
   if(nrow(pData) > 0){
     if(verbose) message("Copying phenotype data")
     giottoObj <- addCellMetadata(gobject = giottoObj, new_metadata = as.data.table(pData))
@@ -1789,11 +1792,14 @@ spatialExperimentToGiotto <- function(spe,
   networks <- SingleCellExperiment::colPairs(spe)
   # Spatial Networks
   if(!is.null(sp_network)){
-    if(sp_network %in% names(networks)){
+    if(all(sp_network %in% names(networks))){
       for(i in seq(sp_network)){
         if(verbose) message("Copying spatial networks")
+        networkDT = as.data.table(networks[[sp_network[i]]])
+        networkDT$to <-colnames(spe)[networkDT$to]
+        networkDT$from <- colnames(spe)[networkDT$from]
         spatNetObj <- create_spat_net_obj(
-          networkDT = as.data.table(networks[[sp_network[i]]]))
+          networkDT = networkDT)
         giottoObj <- set_spatialNetwork(gobject = giottoObj,
                                         spatial_network = spatNetObj,
                                         name = sp_network[i])
