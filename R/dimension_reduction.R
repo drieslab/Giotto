@@ -241,7 +241,7 @@ runPCA_factominer = function(x,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param BSPARAM method to use
-#' @param BSParameters additonal parameters for method
+#' @param BPPARAM BiocParallelParam object
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_BiocSingular = function(x,
@@ -252,7 +252,7 @@ runPCA_BiocSingular = function(x,
                                set_seed = TRUE,
                                seed_number = 1234,
                                BSPARAM = c('irlba', 'exact', 'random'),
-                               BSParameters = list(NA),
+                               BPPARAM = BiocParallel::SerialParam(),
                                ...) {
 
   BSPARAM = match.arg(BSPARAM, choices = c('irlba', 'exact', 'random'))
@@ -276,17 +276,20 @@ runPCA_BiocSingular = function(x,
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     BSPARAM = BiocSingular::IrlbaParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'exact') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     BSPARAM = BiocSingular::ExactParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'random') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     BSPARAM = BiocSingular::RandomParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     }
 
@@ -309,17 +312,20 @@ runPCA_BiocSingular = function(x,
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     BSPARAM = BiocSingular::IrlbaParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'exact') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     BSPARAM = BiocSingular::ExactParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'random') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     BSPARAM = BiocSingular::RandomParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     }
 
@@ -423,7 +429,7 @@ create_feats_to_use_matrix = function(gobject,
 #' @param scale_unit scale features before PCA (default = TRUE)
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
-#' @param method_params additional parameters
+#' @param method_params BiocParallelParam object
 #' @param rev do a reverse PCA
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
@@ -451,7 +457,7 @@ runPCA <- function(gobject,
                    scale_unit = TRUE,
                    ncp = 100,
                    method = c('irlba', 'exact', 'random','factominer'),
-                   method_params = list(NA),
+                   method_params = BiocParallel::SerialParam(),
                    rev = FALSE,
                    set_seed = TRUE,
                    seed_number = 1234,
@@ -488,31 +494,31 @@ runPCA <- function(gobject,
                                       spat_unit = spat_unit,
                                       values = values,
                                       output = 'exprObj')
-  
+
   provenance = prov(expr_values)
-  
+
   if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = slot(expr_values, 'exprMat')
-    
+
     expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                      name = paste0('expression/',
                                                    feat_type,'/',
                                                    values))
-    
+
     expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = paste0('expression/',
                                                             feat_type,'/',
                                                             values))
-    
+
     rownames(expr_values) = expr_dimnames[[1]]
     colnames(expr_values) = expr_dimnames[[2]]
-    
+
   } else {
     expr_values = expr_values[] # extract matrix
   }
-  
- 
-  
+
+
+
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -524,7 +530,7 @@ runPCA <- function(gobject,
                                              verbose = verbose)
   }
 
-  
+
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
 
@@ -542,7 +548,7 @@ runPCA <- function(gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
                                        BSPARAM = method,
-                                       BSParameters = method_params,
+                                       BPPARAM = method_params,
                                        ...)
     } else if(method == 'factominer') {
       pca_object = runPCA_factominer(x = t_flex(expr_values),
@@ -554,8 +560,8 @@ runPCA <- function(gobject,
     } else {
       stop('only PCA methods from the BiocSingular and factominer package have been implemented \n')
     }
-    
-   
+
+
 
   } else {
     # PCA on genes
@@ -568,7 +574,7 @@ runPCA <- function(gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
                                        BSPARAM = method,
-                                       BSParameters = method_params,
+                                       BPPARAM = method_params,
                                        ...)
 
     } else if(method == 'factominer') {
@@ -580,7 +586,7 @@ runPCA <- function(gobject,
     }
 
   }
-  
+
   print("finished runPCA_factominer, method == factominer")
 
 
@@ -1384,24 +1390,24 @@ runUMAP <- function(gobject,
                                           feat_type = feat_type,
                                           values = values,
                                           output = 'exprObj')
-      
+
       provenance = prov(expr_values)
-      
+
       if(!is.null(slot(gobject, 'h5_file'))) {
         expr_path = slot(expr_values, 'exprMat')
-        
+
         expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                          name = expr_path)
-        
+
         expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                                   name = expr_path)
-        
+
         rownames(expr_values) = expr_dimnames[[1]]
         colnames(expr_values) = expr_dimnames[[2]]
       } else {
         expr_values = expr_values[] # extract matrix
       }
-   
+
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
