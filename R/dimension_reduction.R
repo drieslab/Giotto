@@ -241,7 +241,7 @@ runPCA_factominer = function(x,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param BSPARAM method to use
-#' @param BSParameters additonal parameters for method
+#' @param BPPARAM BiocParallelParam object
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_BiocSingular = function(x,
@@ -252,7 +252,7 @@ runPCA_BiocSingular = function(x,
                                set_seed = TRUE,
                                seed_number = 1234,
                                BSPARAM = c('irlba', 'exact', 'random'),
-                               BSParameters = list(NA),
+                               BPPARAM = BiocParallel::SerialParam(),
                                ...) {
 
   BSPARAM = match.arg(BSPARAM, choices = c('irlba', 'exact', 'random'))
@@ -276,17 +276,20 @@ runPCA_BiocSingular = function(x,
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     BSPARAM = BiocSingular::IrlbaParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'exact') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     BSPARAM = BiocSingular::ExactParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'random') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     BSPARAM = BiocSingular::RandomParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     }
 
@@ -309,17 +312,20 @@ runPCA_BiocSingular = function(x,
     if(BSPARAM == 'irlba') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     BSPARAM = BiocSingular::IrlbaParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'exact') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     BSPARAM = BiocSingular::ExactParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     } else if(BSPARAM == 'random') {
       pca_res = BiocSingular::runPCA(x = x, rank = ncp,
                                      center = center, scale = scale,
-                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     BSPARAM = BiocSingular::RandomParam(),
+                                     BPPARAM = BPPARAM,
                                      ...)
     }
 
@@ -423,7 +429,7 @@ create_feats_to_use_matrix = function(gobject,
 #' @param scale_unit scale features before PCA (default = TRUE)
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
-#' @param method_params additional parameters
+#' @param method_params BiocParallelParam object
 #' @param rev do a reverse PCA
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
@@ -451,7 +457,7 @@ runPCA <- function(gobject,
                    scale_unit = TRUE,
                    ncp = 100,
                    method = c('irlba', 'exact', 'random','factominer'),
-                   method_params = list(NA),
+                   method_params = BiocParallel::SerialParam(),
                    rev = FALSE,
                    set_seed = TRUE,
                    seed_number = 1234,
@@ -488,31 +494,31 @@ runPCA <- function(gobject,
                                       spat_unit = spat_unit,
                                       values = values,
                                       output = 'exprObj')
-  
+
   provenance = prov(expr_values)
-  
+
   if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = slot(expr_values, 'exprMat')
-    
+
     expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                      name = paste0('expression/',
                                                    feat_type,'/',
                                                    values))
-    
+
     expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = paste0('expression/',
                                                             feat_type,'/',
                                                             values))
-    
+
     rownames(expr_values) = expr_dimnames[[1]]
     colnames(expr_values) = expr_dimnames[[2]]
-    
+
   } else {
     expr_values = expr_values[] # extract matrix
   }
-  
- 
-  
+
+
+
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -524,7 +530,7 @@ runPCA <- function(gobject,
                                              verbose = verbose)
   }
 
-  
+
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
 
@@ -542,7 +548,7 @@ runPCA <- function(gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
                                        BSPARAM = method,
-                                       BSParameters = method_params,
+                                       BPPARAM = method_params,
                                        ...)
     } else if(method == 'factominer') {
       pca_object = runPCA_factominer(x = t_flex(expr_values),
@@ -554,8 +560,8 @@ runPCA <- function(gobject,
     } else {
       stop('only PCA methods from the BiocSingular and factominer package have been implemented \n')
     }
-    
-   
+
+
 
   } else {
     # PCA on genes
@@ -568,7 +574,7 @@ runPCA <- function(gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
                                        BSPARAM = method,
-                                       BSParameters = method_params,
+                                       BPPARAM = method_params,
                                        ...)
 
     } else if(method == 'factominer') {
@@ -580,7 +586,7 @@ runPCA <- function(gobject,
     }
 
   }
-  
+
   print("finished runPCA_factominer, method == factominer")
 
 
@@ -627,6 +633,383 @@ runPCA <- function(gobject,
     return(pca_object)
   }
 }
+
+
+## * PCA projections  ####
+# ---------------------- #
+
+
+#' @title runPCA_BiocSingular_irlba_projection
+#' @name runPCA_BiocSingular_irlba_projection
+#' @description Performs PCA based on the biocSingular package on a
+#' subset of the matrix. It uses the obtained loadings to predicted coordinates
+#' for the remaining matrix.
+#' @param x matrix or object that can be converted to matrix
+#' @param ncp number of principal components to calculate
+#' @param center center the matrix before pca
+#' @param scale scale features
+#' @param rev reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
+#' @param BPPARAM BiocParallelParam object
+#' @param random_subset random subset to perform PCA on
+#' @param verbose verbosity level
+#' @keywords internal
+#' @return list of eigenvalues, loadings and pca coordinates
+runPCA_BiocSingular_irlba_projection = function(x,
+                                                ncp = 100,
+                                                center = TRUE,
+                                                scale = TRUE,
+                                                rev = FALSE,
+                                                set_seed = TRUE,
+                                                seed_number = 1234,
+                                                BPPARAM = BiocParallel::SerialParam(),
+                                                random_subset = 500,
+                                                verbose = TRUE,
+                                                ...) {
+
+
+  x = scale(x, center = center, scale = scale)
+
+  min_ncp = min(dim(x))
+
+  if(ncp >= min_ncp) {
+    warning("ncp >= minimum dimension of x, will be set to minimum dimension of x - 1")
+    ncp = min_ncp-1
+  }
+
+  # start seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = seed_number)
+  }
+
+
+
+
+  if(isTRUE(rev)) {
+
+    x = t_flex(x)
+
+    # store cell ID order information
+    cell_ID_order = rownames(x)
+
+    # create random selection
+    random_selection = sort(sample(1:nrow(x), random_subset))
+    subsample_matrix = x[random_selection, ]
+
+
+    if(verbose) wrap_msg('pca random subset: start')
+
+    # pca on random selection
+    pca_res = BiocSingular::runPCA(x = subsample_matrix,
+                                   rank = ncp,
+                                   center = F, scale = F,
+                                   BSPARAM = BiocSingular::IrlbaParam(),
+                                   BPPARAM = BPPARAM,
+                                   ...)
+
+    if(verbose) wrap_msg('pca random subset: done')
+    if(verbose) wrap_msg('pca prediction: start')
+
+    # create leftover matrix
+    leftover_matrix = x[-random_selection, ]
+
+    # predict on leftover matrix
+    class(pca_res) = 'prcomp'
+    pca_res$center = FALSE
+    pca_res$scale = FALSE
+    project_results = predict(pca_res, leftover_matrix)
+
+    if(verbose) wrap_msg('pca prediction: done')
+
+    # combine subsample + predicted coordinates
+    coords = rbind(pca_res$x, project_results)
+    coords = coords[match(cell_ID_order, rownames(coords)), ]
+
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+
+    # PC loading
+    loadings = coords
+    rownames(loadings) = rownames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+
+    # coordinates
+    coords = pca_res$rotation
+    rownames(coords) = colnames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+
+
+  } else {
+
+    # store cell ID order information
+    cell_ID_order = rownames(x)
+
+    # create random selection
+    random_selection = sort(sample(1:nrow(x), random_subset))
+    subsample_matrix = x[random_selection, ]
+
+    if(verbose) wrap_msg('pca random subset: start')
+
+    pca_res = BiocSingular::runPCA(x = subsample_matrix,
+                                   rank = ncp,
+                                   center = F, scale = F,
+                                   BSPARAM = BiocSingular::IrlbaParam(),
+                                   BPPARAM = BPPARAM,
+                                   ...)
+
+    if(verbose) wrap_msg('pca random subset: done')
+    if(verbose) wrap_msg('pca prediction: start')
+
+    # create leftover matrix
+    leftover_matrix = x[-random_selection, ]
+
+    # predict on leftover matrix
+    class(pca_res) = 'prcomp'
+    pca_res$center = FALSE
+    pca_res$scale = FALSE
+    project_results = predict(pca_res, leftover_matrix)
+
+    if(verbose) wrap_msg('pca prediction: done')
+
+    # combine subsample + predicted coordinates
+    coords = rbind(pca_res$x, project_results)
+    coords = coords[match(cell_ID_order, rownames(coords)), ]
+
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+
+    # PC loading
+    loadings = pca_res$rotation
+    rownames(loadings) = colnames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+
+    # coordinates
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+
+  }
+
+
+  # exit seed
+  if(isTRUE(set_seed)) {
+    set.seed(seed = Sys.time())
+  }
+
+  return(result)
+
+}
+
+
+
+
+
+
+#' @title runPCAprojection
+#' @name runPCAprojection
+#' @description runs a Principal Component Analysis
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param expression_values expression values to use
+#' @param reduction cells or genes
+#' @param random_subset random subset to perform PCA on
+#' @param name arbitrary name for PCA run
+#' @param feats_to_use subset of features to use for PCA
+#' @param genes_to_use deprecated use feats_to_use
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param center center data first (default = TRUE)
+#' @param scale_unit scale features before PCA (default = TRUE)
+#' @param ncp number of principal components to calculate
+#' @param method which implementation to use
+#' @param method_params BiocParallelParam object
+#' @param rev do a reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
+#' @param verbose verbosity of the function
+#' @param ... additional parameters for PCA (see details)
+#' @return giotto object with updated PCA dimension recuction
+#' @details See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' This PCA implementation is similar to  \code{\link{runPCA}}, except that it
+#' performs PCA on a subset of the cells or features, and predict on the others.
+#' This can significantly increase speed without sacrificing accuracy too much.
+#' \itemize{
+#'   \item feats_to_use = NULL: will use all features from the selected matrix
+#'   \item feats_to_use = <hvg name>: can be used to select a column name of
+#'   highly variable features, created by (see \code{\link{calculateHVF}})
+#'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
+#' }
+#' @export
+runPCAprojection = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
+                            expression_values = c('normalized', 'scaled', 'custom'),
+                            reduction = c('cells', 'feats'),
+                            random_subset = 500,
+                            name = NULL,
+                            feats_to_use = 'hvf',
+                            return_gobject = TRUE,
+                            center = TRUE,
+                            scale_unit = TRUE,
+                            ncp = 100,
+                            method = c('irlba'),
+                            method_params = BiocParallel::SerialParam(),
+                            rev = FALSE,
+                            set_seed = TRUE,
+                            seed_number = 1234,
+                            verbose = TRUE) {
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # specify name to use for pca
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'pca'
+    } else {
+      name = paste0(feat_type,'.','pca')
+    }
+  }
+
+  # expression values to be used
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values,
+                                      output = 'exprObj')
+
+  provenance = prov(expr_values)
+
+  if(!is.null(slot(gobject, 'h5_file'))) {
+    expr_path = slot(expr_values, 'exprMat')
+
+    expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
+                                     name = paste0('expression/',
+                                                   feat_type,'/',
+                                                   values))
+
+    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
+                                              name = paste0('expression/',
+                                                            feat_type,'/',
+                                                            values))
+
+    rownames(expr_values) = expr_dimnames[[1]]
+    colnames(expr_values) = expr_dimnames[[2]]
+
+  } else {
+    expr_values = expr_values[] # extract matrix
+  }
+
+
+
+  ## subset matrix
+  if(!is.null(feats_to_use)) {
+    expr_values = create_feats_to_use_matrix(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             sel_matrix = expr_values,
+                                             feats_to_use = feats_to_use,
+                                             verbose = verbose)
+  }
+
+
+  # do PCA dimension reduction
+  reduction = match.arg(reduction, c('cells', 'feats'))
+
+  # PCA implementation
+  method = match.arg(method, c('irlba'))
+
+  if(reduction == 'cells') {
+
+    # PCA on cells
+    pca_object = runPCA_BiocSingular_irlba_projection(x = t_flex(expr_values),
+                                                      ncp = ncp,
+                                                      center = center,
+                                                      scale = scale,
+                                                      rev = rev,
+                                                      set_seed = set_seed,
+                                                      seed_number = seed_number,
+                                                      BPPARAM = method_params,
+                                                      random_subset = random_subset,
+                                                      verbose = verbose,
+                                                      ...)
+
+  } else {
+
+    # PCA on features
+    pca_object = runPCA_BiocSingular_irlba_projection(x = expr_values,
+                                                      ncp = ncp,
+                                                      center = center,
+                                                      scale = scale,
+                                                      rev = rev,
+                                                      set_seed = set_seed,
+                                                      seed_number = seed_number,
+                                                      BPPARAM = method_params,
+                                                      random_subset = random_subset,
+                                                      verbose = verbose,
+                                                      ...)
+
+
+
+  }
+
+  if(return_gobject == TRUE) {
+
+    pca_names = list_dim_reductions_names(gobject = gobject,
+                                          data_type = reduction,
+                                          spat_unit = spat_unit,
+                                          feat_type = feat_type,
+                                          dim_type = 'pca')
+
+    if(name %in% pca_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    if (reduction == "cells") {
+      my_row_names = colnames(expr_values)
+    } else {
+      my_row_names = rownames(expr_values)
+    }
+
+    dimObject = create_dim_obj(name = name,
+                               feat_type = feat_type,
+                               spat_unit = spat_unit,
+                               provenance = provenance,
+                               reduction = reduction,
+                               reduction_method = 'pca',
+                               coordinates = pca_object$coords,
+                               misc = list(eigenvalues = pca_object$eigenvalues,
+                                           loadings = pca_object$loadings),
+                               my_rownames = my_row_names)
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_dimReduction(gobject = gobject, dimObject = dimObject)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject, description = '_pca')
+    return(gobject)
+
+
+
+  } else {
+    return(pca_object)
+  }
+
+
+}
+
+
 
 
 ## * PC estimates ####
@@ -1384,24 +1767,24 @@ runUMAP <- function(gobject,
                                           feat_type = feat_type,
                                           values = values,
                                           output = 'exprObj')
-      
+
       provenance = prov(expr_values)
-      
+
       if(!is.null(slot(gobject, 'h5_file'))) {
         expr_path = slot(expr_values, 'exprMat')
-        
+
         expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                          name = expr_path)
-        
+
         expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                                   name = expr_path)
-        
+
         rownames(expr_values) = expr_dimnames[[1]]
         colnames(expr_values) = expr_dimnames[[2]]
       } else {
         expr_values = expr_values[] # extract matrix
       }
-   
+
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
