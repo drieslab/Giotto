@@ -44,11 +44,11 @@ cluster cells using leiden methodology to visualize different resolutions
 }
 \details{
 This function tests different resolutions for Leiden clustering and provides a visualization
-of cluster sizing as resolution varies. 
+of cluster sizing as resolution varies.
 
 By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
 
-If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information 
+If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information
 will be returned.
 }
 \seealso{
