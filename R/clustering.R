@@ -184,11 +184,156 @@ doLeidenCluster = function(gobject,
 
 }
 
+
+
+
+#' @title doLeidenClusterIgraph
+#' @name doLeidenClusterIgraph
+#' @description cluster cells using a NN-network and the Leiden community
+#' detection algorithm as implemented in igraph
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param name name for cluster, default to "leiden_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
+#' @param objective_function objective function for the leiden algo
+#' @param weights weights of edges
+#' @param resolution_parameter resolution, default = 1
+#' @param beta leiden randomness
+#' @param initial_membership initial membership of cells for the partition
+#' @param n_iterations number of interations to run the Leiden algorithm.
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param set_seed set seed
+#' @param seed_number number for seed
+#' @return giotto object with new clusters appended to cell metadata
+#' @details
+#' This function is a wrapper for the Leiden algorithm implemented in igraph,
+#' which can detect communities in graphs of millions of nodes (cells),
+#' as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}} for more information.
+#'
+#' Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
+#' Set \emph{weights = NA} if you don't want to use vertices weights
+#'
+#' @export
+doLeidenClusterIgraph = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 name = 'leiden_clus',
+                                 nn_network_to_use = 'sNN',
+                                 network_name = 'sNN.pca',
+                                 objective_function = c("modularity", "CPM"),
+                                 weights = NULL,
+                                 resolution_parameter = 1,
+                                 beta = 0.01,
+                                 initial_membership = NULL,
+                                 n_iterations = 1000,
+                                 return_gobject = TRUE,
+                                 set_seed = TRUE,
+                                 seed_number = 1234,
+                                 ...) {
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  ## get cell IDs ##
+  cell_ID_vec = gobject@cell_ID[[spat_unit]]
+
+  ## select network to use
+  igraph_object = get_NearestNetwork(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = 'igraph')
+
+  ## select partition type
+  objective_function = match.arg(objective_function,
+                                 choices = c("modularity", "CPM"))
+
+  ## set seed
+  if(isTRUE(set_seed)) {
+    seed_number = as.integer(seed_number)
+  } else {
+    seed_number = as.integer(sample(x = 1:10000, size = 1))
+  }
+
+  # make igraph network undirected
+  graph_object_undirected = igraph::as.undirected(graph_object)
+
+  leiden_clusters = igraph::cluster_leiden(graph = graph_object_undirected,
+                                           objective_function = objective_function,
+                                           resolution_parameter = resolution_parameter,
+                                           beta = beta,
+                                           weights = weights,
+                                           initial_membership = initial_membership,
+                                           n_iterations = n_iterations,
+                                           ...)
+
+  # summarize results
+  ident_clusters_DT = data.table::data.table('cell_ID' = leiden_clusters$names, 'name' = leiden_clusters$membership)
+  data.table::setnames(ident_clusters_DT, 'name', name)
+
+
+
+  ## add clusters to metadata ##
+  if(return_gobject == TRUE) {
+
+
+    cluster_names = names(pDataDT(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type))
+    #cluster_names = names(gobject@cell_metadata[[spat_unit]][[feat_type]])
+
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    }
+
+    gobject = addCellMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject, description = '_cluster')
+    return(gobject)
+
+
+  } else {
+
+    # else return clustering result
+    return(ident_clusters_DT)
+  }
+
+
+}
+
+
+
 #' @title doGiottoClustree
 #' @name doGiottoClustree
 #' @description cluster cells using leiden methodology to visualize different resolutions
 #' @param gobject giotto object
-#' @param res_vector vector of different resolutions to test 
+#' @param res_vector vector of different resolutions to test
 #' @param res_seq list of float numbers indicating start, end, and step size for resolution testing, i.e. (0.1, 0.6, 0.1)
 #' @param return_gobject default FALSE. See details for more info.
 #' @param show_plot by default, pulls from provided gobject instructions
@@ -198,15 +343,15 @@ doLeidenCluster = function(gobject,
 #' @param default_save_name name of saved plot, defaut "clustree"
 #' @return a plot object (default), OR a giotto object (if specified)
 #' @details This function tests different resolutions for Leiden clustering and provides a visualization
-#' of cluster sizing as resolution varies. 
-#' 
+#' of cluster sizing as resolution varies.
+#'
 #' By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
-#' 
-#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information 
-#' will be returned. 
+#'
+#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information
+#' will be returned.
 #' @seealso \code{\link{doLeidenCluster}}
 #' @export
-doGiottoClustree <- function(gobject, 
+doGiottoClustree <- function(gobject,
                              res_vector = NULL,
                              res_seq = NULL,
                              return_gobject = FALSE,
@@ -223,28 +368,28 @@ doGiottoClustree <- function(gobject,
       res_vector = seq(res_seq[1], res_seq[2], res_seq[3])
     } else stop("Please input res_vector or res_seq parameters")
   }
-  
+
   ## performing multiple leiden clusters at resolutions specified
   for (i in res_vector){
     gobject = doLeidenCluster(gobject = gobject, resolution = i, name = paste0("leiden_clustree_", print(i), ...))
   }
-  
+
   ## plotting clustree graph
   pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## add
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
@@ -254,7 +399,7 @@ doGiottoClustree <- function(gobject,
   if(return_gobject == TRUE){
     return(gobject)
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
