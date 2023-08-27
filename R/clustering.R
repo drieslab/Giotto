@@ -2883,3 +2883,158 @@ getDendrogramSplits = function(gobject,
 
 
 
+#' @title Project of cluster labels
+#' @name doClusterProjection
+#' @description Use a fast KNN classifier to predict labels from a smaller giotto object
+#' @param target_gobject target giotto object
+#' @param target_cluster_label_name name for predicted clusters
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param source_gobject source giotto object with annotation data
+#' @param source_cluster_labels annotation/labels to use to train KNN classifier
+#' @param reduction reduction on cells or features (default = cells)
+#' @param reduction_method shared reduction method (default = pca space)
+#' @param reduction_name name of shared reduction space (default name = 'pca')
+#' @param dimensions_to_use dimensions to use in shared reduction space (default = 1:10)
+#' @param knn_k number of k-neighbors to train a KNN classifier
+#' @param prob output probabilities together with label predictions
+#' @param algorithm nearest neighbor search algorithm
+#' @param return_gobject return giotto object
+#' @return giotto object (default) or data.table with cell metadata
+#'
+#' @details Function to train a KNN with \code{\link[FNN]{knn}}. The training data
+#' is obtained from the source giotto object (source_gobject) using existing annotations
+#' within the cell metadata. Cells without annotation/labels from the target giotto
+#' object (target_gobject) will receive predicted labels (and optional probabilities
+#' with prob = TRUE).
+#'
+#' **IMPORTANT** This projection assumes that you're using the same dimension reduction
+#' space (e.g. PCA) and number of dimensions (e.g. first 10 PCs) to train the KNN
+#' classifier as you used to create the initial annotations/labels in the source
+#' Giotto object.
+#'
+#' Altogether this is a convenience function that allow you to work with very big
+#' data as you can predict cell labels on a smaller & subsetted Giotto object and then
+#' project the cell labels to the remaining cells in the target Giotto object.
+#' @export
+doClusterProjection = function(target_gobject,
+                               target_cluster_label_name = 'knn_labels',
+                               spat_unit = NULL,
+                               feat_type = NULL,
+                               source_gobject,
+                               source_cluster_labels = NULL,
+                               reduction = 'cells',
+                               reduction_method = 'pca',
+                               reduction_name = 'pca',
+                               dimensions_to_use = 1:10,
+                               knn_k = 10,
+                               prob = FALSE,
+                               algorithm = c("kd_tree",
+                                             "cover_tree", "brute"),
+                               return_gobject = TRUE) {
+
+
+  # package check for dendextend
+  package_check(pkg_name = "FNN", repository = "CRAN")
+
+  # identify clusters from source object and create annotation vector
+  cell_meta_source = get_cell_metadata(gobject = source_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'data.table')
+  source_annot_vec = cell_meta_source[[source_cluster_labels]]
+  names(source_annot_vec) = cell_meta_source[['cell_ID']]
+
+  # create the matrix from the target object that you want to use for the kNN classifier
+  # the matrix should be the same for the source and target objects (e.g. same PCA space)
+  dim_obj = get_dimReduction(gobject = target_gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             reduction = reduction,
+                             reduction_method = reduction_method,
+                             name = reduction_name,
+                             output = 'dimObj')
+
+  dim_coord = dim_obj[]
+  dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
+  matrix_to_use = dim_coord[, dimensions_to_use]
+
+  ## create the training and testset from the matrix
+
+  # the training set is the set of cell IDs that are in both the source (w/ labels)
+  # and target giotto object
+  train = matrix_to_use[rownames(matrix_to_use) %in% names(source_annot_vec),]
+  train = train[match(names(source_annot_vec), rownames(train)), ]
+
+  # the test set are the remaining cell_IDs that need a label
+  test = matrix_to_use[!rownames(matrix_to_use) %in% names(source_annot_vec),]
+  cl = source_annot_vec
+
+  # make prediction
+  knnprediction = FNN::knn(train = train, test = test,
+                           cl = cl, k = knn_k, prob = prob,
+                           algorithm = algorithm)
+
+  # get prediction results
+  knnprediction_vec = as.vector(knnprediction)
+  names(knnprediction_vec) = rownames(test)
+
+  # add probability information
+  if(isTRUE(prob)) {
+    probs = attr(knnprediction, "prob")
+    names(probs) = rownames(test)
+  }
+
+
+
+  # create annotation vector for all cell IDs (from source and predicted)
+  all_vec = c(source_annot_vec, knnprediction_vec)
+
+  cell_meta_target = get_cell_metadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'data.table')
+  # data.table variables
+  temp_name = NULL
+  cell_meta_target[, temp_name := all_vec[cell_ID]]
+
+  if(isTRUE(prob)) {
+
+    cell_meta_target[, temp_name_prob := probs[cell_ID]]
+    cell_meta_target = cell_meta_target[,.(cell_ID, temp_name, temp_name_prob)]
+    cell_meta_target[, temp_name_prob := ifelse(is.na(temp_name_prob), 1, temp_name_prob)]
+
+    data.table::setnames(cell_meta_target,
+                         old = c('temp_name', 'temp_name_prob'),
+                         new = c(target_cluster_label_name, paste0(target_cluster_label_name,'_prob')))
+  } else {
+
+    cell_meta_target = cell_meta_target[,.(cell_ID, temp_name)]
+    data.table::setnames(cell_meta_target,
+                         old = 'temp_name',
+                         new = target_cluster_label_name)
+  }
+
+
+  if(return_gobject) {
+
+    if(isTRUE(prob)) {
+
+      prob_label = paste0(target_cluster_label_name,'_prob')
+
+      target_gobject = addCellMetadata(gobject = target_gobject,
+                                       new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name, prob_label), with = FALSE],
+                                       by_column = TRUE,
+                                       column_cell_ID = 'cell_ID')
+    } else {
+      target_gobject = addCellMetadata(gobject = target_gobject,
+                                       new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name), with = FALSE],
+                                       by_column = TRUE,
+                                       column_cell_ID = 'cell_ID')
+    }
+
+  } else {
+    return(cell_meta_target)
+  }
+
+}
