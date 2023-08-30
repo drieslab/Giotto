@@ -11,7 +11,6 @@ jackstrawPlot(
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
   feats_to_use = NULL,
-  genes_to_use = NULL,
   center = FALSE,
   scale_unit = FALSE,
   ncp = 20,
@@ -38,8 +37,6 @@ jackstrawPlot(
 \item{reduction}{cells or genes}
 
 \item{feats_to_use}{subset of features to use for PCA}
-
-\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{center}{center data before PCA}
 

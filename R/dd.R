@@ -25,7 +25,7 @@
 
 
 #' data_access_params
-#' 
+#'
 #' @name data_access_params
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -62,7 +62,7 @@ NULL
 
 
 #' plot_params
-#' 
+#'
 #' @name plot_params
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
@@ -130,7 +130,24 @@ NULL
 
 
 
+#' Params documentation template: plot_cow_params
+#' @name plot_cow_params
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative heights of rows (e.g. c(1,2))
+#' @param cow_rel_w cowplot param: relative widths of columns (e.g. c(1,2))
+#' @param cow_align cowplot param: how to align
+#' @keywords internal
+NULL
 
+#' Params documentation template: plot_output_params
+#' @name plot_output_params
+#' @param show_plot logical. show plot
+#' @param return_plot logical. return ggplot object
+#' @param save_plot logical. save the plot
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @keywords internal
+NULL
 
 
 

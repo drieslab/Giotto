@@ -1,4 +1,7 @@
 
+#' @importFrom methods initialize
+NULL
+
 
 ### ---------------------------------------------------------------- ###
 # Get and set functions to get and set values the giotto class slots   #

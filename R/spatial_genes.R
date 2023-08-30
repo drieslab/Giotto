@@ -1577,7 +1577,7 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject, 
+    gobject<-addFeatMetadata(gobject,
                              spat_unit = spat_unit,
                              feat_type = feat_type,
                              result_dt, by_column=T, column_feat_ID="feats")
@@ -3913,11 +3913,12 @@ rankSpatialCorGroups = function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_feats))
-  pl = pl + ggplot2::theme_classic()
-  pl = pl + ggplot2::labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
-
+  pl = gg_simple_scatter(data = res_cor_DT,
+                         x = 'clusters',
+                         y = 'adj_cor_score',
+                         size = 'nr_feats',
+                         xlab = 'cluster',
+                         ylab = 'pos r x (1 - (neg_r - min(neg_r)))')
 
   ## print plot
   if(show_plot == TRUE) {

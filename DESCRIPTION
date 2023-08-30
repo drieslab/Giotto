@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 3.3.1
+Version: 3.3.2
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -27,7 +27,10 @@ Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),
     R (>= 3.5.0),
-    methods
+    methods,
+    GiottoUtils,
+    GiottoClass,
+    GiottoVisuals
 Imports:
     BiocSingular,
     checkmate,
@@ -109,6 +112,7 @@ Suggests:
     smfishHmrf,
     SPARK,
     SpatialExperiment,
+    spdep,
     SummarizedExperiment,
     tiff,
     trendsceek,
@@ -142,6 +146,8 @@ Collate:
     'images.R'
     'interactivity.R'
     'interoperability.R'
+    'methods-initialize.R'
+    'methods-show.R'
     'poly_influence.R'
     'python_environment.R'
     'python_hmrf.R'

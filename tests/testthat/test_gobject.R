@@ -1,6 +1,6 @@
 
 
-require(testhat)
+require(testthat)
 
 
 # Load subobjects

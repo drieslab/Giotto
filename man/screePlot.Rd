@@ -14,12 +14,11 @@ screePlot(
   method = c("irlba", "exact", "random", "factominer"),
   rev = FALSE,
   feats_to_use = NULL,
-  genes_to_use = NULL,
-  center = F,
-  scale_unit = F,
+  center = FALSE,
+  scale_unit = FALSE,
   ncp = 100,
   ylim = c(0, 20),
-  verbose = T,
+  verbose = TRUE,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -31,9 +30,9 @@ screePlot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{name}{name of PCA object if available}
 
@@ -47,15 +46,13 @@ screePlot(
 
 \item{feats_to_use}{subset of features to use for PCA}
 
-\item{genes_to_use}{deprecated, use feats_to_use}
-
 \item{center}{center data before PCA}
 
 \item{scale_unit}{scale features before PCA}
 
-\item{ncp}{number of principal components to calculate}
+\item{ncp}{numeric. max number of principal components to plot}
 
-\item{ylim}{y-axis limits on scree plot}
+\item{ylim}{numeric. y-axis limits on scree plot}
 
 \item{verbose}{verobsity}
 

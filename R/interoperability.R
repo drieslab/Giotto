@@ -130,14 +130,14 @@ check_py_for_scanpy = function(){
 #'                    If multiple spatial networks are in the anndata object, a list of key_added
 #'                            terms may be provided.
 #'                            If converting an anndata object from giottoToAnnData, a .txt file may be
-#'                            provided, which was generated in that function, 
+#'                            provided, which was generated in that function,
 #'                                i.e. {spat_unit}_{feat_type}_nn_network_keys_added.txt
 #'                    Cannot be "spatial". This becomes the name of the nearest network in the gobject.
-#' @param spatial_n_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors. 
+#' @param spatial_n_key_added equivalent of "key_added" argument from squidpy.gr.spatial_neighbors.
 #'                            If multiple spatial networks are in the anndata object, a list of key_added
 #'                            terms may be provided.
 #'                            If converting an anndata object from giottoToAnnData, a .txt file may be
-#'                            provided, which was generated in that function, 
+#'                            provided, which was generated in that function,
 #'                                i.e. {spat_unit}_{feat_type}_spatial_network_keys_added.txt
 #'                            Cannot be the same as n_key_added.
 #' @param deluanay_spat_net binary parameter for spatial network. If TRUE, the spatial network is a deluanay network.
@@ -300,12 +300,12 @@ anndataToGiotto = function(anndata_path = NULL,
   }
 
   for (i in num_NN_nets){
-    if (inherits(n_key_added, "list")){ 
+    if (inherits(n_key_added, "list")){
       n_key_added_it = n_key_added[[i]]
     } else {
       n_key_added_it = n_key_added
     }
-    
+
     weights_ad = extract_NN_connectivities(adata, key_added = n_key_added_it)
     #adw = methods::as(weights_ad, "TsparseMatrix")
     if (!is.null(weights_ad)) {
@@ -351,11 +351,11 @@ anndataToGiotto = function(anndata_path = NULL,
                                   set_defaults = FALSE)
     }
   }
-  
+
   ## Spatial Network
   s_weights_ad = NULL
-  num_SN_nets = length(spatial_n_key_added) 
-  
+  num_SN_nets = length(spatial_n_key_added)
+
   # Check for the case where NULL is provided, since the
   # anndata object takes the default value for SN
 
@@ -365,7 +365,7 @@ anndataToGiotto = function(anndata_path = NULL,
 
   for (i in 1:num_SN_nets){
 
-    if (inherits(spatial_n_key_added, "list")){ 
+    if (inherits(spatial_n_key_added, "list")){
       spatial_n_key_added_it = spatial_n_key_added[[i]]
     } else {
       spatial_n_key_added_it = spatial_n_key_added
@@ -377,14 +377,14 @@ anndataToGiotto = function(anndata_path = NULL,
       ij_matrix = methods::as(s_distances_ad, "TsparseMatrix")
       from_idx = ij_matrix@i + 1 #zero index!!!
       to_idx = ij_matrix@j + 1 #zero index!!!
-      
+
       #pre-allocate DT variables
       from = to = weight = distance = from_cell_ID = to_cell_ID = uniq_ID = NULL
       sn_dt = data.table::data.table(from = from_idx,
                                     to = to_idx,
                                     weight = s_weights_ad@x,
                                     distance = s_distances_ad@x)
-      
+
       sn_dt[, from_cell_ID := cID[from]]
       sn_dt[, to_cell_ID := cID[to]]
 
@@ -413,20 +413,20 @@ anndataToGiotto = function(anndata_path = NULL,
       cellShapeObj = list("meanCellDistance" = dist_mean,
                         "medianCellDistance" = dist_median)
 
-      #TODO filter network? 
+      #TODO filter network?
       #TODO 3D handling?
       if (deluanay_spat_net){
-        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData",
                                     method = "delaunay",
                                     networkDT=network_DT,
                                     cellShapeObj = cellShapeObj)
       } else {
-        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData", 
+        spatObj = create_spat_net_obj(name = "Spat_Net_from_AnnData",
                                     method = "non-delaunay",
                                     networkDT=network_DT,
                                     cellShapeObj = cellShapeObj)
       }
-      
+
       gobject = set_spatialNetwork(gobject = gobject,
                                   spatial_network = spatObj,
                                   name = "Spat_Net_from_AnnData")
@@ -483,10 +483,10 @@ anndataToGiotto = function(anndata_path = NULL,
 #'
 #' If multiple spatial units or feature types are specified, multiple
 #' AnnData object will be created and returned.
-#' 
+#'
 #' This function will create .txt files which will record any `key_added`
 #' parameters for networks. They are named after the corresponding spatial unit
-#' and feature type pair. 
+#' and feature type pair.
 #'
 #' The save_directory will be created if it does not already exist.
 #' The default save_directory is the working directory.
@@ -895,8 +895,8 @@ giottoToAnnData <- function(gobject = NULL,
 
 
   for (su in spat_unit) {
-    for (ft in names(gobject@expression[[su]])) { 
-      # Spatial networks do not have a feature type slot. 
+    for (ft in names(gobject@expression[[su]])) {
+      # Spatial networks do not have a feature type slot.
       # Iterate through anyways to properly assign to anndata objects
       network_name = list_spatial_networks_names(gobject = gobject,
                                                   spat_unit = su)
@@ -919,14 +919,14 @@ giottoToAnnData <- function(gobject = NULL,
             dimused = current_param["dimensions used"]
           }
         }
-        
+
         adata_list[[adata_pos]] = set_adg_sn(adata = adata_list[[adata_pos]],
                                               df_SN = gob_SN,
                                               net_name = sn_name,
                                               n_neighbors = kval,
                                               max_distance = maxdist,
                                               dim_used = dimused)
-        
+
         }
 
       fname_sn = paste0(su,"_",ft, "_spatial_network_keys_added.txt")
@@ -935,7 +935,7 @@ giottoToAnnData <- function(gobject = NULL,
 
     adata_pos = adata_pos + 1
   }
-  
+
   # Reset indexing variable
   adata_pos = 1
 
@@ -1652,7 +1652,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
             error = function(e){
               message("Error copying spatial image: ", img@name, ". Please check if the image path is correct and the image exists at that path.")
             }
-          )  
+          )
         }
         else{
           if(verbose) message("\t - Skipping image with NULL file path: ", img@name)
@@ -1677,7 +1677,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' Utility function to convert a SpatialExperiment object to a Giotto object
 #'
 #' @param spe Input SpatialExperiment object to convert to a Giotto object.
-#' @param python_path Specify the path to python. 
+#' @param python_path Specify the path to python.
 #' @param nn_network Specify the name of the nearest neighbour network(s)
 #' in the input SpatialExperiment object. Default \code{NULL} will use
 #' all existing networks.
@@ -1695,7 +1695,7 @@ giottoToSpatialExperiment <- function(giottoObj, verbose = TRUE){
 #' spatialExperimentToGiotto(spe)
 #' }
 #' @export
-spatialExperimentToGiotto <- function(spe, 
+spatialExperimentToGiotto <- function(spe,
                                       python_path,
                                       nn_network = NULL,
                                       sp_network = NULL,
@@ -1703,7 +1703,7 @@ spatialExperimentToGiotto <- function(spe,
 
   # Create giotto instructions and set python path
   instrs <- createGiottoInstructions(python_path = python_path)
-  
+
   # Create Giotto object with first matrix
   exprMats <- SummarizedExperiment::assays(spe)
   exprMatsNames <- SummarizedExperiment::assayNames(spe)
@@ -1715,7 +1715,7 @@ spatialExperimentToGiotto <- function(spe,
   }
 
   if(verbose) message("Creating Giotto object with ", exprMatsNames[1], " matrix")
-  suppressWarnings(suppressMessages(giottoObj <- createGiottoObject(expression = firstMatrix, 
+  suppressWarnings(suppressMessages(giottoObj <- createGiottoObject(expression = firstMatrix,
                                                                     instructions = instrs)))
   exprMats[[1]] <- NULL
   exprMatsNames <- exprMatsNames[-1]
@@ -1762,8 +1762,8 @@ spatialExperimentToGiotto <- function(spe,
   spatialLocs <- SpatialExperiment::spatialCoords(spe)
   if(ncol(spatialLocs) > 0){
     if(verbose) message("Copying spatial locations")
-    spatialLocsDT <- data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = colnames(spe))
-    spatLocsObj <- Giotto:::create_spat_locs_obj(name = "spatLocs", coordinates = spatialLocsDT)
+    spatialLocsDT <- data.table::data.table(sdimx = spatialLocs[, 1], sdimy = spatialLocs[, 2], cell_ID = colnames(spe))
+    spatLocsObj <- create_spat_locs_obj(name = "spatLocs", coordinates = spatialLocsDT)
     giottoObj <- set_spatial_locations(gobject = giottoObj, spatlocs = spatLocsObj)
   }
 
@@ -1807,8 +1807,8 @@ spatialExperimentToGiotto <- function(spe,
     if(nn_network %in% names(networks)){
       for(i in seq(nn_network)){
         if(verbose) message("Copying nearest neighbour networks")
-        nnNetObj <- Giotto:::create_nn_net_obj(name = nn_network[i], 
-                                               igraph = networks[[nn_network[i]]])
+        nnNetObj <- create_nn_net_obj(name = nn_network[i],
+                                      igraph = networks[[nn_network[i]]])
         giottoObj <- set_NearestNetwork(gobject = giottoObj,
                                         nn_network = nnNetObj)
         networks[[nn_network[i]]] <- NULL
@@ -1820,8 +1820,8 @@ spatialExperimentToGiotto <- function(spe,
   if(length(networks) > 0){
     for(i in seq(networks)){
       if(verbose) message("Copying additional networks")
-      nnNetObj <- Giotto:::create_nn_net_obj(name = names(networks)[i], 
-                                             igraph = networks[[i]])
+      nnNetObj <- create_nn_net_obj(name = names(networks)[i],
+                                    igraph = networks[[i]])
       giottoObj <- set_NearestNetwork(gobject = giottoObj,
                                       nn_network = nnNetObj)
     }
@@ -1841,35 +1841,35 @@ spatialExperimentToGiotto <- function(spe,
 giottoMasterToSuite <- function(gobject,
                                 expression_feat = 'rna') {
   master_object = gobject
-  
+
   spatial_locs = cell_metadata = feat_metadata = instructions = NULL
-  
+
   if(!is.null( master_object@spatial_locs)) {
     spatial_locs = master_object@spatial_locs
   }
-  
+
   if(!is.null(master_object@cell_metadata)) {
     cell_metadata = master_object@cell_metadata
   }
-  
+
   if(!is.null(master_object@gene_metadata)) {
     feat_metadata = master_object@gene_metadata
     colnames(feat_metadata)[1] = 'feat_ID'
   }
-  
+
   # instructions
   if(!is.null(master_object@instructions)) {
     instructions = master_object@instructions
   }
-  
-  # create Giotto object  
+
+  # create Giotto object
   gobject = createGiottoObject(expression = master_object@raw_exprs,
                                expression_feat = expression_feat,
                                spatial_locs = spatial_locs,
                                cell_metadata = cell_metadata,
                                feat_metadata = feat_metadata,
                                instructions = instructions)
-  
+
   # add normalized expression matrix
   if(!is.null(master_object@norm_expr)){
     x = createExprObj(master_object@norm_expr,
@@ -1881,7 +1881,7 @@ giottoMasterToSuite <- function(gobject,
                             feat_type = expression_feat,
                             name = 'normalized')
   }
-  
+
   # add scaled expression matrix
   if(!is.null(master_object@norm_scaled_expr)){
     x = createExprObj(master_object@norm_scaled_expr,
@@ -1893,11 +1893,11 @@ giottoMasterToSuite <- function(gobject,
                             feat_type = expression_feat,
                             name = 'scaled')
   }
-  
+
   # dimension_reduction
   if(!is.null(master_object@dimension_reduction)) {
     dimension_reduction_master = master_object@dimension_reduction
-    
+
     for (i in names(master_object@dimension_reduction$cells)) {
       j = names(dimension_reduction_master$cells[[i]])
       dimension_reduction = createDimObj(coordinates = dimension_reduction_master$cells[[i]][[j]]$coordinates,
@@ -1911,21 +1911,21 @@ giottoMasterToSuite <- function(gobject,
                                 feat_type = expression_feat,
                                 name = i,
                                 reduction_method = dimension_reduction_master$cells[[i]][[j]]$reduction_method)
-      
+
     }
   }
-  
+
   # nn_network
   if(!is.null(master_object@nn_network)) {
     nn_network_master = master_object@nn_network
-    
+
     for (i in names(nn_network_master)) {
       for (j in names(nn_network_master[[i]])) {
         k = names(nn_network_master[[i]][[j]])
         nn_network = createNearestNetObj(name = i,
                                          network = nn_network_master[[i]][[j]][[k]],
                                          feat_type = expression_feat)
-        
+
         gobject = setNearestNetwork(gobject,
                                     nn_network,
                                     spat_unit = 'cell',
@@ -1933,11 +1933,11 @@ giottoMasterToSuite <- function(gobject,
                                     nn_type = i,
                                     name = j)
       }
-      
+
     }
-    
+
   }
-  
+
   # spatial_network
   if(!is.null(master_object@spatial_network)) {
     spatial_network_master = master_object@spatial_network$spatial_network
@@ -1956,30 +1956,30 @@ giottoMasterToSuite <- function(gobject,
                                 spat_unit = 'cell',
                                 name = spatial_network_master$name)
   }
-  
+
   # spatial_enrichment
   if(!is.null(master_object@spatial_enrichment)) {
     spatial_enrichment_master = master_object@spatial_enrichment
-    
+
     for (i in names(spatial_enrichment_master)) {
       spatial_enrichment = createSpatEnrObj(spatial_enrichment_master[[i]],
                                             name = i,
                                             feat_type = expression_feat,
                                             method = i)
-      
+
     }
-    
+
     gobject = set_spatial_enrichment(gobject,
                                      spatial_enrichment,
                                      spat_unit = 'cell',
                                      feat_type = expression_feat,
                                      enrichm_name = i)
   }
-  
+
   # spatial_grid
   if(!is.null(master_object@spatial_grid)) {
     spatial_grid_master = master_object@spatial_grid
-    
+
     spatial_grid = new('spatialGridObj',
                        name = spatial_grid_master$spatial_grid$name,
                        method = spatial_grid_master$spatial_grid$method,
@@ -1987,14 +1987,14 @@ giottoMasterToSuite <- function(gobject,
                        gridDT = spatial_grid_master$spatial_grid$gridDT,
                        feat_type = expression_feat,
                        misc = spatial_grid_master$spatial_grid$misc)
-    
+
     gobject = setSpatialGrid(gobject,
                              spatial_grid,
                              spat_unit = 'cell',
                              feat_type = expression_feat,
                              name = spatial_grid_master$spatial_grid$name)
   }
-  
+
   return(gobject)
 }
 

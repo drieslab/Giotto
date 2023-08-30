@@ -488,31 +488,31 @@ runPCA <- function(gobject,
                                       spat_unit = spat_unit,
                                       values = values,
                                       output = 'exprObj')
-  
+
   provenance = prov(expr_values)
-  
+
   if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = slot(expr_values, 'exprMat')
-    
+
     expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                      name = paste0('expression/',
                                                    feat_type,'/',
                                                    values))
-    
+
     expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = paste0('expression/',
                                                             feat_type,'/',
                                                             values))
-    
+
     rownames(expr_values) = expr_dimnames[[1]]
     colnames(expr_values) = expr_dimnames[[2]]
-    
+
   } else {
     expr_values = expr_values[] # extract matrix
   }
-  
- 
-  
+
+
+
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -524,7 +524,7 @@ runPCA <- function(gobject,
                                              verbose = verbose)
   }
 
-  
+
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
 
@@ -554,8 +554,8 @@ runPCA <- function(gobject,
     } else {
       stop('only PCA methods from the BiocSingular and factominer package have been implemented \n')
     }
-    
-   
+
+
 
   } else {
     # PCA on genes
@@ -580,7 +580,7 @@ runPCA <- function(gobject,
     }
 
   }
-  
+
   print("finished runPCA_factominer, method == factominer")
 
 
@@ -632,80 +632,21 @@ runPCA <- function(gobject,
 ## * PC estimates ####
 # ------------------ #
 
-#' @title create_screeplot
-#' @name create_screeplot
-#' @description create screeplot with ggplot
-#' @param pca_obj pca dimension reduction object
-#' @param ncp number of principal components to calculate
-#' @param ylim y-axis limits on scree plot
-#' @return ggplot
-#' @keywords internal
-create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
-
-
-  # data.table: set global variable
-  PC = NULL
-
-  eigs = slot(pca_obj, 'misc')$eigenvalues
-
-  # variance explained
-  var_expl = eigs/sum(eigs)*100
-  var_expl_cum = cumsum(eigs)/sum(eigs)*100
-
-  # create data.table
-  screeDT = data.table::data.table('PC' = paste0('PC.', 1:length(var_expl)),
-                                   'var_expl' = var_expl,
-                                   'var_expl_cum' = var_expl_cum)
-  screeDT[, PC := factor(PC, levels = PC)]
-
-  max_ncp = length(eigs)
-  ncp = ifelse(ncp > max_ncp, max_ncp, ncp)
-
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::theme_bw()
-  pl = pl + ggplot2::geom_bar(data = screeDT[1:ncp], ggplot2::aes(x = PC, y = var_expl), stat = 'identity')
-  pl = pl + ggplot2::coord_cartesian(ylim = ylim)
-  pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
-  pl = pl + ggplot2::labs(x = '', y = '% of variance explained per PC')
-
-  cpl = ggplot2::ggplot()
-  cpl = cpl + ggplot2::theme_bw()
-  cpl = cpl + ggplot2::geom_bar(data = screeDT[1:ncp], ggplot2::aes(x = PC, y = var_expl_cum), stat = 'identity')
-  cpl = cpl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
-  cpl = cpl + ggplot2::labs(x = '', y = 'cumulative % of variance explained')
-
-  savelist = list(pl, cpl)
-
-  ## combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = 1,
-                                   rel_heights = c(1),
-                                   rel_widths = c(1),
-                                   align = 'v')
-
-  return(combo_plot)
-
-}
-
-
 
 #' @title screePlot
 #' @name screePlot
 #' @description identify significant principal components (PCs) using an screeplot (a.k.a. elbowplot)
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams GiottoVisuals::create_screeplot
 #' @param name name of PCA object if available
 #' @param expression_values expression values to use
 #' @param reduction cells or features
 #' @param method which implementation to use
 #' @param rev do a reverse PCA
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated, use feats_to_use
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
-#' @param ncp number of principal components to calculate
-#' @param ylim y-axis limits on scree plot
 #' @param verbose verobsity
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
@@ -730,12 +671,11 @@ screePlot = function(gobject,
                      method = c('irlba', 'exact', 'random','factominer'),
                      rev = FALSE,
                      feats_to_use = NULL,
-                     genes_to_use = NULL,
-                     center = F,
-                     scale_unit = F,
+                     center = FALSE,
+                     scale_unit = FALSE,
                      ncp = 100,
                      ylim = c(0, 20),
-                     verbose = T,
+                     verbose = TRUE,
                      show_plot = NA,
                      return_plot = NA,
                      save_plot = NA,
@@ -760,12 +700,6 @@ screePlot = function(gobject,
     }
   }
 
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
-
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
   pca_obj = get_dimReduction(gobject = gobject,
@@ -776,23 +710,15 @@ screePlot = function(gobject,
                              name = name,
                              output = 'dimObj')
 
-  #gobject@dimension_reduction[[reduction]][[spat_unit]]$pca[[name]]
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-
   # if pca already exists plot
   if(!is.null(pca_obj)) {
-    if(verbose == TRUE) cat('PCA with name: ', name, ' already exists and will be used for the screeplot \n')
+    if(isTRUE(verbose)) wrap_msg('PCA with name: ', name, ' already exists and will be used for the screeplot \n')
 
-    screeplot = create_screeplot(pca_obj = pca_obj, ncp = ncp, ylim = ylim)
+    screeplot = create_screeplot(eigs = slot(pca_obj, 'misc')$eigenvalues, ncp = ncp, ylim = ylim)
 
   } else {
     # if pca doesn't exists, then create pca and then plot
-    if(verbose == TRUE) cat('PCA with name: ', name, ' does NOT exists, PCA will be done first \n')
+    if(isTRUE(verbose)) wrap_msg('PCA with name: ', name, ' does NOT exist, PCA will be done first \n')
 
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -841,62 +767,24 @@ screePlot = function(gobject,
                                              loadings = pca_object$loadings),
                                  my_rownames = colnames(expr_values))
 
-      screeplot = create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
+      screeplot = create_screeplot(eigs = slot(dimObject, 'misc')$eigenvalues, ncp = ncp, ylim = ylim)
     }
 
   }
 
-  ## print plot
-  if(show_plot == TRUE) {
-    print(screeplot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = screeplot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(screeplot)
-  }
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = screeplot,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
-#' @title create_jackstrawplot
-#' @name create_jackstrawplot
-#' @description create jackstrawplot with ggplot
-#' @param jackstraw_data result from jackstraw function
-#' @param ncp number of principal components to calculate
-#' @param ylim y-axis limits on jackstraw plot
-#' @param threshold p.value threshold to call a PC significant
-#' @keywords internal
-#' @return ggplot
-create_jackstrawplot = function(jackstraw_data,
-                                ncp = 20,
-                                ylim = c(0, 1),
-                                threshold = 0.01) {
-
-  # data.table variables
-  PC = p.val = NULL
-
-  testDT = data.table(PC = paste0('PC.', 1:length(jackstraw_data)),
-                      p.val = jackstraw_data)
-  testDT[, PC := factor(PC, levels = PC)]
-  testDT[, sign := ifelse(p.val <= threshold, 'sign', 'n.s.')]
-
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::theme_bw()
-  pl = pl + ggplot2::geom_point(data = testDT[1:ncp], ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21)
-  pl = pl + ggplot2::scale_fill_manual(values  = c('n.s.' = 'lightgrey', 'sign' = 'darkorange'))
-  pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
-  pl = pl + ggplot2::coord_cartesian(ylim = ylim)
-  pl = pl + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
-  pl = pl + ggplot2::labs(x = '', y = 'p-value per PC')
-
-  return(pl)
-
-}
 
 
 #' @title jackstrawPlot
@@ -908,7 +796,6 @@ create_jackstrawplot = function(jackstraw_data,
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated, use feats_to_use
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
@@ -933,7 +820,6 @@ jackstrawPlot = function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          reduction = c('cells', 'feats'),
                          feats_to_use = NULL,
-                         genes_to_use = NULL,
                          center = FALSE,
                          scale_unit = FALSE,
                          ncp = 20,
@@ -947,6 +833,7 @@ jackstrawPlot = function(gobject,
                          save_param = list(),
                          default_save_name = 'jackstrawPlot') {
 
+  package_check(pkg_name = "jackstraw", repository = "CRAN")
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -955,14 +842,6 @@ jackstrawPlot = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
-
-  package_check(pkg_name = "jackstraw", repository = "CRAN")
-
   # print message with information #
   if(verbose) message("using 'jackstraw' to identify significant PCs If used in published research, please cite:
   Neo Christopher Chung and John D. Storey (2014).
@@ -970,11 +849,6 @@ jackstrawPlot = function(gobject,
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -1012,21 +886,16 @@ jackstrawPlot = function(gobject,
 
   }
 
-  ## print plot
-  if(show_plot == TRUE) {
-    print(jackplot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = jackplot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(jackplot)
-  }
-
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = jackplot,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -1384,26 +1253,26 @@ runUMAP <- function(gobject,
                                           feat_type = feat_type,
                                           values = values,
                                           output = 'exprObj')
-      
-      
+
+
       if(!is.null(slot(gobject, 'h5_file'))) {
         expr_path = slot(expr_values, 'exprMat')
-        
+
         expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                          name = expr_path)
-        
+
         expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                                   name = expr_path)
-        
+
         rownames(expr_values) = expr_dimnames[[1]]
         colnames(expr_values) = expr_dimnames[[2]]
       } else {
-        
+
         provenance = prov(expr_values)
         expr_values = expr_values[] # extract matrix
-        
+
       }
-   
+
       ## subset matrix
       if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,

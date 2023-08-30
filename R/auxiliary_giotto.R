@@ -2183,7 +2183,6 @@ filterCombinations <- function(gobject,
 #' @title filterGiotto
 #' @name filterGiotto
 #' @description filter Giotto object based on expression threshold
-#'
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type

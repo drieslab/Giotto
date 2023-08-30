@@ -1962,6 +1962,8 @@ evaluate_autocor_input = function(gobject,
                                   weight_matrix,
                                   verbose = TRUE) {
 
+  package_check('spdep')
+
   cell_ID = NULL
 
   # 1. Get spatial network to either get or generate a spatial weight matrix
@@ -2056,18 +2058,20 @@ evaluate_autocor_input = function(gobject,
 
   # 3. general formatting and checking
   ## weight matrix type
-  if(!inherits(weight_matrix, c('Matrix', 'matrix'))) {
-    stop(wrap_txt('weight_matrix must be a matrix or Matrix',
+  if(!inherits(weight_matrix, c('Matrix', 'matrix', 'listw', 'nb'))) {
+    stop(wrap_txt('weight_matrix must be a matrix, Matrix, or listw',
                   errWidth = TRUE))
   }
-
-  ## terra autocor currently does not seem to work with sparse weight matrices
-  weight_matrix = as.matrix(weight_matrix)
 
   ## check if weight matrix dimensions match use_values
   if((nrow(use_values) != ncol(weight_matrix)) | (nrow(use_values) != nrow(weight_matrix))) {
     stop(wrap_txt('Number of values to correlate do not match number of weight matrix entries',
                   errWidth = TRUE))
+  }
+
+  ## convert to listw for spdep
+  if(!inherits(weight_matrix, 'listw')) {
+    weight_matrix = spdep::mat2listw(weight_matrix)
   }
 
 

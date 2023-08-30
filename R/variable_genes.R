@@ -34,15 +34,7 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
   feat_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
-                                                         axis.text = ggplot2::element_text(size = 12))
-    pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes(x = mean_expr, y = cov, color = selected))
-    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVF',
-                                                                                                                       override.aes = list(size=5)))
-    pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
-    pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_blank(), strip.text = ggplot2::element_text(size = 4))
-    pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
+    pl = create_cov_group_HVF_plot(feat_in_cells_detected, nr_expression_groups)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
   } else {
@@ -50,6 +42,9 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
   }
 
 }
+
+
+
 
 
 
@@ -78,17 +73,7 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
   feat_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
-                                                         axis.text = ggplot2::element_text(size = 12))
-    pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
-    pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = 'pred_cov_feats'), color = 'blue')
-    hvg_line = paste0('pred_cov_feats+',difference_in_cov)
-    pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
-    pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
-    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
-                                           guide = ggplot2::guide_legend(title = 'HVF',
-                                                                         override.aes = list(size=5)))
+    pl = create_cov_loess_HVF_plot(feat_in_cells_detected, difference_in_cov, var_col)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
   } else {
@@ -127,16 +112,8 @@ calc_var_HVF = function(scaled_matrix,
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
 
     dt_res[, rank := 1:.N]
+    pl <- create_calc_var_HVF_plot(dt_res)
 
-    pl = ggplot2::ggplot()
-    pl = pl + ggplot2::geom_point(data = dt_res, aes(x = rank, y = var, color = selected))
-    pl = pl + ggplot2::scale_x_reverse()
-    pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
-                                                         axis.text = ggplot2::element_text(size = 12))
-    pl = pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
-                                          guide = ggplot2::guide_legend(title = 'HVF',
-                                                                        override.aes = list(size=5)))
-    pl = pl + ggplot2::labs(x = 'feature rank', y = 'variance')
 
     dt_res_final = data.table::copy(dt_res)
     dt_res_final[, rank := NULL]
@@ -225,16 +202,16 @@ calculateHVF <- function(gobject,
                                       feat_type = feat_type,
                                       values = values,
                                       output = 'matrix')
-  
+
   if(!is.null(slot(gobject, 'h5_file'))) {
     expr_path = expr_values
-    
+
     expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
                                      name = expr_path)
-    
+
     expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
                                               name = expr_path)
-    
+
     rownames(expr_values) = expr_dimnames[[1]]
     colnames(expr_values) = expr_dimnames[[2]]
   }
@@ -464,7 +441,6 @@ calculateHVG <- function(gobject,
 
   return(result)
 }
-
 
 
 
