@@ -478,7 +478,9 @@ spatInSituPlotPoints <- function(gobject,
                                                sel_feats = feats)
       }
       
-      spatial_feat_info = do.call('rbind', spatial_feat_info)
+      spatial_feat_info = rbindlist(spatial_feat_info, fill = TRUE)
+
+      
       
       plot = plot_feature_points_layer(ggobject = plot,
                                        spatial_feat_info = spatial_feat_info,
@@ -521,7 +523,10 @@ spatInSituPlotPoints <- function(gobject,
                                       feat_type = feat_type,
                                       include_poly_info = TRUE,
                                       poly_info = polygon_feat_type)
-      polygon_dt = polygon_combo[[feat_type]]
+      
+      #polygon_dt = polygon_combo[[feat_type]]
+      polygon_dt = rbindlist(polygon_combo, fill = TRUE)
+      
       data.table::setnames(polygon_dt, old = 'cell_ID', new = 'poly_ID')
       
       #polygon_info = get_polygon_info(gobject = gobject,
@@ -568,7 +573,8 @@ spatInSituPlotPoints <- function(gobject,
                                       feat_type = feat_type,
                                       include_poly_info = TRUE,
                                       poly_info = polygon_feat_type)
-      polygon_dt = polygon_combo[[feat_type]]
+      #polygon_dt = polygon_combo[[feat_type]]
+      polygon_dt = rbindlist(polygon_combo, fill = TRUE)
       data.table::setnames(polygon_dt, old = 'cell_ID', new = 'poly_ID')
       
       #polygon_info = get_polygon_info(gobject = gobject,
