@@ -2,7 +2,7 @@
 .Rproj.user
 .Rhistory
 inst/doc
-.DS_Store
+*.DS_Store
 *.Rproj
 .git_old
 merfish_preoptic/

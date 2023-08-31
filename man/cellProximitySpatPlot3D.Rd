@@ -52,11 +52,14 @@ cellProximitySpatPlot3D(
 
 \item{sdimz}{z-axis dimension name (default = 'sdimz')}
 
-\item{cell_color}{color for cells (see details)}
+\item{cell_color}{character. what to color cells by (e.g. metadata col or
+spatial enrichment col)}
 
-\item{cell_color_code}{named vector with colors}
+\item{cell_color_code}{character. discrete colors to use. palette to use or
+named vector of colors}
 
-\item{color_as_factor}{convert color column to factor}
+\item{color_as_factor}{logical. convert color column to factor. discrete colors
+are used when this is TRUE. continuous colors when FALSE.}
 
 \item{show_other_cells}{decide if show cells not in network}
 
@@ -74,7 +77,7 @@ cellProximitySpatPlot3D(
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
-\item{show_legend}{show legend}
+\item{show_legend}{logical. show legend}
 
 \item{point_size_select}{size of selected points}
 
@@ -92,13 +95,13 @@ cellProximitySpatPlot3D(
 
 \item{z_ticks}{ticks on z-axis}
 
-\item{show_plot}{show plots}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return plotly object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 

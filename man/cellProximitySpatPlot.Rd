@@ -12,26 +12,19 @@ cellProximitySpatPlot(gobject, ...)
 \item{...}{
   Arguments passed on to \code{\link[=cellProximitySpatPlot2D]{cellProximitySpatPlot2D}}
   \describe{
-    \item{\code{feat_type}}{feature type}
-    \item{\code{spat_unit}}{spatial unit}
     \item{\code{spat_loc_name}}{spatial locations to use}
     \item{\code{interaction_name}}{cell-cell interaction name}
     \item{\code{cluster_column}}{cluster column with cell clusters}
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
-    \item{\code{cell_color}}{color for cells (see details)}
-    \item{\code{cell_color_code}}{named vector with colors}
-    \item{\code{color_as_factor}}{convert color column to factor}
     \item{\code{show_other_cells}}{decide if show cells not in network}
     \item{\code{show_network}}{show spatial network of selected cells}
     \item{\code{show_other_network}}{show spatial network of not selected cells}
     \item{\code{network_color}}{color of spatial network}
-    \item{\code{spatial_network_name}}{name of spatial network to use}
     \item{\code{show_grid}}{show spatial grid}
     \item{\code{grid_color}}{color of spatial grid}
     \item{\code{spatial_grid_name}}{name of spatial grid to use}
     \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis}
-    \item{\code{show_legend}}{show legend}
     \item{\code{point_size_select}}{size of selected points}
     \item{\code{point_select_border_col}}{border color of selected points}
     \item{\code{point_select_border_stroke}}{stroke size of selected points}
@@ -39,11 +32,21 @@ cellProximitySpatPlot(gobject, ...)
     \item{\code{point_alpha_other}}{opacity of other points}
     \item{\code{point_other_border_col}}{border color of other points}
     \item{\code{point_other_border_stroke}}{stroke size of other points}
-    \item{\code{show_plot}}{show plots}
-    \item{\code{return_plot}}{return ggplot object}
-    \item{\code{save_plot}}{directly save the plot [boolean]}
-    \item{\code{save_param}}{list of saving parameters from \code{\link{all_plots_save_function}}}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
+    \item{\code{show_plot}}{logical. show plot}
+    \item{\code{return_plot}}{logical. return ggplot object}
+    \item{\code{save_plot}}{logical. save the plot}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
     \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+    \item{\code{cell_color}}{character. what to color cells by (e.g. metadata col or
+spatial enrichment col)}
+    \item{\code{color_as_factor}}{logical. convert color column to factor. discrete colors
+are used when this is TRUE. continuous colors when FALSE.}
+    \item{\code{cell_color_code}}{character. discrete colors to use. palette to use or
+named vector of colors}
+    \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{show_legend}}{logical. show legend}
   }}
 }
 \value{

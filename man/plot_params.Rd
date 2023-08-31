@@ -2,19 +2,21 @@
 % Please edit documentation in R/dd.R
 \name{plot_params}
 \alias{plot_params}
-\title{plot_params}
+\title{Params documentation template: plot_params}
 \arguments{
-\item{cell_color}{color for cells (see details)}
+\item{group_by}{character. Create multiple plots based on cell annotation column}
 
-\item{color_as_factor}{convert color column to factor}
+\item{group_by_subset}{character. subset the group_by factor column}
 
-\item{cell_color_code}{named vector with colors}
+\item{gradient_midpoint}{numeric. midpoint for color gradient}
 
-\item{cell_color_gradient}{vector with 3 colors for numeric data}
+\item{gradient_style}{either 'divergent' (midpoint is used in color scaling)
+or 'sequential' (scaled based on data range)}
 
-\item{gradient_midpoint}{midpoint for color gradient}
+\item{gradient_limits}{numeric vector with lower and upper limits}
 
-\item{gradient_limits}{vector with lower and upper limits}
+\item{gradient_color}{character. continuous colors to use. palette to
+use or vector of colors to use (minimum of 2).}
 
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
@@ -23,6 +25,10 @@
 \item{show_other_cells}{display not selected cells}
 
 \item{other_cell_color}{color for not selected cells}
+
+\item{other_cell_alpha}{(0 to 1) alpha for not selected cells}
+
+\item{other_cells_alpha}{(0 to 1) alpha for not selected cells}
 
 \item{other_point_size}{point size for not selected cells}
 
@@ -35,22 +41,6 @@
 \item{center_point_border_col}{border color of center points}
 
 \item{center_point_border_stroke}{border stroke size of center points}
-
-\item{dim_reduction_to_use}{dimension reduction to use}
-
-\item{dim_reduction_name}{dimension reduction name}
-
-\item{dim1_to_use}{dimension to use on x-axis}
-
-\item{dim2_to_use}{dimension to use on y-axis}
-
-\item{spat_enr_names}{names of spatial enrichment results to include}
-
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
 \item{label_size}{size of labels}
 
@@ -68,9 +58,9 @@
 
 \item{point_border_stroke}{stroke size of border around points}
 
-\item{title}{title for plot, defaults to cell_color parameter}
+\item{title}{character. title for plot, defaults to cell_color parameter}
 
-\item{show_legend}{show legend}
+\item{show_legend}{logical. show legend}
 
 \item{legend_text}{size of legend text}
 
@@ -81,26 +71,8 @@
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
-
-\item{cow_n_col}{cowplot param: how many columns}
-
-\item{cow_rel_h}{cowplot param: relative heights of rows (e.g. c(1,2))}
-
-\item{cow_rel_w}{cowplot param: relative widths of columns (e.g. c(1,2))}
-
-\item{cow_align}{cowplot param: how to align}
-
-\item{show_plot}{show plot}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \description{
-plot_params
+Params documentation template: plot_params
 }
 \keyword{internal}

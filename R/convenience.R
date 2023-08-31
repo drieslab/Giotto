@@ -464,7 +464,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param overlap_to_matrix whether to run \code{\link{overlapToMatrix}}
 #' @param aggregate_stack whether to run \code{\link{aggregateStacks}}
 #' @param aggregate_stack_param params to pass to \code{\link{aggregateStacks}}
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @return a giotto object
 #' @export
 #' @details
@@ -550,7 +550,6 @@ createGiottoMerscopeObject = function(merscope_dir,
 
 #' @describeIn createGiottoMerscopeObject Create giotto object with 'subcellular' workflow
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
-#' @import data.table
 #' @keywords internal
 createGiottoMerscopeObject_subcellular = function(data_list,
                                                   calculate_overlap = TRUE,
@@ -642,7 +641,7 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #' @name createSpatialGenomicsObject
 #' @param sg_dir full path to the exported Spatial Genomics directory
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
-#' @description Given the path to a Spatial Genomics data directory, creates a 
+#' @description Given the path to a Spatial Genomics data directory, creates a
 #' Giotto object.
 #' @export
 createSpatialGenomicsObject <- function(sg_dir = NULL,
@@ -652,8 +651,8 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
   mask = list.files(sg_dir, full.names = TRUE, pattern = 'mask')
   tx = list.files(sg_dir, full.names = TRUE, pattern = 'transcript')
   # Create Polygons
-  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F, 
-                                       shift_horizontal_step = F, 
+  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F,
+                                       shift_horizontal_step = F,
                                        flip_horizontal = F, flip_vertical = F)
   # Create Points
   tx = data.table::fread(tx)
@@ -687,8 +686,7 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
 #' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
-#' @inheritParams createGiottoObjectSubcellular
-#' @import data.table
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @return a giotto object
 #' @export
 #' @details
@@ -1092,11 +1090,13 @@ createGiottoCosMxObject_all = function(dir_items,
                                feat_type: "rna"
                                name: "raw"')
   # add expression data to expression slot
-  s4_expr = create_expr_obj(name = 'raw',
-                            exprMat = spM,
-                            spat_unit = 'cell_agg',
-                            feat_type = 'rna',
-                            provenance = 'cell_agg')
+  s4_expr = createExprObj(
+    name = 'raw',
+    expression_data = spM,
+    spat_unit = 'cell_agg',
+    feat_type = 'rna',
+    provenance = 'cell_agg'
+  )
 
   cosmx_gobject = set_expression_values(cosmx_gobject, values = s4_expr)
 
@@ -1198,7 +1198,7 @@ createGiottoCosMxObject_all = function(dir_items,
 #' @param key_list (advanced) list of grep-based keywords to split the subcellular
 #' feature detections by feature type. See details
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @details
 #'
 #' [\strong{QC feature types}]
@@ -1351,7 +1351,7 @@ createGiottoXeniumObject = function(xenium_dir,
 #' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included as
 #' a subcellular transcript detection (default = 20)
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @seealso createGiottoXeniumObject createGiottoXeniumObject_aggregate
 #' @keywords internal
 createGiottoXeniumObject_subcellular = function(data_list,
@@ -1445,7 +1445,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
 #' @description Aggregate workflow for createGiottoXeniumObject
 #' @param data_list list of data loaded by \code{load_xenium_folder}
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @seealso createGiottoXeniumObject createGiottoXeniumObject_subcellular
 #' @keywords internal
 createGiottoXeniumObject_aggregate = function(data_list,

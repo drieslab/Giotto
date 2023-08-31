@@ -1,16 +1,12 @@
-# python_path = NULL
-# if(is.null(python_path)) {
-#   installGiottoEnvironment()
-# }
+
 
 require(testthat)
 
-# install Giotto environment if missing
-# if(!checkGiottoEnvironment()) {
-#   install_giotto_environment()
-# }
+# data setup (warning about non-existing dir expected)
+suppressWarnings(
+  GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
+)
 
-GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
 
 expr_path = './testdata/merFISH_3D_data_expression.txt.gz'
 loc_path = './testdata/merFISH_3D_data_cell_locations.txt'
@@ -23,7 +19,7 @@ object <- createGiottoObject(expression = expr_path,
 
 
 ### TESTS FOR MERFISH MOUSE HYPOTHALMIC PREOPTIC REGION DATASET
-# --------------------------------------------------------------
+# -------------------------------------------------------------- #
 
 
 test_that("Object initialization creates expected Giotto object", {
@@ -272,7 +268,7 @@ test_that("Cell type annotations are added to cell metadata", {
 })
 
 
-# # --------------------------------------------
+# # -------------------------------------------- #
 # remove downloaded datasets after tests run
 if (file.exists("./testdata/merFISH_3D_data_expression.txt.gz")) {
   unlink("./testdata/merFISH_3D_data_expression.txt.gz")

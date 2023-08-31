@@ -638,7 +638,7 @@ runPCA <- function(gobject,
 #' @description identify significant principal components (PCs) using an screeplot (a.k.a. elbowplot)
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
-#' @inheritParams GiottoVisuals::create_screeplot
+#' @inheritParams create_screeplot
 #' @param name name of PCA object if available
 #' @param expression_values expression values to use
 #' @param reduction cells or features
@@ -647,12 +647,7 @@ runPCA <- function(gobject,
 #' @param feats_to_use subset of features to use for PCA
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
-#' @param verbose verobsity
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param verbose be verbose
 #' @param ... additional arguments to pca function, see \code{\link{runPCA}}
 #' @return ggplot object for scree method
 #' @details
@@ -787,12 +782,82 @@ screePlot = function(gobject,
 
 
 
+
+#' @title create_screeplot
+#' @name create_screeplot
+#' @description create screeplot with ggplot
+#' @param eigs numeric. Vector of pca eigenvalues
+#' @param ncp numeric. max number of principal components to plot
+#' @param ylim numeric. y-axis limits on scree plot
+#' @return ggplot
+#' @examples
+#' \dontrun{
+#' dr = GiottoData::loadSubObjectMini('dimObj')
+#' scree = create_screeplot(methods::slot(dr, 'misc')$eigenvalues)
+#' scree
+#' }
+#' @export
+create_screeplot = function(eigs, ncp = 20, ylim = c(0, 20)) {
+
+  checkmate::assert_numeric(eigs)
+  checkmate::assert_numeric(ncp, len = 1L)
+  checkmate::assert_numeric(ylim, len = 2L)
+
+  # DT vars
+  PC = NULL
+
+  eigs = sort(eigs, decreasing = TRUE)
+
+  # variance explained
+  var_expl = eigs/sum(eigs)*100
+  var_expl_cum = cumsum(eigs)/sum(eigs)*100
+
+  # create data.table
+  screeDT = data.table::data.table('PC' = paste0('PC.', 1:length(var_expl)),
+                                   'var_expl' = var_expl,
+                                   'var_expl_cum' = var_expl_cum)
+  screeDT[, 'PC' := factor(PC, levels = PC)]
+
+  max_ncp = length(eigs)
+  ncp = ifelse(ncp > max_ncp, max_ncp, ncp)
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
+  pl = pl + ggplot2::geom_bar(data = screeDT[1:ncp], ggplot2::aes(x = PC, y = var_expl), stat = 'identity')
+  pl = pl + ggplot2::coord_cartesian(ylim = ylim)
+  pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+  pl = pl + ggplot2::labs(x = '', y = '% of variance explained per PC')
+
+  cpl = ggplot2::ggplot()
+  cpl = cpl + ggplot2::theme_bw()
+  cpl = cpl + ggplot2::geom_bar(data = screeDT[1:ncp], ggplot2::aes(x = PC, y = var_expl_cum), stat = 'identity')
+  cpl = cpl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+  cpl = cpl + ggplot2::labs(x = '', y = 'cumulative % of variance explained')
+
+  savelist = list(pl, cpl)
+
+  ## combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = 1,
+                                   rel_heights = c(1),
+                                   rel_widths = c(1),
+                                   align = 'v')
+
+  return(combo_plot)
+}
+
+
+
+
+
+
+
+
 #' @title jackstrawPlot
 #' @name jackstrawPlot
 #' @description identify significant prinicipal components (PCs)
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param feats_to_use subset of features to use for PCA
@@ -803,11 +868,6 @@ screePlot = function(gobject,
 #' @param iter number of interations for jackstraw
 #' @param threshold p-value threshold to call a PC significant
 #' @param verbose show progress of jackstraw method
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot object for jackstraw method
 #' @details
 #'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
@@ -899,12 +959,61 @@ jackstrawPlot = function(gobject,
 }
 
 
+
+#' @title create_jackstrawplot
+#' @name create_jackstrawplot
+#' @description create jackstrawplot with ggplot
+#' @param jackstraw_data result from jackstraw function (`testresult$p`)
+#' @param ncp number of principal components to calculate
+#' @param ylim y-axis limits on jackstraw plot
+#' @param threshold p.value threshold to call a PC significant
+#' @keywords internal
+#' @return ggplot
+#' @export
+create_jackstrawplot = function(jackstraw_data,
+                                ncp = 20,
+                                ylim = c(0, 1),
+                                threshold = 0.01) {
+
+  checkmate::assert_numeric(ncp, len = 1L)
+  checkmate::assert_numeric(ylim, len = 2L)
+  checkmate::assert_numeric(threshold, len = 1L)
+
+  # data.table variables
+  PC = p.val = NULL
+
+  testDT = data.table::data.table(
+    PC = paste0('PC.', 1:length(jackstraw_data)),
+    p.val = jackstraw_data
+  )
+  testDT[, 'PC' := factor(PC, levels = PC)]
+  testDT[, 'sign' := ifelse(p.val <= threshold, 'sign', 'n.s.')]
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
+  pl = pl + ggplot2::geom_point(data = testDT[1:ncp], ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21)
+  pl = pl + ggplot2::scale_fill_manual(values  = c('n.s.' = 'lightgrey', 'sign' = 'darkorange'))
+  pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+  pl = pl + ggplot2::coord_cartesian(ylim = ylim)
+  pl = pl + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
+  pl = pl + ggplot2::labs(x = '', y = 'p-value per PC')
+
+  return(pl)
+
+}
+
+
+
+
+
+
+
+
 #' @title signPCA
 #' @name signPCA
 #' @description identify significant prinicipal components (PCs)
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param name name of PCA object if available
 #' @param method method to use to identify significant PCs
 #' @param expression_values expression values to use
@@ -920,12 +1029,7 @@ jackstrawPlot = function(gobject,
 #' @param jack_iter number of interations for jackstraw
 #' @param jack_threshold p-value threshold to call a PC significant
 #' @param jack_ylim y-axis limits on jackstraw plot
-#' @param verbose verbosity
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param verbose be verbose
 #' @return ggplot object for scree method and maxtrix of p-values for jackstraw
 #' @details Two different methods can be used to assess the number of relevant or significant
 #'  prinicipal components (PC's). \cr

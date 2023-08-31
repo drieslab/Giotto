@@ -28,9 +28,9 @@ jackstrawPlot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{expression_values}{expression values to use}
 
@@ -52,13 +52,13 @@ jackstrawPlot(
 
 \item{verbose}{show progress of jackstraw method}
 
-\item{show_plot}{show plot}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

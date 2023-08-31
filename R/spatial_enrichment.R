@@ -1865,7 +1865,6 @@ run_spat_autocor_global = function(use_values,
 
 #' run_spat_autocor_local
 #'
-#' @import data.table
 #' @keywords internal
 run_spat_autocor_local = function(use_values,
                                   feats,

@@ -1,5 +1,5 @@
 
-#' @include spatial_manipulation.R
+#' @include suite_reexports.R
 
 ### Image registration and creation of registered Giotto object ####
 

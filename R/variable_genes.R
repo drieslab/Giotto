@@ -362,86 +362,52 @@ calculateHVF <- function(gobject,
 
 
 
-#' @title calculateHVG
-#' @name calculateHVG
-#' @description compute highly variable genes
-#' @param gobject giotto object
-#' @param expression_values expression values to use
-#' @param method method to calculate highly variable genes
-#' @param reverse_log_scale reverse log-scale of expression values (default = FALSE)
-#' @param logbase if reverse_log_scale is TRUE, which log base was used?
-#' @param expression_threshold expression threshold to consider a gene detected
-#' @param nr_expression_groups [cov_groups] number of expression groups for cov_groups
-#' @param zscore_threshold [cov_groups] zscore to select hvg for cov_groups
-#' @param HVGname name for highly variable genes in cell metadata
-#' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
-#' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
-#' @param var_number [var_p_resid] number of top variance features for var_p_resid method
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object highly variable genes appended to gene metadata (fDataDT)
-#' @details
-#' Currently we provide 2 ways to calculate highly variable genes:
-#'
-#' \bold{1. high coeff of variance (COV) within groups: } \cr
-#' First genes are binned (\emph{nr_expression_groups}) into average expression groups and
-#' the COV for each gene is converted into a z-score within each bin. Genes with a z-score
-#' higher than the threshold (\emph{zscore_threshold}) are considered highly variable.  \cr
-#'
-#' \bold{2. high COV based on loess regression prediction: } \cr
-#' A predicted COV is calculated for each gene using loess regression (COV~log(mean expression))
-#' Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
-#'
-#' @export
-calculateHVG <- function(gobject,
-                         expression_values = c('normalized', 'scaled', 'custom'),
-                         method = c('cov_groups','cov_loess', 'var_p_resid'),
-                         reverse_log_scale = FALSE,
-                         logbase = 2,
-                         expression_threshold = 0,
-                         nr_expression_groups = 20,
-                         zscore_threshold = 1.5,
-                         HVGname = 'hvf',
-                         difference_in_cov = 0.1,
-                         var_threshold = 1.5,
-                         var_number = NULL,
-                         show_plot = NA,
-                         return_plot = NA,
-                         save_plot = NA,
-                         save_param = list(),
-                         default_save_name = 'HVGplot',
-                         return_gobject = TRUE) {
 
 
-  warning("Deprecated and replaced by calculateHVF")
-
-  result = calculateHVF(gobject = gobject,
-                        feat_type = NULL,
-                        expression_values = expression_values,
-                        method = method,
-                        reverse_log_scale = reverse_log_scale,
-                        logbase = logbase,
-                        expression_threshold = expression_threshold,
-                        nr_expression_groups = nr_expression_groups,
-                        zscore_threshold = zscore_threshold,
-                        HVFname = HVGname,
-                        difference_in_cov = difference_in_cov,
-                        var_threshold = var_threshold,
-                        var_number = var_number,
-                        show_plot = show_plot,
-                        return_plot = return_plot,
-                        save_plot = save_plot,
-                        save_param = save_param,
-                        default_save_name = default_save_name,
-                        return_gobject = return_gobject)
-
-  return(result)
+# plot generation ####
+create_cov_group_HVF_plot = function(feat_in_cells_detected, nr_expression_groups) {
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic() +
+    ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                   axis.text = ggplot2::element_text(size = 12))
+  pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes_string(x = 'mean_expr', y = 'cov', color = 'selected'))
+  pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
+                                         guide = ggplot2::guide_legend(title = 'HVF',
+                                                                       override.aes = list(size=5)))
+  pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
+  pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                            strip.text = ggplot2::element_text(size = 4))
+  pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
+  pl
 }
 
 
+create_cov_loess_HVF_plot = function(feat_in_cells_detected, difference_in_cov, var_col) {
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic() +
+    ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                   axis.text = ggplot2::element_text(size = 12))
+  pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
+  pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = 'pred_cov_feats'), color = 'blue')
+  hvg_line = paste0('pred_cov_feats+',difference_in_cov)
+  pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
+  pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
+  pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
+                                         guide = ggplot2::guide_legend(title = 'HVF',
+                                                                       override.aes = list(size=5)))
+  pl
+}
 
 
+create_calc_var_HVF_plot = function(dt_res) {
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_point(data = dt_res, aes_string(x = 'rank', y = 'var', color = 'selected'))
+  pl = pl + ggplot2::scale_x_reverse()
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                      axis.text = ggplot2::element_text(size = 12))
+  pl = pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
+                                        guide = ggplot2::guide_legend(title = 'HVF',
+                                                                      override.aes = list(size=5)))
+  pl = pl + ggplot2::labs(x = 'feature rank', y = 'variance')
+  pl
+}

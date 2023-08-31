@@ -28,7 +28,7 @@ createGiottoCosMxObject_subcellular(
 
 \item{verbose}{be verbose when building Giotto object}
 
-\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
 }
 \description{
 Load and create a CosMx Giotto object from subcellular info

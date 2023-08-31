@@ -10,8 +10,6 @@
 #'
 #' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import data.table magrittr ggplot2
-#'
 #' @export
 plotInteractivePolygons <- function(x,
                                     width = "auto",
@@ -421,7 +419,6 @@ compareCellAbundance <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param polygons character. Vector of polygon names to plot. If NULL, all polygons are plotted
 #' @param ... Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon
-#' @import ggplot2
 #'
 #' @return A ggplot2 image
 #' @export
@@ -437,7 +434,7 @@ plotPolygons <- function(gobject,
   if (!inherits(gobject, "giotto")) {
     stop("gobject must be a Giotto object")
   }
-  
+
   y = geom = NULL
 
   ## verify plot exists
