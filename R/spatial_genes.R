@@ -2086,7 +2086,7 @@ spatialAEH <- function(gobject = NULL,
 
   if(return_gobject == TRUE) {
 
-    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res = data.table::as.data.table(spatial_pattern_results[['cell_pattern_score']])
     dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
     gobject@spatial_enrichment[[name_pattern]] = dt_res
     return(gobject)
