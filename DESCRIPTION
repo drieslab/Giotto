@@ -110,6 +110,10 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     qs
+Remotes:
+    drieslab/GiottoUtils,
+    drieslab/GiottoClass,
+    drieslab/GiottoVisuals
 Collate:
     'auxiliary_giotto.R'
     'cell_segmentation.R'
