@@ -81,10 +81,11 @@ def create_AnnData(trainscripts, cell_shape, nucleus_shape) -> AnnData:
     filtered_adata.uns['points']['gene'] = filtered_adata.uns['points']['gene'].cat.remove_unused_categories()
 
     # Interim measures
-    # subsetted adata don't have _X property, which will cause unexpect error for adata.__sizeof__
+    # subsetted adata (_is_view == True) don't have _X property, which will cause unexpect error for adata.__sizeof__
     # when create object in R, reticulate will call sys.getsizeof to get the size of the object, which will call adata.__sizeof__
     # https://github.com/rstudio/reticulate/issues/1332
     # https://github.com/rstudio/rstudio/issues/13491
+    # wait for AnnData to fix this issue
     filtered_adata._X = filtered_adata.X 
     return filtered_adata
 
