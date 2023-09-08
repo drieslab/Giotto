@@ -124,6 +124,7 @@ read_data_folder = function(spat_method = NULL,
 #' @title Create a giotto object from 10x visium data
 #' @name createGiottoVisiumObject
 #' @description Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
+#'
 #' @param visium_dir path to the 10X visium directory [required]
 #' @param expr_data raw or filtered data (see details)
 #' @param gene_column_index which column index to select (see details)
@@ -141,7 +142,10 @@ read_data_folder = function(spat_method = NULL,
 #' @param ymin_adj adjustment of the minimum y-value to align the image
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
+#' @param expression_matrix_class class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')
+#' @param h5_file optional path to create an on-disk h5 file
 #' @param verbose be verbose
+#'
 #' @return giotto object
 #' @details
 #' If starting from a Visium 10X directory:
@@ -176,6 +180,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     ymax_adj = 0,
                                     ymin_adj = 0,
                                     instructions = NULL,
+                                    expression_matrix_class = c("dgCMatrix", "DelayedArray"),
+                                    h5_file = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
 
@@ -427,14 +433,18 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          instructions = instructions,
                                          cell_metadata = list('cell' = list('rna' = cell_metadata,
                                                                             'protein' = cell_metadata)),
-                                         images = visium_png_list)
+                                         images = visium_png_list,
+                                         expression_matrix_class = expression_matrix_class,
+                                         h5_file = h5_file)
     } else {
       giotto_object = createGiottoObject(expression = raw_matrix,
                                          expression_feat = 'rna',
                                          spatial_locs = spatial_locs,
                                          instructions = instructions,
                                          cell_metadata = list('cell' = list('rna' = cell_metadata)),
-                                         images = visium_png_list)
+                                         images = visium_png_list,
+                                         expression_matrix_class = expression_matrix_class,
+                                         h5_file = h5_file)
     }
 
   }
