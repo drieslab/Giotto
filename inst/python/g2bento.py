@@ -49,7 +49,7 @@ def add_batch(adata: AnnData, cell_shape: pd.DataFrame):
     adata.uns['points']['batch'] = adata.uns['points']['batch'].astype('category')
 
 
-def create_AnnData(trainscripts, cell_shape, nucleus_shape, x_max = None, x_min = None, y_max = None, y_min = None) -> AnnData:
+def create_AnnData(trainscripts, cell_shape, nucleus_shape) -> AnnData:
     # --- processing input ---
     trainscripts = pd.DataFrame(trainscripts)
     cell_shape = pd.DataFrame(cell_shape)
@@ -66,13 +66,8 @@ def create_AnnData(trainscripts, cell_shape, nucleus_shape, x_max = None, x_min 
         warning('cell_seg has more than 500 cells, processing may take a long time.')
 
     # --- filter cells ---
-    # Interim measures
-    # subsetGiottoLocs don't give wanted result, so we use a workaround here
-    if x_max is not None and x_min is not None and y_max is not None and y_min is not None:
-        area_shape = Polygon([(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)])
-        legal_cells = cell_seg['geometry'].apply(lambda x: area_shape.contains(x))
-    else:
-        legal_cells = pd.Series([True] * cell_seg.shape[0])
+    # Let Giotto perform the filtering
+    legal_cells = pd.Series([True] * cell_seg.shape[0])
 
     # --- create AnnData ---
     adata: AnnData = bt.io.prepare(molecules=trainscripts, cell_seg=cell_seg, other_seg={'nucleus': nucleus_seg})  # type: ignore
