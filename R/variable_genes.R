@@ -203,19 +203,6 @@ calculateHVF <- function(gobject,
                                       values = values,
                                       output = 'matrix')
 
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = expr_values
-
-    expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                     name = expr_path)
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = expr_path)
-
-    rownames(expr_values) = expr_dimnames[[1]]
-    colnames(expr_values) = expr_dimnames[[2]]
-  }
-
   # not advised
   if(reverse_log_scale == TRUE) {
     expr_values = (logbase^expr_values)-1
