@@ -82,23 +82,7 @@ read_crossSection <- function(gobject,
   return(crossSection_obj)
 }
 
-#' @title get_distance
-#' @name get_distance
-#' @description estimate average distance between neighboring cells with network table as input
-#' @param networkDT networkDT
-#' @param method method
-#' @keywords internal
-get_distance <- function(networkDT,
-                         method=c("mean","median")
-                         ){
 
-  if (method=="median"){
-    distance = stats::median(networkDT$distance)
-  }else if(method=="mean"){
-    distance = mean(networkDT$distance)
-  }
-  return(distance)
-}
 
 #' @title estimateCellCellDistance
 #' @name estimateCellCellDistance
@@ -442,9 +426,9 @@ createCrossSection <- function(gobject,
 
   colnames_to_extract = c("sdimx", "sdimy", "sdimz")
   spatial_locations = spatial_locations[, colnames_to_extract]
-  
+
   spatial_locations = spatial_locations@coordinates
-  
+
   spatial_locations = as.matrix(spatial_locations)
   rownames(spatial_locations) = cell_IDs
   cell_ID_vec = c(1:nrow(spatial_locations))
@@ -554,7 +538,7 @@ createCrossSection <- function(gobject,
     gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[name]] = crossSection_obj
 
     return(gobject)
-    
+
   }
   else {
     return(crossSection_obj)

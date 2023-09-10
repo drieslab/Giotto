@@ -1716,8 +1716,9 @@ silhouetteRankTest = function(gobject,
   if ('eva' %in% rownames(installed.packages()) == FALSE) {
     stop("\n package ", 'eva', " is not yet installed \n",
          "To install: \n",
-         "install.packages('eva_0.2.5.tar.gz', repos=NULL, type='source')",
-         "see https://cran.r-project.org/src/contrib/Archive/eva/")
+         "install.packages('eva')")
+         # "install.packages('eva_0.2.5.tar.gz', repos=NULL, type='source')",
+         # "see https://cran.r-project.org/src/contrib/Archive/eva/")
   }
 
   ## test if python package is installed
@@ -1745,8 +1746,9 @@ silhouetteRankTest = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      values = values)
+  expr_values = getExpression(gobject = gobject,
+                              values = values,
+                              output = 'matrix')
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -2084,7 +2086,7 @@ spatialAEH <- function(gobject = NULL,
 
   if(return_gobject == TRUE) {
 
-    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res = data.table::as.data.table(spatial_pattern_results[['cell_pattern_score']])
     dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
     gobject@spatial_enrichment[[name_pattern]] = dt_res
     return(gobject)

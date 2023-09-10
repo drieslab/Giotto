@@ -12,7 +12,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 Commit](https://badgen.net/github/last-commit/drieslab/Giotto/suite)
 ![Commits Since
 Latest](https://img.shields.io/github/commits-since/drieslab/Giotto/latest/suite)
-[![R-CMD-check](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=suite)](https://github.com/drieslab/Giotto/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml/badge.svg?branch=suite_modular)](https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml)
 <!-- badges: end -->
 
 **Default branch change!**  
