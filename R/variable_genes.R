@@ -147,7 +147,7 @@ calc_var_HVF = function(scaled_matrix,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals:::all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object highly variable features appended to feature metadata (fDataDT)
@@ -280,7 +280,7 @@ calculateHVF <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    do.call(GiottoVisuals:::all_plots_save_function, c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
