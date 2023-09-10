@@ -479,15 +479,6 @@ filterGiotto = function(gobject,
                                       values = values,
                                       output = 'matrix')
 
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_values = rhdf5::h5read(file = slot(gobject, 'h5_file'),
-                                name = paste0('expression/',feat_type,'/',values))
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = paste0('expression/',feat_type,'/',values))
-    rownames(expr_values) = expr_dimnames[[1]]
-    colnames(expr_values) = expr_dimnames[[2]]
-  }
-
   # approach:
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes

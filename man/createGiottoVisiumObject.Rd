@@ -20,6 +20,8 @@ createGiottoVisiumObject(
   ymax_adj = 0,
   ymin_adj = 0,
   instructions = NULL,
+  expression_matrix_class = c("dgCMatrix", "DelayedArray"),
+  h5_file = NULL,
   cores = NA,
   verbose = TRUE
 )
@@ -55,6 +57,10 @@ looks for matches in the filename for either 'hires' or 'lowres'}
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+
+\item{expression_matrix_class}{class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')}
+
+\item{h5_file}{optional path to create an on-disk h5 file}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 
