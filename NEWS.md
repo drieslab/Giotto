@@ -8,6 +8,7 @@
 - New File `spatial_enrichment_visuals.R`
 - New function `findCellTypesFromEnrichment()` within `spatial_enrichment_visuals.R` to show most probable cell types based on a provided enrichment
 - New function `plotCellTypesFromEnrichment()` within `spatial_enrichment_visuals.R` that generates a bar plot of cell types vs frequency based on a provided enrichment
+- New function `pieCellTypesFromEnrichment()` within `spatial_enrichment_visuals.R` that generates a pie chart of cell types based on a provided enrichment
 
 ## Changes
 
