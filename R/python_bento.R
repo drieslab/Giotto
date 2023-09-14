@@ -8,9 +8,8 @@ createBentoAdata <- function(gobject){
   # Transcripts
   transcripts_df <- as.data.frame(sf::st_as_sf(gobject@feat_info$rna@spatVector))
   coordinates_df <- lapply(transcripts_df['geometry'], sf::st_coordinates)$geometry
-  t_df <- cbind(coordinates_df, transcripts_df[c("feat_ID")])
+  t_df <- as.data.frame(cbind(coordinates_df, transcripts_df[c("feat_ID")]))
   colnames(t_df) <- c('x','y','gene')
-  t_df <- t_df[t_df$cell != '-1',]  # Remove extracellular points, required by Bento
 
   # Cell shapes
   # TODO: Add batch information based on?
