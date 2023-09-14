@@ -79,12 +79,9 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
 #'  Default value is "PAGE_Z_score"
-#' @param title Title of the generated plot. Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
-#' @param save_param arguments passed to all_plots_save_function; must be a list
-#' @param default_save_name name under which the plot will be saved, default  `cell_types_from_enrichment`
-#' @param save_plot binary option to save plot, default NA - will read instructions of gobject
-#' @param show_plot binary option to show plot in viewer, default NA - will read instructions of gobject
-#' @param return_plot binary option to return the plot object, default NA - will read instructions of gobject
+#' @param title Title of the generated plot. 
+#'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
+#' @inheritParams plot_output_params
 #' @details 
 #' 
 #' This function generates a bar plot of cell types vs the frequency
@@ -143,4 +140,86 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
     }
 }
 
+#' @title pieCellTypesFromEnrichment
+#' @name pieCellTypesFromEnrichment
+#' @param gobject Giotto Object
+#' @param spat_unit spatial unit in which the enrichment information is stored
+#' @param feat_type feature type for which the enrichment information was calculated
+#' @param enrichment_name name of the spatial enrichment
+#'  i.e. output from GiottoClass::list_spatial_enrichment_names()
+#'  Default value is "PAGE_Z_score"
+#' @param title Title of the generated plot. 
+#'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
+#' @inheritParams plot_output_params
+#' @details 
+#' 
+#' This function generates a pie chart of cell types by frequency.
+#' These cell type resutls are based on the provided `enrichment_name`,
+#' and will be determined by the maximum value of the z-score 
+#' or p-value for a given cell or annotation.
+#' 
+#' @export
+pieCellTypesFromEnrichment <- function(gobject = NULL,
+                                       spat_unit = NULL,
+                                       feat_type = NULL,
+                                       enrichment_name = "PAGE_z_score",
+                                       title = NULL,
+                                       save_param =  list(),
+                                       default_save_name = 'cell_types_from_enrichment_pie',
+                                       save_plot = NA,
+                                       show_plot = NA,
+                                       return_plot = NA){
+    # guard clauses handled one step downstream
 
+    freq_table = findCellTypesFromEnrichment(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             enrichment_name = enrichment_name,
+                                             return_frequency_table = TRUE)
+
+    freq_dt = data.table::data.table(freq_table)
+
+    data.table::colnames(freq_dt) = c("cell_type", "num_cells")
+    # data.table vars
+    cell_type = num_cells = perc = NULL
+
+    cell_types = unique(freq_dt$cell_type)
+    total_cells = sum(freq_dt$num_cells)
+
+    for ( i in cell_types){
+      # hackish, admittedly
+      nullvar = freq_dt[cell_type == i, perc := num_cells/sum(freq_dt$num_cells) * 100]
+    }
+    rm(nullvar) # saves memory
+
+    pl = ggplot2::ggplot(as.data.frame(freq_dt), 
+                         aes(x = "",
+                             y = perc,
+                             fill = cell_type)) +
+      geom_bar(stat = "identity", width = 1) +
+      coord_polar("y", start = 0) +
+      scale_fill_manual(values = getDistinctColors(length(cell_types))) +
+      theme_void() +
+      labs(title = paste(spat_unit,
+                         " Cell Types (",
+                         as.character(total_cells),
+                          " Cells)"))
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+}
