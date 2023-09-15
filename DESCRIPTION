@@ -143,6 +143,7 @@ Collate:
     'interactivity.R'
     'interoperability.R'
     'poly_influence.R'
+    'python_bento.R'
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
