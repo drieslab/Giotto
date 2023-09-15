@@ -130,14 +130,3 @@ def analysis_colocalization(adata: AnnData, fname: str, ranks: Optional[List[int
 
 def plot_colocalization_analysis_results(adata: AnnData, fname: str, rank: int) -> None:
     bt.pl.colocation(adata, rank=rank, fname=fname)
-
-
-def chekc_genes_number(adata: AnnData) -> None:
-    print(f'adata shape: {adata.shape}')
-    print(f'adata points genes: {len(adata.uns["points"]["gene"].unique())}')
-    print(f'adata cell_gene_features genes: {len(adata.uns["cell_gene_features"]["gene"].unique())}')
-    diff_set = set(adata.uns["points"]["gene"]) - set(adata.uns["cell_gene_features"]["gene"])
-    print(diff_set)
-    for g in diff_set:
-        print(f'{g}')
-        print(adata.uns['points'][adata.uns['points']['gene'] == g])
