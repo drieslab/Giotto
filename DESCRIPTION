@@ -109,6 +109,7 @@ Suggests:
     smfishHmrf,
     SPARK,
     SpatialExperiment,
+    spdep,
     SummarizedExperiment,
     tiff,
     trendsceek,
@@ -155,6 +156,7 @@ Collate:
     'spatial_interaction_visuals.R'
     'spatial_structures.R'
     'spatial_visuals.R'
+    'spdep.R'
     'utilities.R'
     'utils-pipe.R'
     'variable_genes.R'
