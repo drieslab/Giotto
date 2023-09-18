@@ -103,6 +103,30 @@ def plot_points_features_analysis_results(adata: AnnData, fname: str) -> None:
     bt.pl.points(adata, fname=fname)
 
 
+def analysis_RNAflux(adata: AnnData) -> None:
+    bt.tl.flux(adata)
+
+
+def plot_RNAflux_analysis_results(adata: AnnData, fname: str) -> None:
+    bt.pl.flux(adata, fname=fname)
+
+
+def analysis_RNAfluxmap(adata: AnnData) -> None:
+    bt.tl.fluxmap(adata)
+
+
+def plot_RNAfluxmap_analysis_results(adata: AnnData, fname: str) -> None:
+    bt.pl.fluxmap(adata, fname=fname)
+
+
+def analysis_re(adata: AnnData) -> None:
+    bt.tl.fe_fazal2019(adata)
+
+
+def plot_re_analysis_results(adata: AnnData, fname: str) -> None:
+    bt.pl.fe(adata, 'flux_color', fname=fname)
+
+
 def analysis_rna_forest(adata: AnnData) -> None:
     bt.tl.lp(adata)
     bt.tl.lp_stats(adata)
