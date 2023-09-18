@@ -2598,8 +2598,8 @@ combineFeatureData = function(gobject,
                                        feat_type = feat,
                                        output = 'data.table')
 
-      if(!is.null(sel_feats[[feat_type]])) {
-        selected_features = sel_feats[[feat_type]]
+      if(!is.null(sel_feats[[feat]])) {
+        selected_features = sel_feats[[feat]]
         feat_meta = feat_meta[feat_ID %in% selected_features]
       }
 
@@ -2609,8 +2609,8 @@ combineFeatureData = function(gobject,
                                            feat_type = feat,
                                            return_giottoPoints = FALSE)
       feat_info = spatVector_to_dt(feat_info_spatvec)
-      if(!is.null(sel_feats[[feat_type]])) {
-        selected_features = sel_feats[[feat_type]]
+      if(!is.null(sel_feats[[feat]])) {
+        selected_features = sel_feats[[feat]]
         feat_info = feat_info[feat_ID %in% selected_features]
       }
 
@@ -2672,8 +2672,8 @@ combineFeatureOverlapData = function(gobject,
 
 
 
-      if(!is.null(sel_feats[[feat_type]])) {
-        selected_features = sel_feats[[feat_type]]
+      if(!is.null(sel_feats[[feat]])) {
+        selected_features = sel_feats[[feat]]
         feat_meta = feat_meta[feat_ID %in% selected_features]
       }
 
@@ -2685,8 +2685,8 @@ combineFeatureOverlapData = function(gobject,
                                                      polygon_overlap = feat)
         feat_overlap_info = spatVector_to_dt(feat_overlap_info_spatvec)
 
-        if(!is.null(sel_feats[[feat_type]])) {
-          selected_features = sel_feats[[feat_type]]
+        if(!is.null(sel_feats[[feat]])) {
+          selected_features = sel_feats[[feat]]
           feat_overlap_info = feat_overlap_info[feat_ID %in% selected_features]
         }
 
@@ -2694,7 +2694,7 @@ combineFeatureOverlapData = function(gobject,
         poly_list[[poly]] = feat_overlap_info
       }
 
-      poly_list_res = do.call('rbind', poly_list)
+      poly_list_res = rbindlist(poly_list,fill = T)
 
       comb_dt = data.table::merge.data.table(x = feat_meta,
                                              y = poly_list_res,
