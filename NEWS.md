@@ -1,6 +1,13 @@
+# Giotto Suite 3.3.2 (Release TBD)
 
+## Breaking Changes
 
-# Giotto Suite 3.3.1 (Release TBD)
+## Added
+
+## Changes
+- Improved performance of gefToGiotto()
+
+# Giotto Suite 3.3.1 (2023-07-26)
 
 ## Breaking Changes
 - Change `checkGiottoEnvironment()`. Downgrade from error to message and return FALSE when a provided directory does not exist
