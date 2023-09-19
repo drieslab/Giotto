@@ -11,6 +11,8 @@
 #' 
 #' @return A data table with computed values for each feature.
 #' @export 
+#' @import data.table
+
 spdepAutoCorr <- function (gobject,
                       method = c("geary.test", "lee.test", "lm.morantest","moran.test"), 
                       spat_unit = NULL, 
@@ -25,9 +27,9 @@ spdepAutoCorr <- function (gobject,
   
   # Check gobject and set spat_unit and feat_type
   if(!is.null(gobject)) {
-    spat_unit =  Giotto:::set_default_spat_unit(gobject = gobject,
+    spat_unit =  set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
-    feat_type = Giotto:::set_default_feat_type(gobject = gobject,
+    feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
     } 
@@ -36,7 +38,7 @@ spdepAutoCorr <- function (gobject,
   }
   
   # Evaluate spatial autocorrelation using Giotto 
-  resultSpdepCor <- Giotto:::evaluate_autocor_input(gobject = gobject,
+  resultSpdepCor <- evaluate_autocor_input(gobject = gobject,
                                             use_ext_vals = FALSE,
                                             use_sn = TRUE,
                                             use_expr = TRUE,
@@ -106,6 +108,7 @@ spdepAutoCorr <- function (gobject,
 #' @param ... Additional parameters for the function. See spdep documentation 
 #'for relevant parameters.
 #' @return Computed statistics from the specified method.
+#' @import spdep
 #' @export
 #' @seealso \pkg{\link{spdep}}
 
@@ -141,7 +144,7 @@ callSpdep <-function (method, ...){
     # Check if listw_arg is a matrix
     if (is.matrix(listw_arg)) {
       # Convert the matrix to a listw object
-      listw_arg <- spdep::mat2listw(listw_arg, style = "W")
+      listw_arg <- mat2listw(listw_arg, style = "W")
     }
     else if (!inherits(listw_arg, "listw")) {
       stop("listw must be either a matrix or a listw object.")
