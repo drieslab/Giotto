@@ -20,56 +20,67 @@
 
 gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = FALSE){
 
-  # data.table vars
-  genes = y = sdimx = sdimy = cell_ID = count = NULL
+   # data.table vars
+   genes = y = sdimx = sdimy = cell_ID = count = NULL
 
-  # package check
-  package_check(pkg_name = 'rhdf5', repository = 'Bioc')
-  if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
+   # package check
+   package_check(pkg_name = 'rhdf5', repository = 'Bioc')
+   if(!file.exists(gef_file)) stop('File path to .gef file does not exist')
 
-  # check if proper bin_size is selected. These are determined in SAW pipeline.
-  bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
-  if(!(bin_size %in% bin_size_options)) stop('Please select valid bin size,see details for choices.')
+   # check if proper bin_size is selected. These are determined in SAW pipeline.
+   wrap_msg('1. gefToGiotto() begin... \n')
+   bin_size_options = c('bin1', 'bin10', 'bin20', 'bin50', 'bin100', 'bin200')
+   if(!(bin_size %in% bin_size_options)){
+      stop('Please select valid bin size, see ?gefToGiotto for details.')
+   }
 
-  # step 1: read expression and gene data from gef file
-  if(isTRUE(verbose)) wrap_msg('reading in .gef file')
-  geneExpData = rhdf5::h5read(file = gef_file, name = 'geneExp')
-  exprDT = data.table::as.data.table(geneExpData[[bin_size]][['expression']])
-  geneDT = data.table::as.data.table(geneExpData[[bin_size]][['gene']])
+   # 1. read .gef file at specific bin size
+   geneExpData = rhdf5::h5read(file = gef_file, name = paste0('geneExp/',
+                                                              bin_size))
+   exprDT = data.table::as.data.table(geneExpData[['expression']])
+   exprDT$count = as.integer(exprDT$count)
+   setorder(exprDT, x, y) # sort by x, y coords (ascending)
+   geneDT = data.table::as.data.table(geneExpData[['gene']])
+   if(isTRUE(verbose)) wrap_msg('finished reading in .gef', bin_size, '\n')
 
-  # step 2: combine gene information from the geneDT to the exprDT
-  exprDT[, genes := rep(x = geneDT$gene, geneDT$count)]
+   # 2. create spatial locations
+   if(isTRUE(verbose)) wrap_msg('2. create spatial_locations... \n')
+   cell_locations = unique(exprDT[,c('x','y')], by = c('x', 'y'))
+   cell_locations[, bin_ID := as.factor(seq_along(1:nrow(cell_locations)))]
+   cell_locations[, cell_ID := paste0('cell_', bin_ID)]
+   setcolorder(cell_locations, c('x', 'y', 'cell_ID', 'bin_ID')) # ensure first non-numerical col is cell_ID
+   if(isTRUE(verbose)) wrap_msg(nrow(cell_locations), ' bins in total \n')
+   if(isTRUE(verbose)) wrap_msg('finished spatial_locations \n')
 
-  # step 3: bin coordinates according to selected bin_size
-  #TODO: update bin_shift for other shapes, not just rect_vertices
-  bin_size_int = as.integer(gsub("[^0-9.-]", "", bin_size))
-  bin_shift = ceiling(bin_size_int / 2) # ceiling catches bin_1
-  bincoord = unique(exprDT[,.(x,y)])
-  if(isTRUE(verbose)) wrap_msg('shifting and binning coordinates')
-  data.table::setorder(bincoord, x, y)
-  data.table::setnames(bincoord, old = c('x', 'y'), new = c('sdimx', 'sdimy'))
-  bincoord[, c('sdimx', 'sdimy') := list(sdimx+bin_shift, sdimy+bin_shift)]
-  bincoord[, cell_ID := paste0('bin', 1:.N)]
-  tx_data = exprDT[,.(genes, x, y, count)]
-  tx_data[, c('x', 'y') := list(x+bin_shift, y+bin_shift)]
+   # 3. create expression matrix
+   if(isTRUE(verbose)) wrap_msg('3. create expression matrix... \n')
+   exprDT[, genes := as.character(rep(x = geneDT$gene, geneDT$count))]
+   exprDT[, gene_idx := as.integer(factor(exprDT$genes,
+                                          levels = unique(exprDT$genes)))]
 
-  # step 4: create rectangular polygons (grid) starting from the bin centroids
-  if(isTRUE(verbose)) wrap_msg('creating polygon stamp')
-  x = polyStamp(stamp_dt = rectVertices(dims = c(x = (bin_size_int - 1),
-                                                 y = (bin_size_int - 1))),
-                spatlocs = bincoord[,.(cell_ID, sdimx, sdimy)])
-  pg = createGiottoPolygonsFromDfr(x)
+   # merge on x,y and populate based on bin_ID values in cell_locations
+   exprDT[cell_locations, cell_ID := i.bin_ID, on = .(x, y)]
+   exprDT$cell_ID <- as.integer(exprDT$cell_ID)
 
-  # step 5: create giotto subcellular object
-  stereo = createGiottoObjectSubcellular(
-    gpoints = list(rna = tx_data),
-    gpolygons = list(cell = pg)
-  )
+   expMatrix <- Matrix::sparseMatrix(i = exprDT$gene_idx,
+                                     j = exprDT$cell_ID,
+                                     x = exprDT$count)
 
-  stereo = addSpatialCentroidLocations(gobject = stereo)
-  if(isTRUE(verbose)) wrap_msg('giotto subcellular object created')
+   colnames(expMatrix) = cell_locations$cell_ID
+   rownames(expMatrix) = unique(exprDT, by = c("genes", "gene_idx"))$genes 
+   if(isTRUE(verbose)) wrap_msg('finished expression matrix')
 
-  return(stereo)
+   # 4. create minimal giotto object
+   if(isTRUE(verbose)) wrap_msg('4. create giotto object... \n')
+   stereo = createGiottoObject(
+      expression = expMatrix,
+      spatial_locs = cell_locations,
+      verbose = F,
+   )
+   if(isTRUE(verbose)) wrap_msg('finished giotto object... \n')
+
+   wrap_msg('gefToGiotto() finished \n')
+   return(stereo)
 }
 
 
