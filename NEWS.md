@@ -1,5 +1,4 @@
 
-
 # Giotto Suite 3.3.2 (Release TBD)
 
 ## Breaking Changes
@@ -7,6 +6,7 @@
 ## Added
 
 ## Changes
+- Improved performance of gefToGiotto()
 
 
 # Giotto Suite 3.3.1 (2023-08-02)
@@ -37,10 +37,10 @@
 ## Changes
 - Fix bug in `combine_matrices()`
 - Fix bug in `createGiottoObject()` that will not allow object creation without supplied expression information
-- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance.
-- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility.
+- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance
+- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility
 - Add check for spatLocsObj for spatlocs in polyStamp()
-- Removed various print() and cat() statements throughout. 
+- Removed various print() and cat() statements throughout 
 - Changed default verbose argument to FALSE for createGiottoObject
 - Changed default verbose argument to FALSE for joinGiottoObjects
 - Changed default verbose argument to FALSE for createGiottoObjectSubcellular

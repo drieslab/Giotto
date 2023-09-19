@@ -194,6 +194,10 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                            python_version = python_version)
   }
 
+  # reticulate don't support installation from github yet
+  # using system call instead
+  config <- reticulate::py_discover_config(use_environment='giotto_env')
+  system2(config$python, c("-m", "pip", "install", "git+https://github.com/wwang-chcn/bento-tools.git@giotto_install"))
 
 }
 

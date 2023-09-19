@@ -109,6 +109,7 @@ Suggests:
     smfishHmrf,
     SPARK,
     SpatialExperiment,
+    spdep,
     SummarizedExperiment,
     tiff,
     trendsceek,
@@ -143,6 +144,7 @@ Collate:
     'interactivity.R'
     'interoperability.R'
     'poly_influence.R'
+    'python_bento.R'
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
@@ -154,6 +156,7 @@ Collate:
     'spatial_interaction_visuals.R'
     'spatial_structures.R'
     'spatial_visuals.R'
+    'spdep.R'
     'utilities.R'
     'utils-pipe.R'
     'variable_genes.R'

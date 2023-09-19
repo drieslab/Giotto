@@ -1046,15 +1046,29 @@ loadGiotto = function(path_to_folder,
 
   gobject_file = list.files(path_to_folder, pattern = 'gobject')
 
-  if(grepl('.RDS', x = gobject_file)) {
-    gobject = do.call('readRDS', c(file = paste0(path_to_folder,'/','gobject.RDS'), load_params))
+  if(identical(gobject_file, character(0))) {
+
+    if(verbose) wrap_msg('giotto object was not found, skip loading giotto object \n')
+
+  } else if(length(gobject_file) > 1) {
+
+    if(verbose) wrap_msg('more than 1 giotto object was found, skip loading giotto object \n')
+
+  } else {
+
+    if(grepl('.RDS', x = gobject_file)) {
+      gobject = do.call('readRDS', c(file = paste0(path_to_folder,'/','gobject.RDS'), load_params))
+    }
+
+    if(grepl('.qs', x = gobject_file)) {
+      package_check(pkg_name = 'qs', repository = 'CRAN')
+      qread_fun = get("qread", asNamespace("qs"))
+      gobject = do.call(qread_fun, c(file = paste0(path_to_folder,'/','gobject.qs'), load_params))
+    }
+
   }
 
-  if(grepl('.qs', x = gobject_file)) {
-    package_check(pkg_name = 'qs', repository = 'CRAN')
-    qread_fun = get("qread", asNamespace("qs"))
-    gobject = do.call(qread_fun, c(file = paste0(path_to_folder,'/','gobject.qs'), load_params))
-  }
+
 
 
 
@@ -1083,6 +1097,7 @@ loadGiotto = function(path_to_folder,
      }
 
   }
+
 
   ## 3. read in spatial polygons
   if(isTRUE(verbose)) wrap_msg('3. read Giotto spatial information \n')
@@ -1114,49 +1129,60 @@ loadGiotto = function(path_to_folder,
     }
 
     ## 3.2. centroids
-    centroid_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorCentroids.shp')
+    if(isTRUE(verbose)) {
+      wrap_msg('\n 3.2 read Giotto spatial centroid information \n')
+    }
 
+    centroid_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorCentroids.shp')
     centroid_paths = sapply(centroid_search_term, function(gp_centroid) {
       list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = gp_centroid, full.names = TRUE)
     }, USE.NAMES = FALSE)
 
-    centroid_files = basename(centroid_paths)
+    # check if centroid are provided for spatvector polygons
+    test_missing = unlist(lapply(centroid_paths, FUN = function(x) identical(x, character(0))))
+    centroid_paths = centroid_paths[!test_missing]
 
-    if(isTRUE(verbose)) {
-      wrap_msg('\n3.2 read Giotto spatial centroid information \n')
-      print(centroid_files)
-    }
+    if(length(centroid_paths) == 0) {
+      if(verbose) wrap_msg('No centroids were found, centroid loading will be skipped \n')
+    } else {
 
-    if(length(centroid_files != 0)) {
-      spat_names = gsub(centroid_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
+      centroid_files = basename(centroid_paths)
 
-      vector_names_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids_names.txt', full.names = TRUE)
+      if(length(centroid_files != 0)) {
+        spat_names = gsub(centroid_files, pattern = '_spatInfo_spatVectorCentroids.shp', replacement = '')
 
-      for(spat_i in 1:length(spat_names)) {
-        spatVector = terra::vect(x = centroid_paths[spat_i])
+        vector_names_paths = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorCentroids_names.txt', full.names = TRUE)
 
-        # read in original column names and assign to spatVector
-        spatVector_names = fread(input = vector_names_paths[spat_i], header = FALSE)[['V1']]
-        names(spatVector) = spatVector_names
+        for(spat_i in 1:length(spat_names)) {
+          spatVector = terra::vect(x = centroid_paths[spat_i])
 
-        spat_name = spat_names[spat_i]
-        if(isTRUE(verbose)) message(spat_name)
-        gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+          # read in original column names and assign to spatVector
+          spatVector_names = fread(input = vector_names_paths[spat_i], header = FALSE)[['V1']]
+          names(spatVector) = spatVector_names
+
+          spat_name = spat_names[spat_i]
+          if(isTRUE(verbose)) message(spat_name)
+          gobject@spatial_info[[spat_name]]@spatVectorCentroids = spatVector
+        }
       }
+
     }
 
 
     ## 3.3. overlaps
+    if(isTRUE(verbose)) {
+      wrap_msg('\n3.3 read Giotto spatial overlap information \n')
+    }
+
     overlap_search_term = gsub(spat_files, pattern = '_spatInfo_spatVector.shp', replacement = '_spatInfo_spatVectorOverlaps.shp')
     overlap_files = list.files(path = paste0(path_to_folder, '/SpatialInfo'), pattern = 'spatVectorOverlaps.shp')
 
-    if(isTRUE(verbose)) {
-      wrap_msg('\n3.3 read Giotto spatial overlap information \n')
+    # check if overlap information is available
+    if(length(overlap_files) == 0) {
+      if(verbose) wrap_msg('No overlaps were found, overlap loading will be skipped \n')
+    } else {
+
       print(overlap_files)
-    }
-    if(length(overlap_files != 0)) {
-
-
 
       # find overlaps per spatVector
       for(sv_i in seq_along(overlap_search_term)) {
@@ -1187,7 +1213,6 @@ loadGiotto = function(path_to_folder,
         }
       }
     }
-
   }
 
 
