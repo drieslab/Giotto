@@ -31,7 +31,6 @@
 - Updated `polyStamp()` to replace an apply function with a crossjoin for better performance
 - Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility
 - Add check for spatLocsObj for spatlocs in polyStamp()
-- Improved performance of gefToGiotto()
 - Removed various print() and cat() statements throughout 
 - Changed default verbose argument to FALSE for createGiottoObject
 - Changed default verbose argument to FALSE for joinGiottoObjects
