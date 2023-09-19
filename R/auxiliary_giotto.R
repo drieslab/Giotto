@@ -1164,22 +1164,24 @@ subset_giotto_points_object = function(gpoints,
     }
 
     # spatial subset specific
-    if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
+    if(!any(is.null(c(x_min, x_max, y_min, y_max)))) { #TODO: replace with spatExtent instead of x,y min/max values
 
-      if(verbose) print('im1')
+      if(verbose) print('cropping spatial extent')
 
       myspatvector = gpoints@spatVector
-      spatDT = spatVector_to_dt(myspatvector)
+      my_ext = ext(c(x_min, x_max, y_min, y_max)) #TODO: replace with spatExtent instead of x,y min/max values
+      myspatvector_subset = terra::crop(myspatvector, my_ext)
 
-      if(verbose) print('im2')
+      if (terra::nrow(myspatvector_subset) == 0) {
+        stop("The cropped spatVector is empty. 
+              Ensure subset x,y values overlap with gobject.")
+      }
 
-      spatDT_subset = spatDT[x >= x_min & x <= x_max & y >= y_min & y <= y_max]
-      myspatvector_subset = dt_to_spatVector_points(dt = spatDT_subset)
+      if(verbose) print('updating gobject and unique feature ID cache')
 
-      if(verbose) print('im3')
-
+      spatDT_subset = spatVector_to_dt(myspatvector_subset)
       gpoints@spatVector = myspatvector_subset
-      gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)] # update cache
+      gpoints@unique_ID_cache = spatDT_subset[, unique(feat_ID)]
       return(gpoints)
     }
 
