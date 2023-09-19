@@ -71,7 +71,7 @@ spdepAutoCorr <- function (gobject,
   for (feat_value in feat){
     callSpdepVar <- callSpdep(method = method,
                               x = use_values[,feat_value], 
-                              listw = mat2listw (weight_matrix), style = "W")
+                              listw = mat2listw (weight_matrix, style = "W"))
     result_list[[as.character(feat_value)]] <- callSpdepVar
     
     # Extract the estimated value from the result
