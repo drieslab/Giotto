@@ -408,9 +408,7 @@ filterCombinations <- function(gobject,
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
-#' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
 #' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
-#' @param min_det_genes_per_cell deprecated, use min_det_feats_per_cell
 #' @param all_spat_units apply features to remove filtering results from current
 #' spatial unit/feature type combination across ALL spatial units (default = TRUE)
 #' @param all_feat_types apply cells to remove filtering results from current
@@ -436,12 +434,10 @@ filterGiotto = function(gobject,
                         expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                         expression_threshold = 1,
                         feat_det_in_min_cells = 100,
-                        gene_det_in_min_cells = NULL,
                         min_det_feats_per_cell = 100,
-                        min_det_genes_per_cell = NULL,
                         all_spat_units = TRUE,
                         all_feat_types = TRUE,
-                        poly_info = 'cell',
+                        poly_info = NULL,
                         tag_cells = FALSE,
                         tag_cell_name = 'tag',
                         tag_feats = FALSE,
@@ -451,16 +447,6 @@ filterGiotto = function(gobject,
   # data.table vars
   cell_ID = feat_ID = NULL
 
-  ## deprecated arguments
-  if(!is.null(gene_det_in_min_cells)) {
-    feat_det_in_min_cells = gene_det_in_min_cells
-    warning('gene_det_in_min_cells is deprecated, use feat_det_in_min_cells in the future \n')
-  }
-  if(!is.null(min_det_genes_per_cell)) {
-    min_det_feats_per_cell = min_det_genes_per_cell
-    warning('min_det_genes_per_cell is deprecated, use min_det_feats_per_cell in the future \n')
-  }
-
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -468,6 +454,10 @@ filterGiotto = function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+  # set poly_info
+  if(is.null(poly_info)) {
+    poly_info = spat_unit
+  }
 
 
   # expression values to be used
