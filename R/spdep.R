@@ -27,7 +27,7 @@ spdepAutoCorr <- function (gobject,
   
   # Check gobject and set spat_unit and feat_type
   if(!is.null(gobject)) {
-    spat_unit =  set_default_spat_unit(gobject = gobject,
+    spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
     feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
@@ -63,24 +63,28 @@ spdepAutoCorr <- function (gobject,
   weight_matrix <- resultSpdepCor$weight_matrix
   use_values <- resultSpdepCor$use_values
   
-  # Initialize result lists and datatable
-  result_list <- list()
-  result_dt <- data.table(feat_ID = character(), value = numeric())
+  #progressr
+  nfeats = length(feat)
+  step_size = step_size = ceiling(nfeats/10L)
   
-  # Loop through each feature and calculate spatial autocorrelation
-  for (feat_value in feat){
-    callSpdepVar <- callSpdep(method = method,
-                              x = use_values[,feat_value], 
-                              listw = mat2listw (weight_matrix), style = "W")
-    result_list[[as.character(feat_value)]] <- callSpdepVar
-    
-    # Extract the estimated value from the result
-    result_value <- callSpdepVar$estimate[1] 
-    
-    # Create a datatable with feat and values
-    result_dt <- rbind(result_dt, data.table(feat_ID = feat_value, 
-                                             value = result_value))
-  }
+  result_list <- list()
+  progressr::with_progress({
+    if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
+    result_list <- lapply_flex(seq_along(feat),
+                                        function(feat_value){
+                                         callSpdepVar <- callSpdep(method = method,
+                                                                    x = use_values[,feat_value], 
+                                                                    listw = mat2listw (weight_matrix, style = "W"))
+                                         # Extract the estimated value from the result
+                                         result_value <- callSpdepVar$estimate[1] 
+                                         temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
+                                         # increment progress
+                                         if(exists('pb')) if(feat_value %% step_size == 0) pb() 
+                                         return(temp_dt)
+                                        }
+                                        )
+  })
+  result_dt <- rbindlist(result_list)
   
   # Return the resulting datatable  
   if(isTRUE(return_gobject)) {
@@ -108,16 +112,13 @@ spdepAutoCorr <- function (gobject,
 #' @param ... Additional parameters for the function. See spdep documentation 
 #'for relevant parameters.
 #' @return Computed statistics from the specified method.
-#' @import spdep
 #' @export
 #' @seealso \pkg{\link{spdep}}
 
 callSpdep <-function (method, ...){
   
   # Load the 'spdep' package if not already installed
-  if (! requireNamespace("spdep", quietly = TRUE)) {
-        stop("Please install spdep: install.packages('spdep')")
-  }
+  package_check(pkg_name = "spdep", repository = "CRAN", optional = TRUE)
 
   # Check if 'method' argument is NULL, if so, stop with an error
   if (is.null(method)){
@@ -144,7 +145,7 @@ callSpdep <-function (method, ...){
     # Check if listw_arg is a matrix
     if (is.matrix(listw_arg)) {
       # Convert the matrix to a listw object
-      listw_arg <- mat2listw(listw_arg, style = "W")
+      listw_arg <- spdep::mat2listw(listw_arg, style = "W")
     }
     else if (!inherits(listw_arg, "listw")) {
       stop("listw must be either a matrix or a listw object.")
@@ -180,6 +181,6 @@ callSpdep <-function (method, ...){
   combinedParams <- combinedParams[commonParams]
   
   # Call the function with its parameters
-  do.call (method, combinedParams)
+  do.call(eval(parse(text=paste0("spdep::", method))), combinedParams)
 }
 
