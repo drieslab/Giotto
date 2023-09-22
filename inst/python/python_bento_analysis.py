@@ -62,9 +62,11 @@ def colocation(
             warning('No knee found, please extend the ranks range.\nCurrent ranks range: [{ranks[0]},{ranks[-1]}]')
         else:
             info(f'Knee found at rank {kl.knee}')
-            sns.lineplot(data=errors, x="rank", y="rmse", ci=95, marker="o")  # type: ignore
+            fig, ax = plt.subplots(figsize=(6, 4))
+            sns.lineplot(data=errors, x="rank", y="rmse", ci=95, marker="o", ax=ax)  # type: ignore
             plt.axvline(kl.knee, linestyle="--")
             plt.savefig(fname)
+            plt.close(fig)
             info(f"Saved to {fname}")
 
     adata.uns["factors"] = factors
@@ -154,3 +156,8 @@ def analysis_colocalization(adata: AnnData, fname: str, ranks: Optional[List[int
 
 def plot_colocalization_analysis_results(adata: AnnData, fname: str, rank: int) -> None:
     bt.pl.colocation(adata, rank=rank, fname=fname)
+
+
+def python_session_info():
+    import session_info
+    session_info.show(html=False, dependencies=True)
