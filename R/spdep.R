@@ -118,7 +118,7 @@ spdepAutoCorr <- function (gobject,
 callSpdep <-function (method, ...){
   
   # Load the 'spdep' package if not already installed
-  package_check(pkg_name = "spdep", repository = "CRAN", optional = TRUE)
+  package_check(pkg_name = "spdep", repository = "CRAN", optional = FALSE)
 
   # Check if 'method' argument is NULL, if so, stop with an error
   if (is.null(method)){
