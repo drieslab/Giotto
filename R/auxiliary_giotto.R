@@ -606,45 +606,19 @@ rna_standard_normalization = function(gobject,
     provenance = raw_expr@provenance
   } else {provenance = NULL}
 
-  # read h5_file if slot exists
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    path_expr = slot(raw_expr, 'exprMat')
 
-    raw_expr = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                  name = path_expr,
-                                  as.sparse = TRUE)
+  feat_names = rownames(raw_expr[])
+  col_names = colnames(raw_expr[])
 
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = path_expr)
-
-    rownames(raw_expr) = expr_dimnames[[1]]
-    colnames(raw_expr) = expr_dimnames[[2]]
-
-    feat_names = expr_dimnames[[1]]
-    col_names = expr_dimnames[[2]]
-
-  } else {
-    feat_names = rownames(raw_expr[])
-    col_names = colnames(raw_expr[])
-  }
 
 
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    if(inherits(raw_expr, 'SparseArraySeed')) {
-      norm_expr = libNorm_giotto(mymatrix = raw_expr,
-                                 scalefactor = scalefactor)
-    } else {
-      norm_expr = libNorm_giotto(mymatrix = raw_expr[],
-                                 scalefactor = scalefactor)
-    }
-
+    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+                               scalefactor = scalefactor)
   } else {
-
-    if(inherits(raw_expr, 'SparseArraySeed')) { norm_expr = raw_expr
-    } else { norm_expr = raw_expr[] }
-
+    norm_expr = raw_expr[]
   }
 
   ## 2. lognormalize
@@ -713,31 +687,6 @@ rna_standard_normalization = function(gobject,
   }
 
   ## 5. create and set exprObj
-
-  ### write h5 file if needed
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    HDF5Array::writeHDF5Array(x = norm_expr,
-                              filepath = slot(gobject, 'h5_file'),
-                              name = paste0('/expression/',feat_type,'/normalized'),
-                              with.dimnames = TRUE)
-    norm_expr = paste0('/expression/',feat_type,'/normalized')
-
-    HDF5Array::writeHDF5Array(x = norm_scaled_expr,
-                              filepath = slot(gobject, 'h5_file'),
-                              name = paste0('/expression/',feat_type,'/scaled'),
-                              with.dimnames = TRUE)
-    norm_scaled_expr = paste0('/expression/',feat_type,'/scaled')
-  }
-
-  ### keep HDF5 class if needed
-  # if(inherits(slot(raw_expr, 'exprMat'), 'HDF5Matrix')) {
-  #   require(HDF5Array)
-  #   norm_expr = methods::as(norm_expr, 'HDF5Matrix')
-  #   norm_scaled_expr = methods::as(norm_scaled_expr, 'HDF5Matrix')
-  # }
-
-
-
   norm_expr = create_expr_obj(name = 'normalized',
                               exprMat = norm_expr,
                               spat_unit = spat_unit,
@@ -1280,19 +1229,6 @@ addFeatStatistics <- function(gobject,
                                     values = expression_values,
                                     output = 'exprObj')
 
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = slot(expr_data, 'exprMat')
-
-    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                   name = expr_path)
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = expr_path)
-
-    rownames(expr_data) = expr_dimnames[[1]]
-    colnames(expr_data) = expr_dimnames[[2]]
-  }
-
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data[]),
                                       nr_cells = rowSums_flex(expr_data[] > detection_threshold),
@@ -1422,20 +1358,6 @@ addCellStatistics <- function(gobject,
                                     feat_type = feat_type,
                                     values = expression_values,
                                     output = 'exprObj')
-
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = slot(expr_data, 'exprMat')
-
-    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                   name = expr_path)
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = expr_path)
-
-    rownames(expr_data) = expr_dimnames[[1]]
-    colnames(expr_data) = expr_dimnames[[2]]
-  }
-
 
   # calculate stats
 
