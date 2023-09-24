@@ -1393,12 +1393,17 @@ seuratToGiotto = function(sobject,
     } else {
 
       # !requires image objects!
-      spat_coord = Seurat::GetTissueCoordinates(sobject)
-      spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
-      colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")
-      spat_loc = spat_coord
+      if (!is.null(Seurat::Images(object = sobject, assay = spatial_assay))) {
+        spat_coord = Seurat::GetTissueCoordinates(sobject)
+        spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
+        colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")
+        spat_loc = spat_coord
+      } else {
+        message("Images for RNA assay not found in the data. Skipping image processing.")
+        spat_loc = NULL
+      }
+      
     }
-
 
     # Subcellular
     name = names(sobject@images)
