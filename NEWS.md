@@ -1,5 +1,3 @@
-
-
 # Giotto Suite 3.3.2 (Release TBD)
 
 ## Breaking Changes
@@ -7,6 +5,7 @@
 ## Added
 
 ## Changes
+- Improved performance of gefToGiotto()
 
 
 # Giotto Suite 3.3.1 (2023-08-02)

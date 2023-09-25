@@ -11,12 +11,10 @@ filterGiotto(
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
   feat_det_in_min_cells = 100,
-  gene_det_in_min_cells = NULL,
   min_det_feats_per_cell = 100,
-  min_det_genes_per_cell = NULL,
   all_spat_units = TRUE,
   all_feat_types = TRUE,
-  poly_info = "cell",
+  poly_info = NULL,
   tag_cells = FALSE,
   tag_cell_name = "tag",
   tag_feats = FALSE,
@@ -37,11 +35,7 @@ filterGiotto(
 
 \item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
 
-\item{gene_det_in_min_cells}{deprecated, use feat_det_in_min_cells}
-
 \item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
-
-\item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
 
 \item{all_spat_units}{apply features to remove filtering results from current
 spatial unit/feature type combination across ALL spatial units (default = TRUE)}
