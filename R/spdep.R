@@ -11,6 +11,8 @@
 #' 
 #' @return A data table with computed values for each feature.
 #' @export 
+#' @import data.table
+
 spdepAutoCorr <- function (gobject,
                       method = c("geary.test", "lee.test", "lm.morantest","moran.test"), 
                       spat_unit = NULL, 
@@ -25,9 +27,9 @@ spdepAutoCorr <- function (gobject,
   
   # Check gobject and set spat_unit and feat_type
   if(!is.null(gobject)) {
-    spat_unit =  Giotto:::set_default_spat_unit(gobject = gobject,
+    spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
-    feat_type = Giotto:::set_default_feat_type(gobject = gobject,
+    feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
     } 
@@ -36,7 +38,7 @@ spdepAutoCorr <- function (gobject,
   }
   
   # Evaluate spatial autocorrelation using Giotto 
-  resultSpdepCor <- Giotto:::evaluate_autocor_input(gobject = gobject,
+  resultSpdepCor <- evaluate_autocor_input(gobject = gobject,
                                             use_ext_vals = FALSE,
                                             use_sn = TRUE,
                                             use_expr = TRUE,
@@ -61,24 +63,28 @@ spdepAutoCorr <- function (gobject,
   weight_matrix <- resultSpdepCor$weight_matrix
   use_values <- resultSpdepCor$use_values
   
-  # Initialize result lists and datatable
-  result_list <- list()
-  result_dt <- data.table(feat_ID = character(), value = numeric())
+  #progressr
+  nfeats = length(feat)
+  step_size = step_size = ceiling(nfeats/10L)
   
-  # Loop through each feature and calculate spatial autocorrelation
-  for (feat_value in feat){
-    callSpdepVar <- callSpdep(method = method,
-                              x = use_values[,feat_value], 
-                              listw = mat2listw (weight_matrix), style = "W")
-    result_list[[as.character(feat_value)]] <- callSpdepVar
-    
-    # Extract the estimated value from the result
-    result_value <- callSpdepVar$estimate[1] 
-    
-    # Create a datatable with feat and values
-    result_dt <- rbind(result_dt, data.table(feat_ID = feat_value, 
-                                             value = result_value))
-  }
+  result_list <- list()
+  progressr::with_progress({
+    if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
+    result_list <- lapply_flex(seq_along(feat),
+                                        function(feat_value){
+                                         callSpdepVar <- callSpdep(method = method,
+                                                                    x = use_values[,feat_value], 
+                                                                    listw = mat2listw (weight_matrix, style = "W"))
+                                         # Extract the estimated value from the result
+                                         result_value <- callSpdepVar$estimate[1] 
+                                         temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
+                                         # increment progress
+                                         if(exists('pb')) if(feat_value %% step_size == 0) pb() 
+                                         return(temp_dt)
+                                        }
+                                        )
+  })
+  result_dt <- rbindlist(result_list)
   
   # Return the resulting datatable  
   if(isTRUE(return_gobject)) {
@@ -112,9 +118,7 @@ spdepAutoCorr <- function (gobject,
 callSpdep <-function (method, ...){
   
   # Load the 'spdep' package if not already installed
-  if (! requireNamespace("spdep", quietly = TRUE)) {
-        stop("Please install spdep: install.packages('spdep')")
-  }
+  package_check(pkg_name = "spdep", repository = "CRAN", optional = FALSE)
 
   # Check if 'method' argument is NULL, if so, stop with an error
   if (is.null(method)){
@@ -177,6 +181,6 @@ callSpdep <-function (method, ...){
   combinedParams <- combinedParams[commonParams]
   
   # Call the function with its parameters
-  do.call (method, combinedParams)
+  do.call(eval(parse(text=paste0("spdep::", method))), combinedParams)
 }
 
