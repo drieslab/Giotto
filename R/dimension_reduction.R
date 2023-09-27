@@ -497,27 +497,7 @@ runPCA <- function(gobject,
 
   provenance = prov(expr_values)
 
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = slot(expr_values, 'exprMat')
-
-    expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                     name = paste0('expression/',
-                                                   feat_type,'/',
-                                                   values))
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = paste0('expression/',
-                                                            feat_type,'/',
-                                                            values))
-
-    rownames(expr_values) = expr_dimnames[[1]]
-    colnames(expr_values) = expr_dimnames[[2]]
-
-  } else {
-    expr_values = expr_values[] # extract matrix
-  }
-
-
+  expr_values = expr_values[] # extract matrix
 
 
   ## subset matrix
@@ -2082,23 +2062,8 @@ runUMAP <- function(gobject,
                                           output = 'exprObj')
 
       provenance = prov(expr_values)
+      expr_values = expr_values[] # extract matrix
 
-      if(!is.null(slot(gobject, 'h5_file'))) {
-        expr_path = slot(expr_values, 'exprMat')
-
-        expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                         name = expr_path)
-
-        expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                                  name = expr_path)
-
-        rownames(expr_values) = expr_dimnames[[1]]
-        colnames(expr_values) = expr_dimnames[[2]]
-      } else {
-
-        expr_values = expr_values[] # extract matrix
-
-      }
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
@@ -2338,21 +2303,7 @@ runUMAPprojection = function(gobject,
                                           output = 'exprObj')
 
       provenance = prov(expr_values)
-
-      if(!is.null(slot(gobject, 'h5_file'))) {
-        expr_path = slot(expr_values, 'exprMat')
-
-        expr_values = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                         name = expr_path)
-
-        expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                                  name = expr_path)
-
-        rownames(expr_values) = expr_dimnames[[1]]
-        colnames(expr_values) = expr_dimnames[[2]]
-      } else {
-        expr_values = expr_values[] # extract matrix
-      }
+      expr_values = expr_values[] # extract matrix
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
