@@ -8,6 +8,7 @@ dependencies:
   - pip
   - pip:
     - smfishhmrf
+    - git+https://github.com/wwang-chcn/bento-tools.git@giotto_install
   - pandas==1.5.1
   - networkx==2.8.8
   - python-igraph==0.10.2
