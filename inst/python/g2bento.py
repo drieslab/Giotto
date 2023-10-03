@@ -85,7 +85,7 @@ def create_AnnData(trainscripts, cell_shape, nucleus_shape) -> AnnData:
     # when create object in R, reticulate will call sys.getsizeof to get the size of the object, which will call adata.__sizeof__
     # https://github.com/rstudio/reticulate/issues/1332
     # https://github.com/rstudio/rstudio/issues/13491
-    # wait for AnnData to fix this issue
+    # repoted to AnnData here: https://github.com/scverse/anndata/issues/1127
     filtered_adata._X = filtered_adata.X 
     return filtered_adata
 

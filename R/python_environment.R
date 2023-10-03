@@ -127,7 +127,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
 
   py_lou = packages_to_install[grepl(pattern = 'python-louvain',x = packages_to_install)]
 
-  pip_packages = c("smfishhmrf", py_lou)
+  pip_packages = c("smfishhmrf", "session-info", py_lou)
 
   # python-louvain must be installed with pip, not with conda-forge
   packages_to_install = packages_to_install[!grepl(pattern = 'python-louvain',x = packages_to_install)]
