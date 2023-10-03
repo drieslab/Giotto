@@ -265,7 +265,7 @@ doLeidenClusterIgraph = function(gobject,
 
   # make igraph network undirected
   graph_object_undirected = igraph::as.undirected(igraph_object)
-
+  set.seed(seed_number)
   leiden_clusters = igraph::cluster_leiden(graph = graph_object_undirected,
                                            objective_function = objective_function,
                                            resolution_parameter = resolution_parameter,
