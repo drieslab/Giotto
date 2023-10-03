@@ -13,7 +13,7 @@
 #' @export
 
 spdepAutoCorr <- function (gobject,
-                      method = c("geary.test", "lee.test", "lm.morantest","moran.test"),
+                      method = c("geary.test", "lee.test", "lm.morantest", "moran.test"),
                       spat_unit = NULL,
                       feat_type = NULL,
                       expression_values = "normalized",
@@ -61,32 +61,32 @@ spdepAutoCorr <- function (gobject,
   feat <- resultSpdepCor$feats
   weight_matrix <- resultSpdepCor$weight_matrix
   use_values <- resultSpdepCor$use_values
-  
+
   #progressr
   nfeats = length(feat)
   step_size = ceiling(nfeats/10L)
-  
+
   result_list <- list()
   progressr::with_progress({
     if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
     result_list <- lapply_flex(seq_along(feat),
                                         function(feat_value){
                                          callSpdepVar <- callSpdep(method = method,
-                                                                    x = use_values[,feat_value], 
+                                                                    x = use_values[,feat_value],
                                                                     listw = mat2listw (weight_matrix, style = "W"))
                                          # Extract the estimated value from the result
-                                         result_value <- callSpdepVar$estimate[1] 
+                                         result_value <- callSpdepVar$estimate[1]
                                          temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
                                          # increment progress
-                                         if(exists('pb')) if(feat_value %% step_size == 0) pb() 
+                                         if(exists('pb')) if(feat_value %% step_size == 0) pb()
                                          return(temp_dt)
                                         }
                                         )
   })
   result_dt <- rbindlist(result_list)
-  
+
   # Return the resulting datatable
-  
+
   if(isTRUE(return_gobject)) {
     if(isTRUE(verbose)) wrap_msg('Appending', method,
                                  'results to feature metadata: fDataDT()')
