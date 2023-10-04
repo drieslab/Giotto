@@ -403,16 +403,22 @@ filterCombinations <- function(gobject,
 #' @name filterGiotto
 #' @description filter Giotto object based on expression threshold
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit character. spatial unit. If more than one is provided then
+#' the first will be filtered, the filtering results will be applied across the
+#' other spat_units provided
+#' @param feat_type character. feature type. If more than one is provided then
+#' the first will be filtered, the filtering results will be applied across the
+#' other feat_types provided.
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
 #' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
-#' @param all_spat_units apply features to remove filtering results from current
-#' spatial unit/feature type combination across ALL spatial units (default = TRUE)
-#' @param all_feat_types apply cells to remove filtering results from current
-#' spatial unit/feature type combination across ALL feature types (default = TRUE)
+#' @param all_spat_units deprecated. Use spat_unit_fsub = ":all:"
+#' @param all_feat_types deprecated. Use feat_type_ssub = ":all:"
+#' @param spat_unit_fsub character vector. (default = ':all:') limit features
+#' to remove results to selected spat_units
+#' @param feat_type_ssub character vector. (default = ':all:') limit cells to
+#' remove results to selected feat_types
 #' @param poly_info polygon information to use
 #' @param tag_cells tag filtered cells in metadata vs. remove cells
 #' @param tag_cell_name column name for tagged cells in metadata
@@ -435,8 +441,10 @@ filterGiotto = function(gobject,
                         expression_threshold = 1,
                         feat_det_in_min_cells = 100,
                         min_det_feats_per_cell = 100,
-                        all_spat_units = TRUE,
-                        all_feat_types = TRUE,
+                        spat_unit_fsub = ":all:",
+                        feat_type_ssub = ":all:",
+                        all_spat_units = NULL,
+                        all_feat_types = NULL,
                         poly_info = NULL,
                         tag_cells = FALSE,
                         tag_cell_name = 'tag',
@@ -446,6 +454,28 @@ filterGiotto = function(gobject,
 
   # data.table vars
   cell_ID = feat_ID = NULL
+
+  # handle deprecations
+  if (!is.null(all_spat_units)) {
+    if (all_spat_units) spat_unit_fsub = ":all:"
+    else spat_unit_fsub = spat_unit
+
+    warning(wrap_txt(
+      'filterGiotto:
+      all_spat_units param is deprecated.
+      Please use spat_unit_fsub = \":all:\" instead. (this is the default)'
+    ))
+  }
+  if (!is.null(all_feat_types)) {
+    if (all_feat_types) feat_type_ssub = ":all:"
+    else feat_type_ssub = feat_type
+
+    warning(wrap_txt(
+      'filterGiotto:
+      all_feat_types param is deprecated.
+      Please use feat_type_ssub = \":all:\" instead. (this is the default)'
+    ))
+  }
 
 
   # Set feat_type and spat_unit
@@ -459,15 +489,33 @@ filterGiotto = function(gobject,
     poly_info = spat_unit
   }
 
+  if (verbose && length(spat_unit) > 1L) {
+    wrap_msg("More than one spat_unit provided.\n",
+             paste0("[", spat_unit[[1L]], "]"),
+             "filtering results will be applied across spat_units:", spat_unit)
+  }
+  if (verbose && length(feat_type) > 1L) {
+    wrap_msg("More than one feat_type provided.\n",
+             paste0("[", feat_type[[1L]], "]"),
+             "filtering results will be applied across spat_units:", feat_type)
+  }
+
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
 
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values,
-                                      output = 'matrix')
+  # get expression values to perform filtering on
+  # Only the first spat_unit and feat_type provided are filtered.
+  # IF there are additional spat_units and feat_types provided, then the filtering
+  # results from this round will be applied to the other provided spat_units
+  # and feat_types as well.
+  expr_values = get_expression_values(
+    gobject = gobject,
+    spat_unit = spat_unit[[1L]],
+    feat_type = feat_type[[1L]],
+    values = values,
+    output = 'matrix'
+  )
 
   # approach:
   # 1. first remove genes that are not frequently detected
@@ -507,15 +555,17 @@ filterGiotto = function(gobject,
 
 
   # update feature metadata
-  newGiottoObject = subsetGiotto(gobject = gobject,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 cell_ids = selected_cell_ids,
-                                 feat_ids = selected_feat_ids,
-                                 all_spat_units = all_spat_units,
-                                 all_feat_types = all_feat_types,
-                                 poly_info = poly_info,
-                                 verbose = verbose)
+  newGiottoObject = subsetGiotto(
+    gobject = gobject,
+    feat_type = feat_type,
+    spat_unit = spat_unit,
+    cell_ids = selected_cell_ids,
+    feat_ids = selected_feat_ids,
+    spat_unit_fsub = spat_unit_fsub,
+    feat_type_ssub = feat_type_ssub,
+    poly_info = poly_info,
+    verbose = verbose
+  )
 
   ## print output ##
   removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
@@ -524,7 +574,7 @@ filterGiotto = function(gobject,
   removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
   total_cells   = length(filter_index_cells)
 
-  if(verbose == TRUE) {
+  if(isTRUE(verbose)) {
     cat('\n')
     cat('Feature type: ', feat_type, '\n')
 

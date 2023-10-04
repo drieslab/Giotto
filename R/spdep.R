@@ -37,24 +37,25 @@ spdepAutoCorr <- function (gobject,
   }
 
   # Evaluate spatial autocorrelation using Giotto
-  resultSpdepCor <- evaluate_autocor_input(gobject = gobject,
-                                            use_ext_vals = FALSE,
-                                            use_sn = TRUE,
-                                            use_expr = TRUE,
-                                            use_meta = FALSE,
-                                            spat_unit = spat_unit,
-                                            feat_type = feat_type,
-                                            feats = NULL,
-                                            method = "moran",
-                                            data_to_use = "expression",
-                                            expression_values = expression_values,
-                                            meta_cols = NULL,
-                                            spatial_network_to_use = spatial_network_to_use,
-                                            wm_method = "distance",
-                                            wm_name = "spat_weights",
-                                            node_values = NULL,
-                                            weight_matrix = NULL,
-                                            verbose = verbose)
+  resultSpdepCor <- evaluate_autocor_input(
+    gobject = gobject,
+    use_ext_vals = FALSE,
+    use_sn = TRUE,
+    use_expr = TRUE,
+    use_meta = FALSE,
+    spat_unit = spat_unit,
+    feat_type = feat_type,
+    feats = NULL,
+    data_to_use = "expression",
+    expression_values = expression_values,
+    meta_cols = NULL,
+    spatial_network_to_use = spatial_network_to_use,
+    wm_method = "distance",
+    wm_name = "spat_weights",
+    node_values = NULL,
+    weight_matrix = NULL,
+    verbose = verbose
+  )
 
 
   # Extract feats and weight_matrix from the result
@@ -69,21 +70,26 @@ spdepAutoCorr <- function (gobject,
   result_list <- list()
   progressr::with_progress({
     if(step_size > 1) pb = progressr::progressor(steps = nfeats/step_size)
-    result_list <- lapply_flex(seq_along(feat),
-                                        function(feat_value){
-                                         callSpdepVar <- callSpdep(method = method,
-                                                                    x = use_values[,feat_value],
-                                                                    listw = mat2listw (weight_matrix, style = "W"))
-                                         # Extract the estimated value from the result
-                                         result_value <- callSpdepVar$estimate[1]
-                                         temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
-                                         # increment progress
-                                         if(exists('pb')) if(feat_value %% step_size == 0) pb()
-                                         return(temp_dt)
-                                        }
-                                        )
+    result_list <- lapply_flex(
+      seq_along(feat),
+      future.packages = c('data.table', 'spdep'),
+      function(feat_value){
+        callSpdepVar <- callSpdep(
+          method = method,
+          x = use_values[,feat_value],
+          listw = spdep::mat2listw(weight_matrix, style = "W")
+        )
+        # Extract the estimated value from the result
+        result_value <- callSpdepVar$estimate[1]
+        temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
+        # increment progress
+        if(exists('pb')) if(feat_value %% step_size == 0) pb()
+        return(temp_dt)
+      }
+    )
   })
-  result_dt <- rbindlist(result_list)
+  # combine results
+  result_dt <- data.table::rbindlist(result_list)
 
   # Return the resulting datatable
 
@@ -126,14 +132,17 @@ callSpdep <-function (method, ...){
   }
 
   # Check if 'method' exists in the 'spdep' package, if not, stop with an error
-  if(!(method %in% ls("package:spdep"))){
+  method <- try(eval(get(method, envir = loadNamespace('spdep'))),
+                silent = TRUE)
+  if (inherits(method, 'try-error')) {
     stop(paste("Invalid method name. Method", method,
                "is not available in the spdep package."))
   }
 
   # Fetch the arguments of the 'method' from 'spdep'
-  fun <- get(method, envir = loadNamespace('spdep'))
-  allArgs <- args(fun) |> as.list() |> names()
+  allArgs <- args(method) %>%
+    as.list() %>%
+    names()
 
   # Capture arguments provided by the user
   methodparam <- list (...)
@@ -181,6 +190,6 @@ callSpdep <-function (method, ...){
   combinedParams <- combinedParams[commonParams]
 
   # Call the function with its parameters
-  do.call(eval(parse(text=paste0("spdep::", method))), combinedParams)
+  do.call(method, combinedParams)
 }
 

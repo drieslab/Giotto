@@ -1950,7 +1950,6 @@ evaluate_autocor_input = function(gobject,
                                   spat_unit,
                                   feat_type,
                                   feats,
-                                  method,
                                   data_to_use,
                                   expression_values,
                                   meta_cols,
@@ -1960,8 +1959,6 @@ evaluate_autocor_input = function(gobject,
                                   node_values,
                                   weight_matrix,
                                   verbose = TRUE) {
-
-  package_check('spdep')
 
   cell_ID = NULL
 
@@ -2066,11 +2063,6 @@ evaluate_autocor_input = function(gobject,
   if((nrow(use_values) != ncol(weight_matrix)) | (nrow(use_values) != nrow(weight_matrix))) {
     stop(wrap_txt('Number of values to correlate do not match number of weight matrix entries',
                   errWidth = TRUE))
-  }
-
-  ## convert to listw for spdep
-  if(!inherits(weight_matrix, 'listw')) {
-    weight_matrix = spdep::mat2listw(weight_matrix)
   }
 
 
