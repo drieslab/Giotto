@@ -75,7 +75,7 @@ def create_AnnData(trainscripts, cell_shape, nucleus_shape) -> AnnData:
 
     # --- filter genes ---
     # Interim measures
-    # subsetGiottoLocs don't give wanted result, so we use a workaround here
+    # subsetting methods (both AnnData and Giotto) may preserve genes that are not in the subsetted adata
     legal_genes = adata.var_names.isin(set(adata.uns['points']['gene'].values))
     filtered_adata = adata[legal_cells,legal_genes] # type: ignore
     filtered_adata.uns['points']['gene'] = filtered_adata.uns['points']['gene'].cat.remove_unused_categories()
