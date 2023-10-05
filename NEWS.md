@@ -12,7 +12,7 @@
 
 ## Changes
 - Improved performance of gefToGiotto()
-- Added `env_name` as an argument to `anndataToGiotto()` for compatability with `checkPythonPackage()`
+- Added `env_name` as an argument to `anndataToGiotto()` and `giottoToAnnData()` for compatability with `checkPythonPackage()`
 - Deprecated internal function `check_py_for_scanpy()` in favor of new function `checkPythonPackage()`
 
 # Giotto Suite 3.3.1 (2023-07-26)
