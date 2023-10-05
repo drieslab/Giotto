@@ -3,9 +3,17 @@
 ## Breaking Changes
 
 ## Added
+- Added `checkPythonPackage()` within `python_environment.R` to check for a python package within a provided environment, and install that package there if it is not found. Supports github url installation. Supports package version specification, but not version minima, maxima, or ranges (i.e., "pysodb==1.0.0" is supported, "pysodb>=1.0.0" is not)
+- Added `py_install_prompt()` within `python_environment.R` to prompt a user to install a python package within a provided environment
+- Added `install_github_link_pip()` within `python_environment.R` to use pip to install a python package from a github link within a provided environment after prompting the user.
+- Added `install_py_pkg_reticulate()` within `python_environment.R` to install a specified python package  within a provided environment via `reticulate::py_install()` after prompting the user.
+- New file `python_bento.R`
+- Added `createBentoAdata()` within `python_bento.R` to create a bento-flavor anndata object from a Giotto Object
 
 ## Changes
 - Improved performance of gefToGiotto()
+- Added `env_name` as an argument to `anndataToGiotto()` and `giottoToAnnData()` for compatability with `checkPythonPackage()`
+- Deprecated internal function `check_py_for_scanpy()` in favor of new function `checkPythonPackage()`
 
 # Giotto Suite 3.3.1 (2023-07-26)
 
