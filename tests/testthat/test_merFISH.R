@@ -1,6 +1,5 @@
 
 
-require(testthat)
 
 # data setup (warning about non-existing dir expected)
 suppressWarnings(

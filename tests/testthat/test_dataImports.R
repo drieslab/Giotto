@@ -3,7 +3,6 @@
 #   installGiottoEnvironment()
 # }
 
-require(testthat)
 
 
 ### TESTS FOR DATA IMPORT FUNCTIONS

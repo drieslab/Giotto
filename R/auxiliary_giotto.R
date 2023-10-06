@@ -403,18 +403,22 @@ filterCombinations <- function(gobject,
 #' @name filterGiotto
 #' @description filter Giotto object based on expression threshold
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit character. spatial unit. If more than one is provided then
+#' the first will be filtered, the filtering results will be applied across the
+#' other spat_units provided
+#' @param feat_type character. feature type. If more than one is provided then
+#' the first will be filtered, the filtering results will be applied across the
+#' other feat_types provided.
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
-#' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
 #' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
-#' @param min_det_genes_per_cell deprecated, use min_det_feats_per_cell
-#' @param all_spat_units apply features to remove filtering results from current
-#' spatial unit/feature type combination across ALL spatial units (default = TRUE)
-#' @param all_feat_types apply cells to remove filtering results from current
-#' spatial unit/feature type combination across ALL feature types (default = TRUE)
+#' @param all_spat_units deprecated. Use spat_unit_fsub = ":all:"
+#' @param all_feat_types deprecated. Use feat_type_ssub = ":all:"
+#' @param spat_unit_fsub character vector. (default = ':all:') limit features
+#' to remove results to selected spat_units
+#' @param feat_type_ssub character vector. (default = ':all:') limit cells to
+#' remove results to selected feat_types
 #' @param poly_info polygon information to use
 #' @param tag_cells tag filtered cells in metadata vs. remove cells
 #' @param tag_cell_name column name for tagged cells in metadata
@@ -436,12 +440,12 @@ filterGiotto = function(gobject,
                         expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                         expression_threshold = 1,
                         feat_det_in_min_cells = 100,
-                        gene_det_in_min_cells = NULL,
                         min_det_feats_per_cell = 100,
-                        min_det_genes_per_cell = NULL,
-                        all_spat_units = TRUE,
-                        all_feat_types = TRUE,
-                        poly_info = 'cell',
+                        spat_unit_fsub = ":all:",
+                        feat_type_ssub = ":all:",
+                        all_spat_units = NULL,
+                        all_feat_types = NULL,
+                        poly_info = NULL,
                         tag_cells = FALSE,
                         tag_cell_name = 'tag',
                         tag_feats = FALSE,
@@ -451,14 +455,26 @@ filterGiotto = function(gobject,
   # data.table vars
   cell_ID = feat_ID = NULL
 
-  ## deprecated arguments
-  if(!is.null(gene_det_in_min_cells)) {
-    feat_det_in_min_cells = gene_det_in_min_cells
-    warning('gene_det_in_min_cells is deprecated, use feat_det_in_min_cells in the future \n')
+  # handle deprecations
+  if (!is.null(all_spat_units)) {
+    if (all_spat_units) spat_unit_fsub = ":all:"
+    else spat_unit_fsub = spat_unit
+
+    warning(wrap_txt(
+      'filterGiotto:
+      all_spat_units param is deprecated.
+      Please use spat_unit_fsub = \":all:\" instead. (this is the default)'
+    ))
   }
-  if(!is.null(min_det_genes_per_cell)) {
-    min_det_feats_per_cell = min_det_genes_per_cell
-    warning('min_det_genes_per_cell is deprecated, use min_det_feats_per_cell in the future \n')
+  if (!is.null(all_feat_types)) {
+    if (all_feat_types) feat_type_ssub = ":all:"
+    else feat_type_ssub = feat_type
+
+    warning(wrap_txt(
+      'filterGiotto:
+      all_feat_types param is deprecated.
+      Please use feat_type_ssub = \":all:\" instead. (this is the default)'
+    ))
   }
 
 
@@ -468,16 +484,38 @@ filterGiotto = function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+  # set poly_info
+  if(is.null(poly_info)) {
+    poly_info = spat_unit
+  }
+
+  if (verbose && length(spat_unit) > 1L) {
+    wrap_msg("More than one spat_unit provided.\n",
+             paste0("[", spat_unit[[1L]], "]"),
+             "filtering results will be applied across spat_units:", spat_unit)
+  }
+  if (verbose && length(feat_type) > 1L) {
+    wrap_msg("More than one feat_type provided.\n",
+             paste0("[", feat_type[[1L]], "]"),
+             "filtering results will be applied across spat_units:", feat_type)
+  }
 
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
 
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values,
-                                      output = 'matrix')
+  # get expression values to perform filtering on
+  # Only the first spat_unit and feat_type provided are filtered.
+  # IF there are additional spat_units and feat_types provided, then the filtering
+  # results from this round will be applied to the other provided spat_units
+  # and feat_types as well.
+  expr_values = get_expression_values(
+    gobject = gobject,
+    spat_unit = spat_unit[[1L]],
+    feat_type = feat_type[[1L]],
+    values = values,
+    output = 'matrix'
+  )
 
   # approach:
   # 1. first remove genes that are not frequently detected
@@ -517,15 +555,17 @@ filterGiotto = function(gobject,
 
 
   # update feature metadata
-  newGiottoObject = subsetGiotto(gobject = gobject,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 cell_ids = selected_cell_ids,
-                                 feat_ids = selected_feat_ids,
-                                 all_spat_units = all_spat_units,
-                                 all_feat_types = all_feat_types,
-                                 poly_info = poly_info,
-                                 verbose = verbose)
+  newGiottoObject = subsetGiotto(
+    gobject = gobject,
+    feat_type = feat_type,
+    spat_unit = spat_unit,
+    cell_ids = selected_cell_ids,
+    feat_ids = selected_feat_ids,
+    spat_unit_fsub = spat_unit_fsub,
+    feat_type_ssub = feat_type_ssub,
+    poly_info = poly_info,
+    verbose = verbose
+  )
 
   ## print output ##
   removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
@@ -534,7 +574,7 @@ filterGiotto = function(gobject,
   removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
   total_cells   = length(filter_index_cells)
 
-  if(verbose == TRUE) {
+  if(isTRUE(verbose)) {
     cat('\n')
     cat('Feature type: ', feat_type, '\n')
 
@@ -606,45 +646,19 @@ rna_standard_normalization = function(gobject,
     provenance = raw_expr@provenance
   } else {provenance = NULL}
 
-  # read h5_file if slot exists
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    path_expr = slot(raw_expr, 'exprMat')
 
-    raw_expr = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                  name = path_expr,
-                                  as.sparse = TRUE)
+  feat_names = rownames(raw_expr[])
+  col_names = colnames(raw_expr[])
 
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = path_expr)
-
-    rownames(raw_expr) = expr_dimnames[[1]]
-    colnames(raw_expr) = expr_dimnames[[2]]
-
-    feat_names = expr_dimnames[[1]]
-    col_names = expr_dimnames[[2]]
-
-  } else {
-    feat_names = rownames(raw_expr[])
-    col_names = colnames(raw_expr[])
-  }
 
 
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    if(inherits(raw_expr, 'SparseArraySeed')) {
-      norm_expr = libNorm_giotto(mymatrix = raw_expr,
-                                 scalefactor = scalefactor)
-    } else {
-      norm_expr = libNorm_giotto(mymatrix = raw_expr[],
-                                 scalefactor = scalefactor)
-    }
-
+    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+                               scalefactor = scalefactor)
   } else {
-
-    if(inherits(raw_expr, 'SparseArraySeed')) { norm_expr = raw_expr
-    } else { norm_expr = raw_expr[] }
-
+    norm_expr = raw_expr[]
   }
 
   ## 2. lognormalize
@@ -713,31 +727,6 @@ rna_standard_normalization = function(gobject,
   }
 
   ## 5. create and set exprObj
-
-  ### write h5 file if needed
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    HDF5Array::writeHDF5Array(x = norm_expr,
-                              filepath = slot(gobject, 'h5_file'),
-                              name = paste0('/expression/',feat_type,'/normalized'),
-                              with.dimnames = TRUE)
-    norm_expr = paste0('/expression/',feat_type,'/normalized')
-
-    HDF5Array::writeHDF5Array(x = norm_scaled_expr,
-                              filepath = slot(gobject, 'h5_file'),
-                              name = paste0('/expression/',feat_type,'/scaled'),
-                              with.dimnames = TRUE)
-    norm_scaled_expr = paste0('/expression/',feat_type,'/scaled')
-  }
-
-  ### keep HDF5 class if needed
-  # if(inherits(slot(raw_expr, 'exprMat'), 'HDF5Matrix')) {
-  #   require(HDF5Array)
-  #   norm_expr = methods::as(norm_expr, 'HDF5Matrix')
-  #   norm_scaled_expr = methods::as(norm_scaled_expr, 'HDF5Matrix')
-  # }
-
-
-
   norm_expr = create_expr_obj(name = 'normalized',
                               exprMat = norm_expr,
                               spat_unit = spat_unit,
@@ -1280,19 +1269,6 @@ addFeatStatistics <- function(gobject,
                                     values = expression_values,
                                     output = 'exprObj')
 
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = slot(expr_data, 'exprMat')
-
-    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                   name = expr_path)
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = expr_path)
-
-    rownames(expr_data) = expr_dimnames[[1]]
-    colnames(expr_data) = expr_dimnames[[2]]
-  }
-
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data[]),
                                       nr_cells = rowSums_flex(expr_data[] > detection_threshold),
@@ -1422,20 +1398,6 @@ addCellStatistics <- function(gobject,
                                     feat_type = feat_type,
                                     values = expression_values,
                                     output = 'exprObj')
-
-  if(!is.null(slot(gobject, 'h5_file'))) {
-    expr_path = slot(expr_data, 'exprMat')
-
-    expr_data = HDF5Array::h5mread(filepath = slot(gobject, 'h5_file'),
-                                   name = expr_path)
-
-    expr_dimnames = HDF5Array::h5readDimnames(filepath = slot(gobject, 'h5_file'),
-                                              name = expr_path)
-
-    rownames(expr_data) = expr_dimnames[[1]]
-    colnames(expr_data) = expr_dimnames[[2]]
-  }
-
 
   # calculate stats
 

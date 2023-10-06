@@ -1,5 +1,3 @@
-
-
 # Giotto Suite 3.3.2 (Release TBD)
 
 ## Breaking Changes
@@ -11,6 +9,7 @@
 - New function `pieCellTypesFromEnrichment()` within `spatial_enrichment_visuals.R` that generates a pie chart of cell types based on a provided enrichment
 
 ## Changes
+- Improved performance of gefToGiotto()
 
 
 # Giotto Suite 3.3.1 (2023-08-02)

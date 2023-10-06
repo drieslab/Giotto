@@ -139,6 +139,7 @@ Collate:
     'spatial_interaction.R'
     'spatial_interaction_spot.R'
     'spatial_interaction_visuals.R'
+    'spdep.R'
     'variable_genes.R'
     'wnn.R'
     'zzz.R'
