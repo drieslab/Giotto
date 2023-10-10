@@ -117,6 +117,7 @@ Suggests:
     qs
 Collate:
     'NN_network.R'
+    'Seurat_functions.R'
     'accessors.R'
     'classes.R'
     'assert.R'
