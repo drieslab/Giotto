@@ -1599,7 +1599,7 @@ seuratToGiottoV5 = function(sobject,
     # Cell Metadata
     cell_metadata = sobject@meta.data
     # Feat Metadata 
-    feat_metadata = sobject@assays$Vizgen@meta.data
+    feat_metadata = sobject[[]]
     
     # Dimension Reduction
     if(sum(sapply(dim_reduction,function(x) length(sobject@reductions[[x]]))) == 0) {
@@ -1659,31 +1659,31 @@ seuratToGiottoV5 = function(sobject,
       
     }
     # Subcellular
-    name = names(sobject@images)
-    if(length(sobject@assays[[subcellular_assay]]) == 1) {
-      
-      spat_coord = Seurat::GetTissueCoordinates(sobject)
-      colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
-      exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
-      spat_loc = spat_coord
-    }
-    if (!length(sobject@images) == 0) {
-      if ("molecules" %in% names(sobject@images[["hippo"]]) == TRUE) {
-        if(!length(sobject@images[["hippo"]][["molecules"]]) == 0) {
-          
-          assay = names(sobject@assays)
-          featnames = rownames(sobject@assays$Vizgen@features@.Data)
-          mol_spatlocs = data.table::data.table()
-          
-          for (x in featnames) {
-            df = (Seurat::FetchData(sobject[["hippo"]][["molecules"]], vars = x))
-            mol_spatlocs = rbind(mol_spatlocs, df)
-          }
-          gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
-          
-        }
-      }
-    }
+    # name = names(sobject@images)
+    # if(length(sobject@assays[[subcellular_assay]]) == 1) {
+    #   
+    #   spat_coord = Seurat::GetTissueCoordinates(sobject)
+    #   colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+    #   exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
+    #   spat_loc = spat_coord
+    # }
+    # if (!length(sobject@images) == 0) {
+    #   if ("molecules" %in% names(sobject@images[["hippo"]]) == TRUE) {
+    #     if(!length(sobject@images[["hippo"]][["molecules"]]) == 0) {
+    #       
+    #       assay = names(sobject@assays)
+    #       featnames = rownames(sobject)
+    #       mol_spatlocs = data.table::data.table()
+    #       
+    #       for (x in featnames) {
+    #         df = (Seurat::FetchData(sobject[["hippo"]][["molecules"]], vars = x))
+    #         mol_spatlocs = rbind(mol_spatlocs, df)
+    #       }
+    #       gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
+    #       
+    #     }
+    #   }
+    # }
   }
   
   #Find SueratImages, extract them, and pass to create seuratobj
