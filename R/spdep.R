@@ -12,6 +12,14 @@
 #' @return A data table with computed values for each feature.
 #' @export 
 #' @import data.table
+#' @examples 
+#' \dontrun{
+#' library(Giotto)
+#' library(GiottoData)
+#' library(spdep)
+#' g = loadGiottoMini(dataset = "visium")
+#' spdepAutoCorr(gobject = g, method = "moran.test")
+#' }
 
 spdepAutoCorr <- function (gobject,
                       method = c("geary.test", "lee.test", "lm.morantest","moran.test"), 
@@ -127,7 +135,7 @@ callSpdep <-function (method, ...){
   
   # Check if 'method' exists in the 'spdep' package, if not, stop with an error
   if(!(method %in% ls("package:spdep"))){
-    stop(paste("Invalid method name. Method", method, 
+    stop(paste("Invalid method name. Method", method,
                "is not available in the spdep package."))
   }
   
