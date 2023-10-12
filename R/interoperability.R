@@ -37,10 +37,10 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = FALSE){
    # 1. read .gef file at specific bin size
    geneExpData = rhdf5::h5read(file = gef_file, name = paste0('geneExp/',
                                                               bin_size))
+   geneDT = data.table::as.data.table(geneExpData[['gene']])
+   
    exprDT = data.table::as.data.table(geneExpData[['expression']])
    exprDT$count = as.integer(exprDT$count)
-   setorder(exprDT, x, y) # sort by x, y coords (ascending)
-   geneDT = data.table::as.data.table(geneExpData[['gene']])
    if(isTRUE(verbose)) wrap_msg('finished reading in .gef', bin_size, '\n')
 
    # 2. create spatial locations
@@ -48,7 +48,7 @@ gefToGiotto = function(gef_file, bin_size = 'bin100', verbose = FALSE){
    cell_locations = unique(exprDT[,c('x','y')], by = c('x', 'y'))
    cell_locations[, bin_ID := as.factor(seq_along(1:nrow(cell_locations)))]
    cell_locations[, cell_ID := paste0('cell_', bin_ID)]
-   setcolorder(cell_locations, c('x', 'y', 'cell_ID', 'bin_ID')) # ensure first non-numerical col is cell_ID
+   data.table::setcolorder(cell_locations, c('x', 'y', 'cell_ID', 'bin_ID')) # ensure first non-numerical col is cell_ID
    if(isTRUE(verbose)) wrap_msg(nrow(cell_locations), ' bins in total \n')
    if(isTRUE(verbose)) wrap_msg('finished spatial_locations \n')
 
