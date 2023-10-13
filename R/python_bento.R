@@ -9,7 +9,7 @@
 #' @return bento_adata bento adata object
 #' @export
 createBentoAdata <- function(gobject = NULL,
-                             env_to_use = NULL){
+                             env_to_use = "giotto_env"){
   if(!c("giotto") %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
   # Transcripts
   transcripts_df <- as.data.frame(sf::st_as_sf(gobject@feat_info$rna@spatVector))
