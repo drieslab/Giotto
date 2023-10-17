@@ -74,9 +74,7 @@ igraph_vertex_membership = function(g, clus_name) {
 #'                         cluster_col = 'leiden_clus',
 #'                         split_clus_name = 'new')
 #' # don't show legend since there are too many categories generated
-#' spatPlot2D(test, cell_color = 'new', show_legend = FALSE)
-#'
-#'
+#' spatPlot2D(g, cell_color = 'new', show_legend = FALSE)
 #' @export
 spatialSplitCluster = function(gobject,
                                spat_unit = NULL,
