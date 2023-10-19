@@ -497,7 +497,7 @@ set_giotto_python_path = function(python_path = NULL,
 py_install_prompt <- function (package = NULL,
                                env = NULL){
   if(is.null(package) | is.null(env)) {
-    stop(GiottoUtils::wrap_txt("Incorrect Usage.\n", errWidth = TRUE))
+    stop(wrap_txt("Incorrect Usage.\n", errWidth = TRUE))
   }
 
   install_py_pkg_msg = paste0("Python package `",
@@ -526,7 +526,7 @@ py_install_prompt <- function (package = NULL,
 install_github_link_pip <- function(link = NULL,
                                             env = NULL){
   # Guard 
-  if (is.null(link) | is.null(env)) stop(GiottoUtils::wrap_txt("Incorrect Usage.", errWidth = TRUE))
+  if (is.null(link) | is.null(env)) stop(wrap_txt("Incorrect Usage.", errWidth = TRUE))
 
   config <- reticulate::py_discover_config(use_environment=env)
   # system commands return 0 if ran successfully, 1 otherwise
