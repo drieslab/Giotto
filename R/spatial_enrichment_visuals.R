@@ -1,6 +1,6 @@
 
-#' @title plotCellTypesFromEnrichment
-#' @name plotCellTypesFromEnrichment
+#' @title findCellTypesFromEnrichment
+#' @name findCellTypesFromEnrichment
 #' @param gobject Giotto Object
 #' @param spat_unit spatial unit in which the enrichment information is stored
 #' @param feat_type feature type for which the enrichment information was calculated
