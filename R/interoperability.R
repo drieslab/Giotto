@@ -1610,8 +1610,15 @@ seuratToGiottoV5 = function(sobject,
       normexp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = 'SCT')
     }
     
-    if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@layers)){
+    if("data" %in% slotNames(sobject@assays[[spatial_assay]])){
+      if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@data)){
+        normexp = Seurat::GetAssayData(object = sobject, slot = "data", assay = spatial_assay)
+     }
+    }
+    if("layers" %in% slotNames(sobject@assays[[spatial_assay]])){
+     if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@layers)){
       normexp = LayerData(object = sobject, assay = spatial_assay)
+     }
     }
     
     # Cell Metadata
@@ -1657,13 +1664,23 @@ seuratToGiottoV5 = function(sobject,
       if (!is.null(Seurat::Images(object = sobject, assay = spatial_assay))) {
         spat_coord = Seurat::GetTissueCoordinates(sobject)
         # spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
-        colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+        
+        if(!("cell" %in% spat_coord)){
+          spat_coord$cell_ID <- rownames(spat_coord)
+          colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID" )
+        }
+        else{
+          colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+        }
+        
         spat_loc = spat_coord
-        length_assay <- length(sobject@assays$Vizgen@cells@.Data)
+        length_assay <-length(colnames(sobject))
+        
         spat_datatable <- data.table(cell_ID = character(length_assay),
                                      sdimx = rep(NA_real_, length_assay),
                                      sdimy = rep(NA_real_, length_assay))
-        spat_datatable$cell_ID <- rownames(sobject@assays$Vizgen@cells@.Data)
+        
+        spat_datatable$cell_ID <- colnames(sobject)
         match_cell_ID <- match(spat_loc$cell_ID, spat_datatable$cell_ID)
         matching_indices <- match_cell_ID
         matching_indices <-  matching_indices[!is.na(matching_indices)]
@@ -1676,35 +1693,106 @@ seuratToGiottoV5 = function(sobject,
       }
       
     }
-    # Subcellular
-    # name = names(sobject@images)
-    # if(length(sobject@assays[[subcellular_assay]]) == 1) {
-    #   
-    #   spat_coord = Seurat::GetTissueCoordinates(sobject)
-    #   colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
-    #   exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
-    #   spat_loc = spat_coord
-    # }
-    # if (!length(sobject@images) == 0) {
-    #   if ("molecules" %in% names(sobject@images[["hippo"]]) == TRUE) {
-    #     if(!length(sobject@images[["hippo"]][["molecules"]]) == 0) {
-    #       
-    #       assay = names(sobject@assays)
-    #       featnames = rownames(sobject)
-    #       mol_spatlocs = data.table::data.table()
-    #       
-    #       for (x in featnames) {
-    #         df = (Seurat::FetchData(sobject[["hippo"]][["molecules"]], vars = x))
-    #         mol_spatlocs = rbind(mol_spatlocs, df)
-    #       }
-    #       gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
-    #       
-    #     }
-    #   }
-    # }
+    #Subcellular
+    name = names(sobject@images)
+    if(length(sobject@assays[[subcellular_assay]]) == 1) {
+
+      spat_coord = Seurat::GetTissueCoordinates(sobject)
+      colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+      exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
+      spat_loc = spat_coord
+    }
+    if (!length(sobject@images) == 0) {
+      for (i in names(sobject@images)){
+      if ("molecules" %in% names(sobject@images[[i]]) == TRUE) {
+        if(!length(sobject@images[[i]][["molecules"]]) == 0) {
+
+          assay = names(sobject@assays)
+          featnames = rownames(sobject)
+          mol_spatlocs = data.table::data.table()
+
+          for (x in featnames) {
+            df = (Seurat::FetchData(sobject[[i]][["molecules"]], vars = x))
+            mol_spatlocs = rbind(mol_spatlocs, df)
+          }
+          gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
+      if("centroids" %in% names(sobject@images[[i]])){
+        centroids_coords <- sobject@images[[i]]$centroids@coords
+        centroids_coords <- vect(centroids_coords)
+        gpolygon <- create_giotto_polygon_object(name = "cell", spatVector = centroids_coords)
+      }
+      if ("segmentation" %in% names(sobject@images[[i]])){
+        
+        polygon_list <- list()
+        
+        for (j in seq(sobject@images[[i]]@boundaries$segmentation@polygons)) {
+          polygon_info <- sobject@images[[i]]@boundaries$segmentation@polygons[[j]]
+          
+          #Get coordinates from segmentation
+          seg_coords <- polygon_info@Polygons[[1]]@coords
+          
+          #Fetch cell_Id from polygon information
+          cell_ID <- polygon_info@ID  
+          
+          #Convert it to SpatVector
+          seg_coords <- vect(seg_coords)
+          
+          #Create giotto_polygon_object
+          gpolygon <- create_giotto_polygon_object(name = "cell", spatVector = centroids_coords ,spatVectorCentroids = seg_coords)
+          
+          # Add the cell_ID to the list of polygon names
+          polygon_list[[cell_ID]] <- gpolygon
+
+        }
+       }
+      }
+     }
+    }
+   } 
   }
   
   #Find SueratImages, extract them, and pass to create seuratobj
+  
+  for (i in names(sobject@images)){
+    
+    #check if image slot has image in it
+    if("image" %in% slotNames(sobject@images[[i]])){
+    if(!is.null(sobject@images[[i]]@image)){
+      
+    # Extract the red (r), green (g), and blue (b) channels
+    r <- as.matrix(sobject@images[[i]]@image[,,1])
+    g <- as.matrix(sobject@images[[i]]@image[,,2])
+    b <- as.matrix(sobject@images[[i]]@image[,,3])
+    
+    # Convert channels to rasters
+    r <- raster::raster(r)
+    g <- raster::raster(g)
+    b <- raster::raster(b)
+    
+    # Stack the channels and convert to brick
+    rgb_stack <- raster::stack(r, g, b)
+    rgb_raster <- raster::brick(rgb_stack)
+    
+    #values rgb_raster
+    values_rgb_raster <- raster::values(rgb_raster)
+    
+    # Rescale pixel values to the desired range (0-255) first
+    rescaled_values <- scales::rescale(values_rgb_raster, to = c(0, 255))
+    
+    # Set the rescaled values in the raster object
+    rgb_raster <- raster::setValues(rgb_raster, values = rescaled_values)
+    
+    # Convert to SpatRaster
+    rgb_raster <- as(rgb_raster, "SpatRaster")
+    
+    # Create Giotto LargeImage
+    gImg <- createGiottoLargeImage(raster_object = rgb_raster)
+    
+    # Plot the image
+    plot(gImg)
+    } 
+   }
+  }
   
   
   gobject = createGiottoObject(exp,
@@ -1726,6 +1814,10 @@ seuratToGiottoV5 = function(sobject,
   if (exists('gpoints') == TRUE) {
     gobject = addGiottoPoints(gobject = gobject,
                               gpoints = list(gpoints))
+  }
+  
+  if(exists('gpolygon') == TRUE){
+    gobject = addGiottoPolygons(gobject = gobject, gpolygons = polygon_list)
   }
   
   return (gobject)
