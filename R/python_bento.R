@@ -28,7 +28,7 @@ createBentoAdata <- function(gobject = NULL,
   nucleus_poly <- data.frame(cell_id = nucleus_poly$poly_ID, x = nucleus_poly$x, y = nucleus_poly$y, batch = 0L)
 
   # Install bento-tools / Check python environment for bento-tools
-  bento_installed = checkPythonPackage(github_package_url = "git+https://github.com/wwang-chcn/bento-tools.git@giotto_install",
+  bento_installed = checkPythonPackage(github_package_url = "git+https://github.com/wwang-chcn/bento-tools.git",
                                        env_to_use = env_to_use)
   # Will crash downstream if installation unsuccessful/denied 
   # or if the package is not found.
