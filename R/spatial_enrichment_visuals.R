@@ -45,8 +45,9 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
     pz_enrich = getSpatialEnrichment(gobject,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type, 
-                                     name = enrichment_name,
-                                     output = "data.table")
+                                     name = enrichment_name)
+
+    enrich_is_p_value = pz_enrich@misc$p_values_calculated
 
     if( colnames(pz_enrich)[[1]] != "cell_ID"){
         selected_cols = colnames(pz_enrich)[colnames(pz_enrich) != "cell_ID"]
@@ -59,7 +60,11 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
     # Find the cell type column that corresponds to the
     # maximum value within a row and assign it into a
     # new column, mapping a cell to it's most likely type
-    pz_enrich[, probable_cell_type :=  names(.SD)[max.col(.SD)], .SDcols = 2:n_c]
+    if(enrich_is_p_value){
+      pz_enrich[, probable_cell_type :=  names(.SD)[max.col(-.SD)], .SDcols = 2:n_c]
+    } else {
+      pz_enrich[, probable_cell_type :=  names(.SD)[max.col(.SD)], .SDcols = 2:n_c]
+    }
 
     cell_ID_and_types_pz_enrich = pz_enrich[, .(cell_ID, probable_cell_type)]
 
