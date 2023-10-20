@@ -40,8 +40,8 @@ libNorm_giotto = function(mymatrix, scalefactor){
 #' @keywords internal
 logNorm_giotto = function(mymatrix, base, offset) {
 
-  if(methods::is(mymatrix, 'HDF5Matrix')) {
-    mymatrix@x = log(mymatrix + offset)/log(base)
+  if(methods::is(mymatrix, 'DelayedArray')) {
+    mymatrix = log(mymatrix + offset)/log(base)
     # } else if(methods::is(mymatrix, 'DelayedMatrix')) {
     #   mymatrix = log(mymatrix + offset)/log(base)
   } else if(methods::is(mymatrix, 'dgCMatrix')) {
