@@ -134,6 +134,7 @@ Collate:
     'poly_influence.R'
     'python_hmrf.R'
     'python_scrublet.R'
+    'spatial_clusters.R'
     'spatial_enrichment.R'
     'spatial_genes.R'
     'spatial_interaction.R'
