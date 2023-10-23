@@ -34,14 +34,14 @@ giotto object with altered cell_metadata
 showPolygonSizeInfluence
 }
 \details{
-Compares cell metadata from spat_unit-feat_type pairs as provided. 
+Compares cell metadata from spat_unit-feat_type pairs as provided.
 
 New columns, resize_switch and cluster_interaction, will be created within
 cell_metadata for spat_unit-feat_type.
 
 These new columns will describe if a given cell switched cluster number when resized.
-If the same amount of clusters exist for spat_unit-feat_type and 
-alt_spat_unit-feat_type, then clusters are determined to be 
+If the same amount of clusters exist for spat_unit-feat_type and
+alt_spat_unit-feat_type, then clusters are determined to be
 corresponding based on % overlap in cell_IDs in each cluster.
 
 Otherwise, multiple clusters from the spatial unit feature type pair are condensed
