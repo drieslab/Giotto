@@ -481,7 +481,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @export 
 addVisiumPolygons <- function(gobject = NULL,
                               scalefactor_path = NULL){
-  if(is.null(gobject) | !class(gobject) %in% "giotto"){
+  if(is.null(gobject) || !class(gobject) %in% "giotto"){
     stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = T))
   }
 
