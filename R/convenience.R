@@ -313,16 +313,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     }
 
     # Add polygon information
-    visium_spat_locs = getSpatialLocations(gobject = giotto_object,
-                                           spat_unit = "cell")
-
-    h5_scalefactors_list = visium_read_scalefactors(json_path = h5_json_scalefactors_path)
-
-    visium_polygons = visium_spot_poly(spatLocsObj = visium_spat_locs,
-                                       json_scalefactors = h5_scalefactors_list)
-
-    giotto_object = addGiottoPolygons(gobject = giotto_object, 
-                                      gpolygons = list(visium_polygons))
+    if(file.exists(h5_json_scalefactors_path)){
+      giotto_object = addVisiumPolygons(gobject = giotto_object,
+                                        scalefactor_path = h5_json_scalefactors_path)
+    }
 
 
 
