@@ -6,7 +6,7 @@ output: github_document
 <!-- This line is from RStudio -->
 
 
-# Giotto Suite
+# Giotto Suite: an open-source and technology-agnostic spatial multi-omics analysis platform
 
 <!-- badges: start -->
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -14,6 +14,15 @@ output: github_document
 ![Commits Since Latest](https://img.shields.io/github/commits-since/drieslab/Giotto/latest/suite)
 [![R-CMD-check](https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml/badge.svg?branch=suite_modular)](https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml)
 <!-- badges: end -->
+
+Giotto Suite is a collection of open source software tools, including data structures and methods, for the comprehensive analysis and visualization of spatial multi-omics data at multiple scales and resolutions. It extends and improves our previous R package [Giotto](https://github.com/drieslab/Giotto/tree/master). The underlying framework of Giotto Suite is generalizable to virtually all current and emerging spatial technologies which may differ in resolution (e.g. subcellular, single cell, or multiple cells), spatial dimension (i.e. 2D vs. 3D), molecular modality (e.g. protein, RNA, DNA, …), and throughput (i.e. number of cells and analytes). Giotto Suite is designed to ensure spatial analysis solutions remain compatible with current and future spatial -omics technologies and platforms. It will also aid in the further integration of spatial -omics with external analysis pipelines and tools.
+
+**Repository Changes!**
+With the release of [v3.4.0](https://github.com/drieslab/Giotto/releases/tag/v3.4.0), Giotto Suite has become modularized. We have divided Giotto Suite into several smaller packages:
+- [GiottoUtils](https://github.com/drieslab/GiottoUtils)
+- [GiottoClass](https://github.com/drieslab/GiottoClass)
+- [GiottoVisuals](https://github.com/drieslab/GiottoVisuals)
+We've done this to ease maintainance, to have clearer categorizations for different functionalities, and to make the Suite easier to explore. Further, this separates dependencies and helps efforts to conform with size requirements for mirrors (e.g. BioConductor).
 
 **Default branch change!**  
 With the release of [v3.3.0](https://github.com/drieslab/Giotto/releases/tag/v3.3.0) the default branch of Giotto has been moved from [@master](https://github.com/drieslab/Giotto/tree/master) to [@suite](https://github.com/drieslab/Giotto/tree/suite). If you want to install the original master version use `devtools::install_github("drieslab/Giotto@master")`. Visit the Giotto [Discussions](https://github.com/drieslab/Giotto/discussions) page for more information.

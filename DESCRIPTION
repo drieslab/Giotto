@@ -136,6 +136,7 @@ Collate:
     'python_scrublet.R'
     'spatial_clusters.R'
     'spatial_enrichment.R'
+    'spatial_enrichment_visuals.R'
     'spatial_genes.R'
     'spatial_interaction.R'
     'spatial_interaction_spot.R'
