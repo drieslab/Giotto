@@ -473,9 +473,9 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object 
 #' for the "cell" spaital unit. 
 #' @export 
-addVisiumPolygons <- function(gobject = NULL,
+addVisiumPolygons <- function(gobject,
                               scalefactor_path = NULL){
-  if(is.null(gobject) || !class(gobject) %in% "giotto"){
+  if(is.null(gobject) || !inherits(gobject, "giotto")){
     stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = T))
   }
 
@@ -583,7 +583,7 @@ visium_micron_scale <- function(json_scalefactors) {
 visium_spot_poly <- function(spatLocsObj = NULL,
                              json_scalefactors) {
   
-  if(class(spatLocsObj) != "spatLocsObj"){
+  if(!inherits(spatLocsObj, "spatLocsObj")){
     stop(GiottoUtils::wrap_txt("A spatLocsObj must be provided. Please try again.\n", errWidth = TRUE))
   }
 
