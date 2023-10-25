@@ -12,7 +12,7 @@
 #' @param detection_threshold detection threshold. Defaults to 1 count.
 #' @keywords internal
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
-  mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
+  unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
     detected_x = x[x > detection_threshold]
     mean(detected_x)
   }))
@@ -33,7 +33,7 @@ libNorm_giotto = function(mymatrix, scalefactor){
   }
 
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
-
+  return(norm_expr)
 }
 
 #' @title logNorm_giotto
