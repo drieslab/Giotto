@@ -312,6 +312,13 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                   verbose = verbose)
     }
 
+    # Add polygon information
+    if(file.exists(h5_json_scalefactors_path)){
+      giotto_object = addVisiumPolygons(gobject = giotto_object,
+                                        scalefactor_path = h5_json_scalefactors_path)
+    }
+
+
 
   } else {
 
@@ -361,12 +368,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
 
 
-
-
+    # TODO handling case in which scalefactors_path does not exist
+    scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
     if(png_name == 'tissue_lowres_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
       if(file.exists(scalefactors_path)) {
         if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
@@ -385,10 +390,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        ymax_adj = ymax_adj,
                                        ymin_adj = ymin_adj)
 
-      }
+      } # TODO handling case in which scalefactors_path does not exist
     } else if(png_name == 'tissue_hires_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
       if(file.exists(scalefactors_path)) {
         if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
@@ -407,7 +410,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        ymax_adj = ymax_adj,
                                        ymin_adj = ymin_adj)
 
-      }
+      } # TODO handling case in which scalefactors_path does not exist
     } else {
       visium_png = createGiottoImage(gobject = NULL,
                                      spatial_locs =  spatial_locs,
@@ -447,13 +450,156 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          h5_file = h5_file)
     }
 
+    # Add polygon information 
+    if(file.exists(scalefactors_path)){
+      giotto_object = addVisiumPolygons(gobject = giotto_object,
+                                        scalefactor_path = scalefactors_path)
+    }
+
   }
 
   return(giotto_object)
 }
 
+# Visium Polygon Creation
+
+#' @title Add Visium Polygons to Giotto Object
+#' @name addVisiumPolygons
+#' @param gobject Giotto Object created with visium data, containing
+#' spatial location corresponding to spots
+#' @param scalefactor_path path to scalefactors_json.json Visium output
+#' @return Giotto Object with circular polygons added at each spatial location
+#' @details 
+#' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object 
+#' for the "cell" spaital unit. 
+#' @export 
+addVisiumPolygons <- function(gobject,
+                              scalefactor_path = NULL){
+  if(is.null(gobject) || !inherits(gobject, "giotto")){
+    stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = T))
+  }
+
+  visium_spat_locs = getSpatialLocations(gobject = gobject,
+                                         spat_unit = "cell")
+  
+  scalefactors_list = visium_read_scalefactors(json_path =scalefactor_path)
+  
+  visium_polygons = visium_spot_poly(spatLocsObj = visium_spat_locs,
+                                     json_scalefactors = scalefactors_list)
+
+  gobject = addGiottoPolygons(gobject = gobject, 
+                              gpolygons = list(visium_polygons))
 
 
+}
+
+
+#' @title Read Visium ScaleFactors
+#' @name visium_read_scalefactors
+#' @param json_path path to scalefactors_json.json for Visium experimental data
+#' @return scalefactors within the provided json file as a named list, 
+#' or NULL if not discovered
+#' @details asserts the existence of and reads in a .json file 
+#' containing scalefactors for Visium data in the expected format.
+#' Returns NULL if no path is provided or if the file does not exist.
+#' @keywords internal
+visium_read_scalefactors = function(json_path = NULL) {
+  
+  if (!checkmate::test_file_exists(json_path)) {
+    if (!is.null(json_path)) {
+      warning('scalefactors not discovered at: ', json_path)
+    }
+    return(NULL)
+  }
+  
+  json_scalefactors = jsonlite::read_json(json_path)
+  
+  # Intial assertion that json dimensions are appropriate
+  checkmate::assert_list(
+    x = json_scalefactors,
+    types = 'numeric',
+    min.len = 4L,
+    max.len = 5L
+  )
+  
+  expected_json_names = c(
+    "regist_target_img_scalef", # NEW as of 2023
+    "spot_diameter_fullres",
+    "tissue_hires_scalef",
+    "fiducial_diameter_fullres",
+    "tissue_lowres_scalef"
+  )
+  
+  # Visium assay with chemistry v2 contains an additional 
+  # keyword in the json file
+  new_format_2023 = checkmate::test_list(
+    x = json_scalefactors,
+    types = 'numeric',
+    len = 5L
+  )
+
+  # If the scalefactors are of size 4 (older assay), clip the new keyword
+  if(!new_format_2023) expected_json_names = expected_json_names[2:5]
+
+  if (!setequal(names(json_scalefactors), expected_json_names)) {
+    warning(GiottoUtils::wrap_txt(
+      'h5 scalefactors json names differ from expected.
+       [Expected]:', expected_json_names, '\n',
+      '[Actual]:', names(json_scalefactors)))
+  }
+  
+  return (json_scalefactors)
+}
+
+
+#' @title Calculate Pixel to Micron Scalefactor
+#' @name visium_micron_scalefactor
+#' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
+#' @return scale factor for converting pixel to micron
+#' @details 
+#' Calculates pixel to micron scalefactor.
+#' Visium xy coordinates are based on the fullres image
+#' The values provided are directly usable for generating polygon information
+#' or calculating the micron size relative to spatial coordinates for this set
+#' of spatial information.
+#' @keywords internal
+visium_micron_scale <- function(json_scalefactors) {
+  # visium spots diameter                       : 55 micron
+  # diameter of a spot at this spatial scaling  : scalefactor_list$spot_diameter_fullres
+  px_to_micron <- 55 / json_scalefactors$spot_diameter_fullres
+  return (px_to_micron)
+}
+
+
+#' @title Create Polygons for Visium Data
+#' @name visium_spot_poly
+#' @param spatLocsObj spatial locations object containing centroid locations of visium spots
+#' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
+#' @return giottoPolygon object 
+#' @details 
+#' Creates circular polygons for spatial representation of
+#' Visium spots. 
+#' @keywords internal
+visium_spot_poly <- function(spatLocsObj = NULL,
+                             json_scalefactors) {
+  
+  if(!inherits(spatLocsObj, "spatLocsObj")){
+    stop(GiottoUtils::wrap_txt("A spatLocsObj must be provided. Please try again.\n", errWidth = TRUE))
+  }
+
+  vis_spot_poly <- GiottoClass::circleVertices(
+    radius = json_scalefactors$spot_diameter_fullres/2
+  )
+
+  GiottoClass::polyStamp(
+    stamp_dt = vis_spot_poly,
+    spatlocs = spatLocsObj[],
+    verbose = FALSE
+  ) %>%
+  createGiottoPolygonsFromDfr(calc_centroids = T, 
+                              verbose = FALSE)
+
+}
 
 
 
