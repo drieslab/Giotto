@@ -1765,31 +1765,13 @@ seuratToGiottoV5 = function(sobject,
     b <- as.matrix(sobject@images[[i]]@image[,,3])
     
     # Convert channels to rasters
-    r <- raster::raster(r)
-    g <- raster::raster(g)
-    b <- raster::raster(b)
-    
-    # Stack the channels and convert to brick
-    rgb_stack <- raster::stack(r, g, b)
-    rgb_raster <- raster::brick(rgb_stack)
-    
-    #values rgb_raster
-    values_rgb_raster <- raster::values(rgb_raster)
-    
-    # Rescale pixel values to the desired range (0-255) first
-    rescaled_values <- scales::rescale(values_rgb_raster, to = c(0, 255))
-    
-    # Set the rescaled values in the raster object
-    rgb_raster <- raster::setValues(rgb_raster, values = rescaled_values)
-    
-    # Convert to SpatRaster
-    rgb_raster <- as(rgb_raster, "SpatRaster")
+    r <- terra::rast(r)
+    g <- terra::rast(g)
+    b <- terra::rast(b)
     
     # Create Giotto LargeImage
-    gImg <- createGiottoLargeImage(raster_object = rgb_raster)
-    
-    # Plot the image
-    plot(gImg)
+    gImg <- createGiottoLargeImage(terra::rast(list(r, g, b)))
+
     } 
    }
   }
@@ -1820,6 +1802,9 @@ seuratToGiottoV5 = function(sobject,
     gobject = addGiottoPolygons(gobject = gobject, gpolygons = polygon_list)
   }
   
+  if(exists('gImg') == TRUE){
+    gobject = addGiottoLargeImage(gobject = gobject, largeImages = list(gImg))
+  }
   return (gobject)
 }
 
