@@ -41,15 +41,13 @@ runPCA(
 
 \item{feats_to_use}{subset of features to use for PCA}
 
-\item{genes_to_use}{deprecated use feats_to_use}
-
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{center}{center data first (default = TRUE)}
 
 \item{scale_unit}{scale features before PCA (default = TRUE)}
 
-\item{ncp}{number of principal components to calculate}
+\item{ncp}{number of principal components to calculate (see details)}
 
 \item{method}{which implementation to use}
 
@@ -72,11 +70,18 @@ giotto object with updated PCA dimension recuction
 runs a Principal Component Analysis
 }
 \details{
-See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+See \code{\link[BiocSingular]{runPCA}} and
+\code{\link[FactoMineR]{PCA}} for more information about other parameters.
+With the feats_to_use param, you can control which features are used to
+calculate your PCA, which can be useful for making sure that your downstream
+dimension reduction and clusterings are based on your features of interest.
 \itemize{
   \item feats_to_use = NULL: will use all features from the selected matrix
   \item feats_to_use = <hvg name>: can be used to select a column name of
   highly variable features, created by (see \code{\link{calculateHVF}})
   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 }
+By default the number of principle components that we calculate is 100, which
+may not encompass all the variation within the dataset. Setting ncp to NULL
+will calculate all the principle components.
 }

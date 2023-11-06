@@ -423,11 +423,10 @@ create_feats_to_use_matrix = function(gobject,
 #' @param reduction cells or genes
 #' @param name arbitrary name for PCA run
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = TRUE)
 #' @param scale_unit scale features before PCA (default = TRUE)
-#' @param ncp number of principal components to calculate
+#' @param ncp number of principal components to calculate (see details)
 #' @param method which implementation to use
 #' @param method_params BiocParallelParam object
 #' @param rev do a reverse PCA
@@ -436,13 +435,20 @@ create_feats_to_use_matrix = function(gobject,
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' @details See \code{\link[BiocSingular]{runPCA}} and
+#' \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' With the feats_to_use param, you can control which features are used to
+#' calculate your PCA, which can be useful for making sure that your downstream
+#' dimension reduction and clusterings are based on your features of interest.
 #' \itemize{
 #'   \item feats_to_use = NULL: will use all features from the selected matrix
 #'   \item feats_to_use = <hvg name>: can be used to select a column name of
 #'   highly variable features, created by (see \code{\link{calculateHVF}})
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 #' }
+#' By default the number of principle components that we calculate is 100, which
+#' may not encompass all the variation within the dataset. Setting ncp to NULL
+#' will calculate all the principle components.
 #' @export
 runPCA <- function(gobject,
                    spat_unit = NULL,
@@ -481,12 +487,6 @@ runPCA <- function(gobject,
     }
   }
 
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
-
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
@@ -499,6 +499,10 @@ runPCA <- function(gobject,
 
   expr_values = expr_values[] # extract matrix
 
+  # set max ncp if NULL was provided
+  if (is.null(ncp)) {
+    ncp = nrow(expr_values)
+  }
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
