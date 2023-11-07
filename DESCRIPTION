@@ -80,7 +80,6 @@ Suggests:
     HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
-    irlba,
     jackstraw,
     knitr,
     MAST,

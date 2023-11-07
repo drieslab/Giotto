@@ -4,7 +4,7 @@
 \alias{addVisiumPolygons}
 \title{Add Visium Polygons to Giotto Object}
 \usage{
-addVisiumPolygons(gobject = NULL, scalefactor_path = NULL)
+addVisiumPolygons(gobject, scalefactor_path = NULL)
 }
 \arguments{
 \item{gobject}{Giotto Object created with visium data, containing

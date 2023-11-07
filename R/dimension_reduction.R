@@ -8,123 +8,6 @@
 ## * PCA  ####
 # ---------- #
 
-#' @title pca_giotto
-#' @name pca_giotto
-#' @description performs PCA based on Rfast
-#' @param mymatrix matrix or object that can be converted to matrix
-#' @param center center data
-#' @param scale scale features
-#' @param k number of principal components to calculate
-#' @keywords internal
-#' @return list of eigenvalues, eigenvectors and pca coordinates
-pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
-
-  if(!is.null(k) & k > ncol(mymatrix)) {
-    warning('k > ncol(matrix), will be set to ncol(matrix)')
-    k = ncol(mymatrix)
-  }
-
-  if(!is.matrix(mymatrix)) mymatrix = as.matrix(mymatrix)
-  my_t_matrix = t_flex(mymatrix)
-  pca_f = Rfast::hd.eigen(x = my_t_matrix, center = center, scale = scale, k = k, vectors = TRUE)
-
-  # calculate pca coordinates
-  rotated_mat = standardise_flex(x = my_t_matrix, center = center, scale = scale)
-  coords = rotated_mat %*% pca_f$vectors
-  colnames(coords) = paste0('Dim.', 1:ncol(coords))
-
-  return(list(eigenvalues = pca_f$values, eigenvectors = pca_f$vectors, coords = coords))
-
-}
-
-
-#' @title runPCA_prcomp_irlba
-#' @name runPCA_prcomp_irlba
-#' @description performs PCA based on the irlba package
-#' @param x matrix or object that can be converted to matrix
-#' @param ncp number of principal components to calculate
-#' @param center center data
-#' @param scale scale features
-#' @param rev reverse PCA
-#' @param set_seed use of seed
-#' @param seed_number seed number to use
-#' @keywords internal
-#' @return list of eigenvalues, loadings and pca coordinates
-runPCA_prcomp_irlba = function(x,
-                               ncp = 100,
-                               center = TRUE,
-                               scale = TRUE,
-                               rev = FALSE,
-                               set_seed = TRUE,
-                               seed_number = 1234,
-                               ...) {
-
-  min_ncp = min(dim(x))
-
-  if(ncp >= min_ncp) {
-    warning("ncp >= minimum dimension of x, will be set to minimum dimension of x - 1")
-    ncp = min_ncp-1
-  }
-
-  if(isTRUE(rev)) {
-
-    x = t_flex(x)
-
-    # start seed
-    if(isTRUE(set_seed)) {
-      set.seed(seed = seed_number)
-    }
-
-    pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
-
-    # exit seed
-    if(isTRUE(set_seed)) {
-      set.seed(seed = Sys.time())
-    }
-
-    # eigenvalues
-    eigenvalues = pca_res$sdev^2
-    # PC loading
-    loadings = pca_res$x
-    rownames(loadings) = rownames(x)
-    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
-    # coordinates
-    coords = pca_res$rotation
-    rownames(coords) = colnames(x)
-    colnames(coords) = paste0('Dim.', 1:ncol(coords))
-    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
-
-  } else {
-
-    # start seed
-    if(isTRUE(set_seed)) {
-      set.seed(seed = seed_number)
-    }
-    pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
-
-    # exit seed
-    if(isTRUE(set_seed)) {
-      set.seed(seed = Sys.time())
-    }
-
-    # eigenvalues
-    eigenvalues = pca_res$sdev^2
-    # PC loading
-    loadings = pca_res$rotation
-    rownames(loadings) = colnames(x)
-    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
-    # coordinates
-    coords = pca_res$x
-    rownames(coords) = rownames(x)
-    colnames(coords) = paste0('Dim.', 1:ncol(coords))
-    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
-
-  }
-
-  return(result)
-
-}
-
 
 
 #' @title runPCA_factominer
@@ -225,8 +108,8 @@ runPCA_factominer = function(x,
 
   }
 
+  print("finished runPCA_factominer, method == factominer")
   return(result)
-
 }
 
 
@@ -348,8 +231,8 @@ runPCA_BiocSingular = function(x,
     set.seed(seed = Sys.time())
   }
 
+  wrap_msg("finished runPCA_BiocSingular, method ==", BSPARAM)
   return(result)
-
 }
 
 
@@ -423,11 +306,10 @@ create_feats_to_use_matrix = function(gobject,
 #' @param reduction cells or genes
 #' @param name arbitrary name for PCA run
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = TRUE)
 #' @param scale_unit scale features before PCA (default = TRUE)
-#' @param ncp number of principal components to calculate
+#' @param ncp number of principal components to calculate (see details)
 #' @param method which implementation to use
 #' @param method_params BiocParallelParam object
 #' @param rev do a reverse PCA
@@ -436,13 +318,20 @@ create_feats_to_use_matrix = function(gobject,
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' @details See \code{\link[BiocSingular]{runPCA}} and
+#' \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' With the feats_to_use param, you can control which features are used to
+#' calculate your PCA, which can be useful for making sure that your downstream
+#' dimension reduction and clusterings are based on your features of interest.
 #' \itemize{
 #'   \item feats_to_use = NULL: will use all features from the selected matrix
 #'   \item feats_to_use = <hvg name>: can be used to select a column name of
 #'   highly variable features, created by (see \code{\link{calculateHVF}})
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 #' }
+#' By default the number of principle components that we calculate is 100, which
+#' may not encompass all the variation within the dataset. Setting ncp to NULL
+#' will calculate all the principle components.
 #' @export
 runPCA <- function(gobject,
                    spat_unit = NULL,
@@ -481,12 +370,6 @@ runPCA <- function(gobject,
     }
   }
 
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
-
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
@@ -499,6 +382,10 @@ runPCA <- function(gobject,
 
   expr_values = expr_values[] # extract matrix
 
+  # set max ncp if NULL was provided
+  if (is.null(ncp)) {
+    ncp = nrow(expr_values)
+  }
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -565,10 +452,10 @@ runPCA <- function(gobject,
 
   }
 
-  print("finished runPCA_factominer, method == factominer")
 
 
-  if(return_gobject == TRUE) {
+
+  if(isTRUE(return_gobject)) {
 
     pca_names = list_dim_reductions_names(gobject = gobject,
                                           data_type = reduction,
@@ -1432,7 +1319,8 @@ screePlot = function(gobject,
     expr_values = expr_values[] # extract matrix
 
     # PCA implementation
-    method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
+    biocsingular_methods = c('irlba', 'exact', 'random','factominer')
+    method = match.arg(method, choices = biocsingular_methods)
 
     ## subset matrix
     if(!is.null(feats_to_use)) {
@@ -1448,8 +1336,15 @@ screePlot = function(gobject,
     if(reduction == 'cells') {
 
       # PCA on cells
-      if(method == 'irlba') {
-        pca_object = runPCA_prcomp_irlba(x = t_flex(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      if(method %in% biocsingular_methods) {
+        pca_object = runPCA_BiocSingular(x = t_flex(expr_values),
+                                         center = center,
+                                         scale = scale_unit,
+                                         ncp = ncp,
+                                         rev = rev,
+                                         BSPARAM = method,
+                                         BPPARAM = BiocParallel::SerialParam(),
+                                         ...)
       } else if(method == 'factominer') {
         pca_object = runPCA_factominer(x = t_flex(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
       } else {
@@ -2044,6 +1939,15 @@ runUMAP <- function(gobject,
 
       provenance = prov(dimObj_to_use)
       matrix_to_use = dimObj_to_use[]
+
+      if (any(!dimensions_to_use %in% seq(ncol(matrix_to_use)))) {
+        warning(wrap_txt(
+          'dimensions_to_use requested is outside what is available.',
+          paste0('(1 to', ncol(matrix_to_use), ')'),
+          'Ignoring dimensions_to_use that are outside the range.'
+        ))
+        dimensions_to_use = dimensions_to_use[dimensions_to_use %in% seq(ncol(matrix_to_use))]
+      }
 
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
