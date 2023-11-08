@@ -4962,7 +4962,7 @@ combineMetadata = function(gobject,
   cell_ID = NULL
 
   if(!is.null(spatial_locs)) {
-    metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
+    metadata = merge(metadata, spatial_locs, by = 'cell_ID')
   }
 
 

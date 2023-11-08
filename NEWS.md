@@ -1,3 +1,4 @@
+
 # Giotto Suite 3.3.2 (Release TBD)
 
 ## Breaking Changes
@@ -15,7 +16,8 @@
 - Added `env_name` as an argument to `anndataToGiotto()` and `giottoToAnnData()` for compatability with `checkPythonPackage()`
 - Deprecated internal function `check_py_for_scanpy()` in favor of new function `checkPythonPackage()`
 
-# Giotto Suite 3.3.1 (2023-07-26)
+
+# Giotto Suite 3.3.1 (2023-08-02)
 
 ## Breaking Changes
 - Change `checkGiottoEnvironment()`. Downgrade from error to message and return FALSE when a provided directory does not exist
@@ -169,7 +171,7 @@
 - Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk
 
 
-# Giotto Suite 3.1.0 (2202-12-01)  
+# Giotto Suite 3.1.0 (2022-12-01)  
   
 
 ## Added
@@ -224,7 +226,7 @@
 
 
 
-# Giotto Suite 2.1.0 (2202-11-09)
+# Giotto Suite 2.1.0 (2022-11-09)
 
 ## Breaking Changes
 - Update of python version to **3.10.2** [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#giotto-suite-2-1-0-2202-11-09)
