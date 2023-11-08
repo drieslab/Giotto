@@ -1002,6 +1002,10 @@ giottoToSeuratV4 <- function(gobject,
                            spat_unit = NULL,
                            obj_use = NULL,
                            ...){
+  
+  #To use Seurat v4 assays
+  options(Seurat.object.assay.version = 'v4')
+  
   # data.table vars
   feat_type = name = dim_type = nn_type = NULL
   if(!is.null(obj_use)) {
@@ -1110,7 +1114,13 @@ giottoToSeuratV4 <- function(gobject,
       )
     )
     rownames(meta_genes) <- meta_genes$feat_ID
-    sobj[[assay_use]]@meta.features <- cbind(sobj[[assay_use]]@meta.features,meta_genes)
+    if ("meta.data" %in% slotNames(sobj[[assay_use]])) {
+      sobj[[assay_use]]@meta.data <- cbind(sobj[[assay_use]]@meta.data, meta_genes)
+    } 
+    else if ("meta.features" %in% slotNames(sobj[[assay_use]])){
+      sobj[[assay_use]]@meta.features <- cbind(sobj[[assay_use]]@meta.features,meta_genes)
+    }
+    
     # dim reduction
     # note: Seurat requires assay name specification for each dim reduc
     avail_dr = list_dim_reductions(gobject = gobject, spat_unit = spat_unit, feat_type = assay_use,)
@@ -1233,6 +1243,10 @@ giottoToSeuratV5 <- function(gobject,
                            spat_unit = NULL,
                            obj_use = NULL,
                            ...){
+  
+  #To use new Seurat v5 assays
+  options(Seurat.object.assay.version = 'v5')
+  
   
   # data.table vars
   feat_type = name = dim_type = nn_type = NULL
@@ -1481,6 +1495,7 @@ seuratToGiottoV4 = function(sobject,
                           dim_reduction = c('pca','umap'),
                           subcellular_assay = 'Vizgen'){
   package_check('Seurat')
+  
   if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay))) {
     wrap_msg('No raw expression values are provided in spatial_assay')
     return(sobject)
@@ -1489,8 +1504,10 @@ seuratToGiottoV4 = function(sobject,
     if(!is.null(sobject@assays$SCT)){
       normexp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = 'SCT')
     }
+    if ("data" %in% slotNames(slot(sobject, 'assays')[[spatial_assay]])){
     if(!is.null(slot(sobject, 'assays')[[spatial_assay]]@data)){
       normexp = Seurat::GetAssayData(object = sobject, slot = "data", assay = spatial_assay)
+     }
     }
     # Cell Metadata
     cell_metadata = sobject@meta.data
@@ -1522,9 +1539,9 @@ seuratToGiottoV4 = function(sobject,
       # names(dimReduc_list) <- dim_reduction
     }
     # Spatial Locations
-    if(length(sobject@assays[[spatial_assay]]) == 0) {
-      spat_loc = NULL
-    } else {
+    # if(length(sobject@assays[[spatial_assay]]) == 0) {
+    #   spat_loc = NULL
+    # } else {
       
       # !requires image objects!
       if (!is.null(Seurat::Images(object = sobject, assay = spatial_assay))) {
@@ -1534,35 +1551,56 @@ seuratToGiottoV4 = function(sobject,
         spat_loc = spat_coord
       } else {
         message("Images for RNA assay not found in the data. Skipping image processing.")
-        spat_loc = NULL
+        # spat_loc = NULL
       }
       
+   # }
+    if (length(sobject@assays[[spatial_assay]]) == 0 || is.null(Seurat::Images(object = sobject, assay = spatial_assay))) {
+      spat_loc <- data.frame(
+        sdimx = rep(0, length(colnames(sobject))),
+        sdimy = rep(0, length(colnames(sobject)))
+      )
     }
     
     
     # Subcellular
     name = names(sobject@images)
-    if(length(sobject@assays[[subcellular_assay]]) == 1) {
-      spat_coord = Seurat::GetTissueCoordinates(sobject)
-      colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
-      exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
-      spat_loc = spat_coord
-    }
-    if (!length(sobject@images) == 0) {
-      if ("molecules" %in% methods::slotNames(sobject@images[[name]]) == TRUE) {
-        if(!length(sobject@images[[name]][["molecules"]]) == 0) {
-          assay = names(sobject@assays)
-          featnames = rownames(sobject@assays[[assay]]@meta.features)
-          mol_spatlocs = data.table::data.table()
-          for (x in featnames) {
-            df = (Seurat::FetchData(sobject[[name]][["molecules"]], vars = x))
-            mol_spatlocs = rbind(mol_spatlocs, df)
-          }
-          gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
-        }
-      }
-    }
+    # if(length(sobject@assays[[subcellular_assay]]) == 1) {
+    #   spat_coord = Seurat::GetTissueCoordinates(sobject)
+    #   colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+    #   exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))]
+    #   spat_loc = spat_coord
+    # }
+    
+    # if (!length(sobject@images) == 0) {
+    #   if ("molecules" %in% methods::slotNames(sobject@images[[name]]) == TRUE) {
+    #     if(!length(sobject@images[[name]][["molecules"]]) == 0) {
+    #       assay = names(sobject@assays)
+    #       featnames = rownames(sobject@assays[[assay]]@meta.features)
+    #       mol_spatlocs = data.table::data.table()
+    #       for (x in featnames) {
+    #         df = (Seurat::FetchData(sobject[[name]][["molecules"]], vars = x))
+    #         mol_spatlocs = rbind(mol_spatlocs, df)
+    #       }
+    #       gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
+    #     }
+    #   }
+    # }
   }
+  
+  if (length(sobject@assays[[subcellular_assay]]) == 0) {
+    cat("No subcellular information found.\n")
+  }
+  else{
+    cat("Please use function \"seuratToGiottoV5\" for handling subcellular information.\n")
+  }
+  if (length(sobject@images) == 0) {
+    cat("No images found\n")
+  }
+  else{
+    cat("Please use function \"seuratToGiottoV5\" for handling image information.\n")
+  }
+  
   gobject = createGiottoObject(exp,
                                spatial_locs = spat_loc,
                                dimension_reduction = dimReduc_list)
@@ -1596,9 +1634,9 @@ seuratToGiottoV4 = function(sobject,
 seuratToGiottoV5 = function(sobject,
                           spatial_assay = 'Spatial',
                           dim_reduction = c('pca','umap'),
-                          subcellular_assay = 'Vizgen'){
+                          subcellular_assay = 'Vizgen',
+                          spatial_loc = 'spatial'){
   package_check('Seurat')
-  
   if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay))) {
     wrap_msg('No raw expression values are provided in spatial_assay')
     return(sobject)
@@ -1627,20 +1665,24 @@ seuratToGiottoV5 = function(sobject,
     feat_metadata = sobject[[]]
     
     # Dimension Reduction
-    if(sum(sapply(dim_reduction,function(x) length(sobject@reductions[[x]]))) == 0) {
+    if (sum(sapply(dim_reduction, function(x) length(sobject@reductions[[x]]))) == 0) {
       dimReduc_list = NULL
     } else {
-      dimReduc_list = lapply(dim_reduction,function(x){
-        dim_coord = as.matrix(Seurat::Embeddings(object = sobject,reduction = x))
+      dimReduc_list = lapply(dim_reduction, function(x) {
+        dim_coord = as.matrix(Seurat::Embeddings(object = sobject, reduction = x))
         dim_load = as.matrix(Seurat::Loadings(object = sobject, reduction = x))
         dim_eig = Seurat::Stdev(sobject, reduction = x)
-        if (length(dim_eig) > 0){
-          dim_eig = sapply(dim_eig, function(x) x ^ 2)
+        
+        if (length(dim_eig) > 0) {
+          dim_eig = sapply(dim_eig, function(y) y ^ 2)
         }
-        colnames(dim_coord) = paste0('Dim.',1:ncol(dim_coord))
-        if (length(dim_load) > 0){
-          colnames(dim_load) = paste0('Dim.',1:ncol(dim_load))
+        
+        colnames(dim_coord) = paste0('Dim.', 1:ncol(dim_coord))
+        
+        if (length(dim_load) > 0) {
+          colnames(dim_load) = paste0('Dim.', 1:ncol(dim_load))
         }
+        
         dimReduc = create_dim_obj(name = x,
                                   reduction = 'cells',
                                   reduction_method = x,
@@ -1653,6 +1695,8 @@ seuratToGiottoV5 = function(sobject,
         return(dimReduc)
       })
       # names(dimReduc_list) <- dim_reduction
+    # 'dimReduc_list' now contains the list of 'dimReduc' objects for each element in 'dim_reduction'
+    
     }
     
     # Spatial Locations
@@ -1750,7 +1794,29 @@ seuratToGiottoV5 = function(sobject,
     }
    } 
   }
+  if(length(spatial_loc) != 0){
+  if(spatial_loc %in% names(sobject@reductions)){
+    cell_ID <- rownames(sobject@reductions[[spatial_loc]])
+    spat_reduct <- cbind(sobject@reductions[[spatial_loc]]@cell.embeddings, cell_ID)
+    colnames(spat_reduct) <- c("sdimx", "sdimy", "cell_ID")
+    spat_loc <- spat_reduct
+    spat_loc <- as.data.frame(spat_loc)
+  length_assay <-length(colnames(sobject))
+  spat_datatable <- data.table(cell_ID = character(length_assay),
+                               sdimx = rep(NA_real_, length_assay),
+                               sdimy = rep(NA_real_, length_assay))
   
+  spat_datatable$cell_ID <- colnames(sobject)
+  match_cell_ID <- match(spat_loc$cell_ID, spat_datatable$cell_ID)
+  matching_indices <- match_cell_ID
+  matching_indices <-  matching_indices[!is.na(matching_indices)]
+  spat_datatable[matching_indices, c("sdimx", "sdimy") := list(as.numeric(spat_loc$sdimx),as.numeric(spat_loc$sdimy))]
+  spat_loc <- spat_datatable
+  }
+    else{
+      message("spatial_loc: '", spatial_loc, "' spatial location were not found in the object")
+    }
+  }
   #Find SueratImages, extract them, and pass to create seuratobj
   
   for (i in names(sobject@images)){
@@ -1776,6 +1842,12 @@ seuratToGiottoV5 = function(sobject,
    }
   }
   
+  if (is.null(spat_loc)) {
+    spat_loc <- data.frame(
+      sdimx = rep(0, length(colnames(sobject))),
+      sdimy = rep(0, length(colnames(sobject)))
+    )
+  }
   
   gobject = createGiottoObject(exp,
                                spatial_locs = spat_loc,
