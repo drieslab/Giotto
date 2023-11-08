@@ -8,7 +8,8 @@ seuratToGiottoV5(
   sobject,
   spatial_assay = "Spatial",
   dim_reduction = c("pca", "umap"),
-  subcellular_assay = "Vizgen"
+  subcellular_assay = "Vizgen",
+  spatial_loc = "spatial"
 )
 }
 \arguments{
