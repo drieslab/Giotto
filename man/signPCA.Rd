@@ -76,8 +76,6 @@ signPCA(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{genes_to_use}{deprecated, use feats_to_use}
 }
 \value{
 ggplot object for scree method and maxtrix of p-values for jackstraw

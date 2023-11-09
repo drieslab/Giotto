@@ -1064,6 +1064,9 @@ initHMRF_V2 =
     library(ggraph)
     library(graphcoloring)
 
+    # DT vars
+    to = from = clus = NULL
+
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
     feat_type = set_default_feat_type(gobject = gobject,
@@ -1273,7 +1276,7 @@ initHMRF_V2 =
       }
     }
     cat(paste0("\n Parsing neighborhood graph...\n"))
-    pp <- tbl_graph(edges = as.data.frame(edgelist), directed = F)
+    pp <- tbl_graph(edges = as.data.frame(edgelist), directed = FALSE)
     yy <- pp %>% mutate(color = as.factor(color_dsatur()))
     colors <- as.list(yy)$nodes$color
     cl_color <- sort(unique(colors))
@@ -1292,8 +1295,10 @@ initHMRF_V2 =
     if(cl.method == 'km')
     {
       cat(paste0("\n Kmeans initialization...\n"))
-      kk = smfishHmrf.generate.centroid(y = y, par_k = k, par_seed = hmrf_seed,
-                                        nstart = nstart)
+      kk = smfishHmrf::smfishHmrf.generate.centroid(
+        y = y, par_k = k, par_seed = hmrf_seed,
+        nstart = nstart
+      )
       mu <- t(kk$centers)
       lclust <- lapply(1:k, function(x) which(kk$cluster == x))
 
@@ -1335,8 +1340,10 @@ initHMRF_V2 =
     sigma <- array(0, c(m, m, k))
     for (i in 1:k) {
       sigma[, , i] <- cov(y[lclust[[i]], ])
-      di <- findDampFactor(sigma[, , i], factor = factor_step,
-                           d_cutoff = tolerance, startValue = 1e-04)
+      di <- smfishHmrf::findDampFactor(
+        sigma[, , i], factor = factor_step,
+        d_cutoff = tolerance, startValue = 1e-04
+      )
       damp[i] <- ifelse(is.null(di), 0, di)
     }
     cat(paste0("\n Done\n"))
@@ -1430,10 +1437,12 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
   res <- c()
   for (beta_current in beta_seq) {
     print(sprintf("Doing beta=%.3f", beta_current))
-    tc.hmrfem <- smfishHmrf.hmrfem.multi(y = y, neighbors = nei,
-                                         beta = beta_current, numnei = numnei, blocks = blocks,
-                                         mu = mu, sigma = sigma, verbose = T, err = 1e-07,
-                                         maxit = 50, dampFactor = damp)
+    tc.hmrfem <- smfishHmrf::smfishHmrf.hmrfem.multi(
+      y = y, neighbors = nei,
+      beta = beta_current, numnei = numnei, blocks = blocks,
+      mu = mu, sigma = sigma, verbose = T, err = 1e-07,
+      maxit = 50, dampFactor = damp
+    )
     # if (mean(apply(tc.hmrfem$prob, 1, max) < (1/k + 0.01)) > 0.5) {
     #   cat(paste0("\n HMRF is stopping at large beta >= ",
     #              beta_current, ", numerical error occurs, results of smaller betas were stored\n"))

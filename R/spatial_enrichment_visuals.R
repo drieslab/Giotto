@@ -51,7 +51,7 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 
     if( colnames(pz_enrich)[[1]] != "cell_ID"){
         selected_cols = colnames(pz_enrich)[colnames(pz_enrich) != "cell_ID"]
-        setcolorder(pz_enrich, c("cell_ID", selected_cols))
+        data.table::setcolorder(pz_enrich, c("cell_ID", selected_cols))
     }
 
 

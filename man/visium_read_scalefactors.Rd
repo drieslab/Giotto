@@ -10,14 +10,14 @@ visium_read_scalefactors(json_path = NULL)
 \item{json_path}{path to scalefactors_json.json for Visium experimental data}
 }
 \value{
-scalefactors within the provided json file as a named list, 
+scalefactors within the provided json file as a named list,
 or NULL if not discovered
 }
 \description{
 Read Visium ScaleFactors
 }
 \details{
-asserts the existence of and reads in a .json file 
+asserts the existence of and reads in a .json file
 containing scalefactors for Visium data in the expected format.
 Returns NULL if no path is provided or if the file does not exist.
 }

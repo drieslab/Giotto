@@ -450,7 +450,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          h5_file = h5_file)
     }
 
-    # Add polygon information 
+    # Add polygon information
     if(file.exists(scalefactors_path)){
       giotto_object = addVisiumPolygons(gobject = giotto_object,
                                         scalefactor_path = scalefactors_path)
@@ -469,10 +469,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' spatial location corresponding to spots
 #' @param scalefactor_path path to scalefactors_json.json Visium output
 #' @return Giotto Object with circular polygons added at each spatial location
-#' @details 
-#' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object 
-#' for the "cell" spaital unit. 
-#' @export 
+#' @details
+#' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
+#' for the "cell" spaital unit.
+#' @export
 addVisiumPolygons <- function(gobject,
                               scalefactor_path = NULL){
   if(is.null(gobject) || !inherits(gobject, "giotto")){
@@ -481,13 +481,13 @@ addVisiumPolygons <- function(gobject,
 
   visium_spat_locs = getSpatialLocations(gobject = gobject,
                                          spat_unit = "cell")
-  
+
   scalefactors_list = visium_read_scalefactors(json_path =scalefactor_path)
-  
+
   visium_polygons = visium_spot_poly(spatLocsObj = visium_spat_locs,
                                      json_scalefactors = scalefactors_list)
 
-  gobject = addGiottoPolygons(gobject = gobject, 
+  gobject = addGiottoPolygons(gobject = gobject,
                               gpolygons = list(visium_polygons))
 
 
@@ -497,23 +497,23 @@ addVisiumPolygons <- function(gobject,
 #' @title Read Visium ScaleFactors
 #' @name visium_read_scalefactors
 #' @param json_path path to scalefactors_json.json for Visium experimental data
-#' @return scalefactors within the provided json file as a named list, 
+#' @return scalefactors within the provided json file as a named list,
 #' or NULL if not discovered
-#' @details asserts the existence of and reads in a .json file 
+#' @details asserts the existence of and reads in a .json file
 #' containing scalefactors for Visium data in the expected format.
 #' Returns NULL if no path is provided or if the file does not exist.
 #' @keywords internal
 visium_read_scalefactors = function(json_path = NULL) {
-  
+
   if (!checkmate::test_file_exists(json_path)) {
     if (!is.null(json_path)) {
       warning('scalefactors not discovered at: ', json_path)
     }
     return(NULL)
   }
-  
+
   json_scalefactors = jsonlite::read_json(json_path)
-  
+
   # Intial assertion that json dimensions are appropriate
   checkmate::assert_list(
     x = json_scalefactors,
@@ -521,7 +521,7 @@ visium_read_scalefactors = function(json_path = NULL) {
     min.len = 4L,
     max.len = 5L
   )
-  
+
   expected_json_names = c(
     "regist_target_img_scalef", # NEW as of 2023
     "spot_diameter_fullres",
@@ -529,8 +529,8 @@ visium_read_scalefactors = function(json_path = NULL) {
     "fiducial_diameter_fullres",
     "tissue_lowres_scalef"
   )
-  
-  # Visium assay with chemistry v2 contains an additional 
+
+  # Visium assay with chemistry v2 contains an additional
   # keyword in the json file
   new_format_2023 = checkmate::test_list(
     x = json_scalefactors,
@@ -547,7 +547,7 @@ visium_read_scalefactors = function(json_path = NULL) {
        [Expected]:', expected_json_names, '\n',
       '[Actual]:', names(json_scalefactors)))
   }
-  
+
   return (json_scalefactors)
 }
 
@@ -556,7 +556,7 @@ visium_read_scalefactors = function(json_path = NULL) {
 #' @name visium_micron_scalefactor
 #' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
 #' @return scale factor for converting pixel to micron
-#' @details 
+#' @details
 #' Calculates pixel to micron scalefactor.
 #' Visium xy coordinates are based on the fullres image
 #' The values provided are directly usable for generating polygon information
@@ -575,14 +575,14 @@ visium_micron_scale <- function(json_scalefactors) {
 #' @name visium_spot_poly
 #' @param spatLocsObj spatial locations object containing centroid locations of visium spots
 #' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
-#' @return giottoPolygon object 
-#' @details 
+#' @return giottoPolygon object
+#' @details
 #' Creates circular polygons for spatial representation of
-#' Visium spots. 
+#' Visium spots.
 #' @keywords internal
 visium_spot_poly <- function(spatLocsObj = NULL,
                              json_scalefactors) {
-  
+
   if(!inherits(spatLocsObj, "spatLocsObj")){
     stop(GiottoUtils::wrap_txt("A spatLocsObj must be provided. Please try again.\n", errWidth = TRUE))
   }
@@ -596,7 +596,7 @@ visium_spot_poly <- function(spatLocsObj = NULL,
     spatlocs = spatLocsObj[],
     verbose = FALSE
   ) %>%
-  createGiottoPolygonsFromDfr(calc_centroids = T, 
+  createGiottoPolygonsFromDfr(calc_centroids = T,
                               verbose = FALSE)
 
 }
@@ -807,18 +807,24 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
   mask = list.files(sg_dir, full.names = TRUE, pattern = 'mask')
   tx = list.files(sg_dir, full.names = TRUE, pattern = 'transcript')
   # Create Polygons
-  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F,
-                                       shift_horizontal_step = F,
-                                       flip_horizontal = F, flip_vertical = F)
+  gpoly = createGiottoPolygonsFromMask(
+    mask,
+    shift_vertical_step = FALSE,
+    shift_horizontal_step = FALSE,
+    flip_horizontal = FALSE,
+    flip_vertical = FALSE
+  )
   # Create Points
   tx = data.table::fread(tx)
   gpoints = createGiottoPoints(tx)
   dim(tx)
   # Create object and add image
   gimg = createGiottoLargeImage(dapi, use_rast_ext = TRUE)
-  sg = createGiottoObjectSubcellular(gpoints = list('rna' = gpoints),
-                                     gpolygons = list('cell' = gpoly),
-                                     instructions = intructions)
+  sg = createGiottoObjectSubcellular(
+    gpoints = list('rna' = gpoints),
+    gpolygons = list('cell' = gpoly),
+    instructions = instructions
+  )
   sg = addGiottoLargeImage(sg, largeImages = list(image = gimg))
   # Return SG object
   return(sg)

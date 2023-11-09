@@ -1621,7 +1621,6 @@ create_jackstrawplot = function(jackstraw_data,
 #' @param pca_method which implementation to use
 #' @param rev do a reverse PCA
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated, use feats_to_use
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
@@ -1703,7 +1702,7 @@ signPCA <- function(gobject,
   )
 
   ## subset matrix
-  if(!is.null(genes_to_use)) {
+  if(!is.null(feats_to_use)) {
     expr_values = create_feats_to_use_matrix(
       gobject = gobject,
       spat_unit = spat_unit,

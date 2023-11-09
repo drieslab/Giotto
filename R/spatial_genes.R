@@ -2427,7 +2427,12 @@ detectSpatialPatterns <- function(gobject,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
 ##########################################################################################
-  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+  stop(wrap_txt(
+    "This function has not been updated for use with the current version of Giotto.
+    See details:
+    https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537",
+    errWidth = TRUE)
+  )
 ##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -4681,30 +4686,41 @@ runPatternSimulation = function(gobject,
     gene = gene_names[gene_ind]
 
     # plot original expression
-    spatGenePlot2D(gobject, expression_values = 'norm', genes = gene,
-                   point_shape = 'border', point_border_stroke = 0.1,
-                   show_network = F, network_color = 'lightgrey', point_size = 2.5,
-                   cow_n_col = 1, show_plot = F,
-                   save_plot = save_plot, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(gene,'_original'),
-                                                            base_width = 9, base_height = 7, units = 'cm'))
+    GiottoVisuals::spatFeatPlot2D(
+      gobject = gobject,
+      expression_values = 'norm',
+      feats = gene,
+      point_shape = 'border', point_border_stroke = 0.1,
+      show_network = F, network_color = 'lightgrey',
+      point_size = 2.5,
+      cow_n_col = 1,
+      show_plot = FALSE,
+      save_plot = save_plot,
+      save_param = list(save_dir = save_dir, save_folder = 'original',
+                        save_name = paste0(gene,'_original'),
+                        base_width = 9, base_height = 7,
+                        units = 'cm')
+    )
 
 
-    generesults = run_spatial_sim_tests_multi(gobject,
-                                              pattern_name = pattern_name,
-                                              pattern_cell_ids = pattern_cell_ids,
-                                              gene_name = gene,
-                                              spatial_network_name = spatial_network_name,
-                                              spat_methods = spat_methods,
-                                              spat_methods_params = spat_methods_params,
-                                              spat_methods_names = spat_methods_names,
-                                              save_plot = save_plot,
-                                              save_raw = save_raw,
-                                              save_norm = save_norm,
-                                              save_dir = save_dir,
-                                              spatial_probs = spatial_probs,
-                                              reps = reps,
-                                              run_simulations = run_simulations,
-                                              ...)
+    generesults = run_spatial_sim_tests_multi(
+      gobject,
+      pattern_name = pattern_name,
+      pattern_cell_ids = pattern_cell_ids,
+      gene_name = gene,
+      spatial_network_name = spatial_network_name,
+      spat_methods = spat_methods,
+      spat_methods_params = spat_methods_params,
+      spat_methods_names = spat_methods_names,
+      save_plot = save_plot,
+      save_raw = save_raw,
+      save_norm = save_norm,
+      save_dir = save_dir,
+      spatial_probs = spatial_probs,
+      reps = reps,
+      run_simulations = run_simulations,
+      ...
+    )
 
     if(run_simulations == TRUE) {
       generesults[, prob := as.factor(prob)]
