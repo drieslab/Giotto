@@ -58,7 +58,7 @@ filterDistributions(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

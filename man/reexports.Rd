@@ -176,6 +176,7 @@
 \alias{showGrids}
 \alias{showNetworks}
 \alias{showProcessingSteps}
+\alias{dimCellPlot}
 \alias{dimCellPlot2D}
 \alias{dimFeatPlot2D}
 \alias{dimGenePlot3D}
@@ -210,6 +211,6 @@ below to see their documentation.
 
   \item{GiottoUtils}{\code{\link[GiottoUtils:pipe]{\%>\%}}}
 
-  \item{GiottoVisuals}{\code{\link[GiottoVisuals:dimCellPlot]{dimCellPlot2D}}, \code{\link[GiottoVisuals]{dimFeatPlot2D}}, \code{\link[GiottoVisuals]{dimGenePlot3D}}, \code{\link[GiottoVisuals]{dimPlot}}, \code{\link[GiottoVisuals:dimPlot]{dimPlot2D}}, \code{\link[GiottoVisuals:dimPlot]{dimPlot3D}}, \code{\link[GiottoVisuals]{getDistinctColors}}, \code{\link[GiottoVisuals]{plotHeatmap}}, \code{\link[GiottoVisuals]{plotMetaDataCellsHeatmap}}, \code{\link[GiottoVisuals]{plotMetaDataHeatmap}}, \code{\link[GiottoVisuals]{plotPCA}}, \code{\link[GiottoVisuals]{plotPCA_2D}}, \code{\link[GiottoVisuals]{plotPCA_3D}}, \code{\link[GiottoVisuals]{plotStatDelaunayNetwork}}, \code{\link[GiottoVisuals]{plotTSNE}}, \code{\link[GiottoVisuals]{plotTSNE_2D}}, \code{\link[GiottoVisuals]{plotTSNE_3D}}, \code{\link[GiottoVisuals]{plotUMAP}}, \code{\link[GiottoVisuals]{plotUMAP_2D}}, \code{\link[GiottoVisuals]{plotUMAP_3D}}, \code{\link[GiottoVisuals]{showClusterDendrogram}}, \code{\link[GiottoVisuals]{showClusterHeatmap}}, \code{\link[GiottoVisuals]{showSaveParameters}}}
+  \item{GiottoVisuals}{\code{\link[GiottoVisuals]{dimCellPlot}}, \code{\link[GiottoVisuals:dimCellPlot]{dimCellPlot2D}}, \code{\link[GiottoVisuals]{dimFeatPlot2D}}, \code{\link[GiottoVisuals]{dimGenePlot3D}}, \code{\link[GiottoVisuals]{dimPlot}}, \code{\link[GiottoVisuals:dimPlot]{dimPlot2D}}, \code{\link[GiottoVisuals:dimPlot]{dimPlot3D}}, \code{\link[GiottoVisuals]{getDistinctColors}}, \code{\link[GiottoVisuals]{plotHeatmap}}, \code{\link[GiottoVisuals]{plotMetaDataCellsHeatmap}}, \code{\link[GiottoVisuals]{plotMetaDataHeatmap}}, \code{\link[GiottoVisuals]{plotPCA}}, \code{\link[GiottoVisuals]{plotPCA_2D}}, \code{\link[GiottoVisuals]{plotPCA_3D}}, \code{\link[GiottoVisuals]{plotStatDelaunayNetwork}}, \code{\link[GiottoVisuals]{plotTSNE}}, \code{\link[GiottoVisuals]{plotTSNE_2D}}, \code{\link[GiottoVisuals]{plotTSNE_3D}}, \code{\link[GiottoVisuals]{plotUMAP}}, \code{\link[GiottoVisuals]{plotUMAP_2D}}, \code{\link[GiottoVisuals]{plotUMAP_3D}}, \code{\link[GiottoVisuals]{showClusterDendrogram}}, \code{\link[GiottoVisuals]{showClusterHeatmap}}, \code{\link[GiottoVisuals]{showSaveParameters}}}
 }}
 

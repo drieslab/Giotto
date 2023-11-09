@@ -721,10 +721,10 @@ viewHMRFresults3D <- function(gobject,
 #' @param sample_rate sampling rate, takes values equal or greater than 1
 #' @param target target length of gene list
 #' @param seed random seed
-#' @details 
+#' @details
 #' This function samples a subset of spatial genes among different clusters, with size n = target.
 #' Number of samples from each cluster denpends on the relative proportion of each cluster.
-#' Changing from equal size by setting sample_rate = 1 to with exact proportion of each cluster by setting sample_rate = +Inf 
+#' Changing from equal size by setting sample_rate = 1 to with exact proportion of each cluster by setting sample_rate = +Inf
 #' @keywords internal
 sampling_sp_genes = function(clust,
                              sample_rate=2,
@@ -736,7 +736,7 @@ sampling_sp_genes = function(clust,
   tot=0
   num_cluster=length(unique(clust))
   gene_list = list()
-  
+
   for(i in seq(1, num_cluster)){
     gene_list[[i]] = colnames(t(clust[which(clust==i)]))
   }
@@ -764,19 +764,19 @@ sampling_sp_genes = function(clust,
     union_genes = union(union_genes, samples[[i]])
   }
   union_genes = unique(union_genes)
-  
+
   return(list(union_genes = union_genes, num_sample = num_sample, num_gene=genes, gene_list=gene_list))
-  
+
 }
 
 
 #' @title numPts_below_line
 #' @name numPts_below_line
-#' @description function to calculate the number of data points below a given line 
+#' @description function to calculate the number of data points below a given line
 #' @param myVector input sequence of sorted positive values from smallest to greatest
 #' @param slope slope to compare
-#' @param x location point of the line to compare, integer from 1 to length of myVector 
-#' @details 
+#' @param x location point of the line to compare, integer from 1 to length of myVector
+#' @details
 #' This function calculates the number of data points in a sorted sequence below a line with given slope through a certain point on this sequence.
 #' @keywords internal
 numPts_below_line <- function(myVector,
@@ -799,22 +799,22 @@ numPts_below_line <- function(myVector,
 #' @param max max number of genes selected from spatial test
 #' @param name name of spatial gene test for the filtering
 #' @param method method of spatial gene selection
-#' @details 
-#' This function filters given gene list with the gene sets of selected spatial gene test in Giotto, 
+#' @details
+#' This function filters given gene list with the gene sets of selected spatial gene test in Giotto,
 #' also controls the total size of the gene set with given max number.
 #' @keywords external
 #' @export
-filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spatial_genes, max=2500, 
+filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spatial_genes, max=2500,
                                name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
   method = match.arg(method, unique(c("none", "elbow", method)))
-  
+
   #gg = fDataDT(gobject)
   #gx = gg[feat_ID %in% spatial_genes]
-  
+
   #first determine how many spatial genes in this dataset
   gx = fDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
-  
+
   if(name=="binSpect"){
     gx = gx[!is.na(binSpect.pval) & binSpect.pval<1]
     gx_sorted = gx[order(gx$binSpect.pval, decreasing=F),]
@@ -825,7 +825,7 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
     gx = gx[!is.na(silhouetteRankTest.pval) & silhouetteRankTest.pval<1]
     gx_sorted = gx[order(gx$silhouetteRankTest.pval, decreasing=F),]
   }
-  
+
   #print(gx_sorted)
   if(method=="none"){
     if(name=="binSpect"){
@@ -834,7 +834,7 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
       gx_sorted = gx_sorted[silhouetteRankTest.pval<0.01]
     }
     gx_sorted = head(gx_sorted, n=max)
-    
+
   }else if(method=="elbow"){
     y0 = c()
     if(name=="binSpect"){
@@ -845,7 +845,7 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
       y0 = gx_sorted$silhouetteRank.score
     }
     x0 = seq(1, nrow(gx_sorted))
-    
+
     y0s<-sort(y0)
     y0s[y0s<0]<-0 #strictly positive
     #plot(x0, y0)
@@ -861,12 +861,12 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
     cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
     cat(paste0("\nElbow point determined to be at x=", xPt, " genes", " y=", y_cutoff, "\n"))
   }
-  
+
   #filter user's gene list (spatial_genes)
   gx_sorted = gx_sorted[feat_ID %in% spatial_genes]
-  
+
   num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
-  
+
   return(list(genes=gx_sorted$feat_ID, num_genes_removed=num_genes_removed))
 }
 
@@ -878,9 +878,9 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @details 
-#' This function outputs the available test name for existing spatial gene sets in Giotto, 
-#' which could be used in parameter ‘name’ in `filterSpatialGenes`. 
+#' @details
+#' This function outputs the available test name for existing spatial gene sets in Giotto,
+#' which could be used in parameter ‘name’ in `filterSpatialGenes`.
 #' Priorities for showing the spatial gene test names are ‘binSpect’ > ‘silhouetteRankTest’ > ‘silhouetteRank’.
 #' @keywords internal
 chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NULL){
@@ -908,18 +908,18 @@ chooseAvailableSpatialGenes <- function(gobject,spat_unit = NULL,feat_type = NUL
 #' @param feat_type feature type
 #' @param use_spatial_genes test name of spatial gene set to check
 #' @param use_score logical variable to select silhouetteRank score
-#' @details 
-#' This function checks the user specified test name of spatial gene set in Giotto object. 
+#' @details
+#' This function checks the user specified test name of spatial gene set in Giotto object.
 #' SilhouetteRank works only with score, and SilhouetteRankTest works only with pval. Use parameter use_score to specify.
 #' @keywords internal
-checkAndFixSpatialGenes <- function(gobject, 
+checkAndFixSpatialGenes <- function(gobject,
                                     spat_unit = NULL,
                                     feat_type = NULL,
                                     use_spatial_genes,
                                     use_score=FALSE){
 
   gx = fDataDT(gobject,spat_unit = NULL,feat_type = NULL)
-  
+
   if(use_spatial_genes=="silhouetteRank"){
     if(use_score==TRUE){
       use_spatial_genes = "silhouetteRank"
@@ -979,7 +979,7 @@ checkAndFixSpatialGenes <- function(gobject,
 #' @param use_metagene if metagene expression is used for clustering
 #' @param cluster_metagene number of metagenes to use
 #' @param top_metagene = number of genes in each cluster for the metagene calculation
-#' @param existing_dim_reduction_to_use name of dimension reduction method to use 
+#' @param existing_dim_reduction_to_use name of dimension reduction method to use
 #' @param existing_dim_reduction_name name of dimension reduction result to use as the expression value for clustering
 #' @param existing_dimensions_to_use integers to selected dimensions in the specified dimension reduction result, set to NULL to select all
 #' @param hmrf_seed random number seed to generate initial mean vector of HMRF model
@@ -987,41 +987,41 @@ checkAndFixSpatialGenes <- function(gobject,
 #' @param resolution.cl resolution of Leiden or Louvain clustering
 #' @param k number of HMRF domains
 #' @param tolerance error tolerance threshold
-#' @param zscore type of zscore to use 
+#' @param zscore type of zscore to use
 #' @param nstart number of Kmeans initializations from which to select the best initialization
 #' @param factor_step dampened factor step
-#' @details 
-#' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run, 
-#' through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that 
-#' are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes 
-#' ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in 
-#' the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for 
-#' clustering, listed with selection priority: 
+#' @details
+#' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run,
+#' through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that
+#' are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes
+#' ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in
+#' the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for
+#' clustering, listed with selection priority:
 #'    1. use PCA of the spatial gene expressions (selected by use_pca)
 #'    2. use metagene expressions (selected by use_metagene)
-#'    3. sampling to select 500 spatial genes (controlled by gene_samples). 
-#' Third, once spatial genes are finalized, we are using clustering method to initialize HMRF. 
+#'    3. sampling to select 500 spatial genes (controlled by gene_samples).
+#' Third, once spatial genes are finalized, we are using clustering method to initialize HMRF.
 #' There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is
-#' then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), 
-#' blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters), 
+#' then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors),
+#' blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
 #' spat_unit, feat_type. This information is needed for the second step, doHMRF.
 #' @export
-initHMRF_V2 = 
-  function (gobject, 
+initHMRF_V2 =
+  function (gobject,
             spat_unit = NULL,
             feat_type = NULL,
-            expression_values = c("scaled", "normalized", "custom"), 
-            spatial_network_name = "Delaunay_network", 
-            use_spatial_genes = c("binSpect","silhouetteRank"), 
-            use_score = FALSE, 
-            gene_list_from_top = 2500, 
-            filter_method = c("none", "elbow"), 
-            user_gene_list = NULL, 
+            expression_values = c("scaled", "normalized", "custom"),
+            spatial_network_name = "Delaunay_network",
+            use_spatial_genes = c("binSpect","silhouetteRank"),
+            use_score = FALSE,
+            gene_list_from_top = 2500,
+            filter_method = c("none", "elbow"),
+            user_gene_list = NULL,
             use_pca = FALSE,
             use_pca_dim = 1:20,
-            gene_samples = 500, 
-            gene_sampling_rate = 2, 
-            gene_sampling_seed = 10, 
+            gene_samples = 500,
+            gene_sampling_rate = 2,
+            gene_sampling_seed = 10,
             use_metagene = FALSE,
             cluster_metagene = 50,
             top_metagene = 20,
@@ -1032,74 +1032,74 @@ initHMRF_V2 =
             # use.leiden = F,
             cl.method = c('km','leiden','louvain'),
             resolution.cl = 1,
-            k = 10, 
-            tolerance = 1e-05, 
-            zscore = c("none", "rowcol", "colrow"), 
-            nstart = 1000, 
+            k = 10,
+            tolerance = 1e-05,
+            zscore = c("none", "rowcol", "colrow"),
+            nstart = 1000,
             factor_step = 1.05,
-            python_path = NULL) 
+            python_path = NULL)
   {
     message("\nIf used in published research, please cite:\n  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining\n  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
     if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
-      stop("\n package ", "smfishHmrf", " is not yet installed \n", 
-           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n", 
-           "see http://spatial.rc.fas.harvard.edu for more information", 
+      stop("\n package ", "smfishHmrf", " is not yet installed \n",
+           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n",
+           "see http://spatial.rc.fas.harvard.edu for more information",
            call. = FALSE)
     }
     if (!requireNamespace("tidygraph", quietly = TRUE)) {
-      stop("\n package ", "tidygraph", " is not yet installed \n", 
+      stop("\n package ", "tidygraph", " is not yet installed \n",
            call. = FALSE)
     }
     if (!requireNamespace("ggraph", quietly = TRUE)) {
-      stop("\n package ", "ggraph", " is not yet installed \n", 
+      stop("\n package ", "ggraph", " is not yet installed \n",
            call. = FALSE)
     }
     if (!requireNamespace("graphcoloring", quietly = TRUE)) {
-      stop("\n package ", "graphcoloring", " is not yet installed \n", 
-           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/graphcoloring\") \n", 
+      stop("\n package ", "graphcoloring", " is not yet installed \n",
+           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/graphcoloring\") \n",
            call. = FALSE)
     }
     library(smfishHmrf)
     library(tidygraph)
     library(ggraph)
     library(graphcoloring)
-    
+
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
     feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
-    
+
     gx = fDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
     spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, output ='networkDT', copy_obj = FALSE)
     spatial_network = spatial_network[, .(to, from)]
-    
-    if(!is.null(existing_dim_reduction_to_use))  
+
+    if(!is.null(existing_dim_reduction_to_use))
     {
-      if(is.null(existing_dim_reduction_name))  
-      {stop("\n please provide the name of the dimension reduction result \n", 
+      if(is.null(existing_dim_reduction_name))
+      {stop("\n please provide the name of the dimension reduction result \n",
             call. = FALSE)}
-      
+
       dim_coord = gobject@dimension_reduction[['cells']][[existing_dim_reduction_to_use]][[existing_dim_reduction_name]][['coordinates']]
       if(is.null(existing_dimensions_to_use)){existing_dimensions_to_use = 1:ncol(dim_coord)}
       existing_dimensions_to_use = existing_dimensions_to_use[existing_dimensions_to_use %in% 1:ncol(dim_coord)]
       y0 = dim_coord[, existing_dimensions_to_use]
-      
+
     }else{
-      zscore = match.arg(zscore, unique(c("none", "rowcol", "colrow", 
+      zscore = match.arg(zscore, unique(c("none", "rowcol", "colrow",
                                           zscore)))
-      use_spatial_genes = match.arg(use_spatial_genes, unique(c("binSpect", 
+      use_spatial_genes = match.arg(use_spatial_genes, unique(c("binSpect",
                                                                 "silhouetteRank", use_spatial_genes)))
-      filter_method = match.arg(filter_method, unique(c("none", 
+      filter_method = match.arg(filter_method, unique(c("none",
                                                         "elbow", filter_method)))
-      values = match.arg(expression_values, unique(c("scaled", 
+      values = match.arg(expression_values, unique(c("scaled",
                                                      "normalized", "custom", expression_values)))
-      expr_values = get_expression_values(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type, 
+      expr_values = get_expression_values(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
                                           values = values, output = 'matrix')
       if (zscore != "none") {
         zscore = match.arg(zscore, c("none", "colrow", "rowcol"))
-        expr_values = get_expression_values(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type, 
-                                            values = "normalized", output = 'matrix')        
+        expr_values = get_expression_values(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
+                                            values = "normalized", output = 'matrix')
         if (zscore == "colrow") {
           expr_values = t(scale(t(scale(expr_values))))
         }
@@ -1107,54 +1107,54 @@ initHMRF_V2 =
           expr_values = scale(t(scale(t(expr_values))))
         }
       }
-      
+
       spatial_genes = c()
-      
-      if (!"binSpect.pval" %in% names(gx) && 
-          !"silhouetteRank.score" %in% names(gx) && 
+
+      if (!"binSpect.pval" %in% names(gx) &&
+          !"silhouetteRank.score" %in% names(gx) &&
           !"silhouetteRankTest.pval" %in% names(gx)) {
-        stop(paste0("Giotto spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n"), 
+        stop(paste0("Giotto spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n"),
              call. = FALSE)
       }
-      
+
       if (!is.null(user_gene_list)) {
         cat(paste0("\n User supplied gene list detected.\n"))
         cat(paste0("\n Checking user gene list is spatial...\n"))
-        # if (!"binSpect.pval" %in% names(gobject@gene_metadata) && 
-        #     !"silhouetteRank.score" %in% names(gobject@gene_metadata) && 
+        # if (!"binSpect.pval" %in% names(gobject@gene_metadata) &&
+        #     !"silhouetteRank.score" %in% names(gobject@gene_metadata) &&
         #     !"silhouetteRankTest.pval" %in% names(gobject@gene_metadata)) {
-        #   stop(paste0("\n Giotto's spatial gene detection has not been run. Cannot check user's gene list. Please run spatial gene detection first: binSpect, silhouetteRank, silhouetteRankTest.\n"), 
+        #   stop(paste0("\n Giotto's spatial gene detection has not been run. Cannot check user's gene list. Please run spatial gene detection first: binSpect, silhouetteRank, silhouetteRankTest.\n"),
         #        call. = FALSE)
         # }
         use_spatial_genes = chooseAvailableSpatialGenes(gobject)
-        filtered = filterSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type, spatial_genes = user_gene_list, 
-                                      max = gene_list_from_top, name = use_spatial_genes, 
+        filtered = filterSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type, spatial_genes = user_gene_list,
+                                      max = gene_list_from_top, name = use_spatial_genes,
                                       method = filter_method)
         if (filtered$num_genes_removed > 0) {
-          cat(paste0("\n Removed ", filtered$num_genes_removed, 
+          cat(paste0("\n Removed ", filtered$num_genes_removed,
                      " from user's input gene list due to being absent or non-spatial genes.\n"))
           cat(paste0("\n Kept ", length(filtered$genes), " spatial genes for next step\n"))
         }
         spatial_genes = filtered$genes
-        
+
         if (length(spatial_genes) == 0) {
-          stop(paste0("\n No genes are remaining to do HMRF. Please give a larger gene list.\n"), 
+          stop(paste0("\n No genes are remaining to do HMRF. Please give a larger gene list.\n"),
                call. = FALSE)
         }
       }else{
         # if (is.null(user_gene_list)) {
-        cat(paste0("\n Choosing spatial genes from the results of ", 
+        cat(paste0("\n Choosing spatial genes from the results of ",
                    use_spatial_genes, "\n"))
-        use_spatial_genes = checkAndFixSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type, 
+        use_spatial_genes = checkAndFixSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type,
                                                     use_spatial_genes = use_spatial_genes, use_score = use_score)
         all_genes = gx$feat_ID
-        filtered = filterSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type, 
-                                      spatial_genes = all_genes, max = gene_list_from_top, 
+        filtered = filterSpatialGenes(gobject, spat_unit = spat_unit,feat_type = feat_type,
+                                      spatial_genes = all_genes, max = gene_list_from_top,
                                       name = use_spatial_genes, method = filter_method)
         cat(paste0("\n Kept ", length(filtered$genes), " top spatial genes for next step\n"))
         spatial_genes = filtered$genes
       }
-      
+
       if(use_pca == T)
       {
         expr_values = expr_values[spatial_genes, ]
@@ -1163,87 +1163,87 @@ initHMRF_V2 =
         y0 = (pc.expr[,use_pca_dim])
       }else{
         cat(paste0("\n Computing spatial coexpression modules...\n"))
-        spat_cor_netw_DT = detectSpatialCorFeats(gobject = gobject, 
+        spat_cor_netw_DT = detectSpatialCorFeats(gobject = gobject,
                                                  feat_type = feat_type, spat_unit = spat_unit, expression_values = values,
-                                                 method = "network", spatial_network_name = spatial_network_name, 
+                                                 method = "network", spatial_network_name = spatial_network_name,
                                                  subset_feats = spatial_genes, network_smoothing = 0)
-        
+
         if(use_metagene==F)
         {
           n = min(gene_samples, 500, length(spatial_genes))
           if (n < length(spatial_genes)) {
-            spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT, 
+            spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT,
                                                       name = "spat_netw_clus", k = 20)
             cat(paste0("\n Sampling spatial genes from coexpression modules...\n"))
-            sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, 
+            sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus,
                                              sample_rate = gene_sampling_rate, target = n, seed = gene_sampling_seed)
             spatial_genes_selected = sample_genes$union_genes
-            cat(paste0("\n Sampled ", length(spatial_genes_selected), 
+            cat(paste0("\n Sampled ", length(spatial_genes_selected),
                        " genes.\n"))
           }
           else {
             spatial_genes_selected = spatial_genes
           }
-          cat(paste0("\n Will use ", length(spatial_genes_selected), 
+          cat(paste0("\n Will use ", length(spatial_genes_selected),
                      "spatial genes for initialization of HMRF.\n"))
           expr_values = expr_values[spatial_genes_selected, ]
-          
+
         }else{
           # cat(paste0("\n Computing spatial coexpression modules...\n"))
-          # spat_cor_netw_DT = detectSpatialCorGenes(gobject = gobject, 
+          # spat_cor_netw_DT = detectSpatialCorGenes(gobject = gobject,
           #                                          feat_type = feat_type, spat_unit = spat_unit, expression_values = values,
-          #                                          method = "network", spatial_network_name = spatial_network_name, 
+          #                                          method = "network", spatial_network_name = spatial_network_name,
           #                                          subset_feats = spatial_genes, network_smoothing = 0)
           k.sp = min(ceiling(length(spatial_genes)/20),cluster_metagene)
           if(k.sp<cluster_metagene){cat(paste0("\n construct ", k.sp, " coexpression modules due to limited gene size...\n"))}
-          spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT, 
+          spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT,
                                                     name = "spat_netw_clus", k = k.sp)
-          
+
           cluster_genes_DT = showSpatialCorFeats(spat_cor_netw_DT,
                                                  use_clus_name = 'spat_netw_clus',
                                                  show_top_feats = 1)
-          
+
           cat(paste0("\n Collecting top spatial genes and calculating metagenes from ", k.sp, " coexpression modules...\n"))
-          
+
           top_per_module = cluster_genes_DT[, head(.SD, top_metagene), by = clus]
           cluster_genes = top_per_module$clus
           names(cluster_genes) = top_per_module$feat_ID
-          
-          meta.genes = createMetafeats(gobject, 
+
+          meta.genes = createMetafeats(gobject,
                                        spat_unit = spat_unit, feat_type = feat_type, expression_values = values,
                                        feat_clusters = cluster_genes, return_gobject = F)
-          
+
           expr_values = t(meta.genes@enrichDT[,1:k.sp])
           colnames(expr_values) = unlist(meta.genes@enrichDT[,'cell_ID'])
           rownames(expr_values) = paste0('metagene_',rownames(expr_values))
         }
-        
-        y0 = t(as.matrix(expr_values))        
-        
+
+        y0 = t(as.matrix(expr_values))
+
       }
 
     }
-    
-    cell.rm = setdiff(rownames(y0), unique(c(spatial_network$to, 
+
+    cell.rm = setdiff(rownames(y0), unique(c(spatial_network$to,
                                              spatial_network$from)))
-    
-    if (length(cell.rm) > 0) 
+
+    if (length(cell.rm) > 0)
       y0 = y0[-match(cell.rm, rownames(y0)), ]
-    
+
     ##############################
     ## scale y matrix on each sample
     y = t(scale(t(y0)))
-    
-    
+
+
     # if(use_pca ==T)
     # {
     #   pc.y = prcomp(t(y))[[2]]
     #   use_pca_dim = use_pca_dim[use_pca_dim %in% 1:ncol(pc.y)]
     #   y = (pc.y[,use_pca_dim])
-    # 
+    #
     #   colnames(y) = paste0(ifelse(use_metagene,yes = 'meta_',no = 'spatialgene_'),'PC',use_pca_dim)
     # }
-    
+
 
     numcell <- dim(y)[1]
     m <- dim(y)[2]
@@ -1251,10 +1251,10 @@ initHMRF_V2 =
     nei = matrix(-1, ncol = ncol.nei, nrow = numcell)
     rownames(nei) = rownames(y)
     for (i in 1:numcell) {
-      nei.i = c(spatial_network$from[spatial_network$to == 
-                                       rownames(nei)[i]], spatial_network$to[spatial_network$from == 
+      nei.i = c(spatial_network$from[spatial_network$to ==
+                                       rownames(nei)[i]], spatial_network$to[spatial_network$from ==
                                                                                rownames(nei)[i]])
-      if (length(nei.i) > 0) 
+      if (length(nei.i) > 0)
         nei[i, 1:length(nei.i)] = sort(match(nei.i, rownames(y)))
     }
     numnei <- as.integer(rowSums(nei != (-1)))
@@ -1280,23 +1280,23 @@ initHMRF_V2 =
     blocks <- lapply(cl_color, function(cl) {
       which(colors == cl)
     })
-    
+
     cl.method = tolower(cl.method)
     if(!cl.method%in%c('km','leiden','louvain'))
     {
       cl.method ='km'
       cat(paste0("\n clustering method not specified, use kmeans as default...\n"))
     }
-    
+
     # if(use.leiden == F)
     if(cl.method == 'km')
     {
       cat(paste0("\n Kmeans initialization...\n"))
-      kk = smfishHmrf.generate.centroid(y = y, par_k = k, par_seed = hmrf_seed, 
+      kk = smfishHmrf.generate.centroid(y = y, par_k = k, par_seed = hmrf_seed,
                                         nstart = nstart)
       mu <- t(kk$centers)
       lclust <- lapply(1:k, function(x) which(kk$cluster == x))
-      
+
     }else{
       ##### need to double check leiden and louvain cluster functions
       gobject@dimension_reduction$cells$spatial <- NULL
@@ -1304,43 +1304,43 @@ initHMRF_V2 =
       gobject@dimension_reduction$cells$spatial$spatial_feat$name <- 'spatial_feat'
       gobject@dimension_reduction$cells$spatial$spatial_feat$reduction_method <- 'spatial'
       gobject@dimension_reduction$cells$spatial$spatial_feat$coordinates <- y
-      
+
       gobject <- createNearestNetwork(gobject = gobject,
                                       dim_reduction_to_use = 'spatial',dim_reduction_name = 'spatial_feat',dimensions_to_use = 1:ncol(y),
                                       name = 'sNN.initHMRF')
-      
+
       if(cl.method == 'leiden'){
         cat(paste0("\n Leiden clustering initialization...\n"))
         leiden.cl <- doLeidenCluster(gobject = gobject,nn_network_to_use = 'sNN',network_name = 'sNN.initHMRF',set_seed = hmrf_seed,return_gobject = F,
-                                     python_path = python_path,resolution = resolution.cl)  
+                                     python_path = python_path,resolution = resolution.cl)
         cl.match = leiden.cl$leiden_clus[match(rownames(y),leiden.cl$cell_ID)]
         mu <- aggregate(y,by = list(cl.match),FUN = mean)
       }else if(cl.method == 'louvain'){
         cat(paste0("\n Louvain clustering initialization...\n"))
         louvain.cl <- doLouvainCluster(gobject = gobject,nn_network_to_use = 'sNN',network_name = 'sNN.initHMRF',set_seed = hmrf_seed,return_gobject = F,
-                                       python_path = python_path,resolution = resolution.cl)  
+                                       python_path = python_path,resolution = resolution.cl)
         cl.match = louvain.cl$louvain_clus[match(rownames(y),louvain.cl$cell_ID)]
         mu <- aggregate(y,by = list(cl.match),FUN = mean)
       }
-      
+
       rownames(mu) <- mu[,1]
       mu <- t(mu[,-1])
       k <- dim(mu)[2]
       lclust <- lapply(colnames(mu), function(x) which(cl.match == x))
       cat(paste0("\n k is automatically identified as ",k, ".\n"))
     }
-    
-    
+
+
     damp <- array(0, c(k))
     sigma <- array(0, c(m, m, k))
     for (i in 1:k) {
       sigma[, , i] <- cov(y[lclust[[i]], ])
-      di <- findDampFactor(sigma[, , i], factor = factor_step, 
+      di <- findDampFactor(sigma[, , i], factor = factor_step,
                            d_cutoff = tolerance, startValue = 1e-04)
       damp[i] <- ifelse(is.null(di), 0, di)
     }
     cat(paste0("\n Done\n"))
-    list(y = y, nei = nei, numnei = numnei, blocks = blocks, 
+    list(y = y, nei = nei, numnei = numnei, blocks = blocks,
          damp = damp, mu = mu, sigma = sigma, k = k, genes = colnames(y),
          edgelist = edgelist, init.cl = lclust,spat_unit = spat_unit, feat_type = feat_type)
   }
@@ -1354,17 +1354,17 @@ initHMRF_V2 =
 #' @description function to run HMRF model
 #' @param HMRF_init_obj initialization object list returned from initHMRF() function
 #' @param betas beta value of the HMRF model, controlling the smoothness of clustering. NULL value of beta will provide default values based on feature numbers, otherwise, a vector of three values: initial beta, beta increment, and number of betas
-#' @details 
-#' This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter. 
-#' If the users are interested in selecting results from different smoothness, we recommend running a range of betas, 
-#' hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40. 
+#' @details
+#' This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter.
+#' If the users are interested in selecting results from different smoothness, we recommend running a range of betas,
+#' hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40.
 #' betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the following guideline:
 #' If number of features N is 10<N<50, set betas=c(0, 1, 20)
 #' If 50<N<100, set betas=c(0, 2, 25)
 #' If 100<N<500, set betas=c(0, 5, 20)
 #' Returns a list of results for betas, spat_unit and feat_type. Result for each beta is a list with probability(normalized or non-normalized), class, and model log-likelihood value.
 #' @export
-doHMRF_V2 = function (HMRF_init_obj, betas = NULL) 
+doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
 {
   message("\nIf used in published research, please cite:\n  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining\n  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
   cat("\n Please find more explaination and instruction of the HMRF function on \n https://bitbucket.org/qzhudfci/smfishhmrf-r/src/master/TRANSITION.md\n")
@@ -1401,7 +1401,7 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
                                                                      spat_unit = spat_unit,
                                                                      feat_type = feat_type)
   }
-  
+
   y = HMRF_init_obj$y
   nei = HMRF_init_obj$nei
   numnei = HMRF_init_obj$numnei
@@ -1412,7 +1412,7 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
   k = HMRF_init_obj$k
   spat_unit = HMRF_init_obj$spat_unit
   feat_type = HMRF_init_obj$feat_type
-  
+
   if(is.null(betas))
   {
     beta_seq = max(ceiling(ncol(y)/10),5)
@@ -1426,13 +1426,13 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
     beta_seq = (1:beta_num_iter - 1) * beta_increment + beta_init
     beta_seq = sort(unique(c(0, beta_seq)))
   }
-  
+
   res <- c()
   for (beta_current in beta_seq) {
     print(sprintf("Doing beta=%.3f", beta_current))
-    tc.hmrfem <- smfishHmrf.hmrfem.multi(y = y, neighbors = nei, 
-                                         beta = beta_current, numnei = numnei, blocks = blocks, 
-                                         mu = mu, sigma = sigma, verbose = T, err = 1e-07, 
+    tc.hmrfem <- smfishHmrf.hmrfem.multi(y = y, neighbors = nei,
+                                         beta = beta_current, numnei = numnei, blocks = blocks,
+                                         mu = mu, sigma = sigma, verbose = T, err = 1e-07,
                                          maxit = 50, dampFactor = damp)
     # if (mean(apply(tc.hmrfem$prob, 1, max) < (1/k + 0.01)) > 0.5) {
     #   cat(paste0("\n HMRF is stopping at large beta >= ",
@@ -1461,27 +1461,27 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
 #' @param gobject giotto object
 #' @param HMRFoutput result object from HMRF model
 #' @param name name of HMRF models
-#' @details 
+#' @details
 #' This function appends HMRF domain clusters to corresponding cell meta data for all the beta values, with the given HMRF model names. For example, if name = ‘hmrf1’ and name of result in HMRFoutput is ‘k=8 b=0.00’, the appended cell meta data column will be named with ‘hmrf1 k=8 b=0.00’
 #' @export
-addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf') 
+addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRF_V2() \n")
   }
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
-  
+
   cx = get_cell_metadata(gobject,spat_unit = spat_unit,feat_type = feat_type,output = 'data.table',copy_obj = T)
   ordered_cell_IDs = cx$cell_ID
-  
+
   for (i in 1:length(grep('k',names(HMRFoutput)))) {
-    gobject = addCellMetadata(gobject = gobject, 
+    gobject = addCellMetadata(gobject = gobject,
                               spat_unit = spat_unit,
                               feat_type = feat_type,
-                              column_cell_ID = "cell_ID", 
-                              new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))], 
-                              vector_name = paste(name,names(HMRFoutput)[i]), 
+                              column_cell_ID = "cell_ID",
+                              new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))],
+                              vector_name = paste(name,names(HMRFoutput)[i]),
                               by_column = F)
   }
   return(gobject)
@@ -1505,11 +1505,11 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 #' @param cow_align cowplot alignment parameter
 #' @param show_plot option to show plot
 #' @param save_plot option to save plot
-#' @param default_save_name names of figure file to save
 #' @param return_plot if function return a plot
+#' @param default_save_name names of figure file to save
 #' @param save_param other saving parameters
-#' @details 
-#' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name), 
+#' @details
+#' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name),
 #' matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 #' @export
 viewHMRFresults_V2 =
@@ -1522,25 +1522,25 @@ viewHMRFresults_V2 =
             cow_rel_h = 1,
             cow_rel_w = 1,
             cow_align = "h",
-            show_plot = T,
-            save_plot = T,
+            show_plot = TRUE,
+            save_plot = TRUE,
+            return_plot = TRUE,
             default_save_name = 'HMRF_result',
-            return_plot = T,
-            save_param =  list(),
+            save_param = list(),
             ...)
   {
     # beta_seq = round(betas,digits = 2)
     # t_key = paste0(hmrf_name,'_k', k, '_b.',beta_seq)
     t_key = paste(hmrf_name,sprintf("k=%d b=%.2f", k, betas))
-    
+
     meta_names = colnames(combineMetadata(gobject = gobject,spat_unit = spat_unit,feat_type = feat_type))
-    
+
     if(length(setdiff(t_key,meta_names))>0)
     {
       beta_null = paste(betas[which(!t_key%in%meta_names)],collapse = ',')
       stop(paste0('\n HMRF result "',hmrf_name,'" of k = ',k,', beta = ',beta_null,' was not found in the Giotto object. \n'))
     }
-    
+
     savelist = list()
     for(kk in 1:length(t_key))
     {
@@ -1557,38 +1557,36 @@ viewHMRFresults_V2 =
       }
       savelist[[kk]] = pl
     }
-    
-    if(cow_n_col>length(savelist))
-    {cow_n_col = length(savelist)}
+
+    if (cow_n_col > length(savelist)) {
+      cow_n_col = length(savelist)
+    }
     # {stop("\n please provide a cow_n_col smaller than the number of plots")}
-    
+
     # combine plots with cowplot
     combo_plot <- cowplot::plot_grid(plotlist = savelist,
                                      ncol = cow_n_col,
                                      rel_heights = cow_rel_h,
                                      rel_widths = cow_rel_w,
                                      align = cow_align)
-    
-    ## print plot
-    if(show_plot == TRUE) {
-      print(combo_plot)
-    }
-    
-    ## save plot
-    if(save_plot == TRUE) {
-      if(!'ncol'%in%names(save_param))
-      {save_param[['ncol']] = cow_n_col}
-      if(!'nrow'%in%names(save_param))
-      {save_param[['nrow']] = ceiling(length(savelist)/cow_n_col)}
-      
-      do.call('all_plots_save_function',
-              c(list(gobject = gobject, plot_object = combo_plot,default_save_name = default_save_name), save_param))
-    }
-    
-    ## return plot
-    if(return_plot == TRUE) {
-      return(combo_plot)
-    }
+
+    # assign default ncol and nrow if not in save_param
+    if(!'ncol'%in%names(save_param))
+    {save_param[['ncol']] = cow_n_col}
+    if(!'nrow'%in%names(save_param))
+    {save_param[['nrow']] = ceiling(length(savelist)/cow_n_col)}
+
+    # output plot
+    return(GiottoVisuals::plot_output_handler(
+      gobject = gobject,
+      plot_object = combo_plot,
+      save_plot = save_plot,
+      return_plot = return_plot,
+      show_plot = show_plot,
+      default_save_name = default_save_name,
+      save_param = save_param,
+      else_return = NULL
+    ))
   }
 
 

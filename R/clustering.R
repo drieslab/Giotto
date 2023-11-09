@@ -346,7 +346,7 @@ doLeidenClusterIgraph = function(gobject,
 #' @param show_plot by default, pulls from provided gobject instructions
 #' @param save_plot by default, pulls from provided gobject instructions
 #' @param return_plot by default, pulls from provided gobject instructions
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
 #' @param default_save_name name of saved plot, defaut "clustree"
 #' @return a plot object (default), OR a giotto object (if specified)
 #' @details This function tests different resolutions for Leiden clustering and provides a visualization
@@ -383,34 +383,18 @@ doGiottoClustree <- function(gobject,
 
   ## plotting clustree graph
   pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-  ## add
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return gobject with all newly developed leiden clusters
-  if(return_gobject == TRUE){
-    return(gobject)
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 

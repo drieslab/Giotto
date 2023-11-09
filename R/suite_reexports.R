@@ -383,6 +383,9 @@ GiottoClass::showProcessingSteps
 
 
 
+#' @exportClass GiottoClass::giotto
+
+
 
 
 

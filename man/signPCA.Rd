@@ -15,9 +15,8 @@ signPCA(
   pca_method = c("irlba", "factominer"),
   rev = FALSE,
   feats_to_use = NULL,
-  genes_to_use = NULL,
-  center = T,
-  scale_unit = T,
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 50,
   scree_ylim = c(0, 10),
   jack_iter = 10,
@@ -52,8 +51,6 @@ signPCA(
 
 \item{feats_to_use}{subset of features to use for PCA}
 
-\item{genes_to_use}{deprecated, use feats_to_use}
-
 \item{center}{center data before PCA}
 
 \item{scale_unit}{scale features before PCA}
@@ -79,6 +76,8 @@ signPCA(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 }
 \value{
 ggplot object for scree method and maxtrix of p-values for jackstraw

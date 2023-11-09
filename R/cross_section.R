@@ -852,7 +852,7 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @return ggplot
@@ -919,22 +919,15 @@ insertCrossSectionGenePlot3D <- function(gobject,
                                                   z=new_ratio[[3]])))
 
   cowplot = pl
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject,
-                                                              param = "show_plot"), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject,
-                                                              param = "save_plot"), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject,
-                                                                  param = "return_plot"), return_plot)
-  if (show_plot == TRUE) {
-    print(cowplot)
-  }
-  if (save_plot == TRUE) {
-    do.call("all_plots_save_function", c(list(gobject = gobject,
-                                              plot_object = cowplot, default_save_name = default_save_name),
-                                         save_param))
-  }
-  if (return_plot == TRUE) {
-    return(cowplot)
-  }
 
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = cowplot,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }

@@ -8,21 +8,21 @@
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
 #'  Default value is "PAGE_Z_score"
 #' @param return_frequency_table see details. Default FALSE
-#' @details 
+#' @details
 #' This function returns a two-column matrix, one column
-#' will contain cell IDs and the other will contain the 
+#' will contain cell IDs and the other will contain the
 #' most likely cell type based on the provided enrichment.
-#' 
+#'
 #' By setting return_frequency_table to TRUE, a table
 #' will instead be returned. This table will detail
 #' the number of occurences for each cell type, based on
 #' the provided enrichment.
-#' 
-#' The cell types are assigned by determining the maximum 
+#'
+#' The cell types are assigned by determining the maximum
 #' value of the z-score or -log10(p-value) for a cell and
 #' the associated cell types from the enrichment.
-#' 
-#' @export 
+#'
+#' @export
 findCellTypesFromEnrichment <- function(gobject = NULL,
                                         spat_unit = NULL,
                                         feat_type = NULL,
@@ -44,7 +44,7 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
     # extract p-value or z-socre from provided enrichment
     pz_enrich = getSpatialEnrichment(gobject,
                                      spat_unit = spat_unit,
-                                     feat_type = feat_type, 
+                                     feat_type = feat_type,
                                      name = enrichment_name)
 
     enrich_is_p_value = pz_enrich@misc$p_values_calculated
@@ -84,16 +84,16 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
 #'  Default value is "PAGE_Z_score"
-#' @param title Title of the generated plot. 
+#' @param title Title of the generated plot.
 #'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
 #' @inheritParams plot_output_params
-#' @details 
-#' 
+#' @details
+#'
 #' This function generates a bar plot of cell types vs the frequency
 #' of that cell type in the data. These cell type resutls are
 #' based on the provided `enrichment_name`, and will be determined
 #' by the maximum value of the z-score or p-value for a given cell or annotation.
-#' 
+#'
 #' @export
 plotCellTypesFromEnrichment <- function(gobject = NULL,
                                         spat_unit = NULL,
@@ -117,8 +117,8 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
     probable_cell_type = NULL
 
     if(is.null(title)) title = paste0(spat_unit,"cell types (maximum", enrichment_name, ")")
-    
-    pl <- ggplot2::ggplot(id_and_types, aes(x = probable_cell_type)) + 
+
+    pl <- ggplot2::ggplot(id_and_types, aes(x = probable_cell_type)) +
             ggplot2::geom_bar() +
             ggplot2::theme(axis.text.x = element_text(angle = 45),
                            axis.ticks.length.x =unit(1.5, "cm")) +
@@ -126,23 +126,17 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
                           x = "Cell Type",
                           y = "Frequency")
 
-    # print, return and save parameters
-    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-    
-    ## print plot
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-    ## save plot
-    if(save_plot == TRUE) {
-      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-    }
-    ## return plot
-    if(return_plot == TRUE) {
-      return(pl)
-    }
+    # output plot
+    return(GiottoVisuals::plot_output_handler(
+      gobject = gobject,
+      plot_object = pl,
+      save_plot = save_plot,
+      return_plot = return_plot,
+      show_plot = show_plot,
+      default_save_name = default_save_name,
+      save_param = save_param,
+      else_return = NULL
+    ))
 }
 
 #' @title pieCellTypesFromEnrichment
@@ -153,16 +147,16 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
 #'  Default value is "PAGE_Z_score"
-#' @param title Title of the generated plot. 
+#' @param title Title of the generated plot.
 #'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
 #' @inheritParams plot_output_params
-#' @details 
-#' 
+#' @details
+#'
 #' This function generates a pie chart of cell types by frequency.
 #' These cell type resutls are based on the provided `enrichment_name`,
-#' and will be determined by the maximum value of the z-score 
+#' and will be determined by the maximum value of the z-score
 #' or p-value for a given cell or annotation.
-#' 
+#'
 #' @export
 pieCellTypesFromEnrichment <- function(gobject = NULL,
                                        spat_unit = NULL,
@@ -197,7 +191,7 @@ pieCellTypesFromEnrichment <- function(gobject = NULL,
     }
     rm(nullvar) # saves memory
 
-    pl = ggplot2::ggplot(as.data.frame(freq_dt), 
+    pl = ggplot2::ggplot(as.data.frame(freq_dt),
                          aes(x = "",
                              y = perc,
                              fill = cell_type)) +
@@ -210,21 +204,15 @@ pieCellTypesFromEnrichment <- function(gobject = NULL,
                          as.character(total_cells),
                           " Cells)"))
 
-    # print, return and save parameters
-    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-    ## print plot
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-    ## save plot
-    if(save_plot == TRUE) {
-      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-    }
-    ## return plot
-    if(return_plot == TRUE) {
-      return(pl)
-    }
+    # output plot
+    return(GiottoVisuals::plot_output_handler(
+      gobject = gobject,
+      plot_object = pl,
+      save_plot = save_plot,
+      return_plot = return_plot,
+      show_plot = show_plot,
+      default_save_name = default_save_name,
+      save_param = save_param,
+      else_return = NULL
+    ))
 }

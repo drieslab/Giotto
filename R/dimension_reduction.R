@@ -1650,9 +1650,8 @@ signPCA <- function(gobject,
                     pca_method = c('irlba', 'factominer'),
                     rev = FALSE,
                     feats_to_use = NULL,
-                    genes_to_use = NULL,
-                    center = T,
-                    scale_unit = T,
+                    center = TRUE,
+                    scale_unit = TRUE,
                     ncp = 50,
                     scree_ylim = c(0,10),
                     jack_iter = 10,
@@ -1681,12 +1680,6 @@ signPCA <- function(gobject,
     }
   }
 
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
-
   # select method
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
 
@@ -1697,27 +1690,28 @@ signPCA <- function(gobject,
   reduction = match.arg(reduction, c('cells', 'feats'))
 
   # expression values to be used
-  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values,
-                                      output = 'matrix')
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
+  values = match.arg(
+    expression_values,
+    unique(c('normalized', 'scaled', 'custom', expression_values))
+  )
+  expr_values = get_expression_values(
+    gobject = gobject,
+    spat_unit = spat_unit,
+    feat_type = feat_type,
+    values = values,
+    output = 'matrix'
+  )
 
   ## subset matrix
   if(!is.null(genes_to_use)) {
-    expr_values = create_feats_to_use_matrix(gobject = gobject,
-                                             spat_unit = spat_unit,
-                                             feat_type = feat_type,
-                                             sel_matrix = expr_values,
-                                             feats_to_use = feats_to_use,
-                                             verbose = verbose)
+    expr_values = create_feats_to_use_matrix(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      sel_matrix = expr_values,
+      feats_to_use = feats_to_use,
+      verbose = verbose
+    )
   }
 
   # reduction of cells
@@ -1725,81 +1719,73 @@ signPCA <- function(gobject,
 
     if(method == 'screeplot') {
 
-      screeplot = screePlot(gobject = gobject,
-                            spat_unit = spat_unit,
-                            feat_type = feat_type,
-                            name = name,
-                            expression_values = values,
-                            reduction = reduction,
-                            feats_to_use = feats_to_use,
-                            center = center,
-                            scale_unit = scale_unit,
-                            ncp = ncp,
-                            rev = rev,
-                            method = pca_method,
-                            ylim = scree_ylim,
-                            verbose = verbose,
-                            show_plot = FALSE,
-                            return_plot = TRUE,
-                            save_plot = FALSE,
-                            save_param = list(),
-                            default_save_name = 'screePlot')
+      screeplot = screePlot(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        name = name,
+        expression_values = values,
+        reduction = reduction,
+        feats_to_use = feats_to_use,
+        center = center,
+        scale_unit = scale_unit,
+        ncp = ncp,
+        rev = rev,
+        method = pca_method,
+        ylim = scree_ylim,
+        verbose = verbose,
+        show_plot = FALSE,
+        return_plot = TRUE,
+        save_plot = FALSE,
+        save_param = list(),
+        default_save_name = 'screePlot'
+      )
 
-      ## print plot
-      if(show_plot == TRUE) {
-        print(screeplot)
-      }
-
-      ## save plot
-      if(save_plot == TRUE) {
-        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = screeplot, default_save_name = default_save_name), save_param))
-      }
-
-      ## return plot
-      if(return_plot == TRUE) {
-        return(screeplot)
-      }
+      return(GiottoVisuals::plot_output_handler(
+        gobject = gobject,
+        plot_object = screeplot,
+        save_plot = save_plot,
+        return_plot = return_plot,
+        show_plot = show_plot,
+        default_save_name = default_save_name,
+        save_param = save_param,
+        else_return = NULL
+      ))
 
 
     } else if(method == 'jackstraw') {
 
+      jackplot = jackstrawPlot(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        expression_values = values,
+        reduction = reduction,
+        feats_to_use = feats_to_use,
+        center = center,
+        scale_unit = scale_unit,
+        ncp = ncp,
+        ylim = jack_ylim,
+        iter = jack_iter,
+        threshold = jack_threshold,
+        verbose = verbose,
+        show_plot = FALSE,
+        return_plot = TRUE,
+        save_plot = FALSE,
+        save_param = list(),
+        default_save_name = 'jackstrawPlot'
+      )
 
-      jackplot = jackstrawPlot(gobject = gobject,
-                               spat_unit = spat_unit,
-                               feat_type = feat_type,
-                               expression_values = values,
-                               reduction = reduction,
-                               feats_to_use = feats_to_use,
-                               center = center,
-                               scale_unit = scale_unit,
-                               ncp = ncp,
-                               ylim = jack_ylim,
-                               iter = jack_iter,
-                               threshold = jack_threshold,
-                               verbose = verbose,
-                               show_plot = FALSE,
-                               return_plot = TRUE,
-                               save_plot = FALSE,
-                               save_param = list(),
-                               default_save_name = 'jackstrawPlot')
-
-      ## print plot
-      if(show_plot == TRUE) {
-        print(jackplot)
-      }
-
-      ## save plot
-      if(save_plot == TRUE) {
-        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = jackplot, default_save_name = default_save_name), save_param))
-      }
-
-      ## return plot
-      if(return_plot == TRUE) {
-        return(jackplot)
-      } else {
-        return(jackplot) # poentially return all results instead
-      }
-
+      return(GiottoVisuals::plot_output_handler(
+        gobject = gobject,
+        plot_object = jackplot,
+        save_plot = save_plot,
+        return_plot = return_plot,
+        show_plot = show_plot,
+        default_save_name = default_save_name,
+        save_param = save_param,
+        else_return = jackplot  # TODO potentially return all results instead
+      ))
     }
 
   } else {

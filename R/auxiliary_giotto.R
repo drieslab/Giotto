@@ -90,7 +90,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @details
 #' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
@@ -234,26 +234,16 @@ filterDistributions <- function(gobject,
     }
   }
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
