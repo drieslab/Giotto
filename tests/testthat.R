@@ -7,19 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(Giotto)
-
-# additional needed packages
-suppressWarnings({
-  if(!require(remotes) || !require(R.utils)){
-    install.packages('R.utils', repos = 'http://cran.us.r-project.org')
-    install.packages('remotes', repos = 'http://cran.us.r-project.org')
-  }
-
-  if(!require(GiottoData)){
-    remotes::install_github('drieslab/GiottoData', build = FALSE)
-  }
-})
 
 # install giotto environment
 if (!checkGiottoEnvironment()) {
