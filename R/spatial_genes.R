@@ -1444,6 +1444,8 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
+#' @param return_gobject whether to return values attached to the gobject or
+#' separately (default)
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -1501,7 +1503,7 @@ binSpect = function(gobject,
                     set.seed = NULL,
                     bin_matrix = NULL,
                     summarize = c('p.value', 'adj.p.value'),
-                    return_gobject = F) {
+                    return_gobject = FALSE) {
 
 
   if(!is.null(spatial_network_k)) {
