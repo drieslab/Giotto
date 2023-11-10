@@ -25,6 +25,8 @@ showPolygonSizeInfluence(
 
 \item{clus_name}{name of cluster column in cell_metadata for given spat_unit and alt_spat_unit, i.e. "kmeans"}
 
+\item{return_plot}{logical. whether to return the plot object}
+
 \item{verbose}{be verbose}
 }
 \value{

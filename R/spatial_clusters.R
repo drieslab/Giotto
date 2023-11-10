@@ -83,6 +83,9 @@ spatialSplitCluster = function(gobject,
                                cluster_col,
                                split_clus_name = paste0(cluster_col, '_split')) {
 
+  # NSE vars
+  cell_ID = NULL
+
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,

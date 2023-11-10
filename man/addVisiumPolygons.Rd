@@ -4,7 +4,7 @@
 \alias{addVisiumPolygons}
 \title{Add Visium Polygons to Giotto Object}
 \usage{
-addVisiumPolygons(gobject = NULL, scalefactor_path = NULL)
+addVisiumPolygons(gobject, scalefactor_path = NULL)
 }
 \arguments{
 \item{gobject}{Giotto Object created with visium data, containing
@@ -19,6 +19,6 @@ Giotto Object with circular polygons added at each spatial location
 Add Visium Polygons to Giotto Object
 }
 \details{
-Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object 
+Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
 for the "cell" spaital unit.
 }

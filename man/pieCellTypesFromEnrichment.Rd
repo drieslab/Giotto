@@ -28,7 +28,7 @@ pieCellTypesFromEnrichment(
 i.e. output from GiottoClass::list_spatial_enrichment_names()
 Default value is "PAGE_Z_score"}
 
-\item{title}{Title of the generated plot. 
+\item{title}{Title of the generated plot.
 Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`}
 
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
@@ -47,6 +47,6 @@ pieCellTypesFromEnrichment
 \details{
 This function generates a pie chart of cell types by frequency.
 These cell type resutls are based on the provided `enrichment_name`,
-and will be determined by the maximum value of the z-score 
+and will be determined by the maximum value of the z-score
 or p-value for a given cell or annotation.
 }

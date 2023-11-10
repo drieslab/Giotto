@@ -58,18 +58,18 @@ calculateHVF(
 
 \item{show_plot}{show plot}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{return ggplot object (overridden by `return_gobject`)}
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{GiottoVisuals:::all_plots_save_function}}}
+\item{save_param}{list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
-giotto object highly variable features appended to feature metadata (fDataDT)
+giotto object highly variable features appended to feature metadata (`fDataDT()`)
 }
 \description{
 compute highly variable features

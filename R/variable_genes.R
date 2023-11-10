@@ -145,12 +145,12 @@ calc_var_HVF = function(scaled_matrix,
 #' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
 #' @param var_number [var_p_resid] number of top variance features for var_p_resid method
 #' @param show_plot show plot
-#' @param return_plot return ggplot object
+#' @param return_plot return ggplot object (overridden by `return_gobject`)
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals:::all_plots_save_function}}
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object highly variable features appended to feature metadata (fDataDT)
+#' @return giotto object highly variable features appended to feature metadata (`fDataDT()`)
 #' @details
 #' Currently we provide 2 ways to calculate highly variable genes:
 #'
@@ -271,31 +271,28 @@ calculateHVF <- function(gobject,
   }
 
 
-
-
   ## print plot
-  if(show_plot == TRUE) {
+  if(isTRUE(show_plot)) {
     print(pl)
   }
 
   ## save plot
-  if(save_plot == TRUE) {
-    do.call(GiottoVisuals:::all_plots_save_function, c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  if(isTRUE(save_plot)) {
+    do.call(GiottoVisuals::all_plots_save_function, c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
-  if(return_plot == TRUE) {
-    if(return_gobject == TRUE) {
+  if(isTRUE(return_plot)) {
+    if(isTRUE(return_gobject)) {
       cat('return_plot = TRUE and return_gobject = TRUE \n
           plot will not be returned to object, but can still be saved with save_plot = TRUE or manually \n')
     } else {
       return(pl)
     }
-
   }
 
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     # add HVG metadata to feat_metadata
     feat_metadata = get_feature_metadata(gobject,

@@ -14,6 +14,7 @@ doGiottoClustree(
   return_plot = NA,
   save_param = list(),
   default_save_name = "clustree",
+  verbose = TRUE,
   ...
 )
 }
@@ -32,9 +33,17 @@ doGiottoClustree(
 
 \item{return_plot}{by default, pulls from provided gobject instructions}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}}
 
-\item{default_save_name}{name of saved plot, defaut "clustree"}
+\item{default_save_name}{name of saved plot, default "clustree"}
+
+\item{verbose}{be verbose}
+
+\item{...}{
+  Arguments passed on to \code{\link[clustree:clustree]{clustree::clustree}}
+  \describe{
+    \item{\code{}}{}
+  }}
 }
 \value{
 a plot object (default), OR a giotto object (if specified)

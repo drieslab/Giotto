@@ -2034,7 +2034,7 @@ evaluate_autocor_input = function(gobject,
     # ensure identical ordering with giotto weight matrix
     if(exists('wm_colnames')) {
       new_order = data.table::chmatch(wm_colnames, use_values$cell_ID)
-      set_row_order_dt(use_values, new_order)
+      GiottoUtils::set_row_order_dt(use_values, new_order)
     }
 
     feats = meta_cols

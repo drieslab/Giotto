@@ -27,7 +27,7 @@ crossSectionGenePlot(
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
-\item{...}{parameters for spatGenePlot2D}
+\item{...}{parameters for spatFeatPlot2D}
 }
 \value{
 ggplot
@@ -39,5 +39,5 @@ Visualize cells and gene expression in a virtual cross section according to spat
 Description of parameters.
 }
 \seealso{
-\code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
+\code{\link{GiottoVisuals::spatGenePlot3D}} and \code{\link{GiottoVisuals::spatFeatPlot2D}}
 }
