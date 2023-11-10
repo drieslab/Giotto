@@ -1504,8 +1504,8 @@ plotCellProximityFeatSpot = function(gobject,
     changed_features_d = data.table::dcast.data.table(changed_features, cell_type~int_cell_type, value.var = 'N', fill = 0)
     changed_features_m = dt_to_matrix(changed_features_d)
 
-    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_features_m+1)),
-                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+    col_fun = GiottoVisuals::colorRamp2(breaks = stats::quantile(log2(changed_features_m+1)),
+                                        colors =  c("white", 'white', "blue", "yellow", "red"))
 
     heatm = ComplexHeatmap::Heatmap(as.matrix(log2(changed_features_m+1)), col = col_fun,
                                     row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))

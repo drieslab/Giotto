@@ -20,5 +20,5 @@ Computed statistics from the specified method.
 Call the spdep function with required parameters
 }
 \seealso{
-\pkg{\link{spdep}}
+\url{https://cran.r-project.org/web/packages/spdep/index.html}
 }

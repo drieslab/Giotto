@@ -6,6 +6,7 @@
 #' @param alt_spat_unit alternaitve spatial unit which represents resized polygon data
 #' @param feat_type feature type
 #' @param clus_name name of cluster column in cell_metadata for given spat_unit and alt_spat_unit, i.e. "kmeans"
+#' @param return_plot logical. whether to return the plot object
 #' @param verbose be verbose
 #' @return giotto object with altered cell_metadata
 #' @details

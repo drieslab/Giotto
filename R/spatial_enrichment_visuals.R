@@ -178,7 +178,7 @@ pieCellTypesFromEnrichment <- function(gobject = NULL,
 
     freq_dt = data.table::data.table(freq_table)
 
-    data.table::colnames(freq_dt) = c("cell_type", "num_cells")
+    colnames(freq_dt) = c("cell_type", "num_cells")
     # data.table vars
     cell_type = num_cells = perc = NULL
 

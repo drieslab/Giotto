@@ -12,7 +12,6 @@ runPCA(
   reduction = c("cells", "feats"),
   name = NULL,
   feats_to_use = "hvf",
-  genes_to_use = NULL,
   return_gobject = TRUE,
   center = TRUE,
   scale_unit = TRUE,

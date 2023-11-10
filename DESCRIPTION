@@ -32,6 +32,7 @@ Depends:
     GiottoClass,
     GiottoVisuals
 Imports:
+    BiocParallel,
     BiocSingular,
     checkmate,
     cowplot (>= 0.9.4),
@@ -72,6 +73,7 @@ Suggests:
     FactoMineR,
     factoextra,
     fitdistrplus,
+    FNN,
     geometry,
     GiottoData,
     ggalluvial,
@@ -86,9 +88,11 @@ Suggests:
     MAST,
     miniUI,
     multinet (>= 3.0.2),
+    networkD3,
     png,
     quadprog,
     harmony,
+    remotes,
     Rfast,
     rhdf5,
     RTriangle (>= 1.6-0.10),

@@ -2944,6 +2944,8 @@ doClusterProjection = function(target_gobject,
                                              "cover_tree", "brute"),
                                return_gobject = TRUE) {
 
+  # NSE vars
+  cell_ID = temp_name_prob = NULL
 
   # package check for dendextend
   package_check(pkg_name = "FNN", repository = "CRAN")

@@ -340,7 +340,6 @@ runPCA <- function(gobject,
                    reduction = c('cells', 'feats'),
                    name = NULL,
                    feats_to_use = 'hvf',
-                   genes_to_use = NULL,
                    return_gobject = TRUE,
                    center = TRUE,
                    scale_unit = TRUE,
@@ -692,7 +691,6 @@ runPCA_BiocSingular_irlba_projection = function(x,
 #' @param random_subset random subset to perform PCA on
 #' @param name arbitrary name for PCA run
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = TRUE)
 #' @param scale_unit scale features before PCA (default = TRUE)
@@ -899,7 +897,6 @@ runPCAprojection = function(gobject,
 #' @param batch_number number of random batches to run
 #' @param name arbitrary name for PCA run
 #' @param feats_to_use subset of features to use for PCA
-#' @param genes_to_use deprecated use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = TRUE)
 #' @param scale_unit scale features before PCA (default = TRUE)
@@ -1814,9 +1811,8 @@ signPCA <- function(gobject,
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for UMAP run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
-#' @param genes_to_use deprecated, use feats_to_use
-#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param feats_to_use if dim_reduction_to_use = NULL, which features to use
+#' @param return_gobject logical: return giotto object (default = TRUE)
 #' @param n_neighbors UMAP param: number of neighbors
 #' @param n_components UMAP param: number of components
 #' @param n_epochs UMAP param: number of epochs
@@ -1827,15 +1823,19 @@ signPCA <- function(gobject,
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
 #' @param toplevel_params parameters to extract
-#' @param ... additional UMAP parameters
+#' @inheritDotParams uwot::umap -X -n_neighbors -n_components -n_epochs -min_dist -n_threads -spread -seed -scale -pca -pca_center -pca_method
 #' @return giotto object with updated UMAP dimension reduction
-#' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.
+#' @details See \code{\link[uwot]{umap}} for more information about these and
+#' other parameters.
 #' \itemize{
-#'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item Input for UMAP dimension reduction can be another dimension reduction
+#'   (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
-#'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a
+#'   column name of highly variable features (see \code{\link{calculateHVF}}) or
+#'   simply provide a vector of features
+#'   \item multiple UMAP results can be stored by changing the \emph{name} of
+#'   the analysis
 #' }
 #' @export
 runUMAP <- function(gobject,
@@ -1848,7 +1848,6 @@ runUMAP <- function(gobject,
                     dimensions_to_use = 1:10,
                     name = NULL,
                     feats_to_use = NULL,
-                    genes_to_use = NULL,
                     return_gobject = TRUE,
                     n_neighbors = 40,
                     n_components = 2,
@@ -1857,17 +1856,13 @@ runUMAP <- function(gobject,
                     n_threads = NA,
                     spread = 5,
                     set_seed = TRUE,
-                    seed_number = 1234,
-                    verbose = T,
-                    toplevel_params = 2,
+                    seed_number = 1234L,
+                    verbose = TRUE,
+                    toplevel_params = 2L,
                     ...) {
 
-
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
+  # NSE vars
+  cell_ID = NULL
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1970,6 +1965,7 @@ runUMAP <- function(gobject,
     # start seed
     if(isTRUE(set_seed)) {
       set.seed(seed = seed_number)
+      on.exit({GiottoUtils::random_seed(set.seed = TRUE)}, add = TRUE)
     }
 
     ## run umap ##
@@ -1984,8 +1980,6 @@ runUMAP <- function(gobject,
 
     uwot_clus_pos_DT = data.table::as.data.table(uwot_clus)
 
-    # data.table variables
-    cell_ID = NULL
     uwot_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
     # exit seed
@@ -2062,14 +2056,13 @@ runUMAP <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param reduction cells or genes
+#' @param reduction 'cells' or 'feats'
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param random_subset random subset to perform UMAP on
 #' @param name arbitrary name for UMAP run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
-#' @param genes_to_use deprecated, use feats_to_use
+#' @param feats_to_use if dim_reduction_to_use = NULL, which features to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param n_neighbors UMAP param: number of neighbors
 #' @param n_components UMAP param: number of components
@@ -2087,7 +2080,7 @@ runUMAP <- function(gobject,
 #' \itemize{
 #'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
 #'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 #' }
@@ -2116,6 +2109,8 @@ runUMAPprojection = function(gobject,
                              toplevel_params = 2,
                              ...) {
 
+  # NSE vars
+  cell_ID = NULL
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -2176,14 +2171,14 @@ runUMAPprojection = function(gobject,
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
 
-
-      #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
-
     } else {
 
       ## using original matrix ##
       # expression values to be used
-      values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+      values = match.arg(
+        expression_values,
+        unique(c('normalized', 'scaled', 'custom', expression_values))
+      )
 
       expr_values = get_expression_values(gobject = gobject,
                                           spat_unit = spat_unit,
@@ -2220,29 +2215,31 @@ runUMAPprojection = function(gobject,
     random_selection = sort(sample(1:nrow(matrix_to_use), random_subset))
     subsample_matrix = matrix_to_use[random_selection, ]
 
-    uwot_clus_subset <- uwot::umap(X = subsample_matrix,
-                                   n_neighbors = n_neighbors,
-                                   n_components = n_components,
-                                   n_epochs = n_epochs,
-                                   min_dist = min_dist,
-                                   n_threads = n_threads,
-                                   spread = spread,
-                                   ret_model = TRUE,
-                                   ...)
+    uwot_clus_subset <- uwot::umap(
+      X = subsample_matrix,
+      n_neighbors = n_neighbors,
+      n_components = n_components,
+      n_epochs = n_epochs,
+      min_dist = min_dist,
+      n_threads = n_threads,
+      spread = spread,
+      ret_model = TRUE,
+      ...
+    )
 
     # create leftover matrix
     leftover_matrix = matrix_to_use[-random_selection, ]
 
     # make prediction on leftover matrix
-    uwot_clus_pred = uwot::umap_transform(X = leftover_matrix, model = uwot_clus_subset)
+    uwot_clus_pred = uwot::umap_transform(
+      X = leftover_matrix, model = uwot_clus_subset
+    )
 
     # combine subset and prediction
     coords_umap = rbind(uwot_clus_subset$embedding, uwot_clus_pred)
     coords_umap = coords_umap[match(cell_ID_order, rownames(coords_umap)), ]
 
-    # data.table variables
     coords_umap_DT = data.table::as.data.table(coords_umap)
-    cell_ID = NULL
     coords_umap_DT[, cell_ID := rownames(coords_umap)]
 
     # exit seed
@@ -2258,7 +2255,7 @@ runUMAPprojection = function(gobject,
 
 
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     umap_names = list_dim_reductions_names(gobject = gobject,
                                            data_type = reduction,
@@ -2287,22 +2284,18 @@ runUMAPprojection = function(gobject,
     gobject = set_dimReduction(gobject = gobject, dimObject = dimObject)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-
-
     ## update parameters used ##
-    gobject = update_giotto_params(gobject,
-                                   description = '_umap',
-                                   return_gobject = TRUE,
-                                   toplevel = toplevel_params)
+    gobject = update_giotto_params(
+      gobject,
+      description = '_umap',
+      return_gobject = TRUE,
+      toplevel = toplevel_params
+    )
     return(gobject)
 
-
   } else {
-    return(uwot_clus_pos_DT)
+    return(coords_umap_DT)
   }
-
-
-
 }
 
 
@@ -2326,7 +2319,6 @@ runUMAPprojection = function(gobject,
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for tSNE run
 #' @param feats_to_use if dim_reduction_to_use = NULL, which features to use
-#' @param genes_to_use deprecated, use feats_to_use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param dims tSNE param: number of dimensions to return
 #' @param perplexity tSNE param: perplexity
@@ -2341,7 +2333,7 @@ runUMAPprojection = function(gobject,
 #' \itemize{
 #'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
 #'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 #' }
@@ -2356,7 +2348,6 @@ runtSNE <- function(gobject,
                     dimensions_to_use = 1:10,
                     name = NULL,
                     feats_to_use = NULL,
-                    genes_to_use = NULL,
                     return_gobject = TRUE,
                     dims = 2,
                     perplexity = 30,
@@ -2366,13 +2357,6 @@ runtSNE <- function(gobject,
                     seed_number = 1234,
                     verbose = TRUE,
                     ...) {
-
-
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
