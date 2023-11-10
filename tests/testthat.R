@@ -11,7 +11,7 @@ library(Giotto)
 
 # additional needed packages
 suppressWarnings({
-  if(!require(remotes)){
+  if(!require(remotes) || !require(R.utils)){
     install.packages('R.utils', repos = 'http://cran.us.r-project.org')
     install.packages('remotes', repos = 'http://cran.us.r-project.org')
   }
