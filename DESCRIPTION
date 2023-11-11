@@ -92,6 +92,7 @@ Suggests:
     png,
     quadprog,
     harmony,
+    R.utils,
     remotes,
     Rfast,
     rhdf5,
