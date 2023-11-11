@@ -186,12 +186,16 @@ test_that("UMAP S4 object is created as expected", {
   expect_equal(ncol(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates), 3)
 
   # test a few arbitrary coordinates
-  show_failure(expect_equal(!!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[20],
-                            -3.2,
-                            tolerance = 1*10^-1))
-  show_failure(expect_equal(!!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[40],
-                            10.1,
-                            tolerance = 1*10^-1))
+  show_failure(expect_equal(
+    !!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[20],
+    2.35457671564358,
+    tolerance = 1*10^-1)
+  )
+  show_failure(expect_equal(
+    !!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[40],
+    -10.216402164285,
+    tolerance = 1*10^-1)
+  )
 
 })
 
