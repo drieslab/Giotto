@@ -30,7 +30,7 @@ findCellTypesFromEnrichment
 }
 \details{
 This function returns a two-column matrix, one column
-will contain cell IDs and the other will contain the 
+will contain cell IDs and the other will contain the
 most likely cell type based on the provided enrichment.
 
 By setting return_frequency_table to TRUE, a table
@@ -38,7 +38,7 @@ will instead be returned. This table will detail
 the number of occurences for each cell type, based on
 the provided enrichment.
 
-The cell types are assigned by determining the maximum 
+The cell types are assigned by determining the maximum
 value of the z-score or -log10(p-value) for a cell and
 the associated cell types from the enrichment.
 }

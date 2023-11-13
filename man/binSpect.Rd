@@ -36,7 +36,7 @@ binSpect(
   set.seed = NULL,
   bin_matrix = NULL,
   summarize = c("p.value", "adj.p.value"),
-  return_gobject = F
+  return_gobject = FALSE
 )
 }
 \arguments{
@@ -101,6 +101,9 @@ binSpect(
 \item{bin_matrix}{a binarized matrix, when provided it will skip the binarization process}
 
 \item{summarize}{summarize the p-values or adjusted p-values}
+
+\item{return_gobject}{whether to return values attached to the gobject or
+separately (default)}
 }
 \value{
 data.table with results (see details)

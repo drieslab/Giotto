@@ -119,9 +119,9 @@ spdepAutoCorr <- function (gobject,
 #'for relevant parameters.
 #' @return Computed statistics from the specified method.
 #' @export
-#' @seealso \pkg{\link{spdep}}
+#' @seealso \url{https://cran.r-project.org/web/packages/spdep/index.html}
 
-callSpdep <-function (method, ...){
+callSpdep <- function (method, ...) {
 
   # Load the 'spdep' package if not already installed
   package_check(pkg_name = "spdep", repository = "CRAN", optional = FALSE)
@@ -175,7 +175,7 @@ callSpdep <-function (method, ...){
   # Check if any of the specified arguments are required by the method
   if (any(requiredArgs %in% allArgs)) {
     # Obtain arguments from 'spweights.constants'
-    spW <- spweights.constants(listw = methodparam$listw)
+    spW <- spdep::spweights.constants(listw = methodparam$listw)
     # Combine user-provided arguments and 'spW', checking only against 'feats' value
     combinedParams <- append(methodparam, spW)
   }else{

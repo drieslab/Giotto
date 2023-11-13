@@ -209,6 +209,7 @@ doLeidenCluster = function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed
 #' @param seed_number number for seed
+#' @inheritDotParams igraph::cluster_leiden -graph -objective_function -resolution_parameter -beta -weights -initial_membership -n_iterations
 #' @return giotto object with new clusters appended to cell metadata
 #' @details
 #' This function is a wrapper for the Leiden algorithm implemented in igraph,
@@ -262,21 +263,22 @@ doLeidenClusterIgraph = function(gobject,
   ## set seed
   if(isTRUE(set_seed)) {
     seed_number = as.integer(seed_number)
-  } else {
-    seed_number = as.integer(sample(x = 1:10000, size = 1))
+    set.seed(seed_number)
+    on.exit(expr = {GiottoUtils::random_seed(set.seed = TRUE)}, add = TRUE)
   }
 
   # make igraph network undirected
   graph_object_undirected = igraph::as.undirected(igraph_object)
-  set.seed(seed_number)
-  leiden_clusters = igraph::cluster_leiden(graph = graph_object_undirected,
-                                           objective_function = objective_function,
-                                           resolution_parameter = resolution_parameter,
-                                           beta = beta,
-                                           weights = weights,
-                                           initial_membership = initial_membership,
-                                           n_iterations = n_iterations,
-                                           ...)
+  leiden_clusters = igraph::cluster_leiden(
+    graph = graph_object_undirected,
+    objective_function = objective_function,
+    resolution_parameter = resolution_parameter,
+    beta = beta,
+    weights = weights,
+    initial_membership = initial_membership,
+    n_iterations = n_iterations,
+    ...
+  )
 
   # summarize results
   ident_clusters_DT = data.table::data.table('cell_ID' = leiden_clusters$names, 'name' = leiden_clusters$membership)
@@ -285,7 +287,7 @@ doLeidenClusterIgraph = function(gobject,
 
 
   ## add clusters to metadata ##
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
 
     cluster_names = names(pDataDT(gobject = gobject,
@@ -346,8 +348,10 @@ doLeidenClusterIgraph = function(gobject,
 #' @param show_plot by default, pulls from provided gobject instructions
 #' @param save_plot by default, pulls from provided gobject instructions
 #' @param return_plot by default, pulls from provided gobject instructions
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name name of saved plot, defaut "clustree"
+#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param default_save_name name of saved plot, default "clustree"
+#' @param verbose be verbose
+#' @inheritDotParams clustree::clustree -x
 #' @return a plot object (default), OR a giotto object (if specified)
 #' @details This function tests different resolutions for Leiden clustering and provides a visualization
 #' of cluster sizing as resolution varies.
@@ -366,7 +370,9 @@ doGiottoClustree <- function(gobject,
                              save_plot = NA,
                              return_plot = NA,
                              save_param = list(),
-                             default_save_name = "clustree", ...){
+                             default_save_name = "clustree",
+                             verbose = TRUE,
+                             ...) {
 
   package_check(pkg_name = "clustree", repository = "CRAN")
   ## setting resolutions to use
@@ -378,39 +384,32 @@ doGiottoClustree <- function(gobject,
 
   ## performing multiple leiden clusters at resolutions specified
   for (i in res_vector){
-    gobject = doLeidenCluster(gobject = gobject, resolution = i, name = paste0("leiden_clustree_", print(i), ...))
+    if (isTRUE(verbose)) wrap_msg('Calculating leiden res:', i)
+    gobject = doLeidenCluster(
+      gobject = gobject,
+      resolution = i,
+      name = paste0("leiden_clustree_", i)
+    )
   }
 
   ## plotting clustree graph
-  pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  pl = clustree::clustree(
+    x = pDataDT(gobject),
+    prefix = "leiden_clustree_",
+    ...
+  )
 
-  ## add
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return gobject with all newly developed leiden clusters
-  if(return_gobject == TRUE){
-    return(gobject)
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2945,6 +2944,8 @@ doClusterProjection = function(target_gobject,
                                              "cover_tree", "brute"),
                                return_gobject = TRUE) {
 
+  # NSE vars
+  cell_ID = temp_name_prob = NULL
 
   # package check for dendextend
   package_check(pkg_name = "FNN", repository = "CRAN")

@@ -338,6 +338,53 @@ convertEnsemblToGeneSymbol = function(matrix,
 # I/O Helpers ####
 
 
+
+## Parallelized giottoPolygon creation workflows ####
+
+# Internal function to create a giottoPolygon object, smooth it, then wrap it so
+# that results are portable/possible to use with parallelization.
+# dotparams are passed to smoothGiottoPolygons
+#' @title Polygon creation and smoothing for parallel
+#' @name gpoly_from_dfr_smoothed_wrapped
+#' @keywords internal
+gpoly_from_dfr_smoothed_wrapped = function(
+    segmdfr,
+    name = 'cell',
+    calc_centroids = FALSE,
+    smooth_polygons = FALSE,
+    vertices = 20L,
+    k = 3L,
+    set_neg_to_zero = TRUE,
+    skip_eval_dfr = FALSE,
+    copy_dt = TRUE,
+    verbose = TRUE
+) {
+
+  gpoly = createGiottoPolygonsFromDfr(
+    segmdfr = segmdfr,
+    name = name,
+    calc_centroids = FALSE,
+    skip_eval_dfr = skip_eval_dfr,
+    copy_dt = copy_dt,
+    verbose = verbose
+  )
+  if(isTRUE(smooth_polygons)) gpoly = smoothGiottoPolygons(
+    gpolygon = gpoly,
+    vertices = vertices,
+    k = k,
+    set_neg_to_zero = set_neg_to_zero
+  )
+  if(isTRUE(calc_centroids)) gpoly = centroids(gpoly, append_gpolygon = TRUE)
+
+  slot(gpoly, 'spatVector') = terra::wrap(slot(gpoly, 'spatVector'))
+  if(isTRUE(calc_centroids)) {
+    slot(gpoly, 'spatVectorCentroids') = terra::wrap(slot(gpoly, 'spatVectorCentroids'))
+  }
+  return(gpoly)
+}
+
+
+
 ## 10X ####
 
 #' @title get10Xmatrix
@@ -957,18 +1004,21 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   if(isTRUE(verbose)) wrap_msg('finished extracting .hdf5 files')
 
   # outputs
-  if(output == 'giottoPolygon') {
-    create_giotto_polygons_vizgen(z_read_DT = z_read_DT,
-                                  poly_names = poly_names,
-                                  set_neg_to_zero = set_neg_to_zero,
-                                  calc_centroids = calc_centroids,
-                                  smooth_polygons = smooth_polygons,
-                                  smooth_vertices = smooth_vertices,
-                                  create_gpoly_parallel = create_gpoly_parallel,
-                                  create_gpoly_bin = create_gpoly_bin,
-                                  verbose = verbose)
-  }
-  if(output == 'data.table') z_read_DT
+  switch(
+    output,
+    "giottoPolygon" = create_giotto_polygons_vizgen(
+      z_read_DT = z_read_DT,
+      poly_names = poly_names,
+      set_neg_to_zero = set_neg_to_zero,
+      calc_centroids = calc_centroids,
+      smooth_polygons = smooth_polygons,
+      smooth_vertices = smooth_vertices,
+      create_gpoly_parallel = create_gpoly_parallel,
+      create_gpoly_bin = create_gpoly_bin,
+      verbose = verbose
+    ),
+    "data.table" = z_read_DT
+  )
 }
 
 
@@ -1006,12 +1056,18 @@ create_giotto_polygons_vizgen = function(z_read_DT,
                                                     skip_eval_dfr = TRUE,
                                                     copy_dt = FALSE,
                                                     verbose = verbose)
-        if(isTRUE(smooth_polygons)) cell_polygons = smoothGiottoPolygons(gpolygon = cell_polygons,
-                                                                         vertices = smooth_vertices,
-                                                                         k = 3L,
-                                                                         set_neg_to_zero = set_neg_to_zero)
-        if(isTRUE(calc_centroids)) cell_polygons = calculate_centroids_polygons(gpolygon = cell_polygons,
-                                                                                append_gpolygon = TRUE)
+        if(isTRUE(smooth_polygons)) {
+          cell_polygons = smoothGiottoPolygons(
+            gpolygon = cell_polygons,
+            vertices = smooth_vertices,
+            k = 3L,
+            set_neg_to_zero = set_neg_to_zero
+          )
+        }
+        if(isTRUE(calc_centroids)) {
+          # NOTE: will not recalculate if centroids are already attached
+          cell_polygons = centroids(cell_polygons, append_gpolygon = TRUE)
+        }
         pb(message = c(poly_names[i], ' (', i, '/', length(z_read_DT), ')'))
         return(cell_polygons)
       })
@@ -1166,7 +1222,7 @@ readPolygonVizgenParquet = function(file,
   }
 
   # NSE vars
-  ZIndex = NULL
+  ZIndex = Geometry = NULL
 
   # 1. determine z indices to get
   avail_z_idx = arrow::open_dataset(file) %>%

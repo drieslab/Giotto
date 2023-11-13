@@ -15,9 +15,8 @@ signPCA(
   pca_method = c("irlba", "factominer"),
   rev = FALSE,
   feats_to_use = NULL,
-  genes_to_use = NULL,
-  center = T,
-  scale_unit = T,
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 50,
   scree_ylim = c(0, 10),
   jack_iter = 10,
@@ -51,8 +50,6 @@ signPCA(
 \item{rev}{do a reverse PCA}
 
 \item{feats_to_use}{subset of features to use for PCA}
-
-\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{center}{center data before PCA}
 

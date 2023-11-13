@@ -39,7 +39,7 @@ runUMAPprojection(
 
 \item{expression_values}{expression values to use}
 
-\item{reduction}{cells or genes}
+\item{reduction}{'cells' or 'feats'}
 
 \item{dim_reduction_to_use}{use another dimension reduction set as input}
 
@@ -51,7 +51,7 @@ runUMAPprojection(
 
 \item{name}{arbitrary name for UMAP run}
 
-\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which features to use}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -76,8 +76,6 @@ runUMAPprojection(
 \item{toplevel_params}{parameters to extract}
 
 \item{...}{additional UMAP parameters}
-
-\item{genes_to_use}{deprecated, use feats_to_use}
 }
 \value{
 giotto object with updated UMAP dimension reduction
@@ -90,7 +88,7 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
 \itemize{
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
-  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }

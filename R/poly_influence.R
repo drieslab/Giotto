@@ -6,6 +6,7 @@
 #' @param alt_spat_unit alternaitve spatial unit which represents resized polygon data
 #' @param feat_type feature type
 #' @param clus_name name of cluster column in cell_metadata for given spat_unit and alt_spat_unit, i.e. "kmeans"
+#' @param return_plot logical. whether to return the plot object
 #' @param verbose be verbose
 #' @return giotto object with altered cell_metadata
 #' @details
@@ -30,6 +31,9 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                                      clus_name = "kmeans",
                                      return_plot = FALSE,
                                      verbose = FALSE){
+  # NSE vars
+  cell_ID = total_expr = cluster_interactions = N = resize_switch = NULL
+
   # Guards
   if(!c("giotto") %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
 
@@ -252,6 +256,9 @@ create_switch_string_unequal <- function(num_first = NULL,
 showCellProportionSwitchedPie <- function(gobject = NULL,
                                         spat_unit = NULL,
                                         feat_type = NULL) {
+  # NSE vars
+  cluster_status = num_cells = resize_switch = perc = ypos = NULL
+
   # Guards
    if(!"giotto" %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
 
@@ -309,6 +316,9 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
                                              spat_unit = NULL,
                                              alt_spat_unit = NULL,
                                              feat_type = NULL){
+  # NSE vars
+  kmeans_small = NULL
+
   # Guards
   if(!"giotto" %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
 
