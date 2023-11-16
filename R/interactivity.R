@@ -529,8 +529,8 @@ plotInteractive3D <- function(gobject, spat_unit = 'cell', feat_type = 'rna',
         shiny::column(4, offset = 2,
                       shiny::checkboxGroupInput("clusters",
                                                 label = "clusters",
-                                                choices = unique(data[[cell_color]]),
-                                                selected = unique(data[[cell_color]])),
+                                                choices = unique(sort(data[[cell_color]])),
+                                                selected = unique(sort(data[[cell_color]]))),
         )
       ),
 
