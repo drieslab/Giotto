@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- This line is from RStudio -->
 
-# Giotto Suite
+# Giotto Suite <img src="man/figures/GiottoLogo.png" align="right" alt="" width="160" />
 
 <!-- badges: start -->
 

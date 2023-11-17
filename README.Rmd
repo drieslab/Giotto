@@ -5,8 +5,15 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- This line is from RStudio -->
 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/"
+)
+```
 
-# Giotto Suite: an open-source and technology-agnostic spatial multi-omics analysis platform
+# Giotto Suite: an open-source and technology-agnostic spatial multi-omics analysis platform <img src="man/figures/GiottoLogo.png" align="right" alt="" width="160" />
 
 <!-- badges: start -->
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
