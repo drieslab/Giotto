@@ -1,4 +1,34 @@
 url: https://drieslab.github.io/Giotto/
+
+authors:
+  Joselyn Chávez:
+    href: https://josschavezf.github.io
+
+
 template:
   bootstrap: 5
+  bslib:
+    bg: "#FFFFFF"
+    fg: "#000000"
+    primary: "#7E69AE"
+    code_font: {google: "JetBrains Mono"}
 
+navbar:
+  bg: dark
+  structure:
+    left:
+    - intro
+    - reference
+    right: github
+  components:
+    reference:
+      text: Documentation
+      href: reference/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/drieslab/Giotto/
+      aria-label: github
+
+home:
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]

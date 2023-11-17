@@ -13,7 +13,7 @@ Authors@R: c(
     person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
 		 role = c("aut")),
 		 person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
-		 role = c("aut"))
+		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
