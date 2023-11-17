@@ -19,7 +19,11 @@ navbar:
     left:
     - intro
     - reference
-    right: github
+    - tutorials
+    - news
+    right:
+    - search
+    - github
   components:
     reference:
       text: Documentation
