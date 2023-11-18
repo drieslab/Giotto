@@ -19,6 +19,7 @@ calculateHVF(
   difference_in_cov = 0.1,
   var_threshold = 1.5,
   var_number = NULL,
+  cell_ids = NULL,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -55,6 +56,9 @@ calculateHVF(
 \item{var_threshold}{[var_p_resid] variance threshold for features for var_p_resid method}
 
 \item{var_number}{[var_p_resid] number of top variance features for var_p_resid method}
+
+\item{cell_ids}{Specific cell_IDs (`spatIDs()`) that the HVF detection
+should be performed on. Passing NULL (default) runs HVF on all cells.}
 
 \item{show_plot}{show plot}
 

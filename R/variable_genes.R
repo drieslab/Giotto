@@ -97,7 +97,7 @@ calc_var_HVF = function(scaled_matrix,
   selected = NULL
 
   test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
-  test = sort(test, decreasing = T)
+  test = sort(test, decreasing = TRUE)
 
   dt_res = data.table::data.table(feats = names(test), var = test)
 
@@ -109,7 +109,9 @@ calc_var_HVF = function(scaled_matrix,
   }
 
 
-  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
+  if(isTRUE(show_plot) ||
+     isTRUE(return_plot) ||
+     isTRUE(save_plot)) {
 
     dt_res[, rank := 1:.N]
     pl <- create_calc_var_HVF_plot(dt_res)
@@ -144,6 +146,8 @@ calc_var_HVF = function(scaled_matrix,
 #' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
 #' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
 #' @param var_number [var_p_resid] number of top variance features for var_p_resid method
+#' @param cell_ids Specific cell_IDs (`spatIDs()`) that the HVF detection
+#' should be performed on. Passing NULL (default) runs HVF on all cells.
 #' @param show_plot show plot
 #' @param return_plot return ggplot object (overridden by `return_gobject`)
 #' @param save_plot directly save the plot [boolean]
@@ -178,6 +182,7 @@ calculateHVF <- function(gobject,
                          difference_in_cov = 0.1,
                          var_threshold = 1.5,
                          var_number = NULL,
+                         cell_ids = NULL,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
@@ -204,10 +209,15 @@ calculateHVF <- function(gobject,
                                       output = 'matrix')
 
   # not advised
-  if(reverse_log_scale == TRUE) {
+  if(isTRUE(reverse_log_scale)) {
     expr_values = (logbase^expr_values)-1
   }
 
+  # id subset
+  if (!is.null(cell_ids)) {
+    subset_bool <- colnames(expr_values) %in% cell_ids
+    expr_values <- expr_values[, subset_bool]
+  }
 
   # method to use
   method = match.arg(method, choices = c('cov_groups', 'cov_loess', 'var_p_resid'))
@@ -222,12 +232,14 @@ calculateHVF <- function(gobject,
 
   if(method == 'var_p_resid') {
 
-    results = calc_var_HVF(scaled_matrix = expr_values,
-                           var_threshold = var_threshold,
-                           var_number = var_number,
-                           show_plot = show_plot,
-                           return_plot = return_plot,
-                           save_plot = save_plot)
+    results = calc_var_HVF(
+      scaled_matrix = expr_values,
+      var_threshold = var_threshold,
+      var_number = var_number,
+      show_plot = show_plot,
+      return_plot = return_plot,
+      save_plot = save_plot
+    )
 
     feat_in_cells_detected = results[['dt']]
     pl = results[['pl']]
@@ -235,11 +247,13 @@ calculateHVF <- function(gobject,
   } else {
 
     ## create data.table with relevant statistics ##
-    feat_in_cells_detected <- data.table::data.table(feats = rownames(expr_values),
-                                                     nr_cells = rowSums_flex(expr_values > expression_threshold),
-                                                     total_expr = rowSums_flex(expr_values),
-                                                     mean_expr = rowMeans_flex(expr_values),
-                                                     sd = unlist(apply(expr_values, 1, sd)))
+    feat_in_cells_detected <- data.table::data.table(
+      feats = rownames(expr_values),
+      nr_cells = rowSums_flex(expr_values > expression_threshold),
+      total_expr = rowSums_flex(expr_values),
+      mean_expr = rowMeans_flex(expr_values),
+      sd = unlist(apply(expr_values, 1, sd))
+    )
     feat_in_cells_detected[, cov := (sd/mean_expr)]
     gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
     feat_in_cells_detected[, gini := gini_level]
