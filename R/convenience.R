@@ -607,6 +607,62 @@ visium_spot_poly <- function(spatLocsObj = NULL,
 
 ## MERSCOPE ####
 
+
+#' @title Create Vizgen MERSCOPE largeImage
+#' @name createMerscopeLargeImage
+#' @description
+#' Read MERSCOPE stitched images as giottoLargeImage. Images will also be
+#' transformed to match the spatial coordinate reference system of the paired
+#' points and polygon data.
+#' @param image_file character. Path to one or more MERSCOPE images to load
+#' @param transforms_file character. Path to MERSCOPE transforms file. Usually
+#' in the same folder as the images and named
+#' 'micron_to_mosaic_pixel_transform.csv'
+#' @param name character. name to assign the image. Multiple should be provided
+#' if image_file is a list.
+#' @export
+createMerscopeLargeImage <- function(image_file,
+                                     transforms_file,
+                                     name = 'image') {
+
+  checkmate::assert_character(transforms_file)
+  tfsDT <- data.table::fread(transforms_file)
+  if (inherits(image_file, "character")) {
+    image_file <- as.list(image_file)
+  }
+  checkmate::assert_list(image_file)
+
+  scalef <- c(1/tfsDT[[1,1]], 1/tfsDT[[2,2]])
+  x_shift <- -tfsDT[[1,3]]/tfsDT[[1,1]]
+  y_shift <- -tfsDT[[2,3]]/tfsDT[[2,2]]
+
+  out <- lapply(seq_along(image_file), function(i) {
+    gimg <- createGiottoLargeImage(
+      raster_object = image_file[[i]],
+      name = name[[i]],
+      scale_factor = scalef,
+      negative_y = FALSE
+    )
+
+    gimg <- spatShift(gimg, dx = x_shift, dy = y_shift)
+
+    gimg@extent <- terra::ext(gimg@raster_object)
+    return(gimg)
+  })
+
+  if (length(out) == 1L) {
+    out <- unlist(out)
+  }
+
+  return(out)
+}
+
+
+
+
+
+
+
 #' @title Create Vizgen MERSCOPE Giotto Object
 #' @name createGiottoMerscopeObject
 #' @description Given the path to a MERSCOPE experiment directory, creates a Giotto
