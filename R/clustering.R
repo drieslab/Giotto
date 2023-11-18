@@ -1035,7 +1035,6 @@ doSNNCluster <- function(gobject,
 #' @param spat_unit spatial unit (e.g. "rna", "dna", "protein")
 #' @param expression_values expression values to use (e.g. "normalized", "scaled", "custom")
 #' @param feats_to_use subset of features to use
-#' @param genes_to_use deprecated use feats_to_use
 #' @param dim_reduction_to_use dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")
 #' @param dim_reduction_name dimensions reduction name, default to "pca"
 #' @param dimensions_to_use dimensions to use, default = 1:10
@@ -1057,7 +1056,6 @@ doKmeans <- function(gobject,
                      spat_unit = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      feats_to_use = NULL,
-                     genes_to_use = NULL,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
                      dimensions_to_use = 1:10,
@@ -1072,14 +1070,6 @@ doKmeans <- function(gobject,
                      return_gobject = TRUE,
                      set_seed = TRUE,
                      seed_number = 1234) {
-
-
-
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1225,7 +1215,7 @@ doKmeans <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes_to_use subset of genes to use
+#' @param feats_to_use subset of features to use
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimensions reduction name
 #' @param dimensions_to_use dimensions to use
@@ -1245,7 +1235,7 @@ doHclust <- function(gobject,
                      spat_unit = NULL,
                      feat_type = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
-                     genes_to_use = NULL,
+                     feats_to_use = NULL,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
                      dimensions_to_use = 1:10,
@@ -1308,8 +1298,8 @@ doHclust <- function(gobject,
                                         values = values)
 
     # subset expression matrix
-    if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    if(!is.null(feats_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% feats_to_use, ]
     }
 
     # features as columns
@@ -1424,7 +1414,7 @@ doHclust <- function(gobject,
 #' @param sNNclust_minPts SNNclust: min points
 #' @param borderPoints SNNclust: border points
 #' @param expression_values expression values to use
-#' @param genes_to_use = NULL,
+#' @param feats_to_use features to use in clustering,
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name name of reduction 'pca',
 #' @param dimensions_to_use dimensions to use
@@ -1480,7 +1470,7 @@ clusterCells <- function(gobject,
                          borderPoints = TRUE,
 
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         genes_to_use = NULL,
+                         feats_to_use = NULL,
                          dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                          dim_reduction_name = 'pca',
                          dimensions_to_use = 1:10,
@@ -1584,7 +1574,7 @@ clusterCells <- function(gobject,
     result = doKmeans(gobject = gobject,
                       name = name,
                       expression_values = expression_values,
-                      genes_to_use = genes_to_use,
+                      feats_to_use = feats_to_use,
                       dim_reduction_to_use = dim_reduction_to_use,
                       dim_reduction_name = dim_reduction_name,
                       dimensions_to_use = dimensions_to_use,
@@ -1602,7 +1592,7 @@ clusterCells <- function(gobject,
     result = doHclust(gobject = gobject,
                       name = name,
                       expression_values = expression_values,
-                      genes_to_use = genes_to_use,
+                      feats_to_use = feats_to_use,
                       dim_reduction_to_use = dim_reduction_to_use,
                       dim_reduction_name = dim_reduction_name,
                       dimensions_to_use = dimensions_to_use,

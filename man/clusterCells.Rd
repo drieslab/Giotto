@@ -30,7 +30,7 @@ clusterCells(
   sNNclust_minPts = 16,
   borderPoints = TRUE,
   expression_values = c("normalized", "scaled", "custom"),
-  genes_to_use = NULL,
+  feats_to_use = NULL,
   dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
@@ -98,7 +98,7 @@ clusterCells(
 
 \item{expression_values}{expression values to use}
 
-\item{genes_to_use}{= NULL,}
+\item{feats_to_use}{features to use in clustering,}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 
