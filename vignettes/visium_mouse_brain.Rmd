@@ -525,7 +525,7 @@ spatCellPlot2D(gobject = visium_brain,
 ```
 
 
-![](images/visium_mouse_brain/vignette_220426/spat_enr_Rank_plot.png){width="50.0%"}
+![](images/visium_mouse_brain/spat_enr_Rank_plot.png){width="50.0%"}
 
 ## 7.4 DWLS spatial deconvolution
 
@@ -548,7 +548,7 @@ spatCellPlot2D(gobject = visium_brain,
 ```
 
 
-![](images/visium_mouse_brain/vignette_220426/DWLS_plot.png){width="50.0%"}
+![](images/visium_mouse_brain/DWLS_plot.png){width="50.0%"}
 
 
 ```{r, eval=FALSE}
@@ -560,7 +560,7 @@ spatCellPlot2D(gobject = visium_brain,
 ```
 
 
-![](images/visium_mouse_brain/vignette_220426/spat_DWLS_pie_plot.png){width="50.0%"}
+![](images/visium_mouse_brain/spat_DWLS_pie_plot.png){width="50.0%"}
 
 # Part 8: Spatial Grid
 
