@@ -10,6 +10,36 @@
     <loc>https://drieslab.github.io/Giotto/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/seqscope_mouse_liver.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/singlecell_prostate_integration.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/singlecell_prostate_standard.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/stereoseq_mosta.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visium_cytassist_human_glioblastoma.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visium_cytassist_lungcancer.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visium_mouse_brain.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visium_mouse_kidney.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visium_prostate_integration.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/authors.html</loc>
   </url>
   <url>
@@ -245,6 +275,9 @@
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/reference/createGiottoXeniumObject_subcellular.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/reference/createMerscopeLargeImage.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/reference/createSpatialEnrich.html</loc>
