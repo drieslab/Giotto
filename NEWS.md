@@ -10,6 +10,8 @@
 * New function `pieCellTypesFromEnrichment()` within `spatial_enrichment_visuals.R` that generates a pie chart of cell types based on a provided enrichment
 * New function `addVisiumPolygons()` within `convenience.R` (along with its requisite internal functions) that adds  circular polygons centered at the spatial locations of a Giotto Object made with Visium data. Takes a Giotto Object and a path to the Visium output file `scalefactors_json.json` as input arguments.
 * Added `addVisiumPolygons()` to `createGiottoVisiumObject()` workflow.
+* Add `cell_ids` param to `calculateHVF()` to allow calculation of HVFs on a subset of cells
+
 
 ## Changes
 

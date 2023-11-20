@@ -10,7 +10,6 @@ doKmeans(
   spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats_to_use = NULL,
-  genes_to_use = NULL,
   dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
@@ -36,8 +35,6 @@ doKmeans(
 \item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
 
 \item{feats_to_use}{subset of features to use}
-
-\item{genes_to_use}{deprecated use feats_to_use}
 
 \item{dim_reduction_to_use}{dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")}
 
