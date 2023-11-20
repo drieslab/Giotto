@@ -7,14 +7,14 @@
 createMerscopeLargeImage(image_file, transforms_file, name = "image")
 }
 \arguments{
-\item{image_file}{character. Path to image file to load or list of multiple
-such paths.}
+\item{image_file}{character. Path to one or more MERSCOPE images to load}
 
 \item{transforms_file}{character. Path to MERSCOPE transforms file. Usually
 in the same folder as the images and named
 'micron_to_mosaic_pixel_transform.csv'}
 
-\item{name}{name to assign the image}
+\item{name}{character. name to assign the image. Multiple should be provided
+if image_file is a list.}
 }
 \description{
 Read MERSCOPE stitched images as giottoLargeImage. Images will also be

@@ -2940,6 +2940,12 @@ doClusterProjection = function(target_gobject,
   # package check for dendextend
   package_check(pkg_name = "FNN", repository = "CRAN")
 
+  spat_unit = set_default_spat_unit(gobject = target_gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = target_gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   # identify clusters from source object and create annotation vector
   cell_meta_source = get_cell_metadata(gobject = source_gobject,
                                        spat_unit = spat_unit,
@@ -3026,11 +3032,15 @@ doClusterProjection = function(target_gobject,
       prob_label = paste0(target_cluster_label_name,'_prob')
 
       target_gobject = addCellMetadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name, prob_label), with = FALSE],
                                        by_column = TRUE,
                                        column_cell_ID = 'cell_ID')
     } else {
       target_gobject = addCellMetadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name), with = FALSE],
                                        by_column = TRUE,
                                        column_cell_ID = 'cell_ID')
