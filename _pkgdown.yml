@@ -13,21 +13,88 @@ template:
     primary: "#7E69AE"
     code_font: {google: "JetBrains Mono"}
 
+development:
+  mode: auto
+
 navbar:
   bg: dark
   structure:
     left:
     - intro
     - reference
-    right: github
+    - articles
+    - news
+    right:
+    - search
+    - github
   components:
     reference:
       text: Documentation
       href: reference/index.html
+    articles:
+      text: Tutorials
+      menu:
+      - text: Stereo-seq
+      - text: MOSTA E12.5_E1S3
+        href: articles/stereoseq_mosta.html
+      - text: -------
+      - text: Seq-Scope
+      - text: Mouse liver
+        href: articles/seqscope_mouse_liver.html
+      - text: -------
+      - text: Visium
+      - text: Visium Mouse Kidney
+        href: articles/visium_mouse_kidney.html
+      - text: Visium Mouse Brain
+        href: articles/visium_mouse_brain.html
+      - text: Visium Prostate Integration
+        href: articles/visium_prostate_integration.html
+      - text: CytAssist Human Lung Cancer
+        href: articles/visium_cytassist_lungcancer.html
+      - text: CytAssist Multi-omics Human Glioblastoma
+        href: articles/visium_cytassist_human_glioblastoma.html
+      - text: -------
+      - text: Single Cell RNA Sequencing
+      - text: Prostate
+        href: articles/singlecell_prostate_standard.html
+      - text: Prostate Integration
+        href: articles/singlecell_prostate_integration.html
+    news:
+      text: News
+      href: news/index.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/drieslab/Giotto/
       aria-label: github
+
+articles:
+- title: Stereo-seq
+  navbar: ~
+  contents:
+  - stereoseq_mosta
+- title: Seq-Scope
+  navbar: ~
+  contents:
+  - seqscope_mouse_liver
+- title: Visium
+  navbar: ~
+  contents:
+  - visium_mouse_kidney
+  - visium_mouse_brain
+  - visium_prostate_integration
+  - visium_cytassist_lungcancer
+  - visium_cytassist_human_glioblastoma
+- title: Single Cell RNA Sequencing
+  navbar: ~
+  contents:
+  - singlecell_prostate_standard
+  - singlecell_prostate_integration
+
+
+
+news:
+  cran_dates: false
+
 
 home:
   sidebar:
