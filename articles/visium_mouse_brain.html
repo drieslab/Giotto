@@ -493,7 +493,7 @@ also be downloaded from getSpatialDataset.</p>
 <span>               cell_annotation_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GiottoClass/man/row-plus-colnames-generic.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">rank_matrix</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>               cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="fl">1</span>, point_size <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>               save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"spat_enr_Rank_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="images/visium_mouse_brain/vignette_220426/spat_enr_Rank_plot.png" style="width:50.0%"></p>
+<p><img src="images/visium_mouse_brain/spat_enr_Rank_plot.png" style="width:50.0%"></p>
 </div>
 <div class="section level3">
 <h3 id="dwls-spatial-deconvolution">7.4 DWLS spatial deconvolution<a class="anchor" aria-label="anchor" href="#dwls-spatial-deconvolution"></a>
@@ -513,14 +513,14 @@ also be downloaded from getSpatialDataset.</p>
 <span>               cell_annotation_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GiottoClass/man/pDataDT.html" class="external-link">pDataDT</a></span><span class="op">(</span><span class="va">giotto_SC</span><span class="op">)</span><span class="op">$</span><span class="va">Class</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>               cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="fl">1</span>, point_size <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>               save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"DWLS_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="images/visium_mouse_brain/vignette_220426/DWLS_plot.png" style="width:50.0%"></p>
+<p><img src="images/visium_mouse_brain/DWLS_plot.png" style="width:50.0%"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot DWLS deconvolution result with Pie plots</span></span>
 <span>  <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDeconvPlot.html">spatDeconvPlot</a></span><span class="op">(</span><span class="va">visium_brain</span>, </span>
 <span>           show_image <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>           radius <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>           save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"spat_DWLS_pie_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="images/visium_mouse_brain/vignette_220426/spat_DWLS_pie_plot.png" style="width:50.0%"></p>
+<p><img src="images/visium_mouse_brain/spat_DWLS_pie_plot.png" style="width:50.0%"></p>
 </div>
 </div>
 <div class="section level2">
