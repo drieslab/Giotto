@@ -10,7 +10,7 @@ callSpdep(method, ...)
 \item{method}{Specify method name to call from spdep with its required
 parameters.}
 
-\item{...}{Additional parameters for the function. See spdep documentation 
+\item{...}{Additional parameters for the function. See spdep documentation
 for relevant parameters.}
 }
 \value{
@@ -20,5 +20,5 @@ Computed statistics from the specified method.
 Call the spdep function with required parameters
 }
 \seealso{
-\pkg{\link{spdep}}
+\url{https://cran.r-project.org/web/packages/spdep/index.html}
 }

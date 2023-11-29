@@ -10,8 +10,6 @@
 #'
 #' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import data.table magrittr ggplot2
-#'
 #' @export
 plotInteractivePolygons <- function(x,
                                     width = "auto",
@@ -33,15 +31,15 @@ plotInteractivePolygons <- function(x,
       miniUI::miniContentPanel(
         shiny::textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
         shiny::sliderInput("xrange", label = "x coordinates",
-                    min = min(terra::ext(x))[1],
-                    max = max(terra::ext(x))[1],
-                    value = c(min(terra::ext(x))[1],
-                              max(terra::ext(x))[1])) ,
+                           min = min(terra::ext(x))[1],
+                           max = max(terra::ext(x))[1],
+                           value = c(min(terra::ext(x))[1],
+                                     max(terra::ext(x))[1])) ,
         shiny::sliderInput("yrange", label = "y coordinates",
-                    min = min(terra::ext(x))[2],
-                    max = max(terra::ext(x))[2],
-                    value = c(min(terra::ext(x))[2],
-                              max(terra::ext(x))[2])) ,
+                           min = min(terra::ext(x))[2],
+                           max = max(terra::ext(x))[2],
+                           value = c(min(terra::ext(x))[2],
+                                     max(terra::ext(x))[2])) ,
         shiny::plotOutput("plot", click = "plot_click")
       )
     )
@@ -52,15 +50,15 @@ plotInteractivePolygons <- function(x,
       miniUI::miniContentPanel(
         shiny::textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
         shiny::sliderInput("xrange", label = "x coordinates",
-                    min = min(x[["layers"]][[1]]$data$sdimx),
-                    max = max(x[["layers"]][[1]]$data$sdimx),
-                    value = c(min(x[["layers"]][[1]]$data$sdimx),
-                              max(x[["layers"]][[1]]$data$sdimx))) ,
+                           min = min(x[["layers"]][[1]]$data$sdimx),
+                           max = max(x[["layers"]][[1]]$data$sdimx),
+                           value = c(min(x[["layers"]][[1]]$data$sdimx),
+                                     max(x[["layers"]][[1]]$data$sdimx))) ,
         shiny::sliderInput("yrange", label = "y coordinates",
-                    min = min(x[["layers"]][[1]]$data$sdimy),
-                    max = max(x[["layers"]][[1]]$data$sdimy),
-                    value = c(min(x[["layers"]][[1]]$data$sdimy),
-                              max(x[["layers"]][[1]]$data$sdimy))) ,
+                           min = min(x[["layers"]][[1]]$data$sdimy),
+                           max = max(x[["layers"]][[1]]$data$sdimy),
+                           value = c(min(x[["layers"]][[1]]$data$sdimy),
+                                     max(x[["layers"]][[1]]$data$sdimy))) ,
         shiny::plotOutput("plot", click = "plot_click")
       )
     )
@@ -421,7 +419,6 @@ compareCellAbundance <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param polygons character. Vector of polygon names to plot. If NULL, all polygons are plotted
 #' @param ... Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon
-#' @import ggplot2
 #'
 #' @return A ggplot2 image
 #' @export
@@ -437,7 +434,7 @@ plotPolygons <- function(gobject,
   if (!inherits(gobject, "giotto")) {
     stop("gobject must be a Giotto object")
   }
-  
+
   y = geom = NULL
 
   ## verify plot exists
@@ -475,4 +472,111 @@ plotPolygons <- function(gobject,
   }
 
 }
+
+# ** 3D interactive plotting ####
+
+#' Plot interactive 3D spatial plot
+#'
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param cell_color character. What to color cells by (e.g. metadata col or spatial enrichment col)
+#' @param cell_color_code character. discrete colors to use. Palette to use or named vector of colors
+#' @param point_size size of point (cell)
+#' @param width plot width
+#' @param height plot height
+#'
+#' @return data.table with selected cell_IDs, spatial coordinates, and cluster_ID.
+#' @export
+#'
+plotInteractive3D <- function(gobject, spat_unit = 'cell', feat_type = 'rna',
+                              cell_color = 'leiden_clus',
+                              cell_color_code = NULL, point_size = 0.5,
+                              width = "100%", height = "400px") {
+
+  # NSE vars
+  sdimx = sdimy = sdimz = cell_ID = NULL
+
+  cell_metadata_table <- pDataDT(gobject,
+                                 spat_unit = spat_unit,
+                                 feat_type = feat_type)
+  spatial_coordinates <- getSpatialLocations(gobject,
+                                             spat_unit = spat_unit,
+                                             output = 'data.table')
+
+  data <- merge(cell_metadata_table, spatial_coordinates)
+
+  ui <- miniUI::miniPage(
+    miniUI::gadgetTitleBar("Slide to select axis range"),
+    miniUI::miniContentPanel(
+      shiny::fluidRow(
+        shiny::column(4, offset = 1,
+                      # Move the slide bar to select z-axis ranges
+                      shiny::sliderInput("xrange", label = "x-axis",
+                                         min = min(data$sdimx),
+                                         max = max(data$sdimx),
+                                         value = c(min(data$sdimx), max(data$sdimx))),
+                      shiny::sliderInput("yrange", label = "y-axis",
+                                         min = min(data$sdimy),
+                                         max = max(data$sdimy),
+                                         value = c(min(data$sdimy), max(data$sdimy))),
+                      shiny::sliderInput("zrange", label = "z-axis",
+                                         min = min(data$sdimz),
+                                         max = max(data$sdimz),
+                                         value = c(min(data$sdimz), max(data$sdimz)))
+        ),
+
+        shiny::column(4, offset = 2,
+                      shiny::checkboxGroupInput("clusters",
+                                                label = "clusters",
+                                                choices = unique(sort(data[[cell_color]])),
+                                                selected = unique(sort(data[[cell_color]]))),
+        )
+      ),
+
+      # Plot
+      plotly::plotlyOutput("plot1", width = width, height = height)
+    ),
+  )
+
+  server <- function(input, output, session) {
+
+    selected_data <- shiny::reactive({
+      data[data[[cell_color]] %in% input$clusters, ] %>%
+        plotly::filter(sdimx >= input$xrange[1] & sdimx <= input$xrange[2] &
+                         sdimy >= input$yrange[1] & sdimy <= input$yrange[2] &
+                         sdimz >= input$zrange[1] & sdimz <= input$zrange[2]) %>%
+        plotly::select(cell_ID, sdimx, sdimy, sdimz, cell_color)
+    })
+
+    # Render the plot
+    output$plot1 <- plotly::renderPlotly({
+
+      selected_data <- selected_data()
+
+      # Plot the data
+      plotly::plot_ly(selected_data,
+                      x = ~sdimx,
+                      y = ~sdimy,
+                      z = ~sdimz,
+                      color = as.factor(selected_data[[5]]),
+                      colors = cell_color_code,
+                      size = point_size)
+    })
+
+    #Handle the Done button being pressed.
+
+    output$info <- shiny::renderTable(selected_data())
+
+    shiny::observeEvent(input$done, {
+      returnValue <- selected_data()
+      shiny::stopApp(returnValue)
+    })
+  }
+
+  shiny::runGadget(ui, server)
+}
+
+
+
 

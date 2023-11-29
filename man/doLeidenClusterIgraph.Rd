@@ -53,6 +53,15 @@ doLeidenClusterIgraph(
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
+
+\item{...}{
+  Arguments passed on to \code{\link[igraph:cluster_leiden]{igraph::cluster_leiden}}
+  \describe{
+    \item{\code{vertex_weights}}{the vertex weights used in the Leiden algorithm.
+If this is not provided, it will be automatically determined on the basis
+of the \code{objective_function}. Please see the details of this function
+how to interpret the vertex weights.}
+  }}
 }
 \value{
 giotto object with new clusters appended to cell metadata

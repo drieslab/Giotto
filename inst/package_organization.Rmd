@@ -1,0 +1,12 @@
+Outline of package R script contents
+
+
+`convenience.R` - convenience loading functions for specific spatial platforms
+`general_help.R` - general helper functions
+
+
+
+`auxiliary_giotto.R` - auxiliary functions
+`wnn.R` - weighted nearest neighbors functions
+`zzz.R` - onload functions
+

@@ -6,7 +6,7 @@
 #' @title cell_proximity_spots_internal
 #' @name cell_proximity_spots_internal
 #' @description Compute cell-cell interactions observed value inner each spot
-#' @param cell_IDs cell_IDs 
+#' @param cell_IDs cell_IDs
 #' @param dwls_values data.table of cell type enrichment in each spot and multiply
 #' by cell number in each spot
 #' @return List of cell proximity observed value in data.table format. Columns:
@@ -14,7 +14,7 @@
 #' @keywords internal
 cell_proximity_spots_internal = function(cell_IDs,
                                          dwls_values){
-  
+
   # data.table variables
   value = unified_int = Var1 = Var2 = internal = NULL
 
@@ -125,10 +125,10 @@ cell_proximity_spots_external = function(pairs,
 cell_proximity_spots = function(cell_IDs,
                                 pairs_external,
                                 dwls_values){
-  
+
   # data.table variables
   V1 =  internal = external = s1 = s2 = unified_int = type_int = NULL
-  
+
   # compute cell-type/cell-type interactions in each spot (internal)
   if (length(cell_IDs) > 0){
     proximity_in = cell_proximity_spots_internal(cell_IDs = cell_IDs,
@@ -473,7 +473,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
                                             feat_type = NULL,
                                             spatial_network_name = 'spatial_network',
                                             cluster_column = 'cell_ID') {
-  
+
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
@@ -536,13 +536,13 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     if (length(int_num) > 1){
       idx2 = which(colSums(dwls_int_cells) > 0)
       dwls_int_cells = dwls_int_cells[, idx2]
-      
+
       # all the interacted cells dwls have same cell type with proportion=1
       if (length(idx2) == 1){
         dwls_int_cells = matrix(dwls_int_cells, ncol = 1,
                                 dimnames = list(spot_pairs$int_cell_IDS,names(idx2)))
       }
-      
+
     } else{
       # target cell only contain 1 inteacted cell
       idx2 = which(dwls_int_cells > 0)
@@ -582,7 +582,7 @@ cal_diff_per_interaction <- function(sel_int,
                                      other_ind,
                                      proximityMat,
                                      expr_residual){
-  
+
   pcc_diff <- sel <- other <- NULL
 
   # get data
@@ -704,7 +704,7 @@ do_multi_permuttest_random_spot = function(sel_int,
                                            proximityMat,
                                            expr_residual,
                                            n = 100,
-                                           cores = 2,
+                                           cores = NA,
                                            set_seed = TRUE,
                                            seed_number = 1234) {
 
@@ -712,7 +712,7 @@ do_multi_permuttest_random_spot = function(sel_int,
     seed_number_list = seed_number:(seed_number + (n-1))
   }
 
-  result = giotto_lapply(X = 1:n, cores = cores, fun = function(x) {
+  result = lapply_flex(X = 1:n, cores = cores, fun = function(x) {
 
     seed_number = seed_number_list[x]
 
@@ -747,8 +747,8 @@ do_permuttest_spot = function(sel_int,
                               cores = 2,
                               set_seed = TRUE,
                               seed_number = 1234) {
-  
-  
+
+
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = features = p_higher = p_lower = perm_sel = NULL
@@ -862,9 +862,9 @@ findICF_per_interaction_spot <- function(sel_int,
                                          cores = 2,
                                          set_seed = TRUE,
                                          seed_number = 1234){
-  
+
   # data.table variables
-  cell_type = int_cell_type = nr_select = int_nr_select = unif_int = unified_int = NULL
+  unified_int = NULL
 
   sel_ct = strsplit(sel_int, '--')[[1]][1]
   int_ct = strsplit(sel_int, '--')[[1]][2]
@@ -881,7 +881,7 @@ findICF_per_interaction_spot <- function(sel_int,
   all_IDs = intersect(names(dwls_all_cell), colnames(proximityMat))
   other_IDs = setdiff(all_IDs, spec_IDs)
 
-  other_ints = all_ints[cell_type == sel_ct]$unified_int
+  other_ints = all_ints['cell_type' == sel_ct]$unified_int
 
   other_ints = other_ints[-which(other_ints == sel_int)]
 
@@ -902,43 +902,23 @@ findICF_per_interaction_spot <- function(sel_int,
                                          set_seed = set_seed,
                                          seed_number = seed_number)
 
-    result[, cell_type := sel_ct]
-    result[, int_cell_type := int_ct]
-    result[, nr_select := length(spec_IDs)]
-    result[, int_nr_select := length(other_IDs)]
-    result[, unif_int := sel_int]
+    result[, 'cell_type' := sel_ct]
+    result[, 'int_cell_type' := int_ct]
+    result[, 'nr_select' := length(spec_IDs)]
+    result[, 'int_nr_select' := length(other_IDs)]
+    result[, 'unif_int' := sel_int]
   }
 
   return(result)
 
 }
 
-#' @title giotto_lapply
-#' @keywords internal
-giotto_lapply = function(X, cores = NA, fun, ...) {
 
-  # get type of os
-  os = .Platform$OS.type
 
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
 
-  if(os == 'unix') {
-    save_list = parallel::mclapply(X = X, mc.cores = cores,
-                                   FUN = fun, ...)
-  } else if(os == 'windows') {
-    save_list = parallel::mclapply(X = X, mc.cores = 1,
-                                   FUN = fun, ...)
 
-    # !! unexplainable errors are returned for some nodes !! #
-    # currently disabled #
-    #cl <- parallel::makeCluster(cores)
-    #save_list = parallel::parLapply(cl = cl, X = X,
-    #                                fun = fun, ...)
-  }
 
-  return(save_list)
-}
+
 
 
 #' @title findICFSpot
@@ -1003,11 +983,11 @@ findICFSpot <- function(gobject,
                         nr_permutations = 100,
                         adjust_method = 'fdr',
                         do_parallel = TRUE,
-                        cores = 2,
+                        cores = NA,
                         set_seed = TRUE,
                         seed_number = 1234,
                         verbose = FALSE) {
-  
+
   # data.table variables
   unified_int = NULL
 
@@ -1051,8 +1031,7 @@ findICFSpot <- function(gobject,
 
   if(do_parallel == TRUE) {
 
-
-    fin_result = giotto_lapply(X = all_ints$unified_int, cores = cores, fun = function(x) {
+    fin_result = lapply_flex(X = all_ints$unified_int, cores = cores, fun = function(x) {
 
       tempres = findICF_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
@@ -1079,7 +1058,6 @@ findICFSpot <- function(gobject,
 
       x = all_ints$unified_int[i]
 
-
       tempres = findICF_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
                                              proximityMat = proximityMat,
@@ -1100,7 +1078,7 @@ findICFSpot <- function(gobject,
     }
 
   }
-  
+
   final_result = do.call('rbind', fin_result)
 
   # data.table variables
@@ -1207,19 +1185,13 @@ filterICFSpot = function(icfObject,
 #' @title plotICFSpot
 #' @name plotICFSpot
 #' @description Create barplot to visualize interaction changed features
-#'
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_features named character vector of ICF features
 #' @param cell_color_code cell color code for the interacting cell types
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#'
 #' @return plot
 #' @export
 plotICFSpot <- function(gobject,
@@ -1267,7 +1239,7 @@ plotICFSpot <- function(gobject,
 
 
   if(is.null(cell_color_code)) {
-    mycolors = getDistinctColors(n = length(unique(tempDT$int_cell_type)))
+    mycolors = set_default_color_discrete_cell(instrs = instructions(gobject))(n = length(unique(tempDT$int_cell_type)))
     names(mycolors) = unique(tempDT$int_cell_type)
   } else {
     mycolors = cell_color_code
@@ -1282,36 +1254,23 @@ plotICFSpot <- function(gobject,
   pl = pl + ggplot2::scale_fill_manual(values = mycolors)
   pl = pl + ggplot2::labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
 
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 #' @title plotCellProximityFeatSpot
 #' @name plotCellProximityFeatSpot
 #' @description Create visualization for cell proximity feature scores
-#'
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
@@ -1324,12 +1283,6 @@ plotICFSpot <- function(gobject,
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#'
 #' @return plot
 #' @export
 plotCellProximityFeatSpot = function(gobject,
@@ -1551,8 +1504,8 @@ plotCellProximityFeatSpot = function(gobject,
     changed_features_d = data.table::dcast.data.table(changed_features, cell_type~int_cell_type, value.var = 'N', fill = 0)
     changed_features_m = dt_to_matrix(changed_features_d)
 
-    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_features_m+1)),
-                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+    col_fun = GiottoVisuals::colorRamp2(breaks = stats::quantile(log2(changed_features_m+1)),
+                                        colors =  c("white", 'white', "blue", "yellow", "red"))
 
     heatm = ComplexHeatmap::Heatmap(as.matrix(log2(changed_features_m+1)), col = col_fun,
                                     row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
@@ -1722,9 +1675,9 @@ specific_CCCScores_spots = function(gobject,
     # all_cell_ids = pDataDT(gobject = gobject,
     #                        spat_unit = spat_unit,
     #                        feat_type = feat_type)$cell_ID
-    
+
     all_cell_ids = colnames(expr_residual)
-    
+
     ## simulations ##
     for(sim in 1:random_iter) {
 
@@ -1737,10 +1690,10 @@ specific_CCCScores_spots = function(gobject,
       }
       #random_ids_1 = all_cell_ids[sample(length(all_cell_ids), size = length(ct1_cell_ids))]
       #random_ids_2 = all_cell_ids[sample(length(all_cell_ids), size = length(ct2_cell_ids))]
-      
+
       random_ids_1 = sample(all_cell_ids, size = length(ct1_cell_ids), replace = FALSE)
       random_ids_2 = sample(all_cell_ids, size = length(ct2_cell_ids), replace = FALSE)
-      
+
       # get feature expression residual for ligand and receptor
       random_expr_res_L = expr_residual[feature_set_1, random_ids_1]
       random_expr_res_R = expr_residual[feature_set_2, random_ids_2]
@@ -1883,7 +1836,7 @@ spatCellCellcomSpots = function(gobject,
                                 set_seed = TRUE,
                                 seed_number = 1234,
                                 verbose = c('a little', 'a lot', 'none')){
-  
+
   # data.table vars
   V1 = V2 = LR_cell_comb = NULL
 
@@ -1897,7 +1850,7 @@ spatCellCellcomSpots = function(gobject,
 
   ## check if spatial network exists ##
   spat_networks = names(gobject@spatial_network[[spat_unit]])
-  
+
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',
          'use showGiottoSpatNetworks() to see the available networks \n',
@@ -1955,7 +1908,7 @@ spatCellCellcomSpots = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    savelist = giotto_lapply(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
+    savelist = lapply_flex(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
 
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]

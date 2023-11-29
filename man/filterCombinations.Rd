@@ -11,9 +11,7 @@ filterCombinations(
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_thresholds = c(1, 2),
   feat_det_in_min_cells = c(5, 50),
-  gene_det_in_min_cells = NULL,
   min_det_feats_per_cell = c(200, 400),
-  min_det_genes_per_cell = NULL,
   scale_x_axis = "identity",
   x_axis_offset = 0,
   scale_y_axis = "identity",
@@ -38,11 +36,7 @@ filterCombinations(
 
 \item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
 
-\item{gene_det_in_min_cells}{deprecated, use feat_det_in_min_cells}
-
 \item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
-
-\item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
 
 \item{scale_x_axis}{ggplot transformation for x-axis (e.g. log2)}
 
@@ -52,13 +46,13 @@ filterCombinations(
 
 \item{y_axis_offset}{y-axis offset to be used together with the scaling transformation}
 
-\item{show_plot}{show plot}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return only ggplot object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

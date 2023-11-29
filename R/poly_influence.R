@@ -6,22 +6,23 @@
 #' @param alt_spat_unit alternaitve spatial unit which represents resized polygon data
 #' @param feat_type feature type
 #' @param clus_name name of cluster column in cell_metadata for given spat_unit and alt_spat_unit, i.e. "kmeans"
+#' @param return_plot logical. whether to return the plot object
 #' @param verbose be verbose
-#' @return giotto object with altered cell_metadata 
-#' @details 
-#' Compares cell metadata from spat_unit-feat_type pairs as provided. 
-#' 
+#' @return giotto object with altered cell_metadata
+#' @details
+#' Compares cell metadata from spat_unit-feat_type pairs as provided.
+#'
 #' New columns, resize_switch and cluster_interaction, will be created within
 #' cell_metadata for spat_unit-feat_type.
-#' 
+#'
 #' These new columns will describe if a given cell switched cluster number when resized.
-#' If the same amount of clusters exist for spat_unit-feat_type and 
-#' alt_spat_unit-feat_type, then clusters are determined to be 
+#' If the same amount of clusters exist for spat_unit-feat_type and
+#' alt_spat_unit-feat_type, then clusters are determined to be
 #' corresponding based on % overlap in cell_IDs in each cluster.
-#' 
+#'
 #' Otherwise, multiple clusters from the spatial unit feature type pair are condensed
 #' to align with the smaller number of clusters and ensure overlap.
-#' 
+#'
 #' @export
 showPolygonSizeInfluence <- function(gobject = NULL,
                                      spat_unit = NULL,
@@ -30,6 +31,9 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                                      clus_name = "kmeans",
                                      return_plot = FALSE,
                                      verbose = FALSE){
+  # NSE vars
+  cell_ID = total_expr = cluster_interactions = N = resize_switch = NULL
+
   # Guards
   if(!c("giotto") %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
 
@@ -48,10 +52,10 @@ showPolygonSizeInfluence <- function(gobject = NULL,
   if (!clus_name %in% meta_cols){
     stop(wrap_txt(paste0("Cluster name ",clus_name, " not found within cell metadata. Please ensure it exists."), errWidth = T))
   }
-  
-  
+
+
   if (c("cluster_interactions") %in% meta_cols){
-    warning((wrap_txt(paste0("Switch interactions already found within cell_metadata for 
+    warning((wrap_txt(paste0("Switch interactions already found within cell_metadata for
     spat_unit feat_type pair:`", spat_unit,"-", feat_type, "`. They will be overwritten."), errWidth = T)))
   }
   ## Compare clustering results between cell and smallcell data #######
@@ -88,7 +92,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                                                 cell_meta_new = cmeta_new,
                                                 clus_name = clus_name)
   }
-  
+
   cell_meta[, resize_switch := ifelse(cluster_interactions %in% switch_strs, 'same', 'switch')]
   gobject = addCellMetadata(gobject = gobject,
                             spat_unit = spat_unit,
@@ -96,8 +100,8 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                             new_metadata = cell_meta[,.(cell_ID, resize_switch, cluster_interactions)],
                             by_column = T,
                             column_cell_ID = 'cell_ID')
-  
-  poly_plot = spatInSituPlotPoints(gobject = gobject, 
+
+  poly_plot = spatInSituPlotPoints(gobject = gobject,
                                    spat_unit = spat_unit,
                                    polygon_feat_type = spat_unit,
                                    show_polygon = T,
@@ -115,9 +119,9 @@ showPolygonSizeInfluence <- function(gobject = NULL,
   num_cells_same = sum(getCellMetadata(gobject)$resize_switch == 'same')
   if(verbose) print(paste0(num_cells_switched, " cells switched clusters."))
   if(verbose) print(paste0(num_cells_same, " cells remained in the same cluster."))
-  
+
   if (return_plot) return(poly_plot)
-  
+
   return (gobject)
 
 }
@@ -133,9 +137,9 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #'    x_n is a cluster number from the original spatial unit
 #'    y_m is a cluster number from the resized spatial unit
 #'    n is the number of clusters
-#' 
+#'
 #' Clusters are determined to be corresponding based on % overlap in cell_IDs in each cluster.
-#'  
+#'
 #' @keywords internal
 determine_switch_string_equal <- function(cell_meta = NULL,
                                           cell_meta_new = NULL,
@@ -163,7 +167,7 @@ determine_switch_string_equal <- function(cell_meta = NULL,
     k_match_clusters[i] = clus_match
 
   }
-  
+
   for (idx in 1:num_clusters) {
     p1 = k_clusters[[idx]]
     p2 = k_match_clusters[[idx]]
@@ -185,9 +189,9 @@ determine_switch_string_equal <- function(cell_meta = NULL,
 #'    y_m is a cluster number from the resized spatial unit
 #'    n is the number of clusters in the original spatial unit
 #'    m is the number of clusters in the new spatial unit
-#' 
+#'
 #' Essentially determines iteration order for create_switch_string_unequal()
-#' 
+#'
 #' @keywords internal
 determine_switch_string_unequal <- function(num_orig = NULL,
                                             num_new = NULL){
@@ -215,8 +219,8 @@ determine_switch_string_unequal <- function(num_orig = NULL,
 
 #' @title create_switch_string_unequal
 #' @name create_switch_string_unequal
-#' @param num_first sorted vector of cluster numbers in the outer for loop 
-#' @param num_second sorted vector of cluster numbers in the inner for loop 
+#' @param num_first sorted vector of cluster numbers in the outer for loop
+#' @param num_second sorted vector of cluster numbers in the inner for loop
 #' @return switch_str, a vector of corresponding cluster numbers in strings
 #' @details creates a string in the format c("x_1-y_1", "x_2-y_2"..."x_n, y_m")
 #' Where:
@@ -252,48 +256,51 @@ create_switch_string_unequal <- function(num_first = NULL,
 showCellProportionSwitchedPie <- function(gobject = NULL,
                                         spat_unit = NULL,
                                         feat_type = NULL) {
+  # NSE vars
+  cluster_status = num_cells = resize_switch = perc = ypos = NULL
+
   # Guards
    if(!"giotto" %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
-   
+
    spat_unit = set_default_spat_unit(gobject = gobject,
                                      spat_unit = spat_unit)
    feat_type = set_default_feat_type(gobject = gobject,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type)
-   
-   
+
+
    #Extract cell metadata
    cmeta = getCellMetadata(gobject = gobject,
                            spat_unit = spat_unit,
                            feat_type = feat_type,
                            output = "data.table")
-   
+
    if (!c("resize_switch") %in% names(cmeta)){
      stop(wrap_txt("Column 'resize_switch' not found in cell metadata. Ensure showPolygonSizeInfluence() has been run.",errWidth = TRUE))
    }
-   
+
    plotdf = data.table::data.table()
    plotdf[,cluster_status := c("switch", "same")]
    plotdf[,num_cells := c( sum(cmeta[,resize_switch == "switch"]), sum(cmeta[,resize_switch == "same"]))]
-   
+
    per_switch = plotdf$num_cells[[1]] / sum(plotdf$num_cells) * 100
    per_same = plotdf$num_cells[[2]] / sum(plotdf$num_cells) * 100
-   
+
    y_switch = cumsum(per_switch) - 0.5 * per_switch
    y_same = cumsum(per_same+per_switch) - 0.5 * per_same
-   
-   
+
+
    plotdf[,perc := c(per_switch, per_same)]
    plotdf[,ypos := c(y_switch, y_same)]
-   
+
    print(plotdf)
-   
-   ggplot(as.data.frame(plotdf), aes(x="",y=perc, fill = cluster_status)) + 
+
+   ggplot(as.data.frame(plotdf), aes(x="",y=perc, fill = cluster_status)) +
      coord_polar("y", start=0) + geom_bar(stat="identity", width=1) +
-     theme_void() + 
+     theme_void() +
      geom_text(aes(y = ypos, label = num_cells), color = "white", size = 6)
-   
-   
+
+
 }
 
 #' @title showCellProportionSwitchedSanKey
@@ -309,6 +316,9 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
                                              spat_unit = NULL,
                                              alt_spat_unit = NULL,
                                              feat_type = NULL){
+  # NSE vars
+  kmeans_small = NULL
+
   # Guards
   if(!"giotto" %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))
 
@@ -342,7 +352,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
                                   spat_unit = alt_spat_unit,
                                   feat_type = feat_type,
                                   output = "data.table")
-  
+
   if (!c("kmeans") %in% names(small_cmeta)){
     stop(wrap_txt("This function has only been implemented for k-means clusters."))
   }
@@ -351,7 +361,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
   small_cmeta_clus$kmeans_small = small_cmeta_clus$kmeans
   small_cmeta_clus$kmeans = NULL
 
-  merged_cmeta = merge.data.table(cmeta, small_cmeta_clus, by.x = "cell_ID", by.y = "cell_ID")
+  merged_cmeta = data.table::merge.data.table(cmeta, small_cmeta_clus, by.x = "cell_ID", by.y = "cell_ID")
 
 
   k1 = unique(merged_cmeta$kmeans)
@@ -368,11 +378,11 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
   for (i in 1:flen){
     c_k1[i] = k1[idx1]-1 #java zero-index
     c_k2[i] = k2[idx2]-1 #java zero-index
-    
+
     if (i%%length(k1) == 0)idx1 = idx1 + 1
     idx2 = idx2 + 1
     if ( idx2 > length(k2)) idx2 = 1
-    
+
   }
 
   num_occ = c()

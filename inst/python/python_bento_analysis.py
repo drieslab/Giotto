@@ -336,7 +336,7 @@ def plot_RNAflux_analysis_results(adata: AnnData, fname: str) -> None:
     bt.pl.flux(adata, fname=fname)
 
 
-def analysis_RNAfluxmap(adata: AnnData, fname: str, n_clusters: Union[Iterable[int], int] = range(2, 9)) -> None:
+def analysis_RNAfluxmap(adata: AnnData, fname: str = None, n_clusters: Union[Iterable[int], int] = range(2, 9)) -> None:
     """
     Examples
     --------

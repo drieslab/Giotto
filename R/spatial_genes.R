@@ -1444,6 +1444,8 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
+#' @param return_gobject whether to return values attached to the gobject or
+#' separately (default)
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -1501,7 +1503,7 @@ binSpect = function(gobject,
                     set.seed = NULL,
                     bin_matrix = NULL,
                     summarize = c('p.value', 'adj.p.value'),
-                    return_gobject = F) {
+                    return_gobject = FALSE) {
 
 
   if(!is.null(spatial_network_k)) {
@@ -1577,7 +1579,7 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject, 
+    gobject<-addFeatMetadata(gobject,
                              spat_unit = spat_unit,
                              feat_type = feat_type,
                              result_dt, by_column=T, column_feat_ID="feats")
@@ -1746,9 +1748,9 @@ silhouetteRankTest = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      values = values,
-                                      output = 'matrix')
+  expr_values = getExpression(gobject = gobject,
+                              values = values,
+                              output = 'matrix')
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1974,13 +1976,17 @@ spatialDE <- function(gobject = NULL,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## create plot
-  if(show_plot == TRUE | save_plot == TRUE | return_plot == TRUE) {
-    FSV_plot = FSV_show(results = results,
-                        ms_results = ms_results,
-                        size =size,
-                        color = color,
-                        sig_alpha = sig_alpha,
-                        unsig_alpha = unsig_alpha)
+  if(isTRUE(show_plot) ||
+     isTRUE(save_plot) ||
+     isTRUE(return_plot)) {
+    FSV_plot = FSV_show(
+      results = results,
+      ms_results = ms_results,
+      size =size,
+      color = color,
+      sig_alpha = sig_alpha,
+      unsig_alpha = unsig_alpha
+    )
   }
 
   ## print plot
@@ -2086,7 +2092,7 @@ spatialAEH <- function(gobject = NULL,
 
   if(return_gobject == TRUE) {
 
-    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res = data.table::as.data.table(spatial_pattern_results[['cell_pattern_score']])
     dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
     gobject@spatial_enrichment[[name_pattern]] = dt_res
     return(gobject)
@@ -2101,15 +2107,14 @@ spatialAEH <- function(gobject = NULL,
 
 #' @title FSV_show
 #' @name FSV_show
-#' @description Visualize spatial varible genes caculated by spatial_DE
-#' @param results results caculated by spatial_DE
-#' @param ms_results ms_results caculated by spatial_DE
+#' @description Visualize spatial variable genes calculated by spatial_DE
+#' @param results results calculated by spatial_DE
+#' @param ms_results ms_results calculated by spatial_DE
 #' @param size indicate different levels of qval
 #' @param color indicate different SV features
 #' @param sig_alpha transparency of significant genes
 #' @param unsig_alpha transparency of unsignificant genes
 #' @return ggplot object
-#' @details Description of parameters.
 #' @keywords internal
 FSV_show <- function(results,
                      ms_results = NULL,
@@ -2126,8 +2131,8 @@ FSV_show <- function(results,
     results$model_bic = results$model
   }
   else{
-    results= merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
-                   suffixes=(c(" ",'_bic')))
+    results = merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
+                    suffixes=(c(" ",'_bic')))
   }
 
   results$model_bic <- factor(results$model_bic)
@@ -2424,7 +2429,12 @@ detectSpatialPatterns <- function(gobject,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
 ##########################################################################################
-  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+  stop(wrap_txt(
+    "This function has not been updated for use with the current version of Giotto.
+    See details:
+    https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537",
+    errWidth = TRUE)
+  )
 ##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -2616,26 +2626,17 @@ showPattern2D <- function(gobject,
   dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(dpl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(dpl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = dpl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 #' @title showPattern
@@ -2747,26 +2748,17 @@ showPattern3D <- function(gobject,
                        z=ratio[[3]])))
   dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(dpl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(dpl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = dpl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2837,26 +2829,17 @@ showPatternGenes <- function(gobject,
   pl <- pl + ggplot2::labs(x = 'correlation', y = '', title = selected_PC)
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -3786,26 +3769,17 @@ heatmSpatialCorFeats = function(gobject,
                                   show_column_names = show_column_names,
                                   top_annotation = ha, ...)
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(heatm)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(heatm)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = heatm,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -3909,35 +3883,24 @@ rankSpatialCorGroups = function(gobject,
   data.table::setorder(res_cor_DT, -adj_cor_score)
   res_cor_DT[, clusters := factor(x = clusters, levels = rev(clusters))]
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  pl = gg_simple_scatter(data = res_cor_DT,
+                         x = 'clusters',
+                         y = 'adj_cor_score',
+                         size = 'nr_feats',
+                         xlab = 'cluster',
+                         ylab = 'pos r x (1 - (neg_r - min(neg_r)))')
 
-
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_feats))
-  pl = pl + ggplot2::theme_classic()
-  pl = pl + ggplot2::labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  } else {
-    return(res_cor_DT)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = res_cor_DT
+  ))
 }
 
 
@@ -4725,30 +4688,41 @@ runPatternSimulation = function(gobject,
     gene = gene_names[gene_ind]
 
     # plot original expression
-    spatGenePlot2D(gobject, expression_values = 'norm', genes = gene,
-                   point_shape = 'border', point_border_stroke = 0.1,
-                   show_network = F, network_color = 'lightgrey', point_size = 2.5,
-                   cow_n_col = 1, show_plot = F,
-                   save_plot = save_plot, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(gene,'_original'),
-                                                            base_width = 9, base_height = 7, units = 'cm'))
+    GiottoVisuals::spatFeatPlot2D(
+      gobject = gobject,
+      expression_values = 'norm',
+      feats = gene,
+      point_shape = 'border', point_border_stroke = 0.1,
+      show_network = F, network_color = 'lightgrey',
+      point_size = 2.5,
+      cow_n_col = 1,
+      show_plot = FALSE,
+      save_plot = save_plot,
+      save_param = list(save_dir = save_dir, save_folder = 'original',
+                        save_name = paste0(gene,'_original'),
+                        base_width = 9, base_height = 7,
+                        units = 'cm')
+    )
 
 
-    generesults = run_spatial_sim_tests_multi(gobject,
-                                              pattern_name = pattern_name,
-                                              pattern_cell_ids = pattern_cell_ids,
-                                              gene_name = gene,
-                                              spatial_network_name = spatial_network_name,
-                                              spat_methods = spat_methods,
-                                              spat_methods_params = spat_methods_params,
-                                              spat_methods_names = spat_methods_names,
-                                              save_plot = save_plot,
-                                              save_raw = save_raw,
-                                              save_norm = save_norm,
-                                              save_dir = save_dir,
-                                              spatial_probs = spatial_probs,
-                                              reps = reps,
-                                              run_simulations = run_simulations,
-                                              ...)
+    generesults = run_spatial_sim_tests_multi(
+      gobject,
+      pattern_name = pattern_name,
+      pattern_cell_ids = pattern_cell_ids,
+      gene_name = gene,
+      spatial_network_name = spatial_network_name,
+      spat_methods = spat_methods,
+      spat_methods_params = spat_methods_params,
+      spat_methods_names = spat_methods_names,
+      save_plot = save_plot,
+      save_raw = save_raw,
+      save_norm = save_norm,
+      save_dir = save_dir,
+      spatial_probs = spatial_probs,
+      reps = reps,
+      run_simulations = run_simulations,
+      ...
+    )
 
     if(run_simulations == TRUE) {
       generesults[, prob := as.factor(prob)]

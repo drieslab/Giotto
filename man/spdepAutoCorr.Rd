@@ -37,12 +37,3 @@ A data table with computed values for each feature.
 \description{
 Compute spatial auto correlation using spdep
 }
-\examples{
-\dontrun{
-library(Giotto)
-library(GiottoData)
-library(spdep)
-g = loadGiottoMini(dataset = "visium")
-spdepAutoCorr(gobject = g, method = "moran.test")
-}
-}

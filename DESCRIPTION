@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 3.3.1
+Version: 4.0.0
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -13,7 +13,7 @@ Authors@R: c(
     person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
 		 role = c("aut")),
 		 person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
-		 role = c("aut"))
+		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
@@ -27,14 +27,17 @@ Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),
     R (>= 3.5.0),
-    methods
+    methods,
+    GiottoUtils,
+    GiottoClass,
+    GiottoVisuals
 Imports:
+    BiocParallel,
     BiocSingular,
     checkmate,
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
-    deldir (>= 1.0.6),
     future.apply,
     ggplot2 (>= 3.1.1),
     ggrepel,
@@ -45,18 +48,12 @@ Imports:
     limma,
     Matrix,
     MatrixGenerics,
-    magick,
-    magrittr,
-    matrixStats (>= 0.55.0),
     plotly,
-    parallel,
     progressr,
-    RColorBrewer (>= 1.1-2),
     reshape2,
     reticulate (>= 1.25),
     Rtsne (>= 0.15),
     scales (>= 1.0.0),
-    sp,
     sparseMatrixStats,
     stats,
     terra (>= 1.5-12),
@@ -65,8 +62,8 @@ Suggests:
     arrow,
     Biobase,
     biomaRt,
-    circlize,
     ClusterR,
+    clustree,
     ComplexHeatmap (>= 1.20.0),
     DelayedArray,
     DelayedMatrixStats,
@@ -76,6 +73,7 @@ Suggests:
     FactoMineR,
     factoextra,
     fitdistrplus,
+    FNN,
     geometry,
     GiottoData,
     ggalluvial,
@@ -85,25 +83,27 @@ Suggests:
     HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
-    irlba,
     jackstraw,
     knitr,
     MAST,
     miniUI,
     multinet (>= 3.0.2),
+    networkD3,
     png,
     quadprog,
     harmony,
+    R.utils,
+    remotes,
     Rfast,
     rhdf5,
     RTriangle (>= 1.6-0.10),
     Rvision,
     S4Vectors,
-    Seurat,
-    sf,
     scatterpie,
     scattermore,
     scran (>= 1.10.1),
+    Seurat,
+    sf,
     shiny,
     SingleCellExperiment,
     smfishHmrf,
@@ -115,50 +115,38 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     qs
+Remotes:
+    drieslab/GiottoUtils,
+    drieslab/GiottoClass,
+    drieslab/GiottoVisuals
 Collate:
-    'NN_network.R'
-    'accessors.R'
-    'classes.R'
-    'assert.R'
     'auxiliary_giotto.R'
-    'auxiliary_visuals.R'
     'cell_segmentation.R'
     'clustering.R'
     'convenience.R'
     'cross_section.R'
-    'data_evaluation.R'
-    'data_input.R'
     'dd.R'
     'differential_expression.R'
     'dimension_reduction.R'
     'feature_set_enrichment.R'
     'general_help.R'
-    'giotto_structures.R'
-    'generics.R'
-    'giotto.R'
     'giotto_viewer.R'
     'globals.R'
-    'spatial_manipulation.R'
+    'suite_reexports.R'
     'image_registration.R'
-    'images.R'
     'interactivity.R'
-    'interoperability.R'
+    'package_imports.R'
     'poly_influence.R'
-    'python_bento.R'
-    'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
+    'spatial_clusters.R'
     'spatial_enrichment.R'
+    'spatial_enrichment_visuals.R'
     'spatial_genes.R'
-    'spatial_in_situ_visuals.R'
     'spatial_interaction.R'
     'spatial_interaction_spot.R'
     'spatial_interaction_visuals.R'
-    'spatial_structures.R'
-    'spatial_visuals.R'
     'spdep.R'
-    'utilities.R'
-    'utils-pipe.R'
     'variable_genes.R'
     'wnn.R'
     'zzz.R'

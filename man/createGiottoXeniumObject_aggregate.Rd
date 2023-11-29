@@ -14,7 +14,7 @@ createGiottoXeniumObject_aggregate(
 \arguments{
 \item{data_list}{list of data loaded by \code{load_xenium_folder}}
 
-\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 
