@@ -117,7 +117,7 @@ spatPlot2D(vizgen,
            point_alpha = 0.5)
 ```
 
-![](images/save_object/unnamed-chunk-4-1.png)
+![](images/saving_object/unnamed-chunk-4-1.png)
 
 
 
@@ -199,7 +199,7 @@ spatPlot2D(test_vizgen,
            point_alpha = 0.5)
 ```
 
-![](images/save_object/unnamed-chunk-8-1.png)
+![](images/saving_object/unnamed-chunk-8-1.png)
 
 
 
