@@ -24,6 +24,7 @@ navbar:
     - intro
     - reference
     - articles
+    - tools
     - news
     right:
     - search
@@ -32,6 +33,35 @@ navbar:
     reference:
       text: Documentation
       href: reference/index.html
+    tools:
+      text: Tools
+      menu:
+      - text: Spatial manipulation
+      - text: Spatial transformations
+        href: articles/spatial_transformations.html
+      - text: -------
+      - text: Image alignment
+      - text: Image alignment
+        href: articles/image_alignment.html
+      - text: -------
+      - text: Interactive selection
+      - text: Interactive selection
+        href: articles/interactive_selection.html
+      - text: -------
+      - text: Visualizations
+      - text: Visualizations
+        href: articles/visualizations.html
+      - text: -------
+      - text: Saving and Loading
+      - text: Saving a Giotto object
+        href: articles/saving_object.html
+      - text: Saving plots
+        href: articles/saving_plots.html
+      - text: -------
+      - text: Interoperability
+      - text: AnnData
+        href: articles/interoperability_anndata.html
+      - text: -------
     articles:
       text: Tutorials
       menu:
@@ -102,7 +132,33 @@ navbar:
       href: https://github.com/drieslab/Giotto/
       aria-label: github
 
+
 articles:
+- title: Spatial Manipulation
+  navbar: ~
+  contents:
+  - spatial_transformations
+- title: Image alignment
+  navbar: ~
+  contents:
+  - image_alignment
+- title: Interactive selection
+  navbar: ~
+  contents:
+  - interactive_selection
+- title: Visualizations
+  navbar: ~
+  contents:
+  - visualizations
+- title: Saving and Loading
+  navbar: ~
+  contents:
+  - saving_object
+  - saving_plots
+- title: Interoperability
+  navbar: ~
+  contents:
+  - interoperability_anndata
 - title: Seq-Scope
   navbar: ~
   contents:
