@@ -25,6 +25,7 @@ navbar:
     - reference
     - articles
     - tools
+    - try_giotto
     - news
     right:
     - search
@@ -61,6 +62,14 @@ navbar:
       - text: Interoperability
       - text: AnnData
         href: articles/interoperability_anndata.html
+      - text: -------
+    try_giotto:
+      text: Try Giotto in the Cloud
+      menu:
+      - text: Terra.bio
+        href: articles/terra.html
+      - text: Docker
+        href: articles/docker.html
       - text: -------
     articles:
       text: Tutorials
@@ -134,6 +143,11 @@ navbar:
 
 
 articles:
+- title: Try Giotto in the Cloud
+  navbar: ~
+  contents:
+  - terra
+  - docker
 - title: Spatial Manipulation
   navbar: ~
   contents:
