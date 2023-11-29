@@ -8,8 +8,8 @@
 <meta name="description" content="Toolbox to process, analyze and visualize spatial single-cell expression data.">
 <title>Spatial Single-Cell Transcriptomics Toolbox • Giotto</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="deps/JetBrains_Mono-0.4.7/font.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/JetBrains_Mono-0.4.7/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Spatial Single-Cell Transcriptomics Toolbox">
@@ -23,11 +23,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">Giotto</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,6 +83,38 @@
     <h6 class="dropdown-header" data-toc-skip>Single Cell RNA Sequencing</h6>
     <a class="dropdown-item" href="articles/singlecell_prostate_standard.html">Prostate</a>
     <a class="dropdown-item" href="articles/singlecell_prostate_integration.html">Prostate Integration</a>
+  </div>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tools">Tools</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-tools">
+    <h6 class="dropdown-header" data-toc-skip>Spatial manipulation</h6>
+    <a class="dropdown-item" href="articles/spatial_transformations.html">Spatial transformations</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Image alignment</h6>
+    <a class="dropdown-item" href="articles/image_alignment.html">Image alignment</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Interactive selection</h6>
+    <a class="dropdown-item" href="articles/interactive_selection.html">Interactive selection</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Visualizations</h6>
+    <a class="dropdown-item" href="articles/visualizations.html">Visualizations</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Saving and Loading</h6>
+    <a class="dropdown-item" href="articles/saving_object.html">Saving a Giotto object</a>
+    <a class="dropdown-item" href="articles/saving_plots.html">Saving plots</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
+    <a class="dropdown-item" href="articles/interoperability_anndata.html">AnnData</a>
+    <div class="dropdown-divider"></div>
+  </div>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-try-giotto-in-the-cloud">Try Giotto in the Cloud</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-try-giotto-in-the-cloud">
+    <a class="dropdown-item" href="articles/terra.html">Terra.bio</a>
+    <a class="dropdown-item" href="articles/docker.html">Docker</a>
+    <div class="dropdown-divider"></div>
   </div>
 </li>
 <li class="nav-item">
@@ -168,17 +200,26 @@ For a version history/changelog, please see the <a href="https://github.com/drie
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Ruben Dries <br><small class="roles"> Author, maintainer </small>  </li>
+<li>
+<a href="https://www.drieslab.com" class="external-link">Ruben Dries</a> <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Jiaji George Chen <br><small class="roles"> Author </small>  </li>
 <li>Natalie Del Rossi <br><small class="roles"> Author </small>  </li>
-<li>Guo-Cheng Yuan <br><small class="roles"> Author </small>  </li>
+<li>
+<a href="https://labs.icahn.mssm.edu/yuanlab/" class="external-link">Guo-Cheng Yuan</a> <br><small class="roles"> Author </small>  </li>
 <li>Matthew O'Brien <br><small class="roles"> Author </small>  </li>
 <li>
-<a href="https://josschavezf.github.io" class="external-link">Joselyn Chávez</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-4974-4591" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<a href="https://josschavezf.github.io" class="external-link">Joselyn C. Chávez-Fuentes</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-4974-4591" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Edward Ruiz <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://www.gnu.org/licenses/gpl-3.0" class="external-link"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a></li>
+<li><a href="https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml" class="external-link"><img src="https://github.com/drieslab/Giotto/actions/workflows/main_check.yaml/badge.svg?branch=suite_modular" alt="R-CMD-check"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
@@ -186,7 +227,7 @@ For a version history/changelog, please see the <a href="https://github.com/drie
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Ruben Dries, Jiaji George Chen, Natalie Del Rossi, Guo-Cheng Yuan, Matthew O’Brien, <a href="https://josschavezf.github.io" class="external-link">Joselyn Chávez</a>.</p>
+<p>Developed by <a href="https://www.drieslab.com" class="external-link">Ruben Dries</a>, Jiaji George Chen, Natalie Del Rossi, <a href="https://labs.icahn.mssm.edu/yuanlab/" class="external-link">Guo-Cheng Yuan</a>, Matthew O’Brien, <a href="https://josschavezf.github.io" class="external-link">Joselyn C. Chávez-Fuentes</a>, Edward Ruiz.</p>
 </div>
 
 <div class="pkgdown-footer-right">
