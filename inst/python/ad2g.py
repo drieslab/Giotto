@@ -33,7 +33,6 @@ def extract_expression(adata = None):
     ad_guard(adata)
     # anndata stores expression as cells by feats
     # giotto stores expression as feats by cells
-    adata.X.sort_indices()
     expr = adata.X.transpose()
     return expr
 
@@ -293,6 +292,7 @@ def align_network_data(distances = None, weights = None):
     idx_dist_not_sparse = distances.nonzero()
     blank = [0 for i in range(len(idx_dist_not_sparse[0]))]
     df = pd.DataFrame({"distance":blank.copy(), "weight":blank.copy(), "from":blank.copy(), "to":blank.copy()})
+    t0 = perf_counter()
 
     d_nz = distances[idx_dist_not_sparse]
     d_nz = np.array(d_nz).reshape(len(d_nz.T),)
@@ -320,6 +320,8 @@ def align_network_data(distances = None, weights = None):
     #     to += 1
 
     #     df.iloc[x,:] = {"distance":dist, "weight":weig, "from":from_, "to":to}
+    t1 = perf_counter()
+    print("Network extraction time:",t1-t0)
     return df
 
 ## Spatial Network
