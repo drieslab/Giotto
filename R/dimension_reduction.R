@@ -688,7 +688,7 @@ runPCA_BiocSingular_irlba_projection = function(x,
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
-#' @param random_subset random subset to perform PCA on
+#' @param random_subset numeric. random subset to perform PCA on
 #' @param name arbitrary name for PCA run
 #' @param feats_to_use subset of features to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
