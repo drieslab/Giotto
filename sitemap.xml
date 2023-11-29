@@ -16,7 +16,19 @@
     <loc>https://drieslab.github.io/Giotto/articles/codex_mouse_spleen.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/docker.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/image_alignment.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/interactive_selection.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/interoperability_anndata.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/merfish_mouse_hypothalamic.html</loc>
@@ -34,6 +46,12 @@
     <loc>https://drieslab.github.io/Giotto/articles/resolve_biosciences.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/saving_object.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/saving_plots.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/seqfish_cortex.html</loc>
   </url>
   <url>
@@ -49,6 +67,12 @@
     <loc>https://drieslab.github.io/Giotto/articles/spatial_genomics_mouse_kidney.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/spatial_transformations.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/terra.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/visium_cytassist_human_glioblastoma.html</loc>
   </url>
   <url>
@@ -62,6 +86,9 @@
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/visium_prostate_integration.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/visualizations.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/vizgen_mouse_brain.html</loc>
