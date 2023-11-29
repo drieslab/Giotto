@@ -4,7 +4,7 @@ name: code coverage
 
 on:
   push:
-    branches: [ "suite_modular" ]
+    branches: [ "suite" ]
   # pull_request:
   #   types: closed
   #   branches: [ "main" ]
@@ -41,7 +41,7 @@ jobs:
       - name: Set up dependencies (GiottoData)
         run: |
           suppressWarnings({
-            remotes::install_github('drieslab/GiottoData@suite_modular', build = FALSE)
+            remotes::install_github('drieslab/GiottoData', build = FALSE)
           })
         shell: Rscript {0}
 

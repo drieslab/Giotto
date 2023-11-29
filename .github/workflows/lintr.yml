@@ -12,10 +12,10 @@ name: lintr
 
 on:
   push:
-    branches: [ "suite_modular" ]
+    branches: [ "suite" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "suite_modular" ]
+    branches: [ "suite" ]
   schedule:
     - cron: '16 20 * * 2'
 
