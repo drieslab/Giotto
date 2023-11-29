@@ -2,16 +2,25 @@ pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  codex_mouse_spleen: codex_mouse_spleen.html
+  merfish_mouse_hypothalamic: merfish_mouse_hypothalamic.html
+  mini_seqfish: mini_seqfish.html
+  nanostring_cosmx_lung_cancer: nanostring_cosmx_lung_cancer.html
+  osmfish_mouse_ss_cortex: osmfish_mouse_ss_cortex.html
+  resolve_biosciences: resolve_biosciences.html
+  seqfish_cortex: seqfish_cortex.html
   seqscope_mouse_liver: seqscope_mouse_liver.html
   singlecell_prostate_integration: singlecell_prostate_integration.html
   singlecell_prostate_standard: singlecell_prostate_standard.html
-  stereoseq_mosta: stereoseq_mosta.html
+  spatial_genomics_mouse_kidney: spatial_genomics_mouse_kidney.html
   visium_cytassist_human_glioblastoma: visium_cytassist_human_glioblastoma.html
   visium_cytassist_lungcancer: visium_cytassist_lungcancer.html
   visium_mouse_brain: visium_mouse_brain.html
   visium_mouse_kidney: visium_mouse_kidney.html
   visium_prostate_integration: visium_prostate_integration.html
-last_built: 2023-11-20T18:05Z
+  vizgen_mouse_brain: vizgen_mouse_brain.html
+  xenium_breast_cancer: xenium_breast_cancer.html
+last_built: 2023-11-29T14:35Z
 urls:
   reference: https://drieslab.github.io/Giotto/reference
   article: https://drieslab.github.io/Giotto/articles

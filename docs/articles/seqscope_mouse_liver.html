@@ -42,9 +42,6 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <h6 class="dropdown-header" data-toc-skip>Stereo-seq</h6>
-    <a class="dropdown-item" href="../articles/stereoseq_mosta.html">MOSTA E12.5_E1S3</a>
-    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Seq-Scope</h6>
     <a class="dropdown-item" href="../articles/seqscope_mouse_liver.html">Mouse liver</a>
     <div class="dropdown-divider"></div>
@@ -54,6 +51,34 @@
     <a class="dropdown-item" href="../articles/visium_prostate_integration.html">Visium Prostate Integration</a>
     <a class="dropdown-item" href="../articles/visium_cytassist_lungcancer.html">CytAssist Human Lung Cancer</a>
     <a class="dropdown-item" href="../articles/visium_cytassist_human_glioblastoma.html">CytAssist Multi-omics Human Glioblastoma</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Spatial Genomics</h6>
+    <a class="dropdown-item" href="../articles/spatial_genomics_mouse_kidney.html">Mouse Kidney</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Xenium</h6>
+    <a class="dropdown-item" href="../articles/xenium_breast_cancer.html">Xenium Human breast cancer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Nanostring CosMx</h6>
+    <a class="dropdown-item" href="../articles/nanostring_cosmx_lung_cancer.html">Nanostring CosMx Subcellular Lung Cancer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>MERFISH</h6>
+    <a class="dropdown-item" href="../articles/merfish_mouse_hypothalamic.html">MERFISH Mouse Hypothalamic Preoptic Region</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Vizgen</h6>
+    <a class="dropdown-item" href="../articles/vizgen_mouse_brain.html">Vizgen Mouse Brain Receptor Map</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>seqFISH</h6>
+    <a class="dropdown-item" href="../articles/mini_seqfish.html">mini seqFISH</a>
+    <a class="dropdown-item" href="../articles/seqfish_cortex.html">SeqFish+ Mouse Cortex Example</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>osmFISH</h6>
+    <a class="dropdown-item" href="../articles/osmfish_mouse_ss_cortex.html">osmFISH Mouse SS Cortex</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Resolve Bioscience</h6>
+    <a class="dropdown-item" href="../articles/resolve_biosciences.html">Resolve Bioscience Breast Cancer Subcellular</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>CODEX</h6>
+    <a class="dropdown-item" href="../articles/codex_mouse_spleen.html">Codex Mouse Spleen</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Single Cell RNA Sequencing</h6>
     <a class="dropdown-item" href="../articles/singlecell_prostate_standard.html">Prostate</a>
@@ -274,9 +299,9 @@ the x and y axis.</p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/GiottoClass/man/row-plus-colnames-generic.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">gpoints_aggr</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hdmi"</span>,<span class="st">"x"</span>,<span class="st">"y"</span>,<span class="st">"total_counts"</span><span class="op">)</span></span>
 <span><span class="fu">setorder</span><span class="op">(</span><span class="va">gpoints_aggr</span>, <span class="op">-</span><span class="va">total_counts</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pl</span> <span class="op">=</span> <span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">pl</span> <span class="op">=</span> <span class="va">pl</span> <span class="op">+</span> <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">gpoints_aggr</span><span class="op">[</span><span class="va">total_counts</span> <span class="op">&lt;</span> <span class="fl">1000</span> <span class="op">&amp;</span> <span class="va">total_counts</span> <span class="op">&gt;</span> <span class="fl">8</span><span class="op">]</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, color <span class="op">=</span> <span class="va">total_counts</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span><span class="va">pl</span> <span class="op">=</span> <span class="va">pl</span> <span class="op">+</span> <span class="fu">scale_color_gradient2</span><span class="op">(</span>midpoint <span class="op">=</span> <span class="fl">15</span>, low <span class="op">=</span> <span class="st">'blue'</span>, mid <span class="op">=</span> <span class="st">'yellow'</span>, high <span class="op">=</span> <span class="st">'red'</span><span class="op">)</span></span>
+<span><span class="va">pl</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">pl</span> <span class="op">=</span> <span class="va">pl</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gpoints_aggr</span><span class="op">[</span><span class="va">total_counts</span> <span class="op">&lt;</span> <span class="fl">1000</span> <span class="op">&amp;</span> <span class="va">total_counts</span> <span class="op">&gt;</span> <span class="fl">8</span><span class="op">]</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, color <span class="op">=</span> <span class="va">total_counts</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="va">pl</span> <span class="op">=</span> <span class="va">pl</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_color_gradient2</a></span><span class="op">(</span>midpoint <span class="op">=</span> <span class="fl">15</span>, low <span class="op">=</span> <span class="st">'blue'</span>, mid <span class="op">=</span> <span class="st">'yellow'</span>, high <span class="op">=</span> <span class="st">'red'</span><span class="op">)</span></span>
 <span><span class="va">pl</span></span></code></pre></div>
 <p><img src="images/seqscope_mouse_liver/HDMI_scatter.png"></p>
 <p>Read polygon mask file</p>
