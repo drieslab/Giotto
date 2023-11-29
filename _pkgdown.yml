@@ -34,10 +34,6 @@ navbar:
     articles:
       text: Tutorials
       menu:
-      - text: Stereo-seq
-      - text: MOSTA E12.5_E1S3
-        href: articles/stereoseq_mosta.html
-      - text: -------
       - text: Seq-Scope
       - text: Mouse liver
         href: articles/seqscope_mouse_liver.html
@@ -54,6 +50,44 @@ navbar:
       - text: CytAssist Multi-omics Human Glioblastoma
         href: articles/visium_cytassist_human_glioblastoma.html
       - text: -------
+      - text: Spatial Genomics
+      - text: Mouse Kidney
+        href: articles/spatial_genomics_mouse_kidney.html
+      - text: -------
+      - text: Xenium
+      - text: Xenium Human breast cancer
+        href: articles/xenium_breast_cancer.html
+      - text: -------
+      - text: Nanostring CosMx
+      - text: Nanostring CosMx Subcellular Lung Cancer
+        href: articles/nanostring_cosmx_lung_cancer.html
+      - text: -------
+      - text: MERFISH
+      - text: MERFISH Mouse Hypothalamic Preoptic Region
+        href: articles/merfish_mouse_hypothalamic.html
+      - text: -------
+      - text: Vizgen
+      - text: Vizgen Mouse Brain Receptor Map
+        href: articles/vizgen_mouse_brain.html
+      - text: -------
+      - text: seqFISH
+      - text: mini seqFISH
+        href: articles/mini_seqfish.html
+      - text: SeqFish+ Mouse Cortex Example
+        href: articles/seqfish_cortex.html
+      - text: -------
+      - text: osmFISH
+      - text: osmFISH Mouse SS Cortex
+        href: articles/osmfish_mouse_ss_cortex.html
+      - text: -------
+      - text: Resolve Bioscience
+      - text: Resolve Bioscience Breast Cancer Subcellular
+        href: articles/resolve_biosciences.html
+      - text: -------
+      - text: CODEX
+      - text: Codex Mouse Spleen
+        href: articles/codex_mouse_spleen.html
+      - text: -------
       - text: Single Cell RNA Sequencing
       - text: Prostate
         href: articles/singlecell_prostate_standard.html
@@ -68,10 +102,6 @@ navbar:
       aria-label: github
 
 articles:
-- title: Stereo-seq
-  navbar: ~
-  contents:
-  - stereoseq_mosta
 - title: Seq-Scope
   navbar: ~
   contents:
@@ -84,13 +114,48 @@ articles:
   - visium_prostate_integration
   - visium_cytassist_lungcancer
   - visium_cytassist_human_glioblastoma
+- title: Spatial Genomics
+  navbar: ~
+  contents:
+  - spatial_genomics_mouse_kidney
+- title: Xenium
+  navbar: ~
+  contents:
+  - xenium_breast_cancer
+- title: Nanostring CosMx
+  navbar: ~
+  contents:
+  - nanostring_cosmx_lung_cancer
+- title: MERFISH
+  navbar: ~
+  contents:
+  - merfish_mouse_hypothalamic
+- title: Vizgen
+  navbar: ~
+  contents:
+  - vizgen_mouse_brain
+- title: seqFISH
+  navbar: ~
+  contents:
+  - mini_seqfish
+  - seqfish_cortex
+- title: osmFISH
+  navbar: ~
+  contents:
+  - osmfish_mouse_ss_cortex
+- title: Resolve Bioscience
+  navbar: ~
+  contents:
+  - resolve_biosciences
+- title: CODEX
+  navbar: ~
+  contents:
+  - codex_mouse_spleen
 - title: Single Cell RNA Sequencing
   navbar: ~
   contents:
   - singlecell_prostate_standard
   - singlecell_prostate_integration
-
-
 
 news:
   cran_dates: false
