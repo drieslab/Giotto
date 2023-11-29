@@ -9,6 +9,7 @@ giottoToAnnData(
   spat_unit = NULL,
   feat_type = NULL,
   python_path = NULL,
+  env_name = "giotto_env",
   save_directory = NULL
 )
 }
@@ -20,6 +21,8 @@ giottoToAnnData(
 \item{feat_type}{feature type which will be used in conversion.}
 
 \item{python_path}{path to python executable within a conda/miniconda environment}
+
+\item{env_name}{name of environment containing python_path executable}
 
 \item{save_directory}{directory in which the file will be saved.}
 }

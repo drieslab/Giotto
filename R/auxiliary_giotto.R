@@ -4774,6 +4774,146 @@ calculateMetaTableCells = function(gobject,
 
 
 
+#' @title calculateSpatCellMetadataProportions
+#' @name calculateSpatCellMetadataProportions
+#' @description calculates a proportion table for a cell metadata column (e.g. cluster labels)
+#' for all the spatial neighbors of a source cell. In other words it calculates the
+#' niche composition for a given annotation for each cell.
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param spat_network spatial network
+#' @param metadata_column metadata column to use
+#' @param name descriptve name for the calculated proportions
+#' @param metadata_cols annotation columns found in \code{pDataDT(gobject)}
+#' @param return_gobject return giotto object
+#' @return giotto object (default) or enrichment object if return_gobject = FALSE
+#' @export
+calculateSpatCellMetadataProportions = function(gobject,
+                                                spat_unit = NULL,
+                                                feat_type = NULL,
+                                                spat_network = NULL,
+                                                metadata_column = NULL,
+                                                name = 'proportion',
+                                                return_gobject = TRUE){
+
+
+  if(is.null(spat_network)) stop('spat_network = NULL, you need to provide an existing spatial network')
+  if(is.null(metadata_column)) stop('metadata_column = NULL, you need to provide an existing cell metadata column')
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # get spatial network to use
+  sp_network = get_spatialNetwork(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  name = spat_network,
+                                  output = 'networkDT')
+
+  # convert spatial network to a full spatial network
+  sp_network = convert_to_full_spatial_network(reduced_spatial_network_DT = sp_network)
+
+  # get cell metadata
+  cell_meta = get_cell_metadata(gobject = gobject,
+                                spat_unit = spat_unit,
+                                feat_type = feat_type,
+                                output = 'data.table')
+
+  # merge spatial network and cell metadata
+  network_annot = data.table::merge.data.table(network, cell_meta[,c('cell_ID', metadata_column), with = FALSE], by.x = 'source', by.y = 'cell_ID')
+  setnames(network_annot, old = metadata_column, 'source_clus')
+  network_annot = data.table::merge.data.table(network_annot, cell_meta[,c('cell_ID', metadata_column), with = FALSE], by.x = 'target', by.y = 'cell_ID')
+  setnames(network_annot, old = metadata_column, 'target_clus')
+
+  # create self information: source cell is its own neighbor
+  source_annot_info = unique(network_annot[,.(source, source_clus)])
+  setnames(source_annot_info, 'source_clus', 'label')
+  source_annot_info[, target := source]
+  source_annot_info = source_annot_info[,.(source, target, label)]
+
+  # network information: source cells and other neighbors
+  target_annot_info = unique(network_annot[,.(source, target, target_clus)])
+  setnames(target_annot_info, 'target_clus', 'label')
+
+  # combine: provides most detailed information about neighbors
+  final_annot_info = rbindlist(list(source_annot_info, target_annot_info))
+
+
+
+  # calculate proportions of neighbors
+  tableres = final_annot_info[, names(table(label)), by = 'source']
+  setnames(tableres, 'V1', 'tablelabels')
+  propensities = final_annot_info[, prop.table(table(label)), by = 'source']
+  setnames(propensities, 'V1', 'proptable')
+
+
+  # data.table variables
+  label = NULL
+  propensities[, label := tableres$tablelabels]
+  propensities[, proptable := as.numeric(proptable)]
+  proportions_mat = dcast.data.table(propensities, formula = 'source~label', fill = 0, value.var = 'proptable')
+  data.table::setnames(x = proportions_mat, old = 'source', new = 'cell_ID')
+
+  # convert to matrix
+  # proportions_matrix = dt_to_matrix(proportions_mat)
+  # proportions_matrix[1:4, 1:10]
+
+  # create spatial enrichment object
+  enrObj = create_spat_enr_obj(name = name,
+                               method = 'rank',
+                               enrichDT = proportions_mat,
+                               spat_unit = spat_unit,
+                               feat_type = feat_type,
+                               provenance = NULL,
+                               misc = NULL)
+
+
+  ## return object or results ##
+  if(return_gobject == TRUE) {
+
+    spenr_names = list_spatial_enrichments_names(gobject = gobject,
+                                                 spat_unit = spat_unit,
+                                                 feat_type = feat_type)
+
+
+    if(name %in% spenr_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_spatial_enrichment')
+
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject, description = '_enrichment')
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spatenrichment = enrObj)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    return(gobject)
+
+  } else {
+
+    return(enrObj)
+
+  }
+
+
+
+}
+
+
+
+
+
 #' @title combineMetadata
 #' @name combineMetadata
 #' @description This function combines the cell metadata with spatial locations and

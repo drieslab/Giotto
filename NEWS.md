@@ -1,4 +1,21 @@
 
+# Giotto Suite 3.3.2 (Release TBD)
+
+## Breaking Changes
+
+## Added
+- Added `checkPythonPackage()` within `python_environment.R` to check for a python package within a provided environment, and install that package there if it is not found. Supports github url installation. Supports package version specification, but not version minima, maxima, or ranges (i.e., "pysodb==1.0.0" is supported, "pysodb>=1.0.0" is not)
+- Added `py_install_prompt()` within `python_environment.R` to prompt a user to install a python package within a provided environment
+- Added `install_github_link_pip()` within `python_environment.R` to use pip to install a python package from a github link within a provided environment after prompting the user.
+- Added `install_py_pkg_reticulate()` within `python_environment.R` to install a specified python package  within a provided environment via `reticulate::py_install()` after prompting the user.
+- New file `python_bento.R`
+- Added `createBentoAdata()` within `python_bento.R` to create a bento-flavor anndata object from a Giotto Object
+
+## Changes
+- Improved performance of gefToGiotto()
+- Added `env_name` as an argument to `anndataToGiotto()` and `giottoToAnnData()` for compatability with `checkPythonPackage()`
+- Deprecated internal function `check_py_for_scanpy()` in favor of new function `checkPythonPackage()`
+
 
 # Giotto Suite 3.3.1 (2023-08-02)
 
@@ -28,10 +45,10 @@
 ## Changes
 - Fix bug in `combine_matrices()`
 - Fix bug in `createGiottoObject()` that will not allow object creation without supplied expression information
-- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance.
-- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility.
+- Updated `polyStamp()` to replace an apply function with a crossjoin for better performance
+- Updated `spatInSituPlotPoints()` with `plot_last` parameter. Default output now plots polygons above points for better visibility
 - Add check for spatLocsObj for spatlocs in polyStamp()
-- Removed various print() and cat() statements throughout. 
+- Removed various print() and cat() statements throughout 
 - Changed default verbose argument to FALSE for createGiottoObject
 - Changed default verbose argument to FALSE for joinGiottoObjects
 - Changed default verbose argument to FALSE for createGiottoObjectSubcellular
@@ -154,7 +171,7 @@
 - Fix `loadGiotto()` loss of over-allocation for data.tables-based objects after loading from disk
 
 
-# Giotto Suite 3.1.0 (2202-12-01)  
+# Giotto Suite 3.1.0 (2022-12-01)  
   
 
 ## Added
@@ -209,7 +226,7 @@
 
 
 
-# Giotto Suite 2.1.0 (2202-11-09)
+# Giotto Suite 2.1.0 (2022-11-09)
 
 ## Breaking Changes
 - Update of python version to **3.10.2** [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#giotto-suite-2-1-0-2202-11-09)
