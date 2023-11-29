@@ -15,7 +15,6 @@ runUMAP(
   dimensions_to_use = 1:10,
   name = NULL,
   feats_to_use = NULL,
-  genes_to_use = NULL,
   return_gobject = TRUE,
   n_neighbors = 40,
   n_components = 2,
@@ -24,9 +23,9 @@ runUMAP(
   n_threads = NA,
   spread = 5,
   set_seed = TRUE,
-  seed_number = 1234,
-  verbose = T,
-  toplevel_params = 2,
+  seed_number = 1234L,
+  verbose = TRUE,
+  toplevel_params = 2L,
   ...
 )
 }
@@ -49,11 +48,9 @@ runUMAP(
 
 \item{name}{arbitrary name for UMAP run}
 
-\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which features to use}
 
-\item{genes_to_use}{deprecated, use feats_to_use}
-
-\item{return_gobject}{boolean: return giotto object (default = TRUE)}
+\item{return_gobject}{logical: return giotto object (default = TRUE)}
 
 \item{n_neighbors}{UMAP param: number of neighbors}
 
@@ -75,7 +72,347 @@ runUMAP(
 
 \item{toplevel_params}{parameters to extract}
 
-\item{...}{additional UMAP parameters}
+\item{...}{
+  Arguments passed on to \code{\link[uwot:umap]{uwot::umap}}
+  \describe{
+    \item{\code{metric}}{Type of distance metric to use to find nearest neighbors. One
+  of:
+\itemize{
+  \item \code{"euclidean"} (the default)
+  \item \code{"cosine"}
+  \item \code{"manhattan"}
+  \item \code{"hamming"}
+  \item \code{"correlation"} (a distance based on the Pearson correlation)
+  \item \code{"categorical"} (see below)
+}
+Only applies if \code{nn_method = "annoy"} (for \code{nn_method = "fnn"}, the
+distance metric is always "euclidean").
+
+If \code{X} is a data frame or matrix, then multiple metrics can be
+specified, by passing a list to this argument, where the name of each item in
+the list is one of the metric names above. The value of each list item should
+be a vector giving the names or integer ids of the columns to be included in
+a calculation, e.g. \code{metric = list(euclidean = 1:4, manhattan = 5:10)}.
+
+Each metric calculation results in a separate fuzzy simplicial set, which are
+intersected together to produce the final set. Metric names can be repeated.
+Because non-numeric columns are removed from the data frame, it is safer to
+use column names than integer ids.
+
+Factor columns can also be used by specifying the metric name
+\code{"categorical"}. Factor columns are treated different from numeric
+columns and although multiple factor columns can be specified in a vector,
+each factor column specified is processed individually. If you specify
+a non-factor column, it will be coerced to a factor.
+
+For a given data block, you may override the \code{pca} and \code{pca_center}
+arguments for that block, by providing a list with one unnamed item
+containing the column names or ids, and then any of the \code{pca} or
+\code{pca_center} overrides as named items, e.g. \code{metric =
+list(euclidean = 1:4, manhattan = list(5:10, pca_center = FALSE))}. This
+exists to allow mixed binary and real-valued data to be included and to have
+PCA applied to both, but with centering applied only to the real-valued data
+(it is typical not to apply centering to binary data before PCA is applied).}
+    \item{\code{learning_rate}}{Initial learning rate used in optimization of the
+coordinates.}
+    \item{\code{init}}{Type of initialization for the coordinates. Options are:
+ \itemize{
+   \item \code{"spectral"} Spectral embedding using the normalized Laplacian
+   of the fuzzy 1-skeleton, with Gaussian noise added.
+   \item \code{"normlaplacian"}. Spectral embedding using the normalized
+   Laplacian of the fuzzy 1-skeleton, without noise.
+   \item \code{"random"}. Coordinates assigned using a uniform random
+   distribution between -10 and 10.
+   \item \code{"lvrandom"}. Coordinates assigned using a Gaussian
+   distribution with standard deviation 1e-4, as used in LargeVis
+   (Tang et al., 2016) and t-SNE.
+   \item \code{"laplacian"}. Spectral embedding using the Laplacian Eigenmap
+   (Belkin and Niyogi, 2002).
+   \item \code{"pca"}. The first two principal components from PCA of
+   \code{X} if \code{X} is a data frame, and from a 2-dimensional classical
+   MDS if \code{X} is of class \code{"dist"}.
+   \item \code{"spca"}. Like \code{"pca"}, but each dimension is then scaled
+   so the standard deviation is 1e-4, to give a distribution similar to that
+   used in t-SNE. This is an alias for \code{init = "pca", init_sdev =
+   1e-4}.
+   \item \code{"agspectral"} An "approximate global" modification of
+   \code{"spectral"} which all edges in the graph to a value of 1, and then
+   sets a random number of edges (\code{negative_sample_rate} edges per
+   vertex) to 0.1, to approximate the effect of non-local affinities.
+   \item A matrix of initial coordinates.
+ }
+For spectral initializations, (\code{"spectral"}, \code{"normlaplacian"},
+\code{"laplacian"}, \code{"agspectral"}), if more than one connected
+component is identified, no spectral initialization is attempted. Instead
+a PCA-based initialization is attempted. If \code{verbose = TRUE} the
+number of connected components are logged to the console. The existence of
+multiple connected components implies that a global view of the data cannot
+be attained with this initialization. Increasing the value of
+\code{n_neighbors} may help.}
+    \item{\code{init_sdev}}{If non-\code{NULL}, scales each dimension of the initialized
+coordinates (including any user-supplied matrix) to this standard
+deviation. By default no scaling is carried out, except when \code{init =
+"spca"}, in which case the value is \code{0.0001}. Scaling the input may
+help if the unscaled versions result in initial coordinates with large
+inter-point distances or outliers. This usually results in small gradients
+during optimization and very little progress being made to the layout.
+Shrinking the initial embedding by rescaling can help under these
+circumstances. Scaling the result of \code{init = "pca"} is usually
+recommended and \code{init = "spca"} as an alias for \code{init = "pca",
+init_sdev = 1e-4} but for the spectral initializations the scaled versions
+usually aren't necessary unless you are using a large value of
+\code{n_neighbors} (e.g. \code{n_neighbors = 150} or higher). For
+compatibility with recent versions of the Python UMAP package, if you are
+using \code{init = "spectral"}, then you should also set
+\code{init_sdev = "range"}, which will range scale each of the columns
+containing the initial data between 0-10. This is not set by default to
+maintain backwards compatibility with previous versions of uwot.}
+    \item{\code{set_op_mix_ratio}}{Interpolate between (fuzzy) union and intersection as
+the set operation used to combine local fuzzy simplicial sets to obtain a
+global fuzzy simplicial sets. Both fuzzy set operations use the product
+t-norm. The value of this parameter should be between \code{0.0} and
+\code{1.0}; a value of \code{1.0} will use a pure fuzzy union, while
+\code{0.0} will use a pure fuzzy intersection.}
+    \item{\code{local_connectivity}}{The local connectivity required -- i.e. the number
+of nearest neighbors that should be assumed to be connected at a local
+level. The higher this value the more connected the manifold becomes
+locally. In practice this should be not more than the local intrinsic
+dimension of the manifold.}
+    \item{\code{bandwidth}}{The effective bandwidth of the kernel if we view the
+algorithm as similar to Laplacian Eigenmaps. Larger values induce more
+connectivity and a more global view of the data, smaller values concentrate
+more locally.}
+    \item{\code{repulsion_strength}}{Weighting applied to negative samples in low
+dimensional embedding optimization. Values higher than one will result in
+greater weight being given to negative samples.}
+    \item{\code{negative_sample_rate}}{The number of negative edge/1-simplex samples to
+use per positive edge/1-simplex sample in optimizing the low dimensional
+embedding.}
+    \item{\code{a}}{More specific parameters controlling the embedding. If \code{NULL}
+these values are set automatically as determined by \code{min_dist} and
+\code{spread}.}
+    \item{\code{b}}{More specific parameters controlling the embedding. If \code{NULL}
+these values are set automatically as determined by \code{min_dist} and
+\code{spread}.}
+    \item{\code{nn_method}}{Method for finding nearest neighbors. Options are:
+\itemize{
+  \item \code{"fnn"}. Use exact nearest neighbors via the
+    \href{https://cran.r-project.org/package=FNN}{FNN} package.
+  \item \code{"annoy"} Use approximate nearest neighbors via the
+    \href{https://cran.r-project.org/package=RcppAnnoy}{RcppAnnoy} package.
+ }
+By default, if \code{X} has less than 4,096 vertices, the exact nearest
+neighbors are found. Otherwise, approximate nearest neighbors are used.
+You may also pass pre-calculated nearest neighbor data to this argument. It
+must be one of two formats, either a list consisting of two elements:
+\itemize{
+  \item \code{"idx"}. A \code{n_vertices x n_neighbors} matrix
+  containing the integer indexes of the nearest neighbors in \code{X}. Each
+  vertex is considered to be its own nearest neighbor, i.e.
+  \code{idx[, 1] == 1:n_vertices}.
+  \item \code{"dist"}. A \code{n_vertices x n_neighbors} matrix
+  containing the distances of the nearest neighbors.
+}
+or a sparse distance matrix of type \code{dgCMatrix}, with dimensions
+\code{n_vertices x n_vertices}. Distances should be arranged by column,
+i.e. a non-zero entry in row \code{j} of the \code{i}th column indicates
+that the \code{j}th observation in \code{X} is a nearest neighbor of the
+\code{i}th observation with the distance given by the value of that
+element.
+The \code{n_neighbors} parameter is ignored when using precomputed
+nearest neighbor data. If using the sparse distance matrix input, each
+column can contain a different number of neighbors.}
+    \item{\code{n_trees}}{Number of trees to build when constructing the nearest
+neighbor index. The more trees specified, the larger the index, but the
+better the results. With \code{search_k}, determines the accuracy of the
+Annoy nearest neighbor search. Only used if the \code{nn_method} is
+\code{"annoy"}. Sensible values are between \code{10} to \code{100}.}
+    \item{\code{search_k}}{Number of nodes to search during the neighbor retrieval. The
+larger k, the more the accurate results, but the longer the search takes.
+With \code{n_trees}, determines the accuracy of the Annoy nearest neighbor
+search. Only used if the \code{nn_method} is \code{"annoy"}.}
+    \item{\code{approx_pow}}{If \code{TRUE}, use an approximation to the power function
+in the UMAP gradient, from
+\url{https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/}.
+Ignored if \code{dens_scale} is non-\code{NULL}.}
+    \item{\code{y}}{Optional target data for supervised dimension reduction. Can be a
+vector, matrix or data frame. Use the \code{target_metric} parameter to
+specify the metrics to use, using the same syntax as \code{metric}. Usually
+either a single numeric or factor column is used, but more complex formats
+are possible. The following types are allowed:
+  \itemize{
+    \item Factor columns with the same length as \code{X}. \code{NA} is
+    allowed for any observation with an unknown level, in which case
+    UMAP operates as a form of semi-supervised learning. Each column is
+    treated separately.
+    \item Numeric data. \code{NA} is \emph{not} allowed in this case. Use the
+    parameter \code{target_n_neighbors} to set the number of neighbors used
+    with \code{y}. If unset, \code{n_neighbors} is used. Unlike factors,
+    numeric columns are grouped into one block unless \code{target_metric}
+    specifies otherwise. For example, if you wish columns \code{a} and
+    \code{b} to be treated separately, specify
+    \code{target_metric = list(euclidean = "a", euclidean = "b")}. Otherwise,
+    the data will be effectively treated as a matrix with two columns.
+    \item Nearest neighbor data, consisting of a list of two matrices,
+    \code{idx} and \code{dist}. These represent the precalculated nearest
+    neighbor indices and distances, respectively. This
+    is the same format as that expected for precalculated data in
+    \code{nn_method}. This format assumes that the underlying data was a
+    numeric vector. Any user-supplied value of the \code{target_n_neighbors}
+    parameter is ignored in this case, because the the number of columns in
+    the matrices is used for the value. Multiple nearest neighbor data using
+    different metrics can be supplied by passing a list of these lists.
+  }
+Unlike \code{X}, all factor columns included in \code{y} are automatically
+used.}
+    \item{\code{target_n_neighbors}}{Number of nearest neighbors to use to construct the
+target simplicial set. Default value is \code{n_neighbors}. Applies only if
+\code{y} is non-\code{NULL} and \code{numeric}.}
+    \item{\code{target_metric}}{The metric used to measure distance for \code{y} if
+using supervised dimension reduction. Used only if \code{y} is numeric.}
+    \item{\code{target_weight}}{Weighting factor between data topology and target
+topology. A value of 0.0 weights entirely on data, a value of 1.0 weights
+entirely on target. The default of 0.5 balances the weighting equally
+between data and target. Only applies if \code{y} is non-\code{NULL}.}
+    \item{\code{pcg_rand}}{If \code{TRUE}, use the PCG random number generator (O'Neill,
+2014) during optimization. Otherwise, use the faster (but probably less
+statistically good) Tausworthe "taus88" generator. The default is
+\code{TRUE}.}
+    \item{\code{fast_sgd}}{If \code{TRUE}, then the following combination of parameters
+is set: \code{pcg_rand = TRUE}, \code{n_sgd_threads = "auto"} and
+\code{approx_pow = TRUE}. The default is \code{FALSE}. Setting this to
+\code{TRUE} will speed up the stochastic optimization phase, but give a
+potentially less accurate embedding, and which will not be exactly
+reproducible even with a fixed seed. For visualization, \code{fast_sgd =
+TRUE} will give perfectly good results. For more generic dimensionality
+reduction, it's safer to leave \code{fast_sgd = FALSE}. If \code{fast_sgd =
+TRUE}, then user-supplied values of \code{pcg_rand}, \code{n_sgd_threads},
+and \code{approx_pow} are ignored.}
+    \item{\code{ret_model}}{If \code{TRUE}, then return extra data that can be used to
+add new data to an existing embedding via \code{\link[uwot]{umap_transform}}. The
+embedded coordinates are returned as the list item \code{embedding}. If
+\code{FALSE}, just return the coordinates. This parameter can be used in
+conjunction with \code{ret_nn} and \code{ret_extra}. Note that some
+settings are incompatible with the production of a UMAP model: external
+neighbor data (passed via a list to \code{nn_method}), and factor columns
+that were included via the \code{metric} parameter. In the latter case, the
+model produced is based only on the numeric data. A transformation using
+new data is possible, but the factor columns in the new data are ignored.
+Note that setting \code{ret_model = TRUE} forces the use of the approximate
+nearest neighbors method. Because small datasets would otherwise use exact
+nearest neighbor calculations, setting \code{ret_model = TRUE} means that
+different results may be returned for small datasets in terms of both the
+returned nearest neighbors (if requested) and the final embedded
+coordinates, compared to \code{ret_model = FALSE}, even if the random
+number seed is fixed. To avoid this, explicitly set
+\code{nn_method = "annoy"} in the \code{ret_model = FALSE} case.}
+    \item{\code{ret_nn}}{If \code{TRUE}, then in addition to the embedding, also return
+nearest neighbor data that can be used as input to \code{nn_method} to
+avoid the overhead of repeatedly calculating the nearest neighbors when
+manipulating unrelated parameters (e.g. \code{min_dist}, \code{n_epochs},
+\code{init}). See the "Value" section for the names of the list items. If
+\code{FALSE}, just return the coordinates. Note that the nearest neighbors
+could be sensitive to data scaling, so be wary of reusing nearest neighbor
+data if modifying the \code{scale} parameter. This parameter can be used in
+conjunction with \code{ret_model} and \code{ret_extra}.}
+    \item{\code{ret_extra}}{A vector indicating what extra data to return. May contain
+any combination of the following strings:
+\itemize{
+  \item \code{"model"} Same as setting \code{ret_model = TRUE}.
+  \item \code{"nn"} Same as setting \code{ret_nn = TRUE}.
+  \item \code{"fgraph"} the high dimensional fuzzy graph (i.e. the fuzzy
+    simplicial set of the merged local views of the input data). The graph
+    is returned as a sparse symmetric N x N matrix of class
+    \link[Matrix]{dgCMatrix-class}, where a non-zero entry (i, j) gives the
+    membership strength of the edge connecting vertex i and vertex j. This
+    can be considered analogous to the input probability (or similarity or
+    affinity) used in t-SNE and LargeVis. Note that the graph is further
+    sparsified by removing edges with sufficiently low membership strength
+    that they would not be sampled by the probabilistic edge sampling
+    employed for optimization and therefore the number of non-zero elements
+    in the matrix is dependent on \code{n_epochs}. If you are only
+    interested in the fuzzy input graph (e.g. for clustering), setting
+    \code{n_epochs = 0} will avoid any further sparsifying.
+    Be aware that setting `binary_edge_weights = TRUE` will affect this
+    graph (all non-zero edge weights will be 1).
+ \item \code{"sigma"} the normalization value for each observation in the
+    dataset when constructing the smoothed distances to each of its
+    neighbors. This gives some sense of the local density of each
+    observation in the high dimensional space: higher values of
+    \code{sigma} indicate a higher dispersion or lower density.
+}}
+    \item{\code{n_sgd_threads}}{Number of threads to use during stochastic gradient
+descent. If set to > 1, then be aware that if \code{batch = FALSE}, results
+will \emph{not} be reproducible, even if \code{set.seed} is called with a
+fixed seed before running. Set to \code{"auto"} to use the same value as
+\code{n_threads}.}
+    \item{\code{grain_size}}{The minimum amount of work to do on each thread. If this
+value is set high enough, then less than \code{n_threads} or
+\code{n_sgd_threads} will be used for processing, which might give a
+performance improvement if the overhead of thread management and context
+switching was outweighing the improvement due to concurrent processing.
+This should be left at default (\code{1}) and work will be spread evenly
+over all the threads specified.}
+    \item{\code{tmpdir}}{Temporary directory to store nearest neighbor indexes during
+nearest neighbor search. Default is \code{\link{tempdir}}. The index is
+only written to disk if \code{n_threads > 1} and
+\code{nn_method = "annoy"}; otherwise, this parameter is ignored.}
+    \item{\code{batch}}{If \code{TRUE}, then embedding coordinates are updated at the
+end of each epoch rather than during the epoch. In batch mode, results are
+reproducible with a fixed random seed even with \code{n_sgd_threads > 1},
+at the cost of a slightly higher memory use. You may also have to modify
+\code{learning_rate} and increase \code{n_epochs}, so whether this provides
+a speed increase over the single-threaded optimization is likely to be
+dataset and hardware-dependent.}
+    \item{\code{opt_args}}{A list of optimizer parameters, used when
+\code{batch = TRUE}. The default optimization method used is Adam (Kingma
+and Ba, 2014).
+\itemize{
+  \item \code{method} The optimization method to use. Either \code{"adam"}
+  or \code{"sgd"} (stochastic gradient descent). Default: \code{"adam"}.
+  \item \code{beta1} (Adam only). The weighting parameter for the
+  exponential moving average of the first moment estimator. Effectively the
+  momentum parameter. Should be a floating point value between 0 and 1.
+  Higher values can smooth oscillatory updates in poorly-conditioned
+  situations and may allow for a larger \code{learning_rate} to be
+  specified, but too high can cause divergence. Default: \code{0.5}.
+  \item \code{beta2} (Adam only). The weighting parameter for the
+  exponential moving average of the uncentered second moment estimator.
+  Should be a floating point value between 0 and 1. Controls the degree of
+  adaptivity in the step-size. Higher values put more weight on previous
+  time steps. Default: \code{0.9}.
+  \item \code{eps} (Adam only). Intended to be a small value to prevent
+  division by zero, but in practice can also affect convergence due to its
+  interaction with \code{beta2}. Higher values reduce the effect of the
+  step-size adaptivity and bring the behavior closer to stochastic gradient
+  descent with momentum. Typical values are between 1e-8 and 1e-3. Default:
+  \code{1e-7}.
+  \item \code{alpha} The initial learning rate. Default: the value of the
+  \code{learning_rate} parameter.
+}}
+    \item{\code{epoch_callback}}{A function which will be invoked at the end of every
+epoch. Its signature should be: \code{(epoch, n_epochs, coords)}, where:
+\itemize{
+  \item \code{epoch} The current epoch number (between \code{1} and
+  \code{n_epochs}).
+  \item \code{n_epochs} Number of epochs to use during the optimization of
+  the embedded coordinates.
+  \item \code{coords} The embedded coordinates as of the end of the current
+  epoch, as a matrix with dimensions (N, \code{n_components}).
+}}
+    \item{\code{binary_edge_weights}}{If \code{TRUE} then edge weights in the input
+graph are treated as binary (0/1) rather than real valued. This affects the
+sampling frequency of neighbors and is the strategy used by the PaCMAP
+method (Wang and co-workers, 2020). Practical (Böhm and co-workers, 2020)
+and theoretical (Damrich and Hamprecht, 2021) work suggests this has little
+effect on UMAP's performance.}
+    \item{\code{dens_scale}}{A value between 0 and 1. If > 0 then the output attempts
+to preserve relative local density around each observation. This uses an
+approximation to the densMAP method (Narayan and co-workers, 2021). The
+larger the value of \code{dens_scale}, the greater the range of output
+densities that will be used to map the input densities. This option is
+ignored if using multiple \code{metric} blocks.}
+  }}
 }
 \value{
 giotto object with updated UMAP dimension reduction
@@ -84,12 +421,16 @@ giotto object with updated UMAP dimension reduction
 run UMAP
 }
 \details{
-See \code{\link[uwot]{umap}} for more information about these and other parameters.
+See \code{\link[uwot]{umap}} for more information about these and
+other parameters.
 \itemize{
-  \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+  \item Input for UMAP dimension reduction can be another dimension reduction
+  (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
-  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
-  highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
-  \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+  \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a
+  column name of highly variable features (see \code{\link{calculateHVF}}) or
+  simply provide a vector of features
+  \item multiple UMAP results can be stored by changing the \emph{name} of
+  the analysis
 }
 }

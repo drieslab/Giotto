@@ -33,7 +33,7 @@ filterSpatialGenes(
 function to filter gene list with existing spatial gene sets
 }
 \details{
-This function filters given gene list with the gene sets of selected spatial gene test in Giotto, 
+This function filters given gene list with the gene sets of selected spatial gene test in Giotto,
 also controls the total size of the gene set with given max number.
 }
 \keyword{external}

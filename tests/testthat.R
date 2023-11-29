@@ -11,13 +11,9 @@ library(Giotto)
 
 # additional needed packages
 suppressWarnings({
-  if(!require(remotes)){
+  # needed for reading .gz files.
+  if(!require(R.utils)) {
     install.packages('R.utils', repos = 'http://cran.us.r-project.org')
-    install.packages('remotes', repos = 'http://cran.us.r-project.org')
-  }
-
-  if(!require(GiottoData)){
-    remotes::install_github('drieslab/GiottoData', build = FALSE)
   }
 })
 

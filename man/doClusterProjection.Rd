@@ -2,7 +2,7 @@
 % Please edit documentation in R/clustering.R
 \name{doClusterProjection}
 \alias{doClusterProjection}
-\title{Project of cluster labels}
+\title{Projection of cluster labels}
 \usage{
 doClusterProjection(
   target_gobject,

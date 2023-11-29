@@ -16,10 +16,10 @@ viewHMRFresults_V2(
   cow_rel_h = 1,
   cow_rel_w = 1,
   cow_align = "h",
-  show_plot = T,
-  save_plot = T,
+  show_plot = TRUE,
+  save_plot = TRUE,
+  return_plot = TRUE,
   default_save_name = "HMRF_result",
-  return_plot = T,
   save_param = list(),
   ...
 )
@@ -51,9 +51,9 @@ viewHMRFresults_V2(
 
 \item{save_plot}{option to save plot}
 
-\item{default_save_name}{names of figure file to save}
-
 \item{return_plot}{if function return a plot}
+
+\item{default_save_name}{names of figure file to save}
 
 \item{save_param}{other saving parameters}
 }
@@ -61,6 +61,6 @@ viewHMRFresults_V2(
 function to view HMRF results with multiple betas
 }
 \details{
-This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name), 
+This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name),
 matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 }

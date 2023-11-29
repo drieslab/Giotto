@@ -12,7 +12,7 @@ do_multi_permuttest_random_spot(
   proximityMat,
   expr_residual,
   n = 100,
-  cores = 2,
+  cores = NA,
   set_seed = TRUE,
   seed_number = 1234
 )

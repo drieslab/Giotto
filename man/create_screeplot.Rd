@@ -4,14 +4,14 @@
 \alias{create_screeplot}
 \title{create_screeplot}
 \usage{
-create_screeplot(pca_obj, ncp = 20, ylim = c(0, 20))
+create_screeplot(eigs, ncp = 20, ylim = c(0, 20))
 }
 \arguments{
-\item{pca_obj}{pca dimension reduction object}
+\item{eigs}{numeric. Vector of pca eigenvalues}
 
-\item{ncp}{number of principal components to calculate}
+\item{ncp}{numeric. max number of principal components to plot}
 
-\item{ylim}{y-axis limits on scree plot}
+\item{ylim}{numeric. y-axis limits on scree plot}
 }
 \value{
 ggplot
@@ -19,4 +19,10 @@ ggplot
 \description{
 create screeplot with ggplot
 }
-\keyword{internal}
+\examples{
+\dontrun{
+dr = GiottoData::loadSubObjectMini('dimObj')
+scree = create_screeplot(methods::slot(dr, 'misc')$eigenvalues)
+scree
+}
+}

@@ -100,18 +100,18 @@ initHMRF_V2(
 Run initialzation for HMRF model
 }
 \details{
-This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run, 
-through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that 
-are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes 
-ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in 
-the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for 
-clustering, listed with selection priority: 
+This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run,
+through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that
+are not significantly spatial, as determined by filter_method. If filter_method is none, then top 2500 (gene_list_from_top) genes
+ranked by pvalue are considered spatial. If filter_method is elbow, then the exact cutoff is determined by the elbow in
+the -log10 P-value vs. gene rank plot. Second, users have a few options to decrease the dimension of the spatial genes for
+clustering, listed with selection priority:
    1. use PCA of the spatial gene expressions (selected by use_pca)
    2. use metagene expressions (selected by use_metagene)
-   3. sampling to select 500 spatial genes (controlled by gene_samples). 
-Third, once spatial genes are finalized, we are using clustering method to initialize HMRF. 
+   3. sampling to select 500 spatial genes (controlled by gene_samples).
+Third, once spatial genes are finalized, we are using clustering method to initialize HMRF.
 There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is
-then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), 
-blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters), 
+then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors),
+blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
 spat_unit, feat_type. This information is needed for the second step, doHMRF.
 }

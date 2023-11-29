@@ -20,7 +20,7 @@ findICFSpot(
   nr_permutations = 100,
   adjust_method = "fdr",
   do_parallel = TRUE,
-  cores = 2,
+  cores = NA,
   set_seed = TRUE,
   seed_number = 1234,
   verbose = FALSE

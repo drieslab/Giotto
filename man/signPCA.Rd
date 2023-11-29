@@ -15,9 +15,8 @@ signPCA(
   pca_method = c("irlba", "factominer"),
   rev = FALSE,
   feats_to_use = NULL,
-  genes_to_use = NULL,
-  center = T,
-  scale_unit = T,
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 50,
   scree_ylim = c(0, 10),
   jack_iter = 10,
@@ -34,9 +33,9 @@ signPCA(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{name}{name of PCA object if available}
 
@@ -52,8 +51,6 @@ signPCA(
 
 \item{feats_to_use}{subset of features to use for PCA}
 
-\item{genes_to_use}{deprecated, use feats_to_use}
-
 \item{center}{center data before PCA}
 
 \item{scale_unit}{scale features before PCA}
@@ -68,15 +65,15 @@ signPCA(
 
 \item{jack_ylim}{y-axis limits on jackstraw plot}
 
-\item{verbose}{verbosity}
+\item{verbose}{be verbose}
 
-\item{show_plot}{show plot}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
