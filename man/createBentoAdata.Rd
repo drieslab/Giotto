@@ -4,7 +4,7 @@
 \alias{createBentoAdata}
 \title{Create bento adata object from gobject}
 \usage{
-createBentoAdata(gobject = NULL, env_to_use = NULL)
+createBentoAdata(gobject = NULL, env_to_use = "giotto_env")
 }
 \arguments{
 \item{gobject}{Giotto object}
