@@ -1,6 +1,7 @@
-# Giotto Suite 4.0.0 2023*11*29)
+# Giotto 4.0.0 (2023/11/29)
 
 ## Breaking Changes
+
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
 
 ## Added
@@ -12,13 +13,12 @@
 * New function `addVisiumPolygons()` within `convenience.R` (along with its requisite internal functions) that adds  circular polygons centered at the spatial locations of a Giotto Object made with Visium data. Takes a Giotto Object and a path to the Visium output file `scalefactors_json.json` as input arguments.
 * Added `addVisiumPolygons()` to `createGiottoVisiumObject()` workflow.
 * Add `cell_ids` param to `calculateHVF()` to allow calculation of HVFs on a subset of cells
-
+* New function `plotInteractive3D()` for interactive visualization and *in silico* creation of slices from 3D datasets (e.g. MERFISH).
 
 ## Changes
 
 
-
-# Giotto Suite 3.3.1 (2023*08*02)
+# Giotto 3.3.1 (2023/08/02)
 
 ## Breaking Changes
 
@@ -73,7 +73,7 @@
 * Fix bug in `readCellMetadata()` and `readFeatMetadata()`
 
 
-# Giotto Suite 3.3.0 (2023*04*18)
+# Giotto 3.3.0 (2023/04/18)
 
 ## Breaking Changes
 
@@ -131,7 +131,7 @@
 * Moved `depth()` from giotto.R to utilities.R
 
 
-# Giotto Suite 3.2.0 (2023*02*02)
+# Giotto 3.2.0 (2023/02/02)
 
 ## Breaking Changes
 
@@ -181,10 +181,11 @@
 * Fix `loadGiotto()` loss of over*allocation for data.tables*based objects after loading from disk
 
 
-# Giotto Suite 3.1.0 (2022*12*01)  
+# Giotto 3.1.0 (2022/12/01)  
   
 
 ## Added
+
 * New `initialize()` generic that calls `setalloccol()` for data.table*based S4 subobjects to allow setting by reference
 * New `spatUnit`, `spatUnit<*`, `featType`, and `featType<*` feat type generics for S4 subobjects for setting the relevant slots
 * Add `hexVertices()` to polygon shape array generation functionality
@@ -198,10 +199,7 @@
 * Update seed setting behavior in [dimension_reduction.R](https://github.com/drieslab/Giotto/blob/suite/R/dimension_reduction.R) and [clustering.R](https://github.com/drieslab/Giotto/blob/suite/R/clustering.R)
 
 
-
-
-
-# Giotto Suite 3.0.1 (2022*11*20)
+# Giotto 3.0.1 (2022/11/20)
 
 ## Added
 
@@ -214,10 +212,7 @@
 * Update Unicode character printing with `show` functions for Latin1 systems
 
 
-
-
-
-# Giotto Suite 3.0.0 (2022*11*18)
+# Giotto 3.0.0 (2022/11/18)
 
 ## Breaking Changes
 
@@ -240,9 +235,7 @@
 
 
 
-
-
-# Giotto Suite 2.1.0 (2022*11*09)
+# Giotto 2.1.0 (2022/11/09)
 
 ## Breaking Changes
 
@@ -254,10 +247,7 @@
 
 
 
-
-
-
-# Giotto Suite 2.0.0.998
+# Giotto 2.0.0.998
 
 ## Added
 
@@ -284,15 +274,4 @@
 ## Breaking Changes
 
 * ICF output internal object structure names have changed to use feats instead of genes
-
-
-
-
-
-
-
-
-
-
-
 
