@@ -24,9 +24,6 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <h6 class="dropdown-header" data-toc-skip>Stereo-seq</h6>
-    <a class="dropdown-item" href="../articles/stereoseq_mosta.html">MOSTA E12.5_E1S3</a>
-    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Seq-Scope</h6>
     <a class="dropdown-item" href="../articles/seqscope_mouse_liver.html">Mouse liver</a>
     <div class="dropdown-divider"></div>
@@ -36,6 +33,34 @@
     <a class="dropdown-item" href="../articles/visium_prostate_integration.html">Visium Prostate Integration</a>
     <a class="dropdown-item" href="../articles/visium_cytassist_lungcancer.html">CytAssist Human Lung Cancer</a>
     <a class="dropdown-item" href="../articles/visium_cytassist_human_glioblastoma.html">CytAssist Multi-omics Human Glioblastoma</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Spatial Genomics</h6>
+    <a class="dropdown-item" href="../articles/spatial_genomics_mouse_kidney.html">Mouse Kidney</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Xenium</h6>
+    <a class="dropdown-item" href="../articles/xenium_breast_cancer.html">Xenium Human breast cancer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Nanostring CosMx</h6>
+    <a class="dropdown-item" href="../articles/nanostring_cosmx_lung_cancer.html">Nanostring CosMx Subcellular Lung Cancer</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>MERFISH</h6>
+    <a class="dropdown-item" href="../articles/merfish_mouse_hypothalamic.html">MERFISH Mouse Hypothalamic Preoptic Region</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Vizgen</h6>
+    <a class="dropdown-item" href="../articles/vizgen_mouse_brain.html">Vizgen Mouse Brain Receptor Map</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>seqFISH</h6>
+    <a class="dropdown-item" href="../articles/mini_seqfish.html">mini seqFISH</a>
+    <a class="dropdown-item" href="../articles/seqfish_cortex.html">SeqFish+ Mouse Cortex Example</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>osmFISH</h6>
+    <a class="dropdown-item" href="../articles/osmfish_mouse_ss_cortex.html">osmFISH Mouse SS Cortex</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Resolve Bioscience</h6>
+    <a class="dropdown-item" href="../articles/resolve_biosciences.html">Resolve Bioscience Breast Cancer Subcellular</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>CODEX</h6>
+    <a class="dropdown-item" href="../articles/codex_mouse_spleen.html">Codex Mouse Spleen</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Single Cell RNA Sequencing</h6>
     <a class="dropdown-item" href="../articles/singlecell_prostate_standard.html">Prostate</a>
@@ -149,9 +174,9 @@ information to split</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  and will be used</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>module: bento-tools was not found with python path: /Users/joselynchavez/Library/r-miniconda-arm64/envs/giotto_env/bin/pythonw</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>module: bento-tools was not found with python path: /Users/joselynchavez/Library/r-miniconda-arm64/envs/giotto_env/bin/pythonw</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/GiottoClass/man/activeSpatUnit-generic.html" class="external-link">activeSpatUnit</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">=</span> <span class="st">'aggregate'</span></span></span>
+<span class="r-in"><span><span class="fu">activeSpatUnit</span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">=</span> <span class="st">'aggregate'</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>module: bento-tools was not found with python path: /Users/joselynchavez/Library/r-miniconda-arm64/envs/giotto_env/bin/pythonw</span>
-<span class="r-in"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">spatPlot2D</span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="spatialSplitCluster-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">g</span> <span class="op">=</span> <span class="fu">spatialSplitCluster</span><span class="op">(</span><span class="va">g</span>,</span></span>
@@ -159,7 +184,7 @@ information to split</p></dd>
 <span class="r-in"><span>                        split_clus_name <span class="op">=</span> <span class="st">'new'</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in spatialSplitCluster(g, cluster_col = "leiden_clus", split_clus_name = "new"):</span> could not find function "spatialSplitCluster"</span>
 <span class="r-in"><span><span class="co"># don't show legend since there are too many categories generated</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'new'</span>, show_legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">spatPlot2D</span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'new'</span>, show_legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_spat_point_layer_ggplot(ggobject = pl, instrs = instructions(gobject),     sdimx = sdimx, sdimy = sdimy, cell_locations_metadata_selected = cell_locations_metadata_selected,     cell_locations_metadata_other = cell_locations_metadata_other,     cell_color = cell_color, color_as_factor = color_as_factor,     cell_color_code = cell_color_code, cell_color_gradient = cell_color_gradient,     gradient_midpoint = gradient_midpoint, gradient_style = gradient_style,     gradient_limits = gradient_limits, select_cell_groups = select_cell_groups,     select_cells = select_cells, point_size = point_size, point_alpha = point_alpha,     point_border_stroke = point_border_stroke, point_border_col = point_border_col,     show_cluster_center = show_cluster_center, show_center_label = show_center_label,     center_point_size = center_point_size, center_point_border_col = center_point_border_col,     center_point_border_stroke = center_point_border_stroke,     label_size = label_size, label_fontface = label_fontface,     show_other_cells = show_other_cells, other_cell_color = other_cell_color,     other_point_size = other_point_size, show_legend = show_legend):</span> new is not a color or a column name </span>
 </code></pre></div>
     </div>

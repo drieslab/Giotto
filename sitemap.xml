@@ -7,10 +7,34 @@
     <loc>https://drieslab.github.io/Giotto/CODE_OF_CONDUCT.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/codex_mouse_spleen.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/merfish_mouse_hypothalamic.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/mini_seqfish.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/nanostring_cosmx_lung_cancer.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/osmfish_mouse_ss_cortex.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/resolve_biosciences.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/seqfish_cortex.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/seqscope_mouse_liver.html</loc>
@@ -22,7 +46,7 @@
     <loc>https://drieslab.github.io/Giotto/articles/singlecell_prostate_standard.html</loc>
   </url>
   <url>
-    <loc>https://drieslab.github.io/Giotto/articles/stereoseq_mosta.html</loc>
+    <loc>https://drieslab.github.io/Giotto/articles/spatial_genomics_mouse_kidney.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/visium_cytassist_human_glioblastoma.html</loc>
@@ -38,6 +62,12 @@
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/visium_prostate_integration.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/vizgen_mouse_brain.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/xenium_breast_cancer.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/authors.html</loc>
