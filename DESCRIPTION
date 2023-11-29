@@ -17,7 +17,6 @@ Authors@R: c(
 	person("Edward", "Ruiz", email = "ecruiz@bu.edu",
 		 role = c("aut"))
 	)
-
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
 License: GPL (>= 3)
