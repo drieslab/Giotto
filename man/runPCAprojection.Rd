@@ -37,7 +37,7 @@ runPCAprojection(
 
 \item{reduction}{cells or genes}
 
-\item{random_subset}{random subset to perform PCA on}
+\item{random_subset}{numeric. random subset to perform PCA on}
 
 \item{name}{arbitrary name for PCA run}
 
