@@ -1,16 +1,11 @@
-# python_path = NULL
-# if(is.null(python_path)) {
-#   installGiottoEnvironment()
-# }
 
-require(testthat)
 
-# install Giotto environment if missing
-# if(!checkGiottoEnvironment()) {
-#   install_giotto_environment()
-# }
 
-GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
+# data setup (warning about non-existing dir expected)
+suppressWarnings(
+  GiottoData::getSpatialDataset(dataset = 'merfish_preoptic', directory = paste0(getwd(), '/testdata/'))
+)
+
 
 expr_path = './testdata/merFISH_3D_data_expression.txt.gz'
 loc_path = './testdata/merFISH_3D_data_cell_locations.txt'
@@ -23,7 +18,7 @@ object <- createGiottoObject(expression = expr_path,
 
 
 ### TESTS FOR MERFISH MOUSE HYPOTHALMIC PREOPTIC REGION DATASET
-# --------------------------------------------------------------
+# -------------------------------------------------------------- #
 
 
 test_that("Object initialization creates expected Giotto object", {
@@ -36,7 +31,7 @@ test_that("Object initialization creates expected Giotto object", {
   expect_true(all(slot(object@expression[["cell"]][["rna"]][["raw"]], "exprMat")@Dim == c(161, 73655)))
 
   # gobject contains S4 object "spatLocsObj" of dimensions 73655 x 4 containing spatial locations
-  st = get_spatial_locations(object, spat_unit = 'cell', spat_loc_name = 'raw')
+  st = getSpatialLocations(object, spat_unit = 'cell', name = 'raw', output = 'spatLocsObj')
   expect_identical(st@coordinates, object@spatial_locs[["cell"]][["raw"]]@coordinates)
   expect_s4_class(object@spatial_locs[["cell"]][["raw"]], "spatLocsObj")
   expect_length(object@spatial_locs[["cell"]][["raw"]]@coordinates[["sdimx"]], 73655)
@@ -191,12 +186,16 @@ test_that("UMAP S4 object is created as expected", {
   expect_equal(ncol(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates), 3)
 
   # test a few arbitrary coordinates
-  show_failure(expect_equal(!!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[20],
-                            -3.2,
-                            tolerance = 1*10^-1))
-  show_failure(expect_equal(!!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[40],
-                            10.1,
-                            tolerance = 1*10^-1))
+  show_failure(expect_equal(
+    !!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[20],
+    -3.24465276347603,
+    tolerance = 1*10^-1)
+  )
+  show_failure(expect_equal(
+    !!object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]]@coordinates[40],
+    10.1551666106084,
+    tolerance = 1*10^-1)
+  )
 
 })
 
@@ -272,17 +271,9 @@ test_that("Cell type annotations are added to cell metadata", {
 })
 
 
-# # --------------------------------------------
+# # -------------------------------------------- #
 # remove downloaded datasets after tests run
-if (file.exists("./testdata/merFISH_3D_data_expression.txt.gz")) {
-  unlink("./testdata/merFISH_3D_data_expression.txt.gz")
-}
-
-if (file.exists("./testdata/merFISH_3D_data_cell_locations.txt")) {
-  unlink("./testdata/merFISH_3D_data_cell_locations.txt")
-}
-
-if (file.exists("./testdata/merFISH_3D_metadata.txt")) {
-  unlink("./testdata/merFISH_3D_metadata.txt")
-}
+if (file.exists(expr_path)) unlink(expr_path)
+if (file.exists(loc_path)) unlink(loc_path)
+if (file.exists(meta_path)) unlink(meta_path)
 

@@ -67,8 +67,6 @@ runPCAprojectionBatch(
 \item{verbose}{verbosity of the function}
 
 \item{...}{additional parameters for PCA (see details)}
-
-\item{genes_to_use}{deprecated use feats_to_use}
 }
 \value{
 giotto object with updated PCA dimension recuction

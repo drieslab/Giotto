@@ -9,7 +9,7 @@ doHclust(
   spat_unit = NULL,
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes_to_use = NULL,
+  feats_to_use = NULL,
   dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
@@ -34,7 +34,7 @@ doHclust(
 
 \item{expression_values}{expression values to use}
 
-\item{genes_to_use}{subset of genes to use}
+\item{feats_to_use}{subset of features to use}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

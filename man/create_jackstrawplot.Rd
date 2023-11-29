@@ -12,7 +12,7 @@ create_jackstrawplot(
 )
 }
 \arguments{
-\item{jackstraw_data}{result from jackstraw function}
+\item{jackstraw_data}{result from jackstraw function (`testresult$p`)}
 
 \item{ncp}{number of principal components to calculate}
 

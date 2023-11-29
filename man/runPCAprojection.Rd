@@ -37,7 +37,7 @@ runPCAprojection(
 
 \item{reduction}{cells or genes}
 
-\item{random_subset}{random subset to perform PCA on}
+\item{random_subset}{numeric. random subset to perform PCA on}
 
 \item{name}{arbitrary name for PCA run}
 
@@ -64,8 +64,6 @@ runPCAprojection(
 \item{verbose}{verbosity of the function}
 
 \item{...}{additional parameters for PCA (see details)}
-
-\item{genes_to_use}{deprecated use feats_to_use}
 }
 \value{
 giotto object with updated PCA dimension recuction

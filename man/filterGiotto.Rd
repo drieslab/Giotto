@@ -11,12 +11,12 @@ filterGiotto(
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
   feat_det_in_min_cells = 100,
-  gene_det_in_min_cells = NULL,
   min_det_feats_per_cell = 100,
-  min_det_genes_per_cell = NULL,
-  all_spat_units = TRUE,
-  all_feat_types = TRUE,
-  poly_info = "cell",
+  spat_unit_fsub = ":all:",
+  feat_type_ssub = ":all:",
+  all_spat_units = NULL,
+  all_feat_types = NULL,
+  poly_info = NULL,
   tag_cells = FALSE,
   tag_cell_name = "tag",
   tag_feats = FALSE,
@@ -27,9 +27,13 @@ filterGiotto(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{character. spatial unit. If more than one is provided then
+the first will be filtered, the filtering results will be applied across the
+other spat_units provided}
 
-\item{feat_type}{feature type}
+\item{feat_type}{character. feature type. If more than one is provided then
+the first will be filtered, the filtering results will be applied across the
+other feat_types provided.}
 
 \item{expression_values}{expression values to use}
 
@@ -37,17 +41,17 @@ filterGiotto(
 
 \item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
 
-\item{gene_det_in_min_cells}{deprecated, use feat_det_in_min_cells}
-
 \item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
 
-\item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
+\item{spat_unit_fsub}{character vector. (default = ':all:') limit features
+to remove results to selected spat_units}
 
-\item{all_spat_units}{apply features to remove filtering results from current
-spatial unit/feature type combination across ALL spatial units (default = TRUE)}
+\item{feat_type_ssub}{character vector. (default = ':all:') limit cells to
+remove results to selected feat_types}
 
-\item{all_feat_types}{apply cells to remove filtering results from current
-spatial unit/feature type combination across ALL feature types (default = TRUE)}
+\item{all_spat_units}{deprecated. Use spat_unit_fsub = ":all:"}
+
+\item{all_feat_types}{deprecated. Use feat_type_ssub = ":all:"}
 
 \item{poly_info}{polygon information to use}
 

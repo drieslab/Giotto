@@ -16,3 +16,4 @@ plotRecovery_sub(combCC, first_col = "LR_expr_rnk", second_col = "LR_spat_rnk")
 \description{
 Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
 }
+\keyword{internal}

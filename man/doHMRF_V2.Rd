@@ -15,9 +15,9 @@ doHMRF_V2(HMRF_init_obj, betas = NULL)
 function to run HMRF model
 }
 \details{
-This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter. 
-If the users are interested in selecting results from different smoothness, we recommend running a range of betas, 
-hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40. 
+This function will run a HMRF model after initialization of HMRF. Of note is the beta parameter, the smoothing parameter.
+If the users are interested in selecting results from different smoothness, we recommend running a range of betas,
+hence betas specify what this range is. For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40.
 betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the following guideline:
 If number of features N is 10<N<50, set betas=c(0, 1, 20)
 If 50<N<100, set betas=c(0, 2, 25)

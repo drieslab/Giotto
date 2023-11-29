@@ -15,7 +15,6 @@ runtSNE(
   dimensions_to_use = 1:10,
   name = NULL,
   feats_to_use = NULL,
-  genes_to_use = NULL,
   return_gobject = TRUE,
   dims = 2,
   perplexity = 30,
@@ -48,8 +47,6 @@ runtSNE(
 
 \item{feats_to_use}{if dim_reduction_to_use = NULL, which features to use}
 
-\item{genes_to_use}{deprecated, use feats_to_use}
-
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{dims}{tSNE param: number of dimensions to return}
@@ -79,7 +76,7 @@ See \code{\link[Rtsne]{Rtsne}} for more information about these and other parame
 \itemize{
   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
-  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 }

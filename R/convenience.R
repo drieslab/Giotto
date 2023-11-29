@@ -124,6 +124,7 @@ read_data_folder = function(spat_method = NULL,
 #' @title Create a giotto object from 10x visium data
 #' @name createGiottoVisiumObject
 #' @description Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
+#'
 #' @param visium_dir path to the 10X visium directory [required]
 #' @param expr_data raw or filtered data (see details)
 #' @param gene_column_index which column index to select (see details)
@@ -141,7 +142,10 @@ read_data_folder = function(spat_method = NULL,
 #' @param ymin_adj adjustment of the minimum y-value to align the image
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
+#' @param expression_matrix_class class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')
+#' @param h5_file optional path to create an on-disk h5 file
 #' @param verbose be verbose
+#'
 #' @return giotto object
 #' @details
 #' If starting from a Visium 10X directory:
@@ -176,6 +180,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     ymax_adj = 0,
                                     ymin_adj = 0,
                                     instructions = NULL,
+                                    expression_matrix_class = c("dgCMatrix", "DelayedArray"),
+                                    h5_file = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
 
@@ -306,6 +312,13 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                   verbose = verbose)
     }
 
+    # Add polygon information
+    if(file.exists(h5_json_scalefactors_path)){
+      giotto_object = addVisiumPolygons(gobject = giotto_object,
+                                        scalefactor_path = h5_json_scalefactors_path)
+    }
+
+
 
   } else {
 
@@ -355,12 +368,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
 
 
-
-
+    # TODO handling case in which scalefactors_path does not exist
+    scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
     if(png_name == 'tissue_lowres_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
       if(file.exists(scalefactors_path)) {
         if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
@@ -379,10 +390,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        ymax_adj = ymax_adj,
                                        ymin_adj = ymin_adj)
 
-      }
+      } # TODO handling case in which scalefactors_path does not exist
     } else if(png_name == 'tissue_hires_image.png') {
-
-      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
 
       if(file.exists(scalefactors_path)) {
         if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
@@ -401,7 +410,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        ymax_adj = ymax_adj,
                                        ymin_adj = ymin_adj)
 
-      }
+      } # TODO handling case in which scalefactors_path does not exist
     } else {
       visium_png = createGiottoImage(gobject = NULL,
                                      spatial_locs =  spatial_locs,
@@ -427,14 +436,24 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                          instructions = instructions,
                                          cell_metadata = list('cell' = list('rna' = cell_metadata,
                                                                             'protein' = cell_metadata)),
-                                         images = visium_png_list)
+                                         images = visium_png_list,
+                                         expression_matrix_class = expression_matrix_class,
+                                         h5_file = h5_file)
     } else {
       giotto_object = createGiottoObject(expression = raw_matrix,
                                          expression_feat = 'rna',
                                          spatial_locs = spatial_locs,
                                          instructions = instructions,
                                          cell_metadata = list('cell' = list('rna' = cell_metadata)),
-                                         images = visium_png_list)
+                                         images = visium_png_list,
+                                         expression_matrix_class = expression_matrix_class,
+                                         h5_file = h5_file)
+    }
+
+    # Add polygon information
+    if(file.exists(scalefactors_path)){
+      giotto_object = addVisiumPolygons(gobject = giotto_object,
+                                        scalefactor_path = scalefactors_path)
     }
 
   }
@@ -442,14 +461,207 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   return(giotto_object)
 }
 
+# Visium Polygon Creation
+
+#' @title Add Visium Polygons to Giotto Object
+#' @name addVisiumPolygons
+#' @param gobject Giotto Object created with visium data, containing
+#' spatial location corresponding to spots
+#' @param scalefactor_path path to scalefactors_json.json Visium output
+#' @return Giotto Object with circular polygons added at each spatial location
+#' @details
+#' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
+#' for the "cell" spaital unit.
+#' @export
+addVisiumPolygons <- function(gobject,
+                              scalefactor_path = NULL){
+  if(is.null(gobject) || !inherits(gobject, "giotto")){
+    stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = T))
+  }
+
+  visium_spat_locs = getSpatialLocations(gobject = gobject,
+                                         spat_unit = "cell")
+
+  scalefactors_list = visium_read_scalefactors(json_path =scalefactor_path)
+
+  visium_polygons = visium_spot_poly(spatLocsObj = visium_spat_locs,
+                                     json_scalefactors = scalefactors_list)
+
+  gobject = addGiottoPolygons(gobject = gobject,
+                              gpolygons = list(visium_polygons))
 
 
+}
+
+
+#' @title Read Visium ScaleFactors
+#' @name visium_read_scalefactors
+#' @param json_path path to scalefactors_json.json for Visium experimental data
+#' @return scalefactors within the provided json file as a named list,
+#' or NULL if not discovered
+#' @details asserts the existence of and reads in a .json file
+#' containing scalefactors for Visium data in the expected format.
+#' Returns NULL if no path is provided or if the file does not exist.
+#' @keywords internal
+visium_read_scalefactors = function(json_path = NULL) {
+
+  if (!checkmate::test_file_exists(json_path)) {
+    if (!is.null(json_path)) {
+      warning('scalefactors not discovered at: ', json_path)
+    }
+    return(NULL)
+  }
+
+  json_scalefactors = jsonlite::read_json(json_path)
+
+  # Intial assertion that json dimensions are appropriate
+  checkmate::assert_list(
+    x = json_scalefactors,
+    types = 'numeric',
+    min.len = 4L,
+    max.len = 5L
+  )
+
+  expected_json_names = c(
+    "regist_target_img_scalef", # NEW as of 2023
+    "spot_diameter_fullres",
+    "tissue_hires_scalef",
+    "fiducial_diameter_fullres",
+    "tissue_lowres_scalef"
+  )
+
+  # Visium assay with chemistry v2 contains an additional
+  # keyword in the json file
+  new_format_2023 = checkmate::test_list(
+    x = json_scalefactors,
+    types = 'numeric',
+    len = 5L
+  )
+
+  # If the scalefactors are of size 4 (older assay), clip the new keyword
+  if(!new_format_2023) expected_json_names = expected_json_names[2:5]
+
+  if (!setequal(names(json_scalefactors), expected_json_names)) {
+    warning(GiottoUtils::wrap_txt(
+      'h5 scalefactors json names differ from expected.
+       [Expected]:', expected_json_names, '\n',
+      '[Actual]:', names(json_scalefactors)))
+  }
+
+  return (json_scalefactors)
+}
+
+
+#' @title Calculate Pixel to Micron Scalefactor
+#' @name visium_micron_scalefactor
+#' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
+#' @return scale factor for converting pixel to micron
+#' @details
+#' Calculates pixel to micron scalefactor.
+#' Visium xy coordinates are based on the fullres image
+#' The values provided are directly usable for generating polygon information
+#' or calculating the micron size relative to spatial coordinates for this set
+#' of spatial information.
+#' @keywords internal
+visium_micron_scale <- function(json_scalefactors) {
+  # visium spots diameter                       : 55 micron
+  # diameter of a spot at this spatial scaling  : scalefactor_list$spot_diameter_fullres
+  px_to_micron <- 55 / json_scalefactors$spot_diameter_fullres
+  return (px_to_micron)
+}
+
+
+#' @title Create Polygons for Visium Data
+#' @name visium_spot_poly
+#' @param spatLocsObj spatial locations object containing centroid locations of visium spots
+#' @param json_scalefactors list of scalefactors from visium_read_scalefactors()
+#' @return giottoPolygon object
+#' @details
+#' Creates circular polygons for spatial representation of
+#' Visium spots.
+#' @keywords internal
+visium_spot_poly <- function(spatLocsObj = NULL,
+                             json_scalefactors) {
+
+  if(!inherits(spatLocsObj, "spatLocsObj")){
+    stop(GiottoUtils::wrap_txt("A spatLocsObj must be provided. Please try again.\n", errWidth = TRUE))
+  }
+
+  vis_spot_poly <- GiottoClass::circleVertices(
+    radius = json_scalefactors$spot_diameter_fullres/2
+  )
+
+  GiottoClass::polyStamp(
+    stamp_dt = vis_spot_poly,
+    spatlocs = spatLocsObj[],
+    verbose = FALSE
+  ) %>%
+  createGiottoPolygonsFromDfr(calc_centroids = T,
+                              verbose = FALSE)
+
+}
 
 
 
 
 
 ## MERSCOPE ####
+
+
+#' @title Create Vizgen MERSCOPE largeImage
+#' @name createMerscopeLargeImage
+#' @description
+#' Read MERSCOPE stitched images as giottoLargeImage. Images will also be
+#' transformed to match the spatial coordinate reference system of the paired
+#' points and polygon data.
+#' @param image_file character. Path to one or more MERSCOPE images to load
+#' @param transforms_file character. Path to MERSCOPE transforms file. Usually
+#' in the same folder as the images and named
+#' 'micron_to_mosaic_pixel_transform.csv'
+#' @param name character. name to assign the image. Multiple should be provided
+#' if image_file is a list.
+#' @export
+createMerscopeLargeImage <- function(image_file,
+                                     transforms_file,
+                                     name = 'image') {
+
+  checkmate::assert_character(transforms_file)
+  tfsDT <- data.table::fread(transforms_file)
+  if (inherits(image_file, "character")) {
+    image_file <- as.list(image_file)
+  }
+  checkmate::assert_list(image_file)
+
+  scalef <- c(1/tfsDT[[1,1]], 1/tfsDT[[2,2]])
+  x_shift <- -tfsDT[[1,3]]/tfsDT[[1,1]]
+  y_shift <- -tfsDT[[2,3]]/tfsDT[[2,2]]
+
+  out <- lapply(seq_along(image_file), function(i) {
+    gimg <- createGiottoLargeImage(
+      raster_object = image_file[[i]],
+      name = name[[i]],
+      scale_factor = scalef,
+      negative_y = FALSE
+    )
+
+    gimg <- spatShift(gimg, dx = x_shift, dy = y_shift)
+
+    gimg@extent <- terra::ext(gimg@raster_object)
+    return(gimg)
+  })
+
+  if (length(out) == 1L) {
+    out <- unlist(out)
+  }
+
+  return(out)
+}
+
+
+
+
+
+
 
 #' @title Create Vizgen MERSCOPE Giotto Object
 #' @name createGiottoMerscopeObject
@@ -464,7 +676,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param overlap_to_matrix whether to run \code{\link{overlapToMatrix}}
 #' @param aggregate_stack whether to run \code{\link{aggregateStacks}}
 #' @param aggregate_stack_param params to pass to \code{\link{aggregateStacks}}
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @return a giotto object
 #' @export
 #' @details
@@ -550,7 +762,6 @@ createGiottoMerscopeObject = function(merscope_dir,
 
 #' @describeIn createGiottoMerscopeObject Create giotto object with 'subcellular' workflow
 #' @param data_list list of loaded data from \code{\link{load_merscope_folder}}
-#' @import data.table
 #' @keywords internal
 createGiottoMerscopeObject_subcellular = function(data_list,
                                                   calculate_overlap = TRUE,
@@ -642,7 +853,7 @@ createGiottoMerscopeObject_aggregate = function(data_list,
 #' @name createSpatialGenomicsObject
 #' @param sg_dir full path to the exported Spatial Genomics directory
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
-#' @description Given the path to a Spatial Genomics data directory, creates a 
+#' @description Given the path to a Spatial Genomics data directory, creates a
 #' Giotto object.
 #' @export
 createSpatialGenomicsObject <- function(sg_dir = NULL,
@@ -652,18 +863,24 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
   mask = list.files(sg_dir, full.names = TRUE, pattern = 'mask')
   tx = list.files(sg_dir, full.names = TRUE, pattern = 'transcript')
   # Create Polygons
-  gpoly = createGiottoPolygonsFromMask(mask, shift_vertical_step = F, 
-                                       shift_horizontal_step = F, 
-                                       flip_horizontal = F, flip_vertical = F)
+  gpoly = createGiottoPolygonsFromMask(
+    mask,
+    shift_vertical_step = FALSE,
+    shift_horizontal_step = FALSE,
+    flip_horizontal = FALSE,
+    flip_vertical = FALSE
+  )
   # Create Points
   tx = data.table::fread(tx)
   gpoints = createGiottoPoints(tx)
   dim(tx)
   # Create object and add image
   gimg = createGiottoLargeImage(dapi, use_rast_ext = TRUE)
-  sg = createGiottoObjectSubcellular(gpoints = list('rna' = gpoints),
-                                     gpolygons = list('cell' = gpoly),
-                                     instructions = intructions)
+  sg = createGiottoObjectSubcellular(
+    gpoints = list('rna' = gpoints),
+    gpolygons = list('cell' = gpoly),
+    instructions = instructions
+  )
   sg = addGiottoLargeImage(sg, largeImages = list(image = gimg))
   # Return SG object
   return(sg)
@@ -687,8 +904,7 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
 #' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
-#' @inheritParams createGiottoObjectSubcellular
-#' @import data.table
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @return a giotto object
 #' @export
 #' @details
@@ -1092,11 +1308,13 @@ createGiottoCosMxObject_all = function(dir_items,
                                feat_type: "rna"
                                name: "raw"')
   # add expression data to expression slot
-  s4_expr = create_expr_obj(name = 'raw',
-                            exprMat = spM,
-                            spat_unit = 'cell_agg',
-                            feat_type = 'rna',
-                            provenance = 'cell_agg')
+  s4_expr = createExprObj(
+    name = 'raw',
+    expression_data = spM,
+    spat_unit = 'cell_agg',
+    feat_type = 'rna',
+    provenance = 'cell_agg'
+  )
 
   cosmx_gobject = set_expression_values(cosmx_gobject, values = s4_expr)
 
@@ -1198,7 +1416,7 @@ createGiottoCosMxObject_all = function(dir_items,
 #' @param key_list (advanced) list of grep-based keywords to split the subcellular
 #' feature detections by feature type. See details
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @details
 #'
 #' [\strong{QC feature types}]
@@ -1351,7 +1569,7 @@ createGiottoXeniumObject = function(xenium_dir,
 #' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included as
 #' a subcellular transcript detection (default = 20)
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @seealso createGiottoXeniumObject createGiottoXeniumObject_aggregate
 #' @keywords internal
 createGiottoXeniumObject_subcellular = function(data_list,
@@ -1445,7 +1663,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
 #' @description Aggregate workflow for createGiottoXeniumObject
 #' @param data_list list of data loaded by \code{load_xenium_folder}
 #' @inheritParams get10Xmatrix
-#' @inheritParams createGiottoObjectSubcellular
+#' @inheritParams GiottoClass::createGiottoObjectSubcellular
 #' @seealso createGiottoXeniumObject createGiottoXeniumObject_subcellular
 #' @keywords internal
 createGiottoXeniumObject_aggregate = function(data_list,

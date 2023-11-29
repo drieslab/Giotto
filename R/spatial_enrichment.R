@@ -1579,7 +1579,6 @@ spatialAutoCorGlobal = function(gobject = NULL,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type,
                                      feats = feats,
-                                     method = method,
                                      data_to_use = data_to_use,
                                      expression_values = expression_values,
                                      meta_cols = meta_cols,
@@ -1731,7 +1730,6 @@ spatialAutoCorLocal = function(gobject = NULL,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type,
                                      feats = feats,
-                                     method = method,
                                      data_to_use = data_to_use,
                                      expression_values = expression_values,
                                      meta_cols = meta_cols,
@@ -1865,7 +1863,6 @@ run_spat_autocor_global = function(use_values,
 
 #' run_spat_autocor_local
 #'
-#' @import data.table
 #' @keywords internal
 run_spat_autocor_local = function(use_values,
                                   feats,
@@ -1951,7 +1948,6 @@ evaluate_autocor_input = function(gobject,
                                   spat_unit,
                                   feat_type,
                                   feats,
-                                  method,
                                   data_to_use,
                                   expression_values,
                                   meta_cols,
@@ -2038,7 +2034,7 @@ evaluate_autocor_input = function(gobject,
     # ensure identical ordering with giotto weight matrix
     if(exists('wm_colnames')) {
       new_order = data.table::chmatch(wm_colnames, use_values$cell_ID)
-      set_row_order_dt(use_values, new_order)
+      GiottoUtils::set_row_order_dt(use_values, new_order)
     }
 
     feats = meta_cols
@@ -2056,13 +2052,10 @@ evaluate_autocor_input = function(gobject,
 
   # 3. general formatting and checking
   ## weight matrix type
-  if(!inherits(weight_matrix, c('Matrix', 'matrix'))) {
-    stop(wrap_txt('weight_matrix must be a matrix or Matrix',
+  if(!inherits(weight_matrix, c('Matrix', 'matrix', 'listw', 'nb'))) {
+    stop(wrap_txt('weight_matrix must be a matrix, Matrix, or listw',
                   errWidth = TRUE))
   }
-
-  ## terra autocor currently does not seem to work with sparse weight matrices
-  weight_matrix = as.matrix(weight_matrix)
 
   ## check if weight matrix dimensions match use_values
   if((nrow(use_values) != ncol(weight_matrix)) | (nrow(use_values) != nrow(weight_matrix))) {
