@@ -15,7 +15,7 @@ findScranMarkers(
   group_1_name = NULL,
   group_2 = NULL,
   group_2_name = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
