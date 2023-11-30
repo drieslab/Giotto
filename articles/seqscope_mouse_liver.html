@@ -36,6 +36,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-get-started">Get started</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-get-started">
+    <a class="dropdown-item" href="../articles/installation.html">Giotto Installation</a>
+    <a class="dropdown-item" href="../articles/ecosystem.html">Giotto Ecosystem</a>
+    <a class="dropdown-item" href="../articles/configuration.html">Giotto Configuration</a>
+    <a class="dropdown-item" href="../articles/object_creation.html">Giotto Object Creation</a>
+    <a class="dropdown-item" href="../articles/structure.html">Giotto Class Structure</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Documentation</a>
 </li>
@@ -106,7 +116,6 @@
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
     <a class="dropdown-item" href="../articles/interoperability_anndata.html">AnnData</a>
-    <div class="dropdown-divider"></div>
   </div>
 </li>
 <li class="nav-item dropdown">
@@ -116,6 +125,12 @@
     <a class="dropdown-item" href="../articles/docker.html">Docker</a>
     <div class="dropdown-divider"></div>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/presentations.html">Presentations</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/branches.html">Branches</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -299,7 +314,7 @@ have more than one subcellular point.</p>
 <span></span>
 <span><span class="co">##Spatial coordinates</span></span>
 <span><span class="va">spatial_coords_Dir</span> <span class="op">=</span> <span class="st">"/path/to/extractCoord.sh/results/spatialcoordinates.txt"</span></span>
-<span><span class="va">spatial_coords</span> <span class="op">=</span> <span class="fu">fread</span><span class="op">(</span><span class="st">"spatial_coords_Dir"</span><span class="op">)</span></span>
+<span><span class="va">spatial_coords</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"spatial_coords_Dir"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">spatial_coords</span><span class="op">)</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HDMI"</span>,<span class="st">"Lane"</span>,<span class="st">"Tile"</span>,<span class="st">"X"</span>,<span class="st">"Y"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">##Prepare Giotto Point</span></span>
@@ -308,14 +323,14 @@ have more than one subcellular point.</p>
 <span><span class="va">expr_matrix_tile</span> <span class="op">=</span> <span class="va">expr_matrix</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">expr_matrix</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">spatial_coords_tile</span><span class="op">$</span><span class="va">HDMI</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># convert expression matrix to minimal data.table object</span></span>
-<span><span class="va">matrix_tile_dt</span> <span class="op">=</span> <span class="fu">as.data.table</span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">expr_matrix_tile</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">matrix_tile_dt</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">expr_matrix_tile</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">genes</span> <span class="op">=</span> <span class="va">expr_matrix_tile</span><span class="op">@</span><span class="va">Dimnames</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">samples</span> <span class="op">=</span> <span class="va">expr_matrix_tile</span><span class="op">@</span><span class="va">Dimnames</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">matrix_tile_dt</span><span class="op">[</span>, <span class="va">gene</span> <span class="op">:=</span> <span class="va">genes</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">matrix_tile_dt</span><span class="op">[</span>, <span class="va">hdmi</span> <span class="op">:=</span> <span class="va">samples</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># merge data.table matrix and spatial coordinates to create input for Giotto Polygons</span></span>
-<span><span class="va">gpoints</span> <span class="op">=</span> <span class="fu">merge.data.table</span><span class="op">(</span><span class="va">matrix_tile_dt</span>, <span class="va">spatial_coords_tile</span>, by.x <span class="op">=</span> <span class="st">'hdmi'</span>, by.y <span class="op">=</span> <span class="st">'HDMI'</span><span class="op">)</span></span>
+<span><span class="va">gpoints</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/merge.html" class="external-link">merge.data.table</a></span><span class="op">(</span><span class="va">matrix_tile_dt</span>, <span class="va">spatial_coords_tile</span>, by.x <span class="op">=</span> <span class="st">'hdmi'</span>, by.y <span class="op">=</span> <span class="st">'HDMI'</span><span class="op">)</span></span>
 <span><span class="va">gpoints</span> <span class="op">=</span> <span class="va">gpoints</span><span class="op">[</span>,<span class="fu">.</span><span class="op">(</span><span class="va">hdmi</span>, <span class="va">X</span>, <span class="va">Y</span>, <span class="va">gene</span>, <span class="va">x</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">gpoints</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'hdmi'</span>, <span class="st">'x'</span>, <span class="st">'y'</span>, <span class="st">'gene'</span>, <span class="st">'counts'</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -329,7 +344,7 @@ the x and y axis.</p>
 <code class="sourceCode R"><span><span class="co"># check total counts per hdmi</span></span>
 <span><span class="va">gpoints_aggr</span> <span class="op">=</span> <span class="va">gpoints</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">hdmi</span>, <span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">gpoints_aggr</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hdmi"</span>,<span class="st">"x"</span>,<span class="st">"y"</span>,<span class="st">"total_counts"</span><span class="op">)</span></span>
-<span><span class="fu">setorder</span><span class="op">(</span><span class="va">gpoints_aggr</span>, <span class="op">-</span><span class="va">total_counts</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">setorder</a></span><span class="op">(</span><span class="va">gpoints_aggr</span>, <span class="op">-</span><span class="va">total_counts</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pl</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pl</span> <span class="op">=</span> <span class="va">pl</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gpoints_aggr</span><span class="op">[</span><span class="va">total_counts</span> <span class="op">&lt;</span> <span class="fl">1000</span> <span class="op">&amp;</span> <span class="va">total_counts</span> <span class="op">&gt;</span> <span class="fl">8</span><span class="op">]</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, color <span class="op">=</span> <span class="va">total_counts</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
