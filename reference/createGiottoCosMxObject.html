@@ -20,7 +20,17 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-get-started">Get started</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-get-started">
+    <a class="dropdown-item" href="../articles/installation.html">Giotto Installation</a>
+    <a class="dropdown-item" href="../articles/ecosystem.html">Giotto Ecosystem</a>
+    <a class="dropdown-item" href="../articles/configuration.html">Giotto Configuration</a>
+    <a class="dropdown-item" href="../articles/object_creation.html">Giotto Object Creation</a>
+    <a class="dropdown-item" href="../articles/structure.html">Giotto Class Structure</a>
+  </div>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Documentation</a>
 </li>
 <li class="nav-item dropdown">
@@ -90,7 +100,6 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
     <a class="dropdown-item" href="../articles/interoperability_anndata.html">AnnData</a>
-    <div class="dropdown-divider"></div>
   </div>
 </li>
 <li class="nav-item dropdown">
@@ -100,6 +109,12 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
     <a class="dropdown-item" href="../articles/docker.html">Docker</a>
     <div class="dropdown-divider"></div>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/presentations.html">Presentations</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/branches.html">Branches</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -140,7 +155,7 @@ object.</p>
 <span>  remove_unvalid_polygons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  FOVs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  instructions <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cores <span class="op">=</span> <span class="fu">determine_cores</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/determine_cores.html">determine_cores</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>

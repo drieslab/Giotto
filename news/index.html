@@ -18,7 +18,17 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-get-started">Get started</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-get-started">
+    <a class="dropdown-item" href="../articles/installation.html">Giotto Installation</a>
+    <a class="dropdown-item" href="../articles/ecosystem.html">Giotto Ecosystem</a>
+    <a class="dropdown-item" href="../articles/configuration.html">Giotto Configuration</a>
+    <a class="dropdown-item" href="../articles/object_creation.html">Giotto Object Creation</a>
+    <a class="dropdown-item" href="../articles/structure.html">Giotto Class Structure</a>
+  </div>
+</li>
+<li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Documentation</a>
 </li>
 <li class="nav-item dropdown">
@@ -88,7 +98,6 @@
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
     <a class="dropdown-item" href="../articles/interoperability_anndata.html">AnnData</a>
-    <div class="dropdown-divider"></div>
   </div>
 </li>
 <li class="nav-item dropdown">
@@ -98,6 +107,12 @@
     <a class="dropdown-item" href="../articles/docker.html">Docker</a>
     <div class="dropdown-divider"></div>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/presentations.html">Presentations</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/branches.html">Branches</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -342,7 +357,7 @@
 <h2 class="pkg-version" data-toc-text="3.1.0" id="giotto-310-20221201">Giotto 3.1.0 (2022/12/01)<a class="anchor" aria-label="anchor" href="#giotto-310-20221201"></a></h2>
 <div class="section level3">
 <h3 id="added-3-1-0">Added<a class="anchor" aria-label="anchor" href="#added-3-1-0"></a></h3>
-<ul><li>New <code><a href="https://rdrr.io/r/methods/new.html" class="external-link">initialize()</a></code> generic that calls <code>setalloccol()</code> for data.table*based S4 subobjects to allow setting by reference</li>
+<ul><li>New <code><a href="https://rdrr.io/r/methods/new.html" class="external-link">initialize()</a></code> generic that calls <code><a href="https://Rdatatable.gitlab.io/data.table/reference/truelength.html" class="external-link">setalloccol()</a></code> for data.table*based S4 subobjects to allow setting by reference</li>
 <li>New <code>spatUnit</code>, <code>spatUnit&lt;*</code>, <code>featType</code>, and <code>featType&lt;*</code> feat type generics for S4 subobjects for setting the relevant slots</li>
 <li>Add <code><a href="https://drieslab.github.io/GiottoClass/reference/hexVertices.html">hexVertices()</a></code> to polygon shape array generation functionality</li>
 </ul></div>

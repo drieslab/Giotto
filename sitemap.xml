@@ -13,16 +13,28 @@
     <loc>https://drieslab.github.io/Giotto/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/branches.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/codex_mouse_spleen.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/configuration.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/docker.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/ecosystem.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/image_alignment.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/installation.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/interactive_selection.html</loc>
@@ -40,7 +52,13 @@
     <loc>https://drieslab.github.io/Giotto/articles/nanostring_cosmx_lung_cancer.html</loc>
   </url>
   <url>
+    <loc>https://drieslab.github.io/Giotto/articles/object_creation.html</loc>
+  </url>
+  <url>
     <loc>https://drieslab.github.io/Giotto/articles/osmfish_mouse_ss_cortex.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/presentations.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/resolve_biosciences.html</loc>
@@ -68,6 +86,9 @@
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/spatial_transformations.html</loc>
+  </url>
+  <url>
+    <loc>https://drieslab.github.io/Giotto/articles/structure.html</loc>
   </url>
   <url>
     <loc>https://drieslab.github.io/Giotto/articles/terra.html</loc>

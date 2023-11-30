@@ -18,7 +18,17 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-get-started">Get started</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-get-started">
+    <a class="dropdown-item" href="../articles/installation.html">Giotto Installation</a>
+    <a class="dropdown-item" href="../articles/ecosystem.html">Giotto Ecosystem</a>
+    <a class="dropdown-item" href="../articles/configuration.html">Giotto Configuration</a>
+    <a class="dropdown-item" href="../articles/object_creation.html">Giotto Object Creation</a>
+    <a class="dropdown-item" href="../articles/structure.html">Giotto Class Structure</a>
+  </div>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Documentation</a>
 </li>
 <li class="nav-item dropdown">
@@ -88,7 +98,6 @@
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
     <a class="dropdown-item" href="../articles/interoperability_anndata.html">AnnData</a>
-    <div class="dropdown-divider"></div>
   </div>
 </li>
 <li class="nav-item dropdown">
@@ -98,6 +107,12 @@
     <a class="dropdown-item" href="../articles/docker.html">Docker</a>
     <div class="dropdown-divider"></div>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/presentations.html">Presentations</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/branches.html">Branches</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -172,7 +187,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="co">## Plot interactive polygons</span></span></span>
-<span class="r-in"><span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu">spatPlot2D</span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">my_giotto_object</span>,</span></span>
+<span class="r-in"><span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">my_giotto_object</span>,</span></span>
 <span class="r-in"><span>                          show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>                          point_alpha <span class="op">=</span> <span class="fl">0.75</span>,</span></span>
 <span class="r-in"><span>                          save_plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
