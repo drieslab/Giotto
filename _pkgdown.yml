@@ -26,9 +26,6 @@ navbar:
     - reference
     - articles
     - tools
-    - try_giotto
-    - presentations
-    - branches
     - news
     right:
     - search
@@ -47,11 +44,13 @@ navbar:
         href: articles/object_creation.html
       - text: Giotto Class Structure
         href: articles/structure.html
+      - text: Branches
+        href: articles/branches.html
     reference:
       text: Documentation
       href: reference/index.html
     tools:
-      text: Tools
+      text: Tutorials
       menu:
       - text: Spatial manipulation
       - text: Spatial transformations
@@ -78,22 +77,14 @@ navbar:
       - text: Interoperability
       - text: AnnData
         href: articles/interoperability_anndata.html
-    branches:
-      text: Branches
-      href: articles/branches.html
-    presentations:
-      text: Presentations
-      href: articles/presentations.html
-    try_giotto:
-      text: Try Giotto in the Cloud
-      menu:
+      - text: -------
+      - text: Try Giotto in the Cloud
       - text: Terra.bio
         href: articles/terra.html
       - text: Docker
         href: articles/docker.html
-      - text: -------
     articles:
-      text: Tutorials
+      text: Examples
       menu:
       - text: Seq-Scope
       - text: Mouse liver
@@ -156,7 +147,11 @@ navbar:
         href: articles/singlecell_prostate_integration.html
     news:
       text: News
-      href: news/index.html
+      menu:
+      - text: Changes
+        href: news/index.html
+      - text: Presentations
+        href: articles/presentations.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/drieslab/Giotto/
@@ -164,14 +159,10 @@ navbar:
 
 
 articles:
-- title: Presentations
+- title: News
   navbar: ~
   contents:
   - presentations
-- title: Branches
-  navbar: ~
-  contents:
-  - branches
 - title: Get started
   navbar: ~
   contents:
@@ -180,6 +171,7 @@ articles:
   - configuration
   - object_creation
   - structure
+  - branches
 - title: Try Giotto in the Cloud
   navbar: ~
   contents:
