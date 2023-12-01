@@ -2,6 +2,7 @@ pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  branches: branches.html
   codex_mouse_spleen: codex_mouse_spleen.html
   configuration: configuration.html
   docker: docker.html
@@ -35,7 +36,7 @@ articles:
   visualizations: visualizations.html
   vizgen_mouse_brain: vizgen_mouse_brain.html
   xenium_breast_cancer: xenium_breast_cancer.html
-last_built: 2023-12-01T18:24Z
+last_built: 2023-12-01T19:05Z
 urls:
   reference: https://drieslab.github.io/Giotto/reference
   article: https://drieslab.github.io/Giotto/articles
