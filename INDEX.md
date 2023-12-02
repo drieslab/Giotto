@@ -27,14 +27,15 @@ Visit the Giotto [Discussions](https://github.com/drieslab/Giotto/discussions) p
 
 ## Website description  
 
-- Examples: Here you can find end-to-end  examples for different technologies and datasets
-- Tutorials: Here you can find various tutorials on working with Giotto (analysis, visualizations, working on the cloud, …)
-- Get started: Here you can find more advanced information about the Giotto object, Giotto ecosystem, Giotto configuration, and installation FAQs.
-- NEWS: Here you can find the changelog for every Giotto release and video recordings from previous presentations. 
+- **Examples:** Here you can find end-to-end  examples for different technologies and datasets
+- **Tutorials:** Here you can find various tutorials on working with Giotto (analysis, visualizations, working on the cloud, …)
+- **Get started:** Here you can find more advanced information about the Giotto object, Giotto ecosystem, Giotto configuration, and installation FAQs.
+- **NEWS:** Here you can find the changelog for every Giotto release and video recordings from previous presentations. 
 
 
 ## References
 
+- [Jiaji George Chen, Joselyn Cristina Chávez-Fuentes, et al. Giotto Suite: a multi-scale and technology-agnostic spatial multi-omics analysis ecosystem. bioRxiv (2023)](https://www.biorxiv.org/content/10.1101/2023.11.26.568752v1)
 - [Dries, R., Zhu, Q. et al. Giotto: a toolbox for integrative analysis and visualization of spatial expression data. Genome Biology (2021).](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02286-2)
 - [Dries, R., Chen, J. et al. Advances in spatial transcriptomic data analysis. Genome Research (2021).](https://genome.cshlp.org/content/31/10/1706.long)
 - [Del Rossi, N., Chen, J. et al. Analyzing Spatial Transcriptomics Data Using Giotto. Current Protocols (2022).](https://currentprotocols.onlinelibrary.wiley.com/doi/abs/10.1002/cpz1.405)
