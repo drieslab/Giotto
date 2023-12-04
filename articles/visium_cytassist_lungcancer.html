@@ -4,162 +4,325 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Giotto">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visium CytAssist Human Lung Cancer • Giotto</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/JetBrains_Mono-0.4.7/font.css" rel="stylesheet">
-<!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Visium CytAssist Human Lung Cancer">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Visium CytAssist Human Lung Cancer">
 <meta property="og:description" content="Giotto">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
-    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
+<body data-spy="scroll" data-target="#toc">
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
-    
-    <a class="navbar-brand me-2" href="../index.html">Giotto</a>
+    <div class="container template-article">
+      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">Giotto</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+      </span>
+    </div>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.0.0</small>
-
-    
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto">
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-get-started">Get started</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-get-started">
-    <a class="dropdown-item" href="../articles/installation.html">Giotto Installation</a>
-    <a class="dropdown-item" href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    <a class="dropdown-item" href="../articles/configuration.html">Giotto Configuration</a>
-    <a class="dropdown-item" href="../articles/object_creation.html">Giotto Object Creation</a>
-    <a class="dropdown-item" href="../articles/structure.html">Giotto Class Structure</a>
-    <a class="dropdown-item" href="../articles/branches.html">Branches</a>
-  </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Get started
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/installation.html">Giotto Installation</a>
+    </li>
+    <li>
+      <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
+    </li>
+    <li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li>
+      <a href="../articles/structure.html">Giotto Class Structure</a>
+    </li>
+    <li>
+      <a href="../articles/structure.html">Giotto Class Structure</a>
+    </li>
+    <li>
+      <a href="../articles/errorsfaqsandtips.html">Solutions to Installation Errors</a>
+    </li>
+    <li>
+      <a href="../articles/faqs.html">FAQs</a>
+    </li>
+    <li>
+      <a href="../articles/branches.html">Branches</a>
+    </li>
+    <li>
+      <a href="../articles/github_issues.html">How to report a bug</a>
+    </li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Documentation</a>
+<li>
+  <a href="../reference/index.html">Documentation</a>
 </li>
-<li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-examples">Examples</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-examples">
-    <h6 class="dropdown-header" data-toc-skip>Seq-Scope</h6>
-    <a class="dropdown-item" href="../articles/seqscope_mouse_liver.html">Mouse liver</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Visium</h6>
-    <a class="dropdown-item" href="../articles/visium_mouse_kidney.html">Visium Mouse Kidney</a>
-    <a class="dropdown-item" href="../articles/visium_mouse_brain.html">Visium Mouse Brain</a>
-    <a class="dropdown-item" href="../articles/visium_prostate_integration.html">Visium Prostate Integration</a>
-    <a class="dropdown-item" href="../articles/visium_cytassist_lungcancer.html">CytAssist Human Lung Cancer</a>
-    <a class="dropdown-item" href="../articles/visium_cytassist_human_glioblastoma.html">CytAssist Multi-omics Human Glioblastoma</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Spatial Genomics</h6>
-    <a class="dropdown-item" href="../articles/spatial_genomics_mouse_kidney.html">Mouse Kidney</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Xenium</h6>
-    <a class="dropdown-item" href="../articles/xenium_breast_cancer.html">Xenium Human breast cancer</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Nanostring CosMx</h6>
-    <a class="dropdown-item" href="../articles/nanostring_cosmx_lung_cancer.html">Nanostring CosMx Subcellular Lung Cancer</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>MERFISH</h6>
-    <a class="dropdown-item" href="../articles/merfish_mouse_hypothalamic.html">MERFISH Mouse Hypothalamic Preoptic Region</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Vizgen</h6>
-    <a class="dropdown-item" href="../articles/vizgen_mouse_brain.html">Vizgen Mouse Brain Receptor Map</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>seqFISH</h6>
-    <a class="dropdown-item" href="../articles/mini_seqfish.html">mini seqFISH</a>
-    <a class="dropdown-item" href="../articles/seqfish_cortex.html">SeqFish+ Mouse Cortex Example</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>osmFISH</h6>
-    <a class="dropdown-item" href="../articles/osmfish_mouse_ss_cortex.html">osmFISH Mouse SS Cortex</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Resolve Bioscience</h6>
-    <a class="dropdown-item" href="../articles/resolve_biosciences.html">Resolve Bioscience Breast Cancer Subcellular</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>CODEX</h6>
-    <a class="dropdown-item" href="../articles/codex_mouse_spleen.html">Codex Mouse Spleen</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Single Cell RNA Sequencing</h6>
-    <a class="dropdown-item" href="../articles/singlecell_prostate_standard.html">Prostate</a>
-    <a class="dropdown-item" href="../articles/singlecell_prostate_integration.html">Prostate Integration</a>
-  </div>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Seq-Scope</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/seqscope_mouse_liver.html">Mouse liver</a>
+        </li>
+      </ul>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <h6 class="dropdown-header" data-toc-skip>Spatial manipulation</h6>
-    <a class="dropdown-item" href="../articles/spatial_transformations.html">Spatial transformations</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Image alignment</h6>
-    <a class="dropdown-item" href="../articles/image_alignment.html">Image alignment</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Interactive selection</h6>
-    <a class="dropdown-item" href="../articles/interactive_selection.html">Interactive selection</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Visualizations</h6>
-    <a class="dropdown-item" href="../articles/visualizations.html">Visualizations</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Saving and Loading</h6>
-    <a class="dropdown-item" href="../articles/saving_object.html">Saving a Giotto object</a>
-    <a class="dropdown-item" href="../articles/saving_plots.html">Saving plots</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Interoperability</h6>
-    <a class="dropdown-item" href="../articles/interoperability_anndata.html">AnnData</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Try Giotto in the Cloud</h6>
-    <a class="dropdown-item" href="../articles/terra.html">Terra.bio</a>
-    <a class="dropdown-item" href="../articles/docker.html">Docker</a>
-  </div>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Visium</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/visium_mouse_kidney.html">Visium Mouse Kidney</a>
+        </li>
+        <li>
+          <a href="../articles/visium_mouse_brain.html">Visium Mouse Brain</a>
+        </li>
+        <li>
+          <a href="../articles/visium_prostate_integration.html">Visium Prostate Integration</a>
+        </li>
+        <li>
+          <a href="../articles/visium_cytassist_lungcancer.html">CytAssist Human Lung Cancer</a>
+        </li>
+        <li>
+          <a href="../articles/visium_cytassist_human_glioblastoma.html">CytAssist Multi-omics Human Glioblastoma</a>
+        </li>
+      </ul>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-news">News</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-news">
-    <a class="dropdown-item" href="../news/index.html">Changes</a>
-    <a class="dropdown-item" href="../articles/presentations.html">Presentations</a>
-  </div>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Spatial Genomics</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/spatial_genomics_mouse_kidney.html">Mouse Kidney</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Xenium</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/xenium_breast_cancer.html">Xenium Human breast cancer</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Nanostring CosMx</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/nanostring_cosmx_lung_cancer.html">Nanostring CosMx Subcellular Lung Cancer</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">MERFISH</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/merfish_mouse_hypothalamic.html">MERFISH Mouse Hypothalamic Preoptic Region</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Vizgen</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/vizgen_mouse_brain.html">Vizgen Mouse Brain Receptor Map</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">seqFISH</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/mini_seqfish.html">mini seqFISH</a>
+        </li>
+        <li>
+          <a href="../articles/seqfish_cortex.html">SeqFish+ Mouse Cortex Example</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">osmFISH</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/osmfish_mouse_ss_cortex.html">osmFISH Mouse SS Cortex</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Resolve Bioscience</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/resolve_biosciences.html">Resolve Bioscience Breast Cancer Subcellular</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">CODEX</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/codex_mouse_spleen.html">Codex Mouse Spleen</a>
+        </li>
+      </ul>
+</li>
+    <li class="divider">
+    </li>
+<li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Single Cell RNA Sequencing</a>
+      <ul class="dropdown-menu" role="menu">
+<li>
+          <a href="../articles/singlecell_prostate_standard.html">Prostate</a>
+        </li>
+        <li>
+          <a href="../articles/singlecell_prostate_integration.html">Prostate Integration</a>
+        </li>
+      </ul>
+</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li class="dropdown-header">Spatial manipulation</li>
+    <li>
+      <a href="../articles/spatial_transformations.html">Spatial transformations</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Image alignment</li>
+    <li>
+      <a href="../articles/image_alignment.html">Image alignment</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Interactive selection</li>
+    <li>
+      <a href="../articles/interactive_selection.html">Interactive selection</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Visualizations</li>
+    <li>
+      <a href="../articles/visualizations.html">Visualizations</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Saving and Loading</li>
+    <li>
+      <a href="../articles/saving_object.html">Saving a Giotto object</a>
+    </li>
+    <li>
+      <a href="../articles/saving_plots.html">Saving plots</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Interoperability</li>
+    <li>
+      <a href="../articles/interoperability_anndata.html">AnnData</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Try Giotto in the Cloud</li>
+    <li>
+      <a href="../articles/terra.html">Terra.bio</a>
+    </li>
+    <li>
+      <a href="../articles/docker.html">Docker</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    News
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../news/index.html">Changes</a>
+    </li>
+    <li>
+      <a href="../articles/presentations.html">Presentations</a>
+    </li>
+  </ul>
 </li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/drieslab/Giotto/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/drieslab/Giotto/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
       </ul>
 </div>
-
-    
+<!--/.nav-collapse -->
   </div>
-</nav><div class="container template-article">
+<!--/.container -->
+</div>
+<!--/.navbar -->
 
+      
 
-
-
-<div class="row">
-  <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Visium CytAssist Human Lung Cancer</h1>
+      </header><div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header toc-ignore">
+      <h1 data-toc-skip>Visium CytAssist Human Lung Cancer</h1>
             
-            <h4 data-toc-skip class="date">2022-11-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/drieslab/Giotto/blob/HEAD/vignettes/visium_cytassist_lungcancer.Rmd" class="external-link"><code>vignettes/visium_cytassist_lungcancer.Rmd</code></a></small>
-      <div class="d-none name"><code>visium_cytassist_lungcancer.Rmd</code></div>
+      <div class="hidden name"><code>visium_cytassist_lungcancer.Rmd</code></div>
+
     </div>
 
     
@@ -706,26 +869,33 @@ about the paper and scRNA-seq dataset can be found <a href="https://doi.org/10.1
 <span id="cb37-50"><a href="#cb37-50" tabindex="-1"></a>[<span class="dv">91</span>] IRanges_2.<span class="fl">32.0</span>              cluster_2.<span class="fl">1.4</span>               bluster_1.<span class="fl">8.0</span></span>
 <span id="cb37-51"><a href="#cb37-51" tabindex="-1"></a>[<span class="dv">94</span>] ellipsis_0.<span class="fl">3.2</span></span></code></pre></div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
-    </nav></aside>
+  </div>
+
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
+
 </div>
 
 
 
-    <footer><div class="pkgdown-footer-left">
+      <footer><div class="copyright">
   <p></p>
-<p>Developed by <a href="https://www.drieslab.com" class="external-link">Ruben Dries</a>, Jiaji George Chen, Natalie Del Rossi, <a href="https://labs.icahn.mssm.edu/yuanlab/" class="external-link">Guo-Cheng Yuan</a>, Matthew O’Brien, <a href="https://josschavezf.github.io" class="external-link">Joselyn C. Chávez-Fuentes</a>, Edward Ruiz.</p>
+<p>Developed by <a href="https://www.drieslab.com" class="external-link">Ruben Dries</a>, Jiaji George Chen, <a href="https://josschavezf.github.io" class="external-link">Joselyn C. Chávez-Fuentes</a>, <a href="https://labs.icahn.mssm.edu/yuanlab/" class="external-link">Guo-Cheng Yuan</a>, Matthew O’Brien, Edward Ruiz, Wen Wang, Natalie Del Rossi.</p>
 </div>
 
-<div class="pkgdown-footer-right">
+<div class="pkgdown">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
-    </footer>
+      </footer>
 </div>
 
   
+
 
   
 

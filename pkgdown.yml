@@ -7,6 +7,9 @@ articles:
   configuration: configuration.html
   docker: docker.html
   ecosystem: ecosystem.html
+  errorsfaqsandtips: errorsfaqsandtips.html
+  faqs: faqs.html
+  github_issues: github_issues.html
   image_alignment: image_alignment.html
   installation: installation.html
   interactive_selection: interactive_selection.html
@@ -36,7 +39,7 @@ articles:
   visualizations: visualizations.html
   vizgen_mouse_brain: vizgen_mouse_brain.html
   xenium_breast_cancer: xenium_breast_cancer.html
-last_built: 2023-12-02T17:04Z
+last_built: 2023-12-04T21:59Z
 urls:
   reference: https://drieslab.github.io/Giotto/reference
   article: https://drieslab.github.io/Giotto/articles
