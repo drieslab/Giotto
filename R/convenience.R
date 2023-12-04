@@ -2530,16 +2530,20 @@ load_xenium_panel_json <- function(path, gene_ids = "symbols") {
 
   switch(
     gene_ids,
-    "symbols" = data.table::setnames(
-      panel_info,
-      old = c("data.id", "data.name", "descriptor"),
-      new = c("ensembl", "feat_ID", "type")
-    ),
-    "ensembl" = data.table::setnames(
-      panel_info,
-      old = c("data.id", "data.name", "descriptor"),
-      new = c("feat_ID", "symbol", "type")
-    )
+    "symbols" = {
+      data.table::setnames(
+        panel_info,
+        old = c("data.id", "data.name", "descriptor"),
+        new = c("ensembl", "feat_ID", "type")
+      )
+    },
+    "ensembl" = {
+      data.table::setnames(
+        panel_info,
+        old = c("data.id", "data.name", "descriptor"),
+        new = c("feat_ID", "symbol", "type")
+      )
+    }
   )
   return(panel_info)
 }
