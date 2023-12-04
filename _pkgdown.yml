@@ -10,7 +10,7 @@ authors:
 
 
 template:
-  bootstrap: 5
+  bootstrap: 3
   bslib:
     bg: "#FFFFFF"
     fg: "#000000"
@@ -44,8 +44,16 @@ navbar:
         href: articles/object_creation.html
       - text: Giotto Class Structure
         href: articles/structure.html
+      - text: Giotto Class Structure
+        href: articles/structure.html
+      - text: Solutions to Installation Errors
+        href: articles/errorsfaqsandtips.html
+      - text: FAQs
+        href: articles/faqs.html
       - text: Branches
         href: articles/branches.html
+      - text: How to report a bug
+        href: articles/github_issues.html
     reference:
       text: Documentation
       href: reference/index.html
@@ -87,64 +95,76 @@ navbar:
       text: Examples
       menu:
       - text: Seq-Scope
-      - text: Mouse liver
-        href: articles/seqscope_mouse_liver.html
+        menu:
+        - text: Mouse liver
+          href: articles/seqscope_mouse_liver.html
       - text: -------
       - text: Visium
-      - text: Visium Mouse Kidney
-        href: articles/visium_mouse_kidney.html
-      - text: Visium Mouse Brain
-        href: articles/visium_mouse_brain.html
-      - text: Visium Prostate Integration
-        href: articles/visium_prostate_integration.html
-      - text: CytAssist Human Lung Cancer
-        href: articles/visium_cytassist_lungcancer.html
-      - text: CytAssist Multi-omics Human Glioblastoma
-        href: articles/visium_cytassist_human_glioblastoma.html
+        menu:
+        - text: Visium Mouse Kidney
+          href: articles/visium_mouse_kidney.html
+        - text: Visium Mouse Brain
+          href: articles/visium_mouse_brain.html
+        - text: Visium Prostate Integration
+          href: articles/visium_prostate_integration.html
+        - text: CytAssist Human Lung Cancer
+          href: articles/visium_cytassist_lungcancer.html
+        - text: CytAssist Multi-omics Human Glioblastoma
+          href: articles/visium_cytassist_human_glioblastoma.html
       - text: -------
       - text: Spatial Genomics
-      - text: Mouse Kidney
-        href: articles/spatial_genomics_mouse_kidney.html
+        menu:
+        - text: Mouse Kidney
+          href: articles/spatial_genomics_mouse_kidney.html
       - text: -------
       - text: Xenium
-      - text: Xenium Human breast cancer
-        href: articles/xenium_breast_cancer.html
+        menu:
+        - text: Xenium Human breast cancer
+          href: articles/xenium_breast_cancer.html
       - text: -------
       - text: Nanostring CosMx
-      - text: Nanostring CosMx Subcellular Lung Cancer
-        href: articles/nanostring_cosmx_lung_cancer.html
+        menu:
+        - text: Nanostring CosMx Subcellular Lung Cancer
+          href: articles/nanostring_cosmx_lung_cancer.html
       - text: -------
       - text: MERFISH
-      - text: MERFISH Mouse Hypothalamic Preoptic Region
-        href: articles/merfish_mouse_hypothalamic.html
+        menu:
+        - text: MERFISH Mouse Hypothalamic Preoptic Region
+          href: articles/merfish_mouse_hypothalamic.html
       - text: -------
       - text: Vizgen
-      - text: Vizgen Mouse Brain Receptor Map
-        href: articles/vizgen_mouse_brain.html
+        menu:
+        - text: Vizgen Mouse Brain Receptor Map
+          href: articles/vizgen_mouse_brain.html
       - text: -------
       - text: seqFISH
-      - text: mini seqFISH
-        href: articles/mini_seqfish.html
-      - text: SeqFish+ Mouse Cortex Example
-        href: articles/seqfish_cortex.html
+        menu:
+        - text: mini seqFISH
+          href: articles/mini_seqfish.html
+        - text: SeqFish+ Mouse Cortex Example
+          href: articles/seqfish_cortex.html
       - text: -------
       - text: osmFISH
-      - text: osmFISH Mouse SS Cortex
-        href: articles/osmfish_mouse_ss_cortex.html
+        menu:
+        - text: osmFISH Mouse SS Cortex
+          href: articles/osmfish_mouse_ss_cortex.html
       - text: -------
       - text: Resolve Bioscience
-      - text: Resolve Bioscience Breast Cancer Subcellular
-        href: articles/resolve_biosciences.html
+        menu:
+        - text: Resolve Bioscience Breast Cancer Subcellular
+          href: articles/resolve_biosciences.html
       - text: -------
       - text: CODEX
-      - text: Codex Mouse Spleen
-        href: articles/codex_mouse_spleen.html
+        menu:
+        - text: Codex Mouse Spleen
+          href: articles/codex_mouse_spleen.html
       - text: -------
       - text: Single Cell RNA Sequencing
-      - text: Prostate
-        href: articles/singlecell_prostate_standard.html
-      - text: Prostate Integration
-        href: articles/singlecell_prostate_integration.html
+        menu:
+        - text: Prostate
+          href: articles/singlecell_prostate_standard.html
+        - text: Prostate Integration
+          href: articles/singlecell_prostate_integration.html
     news:
       text: News
       menu:
@@ -171,7 +191,10 @@ articles:
   - configuration
   - object_creation
   - structure
+  - errorsfaqsandtips
+  - faqs
   - branches
+  - github_issues
 - title: Try Giotto in the Cloud
   navbar: ~
   contents:

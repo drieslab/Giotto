@@ -1,0 +1,12 @@
+.dropdown-submenu {
+    height:200px;
+    overflow-y:scroll;
+}
+
+@media (max-width: 500px) {
+    .dropdown-menu{
+        height:200px;
+        overflow-y:scroll;
+    }
+}
+
