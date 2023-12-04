@@ -1,6 +1,5 @@
 ---
 title: "Visium Mouse Kidney"
-date: 2021-08-30
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium Mouse Kidney}

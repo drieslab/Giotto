@@ -1,6 +1,5 @@
 ---
 title: "Nanostring CosMx Subcellular Lung Cancer"
-date: 2022-11-30
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Nanostring CosMx Subcellular Lung Cancer}

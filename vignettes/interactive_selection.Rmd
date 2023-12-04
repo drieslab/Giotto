@@ -1,6 +1,5 @@
 ---
 title: "Interactive selection"
-date: 2022-11-17
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Interactive selection}

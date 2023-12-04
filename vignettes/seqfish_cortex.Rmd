@@ -1,6 +1,5 @@
 ---
 title: "SeqFish+ Mouse Cortex Example"
-date: 2022-09-16
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{SeqFish+ Mouse Cortex Example}

@@ -1,6 +1,5 @@
 ---
 title: "An introduction to the Giotto Suite classes"
-date: 2023-07-26
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{An introduction to the Giotto Suite classes}

@@ -1,6 +1,5 @@
 ---
 title: "Spatial Transformations"
-date: 7/28/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Spatial Transformations}

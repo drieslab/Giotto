@@ -1,6 +1,5 @@
 ---
 title: "Saving Plots"
-date: 4/14/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Saving Plots}

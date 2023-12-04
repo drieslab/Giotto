@@ -1,6 +1,5 @@
 ---
 title: "Installation"
-date: 4/12/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Installation}
@@ -30,7 +29,7 @@ if(!"devtools" %in% installed.packages()) {
   install.packages("devtools")
 }
 
-devtools::install_github("drieslab/Giotto@suite")
+devtools::install_github("drieslab/Giotto@suite_modular")
 ```
 
 
@@ -45,9 +44,9 @@ installGiottoEnvironment()
 
 # 3. Try Giotto in the cloud
 
-You can also run analyses in Giotto on Terra.bio. Take a look on the [Terra tutorial](https://giottosuite.readthedocs.io/en/latest/subsections/trygiotto/terra.html#terra/).
+You can also run analyses in Giotto on Terra.bio. Take a look on the [Terra tutorial]https://drieslab.github.io/Giotto/articles/terra.html).
 
-Encountering errors? Checkout out the [Troubleshooting page](../errorsfaqsandtips.html) for help. Alternatively, post to an issue to the Giotto GitHub page [here](https://github.com/drieslab/Giotto). Please include the version numbers of R, Giotto, and the OS in use at the time of the issue.
+Encountering errors? Checkout out the [Troubleshooting page](https://drieslab.github.io/Giotto/articles/errorsfaqsandtips.html) for help. Alternatively, post to an issue to the Giotto GitHub page [here](https://github.com/drieslab/Giotto). Please include the version numbers of R, Giotto, and the OS in use at the time of the issue.
 
 # 4. Session Info
 

@@ -1,6 +1,5 @@
 ---
 title: "Visium Prostate Integration"
-date: 5/5/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium Prostate Integration}

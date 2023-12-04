@@ -1,6 +1,5 @@
 ---
 title: "Visium CytAssist Human Lung Cancer"
-date: 2022-11-23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium CytAssist Human Lung Cancer}

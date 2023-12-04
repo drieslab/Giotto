@@ -1,6 +1,5 @@
 ---
 title: "Giotto Ecosystem"
-date: 4/12/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Giotto Ecosystem}

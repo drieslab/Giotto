@@ -1,6 +1,5 @@
 ---
 title: "Giotto Object Creation"
-date: 2023-07-26
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Giotto Object Creation}
