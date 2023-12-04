@@ -1,4 +1,16 @@
-# Giotto Suite 4.0.0 2023*11*29)
+# Giotto Suite 4.0.1 (release TBD)
+
+## Breaking Changes
+
+## Added
+* Add: `parse_affine()` for interpreting affine transform matrices
+
+## Changes
+* Fix: `createGiottoXeniumObject()` feature metadata reading for `.json` file
+
+
+
+# Giotto Suite 4.0.0 (2023*11*29)
 
 ## Breaking Changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
@@ -15,7 +27,6 @@
 
 
 ## Changes
-
 
 
 # Giotto Suite 3.3.1 (2023*08*02)

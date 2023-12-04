@@ -2288,30 +2288,28 @@ load_xenium_folder = function(path_list,
                               cores,
                               verbose = TRUE) {
 
-  if(load_format == 'csv') {
-    data_list = load_xenium_folder_csv(path_list = path_list,
-                                       data_to_use = data_to_use,
-                                       h5_expression = h5_expression,
-                                       h5_gene_ids = h5_gene_ids,
-                                       gene_column_index = gene_column_index,
-                                       cores = cores,
-                                       verbose = verbose)
-  }
-
-  if(load_format == 'parquet') {
-    data_list = load_xenium_folder_parquet(path_list = path_list,
-                                           data_to_use = data_to_use,
-                                           h5_expression = h5_expression,
-                                           h5_gene_ids = h5_gene_ids,
-                                           gene_column_index = gene_column_index,
-                                           cores = cores,
-                                           verbose = verbose)
-  }
-
-  if(load_format == 'zarr') {
-    # TODO
-  }
-
+  data_list = switch(
+    load_format,
+    "csv" = load_xenium_folder_csv(
+      path_list = path_list,
+      data_to_use = data_to_use,
+      h5_expression = h5_expression,
+      h5_gene_ids = h5_gene_ids,
+      gene_column_index = gene_column_index,
+      cores = cores,
+      verbose = verbose
+    ),
+    "parquet" = load_xenium_folder_parquet(
+      path_list = path_list,
+      data_to_use = data_to_use,
+      h5_expression = h5_expression,
+      h5_gene_ids = h5_gene_ids,
+      gene_column_index = gene_column_index,
+      cores = cores,
+      verbose = verbose
+    ),
+    "zarr" = stop("load_format zarr:\n Not yet implemented", call. = FALSE)
+  )
 
   return(data_list)
 }
@@ -2330,9 +2328,16 @@ load_xenium_folder_csv = function(path_list,
   # initialize return vars
   feat_meta = tx_dt = bound_dt_list = cell_meta = agg_expr = NULL
 
-  if(isTRUE(verbose)) message('Loading feature metadata...')
-  feat_meta = data.table::fread(path_list$panel_meta_path[[1]], nThread = cores)
-  colnames(feat_meta)[[1]] = 'feat_ID'
+  GiottoUtils::vmsg("Loading feature metadata...", .v = verbose)
+  # updated for pipeline v1.6 json format
+  fdata_path <- path_list$panel_meta_path[[1]]
+  fdata_ext <- GiottoUtils::file_extension(fdata_path)
+  if ("json" %in% fdata_ext) {
+    feat_meta <- load_xenium_panel_json(path = fdata_path, gene_ids = h5_gene_ids)
+  } else {
+    feat_meta = data.table::fread(fdata_path, nThread = cores)
+    colnames(feat_meta)[[1]] = 'feat_ID'
+  }
 
   # **** subcellular info ****
   if(data_to_use == 'subcellular') {
@@ -2353,34 +2358,45 @@ load_xenium_folder_csv = function(path_list,
         h5$close_all()
       })
     } else {
-      features_dt = data.table::fread(paste0(path_list$agg_expr_path, '/features.tsv.gz'), header = F)
+      features_dt = data.table::fread(
+        paste0(path_list$agg_expr_path, '/features.tsv.gz'),
+        header = FALSE
+      )
     }
     colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
     feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
 
-    if(isTRUE(verbose)) message('Loading transcript level info...')
+    GiottoUtils::vmsg("Loading transcript level info...", .v = verbose)
     tx_dt = data.table::fread(path_list$tx_path[[1]], nThread = cores)
     data.table::setnames(x = tx_dt,
                          old = c('feature_name', 'x_location', 'y_location'),
                          new = c('feat_ID', 'x', 'y'))
-    if(isTRUE(verbose)) message('Loading boundary info...')
-    bound_dt_list = lapply(path_list$bound_paths, function(x) data.table::fread(x[[1]], nThread = cores))
+
+    GiottoUtils::vmsg("Loading boundary info...", .v = verbose)
+    bound_dt_list = lapply(
+      path_list$bound_paths,
+      function(x) data.table::fread(x[[1]], nThread = cores)
+    )
   }
 
   # **** aggregate info ****
-  if(isTRUE(verbose)) message('Loading cell metadata...')
+  GiottoUtils::vmsg("loading cell metadata...", .v = verbose)
   cell_meta = data.table::fread(path_list$cell_meta_path[[1]], nThread = cores)
 
   if(data_to_use == 'aggregate') {
-    if(isTRUE(verbose)) message('Loading aggregated expression...')
-    if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = path_list$agg_expr_path,
-                                                         gene_ids = h5_gene_ids,
-                                                         remove_zero_rows = TRUE,
-                                                         split_by_type = TRUE)
-    else agg_expr = get10Xmatrix(path_to_data = path_list$agg_expr_path,
-                                 gene_column_index = gene_column_index,
-                                 remove_zero_rows = TRUE,
-                                 split_by_type = TRUE)
+    GiottoUtils::vmsg("Loading aggregated expression...", .v = verbose)
+    if (isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(
+      path_to_data = path_list$agg_expr_path,
+      gene_ids = h5_gene_ids,
+      remove_zero_rows = TRUE,
+      split_by_type = TRUE
+    )
+    else agg_expr = get10Xmatrix(
+      path_to_data = path_list$agg_expr_path,
+      gene_column_index = gene_column_index,
+      remove_zero_rows = TRUE,
+      split_by_type = TRUE
+    )
   }
 
   data_list = list(
@@ -2495,6 +2511,39 @@ load_xenium_folder_parquet = function(path_list,
   return(data_list)
 
 }
+
+
+
+load_xenium_panel_json <- function(path, gene_ids = "symbols") {
+  # tested on v1.6
+  j <- jsonlite::fromJSON(path)
+  # j$metadata # dataset meta
+  # j$payload # main content
+  # j$payload$chemistry # panel chemistry used
+  # j$payload$customer # panel customer
+  # j$payload$designer # panel designer
+  # j$payload$spec_version # versioning
+  # j$payload$panel # dataset panel stats
+
+  panel_info <- j$payload$targets$type %>%
+    data.table::as.data.table()
+
+  switch(
+    gene_ids,
+    "symbols" = data.table::setnames(
+      panel_info,
+      old = c("data.id", "data.name", "descriptor"),
+      new = c("ensembl", "feat_ID", "type")
+    ),
+    "ensembl" = data.table::setnames(
+      panel_info,
+      old = c("data.id", "data.name", "descriptor"),
+      new = c("feat_ID", "symbol", "type")
+    ),
+  )
+  return(panel_info)
+}
+
 
 
 ## ArchR ####
