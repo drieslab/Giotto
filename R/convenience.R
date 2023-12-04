@@ -2539,7 +2539,7 @@ load_xenium_panel_json <- function(path, gene_ids = "symbols") {
       panel_info,
       old = c("data.id", "data.name", "descriptor"),
       new = c("feat_ID", "symbol", "type")
-    ),
+    )
   )
   return(panel_info)
 }
