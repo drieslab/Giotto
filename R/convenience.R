@@ -2335,8 +2335,8 @@ load_xenium_folder_csv = function(path_list,
   if ("json" %in% fdata_ext) {
     feat_meta <- load_xenium_panel_json(path = fdata_path, gene_ids = h5_gene_ids)
   } else {
-    feat_meta = data.table::fread(fdata_path, nThread = cores)
-    colnames(feat_meta)[[1]] = 'feat_ID'
+    feat_meta <- data.table::fread(fdata_path, nThread = cores)
+    colnames(feat_meta)[[1]] <- 'feat_ID'
   }
 
   # **** subcellular info ****
@@ -2358,7 +2358,7 @@ load_xenium_folder_csv = function(path_list,
         h5$close_all()
       })
     } else {
-      features_dt = data.table::fread(
+      features_dt <- data.table::fread(
         paste0(path_list$agg_expr_path, '/features.tsv.gz'),
         header = FALSE
       )
@@ -2515,6 +2515,8 @@ load_xenium_folder_parquet = function(path_list,
 
 
 load_xenium_panel_json <- function(path, gene_ids = "symbols") {
+  gene_ids <- match.arg(gene_ids, c("symbols", "ensembl"))
+
   # tested on v1.6
   j <- jsonlite::fromJSON(path)
   # j$metadata # dataset meta
@@ -2530,20 +2532,16 @@ load_xenium_panel_json <- function(path, gene_ids = "symbols") {
 
   switch(
     gene_ids,
-    "symbols" = {
-      data.table::setnames(
-        panel_info,
-        old = c("data.id", "data.name", "descriptor"),
-        new = c("ensembl", "feat_ID", "type")
-      )
-    },
-    "ensembl" = {
-      data.table::setnames(
-        panel_info,
-        old = c("data.id", "data.name", "descriptor"),
-        new = c("feat_ID", "symbol", "type")
-      )
-    }
+    "symbols" = data.table::setnames(
+      panel_info,
+      old = c("data.id", "data.name", "descriptor"),
+      new = c("ensembl", "feat_ID", "type")
+    ),
+    "ensembl" = data.table::setnames(
+      panel_info,
+      old = c("data.id", "data.name", "descriptor"),
+      new = c("feat_ID", "symbol", "type")
+    )
   )
   return(panel_info)
 }
