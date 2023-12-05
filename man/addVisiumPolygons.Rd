@@ -20,5 +20,5 @@ Add Visium Polygons to Giotto Object
 }
 \details{
 Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
-for the "cell" spaital unit.
+for the "cell" spatial unit.
 }

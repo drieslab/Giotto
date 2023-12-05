@@ -374,7 +374,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     if(png_name == 'tissue_lowres_image.png') {
 
       if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
+        if(isTRUE(verbose) &&
+           do_manual_adj == FALSE) {
+          wrap_msg('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted\n\n')
+        }
 
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_lowres_scalef']]
@@ -394,7 +397,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     } else if(png_name == 'tissue_hires_image.png') {
 
       if(file.exists(scalefactors_path)) {
-        if(verbose == TRUE && do_manual_adj == FALSE) wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
+        if(isTRUE(verbose) &&
+           do_manual_adj == FALSE) {
+          wrap_msg('png and scalefactors paths are found and automatic alignment for the hires image will be attempted\n\n')
+        }
 
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_hires_scalef']]
@@ -471,12 +477,12 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @return Giotto Object with circular polygons added at each spatial location
 #' @details
 #' Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
-#' for the "cell" spaital unit.
+#' for the "cell" spatial unit.
 #' @export
 addVisiumPolygons <- function(gobject,
                               scalefactor_path = NULL){
   if(is.null(gobject) || !inherits(gobject, "giotto")){
-    stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = T))
+    stop(GiottoUtils::wrap_txt("A valid Giotto Object must be provided.", errWidth = TRUE))
   }
 
   visium_spat_locs = getSpatialLocations(gobject = gobject,
@@ -596,7 +602,7 @@ visium_spot_poly <- function(spatLocsObj = NULL,
     spatlocs = spatLocsObj[],
     verbose = FALSE
   ) %>%
-  createGiottoPolygonsFromDfr(calc_centroids = T,
+  createGiottoPolygonsFromDfr(calc_centroids = TRUE,
                               verbose = FALSE)
 
 }
@@ -785,7 +791,7 @@ createGiottoMerscopeObject_subcellular = function(data_list,
   gene = NULL
 
   # split tx_dt by expression and blank
-  if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs blank')
+  vmsg('Splitting detections by feature vs blank', .v = verbose)
   feat_id_all = tx_dt[, unique(gene)]
   blank_id = feat_id_all[grepl(pattern = 'Blank', feat_id_all)]
   feat_id = feat_id_all[!feat_id_all %in% blank_id]
@@ -805,7 +811,7 @@ createGiottoMerscopeObject_subcellular = function(data_list,
   }
 
   # build giotto object
-  if(isTRUE(verbose)) wrap_msg('Building subcellular giotto object...')
+  vmsg('Building subcellular giotto object...', .v = verbose)
   z_sub = createGiottoObjectSubcellular(
     gpoints = list('rna' = feat_coord,
                    'neg_probe' = neg_coord),
@@ -1592,12 +1598,12 @@ createGiottoXeniumObject_subcellular = function(data_list,
   # define for data.table
   cell_id = feat_ID = feature_name = NULL
 
-  if(isTRUE(verbose)) message('Building subcellular giotto object...')
+  vmsg('Building subcellular giotto object...', .v = verbose)
   # Giotto points object
-  if(isTRUE(verbose)) message('> points data prep...')
+  vmsg('> points data prep...', .v = verbose)
 
   # filter by qv_threshold
-  if(isTRUE(verbose)) wrap_msg('> filtering feature detections for Phred score >= ', qv_threshold)
+  vmsg('> filtering feature detections for Phred score >= ', qv_threshold, .v = verbose)
   n_before = tx_dt[,.N]
   tx_dt_filtered = tx_dt[qv >= qv_threshold]
   n_after = tx_dt_filtered[,.N]
@@ -1608,7 +1614,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
         ' out of ', n_before, '\n')
   }
 
-  if(isTRUE(verbose)) message('> splitting detections by feat_type')
+  vmsg('> splitting detections by feat_type', .v = verbose)
   # discover feat_IDs for each feat_type
   all_IDs = tx_dt_filtered[, unique(feat_ID)]
   feat_types_IDs = lapply(key_list, function(x) all_IDs[grepl(pattern = x, all_IDs)])
@@ -1624,7 +1630,7 @@ createGiottoXeniumObject_subcellular = function(data_list,
   )
 
   # Giotto polygons object
-  if(isTRUE(verbose)) message('> polygons data prep...')
+  vmsg('> polygons data prep...', .v = verbose)
   polys_list = lapply(
     bound_dt_list,
     function(bound_type) {
@@ -1632,17 +1638,21 @@ createGiottoXeniumObject_subcellular = function(data_list,
     }
   )
 
-  xenium_gobject = createGiottoObjectSubcellular(gpoints = points_list,
-                                                 gpolygons = polys_list,
-                                                 instructions = instructions,
-                                                 cores = cores,
-                                                 verbose = verbose)
+  xenium_gobject = createGiottoObjectSubcellular(
+    gpoints = points_list,
+    gpolygons = polys_list,
+    instructions = instructions,
+    cores = cores,
+    verbose = verbose
+  )
 
   # generate centroids
-  if(isTRUE(verbose)) message('Calculating polygon centroids...')
-  xenium_gobject = addSpatialCentroidLocations(xenium_gobject,
-                                               poly_info = c(names(bound_dt_list)),
-                                               provenance = as.list(names(bound_dt_list)))
+  vmsg('Calculating polygon centroids...', .v = verbose)
+  xenium_gobject = addSpatialCentroidLocations(
+    xenium_gobject,
+    poly_info = c(names(bound_dt_list)),
+    provenance = as.list(names(bound_dt_list))
+  )
 
   # add in feature metadata
   # xenium_gobject = addFeatMetadata(gobject = xenium_gobject,
@@ -1697,7 +1707,7 @@ createGiottoXeniumObject_aggregate = function(data_list,
   # set up metadata
   agg_meta = cell_meta[, !c('x_centroid','y_centroid')]
 
-  if(isTRUE(verbose)) message('Building aggregate giotto object...')
+  vmsg('Building aggregate giotto object...', .v = verbose)
   xenium_gobject = createGiottoObject(expression = agg_expr,
                                       spatial_locs = agg_spatlocs,
                                       instructions = instructions,
@@ -1789,7 +1799,7 @@ read_cosmx_folder = function(cosmx_dir,
   ch = box_chars()
 
   if(is.null(cosmx_dir) | !dir.exists(cosmx_dir)) stop('The full path to a cosmx directory must be given.\n')
-  if(isTRUE(verbose)) wrap_msg('A structured CosMx directory will be used\n')
+  vmsg('A structured CosMx directory will be used\n', .v = verbose)
 
   # find directories (length = 1 if present, length = 0 if missing)
   dir_items = list(`CellLabels folder` = '*CellLabels',
@@ -1825,7 +1835,7 @@ read_cosmx_folder = function(cosmx_dir,
       dir_items[[mult_i]] = dir_items[[mult_i]][[1]]
     }
   }
-  if(isTRUE(verbose)) message('Directory check done')
+  vmsg('Directory check done', .v = verbose)
 
   return(dir_items)
 
@@ -1863,7 +1873,7 @@ read_xenium_folder = function(xenium_dir,
 
 
   if(is.null(xenium_dir) | !dir.exists(xenium_dir)) stop('The full path to a xenium directory must be given.\n')
-  if(isTRUE(verbose)) message('A structured Xenium directory will be used\n')
+  vmsg('A structured Xenium directory will be used\n', .v = verbose)
 
   # find items (length = 1 if present, length = 0 if missing)
   dir_items = list(`analysis info` = '*analysis*',
@@ -1961,7 +1971,7 @@ read_xenium_folder = function(xenium_dir,
   panel_meta_path = dir_items$`panel metadata`
 
 
-  if(isTRUE(verbose)) message('Directory check done')
+  vmsg('Directory check done', .v = verbose)
 
   path_list = list('tx_path' = tx_path,
                    'bound_paths' = bound_paths,
@@ -2060,7 +2070,7 @@ load_merscope_folder_subcellular = function(dir_items,
   if(is.null(fovs)) {
     tx_dt = data.table::fread(dir_items$`raw transcript info`, nThread = cores)
   } else {
-    if(isTRUE(verbose)) wrap_msg('Selecting FOV subset transcripts')
+    vmsg('Selecting FOV subset transcripts')
     tx_dt = fread_colmatch(file = dir_items$`raw transcript info`,
                            col = 'fov',
                            values_to_match = fovs,
@@ -2097,10 +2107,10 @@ load_merscope_folder_aggregate = function(dir_items,
                                           verbose = TRUE) {
 
   # metadata is polygon-related measurements
-  if(isTRUE(verbose)) wrap_msg('Loading cell metadata...')
+  vmsg('Loading cell metadata...', .v = verbose)
   cell_metadata_file = data.table::fread(dir_items$`cell metadata`, nThread = cores)
 
-  if(isTRUE(verbose)) wrap_msg('Loading expression matrix')
+  vmsg('Loading expression matrix', .v = verbose)
   expr_dt = data.table::fread(dir_items$`cell feature matrix`, nThread = cores)
 
 
@@ -2135,7 +2145,7 @@ load_cosmx_folder_subcellular = function(dir_items,
                                          cores,
                                          verbose = TRUE) {
 
-  if(isTRUE(verbose)) wrap_msg('Loading subcellular information...')
+  vmsg(.v = verbose, 'Loading subcellular information...')
 
   # subcellular checks
   if(!file.exists(dir_items$`transcript locations file`))
@@ -2144,16 +2154,16 @@ load_cosmx_folder_subcellular = function(dir_items,
     stop(wrap_txt('No fov positions file (.csv) detected'))
 
   # FOVs to load
-  if(isTRUE(verbose)) wrap_msg('Loading FOV offsets...')
+  vmsg(.v = verbose, 'Loading FOV offsets...')
   fov_offset_file = fread(input = dir_items$`fov positions file`, nThread = cores)
   if(is.null(FOVs)) FOVs = fov_offset_file$fov # default to ALL FOVs
   FOV_ID = as.list(sprintf('%03d', FOVs))
 
   #TODO Load only relevant portions of file?
 
-  if(isTRUE(verbose)) wrap_msg('Loading transcript level info...')
+  vmsg(.v = verbose, 'Loading transcript level info...')
   tx_coord_all = fread(input = dir_items$`transcript locations file`, nThread = cores)
-  if(isTRUE(verbose)) wrap_msg('Subcellular load done')
+  vmsg(.v = verbose, 'Subcellular load done')
 
   data_list = list(
     'FOV_ID' = FOV_ID,
@@ -2180,7 +2190,7 @@ load_cosmx_folder_aggregate = function(dir_items,
     CenterY_local_px = x_shift = y_shift = NULL
 
   # load aggregate information
-  wrap_msg('Loading provided aggregated information...')
+  vmsg(.v = verbose, 'Loading provided aggregated information...')
 
   # aggregate checks
   if(!file.exists(dir_items$`expression matrix file`)) stop(wrap_txt('No expression matrix file (.csv) detected'))
@@ -2328,7 +2338,7 @@ load_xenium_folder_csv = function(path_list,
   # initialize return vars
   feat_meta = tx_dt = bound_dt_list = cell_meta = agg_expr = NULL
 
-  GiottoUtils::vmsg("Loading feature metadata...", .v = verbose)
+  vmsg("Loading feature metadata...", .v = verbose)
   # updated for pipeline v1.6 json format
   fdata_path <- path_list$panel_meta_path[[1]]
   fdata_ext <- GiottoUtils::file_extension(fdata_path)
@@ -2429,9 +2439,16 @@ load_xenium_folder_parquet = function(path_list,
   # dplyr variable
   cell_id = NULL
 
-  if(isTRUE(verbose)) message('Loading feature metadata...')
-  feat_meta = data.table::fread(path_list$panel_meta_path[[1]], nThread = cores)
-  colnames(feat_meta)[[1]] = 'feat_ID'
+  vmsg("Loading feature metadata...", .v = verbose)
+  # updated for pipeline v1.6 json format
+  fdata_path <- path_list$panel_meta_path[[1]]
+  fdata_ext <- GiottoUtils::file_extension(fdata_path)
+  if ("json" %in% fdata_ext) {
+    feat_meta <- load_xenium_panel_json(path = fdata_path, gene_ids = h5_gene_ids)
+  } else {
+    feat_meta <- data.table::fread(fdata_path, nThread = cores)
+    colnames(feat_meta)[[1]] <- 'feat_ID'
+  }
 
   # **** subcellular info ****
   if(data_to_use == 'subcellular') {
@@ -2463,8 +2480,9 @@ load_xenium_folder_parquet = function(path_list,
     colnames(features_dt) = c('id', 'feat_ID', 'feat_class')
     feat_meta = merge(features_dt[,c(2,3)], feat_meta, all.x = TRUE, by = 'feat_ID')
 
-    if(isTRUE(verbose)) message('Loading transcript level info...')
-    tx_dt = arrow::read_parquet(file = path_list$tx_path[[1]], as_data_frame = FALSE) %>%
+    vmsg('Loading transcript level info...', .v = verbose)
+    tx_dt = arrow::read_parquet(file = path_list$tx_path[[1]],
+                                as_data_frame = FALSE) %>%
       dplyr::mutate(transcript_id = cast(transcript_id, arrow::string())) %>%
       dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
       dplyr::mutate(feature_name = cast(feature_name, arrow::string())) %>%
@@ -2473,7 +2491,7 @@ load_xenium_folder_parquet = function(path_list,
     data.table::setnames(x = tx_dt,
                          old = c('feature_name', 'x_location', 'y_location'),
                          new = c('feat_ID', 'x', 'y'))
-    if(isTRUE(verbose)) message('Loading boundary info...')
+    vmsg('Loading boundary info...', .v = verbose)
     bound_dt_list = lapply(path_list$bound_paths, function(x) {
       arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
         dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
@@ -2482,22 +2500,27 @@ load_xenium_folder_parquet = function(path_list,
   }
   # **** aggregate info ****
   if(data_to_use == 'aggregate') {
-    if(isTRUE(verbose)) message('Loading cell metadata...')
-    cell_meta = arrow::read_parquet(file = path_list$cell_meta_path[[1]], as_data_frame = FALSE) %>%
+    vmsg('Loading cell metadata...', .v = verbose)
+    cell_meta = arrow::read_parquet(file = path_list$cell_meta_path[[1]],
+                                    as_data_frame = FALSE) %>%
       dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
       as.data.frame() %>%
       data.table::setDT()
 
     # NOTE: no parquet for agg_expr.
-    if(isTRUE(verbose)) message('Loading aggregated expression...')
-    if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(path_to_data = path_list$agg_expr_path,
-                                                         gene_ids = h5_gene_ids,
-                                                         remove_zero_rows = TRUE,
-                                                         split_by_type = TRUE)
-    else agg_expr = get10Xmatrix(path_to_data = path_list$agg_expr_path,
-                                 gene_column_index = gene_column_index,
-                                 remove_zero_rows = TRUE,
-                                 split_by_type = TRUE)
+    vmsg('Loading aggregated expression...', .v = verbose)
+    if(isTRUE(h5_expression)) agg_expr = get10Xmatrix_h5(
+      path_to_data = path_list$agg_expr_path,
+      gene_ids = h5_gene_ids,
+      remove_zero_rows = TRUE,
+      split_by_type = TRUE
+    )
+    else agg_expr = get10Xmatrix(
+      path_to_data = path_list$agg_expr_path,
+      gene_column_index = gene_column_index,
+      remove_zero_rows = TRUE,
+      split_by_type = TRUE
+    )
   }
 
   data_list = list(
