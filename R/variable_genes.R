@@ -146,8 +146,10 @@ calc_var_HVF = function(scaled_matrix,
 #' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
 #' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
 #' @param var_number [var_p_resid] number of top variance features for var_p_resid method
-#' @param cell_ids Specific cell_IDs (`spatIDs()`) that the HVF detection
-#' should be performed on. Passing NULL (default) runs HVF on all cells.
+#' @param random_subset random subset to perform HVF detection on. Passing NULL
+#' runs HVF on all cells.
+#' @param set_seed logical. whether to set a seed when random_subset is used
+#' @param seed_number seed number to use when random_subset is used
 #' @param show_plot show plot
 #' @param return_plot return ggplot object (overridden by `return_gobject`)
 #' @param save_plot directly save the plot [boolean]
@@ -182,7 +184,9 @@ calculateHVF <- function(gobject,
                          difference_in_cov = 0.1,
                          var_threshold = 1.5,
                          var_number = NULL,
-                         cell_ids = NULL,
+                         random_subset = NULL,
+                         set_seed = TRUE,
+                         seed_number = 1234,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
@@ -213,10 +217,14 @@ calculateHVF <- function(gobject,
     expr_values = (logbase^expr_values)-1
   }
 
-  # id subset
-  if (!is.null(cell_ids)) {
-    subset_bool <- colnames(expr_values) %in% cell_ids
-    expr_values <- expr_values[, subset_bool]
+  # create a random subset if random_subset is not NULL
+  if (!is.null(random_subset)) {
+    if (isTRUE(set_seed)) set.seed(seed = seed_number)
+
+    random_selection <- sort(sample(1:ncol(expr_values), random_subset))
+    expr_values <- expr_values[, random_selection]
+
+    if (isTRUE(set_seed)) GiottoUtils::random_seed()
   }
 
   # method to use
