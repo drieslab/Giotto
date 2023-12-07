@@ -56,7 +56,7 @@ Imports:
     scales (>= 1.0.0),
     sparseMatrixStats,
     stats,
-    terra (>= 1.5-12),
+    terra (>= 1.7-39),
     uwot (>= 0.0.0.9010)
 Suggests:
     arrow,
@@ -95,6 +95,7 @@ Suggests:
     R.utils,
     remotes,
     Rfast,
+    rlang,
     rhdf5,
     RTriangle (>= 1.6-0.10),
     Rvision,
