@@ -1,16 +1,22 @@
+
 # Giotto Suite 4.0.1 (release TBD)
 
 ## Breaking Changes
+* Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
 
 ## Added
 * Add: `parse_affine()` for interpreting affine transform matrices
+* Add seed setting to `runGiottoHarmony()`
+* Update `runGiottoHarmony()` to call `harmony::RunHarmony()`
 
 ## Changes
 * Fix: `createGiottoXeniumObject()` feature metadata reading for `.json` file
+* Update *Matrix* requirement to >= 1.6.3
 
 
 
-# Giotto Suite 4.0.0 (2023*11*29)
+
+# Giotto Suite 4.0.0 2023/11/29)
 
 ## Breaking Changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
@@ -29,7 +35,9 @@
 ## Changes
 
 
-# Giotto Suite 3.3.1 (2023*08*02)
+
+
+# Giotto Suite 3.3.1 (2023/08/02)
 
 ## Breaking Changes
 
@@ -84,7 +92,7 @@
 * Fix bug in `readCellMetadata()` and `readFeatMetadata()`
 
 
-# Giotto Suite 3.3.0 (2023*04*18)
+# Giotto Suite 3.3.0 (2023/04/18)
 
 ## Breaking Changes
 
@@ -142,7 +150,7 @@
 * Moved `depth()` from giotto.R to utilities.R
 
 
-# Giotto Suite 3.2.0 (2023*02*02)
+# Giotto Suite 3.2.0 (2023/02/02)
 
 ## Breaking Changes
 
@@ -192,7 +200,7 @@
 * Fix `loadGiotto()` loss of over*allocation for data.tables*based objects after loading from disk
 
 
-# Giotto Suite 3.1.0 (2022*12*01)  
+# Giotto Suite 3.1.0 (2022/12/01)  
   
 
 ## Added
@@ -212,7 +220,7 @@
 
 
 
-# Giotto Suite 3.0.1 (2022*11*20)
+# Giotto Suite 3.0.1 (2022/11/20)
 
 ## Added
 
@@ -228,7 +236,7 @@
 
 
 
-# Giotto Suite 3.0.0 (2022*11*18)
+# Giotto Suite 3.0.0 (2022/11/18)
 
 ## Breaking Changes
 
@@ -253,7 +261,7 @@
 
 
 
-# Giotto Suite 2.1.0 (2022*11*09)
+# Giotto Suite 2.1.0 (2022/11/09)
 
 ## Breaking Changes
 
