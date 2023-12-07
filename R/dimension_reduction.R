@@ -2534,6 +2534,8 @@ runtSNE <- function(gobject,
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for Harmony run
 #' @param feats_to_use if dim_reduction_to_use = NULL, which feats to use
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
@@ -2553,6 +2555,8 @@ runGiottoHarmony = function(gobject,
                             dimensions_to_use = 1:10,
                             name = NULL,
                             feats_to_use = NULL,
+                            set_seed = TRUE,
+                            seed_number = 1234,
                             toplevel_params = 2,
                             return_gobject = TRUE,
                             verbose = NULL,
@@ -2564,11 +2568,16 @@ runGiottoHarmony = function(gobject,
 
 
   # print message with information #
-  message("using 'Harmony' to integrate different datasets. If used in published research, please cite: \n
-  Korsunsky, I., Millard, N., Fan, J. et al.
-                      Fast, sensitive and accurate integration of single-cell data with Harmony.
-                      Nat Methods 16, 1289-1296 (2019).
-                      https://doi.org/10.1038/s41592-019-0619-0 ")
+  wrap_msg("using 'Harmony' to integrate different datasets. If used in published research, please cite:\n")
+
+  wrap_msg(
+    "Korsunsky, I., Millard, N., Fan, J. et al.
+    Fast, sensitive and accurate integration of single-cell data with Harmony.
+    Nat Methods 16, 1289-1296 (2019).
+    https://doi.org/10.1038/s41592-019-0619-0",
+    .initial = '  ',
+    .prefix = '    '
+  )
 
 
   # Set feat_type and spat_unit
@@ -2656,12 +2665,21 @@ runGiottoHarmony = function(gobject,
   # get metadata
   metadata = pDataDT(gobject, feat_type = feat_type, spat_unit = spat_unit)
 
+  # start seed
+  if (isTRUE(set_seed)) {
+    set.seed(seed = seed_number)
+    on.exit(GiottoUtils::random_seed())
+  }
+
   # run harmony
-  harmony_results = harmony::HarmonyMatrix(data_mat = matrix_to_use,
-                                           meta_data = metadata,
-                                           vars_use = vars_use,
-                                           do_pca = do_pca,
-                                           ...)
+  harmony_results = harmony::RunHarmony(
+    data_mat = matrix_to_use,
+    meta_data = metadata,
+    vars_use = vars_use,
+    do_pca = do_pca,
+    ...
+  )
+
 
   colnames(harmony_results) =  paste0('Dim.', 1:ncol(harmony_results))
   rownames(harmony_results) = rownames(matrix_to_use)
@@ -2676,7 +2694,7 @@ runGiottoHarmony = function(gobject,
                                  misc = NULL)
 
   # return giotto object or harmony results
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     #harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
 
