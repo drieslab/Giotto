@@ -148,11 +148,11 @@ test_that("Adjusted values are created in 'custom' slot", {
 })
 
 # RUN DIMENSION REDUCTION
-object <- suppressWarnings(runPCA(gobject = object,
-                                  genes_to_use = NULL,
-                                  scale_unit = FALSE,
-                                  center = TRUE,
-                                  verbose = FALSE))
+object <- runPCA(gobject = object,
+                 genes_to_use = NULL,
+                 scale_unit = FALSE,
+                 center = TRUE,
+                 verbose = FALSE)
 
 test_that("PCA S4 object is created as expected", {
 
