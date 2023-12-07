@@ -9,10 +9,11 @@ $~$
 Following a particular programming style will help programmers read and understand source code conforming to the style, and help to avoid introducing errors. Here we present a small list of guidelines on what is considered a good practice when writing R codes in Giotto package. Most of them are adapted from [Bioconductor - coding style](https://bioconductor.org/developers/how-to/coding-style/) or [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml). These guidelines are preferences and strongly encouraged!  
 
 - **Naming**
-    - Use camelCase for user-facing exported function names.
-    - Use snake_case for non-exported functions. For example: `'non_exported_function'`
+    - Use camelCase for Giotto user-facing exported function names. (`functionName()`)  
+    - Use snake_case for non-user-facing exported functions, which are essentially any functions not directly related to commonly used data processing, analysis, and visualization. (`function_name()`)  
+    - Use "." prefix and snake_case for internal non-exported functions. (`.function_name()`)  
     - Use snake_case for parameter names.  
-    - Do not use "." as a separator (in the S3 class system, some(x) where x is class A will dispatch to some.A).
+    - Do not use "." as a separator in function naming. (in the S3 class system, some(x) where x is class A will dispatch to some.A)  
 
 - **Use of space**
     - Do not place a space before a comma, but always place one after a comma. This: `a, b, c`.  
@@ -27,15 +28,15 @@ $~$
 
 ### Stat functions  
 Most Giotto commands can accept several matrix classes (DelayedMatrix, SparseM, Matrix or base matrix). To 
-facilitate this we provide **flexible** wrappers that work on any type of matrix class. They can be found in the [utilities.R](https://github.com/drieslab/Giotto/blob/suite/R/utilities.R) file. 
+facilitate this we provide **flexible** wrappers that work on any type of matrix class.
 
 - **mean_flex**:        analogous to mean()  
 - **rowSums_flex**:     analogous to rowSums()  
 - **rowMeans_flex**:    analogous to rowMeans()  
 - **colSums_flex**:     analogous to colSums()  
 - **colMeans_flex**:    analogous to colMeans()  
-- **t_flex**:           analogous to t()   
-- **cor_flex**:         analogous to cor()   
+- **t_flex**:           analogous to t()  
+- **cor_flex**:         analogous to cor()  
 
 $~$
 
