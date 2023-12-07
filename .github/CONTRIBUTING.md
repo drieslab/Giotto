@@ -57,6 +57,11 @@ The last function should be used within your contribution code. It has the addit
 
 $~$
 
+### Package Imports
+Giotto tracks packages and functions to import in a centralized manner. When adding code that requires functions from another package, add the roxygen tags to the `package_imports.R` file for that Giotto module.
+
+$~$
+
 ### Getters and Setters
 Giotto stores information in different [slots](articles/structure.html#giotto-object-structure), which can be accessed through these getters and setters functions. They can be found in the [accessors.R](https://github.com/drieslab/Giotto/blob/suite/R/accessors.R) file. 
 

@@ -131,6 +131,8 @@ GiottoClass::createSpatialNetwork
 #' @export
 GiottoClass::createSpatialWeightMatrix
 #' @export
+GiottoClass::createNearestNetwork
+#' @export
 GiottoClass::cropGiottoLargeImage
 #' @export
 GiottoClass::distGiottoImage
@@ -173,26 +175,6 @@ GiottoClass::getSpatialLocations
 #' @export
 GiottoClass::getSpatialNetwork
 #' @export
-GiottoClass::get_NearestNetwork # soft deprecated
-#' @export
-GiottoClass::get_dimReduction # soft deprecated
-#' @export
-GiottoClass::get_feature_info # soft deprecated
-#' @export
-GiottoClass::get_giottoImage # soft deprecated
-#' @export
-GiottoClass::get_multiomics # soft deprecated
-#' @export
-GiottoClass::get_polygon_info # soft deprecated
-#' @export
-GiottoClass::get_spatialGrid # soft deprecated
-#' @export
-GiottoClass::get_spatialNetwork # soft deprecated
-#' @export
-GiottoClass::get_spatial_enrichment # soft deprecated
-#' @export
-GiottoClass::get_spatial_locations # soft deprecated
-#' @export
 GiottoClass::getSpatialEnrichment
 #' @export
 GiottoClass::getSpatialGrid
@@ -200,26 +182,6 @@ GiottoClass::getSpatialGrid
 GiottoClass::getSpatialLocations
 #' @export
 GiottoClass::getSpatialNetwork
-#' @export
-GiottoClass::get_NearestNetwork # soft deprecated
-#' @export
-GiottoClass::get_dimReduction # soft deprecated
-#' @export
-GiottoClass::get_feature_info # soft deprecated
-#' @export
-GiottoClass::get_giottoImage # soft deprecated
-#' @export
-GiottoClass::get_multiomics # soft deprecated
-#' @export
-GiottoClass::get_polygon_info # soft deprecated
-#' @export
-GiottoClass::get_spatialGrid # soft deprecated
-#' @export
-GiottoClass::get_spatialNetwork # soft deprecated
-#' @export
-GiottoClass::get_spatial_enrichment # soft deprecated
-#' @export
-GiottoClass::get_spatial_locations # soft deprecated
 #' @export
 GiottoClass::giotto
 #' @export
@@ -236,6 +198,10 @@ GiottoClass::giottoPolygon
 GiottoClass::giottoToAnnData
 #' @export
 GiottoClass::giottoToSeurat
+#' @export
+GiottoClass::giottoToSeuratV4
+#' @export
+GiottoClass::giottoToSeuratV5
 #' @export
 GiottoClass::giottoToSpatialExperiment
 #' @export
@@ -325,29 +291,11 @@ GiottoClass::setSpatialLocations
 #' @export
 GiottoClass::setSpatialNetwork
 #' @export
-GiottoClass::set_NearestNetwork # soft deprecated
-#' @export
-GiottoClass::set_dimReduction # soft deprecated
-#' @export
-GiottoClass::set_expression_values # soft deprecated
-#' @export
-GiottoClass::set_feature_info # soft deprecated
-#' @export
-GiottoClass::set_giottoImage # soft deprecated
-#' @export
-GiottoClass::set_multiomics # soft deprecated
-#' @export
-GiottoClass::set_polygon_info # soft deprecated
-#' @export
-GiottoClass::set_spatialGrid # soft deprecated
-#' @export
-GiottoClass::set_spatialNetwork # soft deprecated
-#' @export
-GiottoClass::set_spatial_enrichment # soft deprecated
-#' @export
-GiottoClass::set_spatial_locations # soft deprecated
-#' @export
 GiottoClass::seuratToGiotto
+#' @export
+GiottoClass::seuratToGiottoV4
+#' @export
+GiottoClass::seuratToGiottoV5
 #' @export
 GiottoClass::showGiottoCellMetadata
 #' @export
@@ -380,6 +328,8 @@ GiottoClass::showGrids
 GiottoClass::showNetworks
 #' @export
 GiottoClass::showProcessingSteps
+#' @export
+GiottoClass::tessellate
 
 
 

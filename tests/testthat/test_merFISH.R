@@ -1,4 +1,5 @@
-
+# silence deprecated internal functions
+rlang::local_options(lifecycle_verbosity = "quiet")
 
 
 # data setup (warning about non-existing dir expected)
@@ -210,8 +211,12 @@ test_that("sNN S3 object is created as expected", {
 })
 
 # LEIDEN CLUSTERING
-object <- doLeidenCluster(gobject = object, resolution = 0.2, n_iterations = 200,
-                          name = 'leiden_0.2')
+object <- doLeidenCluster(
+  gobject = object,
+  resolution = 0.2,
+  n_iterations = 200,
+  name = 'leiden_0.2'
+)
 
 test_that("New clusters are added to cell metadata", {
 
