@@ -3,7 +3,6 @@
 
 ## Breaking Changes
 * Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
-* Move *GiottoUtils*, *GiottoClass*, and *GiottoVisuals* to imports
 
 ## Added
 * Add: `parse_affine()` for interpreting affine transform matrices
