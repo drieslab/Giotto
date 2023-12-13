@@ -17,7 +17,7 @@
 
 
 
-# Giotto Suite 4.0.0 2023/11/29)
+# Giotto Suite 4.0.0 (2023/11/29)
 
 ## Breaking Changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
