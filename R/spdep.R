@@ -37,7 +37,7 @@ spdepAutoCorr <- function (gobject,
   }
 
   # Evaluate spatial autocorrelation using Giotto
-  resultSpdepCor <- evaluate_autocor_input(
+  resultSpdepCor <- .evaluate_autocor_input(
     gobject = gobject,
     use_ext_vals = FALSE,
     use_sn = TRUE,

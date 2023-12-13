@@ -329,13 +329,20 @@ cellProximityNetwork = function(gobject,
 }
 
 
-#' @title cellProximityVisPlot_2D_ggplot
-#' @name cellProximityVisPlot_2D_ggplot
-#' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
-#' @return ggplot
-#' @details Description of parameters.
+
+
+
+#' @title cellProximityVisPlot internals
+#' @name cellProximityVisPlot_internals
+#' @description
+#' Create the plots for `cellProximityVisPlot()`
+#' @seealso [cellProximityVisPlot()] [cellProximitySpatPlot3D()]
+NULL
+
+
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @keywords internal
-cellProximityVisPlot_2D_ggplot <- function(gobject,
+.cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
@@ -510,11 +517,10 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 }
 
 
-#' @title cellProximityVisPlot_2D_plotly
-#' @name cellProximityVisPlot_2D_plotly
-#' @description Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
+
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-cellProximityVisPlot_2D_plotly <- function(gobject,
+.cellProximityVisPlot_2D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
@@ -708,11 +714,10 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
 
 }
 
-#' @title cellProximityVisPlot_3D_plotly
-#' @name cellProximityVisPlot_3D_plotly
-#' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
+
+#' @describeIn cellProximityVisPlot_internals Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-cellProximityVisPlot_3D_plotly <- function(gobject,
+.cellProximityVisPlot_3D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
@@ -977,7 +982,7 @@ cellProximityVisPlot <- function(gobject,
     if(length(c(sdimx, sdimy, sdimz)) == 3){
       warning("ggplot is not able to produce 3D plot! Please choose plotly method\n")
     }
-    result = cellProximityVisPlot_2D_ggplot(gobject = gobject,
+    result = .cellProximityVisPlot_2D_ggplot(gobject = gobject,
                                             interaction_name = interaction_name,
                                             cluster_column = cluster_column,
                                             sdimx = sdimx,
@@ -1009,7 +1014,7 @@ cellProximityVisPlot <- function(gobject,
 
     if(length(c(sdimx, sdimy, sdimz)) == 3) {
 
-      result = cellProximityVisPlot_3D_plotly(gobject = gobject,
+      result = .cellProximityVisPlot_3D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
                                               cluster_column = cluster_column,
                                               sdimx = sdimx,
@@ -1045,7 +1050,7 @@ cellProximityVisPlot <- function(gobject,
       }
 
       ## run: visPlot_2D_plotly
-      result = cellProximityVisPlot_2D_plotly(gobject = gobject,
+      result = .cellProximityVisPlot_2D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
                                               cluster_column = cluster_column,
                                               sdimx = sdimx,
@@ -2289,14 +2294,14 @@ plotRankSpatvsExpr = function(gobject,
 
 
 
-#' @title plotRecovery_sub
-#' @name plotRecovery_sub
+#' @title Create recovery plot
+#' @name .plotRecovery_sub
 #' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
 #' @keywords internal
-plotRecovery_sub = function(combCC,
+.plotRecovery_sub = function(combCC,
                             first_col = 'LR_expr_rnk',
                             second_col = 'LR_spat_rnk') {
 
@@ -2374,14 +2379,14 @@ plotRecovery = function(gobject,
 
   if(ground_truth == 'spatial') {
 
-    pl = plotRecovery_sub(combCC = combCC,
+    pl = .plotRecovery_sub(combCC = combCC,
                           first_col = spat_rnk_column,
                           second_col = expr_rnk_column)
     pl = pl + ggplot2::labs(x = '% expression rank included', y = '% highest spatial rank recovered')
 
   } else if(ground_truth == 'expression') {
 
-    pl = plotRecovery_sub(combCC = combCC,
+    pl = .plotRecovery_sub(combCC = combCC,
                           first_col = expr_rnk_column,
                           second_col = spat_rnk_column)
     pl = pl + ggplot2::labs(x = '% spatial rank included', y = '% highest expression rank recovered')
@@ -2736,7 +2741,7 @@ cellProximitySpatPlot3D = function(gobject,
                                    default_save_name = 'cellProximitySpatPlot3D',
                                    ...) {
   if (is.null(sdimz)){
-    pl = cellProximityVisPlot_2D_plotly(gobject = gobject,
+    pl = .cellProximityVisPlot_2D_plotly(gobject = gobject,
                                         interaction_name = interaction_name,
                                         cluster_column = cluster_column,
                                         sdimx = sdimx,
@@ -2763,7 +2768,7 @@ cellProximitySpatPlot3D = function(gobject,
                                         ...)
   }
   else{
-    pl = cellProximityVisPlot_3D_plotly(gobject = gobject,
+    pl = .cellProximityVisPlot_3D_plotly(gobject = gobject,
                                         interaction_name = interaction_name,
                                         cluster_column = cluster_column,
                                         sdimx = sdimx,

@@ -1,5 +1,6 @@
+# General Giotto Helper Functions
 
-
+# statistical helpers belong here as opposed to GiottoUtils
 
 
 #' @title mygini_fun
@@ -53,11 +54,14 @@ extended_gini_fun <- function(x,
 
 # matrix binarization methods ####
 
-#' @title kmeans_binarize
-#' @name kmeans_binarize
+#' @title .kmeans_binarize
+#' @name .kmeans_binarize
 #' @description create binarized scores from a vector using kmeans
 #' @keywords internal
-kmeans_binarize = function(x, nstart = 3, iter.max = 10, set.seed = NULL) {
+.kmeans_binarize = function(x,
+                            nstart = 3,
+                            iter.max = 10,
+                            set.seed = NULL) {
 
   if(!is.null(set.seed)) set.seed(1234)
   sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
@@ -80,11 +84,11 @@ kmeans_binarize = function(x, nstart = 3, iter.max = 10, set.seed = NULL) {
 
 }
 
-#' @title kmeans_arma_binarize
-#' @name kmeans_arma_binarize
+#' @title .kmeans_arma_binarize
+#' @name .kmeans_arma_binarize
 #' @description create binarized scores from a vector using kmeans_arma
 #' @keywords internal
-kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
+.kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
 
 
   if(!is.null(set.seed)) set.seed(1234)
@@ -113,11 +117,15 @@ kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
 
 }
 
-#' @title kmeans_arma_subset_binarize
-#' @name kmeans_arma_subset_binarize
+#' @title .kmeans_arma_subset_binarize
+#' @name .kmeans_arma_subset_binarize
 #' @description create binarized scores from a subsetted vector using kmeans_arma
 #' @keywords internal
-kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr = 200, set.seed = NULL) {
+.kmeans_arma_subset_binarize = function(x,
+                                        n_iter = 5,
+                                        extreme_nr = 20,
+                                        sample_nr = 200,
+                                        set.seed = NULL) {
 
   length_x = length(x)
 
@@ -159,15 +167,16 @@ kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr
 #' @name kmeans_binarize_wrapper
 #' @description wrapper for different binarization functions
 #' @keywords internal
-kmeans_binarize_wrapper = function(expr_values,
-                                   subset_feats = NULL,
-                                   kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
-                                   nstart = 3,
-                                   iter_max = 10,
-                                   extreme_nr = 50,
-                                   sample_nr = 50,
-                                   set.seed = NULL) {
-
+kmeans_binarize_wrapper = function(
+    expr_values,
+    subset_feats = NULL,
+    kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
+    nstart = 3,
+    iter_max = 10,
+    extreme_nr = 50,
+    sample_nr = 50,
+    set.seed = NULL
+) {
 
 
   # expression values
@@ -179,13 +188,13 @@ kmeans_binarize_wrapper = function(expr_values,
   kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
 
   if(kmeans_algo == 'kmeans') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_binarize,
                               nstart = nstart, iter.max = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_binarize,
                               n_iter = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma_subset') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_subset_binarize,
                               n_iter = iter_max,
                               extreme_nr = extreme_nr,
                               sample_nr = sample_nr,
@@ -198,11 +207,11 @@ kmeans_binarize_wrapper = function(expr_values,
 
 
 
-#' @title rank_binarize
-#' @name rank_binarize
+#' @title Rank binarize
+#' @name .rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
 #' @keywords internal
-rank_binarize = function(x, max_rank = 200) {
+.rank_binarize = function(x, max_rank = 200) {
 
   sel_gene_rank = rank(-x, ties.method = 'average')
 
@@ -230,7 +239,7 @@ rank_binarize_wrapper = function(expr_values,
   }
 
   max_rank = (ncol(expr_values)/100)*percentage_rank
-  bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
+  bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .rank_binarize, max_rank = max_rank))
 
   return(bin_matrix)
 }
@@ -965,7 +974,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
     read_list = lapply_flex(seq_along(hdf5_boundary_selected_list),
                             future.packages = c('rhdf5', 'Rhdf5lib'),
                             function(init, z_indices, segm_to_use, bound_i) {
-                              read_file = h5read_vizgen(h5File = hdf5_boundary_selected_list[[bound_i]][[1]],
+                              read_file = .h5_read_vizgen(h5File = hdf5_boundary_selected_list[[bound_i]][[1]],
                                                         z_indices = z_indices,
                                                         segm_to_use = segm_to_use,
                                                         H5Fopen_flags = H5Fopen_flags)
@@ -1006,7 +1015,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   # outputs
   switch(
     output,
-    "giottoPolygon" = create_giotto_polygons_vizgen(
+    "giottoPolygon" = .create_giotto_polygons_vizgen(
       z_read_DT = z_read_DT,
       poly_names = poly_names,
       set_neg_to_zero = set_neg_to_zero,
@@ -1026,7 +1035,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 
 #' @keywords internal
 #' @noRd
-create_giotto_polygons_vizgen = function(z_read_DT,
+.create_giotto_polygons_vizgen = function(z_read_DT,
                                          poly_names = names(z_read_DT),
                                          set_neg_to_zero = FALSE,
                                          calc_centroids = FALSE,
@@ -1244,7 +1253,7 @@ readPolygonVizgenParquet = function(file,
 
 
   # 2. collect by z index filter and convert WKB to multipolygon
-  multipolygons = future.apply::future_lapply(
+  multipolygons = lapply_flex(
     get_z_idx,
     function(z_idx) {
       # set schema
@@ -1359,10 +1368,10 @@ readPolygonFilesVizgen = function(gobject,
 #' @describeIn readPolygonFilesVizgen (internal) Optimized .hdf5 reading for vizgen
 #' merscope output. Returns a data.table of xyz coords and cell_id
 #' @keywords internal
-h5read_vizgen = function(h5File,
-                         z_indices = 1L:7L,
-                         segm_to_use = 'p_0',
-                         H5Fopen_flags = "H5F_ACC_RDWR") {
+.h5_read_vizgen = function(h5File,
+                           z_indices = 1L:7L,
+                           segm_to_use = 'p_0',
+                           H5Fopen_flags = "H5F_ACC_RDWR") {
 
   # data.table vars
   group = name = cell = z_name = otype = d_name = cell_id = NULL

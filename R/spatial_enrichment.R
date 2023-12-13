@@ -256,10 +256,10 @@ makeSignMatrixRank = function(sc_matrix,
 ## spatial enrichment functions ####
 
 
-#' @title do_page_permutation
+#' @title PAGE permutation
 #' @description creates permutation for the PAGEEnrich test
 #' @keywords internal
-do_page_permutation = function(gobject,
+.do_page_permutation = function(gobject,
                                sig_gene,
                                ntimes){
   # check available gene
@@ -450,7 +450,7 @@ runPAGEEnrich_OLD <- function(gobject,
     interGene = intersect(rownames(sign_matrix), rownames(gobject@expression$rna$normalized))
     filter_sign_matrix = sign_matrix[interGene,available_ct]
 
-    background_mean_sd = do_page_permutation(gobject = gobject,
+    background_mean_sd = .do_page_permutation(gobject = gobject,
                                              sig_gene = filter_sign_matrix,
                                              ntimes = n_times)
 
@@ -503,11 +503,10 @@ runPAGEEnrich_OLD <- function(gobject,
 
 
 
-#' @title PAGE_DT_method
-#' @description PAGE data.table method
+#' @title PAGE data.table method
 #' @param expr_values matrix of expression values
 #' @keywords internal
-PAGE_DT_method = function(sign_matrix,
+.page_dt_method = function(sign_matrix,
                           expr_values,
                           min_overlap_genes = 5,
                           logbase = 2,
@@ -773,17 +772,17 @@ runPAGEEnrich = function(gobject,
   # check parameters
   if(is.null(name)) name = 'PAGE'
 
-  PAGE_results = PAGE_DT_method(sign_matrix = sign_matrix,
-                                expr_values = as.matrix(expr_values[]),
-                                min_overlap_genes = min_overlap_genes,
-                                logbase = logbase,
-                                reverse_log_scale = reverse_log_scale,
-                                output_enrichment = c('original', 'zscore'),
-                                p_value = p_value,
-                                include_depletion = include_depletion,
-                                n_times = n_times,
-                                max_block = max_block,
-                                verbose = verbose)
+  PAGE_results = .page_dt_method(sign_matrix = sign_matrix,
+                                 expr_values = as.matrix(expr_values[]),
+                                 min_overlap_genes = min_overlap_genes,
+                                 logbase = logbase,
+                                 reverse_log_scale = reverse_log_scale,
+                                 output_enrichment = c('original', 'zscore'),
+                                 p_value = p_value,
+                                 include_depletion = include_depletion,
+                                 n_times = n_times,
+                                 max_block = max_block,
+                                 verbose = verbose)
 
   # create spatial enrichment object
   enrObj = create_spat_enr_obj(name = name,
@@ -866,10 +865,10 @@ PAGEEnrich <- function(...) {
 
 
 
-#' @title do_rank_permutation
+#' @title Rank permutation
 #' @description creates permutation for the rankEnrich test
 #' @keywords internal
-do_rank_permutation = function(sc_gene, n){
+.do_rank_permutation = function(sc_gene, n){
   random_df = data.frame(matrix(ncol = n, nrow = length(sc_gene)))
   for (i in 1:n){
     set.seed(i)
@@ -1025,9 +1024,9 @@ runRankEnrich = function(gobject,
 
   # default name for page enrichment
 
-  if(p_value == TRUE){
-    random_rank = do_rank_permutation(sc_gene = rownames(sign_matrix),
-                                      n = n_times)
+  if(isTRUE(p_value)){
+    random_rank = .do_rank_permutation(sc_gene = rownames(sign_matrix),
+                                       n = n_times)
 
     random_DT = runRankEnrich(gobject = gobject,
                               spat_unit = spat_unit,
@@ -1466,12 +1465,12 @@ NULL
 
 # internals for spatial autocorrelation using terra
 #' @keywords internal
-spat_autocor_terra_numeric = function(x, w, method) {
+.spat_autocor_terra_numeric = function(x, w, method) {
   return(terra::autocor(x = x, w = w, method = method))
 }
 
 #' @keywords internal
-spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
+.spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
   return(terra::autocor(x = x, w = w, global = global, method = method))
 }
 
@@ -1571,7 +1570,7 @@ spatialAutoCorGlobal = function(gobject = NULL,
   }
 
   # select and format input
-  data_list = evaluate_autocor_input(gobject = gobject,
+  data_list = .evaluate_autocor_input(gobject = gobject,
                                      use_ext_vals = use_ext_vals,
                                      use_sn = use_sn,
                                      use_expr = use_expr,
@@ -1595,7 +1594,7 @@ spatialAutoCorGlobal = function(gobject = NULL,
 
 
   # 2. perform autocor
-  res_dt = run_spat_autocor_global(use_values = use_values,
+  res_dt = .run_spat_autocor_global(use_values = use_values,
                                    feats = feats,
                                    weight_matrix = weight_matrix,
                                    method = method,
@@ -1722,7 +1721,7 @@ spatialAutoCorLocal = function(gobject = NULL,
 
 
   # select and format input
-  data_list = evaluate_autocor_input(gobject = gobject,
+  data_list = .evaluate_autocor_input(gobject = gobject,
                                      use_ext_vals = use_ext_vals,
                                      use_sn = use_sn,
                                      use_expr = use_expr,
@@ -1754,7 +1753,7 @@ spatialAutoCorLocal = function(gobject = NULL,
   }
 
   # 2. perform autocor
-  res_dt = run_spat_autocor_local(use_values = use_values,
+  res_dt = .run_spat_autocor_local(use_values = use_values,
                                   feats = feats,
                                   weight_matrix = weight_matrix,
                                   method = method,
@@ -1795,10 +1794,10 @@ spatialAutoCorLocal = function(gobject = NULL,
 
 
 
-#' run_spat_autocor_global
+#' .run_spat_autocor_global
 #'
 #' @keywords internal
-run_spat_autocor_global = function(use_values,
+.run_spat_autocor_global = function(use_values,
                                    feats,
                                    weight_matrix,
                                    method,
@@ -1826,7 +1825,7 @@ run_spat_autocor_global = function(use_values,
         }
 
 
-        spat_ac = spat_autocor_terra_numeric(
+        spat_ac = .spat_autocor_terra_numeric(
           x = feat_vals,
           w = weight_matrix,
           method = method)
@@ -1835,7 +1834,7 @@ run_spat_autocor_global = function(use_values,
         # test
         if(test_method != 'none') {
           if(test_method == 'monte_carlo') {
-            mc = sapply(seq(mc_nsim), function(i) spat_autocor_terra_numeric(
+            mc = sapply(seq(mc_nsim), function(i) .spat_autocor_terra_numeric(
               x = sample(feat_vals),
               w = weight_matrix,
               method = method))
@@ -1861,10 +1860,10 @@ run_spat_autocor_global = function(use_values,
 
 }
 
-#' run_spat_autocor_local
+#' .run_spat_autocor_local
 #'
 #' @keywords internal
-run_spat_autocor_local = function(use_values,
+.run_spat_autocor_local = function(use_values,
                                   feats,
                                   weight_matrix,
                                   method,
@@ -1890,7 +1889,7 @@ run_spat_autocor_local = function(use_values,
           feat_vals = use_values[, feat]
         }
 
-        spat_ac = spat_autocor_terra_numeric(
+        spat_ac = .spat_autocor_terra_numeric(
           x = feat_vals,
           w = weight_matrix,
           method = method)
@@ -1940,7 +1939,7 @@ run_spat_autocor_local = function(use_values,
 # 3. weight_matrix - weight matrix (ordering checked to match with use_values if possible)
 # 4, IDs - cell_IDs if available
 # Some additional information about information used in specific workflows are also returned
-evaluate_autocor_input = function(gobject,
+.evaluate_autocor_input = function(gobject,
                                   use_ext_vals,
                                   use_sn,
                                   use_expr,
@@ -2034,7 +2033,7 @@ evaluate_autocor_input = function(gobject,
     # ensure identical ordering with giotto weight matrix
     if(exists('wm_colnames')) {
       new_order = data.table::chmatch(wm_colnames, use_values$cell_ID)
-      GiottoUtils::set_row_order_dt(use_values, new_order)
+      GiottoUtils::dt_set_row_order(use_values, new_order)
     }
 
     feats = meta_cols

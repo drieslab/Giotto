@@ -95,6 +95,8 @@ initHMRF_V2(
 \item{nstart}{number of Kmeans initializations from which to select the best initialization}
 
 \item{factor_step}{dampened factor step}
+
+\item{python_path}{python_path}
 }
 \description{
 Run initialzation for HMRF model

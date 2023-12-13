@@ -33,7 +33,7 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+  spatial_network_annot = dt_sort_combine_two_columns(spatial_network_annot,
                                                       column1 = 'from', column2 = 'to',
                                                       myname = 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
@@ -143,7 +143,7 @@ cellProximityEnrichment <- function(gobject,
   # data.table variables
   unified_cells = type_int = N = NULL
 
-  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
+  spatial_network_annot = dt_sort_combine_two_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
@@ -369,20 +369,25 @@ addCellIntMetadata = function(gobject,
 
 
 # * ####
-# ICG cell proximity feature changes ####
+# ICF cell proximity feature changes ####
+
+#' @title Interaction changed features test methods
+#' @name cell_proximity_tests
+#' @description
+#' Perform specified test on subsets of a matrix
+NULL
 
 
-
-#' @title do_ttest
-#' @name do_ttest
-#' @description Performs t.test on subsets of a matrix
+#' @describeIn cell_proximity_tests t.test
 #' @keywords internal
-do_ttest = function(expr_values,
+.do_ttest = function(expr_values,
                     select_ind,
                     other_ind,
                     adjust_method,
                     mean_method,
                     offset = 0.1) {
+
+  vmsg(.is_debug = TRUE, ".do_ttest")
 
   # data.table variables
   p.value = p.adj = NULL
@@ -415,15 +420,16 @@ do_ttest = function(expr_values,
 
 
 
-#' @title do_limmatest
-#' @name do_limmatest
-#' @description Performs limma t.test on subsets of a matrix
+
+#' @describeIn cell_proximity_tests limma t.test
 #' @keywords internal
-do_limmatest = function(expr_values,
+.do_limmatest = function(expr_values,
                         select_ind,
                         other_ind,
                         mean_method,
                         offset = 0.1) {
+
+  vmsg(.is_debug = TRUE, ".do_limmatest")
 
   # data.table variables
   sel = other = feats = P.Value = adj.P.Val = p.adj = NULL
@@ -476,16 +482,17 @@ do_limmatest = function(expr_values,
 
 
 
-#' @title do_wilctest
-#' @name do_wilctest
-#' @description Performs wilcoxon on subsets of a matrix
+
+#' @describeIn cell_proximity_tests wilcoxon
 #' @keywords internal
-do_wilctest = function(expr_values,
+.do_wilctest = function(expr_values,
                        select_ind,
                        other_ind,
                        adjust_method,
                        mean_method,
                        offset = 0.1) {
+
+  vmsg(.is_debug = TRUE, ".do_wilctest")
 
   # data.table variables
   p.value = p.adj = NULL
@@ -518,11 +525,8 @@ do_wilctest = function(expr_values,
 }
 
 
-#' @title do_permuttest_original
-#' @name do_permuttest_original
-#' @description calculate original values
-#' @keywords internal
-do_permuttest_original = function(expr_values,
+# calculate original values
+.do_permuttest_original = function(expr_values,
                                   select_ind,
                                   other_ind,
                                   name = 'orig',
@@ -551,11 +555,8 @@ do_permuttest_original = function(expr_values,
 
 
 
-#' @title do_permuttest_random
-#' @name do_permuttest_random
-#' @description calculate random values
-#' @keywords internal
-do_permuttest_random = function(expr_values,
+# calculate random values
+.do_permuttest_random = function(expr_values,
                                 select_ind,
                                 other_ind,
                                 name = 'perm_1',
@@ -597,11 +598,9 @@ do_permuttest_random = function(expr_values,
 
 
 
-#' @title do_multi_permuttest_random
-#' @name do_multi_permuttest_random
-#' @description calculate multiple random values
-#' @keywords internal
-do_multi_permuttest_random = function(expr_values,
+
+# calculate multiple random values
+.do_multi_permuttest_random = function(expr_values,
                                       select_ind,
                                       other_ind,
                                       mean_method,
@@ -620,7 +619,7 @@ do_multi_permuttest_random = function(expr_values,
 
     seed_number = seed_number_list[x]
 
-    perm_rand = do_permuttest_random(expr_values = expr_values,
+    perm_rand = .do_permuttest_random(expr_values = expr_values,
                                      select_ind = select_ind,
                                      other_ind = other_ind,
                                      name = paste0('perm_', x),
@@ -635,10 +634,10 @@ do_multi_permuttest_random = function(expr_values,
 
 }
 
-#' @name do_permuttest_random
-#' @description Performs permutation test on subsets of a matrix
+
+#' @describeIn cell_proximity_tests random permutation
 #' @keywords internal
-do_permuttest = function(expr_values,
+.do_permuttest = function(expr_values,
                          select_ind, other_ind,
                          n_perm = 1000,
                          adjust_method = 'fdr',
@@ -648,25 +647,21 @@ do_permuttest = function(expr_values,
                          seed_number = 1234) {
 
 
-  #print(' ')
-  #print('do_permuttest')
-  #print(' ')
-
   # data.table variables
   log2fc_diff = log2fc = sel = other = feats = p_higher = p_lower = perm_sel = NULL
   perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
 
   ## original data
-  #print('ok1')
-  original = do_permuttest_original(expr_values = expr_values,
+  vmsg(.is_debug = TRUE, "ok1")
+  original = .do_permuttest_original(expr_values = expr_values,
                                     select_ind = select_ind, other_ind = other_ind,
                                     name = 'orig',
                                     mean_method = mean_method,
                                     offset = offset)
 
   ## random permutations
-  #print('ok2')
-  random_perms = do_multi_permuttest_random(expr_values = expr_values,
+  vmsg(.is_debug = TRUE, "ok2")
+  random_perms = .do_multi_permuttest_random(expr_values = expr_values,
                                             n = n_perm,
                                             select_ind = select_ind,
                                             other_ind = other_ind,
@@ -703,11 +698,12 @@ do_permuttest = function(expr_values,
 
 
 #' @title Do cell proximity test
-#' @name do_cell_proximity_test
+#' @name .do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
 #' @param expr_values Matrix object
 #' @keywords internal
-do_cell_proximity_test = function(expr_values,
+#' @seealso [cell_proximity_tests]
+.do_cell_proximity_test = function(expr_values,
                                   select_ind, other_ind,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
                                   mean_method = c('arithmic', 'geometric'),
@@ -716,7 +712,8 @@ do_cell_proximity_test = function(expr_values,
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
                                   set_seed = TRUE,
-                                  seed_number = 1234) {
+                                  seed_number = 1234,
+                                  verbose = FALSE) {
 
   # get parameters
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
@@ -724,12 +721,10 @@ do_cell_proximity_test = function(expr_values,
                                                        "BY", "fdr", "none"))
   mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
 
-  #print(' ')
-  #print('do_cell_proximity_test')
-  #print(' ')
+  vmsg(.is_debug = TRUE, ".do_cell_proximity_test")
 
   if(diff_test == 'permutation') {
-    result = do_permuttest(expr_values = expr_values,
+    result = .do_permuttest(expr_values = expr_values,
                            select_ind = select_ind, other_ind = other_ind,
                            n_perm = n_perm, adjust_method = adjust_method,
                            mean_method = mean_method, offset = offset,
@@ -737,18 +732,18 @@ do_cell_proximity_test = function(expr_values,
                            seed_number = seed_number)
 
   } else if(diff_test == 'limma') {
-    result = do_limmatest(expr_values = expr_values,
+    result = .do_limmatest(expr_values = expr_values,
                           select_ind = select_ind, other_ind = other_ind,
                           mean_method = mean_method, offset = offset)
 
   } else if(diff_test == 't.test') {
-    result = do_ttest(expr_values = expr_values,
+    result = .do_ttest(expr_values = expr_values,
                       select_ind = select_ind, other_ind = other_ind,
                       mean_method = mean_method, offset = offset,
                       adjust_method = adjust_method)
 
   } else if(diff_test == 'wilcox') {
-    result = do_wilctest(expr_values = expr_values,
+    result = .do_wilctest(expr_values = expr_values,
                          select_ind = select_ind, other_ind = other_ind,
                          mean_method = mean_method, offset = offset,
                          adjust_method = adjust_method)
@@ -762,12 +757,13 @@ do_cell_proximity_test = function(expr_values,
 
 
 
-#' @title findCellProximityFeats_per_interaction
-#' @name findCellProximityFeats_per_interaction
+#' @title Find cell proximity features per interaction
+#' @name .findCellProximityFeats_per_interaction
 #' @description Identifies features that are differentially expressed due to proximity to other cell types.
 #' @param expr_values Matrix object
 #' @keywords internal
-findCellProximityFeats_per_interaction = function(sel_int,
+#' @seealso [.do_cell_proximity_test()] for specific tests
+.findCellProximityFeats_per_interaction = function(sel_int,
                                                   expr_values,
                                                   cell_metadata,
                                                   annot_spatnetwork,
@@ -837,7 +833,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
       result_cell_1 = NULL
     } else {
 
-      result_cell_1 = do_cell_proximity_test(expr_values = expr_values,
+      result_cell_1 = .do_cell_proximity_test(expr_values = expr_values,
                                              select_ind = sel_ind1,
                                              other_ind = all_ind1,
                                              diff_test = diff_test,
@@ -863,7 +859,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
       result_cell_2 = NULL
     } else {
 
-      result_cell_2 = do_cell_proximity_test(expr_values = expr_values,
+      result_cell_2 = .do_cell_proximity_test(expr_values = expr_values,
                                              select_ind = sel_ind2, other_ind = all_ind2,
                                              diff_test = diff_test,
                                              n_perm = nr_permutations,
@@ -919,7 +915,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
 
     #print('second')
 
-    result_cells = do_cell_proximity_test(expr_values = expr_values,
+    result_cells = .do_cell_proximity_test(expr_values = expr_values,
                                           select_ind = sel_ind1, other_ind = all_ind1,
                                           diff_test = diff_test,
                                           n_perm = nr_permutations,
@@ -1066,7 +1062,7 @@ findInteractionChangedFeats = function(gobject,
       #print('first')
       #print(x)
 
-      tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
+      tempres = .findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
                                                        annot_spatnetwork = annot_spatnetwork,
                                                        minimum_unique_cells = minimum_unique_cells,
@@ -1093,9 +1089,9 @@ findInteractionChangedFeats = function(gobject,
     for(i in 1:length(all_interactions)) {
 
       x = all_interactions[i]
-      
 
-      tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
+
+      tempres = .findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
                                                        annot_spatnetwork = annot_spatnetwork,
                                                        minimum_unique_cells = minimum_unique_cells,
@@ -1500,11 +1496,11 @@ filterCPG <- function(...) {
 # * ####
 # FTF feat-to-feat (pairs of ICF) ####
 
-#' @title combineInteractionChangedFeatures_per_interaction
-#' @name combineInteractionChangedFeatures_per_interaction
+#' @title Combine ICF scores per interaction
+#' @name .combineInteractionChangedFeatures_per_interaction
 #' @description Combine ICF scores per interaction
 #' @keywords internal
-combineInteractionChangedFeatures_per_interaction =  function(icfObject,
+.combineInteractionChangedFeatures_per_interaction = function(icfObject,
                                                               sel_int,
                                                               selected_feats = NULL,
                                                               specific_feats_1 = NULL,
@@ -1825,7 +1821,7 @@ combineInteractionChangedFeats = function(icfObject,
 
     FTFresults = lapply_flex(X = all_ints, FUN = function(x) {
 
-      tempres =  combineInteractionChangedFeatures_per_interaction(icfObject = icfObject,
+      tempres =  .combineInteractionChangedFeatures_per_interaction(icfObject = icfObject,
                                                                    sel_int = x,
                                                                    selected_feats = selected_feats,
                                                                    specific_feats_1 = specific_feats_1,
@@ -1849,7 +1845,7 @@ combineInteractionChangedFeats = function(icfObject,
 
       if(verbose == TRUE) print(x)
 
-      tempres =  combineInteractionChangedFeatures_per_interaction(icfObject = icfObject,
+      tempres =  .combineInteractionChangedFeatures_per_interaction(icfObject = icfObject,
                                                                    sel_int = x,
                                                                    selected_feats = selected_feats,
                                                                    specific_feats_1 = specific_feats_1,
@@ -1868,7 +1864,7 @@ combineInteractionChangedFeats = function(icfObject,
 
   final_results[, feat1_feat2 := paste0(feats_1,'--',feats_2)]
 
-  final_results = sort_combine_two_DT_columns(final_results,
+  final_results = dt_sort_combine_two_columns(final_results,
                                               column1 = 'feats_1', column2 = 'feats_2',
                                               myname = 'unif_feat_feat')
 
@@ -2285,8 +2281,8 @@ exprCellCellcom = function(gobject,
 
 
 
-#' @title create_cell_type_random_cell_IDs
-#' @name create_cell_type_random_cell_IDs
+#' @title Create randomized cell IDs within a selection of cell types
+#' @name .create_cell_type_random_cell_IDs
 #' @description creates randomized cell ids within a selection of cell types
 #' @param gobject giotto object to use
 #' @param feat_type feature type
@@ -2296,7 +2292,7 @@ exprCellCellcom = function(gobject,
 #' @param seed_number seed number
 #' @return list of randomly sampled cell ids with same cell type composition
 #' @keywords internal
-create_cell_type_random_cell_IDs = function(gobject,
+.create_cell_type_random_cell_IDs = function(gobject,
                                             feat_type = NULL,
                                             spat_unit = NULL,
                                             cluster_column = 'cell_types',
@@ -2517,7 +2513,7 @@ specificCellCellcommunicationScores = function(gobject,
         seed_number = seed_number+sim
         set.seed(seed = seed_number)
       }
-      random_ids = create_cell_type_random_cell_IDs(gobject = gobject,
+      random_ids = .create_cell_type_random_cell_IDs(gobject = gobject,
                                                     feat_type = feat_type,
                                                     spat_unit = spat_unit,
                                                     cluster_column = cluster_column,

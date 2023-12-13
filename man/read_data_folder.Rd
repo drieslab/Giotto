@@ -2,10 +2,11 @@
 % Please edit documentation in R/convenience.R
 \name{read_data_folder}
 \alias{read_data_folder}
-\alias{read_merscope_folder}
+\alias{.read_data_folder}
+\alias{.read_merscope_folder}
 \title{Read a structured folder of exported data}
 \usage{
-read_data_folder(
+.read_data_folder(
   spat_method = NULL,
   data_dir = NULL,
   dir_items,
@@ -13,10 +14,11 @@ read_data_folder(
   load_format = NULL,
   require_data_DT,
   cores = NA,
-  verbose = TRUE
+  verbose = TRUE,
+  toplevel = 2L
 )
 
-read_merscope_folder(merscope_dir, data_to_use, cores = NA, verbose = TRUE)
+.read_merscope_folder(merscope_dir, data_to_use, cores = NA, verbose = TRUE)
 }
 \arguments{
 \item{spat_method}{spatial method for which the data is being read}
@@ -33,10 +35,16 @@ or optional for each \code{data_to_use} workflow}
 \item{cores}{cores to use}
 
 \item{verbose}{be verbose}
+
+\item{toplevel}{stackframes back where the user-facing function was called.
+default is one stackframe above `.read_data_folder`.}
 }
 \description{
-Read the exported folder of a spatial method and
-detect the presence of needed files. NULL values denote missing items.
+Framework function for reading the exported folder of a spatial
+method and detecting the presence of needed files. NULL values denote missing
+items.\cr
+`.read_data_folder()` should not be called directly. Instead, specific
+reader functions should be built using it as a base.
 }
 \details{
 Steps performed:
@@ -53,7 +61,9 @@ Steps performed:
 }
 \section{Functions}{
 \itemize{
-\item \code{read_merscope_folder()}: Read a structured MERSCOPE folder
+\item \code{.read_data_folder()}: Should not be used directly
+
+\item \code{.read_merscope_folder()}: Read a structured MERSCOPE folder
 
 }}
 \keyword{internal}

@@ -58,7 +58,7 @@ order to get different partitions at each call (default = FALSE)}
 
 \item{seed_number}{number for seed}
 
-\item{...}{arguments passed to \code{\link{doLouvainCluster_community}} or \code{\link{doLouvainCluster_multinet}}}
+\item{...}{arguments passed to \code{\link{.doLouvainCluster_community}} or \code{\link{.doLouvainCluster_multinet}}}
 }
 \value{
 giotto object with new clusters appended to cell metadata
@@ -70,5 +70,5 @@ cluster cells using a NN-network and the Louvain algorithm.
 Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 }
 \seealso{
-\code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
+\code{\link{.doLouvainCluster_community}} and \code{\link{.doLouvainCluster_multinet}}
 }

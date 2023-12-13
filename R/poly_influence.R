@@ -81,14 +81,14 @@ showPolygonSizeInfluence <- function(gobject = NULL,
   switch_strs = c() #scope
   if(!equal_len){
     #####
-    switch_strs = determine_switch_string_unequal(num_orig = num_orig,
+    switch_strs = .determine_switch_string_unequal(num_orig = num_orig,
                                                   num_new = num_new)
     #####
   }else {
     cmeta = pDataDT(gobject, spat_unit = spat_unit)
     cmeta_new = pDataDT(gobject, spat_unit = alt_spat_unit)
 
-    switch_strs = determine_switch_string_equal(cell_meta = cmeta,
+    switch_strs = .determine_switch_string_equal(cell_meta = cmeta,
                                                 cell_meta_new = cmeta_new,
                                                 clus_name = clus_name)
   }
@@ -126,8 +126,8 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 
 }
 
-#' @title determine_switch_string_equal
-#' @name determine_switch_string_equal
+#' @title Determine switch string equal
+#' @name .determine_switch_string_equal
 #' @param cell_meta cell_metadata from the original spatial_unit
 #' @param cell_meta_new cell_metadata from the resized spatial unit
 #' @param clus_name name of the cluster type, likely "kmeans"
@@ -141,7 +141,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #' Clusters are determined to be corresponding based on % overlap in cell_IDs in each cluster.
 #'
 #' @keywords internal
-determine_switch_string_equal <- function(cell_meta = NULL,
+.determine_switch_string_equal <- function(cell_meta = NULL,
                                           cell_meta_new = NULL,
                                           clus_name = NULL){
   k_clusters = sort(unique(cell_meta[[clus_name]]))
@@ -178,8 +178,8 @@ determine_switch_string_equal <- function(cell_meta = NULL,
 
 }
 
-#' @title determine_switch_string_unequal
-#' @name determine_switch_string_unequal
+#' @title Determine switch string unequal
+#' @name .determine_switch_string_unequal
 #' @param num_orig sorted vector of cluster numbers in the original metadata
 #' @param num_new sorted vector of cluster numbers in the new, resized metadata
 #' @return switch_str, a vector of corresponding cluster numbers in strings
@@ -190,10 +190,10 @@ determine_switch_string_equal <- function(cell_meta = NULL,
 #'    n is the number of clusters in the original spatial unit
 #'    m is the number of clusters in the new spatial unit
 #'
-#' Essentially determines iteration order for create_switch_string_unequal()
+#' Essentially determines iteration order for .create_switch_string_unequal()
 #'
 #' @keywords internal
-determine_switch_string_unequal <- function(num_orig = NULL,
+.determine_switch_string_unequal <- function(num_orig = NULL,
                                             num_new = NULL){
 
   switch_strs = c()
@@ -203,13 +203,13 @@ determine_switch_string_unequal <- function(num_orig = NULL,
   if(length(num_orig) < length(num_new)) orig_first = FALSE
 
   if(orig_first){
-    switch_strs = create_switch_string_unequal(num_first = num_orig,
+    switch_strs = .create_switch_string_unequal(num_first = num_orig,
                                                num_second = num_new,
                                                switch_strs = switch_strs)
     return(switch_strs)
   }
 
-  switch_strs = create_switch_string_unequal(num_first = num_new,
+  switch_strs = .create_switch_string_unequal(num_first = num_new,
                                              num_second = num_orig,
                                              switch_strs = switch_strs)
 
@@ -217,8 +217,8 @@ determine_switch_string_unequal <- function(num_orig = NULL,
 
 }
 
-#' @title create_switch_string_unequal
-#' @name create_switch_string_unequal
+#' @title Create switch string unequal
+#' @name .create_switch_string_unequal
 #' @param num_first sorted vector of cluster numbers in the outer for loop
 #' @param num_second sorted vector of cluster numbers in the inner for loop
 #' @return switch_str, a vector of corresponding cluster numbers in strings
@@ -229,7 +229,7 @@ determine_switch_string_unequal <- function(num_orig = NULL,
 #'    n is the number of clusters in the original spatial unit
 #'    m is the number of clusters in the new spatial unit
 #' @keywords internal
-create_switch_string_unequal <- function(num_first = NULL,
+.create_switch_string_unequal <- function(num_first = NULL,
                                          num_second = NULL,
                                         switch_strs = NULL){
   for (o in num_first){

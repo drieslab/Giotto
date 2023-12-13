@@ -1,8 +1,6 @@
 
-#' @title calc_cov_group_HVF
-#' @name calc_cov_group_HVF
-#' @keywords internal
-calc_cov_group_HVF = function(feat_in_cells_detected,
+
+.calc_cov_group_hvf = function(feat_in_cells_detected,
                               nr_expression_groups = 20,
                               zscore_threshold = 1,
                               show_plot = NA,
@@ -34,7 +32,7 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
   feat_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
-    pl = create_cov_group_HVF_plot(feat_in_cells_detected, nr_expression_groups)
+    pl = .create_cov_group_hvf_plot(feat_in_cells_detected, nr_expression_groups)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
   } else {
@@ -48,10 +46,8 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
 
 
 
-#' @title calc_cov_loess_HVF
-#' @name calc_cov_loess_HVF
-#' @keywords internal
-calc_cov_loess_HVF = function(feat_in_cells_detected,
+
+.calc_cov_loess_hvf = function(feat_in_cells_detected,
                               difference_in_cov = 0.1,
                               show_plot = NA,
                               return_plot = NA,
@@ -73,7 +69,7 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
   feat_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
-    pl = create_cov_loess_HVF_plot(feat_in_cells_detected, difference_in_cov, var_col)
+    pl = .create_cov_loess_hvf_plot(feat_in_cells_detected, difference_in_cov, var_col)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
   } else {
@@ -82,19 +78,16 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
 }
 
 
-#' @title calc_var_HVF
-#' @name calc_var_HVF
-#' @keywords internal
-calc_var_HVF = function(scaled_matrix,
+
+.calc_var_hvf = function(scaled_matrix,
                         var_threshold = 1.5,
                         var_number = NULL,
                         show_plot = NA,
                         return_plot = NA,
                         save_plot = NA) {
 
-  # define for :=
-  var = NULL
-  selected = NULL
+  # NSE vars
+  var <- selected <- NULL
 
   test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
   test = sort(test, decreasing = TRUE)
@@ -114,7 +107,7 @@ calc_var_HVF = function(scaled_matrix,
      isTRUE(save_plot)) {
 
     dt_res[, rank := 1:.N]
-    pl <- create_calc_var_HVF_plot(dt_res)
+    pl <- .create_calc_var_hvf_plot(dt_res)
 
 
     dt_res_final = data.table::copy(dt_res)
@@ -240,7 +233,7 @@ calculateHVF <- function(gobject,
 
   if(method == 'var_p_resid') {
 
-    results = calc_var_HVF(
+    results = .calc_var_hvf(
       scaled_matrix = expr_values,
       var_threshold = var_threshold,
       var_number = var_number,
@@ -269,7 +262,7 @@ calculateHVF <- function(gobject,
 
     if(method == 'cov_groups') {
 
-      results = calc_cov_group_HVF(feat_in_cells_detected = feat_in_cells_detected,
+      results = .calc_cov_group_hvf(feat_in_cells_detected = feat_in_cells_detected,
                                    nr_expression_groups = nr_expression_groups,
                                    zscore_threshold = zscore_threshold,
                                    show_plot = show_plot,
@@ -280,7 +273,7 @@ calculateHVF <- function(gobject,
 
     } else if(method == 'cov_loess') {
 
-      results = calc_cov_loess_HVF(feat_in_cells_detected = feat_in_cells_detected,
+      results = .calc_cov_loess_hvf(feat_in_cells_detected = feat_in_cells_detected,
                                    difference_in_cov = difference_in_cov,
                                    show_plot = show_plot,
                                    return_plot = return_plot,
@@ -371,7 +364,7 @@ calculateHVF <- function(gobject,
 
 
 # plot generation ####
-create_cov_group_HVF_plot = function(feat_in_cells_detected, nr_expression_groups) {
+.create_cov_group_hvf_plot = function(feat_in_cells_detected, nr_expression_groups) {
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic() +
     ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
@@ -388,7 +381,7 @@ create_cov_group_HVF_plot = function(feat_in_cells_detected, nr_expression_group
 }
 
 
-create_cov_loess_HVF_plot = function(feat_in_cells_detected, difference_in_cov, var_col) {
+.create_cov_loess_hvf_plot = function(feat_in_cells_detected, difference_in_cov, var_col) {
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic() +
     ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
@@ -405,7 +398,7 @@ create_cov_loess_HVF_plot = function(feat_in_cells_detected, difference_in_cov, 
 }
 
 
-create_calc_var_HVF_plot = function(dt_res) {
+.create_calc_var_hvf_plot = function(dt_res) {
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::geom_point(data = dt_res, aes_string(x = 'rank', y = 'var', color = 'selected'))
   pl = pl + ggplot2::scale_x_reverse()

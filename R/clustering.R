@@ -413,8 +413,8 @@ doGiottoClustree <- function(gobject,
 }
 
 
-#' @title doLouvainCluster_community
-#' @name doLouvainCluster_community
+#' @title doLouvainCluster community
+#' @name .doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -430,6 +430,7 @@ doGiottoClustree <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
+#' @param \dots additional params to pass
 #' @return giotto object with new clusters appended to cell metadata
 #' @details This function is a wrapper for the Louvain algorithm implemented in Python,
 #' which can detect communities in graphs of nodes (cells).
@@ -440,7 +441,7 @@ doGiottoClustree <- function(gobject,
 #'
 #' @keywords internal
 #'
-doLouvainCluster_community <- function(gobject,
+.doLouvainCluster_community <- function(gobject,
                                        spat_unit = NULL,
                                        feat_type = NULL,
                                        name = 'louvain_clus',
@@ -452,7 +453,8 @@ doLouvainCluster_community <- function(gobject,
                                        louv_random = FALSE,
                                        return_gobject = TRUE,
                                        set_seed = FALSE,
-                                       seed_number = 1234) {
+                                       seed_number = 1234,
+                                       ...) {
 
 
 
@@ -504,19 +506,19 @@ doLouvainCluster_community <- function(gobject,
       stop('\n weight column is not an igraph attribute \n')
     } else {
       # weight is defined by attribute of igraph object
-      network_edge_dt = network_edge_dt[,c('from', 'to', weight_col), with = F]
+      network_edge_dt = network_edge_dt[,c('from', 'to', weight_col), with = FALSE]
       setnames(network_edge_dt, weight_col, 'weight')
     }
   } else {
     # weight is the same
-    network_edge_dt = network_edge_dt[,c('from', 'to'), with = F]
+    network_edge_dt = network_edge_dt[,c('from', 'to'), with = FALSE]
     network_edge_dt[, weight := 1]
   }
 
   # do python louvain clustering
   if(louv_random == FALSE) {
     reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
-    pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, randomize = F)
+    pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, randomize = FALSE)
   } else {
     reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
     pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, random_state = seed_number)
@@ -590,8 +592,8 @@ doLouvainCluster_community <- function(gobject,
 }
 
 
-#' @title doLouvainCluster_multinet
-#' @name doLouvainCluster_multinet
+#' @title doLouvainCluster multinet
+#' @name .doLouvainCluster_multinet
 #' @description cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -609,7 +611,7 @@ doLouvainCluster_community <- function(gobject,
 #' more information.
 #'
 #' @keywords internal
-doLouvainCluster_multinet <- function(gobject,
+.doLouvainCluster_multinet <- function(gobject,
                                       spat_unit = NULL,
                                       feat_type = NULL,
                                       name = 'louvain_clus',
@@ -672,7 +674,7 @@ doLouvainCluster_multinet <- function(gobject,
 
 
   ## return
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     # get cell metadata names
     cluster_names = names(pDataDT(gobject = gobject,
@@ -754,12 +756,12 @@ doLouvainCluster_multinet <- function(gobject,
 #' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method, default = 1
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = FALSE)
-#' @param ... arguments passed to \code{\link{doLouvainCluster_community}} or \code{\link{doLouvainCluster_multinet}}
+#' @param ... arguments passed to \code{\link{.doLouvainCluster_community}} or \code{\link{.doLouvainCluster_multinet}}
 #' @param seed_number number for seed
 #'
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
-#' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
+#' @seealso \code{\link{.doLouvainCluster_community}} and \code{\link{.doLouvainCluster_multinet}}
 #' @export
 doLouvainCluster = function(gobject,
                             spat_unit = NULL,
@@ -795,7 +797,7 @@ doLouvainCluster = function(gobject,
   # python community implementation
   if(version == 'community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = .doLouvainCluster_community(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         name = name,
@@ -815,7 +817,7 @@ doLouvainCluster = function(gobject,
     ## r multinet implementation
   } else if(version == 'multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = .doLouvainCluster_multinet(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        name = name,
@@ -1431,7 +1433,7 @@ doHclust <- function(gobject,
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Wrapper for the different clustering methods.
-#' @seealso \code{\link{doLeidenCluster}}, \code{\link{doLouvainCluster_community}}, \code{\link{doLouvainCluster_multinet}},
+#' @seealso \code{\link{doLeidenCluster}}, \code{\link{.doLouvainCluster_community}}, \code{\link{.doLouvainCluster_multinet}},
 #' \code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
 #' \code{\link{doKmeans}}, \code{\link{doHclust}}
 #' @export
@@ -1494,10 +1496,15 @@ clusterCells <- function(gobject,
                          seed_number = 1234) {
 
   ## select cluster method
-  cluster_method = match.arg(arg = cluster_method, choices = c('leiden',
-                                                               'louvain_community', 'louvain_multinet',
-                                                               'randomwalk', 'sNNclust',
-                                                               'kmeans', 'hierarchical'))
+  cluster_method = match.arg(
+    arg = cluster_method,
+    choices = c('leiden',
+                'louvain_community',
+                'louvain_multinet',
+                'randomwalk',
+                'sNNclust',
+                'kmeans',
+                'hierarchical'))
 
 
   if(cluster_method == 'leiden') {
@@ -1518,7 +1525,7 @@ clusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = .doLouvainCluster_community(gobject = gobject,
                                         name = name,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name,
@@ -1532,7 +1539,7 @@ clusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = .doLouvainCluster_multinet(gobject = gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
@@ -1829,8 +1836,8 @@ doLeidenSubCluster = function(gobject,
 }
 
 
-#' @title doLouvainSubCluster_community
-#' @name doLouvainSubCluster_community
+#' @title doLouvainSubCluster community
+#' @name .doLouvainSubCluster_community
 #' @description subcluster cells using a NN-network and the Louvain community detection algorithm
 #' @param gobject giotto object
 #' @param name name for new clustering result
@@ -1860,9 +1867,9 @@ doLeidenSubCluster = function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain community clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_community}}
 #' @keywords internal
-doLouvainSubCluster_community = function(gobject,
+.doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
@@ -1944,7 +1951,7 @@ doLouvainSubCluster_community = function(gobject,
 
       ## Leiden Cluster
       ## TO DO: expand to all clustering options
-      temp_cluster = doLouvainCluster_community(gobject = temp_giotto,
+      temp_cluster = .doLouvainCluster_community(gobject = temp_giotto,
                                                 resolution = resolution,
                                                 python_path = python_path,
                                                 name = 'tempclus',
@@ -2011,8 +2018,8 @@ doLouvainSubCluster_community = function(gobject,
 
 
 
-#' @title doLouvainSubCluster_multinet
-#' @name doLouvainSubCluster_multinet
+#' @title doLouvainSubCluster multinet
+#' @name .doLouvainSubCluster_multinet
 #' @description subcluster cells using a NN-network and the Louvain multinet detection algorithm
 #' @param gobject giotto object
 #' @param name name for new clustering result
@@ -2042,9 +2049,9 @@ doLouvainSubCluster_community = function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain multinet clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}}
 #' @keywords internal
-doLouvainSubCluster_multinet =  function(gobject,
+.doLouvainSubCluster_multinet = function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
@@ -2134,7 +2141,7 @@ doLouvainSubCluster_multinet =  function(gobject,
 
       ## Leiden Cluster
       ## TO DO: expand to all clustering options
-      temp_cluster = doLouvainCluster_multinet(gobject = temp_giotto,
+      temp_cluster = .doLouvainCluster_multinet(gobject = temp_giotto,
                                                gamma = gamma,
                                                omega = omega,
                                                name = 'tempclus',
@@ -2229,7 +2236,7 @@ doLouvainSubCluster_multinet =  function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}} and \code{\link{.doLouvainCluster_community}}
 #' @export
 doLouvainSubCluster =  function(gobject,
                                 name = 'sub_louvain_clus',
@@ -2260,7 +2267,7 @@ doLouvainSubCluster =  function(gobject,
   # python community implementation
   if(version == 'community') {
 
-    result = doLouvainSubCluster_community(gobject = gobject,
+    result = .doLouvainSubCluster_community(gobject = gobject,
                                            cluster_column = cluster_column,
                                            selected_clusters = selected_clusters,
                                            hvg_param = hvg_param,
@@ -2278,7 +2285,7 @@ doLouvainSubCluster =  function(gobject,
 
   } else if(version == 'multinet') {
 
-    result = doLouvainSubCluster_multinet(gobject = gobject,
+    result = .doLouvainSubCluster_multinet(gobject = gobject,
                                           cluster_column = cluster_column,
                                           selected_clusters = selected_clusters,
                                           hvg_param = hvg_param,
@@ -2339,7 +2346,7 @@ doLouvainSubCluster =  function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}}, \code{\link{.doLouvainCluster_community}}
 #' and  @seealso \code{\link{doLeidenCluster}}
 #' @export
 subClusterCells <- function(gobject,
@@ -2397,7 +2404,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainSubCluster_community(gobject = gobject,
+    result = .doLouvainSubCluster_community(gobject = gobject,
                                         cluster_column = cluster_column,
                                         selected_clusters = selected_clusters,
                                         hvg_param = hvg_param,
@@ -2418,7 +2425,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainSubCluster_multinet(gobject = gobject,
+    result = .doLouvainSubCluster_multinet(gobject = gobject,
                                        cluster_column = cluster_column,
                                        selected_clusters = selected_clusters,
                                        hvg_param = hvg_param,
@@ -2695,13 +2702,13 @@ mergeClusters <- function(gobject,
 
 
 
-#' @title split_dendrogram_in_two
-#' @name split_dendrogram_in_two
+#' @title Split dendrogram in two
+#' @name .split_dendrogram_in_two
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param dend dendrogram object
 #' @return list of two dendrograms and height of node
 #' @keywords internal
-split_dendrogram_in_two = function(dend) {
+.split_dendrogram_in_two = function(dend) {
 
   top_height = attributes(dend)$height
   divided_leaves_labels = dendextend::cut_lower_fun(dend, h = top_height)
@@ -2724,14 +2731,14 @@ split_dendrogram_in_two = function(dend) {
 
 
 
-#' @title node_clusters
-#' @name node_clusters
+#' @title Node clusters
+#' @name .node_clusters
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param hclus_obj hclus object
 #' @param verbose be verbose
 #' @return list of splitted dendrogram nodes from high to low node height
 #' @keywords internal
-node_clusters = function(hclus_obj, verbose = TRUE) {
+.node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)
   mydend = stats::as.dendrogram(hclus_obj)
@@ -2760,7 +2767,7 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
     # select_dend_ind = which(available_h == n_height)
     select_dend_ind = which.min(abs(available_h - n_height))
     select_dend = dend_list[[select_dend_ind]]
-    tempres = split_dendrogram_in_two(dend = select_dend)
+    tempres = .split_dendrogram_in_two(dend = select_dend)
 
     # find leave labels
     toph = tempres[[1]]
@@ -2867,7 +2874,7 @@ getDendrogramSplits = function(gobject,
   }
 
 
-  splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
+  splitList = .node_clusters(hclus_obj = corclus, verbose = verbose)
 
   splitDT = data.table::as.data.table(t_flex(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')

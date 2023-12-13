@@ -990,6 +990,7 @@ checkAndFixSpatialGenes <- function(gobject,
 #' @param zscore type of zscore to use
 #' @param nstart number of Kmeans initializations from which to select the best initialization
 #' @param factor_step dampened factor step
+#' @param python_path python_path
 #' @details
 #' This function is the initialization step of HMRF domain clustering. First, user specify which of Giotto's spatial genes to run,
 #' through use_spatial_genes. Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes that
@@ -1039,7 +1040,13 @@ initHMRF_V2 =
             factor_step = 1.05,
             python_path = NULL)
   {
-    message("\nIf used in published research, please cite:\n  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining\n  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
+    wrap_msg(
+      "\nIf used in published research, please cite:
+      Q Zhu, S Shah, R Dries, L Cai, GC Yuan.
+      'Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data'
+      Nature biotechnology 36 (12), 1183-1190. 2018\n"
+    )
+
     if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
       stop("\n package ", "smfishHmrf", " is not yet installed \n",
            "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n",
@@ -1063,6 +1070,8 @@ initHMRF_V2 =
     library(tidygraph)
     library(ggraph)
     library(graphcoloring)
+
+    package_check('dplyr')
 
     # DT vars
     to = from = clus = NULL
@@ -1276,8 +1285,8 @@ initHMRF_V2 =
       }
     }
     cat(paste0("\n Parsing neighborhood graph...\n"))
-    pp <- tbl_graph(edges = as.data.frame(edgelist), directed = FALSE)
-    yy <- pp %>% mutate(color = as.factor(color_dsatur()))
+    pp <- tidygraph::tbl_graph(edges = as.data.frame(edgelist), directed = FALSE)
+    yy <- pp %>% dplyr::mutate(color = as.factor(graphcoloring::color_dsatur()))
     colors <- as.list(yy)$nodes$color
     cl_color <- sort(unique(colors))
     blocks <- lapply(cl_color, function(cl) {

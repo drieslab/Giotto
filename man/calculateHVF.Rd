@@ -19,7 +19,9 @@ calculateHVF(
   difference_in_cov = 0.1,
   var_threshold = 1.5,
   var_number = NULL,
-  cell_ids = NULL,
+  random_subset = NULL,
+  set_seed = TRUE,
+  seed_number = 1234,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -57,8 +59,12 @@ calculateHVF(
 
 \item{var_number}{[var_p_resid] number of top variance features for var_p_resid method}
 
-\item{cell_ids}{Specific cell_IDs (`spatIDs()`) that the HVF detection
-should be performed on. Passing NULL (default) runs HVF on all cells.}
+\item{random_subset}{random subset to perform HVF detection on. Passing NULL
+runs HVF on all cells.}
+
+\item{set_seed}{logical. whether to set a seed when random_subset is used}
+
+\item{seed_number}{seed number to use when random_subset is used}
 
 \item{show_plot}{show plot}
 
