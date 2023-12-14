@@ -1,7 +1,7 @@
 
 
 #' @title Remove hetero edges from igraph
-#' @name igraph_remove_hetero_edges
+#' @name .igraph_remove_hetero_edges
 #' @description
 #' Given an igraph `g` and set of node attributes `clus_att` that encode
 #' different spatial clusters, remove edges that connect non-similar nodes.
@@ -9,9 +9,10 @@
 #' be further broken up based on whether they are spatially touching.
 #' @param g igraph object
 #' @param clus_attr character. A categorical node attribute
+#' @md
 #' @return igraph
 #' @keywords internal
-igraph_remove_hetero_edges = function(g, clus_attr) {
+.igraph_remove_hetero_edges = function(g, clus_attr) {
 
   clus_attr_values = igraph::vertex_attr(g, name = clus_attr)
 
@@ -39,14 +40,14 @@ igraph_remove_hetero_edges = function(g, clus_attr) {
 
 
 #' @title igraph vertex membership
-#' @name igraph_vertex_membership
+#' @name .igraph_vertex_membership
 #' @description
 #' Get which weakly connected set of vertices each vertex is part of
 #' @param g igraph
 #' @param clus_name character. name to assign column of clustering info
 #' @return data.table
 #' @keywords internal
-igraph_vertex_membership = function(g, clus_name) {
+.igraph_vertex_membership = function(g, clus_name) {
   membership = igraph::components(g)$membership %>%
     data.table::as.data.table(keep.rownames = TRUE)
   data.table::setnames(membership, c('cell_ID', clus_name))
@@ -66,6 +67,7 @@ igraph_vertex_membership = function(g, clus_name) {
 #' @param split_clus_name character. Name to assign the split cluster results
 #' information to split
 #' @examples
+#' library(Giotto)
 #' g = GiottoData::loadGiottoMini('vizgen')
 #' activeSpatUnit(g) = 'aggregate'
 #' spatPlot2D(g, cell_color = 'leiden_clus')
@@ -117,13 +119,13 @@ spatialSplitCluster = function(gobject,
   igraph::V(g)$cluster = clus_values
 
   # split cluster by spatial igraph
-  g = igraph_remove_hetero_edges(
+  g = .igraph_remove_hetero_edges(
     g = g,
     clus_attr = 'cluster'
   )
 
   # get new clusterings
-  new_clus_dt = igraph_vertex_membership(
+  new_clus_dt = .igraph_vertex_membership(
     g = g,
     clus_name = split_clus_name
   )

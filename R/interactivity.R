@@ -449,7 +449,7 @@ plotPolygons <- function(gobject,
 
   if(!is.null(polygons)) {
     ## replace polygon names
-    for (i in 1:length(unlist(polygon_spatVector[["poly_ID"]])) ) {
+    for (i in seq_along(unlist(polygon_spatVector[["poly_ID"]])) ) {
       coordinates$geom <- replace(coordinates$geom,
                                   coordinates$geom == i,
                                   unlist(polygon_spatVector[["poly_ID"]])[i])

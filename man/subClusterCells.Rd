@@ -93,6 +93,6 @@ The systematic steps are:
 }
 }
 \seealso{
-\code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
+\code{\link{.doLouvainCluster_multinet}}, \code{\link{.doLouvainCluster_community}}
 and  @seealso \code{\link{doLeidenCluster}}
 }

@@ -8,7 +8,8 @@
 #' @param expression_values expression values to use, default = normalized
 #' @param spatial_network_to_use spatial network to use, default = spatial_network
 #' @param verbose be verbose
-#'
+#' @param return_gobject if FALSE, results are returned as data.table.
+#' If TRUE, values will be appended to feature metadata
 #' @return A data table with computed values for each feature.
 #' @export
 
@@ -37,7 +38,7 @@ spdepAutoCorr <- function (gobject,
   }
 
   # Evaluate spatial autocorrelation using Giotto
-  resultSpdepCor <- evaluate_autocor_input(
+  resultSpdepCor <- .evaluate_autocor_input(
     gobject = gobject,
     use_ext_vals = FALSE,
     use_sn = TRUE,

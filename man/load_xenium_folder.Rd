@@ -2,11 +2,12 @@
 % Please edit documentation in R/convenience.R
 \name{load_xenium_folder}
 \alias{load_xenium_folder}
-\alias{load_xenium_folder_csv}
-\alias{load_xenium_folder_parquet}
+\alias{.load_xenium_folder}
+\alias{.load_xenium_folder_csv}
+\alias{.load_xenium_folder_parquet}
 \title{Load xenium data from folder}
 \usage{
-load_xenium_folder(
+.load_xenium_folder(
   path_list,
   load_format = "csv",
   data_to_use = "subcellular",
@@ -17,7 +18,7 @@ load_xenium_folder(
   verbose = TRUE
 )
 
-load_xenium_folder_csv(
+.load_xenium_folder_csv(
   path_list,
   cores,
   data_to_use = "subcellular",
@@ -27,7 +28,7 @@ load_xenium_folder_csv(
   verbose = TRUE
 )
 
-load_xenium_folder_parquet(
+.load_xenium_folder_parquet(
   path_list,
   cores,
   data_to_use = "subcellular",
@@ -38,7 +39,7 @@ load_xenium_folder_parquet(
 )
 }
 \arguments{
-\item{path_list}{list of full filepaths from read_xenium_folder}
+\item{path_list}{list of full filepaths from .read_xenium_folder}
 
 \item{load_format}{files formats from which to load the data. Either `csv` or
 `parquet` currently supported.}
@@ -66,9 +67,9 @@ Load xenium data from folder
 }
 \section{Functions}{
 \itemize{
-\item \code{load_xenium_folder_csv()}: Load from csv files
+\item \code{.load_xenium_folder_csv()}: Load from csv files
 
-\item \code{load_xenium_folder_parquet()}: Load from parquet files
+\item \code{.load_xenium_folder_parquet()}: Load from parquet files
 
 }}
 \keyword{internal}

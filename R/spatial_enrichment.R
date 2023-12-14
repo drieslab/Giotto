@@ -24,7 +24,7 @@ makeSignMatrixPAGE = function(sign_names,
 
   ## create genes and signatures
   genes = do.call('c', sign_list)
-  types = lapply(1:length(sign_names), FUN = function(x) {
+  types = lapply(seq_along(sign_names), FUN = function(x) {
 
     subset = sign_list[[x]]
     name_subset = sign_names[[x]]
@@ -83,7 +83,7 @@ makeSignMatrixDWLSfromMatrix = function(matrix,
                       nrow = nrow(matrix_subset),
                       ncol = length(unique(cell_type_vector)))
 
-  for(cell_type_i in 1:length(unique(cell_type_vector))) {
+  for(cell_type_i in seq_along(unique(cell_type_vector))) {
 
     cell_type = unique(cell_type_vector)[cell_type_i]
     selected_cells = colnames(matrix_subset)[cell_type_vector == cell_type]
@@ -203,7 +203,7 @@ makeSignMatrixRank = function(sc_matrix,
   total_nr_genes = nrow(sc_matrix)
 
   # calculate means for each cluster group
-  for(group in 1:length(unique(sc_cluster_ids))) {
+  for(group in seq_along(unique(sc_cluster_ids))) {
 
     group_id = unique(sc_cluster_ids)[group]
     cell_ind = which(sc_cluster_ids == group_id)
@@ -256,10 +256,10 @@ makeSignMatrixRank = function(sc_matrix,
 ## spatial enrichment functions ####
 
 
-#' @title do_page_permutation
+#' @title PAGE permutation
 #' @description creates permutation for the PAGEEnrich test
 #' @keywords internal
-do_page_permutation = function(gobject,
+.do_page_permutation = function(gobject,
                                sig_gene,
                                ntimes){
   # check available gene
@@ -288,7 +288,7 @@ do_page_permutation = function(gobject,
   }
   uniq_ct_gene_counts = unique(ct_gene_counts)
   background_mean_sd = matrix(data=NA,nrow = length(uniq_ct_gene_counts)+1, ncol = 3)
-  for (i in 1:length(uniq_ct_gene_counts)){
+  for (i in seq_along(uniq_ct_gene_counts)){
     gene_num<-uniq_ct_gene_counts[i]
     all_sample_names<-NULL
     all_sample_list<-NULL
@@ -402,7 +402,7 @@ runPAGEEnrich_OLD <- function(gobject,
     sigColMean = apply(geneFold[signames,],2,mean)
     m = length(signames)
     vectorX = NULL
-    for (j in(1:length(cellColMean))){
+    for (j in(seq_along(cellColMean))){
       Sm = sigColMean[j]
       u = cellColMean[j]
       sigma = cellColSd[j]
@@ -450,7 +450,7 @@ runPAGEEnrich_OLD <- function(gobject,
     interGene = intersect(rownames(sign_matrix), rownames(gobject@expression$rna$normalized))
     filter_sign_matrix = sign_matrix[interGene,available_ct]
 
-    background_mean_sd = do_page_permutation(gobject = gobject,
+    background_mean_sd = .do_page_permutation(gobject = gobject,
                                              sig_gene = filter_sign_matrix,
                                              ntimes = n_times)
 
@@ -503,11 +503,10 @@ runPAGEEnrich_OLD <- function(gobject,
 
 
 
-#' @title PAGE_DT_method
-#' @description PAGE data.table method
+#' @title PAGE data.table method
 #' @param expr_values matrix of expression values
 #' @keywords internal
-PAGE_DT_method = function(sign_matrix,
+.page_dt_method = function(sign_matrix,
                           expr_values,
                           min_overlap_genes = 5,
                           logbase = 2,
@@ -643,7 +642,7 @@ PAGE_DT_method = function(sign_matrix,
 
     ## 4. create groups
     all_perms = unique(perm_round)
-    all_perms_num = 1:length(all_perms)
+    all_perms_num = seq_along(all_perms)
     names(all_perms_num) = all_perms
     group_labels = paste0('group_',1:nr_groups)
     groups_vec = cut(all_perms_num, breaks = nr_groups, labels = group_labels)
@@ -652,7 +651,7 @@ PAGE_DT_method = function(sign_matrix,
 
     ## 5. do random enrichment per block
     res_list = list()
-    for(group_i in 1:length(group_labels)) {
+    for(group_i in seq_along(group_labels)) {
 
       group = group_labels[group_i]
       sub_perms = all_perms[names(all_perms) == group]
@@ -773,17 +772,17 @@ runPAGEEnrich = function(gobject,
   # check parameters
   if(is.null(name)) name = 'PAGE'
 
-  PAGE_results = PAGE_DT_method(sign_matrix = sign_matrix,
-                                expr_values = as.matrix(expr_values[]),
-                                min_overlap_genes = min_overlap_genes,
-                                logbase = logbase,
-                                reverse_log_scale = reverse_log_scale,
-                                output_enrichment = c('original', 'zscore'),
-                                p_value = p_value,
-                                include_depletion = include_depletion,
-                                n_times = n_times,
-                                max_block = max_block,
-                                verbose = verbose)
+  PAGE_results = .page_dt_method(sign_matrix = sign_matrix,
+                                 expr_values = as.matrix(expr_values[]),
+                                 min_overlap_genes = min_overlap_genes,
+                                 logbase = logbase,
+                                 reverse_log_scale = reverse_log_scale,
+                                 output_enrichment = c('original', 'zscore'),
+                                 p_value = p_value,
+                                 include_depletion = include_depletion,
+                                 n_times = n_times,
+                                 max_block = max_block,
+                                 verbose = verbose)
 
   # create spatial enrichment object
   enrObj = create_spat_enr_obj(name = name,
@@ -866,14 +865,14 @@ PAGEEnrich <- function(...) {
 
 
 
-#' @title do_rank_permutation
+#' @title Rank permutation
 #' @description creates permutation for the rankEnrich test
 #' @keywords internal
-do_rank_permutation = function(sc_gene, n){
+.do_rank_permutation = function(sc_gene, n){
   random_df = data.frame(matrix(ncol = n, nrow = length(sc_gene)))
   for (i in 1:n){
     set.seed(i)
-    random_rank = sample(1:length(sc_gene), length(sc_gene), replace=FALSE)
+    random_rank = sample(seq_along(sc_gene), length(sc_gene), replace=FALSE)
     random_df[,i] = random_rank
   }
   rownames(random_df) = sc_gene
@@ -1025,9 +1024,9 @@ runRankEnrich = function(gobject,
 
   # default name for page enrichment
 
-  if(p_value == TRUE){
-    random_rank = do_rank_permutation(sc_gene = rownames(sign_matrix),
-                                      n = n_times)
+  if(isTRUE(p_value)){
+    random_rank = .do_rank_permutation(sc_gene = rownames(sign_matrix),
+                                       n = n_times)
 
     random_DT = runRankEnrich(gobject = gobject,
                               spat_unit = spat_unit,
@@ -1466,12 +1465,12 @@ NULL
 
 # internals for spatial autocorrelation using terra
 #' @keywords internal
-spat_autocor_terra_numeric = function(x, w, method) {
+.spat_autocor_terra_numeric = function(x, w, method) {
   return(terra::autocor(x = x, w = w, method = method))
 }
 
 #' @keywords internal
-spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
+.spat_autocor_terra_raster = function(x, w, global = TRUE, method) {
   return(terra::autocor(x = x, w = w, global = global, method = method))
 }
 
@@ -1571,7 +1570,7 @@ spatialAutoCorGlobal = function(gobject = NULL,
   }
 
   # select and format input
-  data_list = evaluate_autocor_input(gobject = gobject,
+  data_list = .evaluate_autocor_input(gobject = gobject,
                                      use_ext_vals = use_ext_vals,
                                      use_sn = use_sn,
                                      use_expr = use_expr,
@@ -1595,7 +1594,7 @@ spatialAutoCorGlobal = function(gobject = NULL,
 
 
   # 2. perform autocor
-  res_dt = run_spat_autocor_global(use_values = use_values,
+  res_dt = .run_spat_autocor_global(use_values = use_values,
                                    feats = feats,
                                    weight_matrix = weight_matrix,
                                    method = method,
@@ -1722,7 +1721,7 @@ spatialAutoCorLocal = function(gobject = NULL,
 
 
   # select and format input
-  data_list = evaluate_autocor_input(gobject = gobject,
+  data_list = .evaluate_autocor_input(gobject = gobject,
                                      use_ext_vals = use_ext_vals,
                                      use_sn = use_sn,
                                      use_expr = use_expr,
@@ -1754,7 +1753,7 @@ spatialAutoCorLocal = function(gobject = NULL,
   }
 
   # 2. perform autocor
-  res_dt = run_spat_autocor_local(use_values = use_values,
+  res_dt = .run_spat_autocor_local(use_values = use_values,
                                   feats = feats,
                                   weight_matrix = weight_matrix,
                                   method = method,
@@ -1795,10 +1794,10 @@ spatialAutoCorLocal = function(gobject = NULL,
 
 
 
-#' run_spat_autocor_global
+#' .run_spat_autocor_global
 #'
 #' @keywords internal
-run_spat_autocor_global = function(use_values,
+.run_spat_autocor_global = function(use_values,
                                    feats,
                                    weight_matrix,
                                    method,
@@ -1826,7 +1825,7 @@ run_spat_autocor_global = function(use_values,
         }
 
 
-        spat_ac = spat_autocor_terra_numeric(
+        spat_ac = .spat_autocor_terra_numeric(
           x = feat_vals,
           w = weight_matrix,
           method = method)
@@ -1835,7 +1834,7 @@ run_spat_autocor_global = function(use_values,
         # test
         if(test_method != 'none') {
           if(test_method == 'monte_carlo') {
-            mc = sapply(seq(mc_nsim), function(i) spat_autocor_terra_numeric(
+            mc = sapply(seq(mc_nsim), function(i) .spat_autocor_terra_numeric(
               x = sample(feat_vals),
               w = weight_matrix,
               method = method))
@@ -1861,10 +1860,10 @@ run_spat_autocor_global = function(use_values,
 
 }
 
-#' run_spat_autocor_local
+#' .run_spat_autocor_local
 #'
 #' @keywords internal
-run_spat_autocor_local = function(use_values,
+.run_spat_autocor_local = function(use_values,
                                   feats,
                                   weight_matrix,
                                   method,
@@ -1890,7 +1889,7 @@ run_spat_autocor_local = function(use_values,
           feat_vals = use_values[, feat]
         }
 
-        spat_ac = spat_autocor_terra_numeric(
+        spat_ac = .spat_autocor_terra_numeric(
           x = feat_vals,
           w = weight_matrix,
           method = method)
@@ -1940,7 +1939,7 @@ run_spat_autocor_local = function(use_values,
 # 3. weight_matrix - weight matrix (ordering checked to match with use_values if possible)
 # 4, IDs - cell_IDs if available
 # Some additional information about information used in specific workflows are also returned
-evaluate_autocor_input = function(gobject,
+.evaluate_autocor_input = function(gobject,
                                   use_ext_vals,
                                   use_sn,
                                   use_expr,
@@ -2034,7 +2033,7 @@ evaluate_autocor_input = function(gobject,
     # ensure identical ordering with giotto weight matrix
     if(exists('wm_colnames')) {
       new_order = data.table::chmatch(wm_colnames, use_values$cell_ID)
-      GiottoUtils::set_row_order_dt(use_values, new_order)
+      GiottoUtils::dt_set_row_order(use_values, new_order)
     }
 
     feats = meta_cols
@@ -2101,11 +2100,11 @@ enrich_deconvolution <- function(expr,
   ct_exp <- ct_exp[rowSums(ct_exp)>0,]
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
   rowmax_col<-Rfast::rowMaxs(ct_exp)
-  for (i in 1:length(rowmax_col)){
+  for (i in seq_along(rowmax_col)){
     enrich_matrix[i,rowmax_col[i]]=1
   }
   colsum_ct_binary <- colSums(enrich_matrix)
-  for (i in 1:length(colsum_ct_binary)){
+  for (i in seq_along(colsum_ct_binary)){
     if (colsum_ct_binary[i] <= 2){
       rank <- rank(-ct_exp[,i])
       enrich_matrix[rank <=2, i] =1
@@ -2122,7 +2121,7 @@ enrich_deconvolution <- function(expr,
   colnames(dwls_results)<-colnames(expr)
   cluster_sort<-sort(unique(cluster_info))
   cluster_info<-cluster_info
-  for (i in 1:length(cluster_sort)){
+  for (i in seq_along(cluster_sort)){
     cluster_i_enrich<-enrich_result[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_enrich,value = TRUE)
     ct<-rownames(enrich_result)[which(row_i_max>cutoff)]
@@ -2131,7 +2130,7 @@ enrich_deconvolution <- function(expr,
       ct<-rownames(enrich_result)[which(row_i_max>=sort_rank[2])]
     }
     ct_gene<-c()
-    for (j in 1:length(ct)){
+    for (j in seq_along(ct)){
       sig_gene_j<-rownames(enrich_matrix)[which(enrich_matrix[,ct[j]]==1)]
       ct_gene<-c(ct_gene,sig_gene_j)
     }
@@ -2162,7 +2161,7 @@ spot_deconvolution<-function(expr,
   #####generate enrich 0/1 matrix based on expression matrix
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
   rowmax_col<-Rfast::rowMaxs(ct_exp)
-  for (i in 1:length(rowmax_col)){
+  for (i in seq_along(rowmax_col)){
     enrich_matrix[i,rowmax_col[i]]=1
   }
   rownames(enrich_matrix)<-rownames(ct_exp)
@@ -2174,7 +2173,7 @@ spot_deconvolution<-function(expr,
   rownames(dwls_results)<-colnames(ct_exp)
   colnames(dwls_results)<-colnames(expr)
 
-  for (i in 1:length(cluster_sort)){
+  for (i in seq_along(cluster_sort)){
     cluster_i_matrix<-binary_matrix[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_matrix,value = TRUE)
     ct_i<-rownames(cluster_i_matrix)[which(row_i_max==1)]
@@ -2183,7 +2182,7 @@ spot_deconvolution<-function(expr,
       dwls_results[ct_i[1],which(cluster_info==cluster_sort[i])]==1
     } else {
       ct_gene<-c()
-      for (j in 1:length(ct_i)){
+      for (j in seq_along(ct_i)){
         sig_gene_j<-rownames(enrich_matrix)[which(enrich_matrix[,ct_i[j]]==1)]
         ct_gene<-c(ct_gene,sig_gene_j)
       }
@@ -2204,7 +2203,7 @@ spot_deconvolution<-function(expr,
           dwls_results[ct_spot_k[1],colnames(cluster_cell_exp)[k]]<-1
         } else {
           ct_k_gene<-c()
-          for (m in 1:length(ct_spot_k)){
+          for (m in seq_along(ct_spot_k)){
             sig_gene_k<-rownames(enrich_matrix)[which(enrich_matrix[,ct_spot_k[m]]==1)]
             ct_k_gene<-c(ct_k_gene,sig_gene_k)
           }
@@ -2273,7 +2272,7 @@ enrich_analysis <- function(expr_values,
     sigColMean = apply(geneFold[signames,],2,mean)
     m = length(signames)
     vectorX = NULL
-    for (j in(1:length(cellColMean))){
+    for (j in(seq_along(cellColMean))){
       Sm = sigColMean[j]
       u = cellColMean[j]
       sigma = cellColSd[j]
