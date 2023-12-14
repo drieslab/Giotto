@@ -24,7 +24,7 @@ write_giotto_viewer_annotation = function(annotation,
 
     # factors to numerics
     uniq_factors = unique(annotation)
-    uniq_numerics = 1:length(uniq_factors)
+    uniq_numerics = seq_along(uniq_factors)
 
     # create converter
     uniq_factor_num_converter = uniq_numerics
@@ -257,7 +257,7 @@ exportGiottoViewer = function(gobject,
       # annotiation list #
       text_file_names = list()
       annot_names = list()
-      for(sel_annot_id in 1:length(found_factor_annotations)) {
+      for(sel_annot_id in seq_along(found_factor_annotations)) {
 
         sel_annot_name = found_factor_annotations[sel_annot_id]
         annot_inf_name = paste0(sel_annot_name,'_annot_information.txt')
@@ -292,7 +292,7 @@ exportGiottoViewer = function(gobject,
       # numeric annotiation list #
       text_file_names = list()
       annot_names = list()
-      for(sel_annot_id in 1:length(found_numeric_annotations)) {
+      for(sel_annot_id in seq_along(found_numeric_annotations)) {
 
         sel_annot_name = found_numeric_annotations[sel_annot_id]
         annot_inf_name = paste0(sel_annot_name,'_num_annot_information.txt')
@@ -322,7 +322,7 @@ exportGiottoViewer = function(gobject,
   ### dimension reduction ###
   dim_reduction_cell = gobject@dimension_reduction$cells
 
-  for(i in 1:length(dim_reduction_names)) {
+  for(i in seq_along(dim_reduction_names)) {
 
     temp_dim_red = dim_reductions[i]
     temp_dim_red_name = dim_reduction_names[i]

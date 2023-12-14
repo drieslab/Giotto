@@ -10,8 +10,8 @@
 
 
 
-#' @title runPCA_factominer
-#' @name runPCA_factominer
+#' @title Run PCA - factominer
+#' @name .run_pca_factominer
 #' @description performs PCA based on the factominer package
 #' @param x matrix or object that can be converted to matrix
 #' @param ncp number of principal components to calculate
@@ -21,7 +21,7 @@
 #' @param seed_number seed number to use
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
-runPCA_factominer = function(x,
+.run_pca_factominer = function(x,
                              ncp = 100,
                              scale = TRUE,
                              rev = FALSE,
@@ -108,13 +108,14 @@ runPCA_factominer = function(x,
 
   }
 
-  print("finished runPCA_factominer, method == factominer")
+  vmsg(.is_debug = TRUE, "finished .run_pca_factominer, method == factominer")
+
   return(result)
 }
 
 
-#' @title runPCA_BiocSingular
-#' @name runPCA_BiocSingular
+#' @title Run PCA - BiocSingular
+#' @name .run_pca_biocsingular
 #' @description Performs PCA based on the biocSingular package
 #' @param x matrix or object that can be converted to matrix
 #' @param ncp number of principal components to calculate
@@ -127,7 +128,7 @@ runPCA_factominer = function(x,
 #' @param BPPARAM BiocParallelParam object
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
-runPCA_BiocSingular = function(x,
+.run_pca_biocsingular = function(x,
                                ncp = 100,
                                center = TRUE,
                                scale = TRUE,
@@ -231,7 +232,8 @@ runPCA_BiocSingular = function(x,
     set.seed(seed = Sys.time())
   }
 
-  wrap_msg("finished runPCA_BiocSingular, method ==", BSPARAM)
+  vmsg(.is_debug = TRUE, "finished .run_pca_biocsingular, method ==", BSPARAM)
+
   return(result)
 }
 
@@ -240,8 +242,8 @@ runPCA_BiocSingular = function(x,
 
 
 
-#' @title create_genes_to_use_matrix
-#' @name create_genes_to_use_matrix
+#' @title Create features to use matrix
+#' @name .create_feats_to_use_matrix
 #' @description subsets matrix based on vector of genes or hvf column
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -250,8 +252,8 @@ runPCA_BiocSingular = function(x,
 #' @param feats_to_use feats to use, character or vector of features
 #' @param verbose verbosity
 #' @keywords internal
-#' @return subsetted matrix based on selected genes
-create_feats_to_use_matrix = function(gobject,
+#' @return subsetted matrix based on selected features
+.create_feats_to_use_matrix = function(gobject,
                                       feat_type = NULL,
                                       spat_unit = NULL,
                                       sel_matrix,
@@ -272,26 +274,25 @@ create_feats_to_use_matrix = function(gobject,
                           feat_type = feat_type)
 
   # for hvf features
-  if(is.character(feats_to_use) & length(feats_to_use) == 1) {
+  if(is.character(feats_to_use) && length(feats_to_use) == 1) {
     if(feats_to_use %in% colnames(feat_metadata)) {
-      if(verbose == TRUE) {
-          wrap_msg('"', feats_to_use, '" was found in the feats metadata information and will be used to select highly variable features',
-                   sep = '')
-        }
+      vmsg(.v = verbose, str_double_quote(feats_to_use),
+           'column was found in the feats metadata information and will be used to select highly variable features')
       feats_to_use = feat_metadata[get(feats_to_use) == 'yes'][['feat_ID']]
       sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
     } else {
-      if(verbose == TRUE) wrap_msg('"', feats_to_use, '" was not found in the gene metadata information, all genes will be used',
-                                   sep = '')
+      vmsg(.v = verbose, str_double_quote(feats_to_use),
+           'was not found in the gene metadata information.
+           all genes will be used.')
     }
   } else {
-    if(verbose == TRUE) wrap_msg('a custom vector of genes will be used to subset the matrix')
+    vmsg(.v = verbose, 'a custom vector of genes will be used to subset the matrix')
     sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
   }
 
-  if(verbose == TRUE) cat('class of selected matrix: ', class(sel_matrix), '\n')
-  return(sel_matrix)
+  vmsg(.v = verbose, .is_debug = TRUE, 'class of selected matrix: ', class(sel_matrix))
 
+  return(sel_matrix)
 }
 
 
@@ -388,7 +389,7 @@ runPCA <- function(gobject,
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
-    expr_values = create_feats_to_use_matrix(gobject = gobject,
+    expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                              spat_unit = spat_unit,
                                              feat_type = feat_type,
                                              sel_matrix = expr_values,
@@ -406,7 +407,7 @@ runPCA <- function(gobject,
   if(reduction == 'cells') {
     # PCA on cells
     if(method %in% c('irlba', 'exact', 'random')) {
-      pca_object = runPCA_BiocSingular(x = t_flex(expr_values),
+      pca_object = .run_pca_biocsingular(x = t_flex(expr_values),
                                        center = center,
                                        scale = scale_unit,
                                        ncp = ncp,
@@ -417,7 +418,7 @@ runPCA <- function(gobject,
                                        BPPARAM = method_params,
                                        ...)
     } else if(method == 'factominer') {
-      pca_object = runPCA_factominer(x = t_flex(expr_values),
+      pca_object = .run_pca_factominer(x = t_flex(expr_values),
                                      scale = scale_unit,
                                      ncp = ncp, rev = rev,
                                      set_seed = set_seed,
@@ -430,7 +431,7 @@ runPCA <- function(gobject,
   } else {
     # PCA on genes
     if(method %in% c('irlba', 'exact', 'random')) {
-      pca_object = runPCA_BiocSingular(x = expr_values,
+      pca_object = .run_pca_biocsingular(x = expr_values,
                                        center = center,
                                        scale = scale_unit,
                                        ncp = ncp,
@@ -442,7 +443,7 @@ runPCA <- function(gobject,
                                        ...)
 
     } else if(method == 'factominer') {
-      pca_object = runPCA_factominer(x = expr_values,
+      pca_object = .run_pca_factominer(x = expr_values,
                                               scale = scale_unit, ncp = ncp, rev = rev,
                                               set_seed = set_seed, seed_number = seed_number, ...)
     } else {
@@ -508,8 +509,8 @@ runPCA <- function(gobject,
 # ---------------------- #
 
 
-#' @title runPCA_BiocSingular_irlba_projection
-#' @name runPCA_BiocSingular_irlba_projection
+#' @title Run PCA - BiocSingular irlba projection
+#' @name .run_pca_biocsingular_irlba_projection
 #' @description Performs PCA based on the biocSingular package on a
 #' subset of the matrix. It uses the obtained loadings to predicted coordinates
 #' for the remaining matrix.
@@ -525,7 +526,7 @@ runPCA <- function(gobject,
 #' @param verbose verbosity level
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
-runPCA_BiocSingular_irlba_projection = function(x,
+.run_pca_biocsingular_irlba_projection = function(x,
                                                 ncp = 100,
                                                 center = TRUE,
                                                 scale = TRUE,
@@ -785,7 +786,7 @@ runPCAprojection = function(gobject,
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
-    expr_values = create_feats_to_use_matrix(gobject = gobject,
+    expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                              spat_unit = spat_unit,
                                              feat_type = feat_type,
                                              sel_matrix = expr_values,
@@ -803,38 +804,40 @@ runPCAprojection = function(gobject,
   if(reduction == 'cells') {
 
     # PCA on cells
-    pca_object = runPCA_BiocSingular_irlba_projection(x = t_flex(expr_values),
-                                                      ncp = ncp,
-                                                      center = center,
-                                                      scale = scale_unit,
-                                                      rev = rev,
-                                                      set_seed = set_seed,
-                                                      seed_number = seed_number,
-                                                      BPPARAM = method_params,
-                                                      random_subset = random_subset,
-                                                      verbose = verbose,
-                                                      ...)
+    pca_object = .run_pca_biocsingular_irlba_projection(
+      x = t_flex(expr_values),
+      ncp = ncp,
+      center = center,
+      scale = scale_unit,
+      rev = rev,
+      set_seed = set_seed,
+      seed_number = seed_number,
+      BPPARAM = method_params,
+      random_subset = random_subset,
+      verbose = verbose,
+      ...
+    )
 
   } else {
 
     # PCA on features
-    pca_object = runPCA_BiocSingular_irlba_projection(x = expr_values,
-                                                      ncp = ncp,
-                                                      center = center,
-                                                      scale = scale_unit,
-                                                      rev = rev,
-                                                      set_seed = set_seed,
-                                                      seed_number = seed_number,
-                                                      BPPARAM = method_params,
-                                                      random_subset = random_subset,
-                                                      verbose = verbose,
-                                                      ...)
-
-
+    pca_object = .run_pca_biocsingular_irlba_projection(
+      x = expr_values,
+      ncp = ncp,
+      center = center,
+      scale = scale_unit,
+      rev = rev,
+      set_seed = set_seed,
+      seed_number = seed_number,
+      BPPARAM = method_params,
+      random_subset = random_subset,
+      verbose = verbose,
+      ...
+    )
 
   }
 
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     pca_names = list_dim_reductions_names(gobject = gobject,
                                           data_type = reduction,
@@ -992,7 +995,7 @@ runPCAprojectionBatch = function(gobject,
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
-    expr_values = create_feats_to_use_matrix(gobject = gobject,
+    expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                              spat_unit = spat_unit,
                                              feat_type = feat_type,
                                              sel_matrix = expr_values,
@@ -1023,17 +1026,19 @@ runPCAprojectionBatch = function(gobject,
 
 
       # PCA on cells
-      pca_object = runPCA_BiocSingular_irlba_projection(x = t_flex(expr_values),
-                                                        ncp = ncp,
-                                                        center = center,
-                                                        scale = scale_unit,
-                                                        rev = rev,
-                                                        set_seed = set_seed,
-                                                        seed_number = seed_batch,
-                                                        BPPARAM = method_params,
-                                                        random_subset = random_subset,
-                                                        verbose = verbose,
-                                                        ...)
+      pca_object = .run_pca_biocsingular_irlba_projection(
+        x = t_flex(expr_values),
+        ncp = ncp,
+        center = center,
+        scale = scale_unit,
+        rev = rev,
+        set_seed = set_seed,
+        seed_number = seed_batch,
+        BPPARAM = method_params,
+        random_subset = random_subset,
+        verbose = verbose,
+        ...
+      )
 
       # adjust the sign of the coordinates and loadings vector relative to first batch
       # this is necessary for the next averaging step
@@ -1101,17 +1106,19 @@ runPCAprojectionBatch = function(gobject,
 
 
       # PCA on features
-      pca_object = runPCA_BiocSingular_irlba_projection(x = expr_values,
-                                                        ncp = ncp,
-                                                        center = center,
-                                                        scale = scale_unit,
-                                                        rev = rev,
-                                                        set_seed = set_seed,
-                                                        seed_number = seed_number,
-                                                        BPPARAM = method_params,
-                                                        random_subset = random_subset,
-                                                        verbose = verbose,
-                                                        ...)
+      pca_object = .run_pca_biocsingular_irlba_projection(
+        x = expr_values,
+        ncp = ncp,
+        center = center,
+        scale = scale_unit,
+        rev = rev,
+        set_seed = set_seed,
+        seed_number = seed_number,
+        BPPARAM = method_params,
+        random_subset = random_subset,
+        verbose = verbose,
+        ...
+      )
 
 
       # adjust the sign of the coordinates and loadings vector relative to first batch
@@ -1321,7 +1328,7 @@ screePlot = function(gobject,
 
     ## subset matrix
     if(!is.null(feats_to_use)) {
-      expr_values = create_feats_to_use_matrix(gobject = gobject,
+      expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                                spat_unit = spat_unit,
                                                feat_type = feat_type,
                                                sel_matrix = expr_values,
@@ -1334,7 +1341,7 @@ screePlot = function(gobject,
 
       # PCA on cells
       if(method %in% biocsingular_methods) {
-        pca_object = runPCA_BiocSingular(x = t_flex(expr_values),
+        pca_object = .run_pca_biocsingular(x = t_flex(expr_values),
                                          center = center,
                                          scale = scale_unit,
                                          ncp = ncp,
@@ -1343,7 +1350,7 @@ screePlot = function(gobject,
                                          BPPARAM = BiocParallel::SerialParam(),
                                          ...)
       } else if(method == 'factominer') {
-        pca_object = runPCA_factominer(x = t_flex(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
+        pca_object = .run_pca_factominer(x = t_flex(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
       } else {
         stop('only PCA methods from the irlba and factominer package have been implemented \n')
       }
@@ -1410,7 +1417,7 @@ create_screeplot = function(eigs, ncp = 20, ylim = c(0, 20)) {
   var_expl_cum = cumsum(eigs)/sum(eigs)*100
 
   # create data.table
-  screeDT = data.table::data.table('PC' = paste0('PC.', 1:length(var_expl)),
+  screeDT = data.table::data.table('PC' = paste0('PC.', seq_along(var_expl)),
                                    'var_expl' = var_expl,
                                    'var_expl_cum' = var_expl_cum)
   screeDT[, 'PC' := factor(PC, levels = PC)]
@@ -1518,7 +1525,7 @@ jackstrawPlot = function(gobject,
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
-    expr_values = create_feats_to_use_matrix(gobject = gobject,
+    expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                              spat_unit = spat_unit,
                                              feat_type = feat_type,
                                              sel_matrix = expr_values,
@@ -1580,7 +1587,7 @@ create_jackstrawplot = function(jackstraw_data,
   PC = p.val = NULL
 
   testDT = data.table::data.table(
-    PC = paste0('PC.', 1:length(jackstraw_data)),
+    PC = paste0('PC.', seq_along(jackstraw_data)),
     p.val = jackstraw_data
   )
   testDT[, 'PC' := factor(PC, levels = PC)]
@@ -1700,7 +1707,7 @@ signPCA <- function(gobject,
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
-    expr_values = create_feats_to_use_matrix(
+    expr_values = .create_feats_to_use_matrix(
       gobject = gobject,
       spat_unit = spat_unit,
       feat_type = feat_type,
@@ -1951,7 +1958,7 @@ runUMAP <- function(gobject,
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
-        expr_values = create_feats_to_use_matrix(gobject = gobject,
+        expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
                                                  sel_matrix = expr_values,
@@ -2191,7 +2198,7 @@ runUMAPprojection = function(gobject,
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
-        expr_values = create_feats_to_use_matrix(gobject = gobject,
+        expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
                                                  sel_matrix = expr_values,
@@ -2428,7 +2435,7 @@ runtSNE <- function(gobject,
 
       ## subset matrix
       if(!is.null(feats_to_use)) {
-        expr_values = create_feats_to_use_matrix(gobject = gobject,
+        expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
                                                  sel_matrix = expr_values,
@@ -2534,6 +2541,8 @@ runtSNE <- function(gobject,
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for Harmony run
 #' @param feats_to_use if dim_reduction_to_use = NULL, which feats to use
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
@@ -2553,6 +2562,8 @@ runGiottoHarmony = function(gobject,
                             dimensions_to_use = 1:10,
                             name = NULL,
                             feats_to_use = NULL,
+                            set_seed = TRUE,
+                            seed_number = 1234,
                             toplevel_params = 2,
                             return_gobject = TRUE,
                             verbose = NULL,
@@ -2564,11 +2575,16 @@ runGiottoHarmony = function(gobject,
 
 
   # print message with information #
-  message("using 'Harmony' to integrate different datasets. If used in published research, please cite: \n
-  Korsunsky, I., Millard, N., Fan, J. et al.
-                      Fast, sensitive and accurate integration of single-cell data with Harmony.
-                      Nat Methods 16, 1289-1296 (2019).
-                      https://doi.org/10.1038/s41592-019-0619-0 ")
+  wrap_msg("using 'Harmony' to integrate different datasets. If used in published research, please cite:\n")
+
+  wrap_msg(
+    "Korsunsky, I., Millard, N., Fan, J. et al.
+    Fast, sensitive and accurate integration of single-cell data with Harmony.
+    Nat Methods 16, 1289-1296 (2019).
+    https://doi.org/10.1038/s41592-019-0619-0",
+    .initial = '  ',
+    .prefix = '    '
+  )
 
 
   # Set feat_type and spat_unit
@@ -2642,7 +2658,7 @@ runGiottoHarmony = function(gobject,
 
     ## subset matrix
     if(!is.null(feats_to_use)) {
-      expr_values = create_feats_to_use_matrix(gobject = gobject,
+      expr_values = .create_feats_to_use_matrix(gobject = gobject,
                                                feat_type = feat_type,
                                                spat_unit = spat_unit,
                                                sel_matrix = expr_values,
@@ -2656,12 +2672,21 @@ runGiottoHarmony = function(gobject,
   # get metadata
   metadata = pDataDT(gobject, feat_type = feat_type, spat_unit = spat_unit)
 
+  # start seed
+  if (isTRUE(set_seed)) {
+    set.seed(seed = seed_number)
+    on.exit(GiottoUtils::random_seed())
+  }
+
   # run harmony
-  harmony_results = harmony::HarmonyMatrix(data_mat = matrix_to_use,
-                                           meta_data = metadata,
-                                           vars_use = vars_use,
-                                           do_pca = do_pca,
-                                           ...)
+  harmony_results = harmony::RunHarmony(
+    data_mat = matrix_to_use,
+    meta_data = metadata,
+    vars_use = vars_use,
+    do_pca = do_pca,
+    ...
+  )
+
 
   colnames(harmony_results) =  paste0('Dim.', 1:ncol(harmony_results))
   rownames(harmony_results) = rownames(matrix_to_use)
@@ -2676,7 +2701,7 @@ runGiottoHarmony = function(gobject,
                                  misc = NULL)
 
   # return giotto object or harmony results
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     #harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
 

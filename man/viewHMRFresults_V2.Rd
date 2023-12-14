@@ -56,6 +56,8 @@ viewHMRFresults_V2(
 \item{default_save_name}{names of figure file to save}
 
 \item{save_param}{other saving parameters}
+
+\item{\dots}{additional params to pass to plotting}
 }
 \description{
 function to view HMRF results with multiple betas

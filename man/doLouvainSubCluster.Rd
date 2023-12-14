@@ -90,5 +90,5 @@ The systematic steps are:
 }
 }
 \seealso{
-\code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
+\code{\link{.doLouvainCluster_multinet}} and \code{\link{.doLouvainCluster_community}}
 }

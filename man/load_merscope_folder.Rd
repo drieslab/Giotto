@@ -2,11 +2,12 @@
 % Please edit documentation in R/convenience.R
 \name{load_merscope_folder}
 \alias{load_merscope_folder}
-\alias{load_merscope_folder_subcellular}
-\alias{load_merscope_folder_aggregate}
+\alias{.load_merscope_folder}
+\alias{.load_merscope_folder_subcellular}
+\alias{.load_merscope_folder_aggregate}
 \title{Load MERSCOPE data from folder}
 \usage{
-load_merscope_folder(
+.load_merscope_folder(
   dir_items,
   data_to_use,
   fovs = NULL,
@@ -15,7 +16,7 @@ load_merscope_folder(
   verbose = TRUE
 )
 
-load_merscope_folder_subcellular(
+.load_merscope_folder_subcellular(
   dir_items,
   data_to_use,
   cores = NA,
@@ -24,7 +25,7 @@ load_merscope_folder_subcellular(
   fovs = NULL
 )
 
-load_merscope_folder_aggregate(
+.load_merscope_folder_aggregate(
   dir_items,
   data_to_use,
   cores = NA,
@@ -32,7 +33,7 @@ load_merscope_folder_aggregate(
 )
 }
 \arguments{
-\item{dir_items}{list of full filepaths from \code{\link{read_merscope_folder}}}
+\item{dir_items}{list of full filepaths from \code{\link{.read_merscope_folder}}}
 
 \item{data_to_use}{which of either the 'subcellular' or 'aggregate' information
 to use for object creation}
@@ -49,9 +50,9 @@ Load MERSCOPE data from folder
 }
 \section{Functions}{
 \itemize{
-\item \code{load_merscope_folder_subcellular()}: Load items for 'subcellular' workflow
+\item \code{.load_merscope_folder_subcellular()}: Load items for 'subcellular' workflow
 
-\item \code{load_merscope_folder_aggregate()}: Load items for 'aggregate' workflow
+\item \code{.load_merscope_folder_aggregate()}: Load items for 'aggregate' workflow
 
 }}
 \keyword{internal}
