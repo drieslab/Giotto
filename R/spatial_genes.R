@@ -1308,7 +1308,7 @@ binSpectMultiMatrix = function(expression_matrix,
     result_list = vector(mode = 'list', length = total_trials)
     i = 1
 
-    for(k in 1:length(spatial_networks)) {
+    for(k in seq_along(spatial_networks)) {
 
       for(rank_i in percentage_rank) {
 
@@ -1358,7 +1358,7 @@ binSpectMultiMatrix = function(expression_matrix,
                                          sample_nr = sample_nr,
                                          set.seed = set.seed)
 
-    for(k in 1:length(spatial_networks)) {
+    for(k in seq_along(spatial_networks)) {
 
       if(verbose == TRUE) cat('\n Run for spatial network = ', k,'\n')
 
@@ -2528,7 +2528,7 @@ detectSpatialPatterns <- function(gobject,
                                            loc_ID = colnames(loc_av_expr_matrix))
     data.table::setnames(pca_matrix_DT, old = 'dimkeep', dims_to_keep)
   } else {
-    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:length(dims_to_keep)])
+    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,seq_along(dims_to_keep)])
     pca_matrix_DT[, loc_ID := colnames(loc_av_expr_matrix)]
   }
 
@@ -2540,7 +2540,7 @@ detectSpatialPatterns <- function(gobject,
                                             gene_ID = rownames(loc_av_expr_matrix))
     data.table::setnames(feat_matrix_DT, old = 'featkeep', dims_to_keep)
   } else {
-    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:length(dims_to_keep)])
+    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,seq_along(dims_to_keep)])
     feat_matrix_DT[, gene_ID := rownames(loc_av_expr_matrix)]
   }
 
@@ -3857,7 +3857,7 @@ rankSpatialCorGroups = function(gobject,
   res_neg_cor_list = list()
   nr_feats_list = list()
 
-  for(id in 1:length(unique(clusters_part))) {
+  for(id in seq_along(unique(clusters_part))) {
 
     clus_id = unique(clusters_part)[id]
     selected_feats = names(clusters_part[clusters_part == clus_id])
@@ -3953,7 +3953,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     }
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       selected_cluster_features = names(clusters[clusters == clus])
 
@@ -3983,7 +3983,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     cor_data = spatCorObject$cor_DT
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       if(verbose) print(clus)
 
@@ -3998,8 +3998,8 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
       data.table::setorder(subset_cor_data, -spat_cor)
 
       # create a ranked data.table
-      rnk1DT = data.table::data.table(feat_id = subset_cor_data$feat_ID, rnk = 1:length(subset_cor_data$feat_ID))
-      rnk2DT = data.table::data.table(feat_id = subset_cor_data$variable, rnk = 1:length(subset_cor_data$variable))
+      rnk1DT = data.table::data.table(feat_id = subset_cor_data$feat_ID, rnk = seq_along(subset_cor_data$feat_ID))
+      rnk2DT = data.table::data.table(feat_id = subset_cor_data$variable, rnk = seq_along(subset_cor_data$variable))
       rnkDT = data.table::rbindlist(list(rnk1DT, rnk2DT))
       data.table::setorder(rnkDT, rnk)
 
@@ -4036,11 +4036,11 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     }
 
     # informed_ranking vector should be a ranked gene list
-    informed_ranking_numerical = 1:length(informed_ranking)
+    informed_ranking_numerical = seq_along(informed_ranking)
     names(informed_ranking_numerical) = informed_ranking
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       selected_cluster_features = names(clusters[clusters == clus])
 
@@ -4298,7 +4298,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
   # save plot
   if(save_plot == TRUE) {
 
-    spatGenePlot2D(simulate_patch, expression_values = 'norm', genes = gene_name,
+    spatFeatPlot2D(simulate_patch, expression_values = 'norm', feats = gene_name,
                    point_shape = 'border', point_border_stroke = 0.1, point_size = 2.5,
                    cow_n_col = 1, show_plot = F,
                    save_plot = T, save_param = list(save_dir = save_dir, save_folder = pattern_name,
@@ -4335,7 +4335,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
   if(run_simulations == TRUE) {
 
     result_list = list()
-    for(test in 1:length(spat_methods)) {
+    for(test in seq_along(spat_methods)) {
 
       # method
       selected_method = spat_methods[test]
@@ -4554,7 +4554,7 @@ run_spatial_sim_tests_multi = function(gobject,
 
 
   prob_list = list()
-  for(prob_ind in 1:length(spatial_probs)) {
+  for(prob_ind in seq_along(spatial_probs)) {
 
     prob_i = spatial_probs[prob_ind]
 
@@ -4686,7 +4686,7 @@ runPatternSimulation = function(gobject,
 
 
   all_results = list()
-  for(gene_ind in 1:length(gene_names)) {
+  for(gene_ind in seq_along(gene_names)) {
 
     gene = gene_names[gene_ind]
 

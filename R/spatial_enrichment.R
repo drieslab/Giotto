@@ -24,7 +24,7 @@ makeSignMatrixPAGE = function(sign_names,
 
   ## create genes and signatures
   genes = do.call('c', sign_list)
-  types = lapply(1:length(sign_names), FUN = function(x) {
+  types = lapply(seq_along(sign_names), FUN = function(x) {
 
     subset = sign_list[[x]]
     name_subset = sign_names[[x]]
@@ -83,7 +83,7 @@ makeSignMatrixDWLSfromMatrix = function(matrix,
                       nrow = nrow(matrix_subset),
                       ncol = length(unique(cell_type_vector)))
 
-  for(cell_type_i in 1:length(unique(cell_type_vector))) {
+  for(cell_type_i in seq_along(unique(cell_type_vector))) {
 
     cell_type = unique(cell_type_vector)[cell_type_i]
     selected_cells = colnames(matrix_subset)[cell_type_vector == cell_type]
@@ -203,7 +203,7 @@ makeSignMatrixRank = function(sc_matrix,
   total_nr_genes = nrow(sc_matrix)
 
   # calculate means for each cluster group
-  for(group in 1:length(unique(sc_cluster_ids))) {
+  for(group in seq_along(unique(sc_cluster_ids))) {
 
     group_id = unique(sc_cluster_ids)[group]
     cell_ind = which(sc_cluster_ids == group_id)
@@ -288,7 +288,7 @@ makeSignMatrixRank = function(sc_matrix,
   }
   uniq_ct_gene_counts = unique(ct_gene_counts)
   background_mean_sd = matrix(data=NA,nrow = length(uniq_ct_gene_counts)+1, ncol = 3)
-  for (i in 1:length(uniq_ct_gene_counts)){
+  for (i in seq_along(uniq_ct_gene_counts)){
     gene_num<-uniq_ct_gene_counts[i]
     all_sample_names<-NULL
     all_sample_list<-NULL
@@ -402,7 +402,7 @@ runPAGEEnrich_OLD <- function(gobject,
     sigColMean = apply(geneFold[signames,],2,mean)
     m = length(signames)
     vectorX = NULL
-    for (j in(1:length(cellColMean))){
+    for (j in(seq_along(cellColMean))){
       Sm = sigColMean[j]
       u = cellColMean[j]
       sigma = cellColSd[j]
@@ -642,7 +642,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
     ## 4. create groups
     all_perms = unique(perm_round)
-    all_perms_num = 1:length(all_perms)
+    all_perms_num = seq_along(all_perms)
     names(all_perms_num) = all_perms
     group_labels = paste0('group_',1:nr_groups)
     groups_vec = cut(all_perms_num, breaks = nr_groups, labels = group_labels)
@@ -651,7 +651,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
     ## 5. do random enrichment per block
     res_list = list()
-    for(group_i in 1:length(group_labels)) {
+    for(group_i in seq_along(group_labels)) {
 
       group = group_labels[group_i]
       sub_perms = all_perms[names(all_perms) == group]
@@ -872,7 +872,7 @@ PAGEEnrich <- function(...) {
   random_df = data.frame(matrix(ncol = n, nrow = length(sc_gene)))
   for (i in 1:n){
     set.seed(i)
-    random_rank = sample(1:length(sc_gene), length(sc_gene), replace=FALSE)
+    random_rank = sample(seq_along(sc_gene), length(sc_gene), replace=FALSE)
     random_df[,i] = random_rank
   }
   rownames(random_df) = sc_gene
@@ -2100,11 +2100,11 @@ enrich_deconvolution <- function(expr,
   ct_exp <- ct_exp[rowSums(ct_exp)>0,]
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
   rowmax_col<-Rfast::rowMaxs(ct_exp)
-  for (i in 1:length(rowmax_col)){
+  for (i in seq_along(rowmax_col)){
     enrich_matrix[i,rowmax_col[i]]=1
   }
   colsum_ct_binary <- colSums(enrich_matrix)
-  for (i in 1:length(colsum_ct_binary)){
+  for (i in seq_along(colsum_ct_binary)){
     if (colsum_ct_binary[i] <= 2){
       rank <- rank(-ct_exp[,i])
       enrich_matrix[rank <=2, i] =1
@@ -2121,7 +2121,7 @@ enrich_deconvolution <- function(expr,
   colnames(dwls_results)<-colnames(expr)
   cluster_sort<-sort(unique(cluster_info))
   cluster_info<-cluster_info
-  for (i in 1:length(cluster_sort)){
+  for (i in seq_along(cluster_sort)){
     cluster_i_enrich<-enrich_result[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_enrich,value = TRUE)
     ct<-rownames(enrich_result)[which(row_i_max>cutoff)]
@@ -2130,7 +2130,7 @@ enrich_deconvolution <- function(expr,
       ct<-rownames(enrich_result)[which(row_i_max>=sort_rank[2])]
     }
     ct_gene<-c()
-    for (j in 1:length(ct)){
+    for (j in seq_along(ct)){
       sig_gene_j<-rownames(enrich_matrix)[which(enrich_matrix[,ct[j]]==1)]
       ct_gene<-c(ct_gene,sig_gene_j)
     }
@@ -2161,7 +2161,7 @@ spot_deconvolution<-function(expr,
   #####generate enrich 0/1 matrix based on expression matrix
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
   rowmax_col<-Rfast::rowMaxs(ct_exp)
-  for (i in 1:length(rowmax_col)){
+  for (i in seq_along(rowmax_col)){
     enrich_matrix[i,rowmax_col[i]]=1
   }
   rownames(enrich_matrix)<-rownames(ct_exp)
@@ -2173,7 +2173,7 @@ spot_deconvolution<-function(expr,
   rownames(dwls_results)<-colnames(ct_exp)
   colnames(dwls_results)<-colnames(expr)
 
-  for (i in 1:length(cluster_sort)){
+  for (i in seq_along(cluster_sort)){
     cluster_i_matrix<-binary_matrix[,which(cluster_info==cluster_sort[i])]
     row_i_max<-Rfast::rowMaxs(cluster_i_matrix,value = TRUE)
     ct_i<-rownames(cluster_i_matrix)[which(row_i_max==1)]
@@ -2182,7 +2182,7 @@ spot_deconvolution<-function(expr,
       dwls_results[ct_i[1],which(cluster_info==cluster_sort[i])]==1
     } else {
       ct_gene<-c()
-      for (j in 1:length(ct_i)){
+      for (j in seq_along(ct_i)){
         sig_gene_j<-rownames(enrich_matrix)[which(enrich_matrix[,ct_i[j]]==1)]
         ct_gene<-c(ct_gene,sig_gene_j)
       }
@@ -2203,7 +2203,7 @@ spot_deconvolution<-function(expr,
           dwls_results[ct_spot_k[1],colnames(cluster_cell_exp)[k]]<-1
         } else {
           ct_k_gene<-c()
-          for (m in 1:length(ct_spot_k)){
+          for (m in seq_along(ct_spot_k)){
             sig_gene_k<-rownames(enrich_matrix)[which(enrich_matrix[,ct_spot_k[m]]==1)]
             ct_k_gene<-c(ct_k_gene,sig_gene_k)
           }
@@ -2272,7 +2272,7 @@ enrich_analysis <- function(expr_values,
     sigColMean = apply(geneFold[signames,],2,mean)
     m = length(signames)
     vectorX = NULL
-    for (j in(1:length(cellColMean))){
+    for (j in(seq_along(cellColMean))){
       Sm = sigColMean[j]
       u = cellColMean[j]
       sigma = cellColSd[j]

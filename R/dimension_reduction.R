@@ -1417,7 +1417,7 @@ create_screeplot = function(eigs, ncp = 20, ylim = c(0, 20)) {
   var_expl_cum = cumsum(eigs)/sum(eigs)*100
 
   # create data.table
-  screeDT = data.table::data.table('PC' = paste0('PC.', 1:length(var_expl)),
+  screeDT = data.table::data.table('PC' = paste0('PC.', seq_along(var_expl)),
                                    'var_expl' = var_expl,
                                    'var_expl_cum' = var_expl_cum)
   screeDT[, 'PC' := factor(PC, levels = PC)]
@@ -1587,7 +1587,7 @@ create_jackstrawplot = function(jackstraw_data,
   PC = p.val = NULL
 
   testDT = data.table::data.table(
-    PC = paste0('PC.', 1:length(jackstraw_data)),
+    PC = paste0('PC.', seq_along(jackstraw_data)),
     p.val = jackstraw_data
   )
   testDT[, 'PC' := factor(PC, levels = PC)]

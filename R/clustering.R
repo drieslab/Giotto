@@ -348,7 +348,7 @@ doLeidenClusterIgraph = function(gobject,
 #' @param show_plot by default, pulls from provided gobject instructions
 #' @param save_plot by default, pulls from provided gobject instructions
 #' @param return_plot by default, pulls from provided gobject instructions
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function()]
 #' @param default_save_name name of saved plot, default "clustree"
 #' @param verbose be verbose
 #' @inheritDotParams clustree::clustree -x
@@ -361,6 +361,7 @@ doLeidenClusterIgraph = function(gobject,
 #' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information
 #' will be returned.
 #' @seealso \code{\link{doLeidenCluster}}
+#' @md
 #' @export
 doGiottoClustree <- function(gobject,
                              res_vector = NULL,
@@ -978,7 +979,7 @@ doSNNCluster <- function(gobject,
   igraph_DT = igraph_DT[order(from)]
 
   cell_id_numeric = unique(x = c(igraph_DT$from, igraph_DT$to))
-  names(cell_id_numeric) <- 1:length(cell_id_numeric)
+  names(cell_id_numeric) <- seq_along(cell_id_numeric)
   igraph_DT[, from_T := as.numeric(names(cell_id_numeric[cell_id_numeric == from])), by = 1:nrow(igraph_DT)]
   igraph_DT[, to_T := as.numeric(names(cell_id_numeric[cell_id_numeric == to])), by = 1:nrow(igraph_DT)]
   temp_igraph_DT = igraph_DT[,.(from_T, to_T, weight, distance)]
@@ -2653,7 +2654,7 @@ mergeClusters <- function(gobject,
                                       feat_type = feat_type))
 
   finalvec = NULL
-  for(ll in 1:length(finallist)) {
+  for(ll in seq_along(finallist)) {
     tempvec = finallist[[ll]]; names(tempvec) = rep(paste0('m_', ll), length(tempvec))
     finalvec = c(finalvec, tempvec)
   }

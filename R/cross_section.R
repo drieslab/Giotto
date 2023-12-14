@@ -563,9 +563,9 @@ createCrossSection <- function(gobject,
 #' @param ... parameters for spatFeatPlot2D
 #' @return ggplot
 #' @details Description of parameters.
+#' @md
+#' @seealso [GiottoVisuals::spatGenePlot3D] and [GiottoVisuals::spatFeatPlot2D]
 #' @export
-#' @seealso \code{\link{GiottoVisuals::spatGenePlot3D}} and \code{\link{GiottoVisuals::spatFeatPlot2D}}
-#'
 crossSectionGenePlot <- function(
     gobject=NULL,
     spat_loc_name = 'raw',
@@ -861,12 +861,13 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @param custom_ratio custom_ratio
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param save_plot logical. directly save the plot
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function]
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @return ggplot
 #' @details Description of parameters.
+#' @md
 #' @export
 insertCrossSectionGenePlot3D <- function(
     gobject,

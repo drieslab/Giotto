@@ -548,7 +548,7 @@ get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
   matrixDT[, cell_id := barcodes_vec[cell_id_num]]
 
   # make sure that gene id are consecutive
-  sort_gene_id_vec = 1:length(unique(matrixDT$gene_id))
+  sort_gene_id_vec = seq_along(unique(matrixDT$gene_id))
   names(sort_gene_id_vec) = unique(matrixDT$gene_id)
   matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
 

@@ -27,7 +27,7 @@ NULL
 
   proximity_dt = data.table::data.table()
   # calculate proximity for each spot
-  for (cell_i in 1:length(cell_IDs)){
+  for (cell_i in seq_along(cell_IDs)){
     cell_ID = cell_IDs[cell_i]
     # dwls value for one spot and remove 0 cell type
     dwls_spot = dwls_values[cell_ID,]
@@ -94,7 +94,7 @@ NULL
   proximity_dt = data.table::data.table()
   cts = colnames(dwls_sub)
   cts = sort(cts)
-  for (i in 1:length(cts)){
+  for (i in seq_along(cts)){
     ct1 = cts[i]
     dwls_ct1 = dwls_sub[, ct1]
 
@@ -287,7 +287,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   p_high = rep(NA, length = length(unique(table_results$unified_int)))
   p_low = rep(NA, length = length(unique(table_results$unified_int)))
 
-  for(int_combo in 1:length(unique(table_results$unified_int))) {
+  for(int_combo in seq_along(unique(table_results$unified_int))) {
 
     this_combo = as.character(unique(table_results$unified_int)[int_combo])
 
@@ -516,7 +516,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
   colnames(proximityMat) = cell_IDs
 
   # for each spot, calculate cell type proximity to it
-  for (cell_i in 1:length(cell_IDs)){
+  for (cell_i in seq_along(cell_IDs)){
     cell_ID = cell_IDs[cell_i]
     spot_pairs = orig_pairs[from == cell_ID | to == cell_ID]
     spot_pairs[, int_cell_IDS := ifelse(from==cell_ID, to, from)]
@@ -1055,7 +1055,7 @@ findICFSpot <- function(gobject,
 
     fin_result = list()
 
-    for(i in 1:length(all_ints$unified_int)) {
+    for(i in seq_along(all_ints$unified_int)) {
 
       x = all_ints$unified_int[i]
 

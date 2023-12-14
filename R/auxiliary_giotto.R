@@ -87,10 +87,10 @@
 #' @param fill_color fill color for plots
 #' @param scale_axis ggplot transformation for axis (e.g. log2)
 #' @param axis_offset offset to be used together with the scaling transformation
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param show_plot logical. show plot
+#' @param return_plot logical. return ggplot object
+#' @param save_plot logical. directly save the plot
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function]
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @details
 #' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
@@ -100,6 +100,7 @@
 #'   \item{3. mean: calculate mean of the features, i.e. average expression}
 #' }
 #' @return ggplot object
+#' @md
 #' @export
 filterDistributions <- function(gobject,
                                 feat_type = NULL,
@@ -306,13 +307,13 @@ filterCombinations <- function(gobject,
 
   # compute the number of removed feats and cells
   result_list = list()
-  for(thresh_i in 1:length(expression_thresholds)) {
+  for(thresh_i in seq_along(expression_thresholds)) {
 
     threshold = expression_thresholds[thresh_i]
 
     det_feats_res = list()
     det_cells_res = list()
-    for(combn_i in 1:length(feat_det_in_min_cells)) {
+    for(combn_i in seq_along(feat_det_in_min_cells)) {
 
       min_cells_for_feat = feat_det_in_min_cells[combn_i]
       min_feats_per_cell = min_det_feats_per_cell[combn_i]

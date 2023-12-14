@@ -131,37 +131,38 @@
 #' @param expression_values expression values to use
 #' @param method method to calculate highly variable features
 #' @param reverse_log_scale reverse log-scale of expression values (default = FALSE)
-#' @param logbase if reverse_log_scale is TRUE, which log base was used?
+#' @param logbase if `reverse_log_scale` is TRUE, which log base was used?
 #' @param expression_threshold expression threshold to consider a gene detected
-#' @param nr_expression_groups [cov_groups] number of expression groups for cov_groups
-#' @param zscore_threshold [cov_groups] zscore to select hvg for cov_groups
+#' @param nr_expression_groups (cov_groups) number of expression groups for cov_groups
+#' @param zscore_threshold (cov_groups) zscore to select hvg for cov_groups
 #' @param HVFname name for highly variable features in cell metadata
-#' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
-#' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
-#' @param var_number [var_p_resid] number of top variance features for var_p_resid method
-#' @param random_subset random subset to perform HVF detection on. Passing NULL
+#' @param difference_in_cov (cov_loess) minimum difference in coefficient of variance required
+#' @param var_threshold (var_p_resid) variance threshold for features for var_p_resid method
+#' @param var_number (var_p_resid) number of top variance features for var_p_resid method
+#' @param random_subset random subset to perform HVF detection on. Passing `NULL`
 #' runs HVF on all cells.
 #' @param set_seed logical. whether to set a seed when random_subset is used
 #' @param seed_number seed number to use when random_subset is used
 #' @param show_plot show plot
 #' @param return_plot return ggplot object (overridden by `return_gobject`)
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param save_plot logical. directly save the plot
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function()]
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object highly variable features appended to feature metadata (`fDataDT()`)
 #' @details
 #' Currently we provide 2 ways to calculate highly variable genes:
 #'
-#' \bold{1. high coeff of variance (COV) within groups: } \cr
+#' \strong{1. high coeff of variance (COV) within groups: } \cr
 #' First genes are binned (\emph{nr_expression_groups}) into average expression groups and
 #' the COV for each feature is converted into a z-score within each bin. Features with a z-score
 #' higher than the threshold (\emph{zscore_threshold}) are considered highly variable.  \cr
 #'
-#' \bold{2. high COV based on loess regression prediction: } \cr
+#' \strong{2. high COV based on loess regression prediction: } \cr
 #' A predicted COV is calculated for each feature using loess regression (COV~log(mean expression))
 #' Features that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 #'
+#' @md
 #' @export
 calculateHVF <- function(gobject,
                          spat_unit = NULL,

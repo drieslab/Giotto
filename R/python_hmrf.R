@@ -447,7 +447,7 @@ writeHMRFresults <- function(gobject,
   result_list = list()
 
   # plot betas
-  for(i in 1:length(betas_to_view_detected)) {
+  for(i in seq_along(betas_to_view_detected)) {
 
     b = betas_to_view_detected[i]
 
@@ -784,7 +784,7 @@ numPts_below_line <- function(myVector,
                               x){
   yPt <- myVector[x]
   b <- yPt-(slope*x)
-  xPts <- 1:length(myVector)
+  xPts <- seq_along(myVector)
   return(sum(myVector<=(xPts*slope+b)))
 }
 
@@ -811,6 +811,9 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL,feat_type = NULL, spati
 
   #gg = fDataDT(gobject)
   #gx = gg[feat_ID %in% spatial_genes]
+
+  # NSE vars
+  binSpect.pval <- silhouetteRank.score <- silhouetteRankTest.pval <- feat_ID <- NULL
 
   #first determine how many spatial genes in this dataset
   gx = fDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
@@ -1267,7 +1270,7 @@ initHMRF_V2 =
                                        rownames(nei)[i]], spatial_network$to[spatial_network$from ==
                                                                                rownames(nei)[i]])
       if (length(nei.i) > 0)
-        nei[i, 1:length(nei.i)] = sort(match(nei.i, rownames(y)))
+        nei[i, seq_along(nei.i)] = sort(match(nei.i, rownames(y)))
     }
     numnei <- as.integer(rowSums(nei != (-1)))
     nn <- nei
@@ -1279,7 +1282,7 @@ initHMRF_V2 =
     edge_ind <- 1
     for (i in 1:numcell) {
       neighbors <- nn[i, nn[i, ] != -1]
-      for (j in 1:length(neighbors)) {
+      for (j in seq_along(neighbors)) {
         edgelist[edge_ind, ] <- c(i, neighbors[j])
         edge_ind <- edge_ind + 1
       }
@@ -1382,8 +1385,14 @@ initHMRF_V2 =
 #' @export
 doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
 {
-  message("\nIf used in published research, please cite:\n  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining\n  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
-  cat("\n Please find more explaination and instruction of the HMRF function on \n https://bitbucket.org/qzhudfci/smfishhmrf-r/src/master/TRANSITION.md\n")
+  wrap_msg(
+    "\nIf used in published research, please cite:
+    Q Zhu, S Shah, R Dries, L Cai, GC Yuan.
+    'Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data'
+    Nature biotechnology 36 (12), 1183-1190. 2018\n"
+  )
+
+  cat("\n Please find more explanation and instruction of the HMRF function on \n https://bitbucket.org/qzhudfci/smfishhmrf-r/src/master/TRANSITION.md\n")
   if (!"y" %in% names(HMRF_init_obj)) {
     stop("\n expression matrix 'y' not in the intialization object \n")
   }
@@ -1493,7 +1502,7 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
   cx = get_cell_metadata(gobject,spat_unit = spat_unit,feat_type = feat_type,output = 'data.table',copy_obj = T)
   ordered_cell_IDs = cx$cell_ID
 
-  for (i in 1:length(grep('k',names(HMRFoutput)))) {
+  for (i in seq_along(grep('k',names(HMRFoutput)))) {
     gobject = addCellMetadata(gobject = gobject,
                               spat_unit = spat_unit,
                               feat_type = feat_type,
@@ -1526,6 +1535,7 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 #' @param return_plot if function return a plot
 #' @param default_save_name names of figure file to save
 #' @param save_param other saving parameters
+#' @param \dots additional params to pass to plotting
 #' @details
 #' This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name),
 #' matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
@@ -1560,12 +1570,11 @@ viewHMRFresults_V2 =
     }
 
     savelist = list()
-    for(kk in 1:length(t_key))
+    for(kk in seq_along(t_key))
     {
       if (third_dim == TRUE) {
         pl = spatPlot3D(gobject = gobject, spat_unit = spat_unit,feat_type = feat_type,
                         cell_color = t_key[kk], show_plot = F, save_plot = F,title = t_key[kk],
-                        cow_n_col = 1, cow_rel_h = 1, cow_rel_w = 1, cow_align = "h",
                         default_save_name = 'HMRF_result', return_plot = T,...)
       }else{
         pl = spatPlot2D(gobject = gobject, spat_unit = spat_unit,feat_type = feat_type,

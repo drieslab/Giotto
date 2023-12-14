@@ -131,7 +131,7 @@ cellProximityHeatmap = function(gobject,
     clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
-    names(mylabels) = 1:length(mylabels)
+    names(mylabels) = seq_along(mylabels)
     sample_order = mylabels[myorder]
 
     final_matrix = final_matrix[sample_order, sample_order]
@@ -2000,7 +2000,7 @@ plotCCcomHeatmap = function(gobject,
   corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
@@ -2008,7 +2008,7 @@ plotCCcomHeatmap = function(gobject,
   corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
   selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
 
@@ -2122,7 +2122,7 @@ plotCCcomDotplot = function(gobject,
   corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
@@ -2130,7 +2130,7 @@ plotCCcomDotplot = function(gobject,
   corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
   selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
 

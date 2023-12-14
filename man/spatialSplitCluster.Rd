@@ -32,7 +32,7 @@ information to split}
 Split cluster annotations based on a spatial network
 }
 \examples{
-library(Giotto)https://www.doordash.com/
+library(Giotto)
 g = GiottoData::loadGiottoMini('vizgen')
 activeSpatUnit(g) = 'aggregate'
 spatPlot2D(g, cell_color = 'leiden_clus')

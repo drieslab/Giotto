@@ -206,7 +206,7 @@ cellProximityEnrichment <- function(gobject,
   p_high = rep(NA, length = length(unique(table_results$unified_int)))
   p_low = rep(NA, length = length(unique(table_results$unified_int)))
 
-  for(int_combo in 1:length(unique(table_results$unified_int))) {
+  for(int_combo in seq_along(unique(table_results$unified_int))) {
 
     this_combo = as.character(unique(table_results$unified_int)[int_combo])
 
@@ -1086,7 +1086,7 @@ findInteractionChangedFeats = function(gobject,
 
     fin_result = list()
 
-    for(i in 1:length(all_interactions)) {
+    for(i in seq_along(all_interactions)) {
 
       x = all_interactions[i]
 
@@ -1839,7 +1839,7 @@ combineInteractionChangedFeats = function(icfObject,
     # for loop
     FTFresults = list()
 
-    for(i in 1:length(all_ints)) {
+    for(i in seq_along(all_ints)) {
 
       x = all_ints[[i]]
 
@@ -2317,7 +2317,7 @@ exprCellCellcom = function(gobject,
 
   uniq_types = unique(needed_cell_types)
 
-  for(i in 1:length(uniq_types)) {
+  for(i in seq_along(uniq_types)) {
 
     uniq_type = uniq_types[i]
     length_random = length(needed_cell_types[needed_cell_types == uniq_type])

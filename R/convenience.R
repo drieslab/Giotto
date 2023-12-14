@@ -33,6 +33,7 @@
 #'   one. This function is only intended to find the first level subdirectories
 #'   and files.}
 #' }
+#' @md
 NULL
 
 #' @describeIn read_data_folder Should not be used directly
@@ -154,7 +155,7 @@ NULL
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
-#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param instructions list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param expression_matrix_class class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')
 #' @param h5_file optional path to create an on-disk h5 file
@@ -2626,7 +2627,7 @@ createArchRProj <- function(fragmentsPath,
                             ArchRProject_params = list(outputDirectory = getwd(),
                                                        copyArrows = FALSE),
                             addIterativeLSI_params = list(),
-                            threads = getArchRThreads(),
+                            threads = ArchR::getArchRThreads(),
                             force = FALSE,
                             verbose = TRUE) {
 

@@ -56,7 +56,7 @@ looks for matches in the filename for either 'hires' or 'lowres'}
 
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
-\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
 \item{expression_matrix_class}{class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')}
 

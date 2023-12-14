@@ -9,6 +9,7 @@
 #' be further broken up based on whether they are spatially touching.
 #' @param g igraph object
 #' @param clus_attr character. A categorical node attribute
+#' @md
 #' @return igraph
 #' @keywords internal
 .igraph_remove_hetero_edges = function(g, clus_attr) {
@@ -66,7 +67,7 @@
 #' @param split_clus_name character. Name to assign the split cluster results
 #' information to split
 #' @examples
-#' library(Giotto)https://www.doordash.com/
+#' library(Giotto)
 #' g = GiottoData::loadGiottoMini('vizgen')
 #' activeSpatUnit(g) = 'aggregate'
 #' spatPlot2D(g, cell_color = 'leiden_clus')

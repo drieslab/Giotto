@@ -317,7 +317,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
                                              alt_spat_unit = NULL,
                                              feat_type = NULL){
   # NSE vars
-  kmeans_small = NULL
+  kmeans_small <- cell_ID <- NULL
 
   # Guards
   if(!"giotto" %in% class(gobject)) stop(wrap_txt("Please provide a valid Giotto Object.", errWidth=TRUE))

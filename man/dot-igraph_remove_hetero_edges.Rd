@@ -15,7 +15,7 @@
 igraph
 }
 \description{
-Given an igraph `g` and set of node attributes `clus_att` that encode
+Given an igraph \code{g} and set of node attributes \code{clus_att} that encode
 different spatial clusters, remove edges that connect non-similar nodes.
 This can be used when data is already clustered, but these clusters should
 be further broken up based on whether they are spatially touching.
