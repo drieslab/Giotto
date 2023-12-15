@@ -6,13 +6,14 @@
 * Move *GiottoUtils*, *GiottoClass*, and *GiottoVisuals* to imports
 
 ## Added
-* Add: `parse_affine()` for interpreting affine transform matrices
+* Add `parse_affine()` for interpreting affine transform matrices
 * Add seed setting to `runGiottoHarmony()`
-* Update `runGiottoHarmony()` to call `harmony::RunHarmony()`
+* Add parallelized calculation for `calculateHVF()` when a *future* plan is set
 
 ## Changes
-* Fix: `createGiottoXeniumObject()` feature metadata reading for `.json` file
-* Update *Matrix* requirement to >= 1.6.3
+* Fix `createGiottoXeniumObject()` feature metadata reading for `.json` file
+* Update `runGiottoHarmony()` to call `harmony::RunHarmony()` 
+* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* can resolve issues with Matrix incompatibility. See: https://github.com/bwlewis/irlba/issues/70)
 
 
 

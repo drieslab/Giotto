@@ -1,17 +1,14 @@
 
 
 .calc_cov_group_hvf = function(feat_in_cells_detected,
-                              nr_expression_groups = 20,
-                              zscore_threshold = 1,
-                              show_plot = NA,
-                              return_plot = NA,
-                              save_plot = NA) {
+                               nr_expression_groups = 20,
+                               zscore_threshold = 1,
+                               show_plot = NA,
+                               return_plot = NA,
+                               save_plot = NA) {
 
-  # define for := and ggplot
-  cov_group_zscore = NULL
-  cov = NULL
-  selected = NULL
-  mean_expr = NULL
+  # NSE vars
+  cov_group_zscore <- cov <- selected <- mean_expr <- NULL
 
   steps = 1/nr_expression_groups
   prob_sequence = seq(0, 1, steps)
@@ -25,13 +22,15 @@
     expr_group_breaks[[1]] = 0
   }
 
-  expr_groups = cut(x = feat_in_cells_detected$mean_expr, breaks = expr_group_breaks,
-                    labels = paste0('group_', 1:nr_expression_groups), include.lowest = T)
+  expr_groups = cut(x = feat_in_cells_detected$mean_expr,
+                    breaks = expr_group_breaks,
+                    labels = paste0('group_', 1:nr_expression_groups),
+                    include.lowest = TRUE)
   feat_in_cells_detected[, expr_groups := expr_groups]
   feat_in_cells_detected[, cov_group_zscore := scale(cov), by =  expr_groups]
   feat_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
-  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
+  if(any(isTRUE(show_plot), isTRUE(return_plot), isTRUE(save_plot))) {
     pl = .create_cov_group_hvf_plot(feat_in_cells_detected, nr_expression_groups)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
@@ -53,14 +52,12 @@
                               return_plot = NA,
                               save_plot = NA) {
 
-  # define for :=
-  cov_diff = NULL
-  pred_cov_feats = NULL
-  selected = NULL
+  # NSE vars
+  cov_diff <- pred_cov_feats <- selected <- NULL
 
   # create loess regression
   loess_formula = paste0('cov~log(mean_expr)')
-  var_col = 'cov'
+  var_col <- 'cov'
 
   loess_model_sample = stats::loess(loess_formula, data = feat_in_cells_detected)
   feat_in_cells_detected$pred_cov_feats = stats::predict(loess_model_sample, newdata = feat_in_cells_detected)
@@ -68,7 +65,7 @@
   data.table::setorder(feat_in_cells_detected, -cov_diff)
   feat_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
-  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
+  if(any(isTRUE(show_plot), isTRUE(return_plot), isTRUE(save_plot))) {
     pl = .create_cov_loess_hvf_plot(feat_in_cells_detected, difference_in_cov, var_col)
 
     return(list(dt = feat_in_cells_detected, pl = pl))
@@ -84,12 +81,20 @@
                         var_number = NULL,
                         show_plot = NA,
                         return_plot = NA,
-                        save_plot = NA) {
+                        save_plot = NA,
+                        use_parallel = FALSE) {
 
   # NSE vars
   var <- selected <- NULL
 
-  test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
+  if (isTRUE(use_parallel)) {
+    test <- apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
+  } else {
+    test <- future.apply::future_apply(
+      X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x), future.seed = TRUE
+    )
+  }
+
   test = sort(test, decreasing = TRUE)
 
   dt_res = data.table::data.table(feats = names(test), var = test)
@@ -121,6 +126,89 @@
   }
 
 }
+
+
+.calc_expr_general_stats <- function(expr_values, expression_threshold) {
+  # NSE vars
+  gini <- NULL
+
+  ## create data.table with relevant statistics ##
+  feat_in_cells_detected <- data.table::data.table(
+    feats = rownames(expr_values),
+    nr_cells = rowSums_flex(expr_values > expression_threshold),
+    total_expr = rowSums_flex(expr_values),
+    mean_expr = rowMeans_flex(expr_values),
+    sd = unlist(apply(expr_values, 1, sd))
+  )
+
+  # calculate gini rowwise
+  gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
+  feat_in_cells_detected[, gini := gini_level]
+
+  return(feat_in_cells_detected)
+}
+
+
+.calc_expr_cov_stats <- function(expr_values, expression_threshold) {
+
+  # NSE vars
+  cov <- sd <- mean_expr <- NULL
+
+  # get general expression statistics and gini data.table
+  feat_in_cells_detected <- .calc_expr_general_stats(
+    expr_values, expression_threshold
+  )
+
+  # calculate cov using sd and mean_expr from general stats DT
+  feat_in_cells_detected[, cov := (sd/mean_expr)]
+
+  return(feat_in_cells_detected)
+}
+
+
+.calc_expr_cov_stats_parallel <- function(
+    expr_values,
+    expression_threshold,
+    cores = GiottoUtils::determine_cores()
+) {
+
+  # NSE vars
+  cov <- sd <- mean_expr <- NULL
+
+  # setup chunk rows to use for each parallel based on number of cores
+  chunk_rows <- seq(nrow(expr_values)) %>%
+    split(., cut(., cores))
+
+  # params to pass into the future_lapply
+  fparams <- list(
+    calc_fun = .calc_expr_general_stats,
+    expression_threshold = expression_threshold
+  )
+
+  # parallelized calculation of general stats
+  chunk_stats_dt_list <- lapply_flex(
+    chunk_rows,
+    function(r_idx, fparams) {
+      fparams$calc_fun(expr_values = expr_values[r_idx,],
+                       expression_threshold = fparams$expression_threshold)
+    },
+    fparams = fparams,
+    cores = cores,
+    future.seed = TRUE
+  )
+
+  # combine stats tables
+  feat_in_cells_detected <- data.table::rbindlist(chunk_stats_dt_list)
+
+  # calculate cov using sd and mean_expr from combined general stats DT
+  feat_in_cells_detected[, cov := (sd/mean_expr)]
+
+  return(feat_in_cells_detected)
+}
+
+
+
+
 
 #' @title calculateHVF
 #' @name calculateHVF
@@ -188,8 +276,17 @@ calculateHVF <- function(gobject,
                          default_save_name = 'HVFplot',
                          return_gobject = TRUE) {
 
-  # set data.table variables to NULL
-  sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_feats = feats = var = NULL
+  # NSE vars
+  selected = feats = var = NULL
+
+  # determine whether to use parallel functions
+  # Do not use future if future packages are not installed
+  # Do not use future if plan is "sequential"
+  has_future <- requireNamespace("future.apply", quietly = TRUE) &&
+    requireNamespace("future", quietly = TRUE)
+  use_parallel <- ifelse(has_future,
+                         !("sequential" %in% class(future::plan())),
+                         FALSE)
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -221,8 +318,6 @@ calculateHVF <- function(gobject,
     if (isTRUE(set_seed)) GiottoUtils::random_seed()
   }
 
-  # method to use
-  method = match.arg(method, choices = c('cov_groups', 'cov_loess', 'var_p_resid'))
 
 
   # print, return and save parameters
@@ -231,60 +326,50 @@ calculateHVF <- function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
+  # method to use
+  method = match.arg(method, choices = c('cov_groups', 'cov_loess', 'var_p_resid'))
+  # select function to use based on whether future parallelization is planned
+  calc_cov_fun <- ifelse(
+    use_parallel,
+    .calc_expr_cov_stats_parallel,
+    .calc_expr_cov_stats
+  )
 
-  if(method == 'var_p_resid') {
-
-    results = .calc_var_hvf(
-      scaled_matrix = expr_values,
-      var_threshold = var_threshold,
-      var_number = var_number,
-      show_plot = show_plot,
-      return_plot = return_plot,
-      save_plot = save_plot
-    )
-
-    feat_in_cells_detected = results[['dt']]
-    pl = results[['pl']]
-
-  } else {
-
-    ## create data.table with relevant statistics ##
-    feat_in_cells_detected <- data.table::data.table(
-      feats = rownames(expr_values),
-      nr_cells = rowSums_flex(expr_values > expression_threshold),
-      total_expr = rowSums_flex(expr_values),
-      mean_expr = rowMeans_flex(expr_values),
-      sd = unlist(apply(expr_values, 1, sd))
-    )
-    feat_in_cells_detected[, cov := (sd/mean_expr)]
-    gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
-    feat_in_cells_detected[, gini := gini_level]
-
-
-    if(method == 'cov_groups') {
-
-      results = .calc_cov_group_hvf(feat_in_cells_detected = feat_in_cells_detected,
-                                   nr_expression_groups = nr_expression_groups,
-                                   zscore_threshold = zscore_threshold,
-                                   show_plot = show_plot,
-                                   return_plot = return_plot,
-                                   save_plot = save_plot)
-      feat_in_cells_detected = results[['dt']]
-      pl = results[['pl']]
-
-    } else if(method == 'cov_loess') {
-
-      results = .calc_cov_loess_hvf(feat_in_cells_detected = feat_in_cells_detected,
-                                   difference_in_cov = difference_in_cov,
-                                   show_plot = show_plot,
-                                   return_plot = return_plot,
-                                   save_plot = save_plot)
-      feat_in_cells_detected = results[['dt']]
-      pl = results[['pl']]
+  results <- switch(
+    method,
+    "var_p_resid" = {
+      .calc_var_hvf(
+        scaled_matrix = expr_values,
+        var_threshold = var_threshold,
+        var_number = var_number,
+        show_plot = show_plot,
+        return_plot = return_plot,
+        save_plot = save_plot,
+        use_parallel = use_parallel
+      )
+    },
+    "cov_groups" = {
+      calc_cov_fun(expr_values, expression_threshold) %>%
+        .calc_cov_group_hvf(nr_expression_groups = nr_expression_groups,
+                            zscore_threshold = zscore_threshold,
+                            show_plot = show_plot,
+                            return_plot = return_plot,
+                            save_plot = save_plot)
+    },
+    "cov_loess" = {
+      calc_cov_fun(expr_values, expression_threshold) %>%
+        .calc_cov_loess_hvf(difference_in_cov = difference_in_cov,
+                            show_plot = show_plot,
+                            return_plot = return_plot,
+                            save_plot = save_plot)
     }
+  )
+
+  ## unpack results
+  feat_in_cells_detected = results[['dt']]
+  pl = results[['pl']]
 
 
-  }
 
 
   ## print plot

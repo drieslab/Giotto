@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.0.1
+Version: 4.0.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -32,7 +32,7 @@ Depends:
     methods,
 Imports:
     BiocParallel,
-    BiocSingular (>= 1.18.0),
+    BiocSingular,
     checkmate,
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
@@ -74,6 +74,8 @@ Suggests:
     factoextra,
     fitdistrplus,
     FNN,
+    future,
+    future.apply,
     geometry,
     GiottoData,
     ggalluvial,
