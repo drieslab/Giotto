@@ -53,11 +53,11 @@
                               save_plot = NA) {
 
   # NSE vars
-  cov_diff <- pred_cov_feats <- selected = NULL
+  cov_diff <- pred_cov_feats <- selected <- NULL
 
   # create loess regression
   loess_formula = paste0('cov~log(mean_expr)')
-  var_col = 'cov'
+  var_col <- 'cov'
 
   loess_model_sample = stats::loess(loess_formula, data = feat_in_cells_detected)
   feat_in_cells_detected$pred_cov_feats = stats::predict(loess_model_sample, newdata = feat_in_cells_detected)
