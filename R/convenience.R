@@ -205,7 +205,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
   if(!is.null(h5_visium_path)) {
 
-    if(verbose) wrap_msg("A path to an .h5 10X file was provided and will be used \n")
+    vmsg(.v = verbose, "A path to an .h5 10X file was provided and will be used \n")
 
     if(!file.exists(h5_visium_path)) stop("The provided path ", h5_visium_path, " does not exist \n")
 
