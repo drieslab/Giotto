@@ -12,7 +12,7 @@ createArchRProj(
     0, TileMatParams = list(tileSize = 5000)),
   ArchRProject_params = list(outputDirectory = getwd(), copyArrows = FALSE),
   addIterativeLSI_params = list(),
-  threads = getArchRThreads(),
+  threads = ArchR::getArchRThreads(),
   force = FALSE,
   verbose = TRUE
 )

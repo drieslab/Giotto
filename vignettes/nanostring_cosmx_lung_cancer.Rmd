@@ -452,7 +452,7 @@ id_set = c('02', '03', '04')
 
 
 ```{r, eval=FALSE}
-for(fov_i in 1:length(id_set)) {
+for(fov_i in seq_along(id_set)) {
 
   fov_id = id_set[fov_i]
 

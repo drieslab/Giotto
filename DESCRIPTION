@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.0
+Version: 4.0.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -10,10 +10,12 @@ Authors@R: c(
 		 role = c("aut")),
 	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut")),
-    person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
+  person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
 		 role = c("aut")),
-		 person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
-		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591"))
+	person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
+		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591")),
+	person("Edward", "Ruiz", email = "ecruiz@bu.edu",
+		 role = c("aut"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
@@ -28,9 +30,6 @@ Depends:
     utils (>= 3.5.0),
     R (>= 3.5.0),
     methods,
-    GiottoUtils,
-    GiottoClass,
-    GiottoVisuals
 Imports:
     BiocParallel,
     BiocSingular,
@@ -38,15 +37,15 @@ Imports:
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
-    future.apply,
     ggplot2 (>= 3.1.1),
     ggrepel,
-    grDevices,
-    graphics,
+    GiottoUtils (>= 0.1.0.1),
+    GiottoClass (>= 0.1.0.1),
+    GiottoVisuals (>= 0.1.0.1),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
-    Matrix (>= 1.6.3),
+    Matrix (>= 1.6.2),
     MatrixGenerics,
     plotly,
     progressr,
@@ -59,6 +58,7 @@ Imports:
     terra (>= 1.7-39),
     uwot (>= 0.0.0.9010)
 Suggests:
+    ArchR,
     arrow,
     Biobase,
     biomaRt,
@@ -74,12 +74,15 @@ Suggests:
     factoextra,
     fitdistrplus,
     FNN,
+    future,
+    future.apply,
     geometry,
     GiottoData,
     ggalluvial,
     ggdendro,
     ggforce,
     ggraph,
+    graphcoloring,
     HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
@@ -112,6 +115,7 @@ Suggests:
     SpatialExperiment,
     spdep,
     SummarizedExperiment,
+    tidygraph,
     tiff,
     trendsceek,
     testthat (>= 3.0.0),
@@ -133,6 +137,7 @@ Collate:
     'general_help.R'
     'giotto_viewer.R'
     'globals.R'
+    'gstop.R'
     'suite_reexports.R'
     'image_registration.R'
     'interactivity.R'

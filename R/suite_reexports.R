@@ -2,14 +2,100 @@
 # GiottoUtils ####
 #' @export
 GiottoUtils::`%>%`
+#' @export
+GiottoUtils::getRainbowColors
+#' @export
+GiottoUtils::getDistinctColors
 
 
 
 # GiottoClass ####
 
+# GiottoClass defined generics only
+#' @export
+GiottoClass::activeSpatUnit
+#' @export
+GiottoClass::`activeSpatUnit<-`
+#' @export
+GiottoClass::activeFeatType
+#' @export
+GiottoClass::`activeFeatType<-`
+#' @export
+GiottoClass::ext
+#' @export
+GiottoClass::`ext<-`
+#' @export
+GiottoClass::featType
+#' @export
+GiottoClass::`featType<-`
+#' @export
+GiottoClass::spatUnit
+#' @export
+GiottoClass::`spatUnit<-`
+#' @export
+GiottoClass::instructions
+#' @export
+GiottoClass::`instructions<-`
+#' @export
+GiottoClass::prov
+#' @export
+GiottoClass::`prov<-`
+#' @export
+GiottoClass::objName
+#' @export
+GiottoClass::`objName<-`
+#' @export
+GiottoClass::as.points
+#' @export
+GiottoClass::as.polygons
+#' @export
+GiottoClass::as.terra
+#' @export
+GiottoClass::as.stars
+#' @export
+GiottoClass::as.sf
+#' @export
+GiottoClass::as.sp
+#' @export
+GiottoClass::overlaps
+#' @export
+GiottoClass::calculateOverlap
+#' @export
+GiottoClass::overlapToMatrix
+#' @export
+GiottoClass::centroids
+#' @export
+GiottoClass::copy
+#' @export
+GiottoClass::crop
+#' @export
+GiottoClass::flip
+#' @export
+GiottoClass::spin
+#' @export
+GiottoClass::spatShift
+#' @export
+GiottoClass::featIDs
+#' @export
+GiottoClass::spatIDs
+#' @export
+GiottoClass::setGiotto
+#' @export
+GiottoClass::rescale
+#' @export
+GiottoClass::vect
+#' @export
+GiottoClass::wrap
+#' @export
+GiottoClass::createGiottoPoints
+#' @export
+GiottoClass::createGiottoPolygon
 
+# All other exported functions
 #' @export
 GiottoClass::addCellMetadata
+#' @export
+GiottoClass::addFeatMetadata
 #' @export
 GiottoClass::addGiottoImage
 #' @export
@@ -22,6 +108,8 @@ GiottoClass::addGiottoPoints
 GiottoClass::addGiottoPoints3D
 #' @export
 GiottoClass::addGiottoPolygons
+#' @export
+GiottoClass::addNetworkLayout
 #' @export
 GiottoClass::addSpatialCentroidLocations
 #' @export
@@ -36,8 +124,6 @@ GiottoClass::aggregateStacksLocations
 GiottoClass::aggregateStacksPolygonOverlaps
 #' @export
 GiottoClass::aggregateStacksPolygons
-#' @export
-GiottoClass::aggregateStacksPolygonsOLD
 #' @export
 GiottoClass::anndataToGiotto
 #' @export
@@ -59,9 +145,13 @@ GiottoClass::calculateOverlapRaster
 #' @export
 GiottoClass::calculateOverlapSerial
 #' @export
+GiottoClass::calculateSpatCellMetadataProportions
+#' @export
 GiottoClass::changeGiottoInstructions
 #' @export
 GiottoClass::changeImageBg
+#' @export
+GiottoClass::checkGiottoEnvironment
 #' @export
 GiottoClass::circleVertices
 #' @export
@@ -77,7 +167,11 @@ GiottoClass::combineSpatialCellFeatureInfo
 #' @export
 GiottoClass::combineSpatialCellMetadataInfo
 #' @export
+GiottoClass::combineToMultiPolygon
+#' @export
 GiottoClass::convertGiottoLargeImageToMG
+#' @export
+GiottoClass::createBentoAdata
 #' @export
 GiottoClass::createCellMetaObj
 #' @export
@@ -98,8 +192,6 @@ GiottoClass::createGiottoLargeImageList
 GiottoClass::createGiottoObject
 #' @export
 GiottoClass::createGiottoObjectSubcellular
-#' @export
-GiottoClass::createGiottoPoints
 #' @export
 GiottoClass::createGiottoPolygonsFromDfr
 #' @export
@@ -141,8 +233,6 @@ GiottoClass::estimateImageBg
 #' @export
 GiottoClass::fDataDT
 #' @export
-GiottoClass::featType
-#' @export
 GiottoClass::featureNetwork
 #' @export
 GiottoClass::gefToGiotto
@@ -164,8 +254,6 @@ GiottoClass::getMultiomics
 GiottoClass::getNearestNetwork
 #' @export
 GiottoClass::getPolygonInfo
-#' @export
-GiottoClass::getRainbowColors
 #' @export
 GiottoClass::getSpatialEnrichment
 #' @export
@@ -207,6 +295,8 @@ GiottoClass::giottoToSpatialExperiment
 #' @export
 GiottoClass::hexVertices
 #' @export
+GiottoClass::installGiottoEnvironment
+#' @export
 GiottoClass::joinGiottoObjects
 #' @export
 GiottoClass::loadGiotto
@@ -215,11 +305,9 @@ GiottoClass::makePseudoVisium
 #' @export
 GiottoClass::objHistory
 #' @export
-GiottoClass::objName
+GiottoClass::orthoGrid
 #' @export
 GiottoClass::overlapImagesToMatrix
-#' @export
-GiottoClass::overlapToMatrix
 #' @export
 GiottoClass::overlapToMatrixMultiPoly
 #' @export
@@ -228,8 +316,6 @@ GiottoClass::pDataDT
 GiottoClass::plotGiottoImage
 #' @export
 GiottoClass::polyStamp
-#' @export
-GiottoClass::prov
 #' @export
 GiottoClass::readCellMetadata
 #' @export
@@ -263,17 +349,23 @@ GiottoClass::removeCellAnnotation
 #' @export
 GiottoClass::removeFeatAnnotation
 #' @export
+GiottoClass::removeGiottoEnvironment
+#' @export
 GiottoClass::replaceGiottoInstructions
 #' @export
 GiottoClass::rescalePolygons
 #' @export
 GiottoClass::saveGiotto
 #' @export
+GiottoClass::setCellMetadata
+#' @export
 GiottoClass::setDimReduction
 #' @export
 GiottoClass::setExpression
 #' @export
 GiottoClass::setFeatureInfo
+#' @export
+GiottoClass::setFeatureMetadata
 #' @export
 GiottoClass::setGiottoImage
 #' @export
@@ -323,13 +415,45 @@ GiottoClass::showGiottoSpatNetworks
 #' @export
 GiottoClass::showGiottoSpatialInfo
 #' @export
-GiottoClass::showGrids
-#' @export
-GiottoClass::showNetworks
-#' @export
 GiottoClass::showProcessingSteps
 #' @export
+GiottoClass::smoothGiottoPolygons
+#' @export
+GiottoClass::spatQueryGiottoPolygons
+#' @export
+GiottoClass::spatialExperimentToGiotto
+#' @export
+GiottoClass::stitchFieldCoordinates
+#' @export
+GiottoClass::stitchGiottoLargeImage
+#' @export
+GiottoClass::stitchFieldCoordinates
+#' @export
+GiottoClass::subsetGiotto
+#' @export
+GiottoClass::subsetGiottoLocs
+#' @export
+GiottoClass::subsetGiottoLocsMulti
+#' @export
+GiottoClass::subsetGiottoLocsSubcellular
+#' @export
 GiottoClass::tessellate
+#' @export
+GiottoClass::triGrid
+#' @export
+GiottoClass::updateGiottoImage
+#' @export
+GiottoClass::updateGiottoImageMG
+#' @export
+GiottoClass::updateGiottoLargeImage
+#' @export
+GiottoClass::updateGiottoObject
+#' @export
+GiottoClass::updateGiottoPointsObject
+#' @export
+GiottoClass::updateGiottoPolygonObject
+#' @export
+GiottoClass::writeGiottoLargeImage
 
 
 
@@ -340,7 +464,9 @@ GiottoClass::tessellate
 
 # GiottoVisuals ####
 
-
+#' @export
+GiottoVisuals::addGiottoImageToSpatPlot
+#' @export
 GiottoVisuals::dimCellPlot
 #' @export
 GiottoVisuals::dimCellPlot2D
@@ -355,7 +481,9 @@ GiottoVisuals::dimPlot2D
 #' @export
 GiottoVisuals::dimPlot3D
 #' @export
-GiottoVisuals::getDistinctColors
+GiottoVisuals::getColors
+#' @export
+GiottoVisuals::giottoSankeyPlan
 #' @export
 GiottoVisuals::plotHeatmap
 #' @export
@@ -383,11 +511,76 @@ GiottoVisuals::plotUMAP_2D
 #' @export
 GiottoVisuals::plotUMAP_3D
 #' @export
+GiottoVisuals::sankeyLabel
+#' @export
+GiottoVisuals::`sankeyLabel<-`
+#' @export
+GiottoVisuals::sankeyPlot
+#' @export
+GiottoVisuals::sankeyRelate
+#' @export
+GiottoVisuals::`sankeyRelate<-`
+#' @export
+GiottoVisuals::sankeySet
+#' @export
+GiottoVisuals::sankeySetAddresses
+#' @export
+GiottoVisuals::showColorInstructions
+#' @export
 GiottoVisuals::showClusterDendrogram
 #' @export
 GiottoVisuals::showClusterHeatmap
 #' @export
 GiottoVisuals::showSaveParameters
+#' @export
+GiottoVisuals::spatCellPlot
+#' @export
+GiottoVisuals::spatCellPlot2D
+#' @export
+GiottoVisuals::spatDeconvPlot
+#' @export
+GiottoVisuals::spatDimCellPlot
+#' @export
+GiottoVisuals::spatDimCellPlot2D
+#' @export
+GiottoVisuals::spatDimFeatPlot2D
+#' @export
+GiottoVisuals::spatDimGenePlot3D
+#' @export
+GiottoVisuals::spatDimPlot
+#' @export
+GiottoVisuals::spatDimPlot2D
+#' @export
+GiottoVisuals::spatDimPlot3D
+#' @export
+GiottoVisuals::spatFeatPlot2D
+#' @export
+GiottoVisuals::spatFeatPlot2D_single
+#' @export
+GiottoVisuals::spatGenePlot3D
+#' @export
+GiottoVisuals::spatPlot
+#' @export
+GiottoVisuals::spatPlot2D
+#' @export
+GiottoVisuals::spatPlot3D
+#' @export
+GiottoVisuals::spatInSituPlotDensity
+#' @export
+GiottoVisuals::spatInSituPlotHex
+#' @export
+GiottoVisuals::spatInSituPlotPoints
+#' @export
+GiottoVisuals::spatNetwDistributions
+#' @export
+GiottoVisuals::spatNetwDistributionsDistance
+#' @export
+GiottoVisuals::spatNetwDistributionsKneighbors
+#' @export
+GiottoVisuals::subsetSankeySet
+#' @export
+GiottoVisuals::violinPlot
+
 
 
 

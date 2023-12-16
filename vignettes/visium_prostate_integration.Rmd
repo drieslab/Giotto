@@ -503,7 +503,7 @@ top_markers <- markers_scran[, head(.SD, 10), by="cluster"]
 celltypes<-levels(factor(markers_scran$cluster))
 sign_list<-list()
 
-for (i in 1:length(celltypes)){
+for (i in seq_along(celltypes)){
   sign_list[[i]]<-top_markers[which(top_markers$cluster == celltypes[i]),]$feats
 }
 

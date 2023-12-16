@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_help.R
 \name{readPolygonFilesVizgen}
 \alias{readPolygonFilesVizgen}
-\alias{h5read_vizgen}
+\alias{.h5_read_vizgen}
 \title{readPolygonFilesVizgen}
 \usage{
 readPolygonFilesVizgen(
@@ -19,7 +19,7 @@ readPolygonFilesVizgen(
   verbose = TRUE
 )
 
-h5read_vizgen(
+.h5_read_vizgen(
   h5File,
   z_indices = 1L:7L,
   segm_to_use = "p_0",
@@ -55,7 +55,7 @@ object and add the smoothed polygons to the object
 }
 \section{Functions}{
 \itemize{
-\item \code{h5read_vizgen()}: (internal) Optimized .hdf5 reading for vizgen
+\item \code{.h5_read_vizgen()}: (internal) Optimized .hdf5 reading for vizgen
 merscope output. Returns a data.table of xyz coords and cell_id
 
 }}

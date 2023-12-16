@@ -3,16 +3,23 @@
 # * ####
 # cell type proximity for spots ####
 
-#' @title cell_proximity_spots_internal
-#' @name cell_proximity_spots_internal
-#' @description Compute cell-cell interactions observed value inner each spot
-#' @param cell_IDs cell_IDs
+
+#' @title Cell type proximity for spots
+#' @name cell_proximity_spots
+#' @description Compute cell-cell interactions observed value for internal and
+#' external spots
 #' @param dwls_values data.table of cell type enrichment in each spot and multiply
 #' by cell number in each spot
 #' @return List of cell proximity observed value in data.table format. Columns:
-#' unified_int, internal value, type_int.
+#' unified_int, type_int, V1, external, internal.
+NULL
+
+
+
+#' @describeIn cell_proximity_spots Compute cell-cell interactions observed value inner each spot
+#' @param cell_IDs cell_IDs
 #' @keywords internal
-cell_proximity_spots_internal = function(cell_IDs,
+.cell_proximity_spots_internal = function(cell_IDs,
                                          dwls_values){
 
   # data.table variables
@@ -20,7 +27,7 @@ cell_proximity_spots_internal = function(cell_IDs,
 
   proximity_dt = data.table::data.table()
   # calculate proximity for each spot
-  for (cell_i in 1:length(cell_IDs)){
+  for (cell_i in seq_along(cell_IDs)){
     cell_ID = cell_IDs[cell_i]
     # dwls value for one spot and remove 0 cell type
     dwls_spot = dwls_values[cell_ID,]
@@ -64,16 +71,10 @@ cell_proximity_spots_internal = function(cell_IDs,
 }
 
 
-#' @title cell_proximity_spots_external
-#' @name cell_proximity_spots_external
-#' @description Compute cell-cell interactions observed value for interacted spots
+#' @describeIn cell_proximity_spots Compute cell-cell interactions observed value for interacted spots
 #' @param pairs data.table of paired spots. Format: cell_ID1, cell_ID2, N
-#' @param dwls_values data.table of cell type enrichment in each spot and multiply
-#' by cell number in each spot
-#' @return List of cell proximity observed value in data.table format. Columns:
-#' unified_int, internal value, type_int.
 #' @keywords internal
-cell_proximity_spots_external = function(pairs,
+.cell_proximity_spots_external = function(pairs,
                                          dwls_values){
 
   cell_IDs = unique(c(pairs$from, pairs$to))
@@ -93,7 +94,7 @@ cell_proximity_spots_external = function(pairs,
   proximity_dt = data.table::data.table()
   cts = colnames(dwls_sub)
   cts = sort(cts)
-  for (i in 1:length(cts)){
+  for (i in seq_along(cts)){
     ct1 = cts[i]
     dwls_ct1 = dwls_sub[, ct1]
 
@@ -112,17 +113,13 @@ cell_proximity_spots_external = function(pairs,
 }
 
 
-#' @title cell_proximity_spots
-#' @name cell_proximity_spots
-#' @description Compute cell-cell interactions observed value for internal and external spots
-#' @param cell_IDs cell_IDs to calculate internal cell-type/cell-type interactions
-#' @param pairs data.table of paired spots. Format: cell_ID1, cell_ID2, N
-#' @param dwls_values data.table of cell type enrichment in each spot and multiply
-#' by cell number in each spot
-#' @return List of cell proximity observed value in data.table format. Columns:
-#' unified_int, type_int, V1, external, internal.
+
+
+#' @describeIn cell_proximity_spots Wrapper function
+#' @param pairs_external data.table of paired spots. Format: cell_ID1, cell_ID2,
+#' N. Passes to `.cell_proximity_spots_external` `pairs` param
 #' @keywords internal
-cell_proximity_spots = function(cell_IDs,
+.cell_proximity_spots = function(cell_IDs,
                                 pairs_external,
                                 dwls_values){
 
@@ -131,13 +128,13 @@ cell_proximity_spots = function(cell_IDs,
 
   # compute cell-type/cell-type interactions in each spot (internal)
   if (length(cell_IDs) > 0){
-    proximity_in = cell_proximity_spots_internal(cell_IDs = cell_IDs,
+    proximity_in = .cell_proximity_spots_internal(cell_IDs = cell_IDs,
                                                  dwls_values = dwls_values)
   }
 
   # compute cell-type/cell-type interactions between spots (external)
   # get paired spots barcodes
-  proximity_ex = cell_proximity_spots_external(pairs = pairs_external,
+  proximity_ex = .cell_proximity_spots_external(pairs = pairs_external,
                                                dwls_values = dwls_values)
 
   if (length(cell_IDs) > 0) {
@@ -210,7 +207,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   # data.table variables
   orig = from = to = unified_int = unified_cells = type_int = N = V1 = original = enrichm = simulations = NULL
 
-  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
+  spatial_network_annot = dt_sort_combine_two_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # exact spatial_enrichment matrix
@@ -229,7 +226,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   if(verbose) print("1/5 Computing cell-type/cell-type interactions")
 
   orig_pairs_external = spatial_network_annot[, .N, by = c('from', 'to')]
-  table_orig_results = cell_proximity_spots(cell_IDs = pDataDT(gobject)$cell_ID,
+  table_orig_results = .cell_proximity_spots(cell_IDs = pDataDT(gobject)$cell_ID,
                                             pairs_external = orig_pairs_external,
                                             dwls_values = dwls_values_adjust)
   table_orig_results[, orig := 'original']
@@ -258,7 +255,7 @@ cellProximityEnrichmentSpots <- function(gobject,
     sim_pairs_ex = sim_pairs[from != to, ]
     sim_pairs_ex[, N :=1]
 
-    sim_dt_round = cell_proximity_spots(cell_IDs = sim_cell_IDs,
+    sim_dt_round = .cell_proximity_spots(cell_IDs = sim_cell_IDs,
                                         pairs_external = sim_pairs_ex,
                                         dwls_values = dwls_values_adjust)
 
@@ -290,7 +287,7 @@ cellProximityEnrichmentSpots <- function(gobject,
   p_high = rep(NA, length = length(unique(table_results$unified_int)))
   p_low = rep(NA, length = length(unique(table_results$unified_int)))
 
-  for(int_combo in 1:length(unique(table_results$unified_int))) {
+  for(int_combo in seq_along(unique(table_results$unified_int))) {
 
     this_combo = as.character(unique(table_results$unified_int)[int_combo])
 
@@ -416,8 +413,8 @@ featExpDWLS = function(gobject,
 }
 
 
-#' @title cal_expr_residual
-#' @name cal_expr_residual
+#' @title Calculate feature expression residual
+#' @name .cal_expr_residual
 #' @description Calculate feature expression residual (observed_exp - DWLS_predicted)
 #'
 #' @param gobject giotto object
@@ -427,7 +424,7 @@ featExpDWLS = function(gobject,
 #' @param ave_celltype_exp average expression matrix in cell types
 #'
 #' @keywords internal
-cal_expr_residual <- function(gobject,
+.cal_expr_residual <- function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
@@ -483,7 +480,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
   # data.table variables
   V1 = V2 = from = to = int_cell_IDS = Var1 = Var2 = unified_cells = type_int = N = NULL
 
-  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
+  spatial_network_annot = dt_sort_combine_two_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # exact spatial_enrichment matrix
@@ -519,7 +516,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
   colnames(proximityMat) = cell_IDs
 
   # for each spot, calculate cell type proximity to it
-  for (cell_i in 1:length(cell_IDs)){
+  for (cell_i in seq_along(cell_IDs)){
     cell_ID = cell_IDs[cell_i]
     spot_pairs = orig_pairs[from == cell_ID | to == cell_ID]
     spot_pairs[, int_cell_IDS := ifelse(from==cell_ID, to, from)]
@@ -571,12 +568,12 @@ cellProximityEnrichmentEachSpot <- function(gobject,
   return(proximityMat)
 }
 
-#' @title cal_diff_per_interaction
-#' @name cal_diff_per_interaction
+#' @title Calculate difference per interaction
+#' @name .cal_diff_per_interaction
 #' @description calculate correlation between expression residual and
 #' cell proximity score of selected cell for spots
 #' @keywords internal
-cal_diff_per_interaction <- function(sel_int,
+.cal_diff_per_interaction <- function(sel_int,
                                      other_ints,
                                      select_ind,
                                      other_ind,
@@ -621,11 +618,18 @@ cal_diff_per_interaction <- function(sel_int,
   return(results_dt)
 }
 
-#' @title do_permuttest_original_spot
-#' @name do_permuttest_original_spot
-#' @description calculate original values for spots
+
+
+#' @title Spot permutation testing
+#' @name do_permuttest_spot
+#' @description Test spot interactions using permutations
+NULL
+
+
+
+#' @describeIn do_permuttest_spot Calculate original values for spots
 #' @keywords internal
-do_permuttest_original_spot <- function(sel_int,
+.do_permuttest_original_spot <- function(sel_int,
                                         other_ints,
                                         select_ind,
                                         other_ind,
@@ -633,7 +637,7 @@ do_permuttest_original_spot <- function(sel_int,
                                         proximityMat,
                                         expr_residual) {
 
-  resultsDT = cal_diff_per_interaction(sel_int = sel_int,
+  resultsDT = .cal_diff_per_interaction(sel_int = sel_int,
                                        other_ints = other_ints,
                                        select_ind = select_ind,
                                        other_ind = other_ind,
@@ -643,11 +647,10 @@ do_permuttest_original_spot <- function(sel_int,
   return(resultsDT)
 }
 
-#' @title do_permuttest_random_spot
-#' @name do_permuttest_random_spot
-#' @description calculate random values for spots
+
+#' @describeIn do_permuttest_spot Calculate random values for spots
 #' @keywords internal
-do_permuttest_random_spot <- function(sel_int,
+.do_permuttest_random_spot <- function(sel_int,
                                       other_ints,
                                       select_ind,
                                       other_ind,
@@ -681,7 +684,7 @@ do_permuttest_random_spot <- function(sel_int,
   random_select = c(sample(all_IDs, size = l_select_ind - 1, replace = F), names(prox[1]))
   random_other = c(sample(all_IDs, size = l_other_ind, replace = F), names(prox[length(prox)]))
 
-  resultsDT = cal_diff_per_interaction(sel_int = random_sel_int,
+  resultsDT = .cal_diff_per_interaction(sel_int = random_sel_int,
                                        other_ints = random_other_ints,
                                        select_ind = random_select,
                                        other_ind = random_other,
@@ -693,11 +696,10 @@ do_permuttest_random_spot <- function(sel_int,
 }
 
 
-#' @title do_multi_permuttest_random_spot
-#' @name do_multi_permuttest_random_spot
-#' @description calculate multiple random values for spots
+
+#' @describeIn do_permuttest_spot Calculate multiple random values for spots
 #' @keywords internal
-do_multi_permuttest_random_spot = function(sel_int,
+.do_multi_permuttest_random_spot = function(sel_int,
                                            other_ints,
                                            select_ind,
                                            other_ind,
@@ -716,7 +718,7 @@ do_multi_permuttest_random_spot = function(sel_int,
 
     seed_number = seed_number_list[x]
 
-    perm_rand = do_permuttest_random_spot(sel_int = sel_int,
+    perm_rand = .do_permuttest_random_spot(sel_int = sel_int,
                                           other_ints = other_ints,
                                           select_ind = select_ind,
                                           other_ind = other_ind,
@@ -732,11 +734,10 @@ do_multi_permuttest_random_spot = function(sel_int,
 
 }
 
-#' @title do_permuttest_spot
-#' @name do_permuttest_spot
-#' @description Performs permutation test on subsets of a matrix for spots
+
+#' @describeIn do_permuttest_spot Performs permutation test on subsets of a matrix for spots
 #' @keywords internal
-do_permuttest_spot = function(sel_int,
+.do_permuttest_spot = function(sel_int,
                               other_ints,
                               select_ind,
                               other_ind,
@@ -756,7 +757,7 @@ do_permuttest_spot = function(sel_int,
   perm_pcc_sel = perm_pcc_diff = pcc_other = NULL
 
   ## original data
-  original = do_permuttest_original_spot(sel_int = sel_int,
+  original = .do_permuttest_original_spot(sel_int = sel_int,
                                          other_ints = other_ints ,
                                          select_ind = select_ind,
                                          other_ind = other_ind,
@@ -765,7 +766,7 @@ do_permuttest_spot = function(sel_int,
                                          expr_residual = expr_residual)
 
   ## random permutations
-  random_perms = do_multi_permuttest_random_spot(sel_int = sel_int,
+  random_perms = .do_multi_permuttest_random_spot(sel_int = sel_int,
                                                  other_ints = other_ints,
                                                  select_ind = select_ind,
                                                  other_ind = other_ind,
@@ -802,11 +803,11 @@ do_permuttest_spot = function(sel_int,
 }
 
 
-#' @title do_cell_proximity_test_spot
-#' @name do_cell_proximity_test_spot
+#' @title Cell proximity testing for spot data
+#' @name .do_cell_proximity_test_spot
 #' @description Performs a selected differential test on subsets of a matrix for spots
 #' @keywords internal
-do_cell_proximity_test_spot = function(sel_int,
+.do_cell_proximity_test_spot = function(sel_int,
                                        other_ints,
                                        select_ind,
                                        other_ind,
@@ -826,7 +827,7 @@ do_cell_proximity_test_spot = function(sel_int,
 
 
   if(diff_test == 'permutation') {
-    result = do_permuttest_spot(sel_int = sel_int,
+    result = .do_permuttest_spot(sel_int = sel_int,
                                 other_ints = other_ints,
                                 select_ind = select_ind,
                                 other_ind = other_ind,
@@ -843,11 +844,11 @@ do_cell_proximity_test_spot = function(sel_int,
 
 }
 
-#' @title findICF_per_interaction_spot
-#' @name findICF_per_interaction_spot
+#' @title Find ICF per interaction for spot data
+#' @name .findICF_per_interaction_spot
 #' @description Identifies features that are differentially expressed due to proximity to other cell types for spots.
 #' @keywords internal
-findICF_per_interaction_spot <- function(sel_int,
+.findICF_per_interaction_spot <- function(sel_int,
                                          all_ints,
                                          proximityMat,
                                          expr_residual,
@@ -889,7 +890,7 @@ findICF_per_interaction_spot <- function(sel_int,
   if(length(spec_IDs) < minimum_unique_cells | length(other_IDs) < minimum_unique_cells) {
     result = NULL
   } else {
-    result = do_cell_proximity_test_spot(sel_int = sel_int,
+    result = .do_cell_proximity_test_spot(sel_int = sel_int,
                                          other_ints = other_ints,
                                          select_ind = spec_IDs,
                                          other_ind = other_IDs,
@@ -995,7 +996,7 @@ findICFSpot <- function(gobject,
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
   features_overlap = intersect(slot(gobject, "feat_ID")[[feat_type]], rownames(ave_celltype_exp))
   ave_celltype_exp_sel = ave_celltype_exp[features_overlap,]
-  expr_residual = cal_expr_residual(gobject = gobject,
+  expr_residual = .cal_expr_residual(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     ave_celltype_exp = ave_celltype_exp_sel)
@@ -1033,7 +1034,7 @@ findICFSpot <- function(gobject,
 
     fin_result = lapply_flex(X = all_ints$unified_int, cores = cores, fun = function(x) {
 
-      tempres = findICF_per_interaction_spot(sel_int = x,
+      tempres = .findICF_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
                                              proximityMat = proximityMat,
                                              expr_residual = expr_residual,
@@ -1054,11 +1055,11 @@ findICFSpot <- function(gobject,
 
     fin_result = list()
 
-    for(i in 1:length(all_ints$unified_int)) {
+    for(i in seq_along(all_ints$unified_int)) {
 
       x = all_ints$unified_int[i]
 
-      tempres = findICF_per_interaction_spot(sel_int = x,
+      tempres = .findICF_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
                                              proximityMat = proximityMat,
                                              expr_residual = expr_residual,
@@ -1533,9 +1534,9 @@ plotCellProximityFeatSpot = function(gobject,
 # cell communication spots ####
 
 
-#' @title specific_CCCScores_spots
-#' @name specific_CCCScores_spots
-#' @description Specific Cell-Cell communication scores based on spatial expression of interacting cells at spots resulation
+#' @title Specific cell-cell communication scores for spot data
+#' @name .specific_CCCScores_spots
+#' @description Specific Cell-Cell communication scores based on spatial expression of interacting cells at spots resolution
 #'
 #' @param gobject giotto object to use
 #' @param spat_unit spatial unit (e.g. 'cell')
@@ -1582,7 +1583,7 @@ plotCellProximityFeatSpot = function(gobject,
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
 #' @keywords internal
-specific_CCCScores_spots = function(gobject,
+.specific_CCCScores_spots = function(gobject,
                                     spat_unit = NULL,
                                     feat_type = NULL,
                                     expr_residual,
@@ -1860,7 +1861,7 @@ spatCellCellcomSpots = function(gobject,
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
-  expr_residual = cal_expr_residual(gobject = gobject,
+  expr_residual = .cal_expr_residual(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     ave_celltype_exp = ave_celltype_exp)
@@ -1914,7 +1915,7 @@ spatCellCellcomSpots = function(gobject,
       cell_type_2 = combn_DT[row][['V2']]
 
 
-      specific_scores = specific_CCCScores_spots(gobject = gobject,
+      specific_scores = .specific_CCCScores_spots(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
                                                  expr_residual = expr_residual,
@@ -1946,7 +1947,7 @@ spatCellCellcomSpots = function(gobject,
 
       if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
 
-      specific_scores = specific_CCCScores_spots(gobject = gobject,
+      specific_scores = .specific_CCCScores_spots(gobject = gobject,
                                                  spat_unit = spat_unit,
                                                  feat_type = feat_type,
                                                  expr_residual = expr_residual,

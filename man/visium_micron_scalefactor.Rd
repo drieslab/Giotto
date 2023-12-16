@@ -2,13 +2,13 @@
 % Please edit documentation in R/convenience.R
 \name{visium_micron_scalefactor}
 \alias{visium_micron_scalefactor}
-\alias{visium_micron_scale}
+\alias{.visium_micron_scale}
 \title{Calculate Pixel to Micron Scalefactor}
 \usage{
-visium_micron_scale(json_scalefactors)
+.visium_micron_scale(json_scalefactors)
 }
 \arguments{
-\item{json_scalefactors}{list of scalefactors from visium_read_scalefactors()}
+\item{json_scalefactors}{list of scalefactors from .visium_read_scalefactors()}
 }
 \value{
 scale factor for converting pixel to micron

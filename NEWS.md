@@ -1,4 +1,25 @@
-# Giotto Suite 4.0.0 2023/11/29)
+
+
+# Giotto Suite 4.0.1 (release TBD)
+
+## Breaking Changes
+* Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
+* Move *GiottoUtils*, *GiottoClass*, and *GiottoVisuals* to imports
+
+## Added
+* Add `parse_affine()` for interpreting affine transform matrices
+* Add seed setting to `runGiottoHarmony()`
+* Add parallelized calculation for `calculateHVF()` when a *future* plan is set
+
+## Changes
+* Fix `createGiottoXeniumObject()` feature metadata reading for `.json` file
+* Update `runGiottoHarmony()` to call `harmony::RunHarmony()` 
+* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* may resolve issues with Matrix incompatibility.)
+
+
+
+
+# Giotto Suite 4.0.0 (2023/11/29)
 
 ## Breaking Changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
@@ -18,6 +39,7 @@
 
 ## Changes
 * Update *Matrix* requirement to >= 1.6.3
+
 
 
 # Giotto Suite 3.3.1 (2023/08/02)
@@ -59,13 +81,13 @@
 * Changed default verbose argument to FALSE for joinGiottoObjects
 * Changed default verbose argument to FALSE for createGiottoObjectSubcellular
 * Default verbose = FALSE argument added to cellProximityEnrichmentSpots
-* Default verbose = FALSE argument added to specific_CCCScores_spots
+* Default verbose = FALSE argument added to .specific_CCCScores_spots
 * Default verbose = FALSE argument added to runWNN
 * Default verbose = FALSE argument added to subset_giotto_points_object 
 * Default verbose = FALSE argument added to subset_feature_info_data 
 * Default verbose = FALSE argument added to subsetGiotto
 * Default verbose = FALSE argument added to subsetGiottoLocsSubcellular 
-* Default verbose = FALSE argument added to createGiottoXeniumObject_subcellular
+* Default verbose = FALSE argument added to .createGiottoXeniumObject_subcellular
 * Update `readPolygonFilesVizgenHDF5()` add option to return as `data.table` and skip `giottoPolygon` creation. Downstream `giottoPolygon` creation refactored as new internal function
 * Update cell segmentation workflow to check for *deepcell* and *PIL* python packages
 * Update cell segmentation workflow to return grayscale mask images instead of RGB
