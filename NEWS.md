@@ -13,7 +13,7 @@
 ## Changes
 * Fix `createGiottoXeniumObject()` feature metadata reading for `.json` file
 * Update `runGiottoHarmony()` to call `harmony::RunHarmony()` 
-* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* can resolve issues with Matrix incompatibility. See: https://github.com/bwlewis/irlba/issues/70)
+* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* may resolve issues with Matrix incompatibility.)
 
 
 
