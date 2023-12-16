@@ -7,22 +7,22 @@
 
 ### matrix processing ####
 
-#' @title mean_expr_det_test
+#' @title Mean expression detected test
 #' @param mymatrix matrix of expression info
 #' @param detection_threshold detection threshold. Defaults to 1 count.
 #' @keywords internal
-mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
+.mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
     detected_x = x[x > detection_threshold]
     mean(detected_x)
   }))
 }
 
-#' @title Normalize for library size
+#' @title Normalize expression matrix for library size
 #' @param mymatrix matrix object
 #' @param scalefactor scalefactor
 #' @keywords internal
-libNorm_giotto = function(mymatrix, scalefactor){
+.lib_norm_giotto = function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
@@ -36,9 +36,9 @@ libNorm_giotto = function(mymatrix, scalefactor){
   return(norm_expr)
 }
 
-#' @title logNorm_giotto
+#' @title Log normalize expression matrix
 #' @keywords internal
-logNorm_giotto = function(mymatrix, base, offset) {
+.log_norm_giotto = function(mymatrix, base, offset) {
 
   if(methods::is(mymatrix, 'DelayedArray')) {
     mymatrix = log(mymatrix + offset)/log(base)
@@ -87,10 +87,10 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @param fill_color fill color for plots
 #' @param scale_axis ggplot transformation for axis (e.g. log2)
 #' @param axis_offset offset to be used together with the scaling transformation
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{GiottoVisuals::all_plots_save_function}}
+#' @param show_plot logical. show plot
+#' @param return_plot logical. return ggplot object
+#' @param save_plot logical. directly save the plot
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function]
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @details
 #' There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
@@ -100,6 +100,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #'   \item{3. mean: calculate mean of the features, i.e. average expression}
 #' }
 #' @return ggplot object
+#' @md
 #' @export
 filterDistributions <- function(gobject,
                                 feat_type = NULL,
@@ -306,13 +307,13 @@ filterCombinations <- function(gobject,
 
   # compute the number of removed feats and cells
   result_list = list()
-  for(thresh_i in 1:length(expression_thresholds)) {
+  for(thresh_i in seq_along(expression_thresholds)) {
 
     threshold = expression_thresholds[thresh_i]
 
     det_feats_res = list()
     det_cells_res = list()
-    for(combn_i in 1:length(feat_det_in_min_cells)) {
+    for(combn_i in seq_along(feat_det_in_min_cells)) {
 
       min_cells_for_feat = feat_det_in_min_cells[combn_i]
       min_feats_per_cell = min_det_feats_per_cell[combn_i]
@@ -609,10 +610,10 @@ filterGiotto = function(gobject,
 
 
 #' @title RNA standard normalization
-#' @name rna_standard_normalization
+#' @name .rna_standard_normalization
 #' @description standard function for RNA normalization
 #' @keywords internal
-rna_standard_normalization = function(gobject,
+.rna_standard_normalization = function(gobject,
                                       raw_expr,
                                       feat_type,
                                       spat_unit,
@@ -645,7 +646,7 @@ rna_standard_normalization = function(gobject,
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = libNorm_giotto(mymatrix = raw_expr[],
+    norm_expr = .lib_norm_giotto(mymatrix = raw_expr[],
                                scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr[]
@@ -653,7 +654,7 @@ rna_standard_normalization = function(gobject,
 
   ## 2. lognormalize
   if(log_norm == TRUE) {
-    norm_expr = logNorm_giotto(mymatrix = norm_expr,
+    norm_expr = .log_norm_giotto(mymatrix = norm_expr,
                                base = logbase,
                                offset = log_offset)
   }
@@ -746,10 +747,10 @@ rna_standard_normalization = function(gobject,
 
 
 #' @title RNA osmfish normalization
-#' @name rna_osmfish_normalization
+#' @name .rna_osmfish_normalization
 #' @description function for RNA normalization according to osmFISH paper
 #' @keywords internal
-rna_osmfish_normalization = function(gobject,
+.rna_osmfish_normalization = function(gobject,
                                      raw_expr,
                                      feat_type,
                                      spat_unit,
@@ -786,11 +787,11 @@ rna_osmfish_normalization = function(gobject,
 
 
 #' @title RNA pearson residuals normalization
-#' @name rna_pears_resid_normalization
+#' @name .rna_pears_resid_normalization
 #' @description function for RNA normalization according to Lause/Kobak et al paper
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 #' @keywords internal
-rna_pears_resid_normalization = function(gobject,
+.rna_pears_resid_normalization = function(gobject,
                                          raw_expr,
                                          feat_type,
                                          spat_unit,
@@ -955,7 +956,7 @@ normalizeGiotto = function(gobject,
   # normalization according to standard methods
   if(norm_methods == 'standard') {
 
-    gobject = rna_standard_normalization(gobject = gobject,
+    gobject = .rna_standard_normalization(gobject = gobject,
                                          raw_expr = raw_expr,
                                          feat_type = feat_type,
                                          spat_unit = spat_unit,
@@ -974,7 +975,7 @@ normalizeGiotto = function(gobject,
 
   else if(norm_methods == 'osmFISH') {
 
-    gobject = rna_osmfish_normalization(gobject = gobject,
+    gobject = .rna_osmfish_normalization(gobject = gobject,
                                         raw_expr = raw_expr,
                                         feat_type = feat_type,
                                         spat_unit = spat_unit,
@@ -985,7 +986,7 @@ normalizeGiotto = function(gobject,
 
   else if(norm_methods == 'pearson_resid') {
 
-    gobject = rna_pears_resid_normalization(gobject = gobject,
+    gobject = .rna_pears_resid_normalization(gobject = gobject,
                                             raw_expr = raw_expr,
                                             feat_type = feat_type,
                                             spat_unit = spat_unit,
@@ -1269,7 +1270,7 @@ addFeatStatistics <- function(gobject,
   # data.table variables
   mean_expr_det = NULL
 
-  mean_expr_detected = mean_expr_det_test(expr_data[], detection_threshold = detection_threshold)
+  mean_expr_detected = .mean_expr_det_test(expr_data[], detection_threshold = detection_threshold)
   feat_stats[, mean_expr_det := mean_expr_detected]
 
 

@@ -4,12 +4,12 @@
 ### Image registration and creation of registered Giotto object ####
 
 
-#' @name trakem2_rigid_transf_extract
-#' @title trakem2_rigid_transf_extract
+#' @name .trakem2_rigid_transforms
+#' @title Read trakem2 rigid transforms
 #' @description Extract rigid registration transformation values from FIJI TrakEM2 xml file. Generated through register_virtual_stack_slices.
 #' @param inputstring string read in from TrakeEM2 xml file
 #' @keywords internal
-trakem2_rigid_transf_extract = function(inputstring) {
+.trakem2_rigid_transforms = function(inputstring) {
 
   #Catch wrong inputs
   if (grepl('^.*trakem2.*', inputstring, ignore.case = T) != 1) {
@@ -53,28 +53,25 @@ trakem2_rigid_transf_extract = function(inputstring) {
 
 
 
-#' @title rigid_transform_spatial_locations
-#' @name rigid_transform_spatial_locations
+#' @title Rigid transform spatial locations
+#' @name .rigid_transform_spatial_locations
 #' @description Performs appropriate transforms to align spatial locations with registered images.
 #' @param spatlocs input spatial locations
 #' @param transform_values transformation values to use
 #' @param method which method is used for image registration
 #' @keywords internal
 #Rotation is performed first, followed by XY transform.
-rigid_transform_spatial_locations = function(spatlocs,
-                                             transform_values,
-                                             method) {
+.rigid_transform_spatial_locations = function(spatlocs,
+                                              transform_values,
+                                              method) {
   if(method == 'fiji') {
     spatlocsXY = spatlocs[,c('sdimx','sdimy')]
     #These functions must be performed in positive y values
     spatlocsXY$sdimy = -1 * spatlocsXY$sdimy
 
-    spatlocsXY = rotate_spatial_locations(spatlocsXY,
-                                          transform_values$Theta)
-
-    spatlocsXY = shift_spatial_locations(spatlocs = spatlocsXY,
-                                         dx = transform_values$XFinalTransform,
-                                         dy = transform_values$YFinalTransform)
+    spatlocsXY <- spin(spatlocsXY, GiottoUtils::degrees(transform_values$Theta)) %>%
+      spatShift(dx = transform_values$XFinalTransform,
+                dy = transform_values$YFinalTransform)
 
     spatlocs$sdimx = spatlocsXY$sdimx
     spatlocs$sdimy = -1 * spatlocsXY$sdimy
@@ -83,11 +80,10 @@ rigid_transform_spatial_locations = function(spatlocs,
 
   } else if(method == 'rvision') {
 
-    spatLocsXY = spatlocs[,c('sdimx','sdimy')]
-    spatLocsXY = rotate_spatial_locations(spatLocsXY,acos(transform_values[1,1]))
-    spatLocsXY = shift_spatial_locations(spatlocs = spatLocsXY,
-                                         dx = -transform_values[1,3],
-                                         dy = -transform_values[2,3])
+    spatLocsXY = spatlocs[,c('sdimx','sdimy')] %>%
+      spin(GiottoUtils::degrees(acos(transform_values[1,1]))) %>%
+      spatShift(dx = -transform_values[1,3],
+                dy = -transform_values[2,3])
 
     spatlocs$sdimx = spatLocsXY[,1]
     spatlocs$sdimy = spatLocsXY[,2]
@@ -99,8 +95,8 @@ rigid_transform_spatial_locations = function(spatlocs,
   }
 }
 
-#' @title reg_img_minmax_finder
-#' @name reg_img_minmax_finder
+#' @title Find minmax of registered image
+#' @name .reg_img_minmax_finder
 #' @description finds new minmax boundaries of registration transformed images
 #' @param gobject_list list of gobjects to use
 #' @param image_unreg name of original unregistered images
@@ -110,7 +106,7 @@ rigid_transform_spatial_locations = function(spatlocs,
 #' @param method method of registration
 #' @keywords internal
 #Automatically account for changes in image size due to alignment
-reg_img_minmax_finder = function(gobject_list,
+.reg_img_minmax_finder = function(gobject_list,
                                  image_unreg = NULL,
                                  largeImage_unreg = NULL, #TODO Currently unused
                                  scale_factor,
@@ -120,12 +116,8 @@ reg_img_minmax_finder = function(gobject_list,
 
   #Find image spatial info from original image if possible
   #Check to make sure that image_unreg finds an existing image in each gobject to be registered
-  imgPresent = function(gobject,image,img_type) {
-    imgPresent = FALSE
-    if(image %in% list_images_names(gobject = gobject, img_type = img_type)) {
-      imgPresent = TRUE
-    }
-    return(imgPresent)
+  imgPresent = function(gobject, image, img_type) {
+    image %in% list_images_names(gobject = gobject, img_type = img_type)
   }
 
   if(!is.null(image_unreg)) img_type = 'image' #TODO needs reworking
@@ -134,30 +126,39 @@ reg_img_minmax_finder = function(gobject_list,
   if(all(as.logical(lapply(X = gobject_list, FUN = imgPresent, image = image_unreg, img_type = img_type)))) {
 
     giottoImage_list = lapply(X = gobject_list, FUN = get_giottoImage, name = image_unreg, image_type = img_type)
-    image_corners = lapply(giottoImage_list, get_img_corners)
+    image_corners = lapply(giottoImage_list, .get_img_corners)
 
     # Infer image corners of registered images PRIOR TO REGISTRATION
     # scale unreg_image corners to registered image (use reg_scalefactor/unreg_scalefactor as scale factor)
-    image_corners = lapply(1:length(gobject_list),
-                           function(x) {
-                             scale_spatial_locations(spatlocs = image_corners[[x]],
-                                                     scale_factor = (scale_factor[[x]]/giottoImage_list[[x]]@scale_factor))
-                           })
+    image_corners = lapply_flex(
+      seq_along(gobject_list),
+      function(x) {
+        rescale(
+          image_corners[[x]],
+          (scale_factor[[x]]/giottoImage_list[[x]]@scale_factor),
+          x0 = 0, y0 = 0)
+      }
+    )
 
     # register corners based on transform values (only possible at reg_image scaling)
-    image_corners_reg = lapply(1:length(image_corners),
-                               function(x) {
-                                 rigid_transform_spatial_locations(spatlocs = image_corners[[x]],
-                                                                   transform_values = transform_values[[x]],
-                                                                   method = method)
-                               })
+    image_corners_reg = lapply(
+      seq_along(image_corners),
+      function(x) {
+        .rigid_transform_spatial_locations(
+          spatlocs = image_corners[[x]],
+          transform_values = transform_values[[x]],
+          method = method
+        )
+      }
+    )
 
     # Return registered corners to spatloc scaling
-    image_corners_reg = lapply(1:length(image_corners_reg),
-                               function(x) {
-                                 scale_spatial_locations(spatlocs = image_corners_reg[[x]],
-                                                         scale_factor = (1/scale_factor[[x]]))
-                               })
+    image_corners_reg = lapply(
+      seq_along(image_corners_reg),
+      function(x) {
+        rescale(image_corners_reg[[x]], (1/scale_factor[[x]]), x0 = 0, y0 = 0)
+      }
+    )
 
     # combine list then find new image bound minmax
     image_corners_reg = do.call(rbind, image_corners_reg)
@@ -174,12 +175,12 @@ reg_img_minmax_finder = function(gobject_list,
 }
 
 
-#' @title get_img_corners
-#' @name get_img_corners
+#' @title Get image corners
+#' @name .get_img_corners
 #' @description finds four corner spatial coords of giottoImages or magick-images
 #' @param img_object giottoImage or magick-image to use
 #' @keywords internal
-get_img_corners = function(img_object) {
+.get_img_corners = function(img_object) {
   if(methods::is(img_object,'giottoImage')) {
     img_dims = get_img_minmax(img_object@mg_object)
   } else if(methods::is(img_object,'magick-image')) {
@@ -342,7 +343,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ## 1. Get spatial coordinates and put in lists #
   spatloc_list = list()
-  for(gobj_i in 1:length(gobject_list)) {
+  for(gobj_i in seq_along(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     spatloc = get_spatial_locations(gobject = gobj,
                                     spat_unit = spat_unit,
@@ -355,54 +356,54 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ## 2. read transform xml files into list ##
   transf_list = list()
-  for(file_i in 1:length(xml_files)) {
+  for(file_i in seq_along(xml_files)) {
     t_file = xml_files[[file_i]]
     #------ Put all transform files together
     transf_list[[file_i]] = paste(readLines(t_file, warn = F), collapse = '\n')
   }
 
   # Select useful info out of the TrakEM2 files
-  transformsDF = lapply(transf_list,
-                        FUN = trakem2_rigid_transf_extract)
-
+  transformsDF = lapply_flex(transf_list, .trakem2_rigid_transforms)
 
 
   ## 3. apply transformation on spatial locations ##
   # Scale by registered image's scale_factor
-  spatloc_list = lapply(1:length(spatloc_list),
-                        function(x) {
-                          scale_spatial_locations(spatlocs = spatloc_list[[x]],
-                                                  scale_factor = scale_list[x])
-                        })
+  spatloc_list = lapply_flex(
+    seq_along(spatloc_list),
+    function(x) {
+      rescale(spatloc_list[[x]], scale_list[x], x0 = 0, y0 = 0)
+    }
+  )
 
   # Register spatial locations
-  spatloc_list = lapply(1:length(spatloc_list),
+  spatloc_list = lapply(seq_along(spatloc_list),
                         function(x) {
-                          rigid_transform_spatial_locations(spatlocs = spatloc_list[[x]],
+                          .rigid_transform_spatial_locations(spatlocs = spatloc_list[[x]],
                                                             transform_values = transformsDF[[x]],
                                                             method = 'fiji')
                         })
 
   # Return scaling to spatloc original
-  spatloc_list = lapply(1:length(spatloc_list),
-                        function(x) {
-                          scale_spatial_locations(spatlocs = spatloc_list[[x]],
-                                                  scale_factor = 1/(scale_list[x]))
-                        })
+  spatloc_list = lapply_flex(
+    seq_along(spatloc_list),
+    function(x) {
+      rescale(spatloc_list[[x]], 1/(scale_list[x]), x0 = 0, y0 = 0)
+    }
+  )
 
   ## 4. update Giotto slots and names and return list of Giotto object
 
   #Find new image boundaries for registered images
   #Must have original pre-registration images in the gobject for this to work
   #TODO (optional if just registering spatlocs)
-  reg_img_boundaries = reg_img_minmax_finder(gobject_list = gobject_list,
+  reg_img_boundaries = .reg_img_minmax_finder(gobject_list = gobject_list,
                                              image_unreg = image_unreg,
                                              scale_factor = scale_list,
                                              transform_values = transformsDF,
                                              method = 'fiji')
 
   # Gobject updating for loop
-  for(gobj_i in 1:length(gobject_list)) {
+  for(gobj_i in seq_along(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
 
 
@@ -534,7 +535,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   ## 3. Perform preprocessing
   rows <- c()
   cols <- c()
-  for (image_i in 1:length(unreg_images)) {
+  for (image_i in seq_along(unreg_images)) {
     # Make images grayscale
     Rvision::changeColorSpace(unreg_images[[image_i]], colorspace = "GRAY", target = "self")
     # Retrieve image dimensions
@@ -547,7 +548,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   rm(dims, maxes)
 
   enddim <- 500
-  for (i in 1:length(unreg_images)) {
+  for (i in seq_along(unreg_images)) {
     # Add border so all images have same square dimensions
     Rvision::border(unreg_images[[i]], squmax-rows[[i]], 0, squmax-cols[[i]], 0, border_color = "white", target = "self")
     Rvision::border(color_images[[i]], squmax-rows[[i]], 0, squmax-cols[[i]], 0, border_color = "white", target = "self")
@@ -563,23 +564,23 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
 
   # Compute ECC transforms
   transfs <- base::vector(mode = "list", length = length(unreg_images))
-  for (i in 1:length(unreg_images)) {
+  for (i in seq_along(unreg_images)) {
     transfs[[i]] <- Rvision::findTransformECC(refImage, unreg_images[[i]], warp_mode = "euclidean", filt_size = 101)
   }
   rm(refImage)
 
   ## 5. Apply transform
   reg_images <- c()
-  for (i in 1:length(unreg_images)) {
+  for (i in seq_along(unreg_images)) {
     # Apply scaling
-    spatloc_list[[i]][] <- scale_spatial_locations(spatloc_list[[i]][], enddim/squmax)
+    spatloc_list[[i]][] <- rescale(spatloc_list[[i]][], enddim/squmax, x0 = 0, y0 = 0)
     # Apply transform to spatlocs
-    spatloc_list[[i]][] <- rigid_transform_spatial_locations(spatloc_list[[i]][], transfs[[i]], method = 'rvision')
+    spatloc_list[[i]][] <- .rigid_transform_spatial_locations(spatloc_list[[i]][], transfs[[i]], method = 'rvision')
   }
   rm(squmax, enddim)
 
   ## 6. Update giotto object
-  for(gobj_i in 1:length(gobject_list)) {
+  for(gobj_i in seq_along(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     #Rename original spatial locations to 'unregistered'
 
@@ -607,11 +608,11 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   if (!is.null(save_dir)) {
     # Apply transform to image
     transf_images <- c()
-    for (i in 1:length(unreg_images)) {
+    for (i in seq_along(unreg_images)) {
       transf_images <- append(transf_images, Rvision::warpAffine(color_images[[i]], transfs[[i]], target = "new"), length(transf_images))
     }
     # Save images to save directory
-    for(image_i in 1:length(transf_images)) {
+    for(image_i in seq_along(transf_images)) {
       name <- paste(save_dir, image_i, ".jpg")
       Rvision::write.Image(transf_images[[image_i]], name)
     }
@@ -819,6 +820,33 @@ registerImagesFIJI = function(source_img_dir,
 }
 
 
+
+
+#' @name parse_affine
+#' @title Read affine matrix for linear transforms
+#' @description Affine transforms are linear transformations that cover scaling,
+#' rotation, shearing, and translations. They can be represented as matrices of
+#' 2x3 or 3x3 values. This function reads the matrix and extracts the values
+#' needed to perform them.
+#' @param x object coercible to matrix with a 2x3 or 3x3 affine matrix
+#' @return a list of transforms information.
+#' @keywords internal
+parse_affine <- function(x) {
+  x <- as.matrix(x)
+  scale_x <- x[[1, 1]]
+  shear_x <- x[[1, 2]]
+  translate_x <- x[[1, 3]]
+  scale_y <- x[[2, 2]]
+  shear_y <- x[[2, 1]]
+  translate_y <- x[[2, 3]]
+
+  list(
+    scale = c(x = scale_x, y = scale_y),
+    rotate = atan(shear_x/scale_x) + atan(shear_y/scale_y),
+    shear = c(x = shear_x, y = shear_y),
+    translate = c(x = translate_x, y = translate_y)
+  )
+}
 
 
 #TODO - merge jython function into normal register FIJI

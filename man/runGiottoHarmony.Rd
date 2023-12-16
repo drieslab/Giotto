@@ -17,6 +17,8 @@ runGiottoHarmony(
   dimensions_to_use = 1:10,
   name = NULL,
   feats_to_use = NULL,
+  set_seed = TRUE,
+  seed_number = 1234,
   toplevel_params = 2,
   return_gobject = TRUE,
   verbose = NULL,
@@ -48,6 +50,10 @@ remove (character vector).}
 \item{name}{arbitrary name for Harmony run}
 
 \item{feats_to_use}{if dim_reduction_to_use = NULL, which feats to use}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 
 \item{toplevel_params}{parameters to extract}
 

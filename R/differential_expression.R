@@ -914,7 +914,7 @@ findMastMarkers_one_vs_all = function(gobject,
   # save list
   result_list = list()
 
-  for(clus_i in 1:length(uniq_clusters)) {
+  for(clus_i in seq_along(uniq_clusters)) {
 
     selected_clus = uniq_clusters[clus_i]
     other_clus = uniq_clusters[uniq_clusters != selected_clus]

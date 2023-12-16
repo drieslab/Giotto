@@ -73,8 +73,7 @@ doScrubletDetect = function(gobject,
   scr_input = expr_values
   scr_input = as.matrix(scr_input)
   scr_input = t_flex(scr_input)
-  scr_input = evaluate_expr_matrix(inputmatrix = scr_input,
-                                            sparse = TRUE)
+  scr_input <- evaluate_input(type = 'expression', x = scr_input, sparse = TRUE)
 
   scrublet_out = python_scrublet(counts_matrix = scr_input,
                                  expected_doublet_rate = expected_doublet_rate,

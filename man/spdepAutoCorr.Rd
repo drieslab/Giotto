@@ -29,6 +29,9 @@ Available methods include \code{"geary.test", "lee.test", "lm.morantest","moran.
 
 \item{spatial_network_to_use}{spatial network to use, default = spatial_network}
 
+\item{return_gobject}{if FALSE, results are returned as data.table.
+If TRUE, values will be appended to feature metadata}
+
 \item{verbose}{be verbose}
 }
 \value{
