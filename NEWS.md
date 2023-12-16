@@ -1,6 +1,6 @@
 
 
-# Giotto Suite 4.0.1 (release TBD)
+# Giotto Suite 4.0.1 (2023/12/16)
 
 ## Breaking Changes
 * Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
