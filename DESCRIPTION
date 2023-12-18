@@ -89,6 +89,7 @@ Suggests:
     hdf5r,
     htmlwidgets,
     jackstraw,
+    kableExtra,
     knitr,
     MAST,
     miniUI,
