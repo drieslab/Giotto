@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -391,7 +392,7 @@ provided instructions.</p>
 <span><span class="va">my_gobject</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createGiottoObject.html">createGiottoObject</a></span><span class="op">(</span>expression <span class="op">=</span> <span class="va">osm_exprs</span>,</span>
 <span>                                spatial_locs <span class="op">=</span> <span class="va">osm_locs</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">meta_path</span><span class="op">)</span></span>
+<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">meta_path</span><span class="op">)</span></span>
 <span><span class="va">my_gobject</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addCellMetadata.html">addCellMetadata</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
 <span>                             new_metadata <span class="op">=</span> <span class="va">metadata</span>,</span>
 <span>                             by_column <span class="op">=</span> <span class="cn">T</span>, </span>
@@ -410,14 +411,14 @@ the current working directory:</p>
 <span><span class="co"># This function serves only to ensure the following lines run consecutively.</span></span>
 <span><span class="va">save_pdf_plot</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span><span class="op">{</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">save_path</span>, width <span class="op">=</span> <span class="fl">7</span>, height <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
-<span>  <span class="va">pl</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span><span class="op">)</span></span>
+<span>  <span class="va">pl</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu">save_pdf_plot</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">### Plot clusters, edit plot object, then save using the ggplot add-on, cowplot:</span></span>
-<span><span class="va">mypl</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">my_gobject</span>, </span>
+<span><span class="va">mypl</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">my_gobject</span>, </span>
 <span>                cell_color <span class="op">=</span> <span class="st">'ClusterName'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/saving_plots/unnamed-chunk-3-1.png"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -447,7 +448,7 @@ is not specified within <strong>giottoInstructions</strong>. See the <a href="ht
 documentation</a> and <a href="./getting_started_gobject.html">Giotto
 Object</a> for default arguments and more details.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'ClusterName'</span>, </span>
 <span>         save_plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/saving_plots/unnamed-chunk-4-1.png"></p>
@@ -469,7 +470,7 @@ available parameters.</p>
 <span><span class="va">results_directory</span> <span class="op">=</span>  <span class="st">'my_subfolder/'</span></span>
 <span></span>
 <span><span class="co"># Plot clusters, create, and save to a new subdirectory with specifications above.</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'ClusterName'</span>, </span>
 <span>         save_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         return_plot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -489,7 +490,7 @@ more details.</p>
 <p>Set both <em>save_plot</em> and <em>return_plot</em> to FALSE.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot without saving</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'ClusterName'</span>, </span>
 <span>         save_plot <span class="op">=</span> <span class="cn">FALSE</span>, return_plot <span class="op">=</span> <span class="cn">FALSE</span>, show_plot <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/saving_plots/unnamed-chunk-6-1.png"></p>
@@ -501,7 +502,7 @@ more details.</p>
 more details.</p>
 <p>Set show_plot and return_plot to FALSE, set save_plot to TRUE.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">my_gobject</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'ClusterName'</span>, </span>
 <span>         save_plot <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>         return_plot <span class="op">=</span> <span class="cn">FALSE</span>, </span>

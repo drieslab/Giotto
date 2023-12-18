@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -415,7 +416,7 @@ to streamline the download.</p>
 <span></span>
 <span></span>
 <span><span class="co"># Add additional metadata</span></span>
-<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">meta_path</span><span class="op">)</span></span>
+<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">meta_path</span><span class="op">)</span></span>
 <span><span class="va">merFISH_gobject</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addCellMetadata.html">addCellMetadata</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, </span>
 <span>                                  new_metadata <span class="op">=</span> <span class="va">metadata</span><span class="op">$</span><span class="va">layer_ID</span>, </span>
 <span>                                  vector_name <span class="op">=</span> <span class="st">'layer_ID'</span><span class="op">)</span></span>
@@ -460,11 +461,11 @@ to streamline the download.</p>
 <p>Now, take a glance at the data in both 2D and 3D.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 2D</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/3-spatPlot2D.png"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3D</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.25</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.25</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/4-spat3D.png"></p>
 </div>
 <div class="section level2">
@@ -489,7 +490,7 @@ visualized upon it.</p>
 <span>                           n_components <span class="op">=</span> <span class="fl">3</span>, </span>
 <span>                           n_threads <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/6-UMAP_3D.png"></p>
 </div>
 <div class="section level2">
@@ -508,7 +509,7 @@ clusters may be visualized on a UMAP.</p>
 <span>                                   n_iterations <span class="op">=</span> <span class="fl">200</span>,</span>
 <span>                                   name <span class="op">=</span> <span class="st">'leiden_0.2_200'</span><span class="op">)</span></span>
 <span><span class="co"># Plot the clusters upon the UMAP</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, </span>
 <span>            cell_color <span class="op">=</span> <span class="st">'leiden_0.2_200'</span>, </span>
 <span>            point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
 <span>            show_center_label <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
@@ -519,7 +520,7 @@ clusters may be visualized on a UMAP.</p>
 </h2>
 <p>View the clusters in-tissue on each layer.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, </span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'leiden_0.2_200'</span>, </span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, </span>
@@ -546,11 +547,11 @@ across clusters within the violin plot.</p>
 <span></span>
 <span><span class="co"># violinplot</span></span>
 <span><span class="va">topgini_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.2_200'</span>, strip_position <span class="op">=</span> <span class="st">'right'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.2_200'</span>, strip_position <span class="op">=</span> <span class="st">'right'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/9-violinPlot.png"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">topgini_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">6</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_0.2_200'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/10-plotMetaDataHeatmap.png"></p>
@@ -569,7 +570,7 @@ identify cell type for each cluster.</p>
 <span><span class="va">gobject_cell_metadata</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/pDataDT.html">pDataDT</a></span><span class="op">(</span><span class="va">merFISH_gobject</span><span class="op">)</span></span>
 <span><span class="va">cluster_order</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">gobject_cell_metadata</span><span class="op">$</span><span class="va">leiden_0.2_200</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_0.2_200'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">selected_genes</span>,</span>
 <span>                    custom_feat_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">selected_genes</span><span class="op">)</span>,</span>
@@ -595,7 +596,7 @@ these will appear in <em>cell_metadata</em> within the
 <span>                                 name <span class="op">=</span> <span class="st">'cell_types'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## show heatmap</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, </span>
 <span>                    expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'cell_types'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">selected_genes</span>,</span>
@@ -613,19 +614,19 @@ these will appear in <em>cell_metadata</em> within the
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mycolorcode</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Inhibitory'</span>, <span class="st">'Excitatory'</span>,<span class="st">'OD Mature'</span>, <span class="st">'OD Immature'</span>, </span>
 <span>                       <span class="st">'Astrocyte'</span>, <span class="st">'Microglia'</span>, <span class="st">'Ependymal'</span>,<span class="st">'Endothelial'</span>, <span class="st">'Ambiguous'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>, </span>
 <span>            cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, </span>
 <span>            point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
 <span>            cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/13-UMAP_3D.png"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/14-spat3D.png"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/15-spatPlot2D.png"></p>
@@ -633,14 +634,14 @@ these will appear in <em>cell_metadata</em> within the
 <h3 id="excitatory-cells-only">Excitatory Cells Only<a class="anchor" aria-label="anchor" href="#excitatory-cells-only"></a>
 </h3>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="st">'Excitatory'</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/16-spat3D.png"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="st">'Excitatory'</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -650,14 +651,14 @@ these will appear in <em>cell_metadata</em> within the
 <h3 id="inhibitory-cells-only">Inhibitory Cells Only<a class="anchor" aria-label="anchor" href="#inhibitory-cells-only"></a>
 </h3>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="st">'Inhibitory'</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/18-spat3D.png"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="st">'Inhibitory'</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -667,14 +668,14 @@ these will appear in <em>cell_metadata</em> within the
 <h3 id="od-and-astrocytes-only">OD and Astrocytes Only<a class="anchor" aria-label="anchor" href="#od-and-astrocytes-only"></a>
 </h3>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Astrocyte'</span>, <span class="st">'OD Mature'</span>, <span class="st">'OD Immature'</span><span class="op">)</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/20-spat3D.png"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Astrocyte'</span>, <span class="st">'OD Mature'</span>, <span class="st">'OD Immature'</span><span class="op">)</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -684,14 +685,14 @@ these will appear in <em>cell_metadata</em> within the
 <h3 id="other-cells-only">Other Cells Only<a class="anchor" aria-label="anchor" href="#other-cells-only"></a>
 </h3>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">merFISH_gobject</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Microglia'</span>, <span class="st">'Ependymal'</span>, <span class="st">'Endothelial'</span><span class="op">)</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/merfish_mouse_hypothalamic/22-spat3D.png"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">merFISH_gobject</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Microglia'</span>, <span class="st">'Ependymal'</span>, <span class="st">'Endothelial'</span><span class="op">)</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

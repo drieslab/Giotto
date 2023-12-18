@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -333,9 +334,46 @@
 <p>We plan to curate an ecosystem of different, related packages to
 modularize Giotto Suite as we extend its functionalities. Here, we
 detail some different helper module(s) within the Giotto Ecosystem.</p>
+<p><img src="images/ecosystem/modules.png" width="60%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
-<h2 id="giottodata">2. GiottoData<a class="anchor" aria-label="anchor" href="#giottodata"></a>
+<h2 id="giottoclass">2. GiottoClass<a class="anchor" aria-label="anchor" href="#giottoclass"></a>
+</h2>
+<p>This package contains the Giotto object and subobject class
+definitions and frameworks. Functionalities relating to data ingestion,
+basic object creation, data access within the Giotto object, and
+generics defined for the Giotto classes are all found here.</p>
+<p>Applications of this framework and convenience functions for loading
+specific technologies are found in the base Giotto package.</p>
+<p>Find more information <a href="https://drieslab.github.io/GiottoClass/">here</a></p>
+<p>To install GiottoClass run:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'drieslab/GiottoClass'</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="giottoutils">3. GiottoUtils<a class="anchor" aria-label="anchor" href="#giottoutils"></a>
+</h2>
+<p>GiottoUtils exports functionalities that are called internally by
+many of the other packages in the Giotto ecosystem. These range from
+things such as commonly used imports to pretty prints. Users should not
+need to directly interact with this package.</p>
+<p>Find more information <a href="https://drieslab.github.io/GiottoUtils/">here</a></p>
+<p>To install GiottoUtils run:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'drieslab/GiottoUtils'</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="giottovisuals">4. GiottoVisuals<a class="anchor" aria-label="anchor" href="#giottovisuals"></a>
+</h2>
+<p>GiottoVisuals contains the main plotting functions of Giotto
+Suite</p>
+<p>Find more information <a href="https://drieslab.github.io/GiottoVisuals/">here</a></p>
+<p>To install GiottoVisuals run:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'drieslab/GiottoVisuals'</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="giottodata">5. GiottoData<a class="anchor" aria-label="anchor" href="#giottodata"></a>
 </h2>
 <p>This package depends on Giotto Suite and leverages various functions
 within it for saving and loading Giotto objects. It contains dataset
@@ -350,20 +388,20 @@ Objects which are derived from Vizgen and Visium data; more mini Giotto
 Objects will be published in the future. Further, we include mini
 objects, S4 subobjects of a Giotto Object (i.e. exprObj), in an effort
 to make the Giotto Object structure as transparent as possible.</p>
-<p>GiottoData may be downloaded in a similar fashion to Giotto
-Suite:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"drieslab/GiottoData"</span><span class="op">)</span></span></code></pre></div>
+<p>Find more information <a href="https://drieslab.github.io/GiottoData/">here</a></p>
+<p>To install GiottoData run:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'drieslab/GiottoData'</span><span class="op">)</span></span></code></pre></div>
 <p>The scripts used to create both the mini giotto objects and mini
 objects are available in the repository so that we may extend and/or
 improve them and that you may utilize them for your own purposes!</p>
 <div class="section level3">
-<h3 id="start-giotto">2.1 Start Giotto<a class="anchor" aria-label="anchor" href="#start-giotto"></a>
+<h3 id="start-giotto">5.1 Start Giotto<a class="anchor" aria-label="anchor" href="#start-giotto"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ensure Giotto Suite is installed</span></span>
 <span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="st">"Giotto"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"drieslab/Giotto@suite"</span><span class="op">)</span></span>
+<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"drieslab/Giotto@suite_modular"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://drieslab.github.io/Giotto/">Giotto</a></span><span class="op">)</span></span>
@@ -383,48 +421,67 @@ improve them and that you may utilize them for your own purposes!</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="create-a-giotto-object">2.2 Create a Giotto object<a class="anchor" aria-label="anchor" href="#create-a-giotto-object"></a>
+<h3 id="create-a-giotto-object">5.2 Create a Giotto object<a class="anchor" aria-label="anchor" href="#create-a-giotto-object"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">visium_mini</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoData/reference/loadGiottoMini.html">loadGiottoMini</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">'visium'</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="session-info">3. Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+<h2 id="session-info">6. Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>    R version <span class="dv">4</span>.<span class="fl">2.2</span> (<span class="dv">2022-10-31</span> ucrt)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    Platform<span class="sc">:</span> x86_64<span class="sc">-</span>w64<span class="sc">-</span>mingw32<span class="sc">/</span><span class="fu">x64</span> (<span class="dv">64</span><span class="sc">-</span>bit)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    Running under<span class="sc">:</span> Windows <span class="dv">10</span> <span class="fu">x64</span> (build <span class="dv">22621</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    Matrix products<span class="sc">:</span> default</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>    locale<span class="sc">:</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    [<span class="dv">1</span>] LC_COLLATE<span class="ot">=</span>English_United States.utf8 </span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>    [<span class="dv">2</span>] LC_CTYPE<span class="ot">=</span>English_United States.utf8   </span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    [<span class="dv">3</span>] LC_MONETARY<span class="ot">=</span>English_United States.utf8</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    [<span class="dv">4</span>] LC_NUMERIC<span class="ot">=</span>C                          </span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    [<span class="dv">5</span>] LC_TIME<span class="ot">=</span>English_United States.utf8    </span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    attached base packages<span class="sc">:</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    [<span class="dv">1</span>] stats     graphics  grDevices utils     datasets  methods   base     </span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    other attached packages<span class="sc">:</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    [<span class="dv">1</span>] GiottoData_0.<span class="fl">1.0</span> Giotto_3.<span class="fl">2.1</span>    </span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    loaded via a <span class="fu">namespace</span> (and not attached)<span class="sc">:</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>     [<span class="dv">1</span>] Rcpp_1.<span class="fl">0.10</span>       pillar_1.<span class="fl">9.0</span>      compiler_4.<span class="fl">2.2</span>    tools_4.<span class="fl">2.2</span>      </span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>     [<span class="dv">5</span>] digest_0.<span class="fl">6.30</span>     jsonlite_1.<span class="fl">8.3</span>    evaluate_0<span class="fl">.20</span>     lifecycle_1.<span class="fl">0.3</span>  </span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>     [<span class="dv">9</span>] tibble_3.<span class="fl">2.1</span>      gtable_0.<span class="fl">3.3</span>      lattice_0<span class="fl">.20</span><span class="dv">-45</span>   png_0<span class="fl">.1</span><span class="dv">-7</span>        </span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>    [<span class="dv">13</span>] pkgconfig_2.<span class="fl">0.3</span>   rlang_1.<span class="fl">1.0</span>       Matrix_1<span class="fl">.5</span><span class="dv">-1</span>      cli_3.<span class="fl">4.1</span>        </span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>    [<span class="dv">17</span>] rstudioapi_0<span class="fl">.14</span>   parallel_4.<span class="fl">2.2</span>    yaml_2.<span class="fl">3.7</span>        xfun_0<span class="fl">.38</span>        </span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>    [<span class="dv">21</span>] fastmap_1.<span class="fl">1.0</span>     terra_1<span class="fl">.7</span><span class="dv">-18</span>      dplyr_1.<span class="fl">1.1</span>       knitr_1<span class="fl">.42</span>       </span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>    [<span class="dv">25</span>] rappdirs_0.<span class="fl">3.3</span>    generics_0.<span class="fl">1.3</span>    vctrs_0.<span class="fl">6.1</span>       grid_4.<span class="fl">2.2</span>       </span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>    [<span class="dv">29</span>] tidyselect_1.<span class="fl">2.0</span>  reticulate_1<span class="fl">.26</span>   glue_1.<span class="fl">6.2</span>        data.table_1.<span class="fl">14.6</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>    [<span class="dv">33</span>] R6_2.<span class="fl">5.1</span>          fansi_1.<span class="fl">0.4</span>       rmarkdown_2<span class="fl">.21</span>    ggplot2_3.<span class="fl">4.1</span>    </span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>    [<span class="dv">37</span>] magrittr_2.<span class="fl">0.3</span>    scales_1.<span class="fl">2.1</span>      codetools_0<span class="fl">.2</span><span class="dv">-18</span>  htmltools_0.<span class="fl">5.4</span>  </span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>    [<span class="dv">41</span>] colorspace_2<span class="fl">.1</span><span class="dv">-0</span>  utf8_1.<span class="fl">2.3</span>        munsell_0.<span class="fl">5.0</span>    </span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">3.1</span> (<span class="dv">2023-06-16</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>Platform<span class="sc">:</span> aarch64<span class="sc">-</span>apple<span class="sc">-</span><span class="fu">darwin20</span> (<span class="dv">64</span><span class="sc">-</span>bit)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>Running under<span class="sc">:</span> macOS Sonoma <span class="dv">14</span>.<span class="fl">1.2</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>Matrix products<span class="sc">:</span> default</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>BLAS<span class="sc">:</span>   <span class="er">/</span>System<span class="sc">/</span>Library<span class="sc">/</span>Frameworks<span class="sc">/</span>Accelerate.framework<span class="sc">/</span>Versions<span class="sc">/</span>A<span class="sc">/</span>Frameworks<span class="sc">/</span>vecLib.framework<span class="sc">/</span>Versions<span class="sc">/</span>A<span class="sc">/</span>libBLAS.dylib </span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>LAPACK<span class="sc">:</span> <span class="er">/</span>Library<span class="sc">/</span>Frameworks<span class="sc">/</span>R.framework<span class="sc">/</span>Versions<span class="sc">/</span><span class="fl">4.3</span><span class="sc">-</span>arm64<span class="sc">/</span>Resources<span class="sc">/</span>lib<span class="sc">/</span>libRlapack.dylib;  LAPACK version <span class="dv">3</span>.<span class="fl">11.0</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>locale<span class="sc">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>[<span class="dv">1</span>] en_US.UTF<span class="dv">-8</span><span class="sc">/</span>en_US.UTF<span class="dv">-8</span><span class="sc">/</span>en_US.UTF<span class="dv">-8</span><span class="sc">/</span>C<span class="sc">/</span>en_US.UTF<span class="dv">-8</span><span class="sc">/</span>en_US.UTF<span class="dv">-8</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>time zone<span class="sc">:</span> America<span class="sc">/</span>New_York</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>tzcode source<span class="sc">:</span> internal</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>attached base packages<span class="sc">:</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>[<span class="dv">1</span>] stats     graphics  grDevices utils     datasets  methods  </span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>[<span class="dv">7</span>] base     </span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>other attached packages<span class="sc">:</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>[<span class="dv">1</span>] GiottoData_0.<span class="dv">2</span>.<span class="fl">6.1</span>  Giotto_4.<span class="fl">0.0</span>        GiottoVisuals_0.<span class="fl">1.0</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>[<span class="dv">4</span>] GiottoClass_0.<span class="fl">1.0</span>   GiottoUtils_0.<span class="fl">1.0</span>  </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>loaded via a <span class="fu">namespace</span> (and not attached)<span class="sc">:</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a> [<span class="dv">1</span>] utf8_1.<span class="fl">2.4</span>          generics_0.<span class="fl">1.3</span>     </span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a> [<span class="dv">3</span>] lattice_0<span class="fl">.22</span><span class="dv">-5</span>      digest_0.<span class="fl">6.33</span>      </span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a> [<span class="dv">5</span>] magrittr_2.<span class="fl">0.3</span>      evaluate_0<span class="fl">.23</span>      </span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a> [<span class="dv">7</span>] grid_4.<span class="fl">3.1</span>          fastmap_1.<span class="fl">1.1</span>      </span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a> [<span class="dv">9</span>] jsonlite_1.<span class="fl">8.7</span>      Matrix_1<span class="fl">.6</span><span class="dv">-4</span>       </span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>[<span class="dv">11</span>] backports_1.<span class="fl">4.1</span>     fansi_1.<span class="fl">0.5</span>        </span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>[<span class="dv">13</span>] scales_1.<span class="fl">3.0</span>        codetools_0<span class="fl">.2</span><span class="dv">-19</span>   </span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>[<span class="dv">15</span>] cli_3.<span class="fl">6.1</span>           rlang_1.<span class="fl">1.2</span>        </span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>[<span class="dv">17</span>] XVector_0.<span class="fl">42.0</span>      Biobase_2.<span class="fl">60.0</span>     </span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>[<span class="dv">19</span>] munsell_0.<span class="fl">5.0</span>       withr_2.<span class="fl">5.2</span>        </span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>[<span class="dv">21</span>] colorRamp2_0.<span class="fl">1.0</span>    tools_4.<span class="fl">3.1</span>        </span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>[<span class="dv">23</span>] parallel_4.<span class="fl">3.1</span>      checkmate_2.<span class="fl">3.0</span>    </span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>[<span class="dv">25</span>] dplyr_1.<span class="fl">1.4</span>         colorspace_2<span class="fl">.1</span><span class="dv">-0</span>   </span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>[<span class="dv">27</span>] ggplot2_3.<span class="fl">4.4</span>       BiocGenerics_0.<span class="fl">48.1</span></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>[<span class="dv">29</span>] reticulate_1.<span class="fl">34.0</span>   png_0<span class="fl">.1</span><span class="dv">-8</span>          </span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>[<span class="dv">31</span>] vctrs_0.<span class="fl">6.5</span>         R6_2.<span class="fl">5.1</span>           </span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a>[<span class="dv">33</span>] stats4_4.<span class="fl">3.1</span>        lifecycle_1.<span class="fl">0.4</span>    </span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a>[<span class="dv">35</span>] zlibbioc_1.<span class="fl">48.0</span>     S4Vectors_0.<span class="fl">40.2</span>   </span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a>[<span class="dv">37</span>] IRanges_2.<span class="fl">36.0</span>      pkgconfig_2.<span class="fl">0.3</span>    </span>
+<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a>[<span class="dv">39</span>] terra_1<span class="fl">.7</span><span class="dv">-55</span>        pillar_1.<span class="fl">9.0</span>       </span>
+<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a>[<span class="dv">41</span>] gtable_0.<span class="fl">3.4</span>        data.table_1.<span class="fl">14.8</span>  </span>
+<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a>[<span class="dv">43</span>] glue_1.<span class="fl">6.2</span>          Rcpp_1.<span class="fl">0.11</span>        </span>
+<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a>[<span class="dv">45</span>] xfun_0<span class="fl">.41</span>           tibble_3.<span class="fl">2.1</span>       </span>
+<span id="cb8-47"><a href="#cb8-47" tabindex="-1"></a>[<span class="dv">47</span>] tidyselect_1.<span class="fl">2.0</span>    rstudioapi_0.<span class="fl">15.0</span>  </span>
+<span id="cb8-48"><a href="#cb8-48" tabindex="-1"></a>[<span class="dv">49</span>] knitr_1<span class="fl">.45</span>          igraph_1.<span class="fl">5.1</span>       </span>
+<span id="cb8-49"><a href="#cb8-49" tabindex="-1"></a>[<span class="dv">51</span>] htmltools_0.<span class="fl">5.7</span>     rmarkdown_2<span class="fl">.25</span>     </span>
+<span id="cb8-50"><a href="#cb8-50" tabindex="-1"></a>[<span class="dv">53</span>] compiler_4.<span class="fl">3.1</span>     </span></code></pre></div>
 </div>
   </div>
 

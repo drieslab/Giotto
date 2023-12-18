@@ -18,7 +18,7 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -34,15 +34,6 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -177,7 +168,15 @@ object."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mat
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Spatial manipulation</li>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    <li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
     </li>
@@ -272,7 +271,7 @@ object.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">createGiottoMerscopeObject_subcellular</span><span class="op">(</span></span>
+<span><span class="fu">.createGiottoMerscopeObject_subcellular</span><span class="op">(</span></span>
 <span>  <span class="va">data_list</span>,</span>
 <span>  calculate_overlap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overlap_to_matrix <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -283,7 +282,7 @@ object.</p>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">createGiottoMerscopeObject_aggregate</span><span class="op">(</span><span class="va">data_list</span>, cores <span class="op">=</span> <span class="cn">NA</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">.createGiottoMerscopeObject_aggregate</span><span class="op">(</span><span class="va">data_list</span>, cores <span class="op">=</span> <span class="cn">NA</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -353,8 +352,8 @@ where the <strong>bolded</strong> portions are what this function matches agains
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>createGiottoMerscopeObject_subcellular()</code>: Create giotto object with 'subcellular' workflow</p></li>
-<li><p><code>createGiottoMerscopeObject_aggregate()</code>: Create giotto object with 'aggregate' workflow</p></li>
+<ul><li><p><code>.createGiottoMerscopeObject_subcellular()</code>: Create giotto object with 'subcellular' workflow</p></li>
+<li><p><code>.createGiottoMerscopeObject_aggregate()</code>: Create giotto object with 'aggregate' workflow</p></li>
 </ul></div>
 
   </div>

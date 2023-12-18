@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -364,14 +365,14 @@ cells/spots or show the tissue image in the background.</p>
 coloring the cells/spots using the cell_color argument.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Plot spatial cells/spots</span></span>
-<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium_brain</span>,</span>
+<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium_brain</span>,</span>
 <span>                          cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>                          point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>                          point_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>                          show_image <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Plot spatial cells/spots with tissue on the background</span></span>
-<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium_brain</span>,</span>
+<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium_brain</span>,</span>
 <span>                          point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>                          point_alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                          show_image <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -515,7 +516,7 @@ region. Also, you can color each cell by cluster, cell type or
 expression level.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Compare clusters within each region</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">visium_brain</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">visium_brain</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'selections'</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -525,7 +526,7 @@ expression level.</p>
 <p><img src="images/interactive_selection/14-compare_spatplots.png"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Compare expression levels between regions</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">visium_brain</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">visium_brain</span>,</span>
 <span>               expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>               group_by <span class="op">=</span> <span class="st">'selections'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="st">'Psd'</span>,</span>

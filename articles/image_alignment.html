@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -560,7 +561,7 @@ will be plotted.</p>
 <span>                                          instructions <span class="op">=</span> <span class="va">instrs</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># visualize spots that are in tissue</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">FFPE_prostate</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">FFPE_prostate</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
 <span>           save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'high_res_IT'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -782,7 +783,7 @@ values.</em> <em>These values (Boundary adjustment) default to
 <span><span class="va">FFPE_prostate</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addGiottoImage.html">addGiottoImage</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>, </span>
 <span>                              images <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lowResG_img</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
 <span>          show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>          image_name <span class="op">=</span> <span class="st">"low_res"</span>,</span>
 <span>          cell_color <span class="op">=</span> <span class="st">"in_tissue"</span>,</span>
@@ -820,7 +821,7 @@ do not match up with the spatial coordinates for some reason.</p>
 <code class="sourceCode R"><span><span class="va">FFPE_prostate</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addGiottoImage.html">addGiottoImage</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>, </span>
 <span>                               images <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lowResG_img_update_manual</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="st">"low_res_update_manual"</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">"in_tissue"</span>,</span>
@@ -845,7 +846,7 @@ do not match up with the spatial coordinates for some reason.</p>
 <code class="sourceCode R"><span><span class="va">FFPE_prostate</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addGiottoImage.html">addGiottoImage</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>, </span>
 <span>                               images <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lowResG_img_to_update</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="st">"low_res_to_update"</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">"in_tissue"</span>,</span>
@@ -860,7 +861,7 @@ do not match up with the spatial coordinates for some reason.</p>
 <span>                                  ymin_adj <span class="op">=</span> <span class="fl">2078</span>,</span>
 <span>                                  ymax_adj <span class="op">=</span> <span class="fl">3682</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">FFPE_prostate</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="st">"low_res_to_update"</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">"in_tissue"</span>,</span>

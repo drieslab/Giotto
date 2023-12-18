@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -430,7 +431,7 @@ and/or z-scores)</li>
 <span><span class="va">visium</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/subsetGiotto.html">subsetGiotto</a></span><span class="op">(</span><span class="va">visium</span>, cell_ids <span class="op">=</span> <span class="va">in_tissue_barcodes</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Visualize aligned tissue</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>           point_alpha <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_cytassist_human_glioblastoma/1-spatPlot2D.png"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -451,7 +452,7 @@ and/or z-scores)</li>
 <span><span class="va">visium</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/addStatistics.html">addStatistics</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">### Visualize number of features after processing</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>           point_alpha <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'nr_feats'</span>,</span>
 <span>           color_as_factor <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -478,7 +479,7 @@ and/or z-scores)</li>
 <span>                        feat_type <span class="op">=</span> <span class="st">'protein'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">### Visualize number of features after processing </span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>           spat_unit <span class="op">=</span> <span class="st">'cell'</span>, </span>
 <span>           feat_type <span class="op">=</span> <span class="st">'protein'</span>, </span>
 <span>           point_alpha <span class="op">=</span> <span class="fl">0.7</span>, </span>
@@ -503,7 +504,7 @@ and/or z-scores)</li>
 <p><img src="images/visium_cytassist_human_glioblastoma/5-screePlot.png"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">### Visualize RNA PCA</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_cytassist_human_glioblastoma/6-PCA.png"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Protein</span></span>
@@ -518,7 +519,7 @@ and/or z-scores)</li>
 <p><img src="images/visium_cytassist_human_glioblastoma/7-screePlot.png"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">### Visualize Protein PCA</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>        spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>        feat_type <span class="op">=</span> <span class="st">'protein'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_cytassist_human_glioblastoma/8-PCA.png"></p>
@@ -562,7 +563,7 @@ and/or z-scores)</li>
 <span><span class="va">visium</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">visium</span>,</span>
 <span>                  dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         show_NN_network <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
@@ -574,7 +575,7 @@ and/or z-scores)</li>
 <span>                  feat_type <span class="op">=</span> <span class="st">'protein'</span>, </span>
 <span>                  dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>         spat_unit <span class="op">=</span> <span class="st">'cell'</span>, </span>
 <span>         feat_type <span class="op">=</span> <span class="st">'protein'</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, </span>
@@ -585,14 +586,14 @@ and/or z-scores)</li>
 <code class="sourceCode R"><span><span class="co"># Visualize spatial plot</span></span>
 <span></span>
 <span><span class="co">## RNA feature</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_cytassist_human_glioblastoma/11-rna_spatPlot2D.png"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Protein feature</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>           spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>           feat_type <span class="op">=</span> <span class="st">'protein'</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -658,7 +659,7 @@ calculation for each modality.</p>
 <span>                          resolution <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Visualize integrated umap</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">visium</span>,</span>
 <span>         spat_unit <span class="op">=</span> <span class="st">"cell"</span>,</span>
 <span>         feat_type <span class="op">=</span> <span class="st">"rna"</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'integrated_leiden_clus'</span>,</span>
@@ -670,7 +671,7 @@ calculation for each modality.</p>
 <p><img src="images/visium_cytassist_human_glioblastoma/13-UMAP.png"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Visualize spatial plot with integrated clusters</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">visium</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">visium</span>,</span>
 <span>           spat_unit <span class="op">=</span> <span class="st">"cell"</span>,</span>
 <span>           feat_type <span class="op">=</span> <span class="st">"rna"</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">"integrated_leiden_clus"</span>,</span>

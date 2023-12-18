@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -383,7 +384,7 @@ sample.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gpoly</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create and plot giotto points</span></span>
-<span><span class="va">tx</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">tx</span><span class="op">)</span></span>
+<span><span class="va">tx</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">tx</span><span class="op">)</span></span>
 <span><span class="va">gpoints</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createGiottoPoints.html">createGiottoPoints</a></span><span class="op">(</span><span class="va">tx</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gpoints</span>, raster_size <span class="op">=</span> <span class="fl">1e3</span><span class="op">)</span></span>
 <span></span>
@@ -442,7 +443,7 @@ sample.</p>
 <span>          ncp <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>            save_name <span class="op">=</span> <span class="st">'sg_screePlot'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>        spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>        dim_reduction_name <span class="op">=</span> <span class="st">'pca'</span>,</span>
 <span>        dim1_to_use <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -461,11 +462,11 @@ sample.</p>
 <span><span class="va">sg</span> <span class="op">=</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>             dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
 <span>             spat_unit <span class="op">=</span> <span class="st">'cell'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>          save_name <span class="op">=</span> <span class="st">'sg_tSNE'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           save_name <span class="op">=</span> <span class="st">'sg_UMAP'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -490,7 +491,7 @@ sample.</p>
 <span>                     n_iterations <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                     spat_unit <span class="op">=</span> <span class="st">'cell'</span><span class="op">)</span></span>
 <span><span class="co"># Plot Leiden clusters onto UMAP</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>,</span>
 <span>         spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         show_legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -504,7 +505,7 @@ sample.</p>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot Leiden clusters onto spatial image plot</span></span>
-<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>,</span>
+<span><span class="va">my_spatPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>,</span>
 <span>                          spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>                          cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>                          point_size <span class="op">=</span> <span class="fl">0.4</span>,</span>
@@ -532,8 +533,8 @@ sample.</p>
 <span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span></span>
 <span><span class="co"># Violinplots to show marker expression</span></span>
 <span><span class="va">topgini_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">sg</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">sg</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">11</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">sg</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">sg</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">11</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span>
 <span><span class="co"># Known markers to Annotate Giotto</span></span>
 <span><span class="va">selected_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'My12'</span>, <span class="st">'G6pc'</span>, <span class="st">'Ppp1r1a'</span>, <span class="st">'Grik5'</span>, <span class="st">'Hsd11b2'</span>, <span class="st">'Rhbg'</span>, <span class="st">'Mapk11'</span>,</span>
 <span>                   <span class="st">'Egf17'</span>, <span class="st">'Gpr55'</span>, <span class="st">'Acsm2'</span>, <span class="st">'Tpm2'</span>, <span class="st">'D1c1'</span>, <span class="st">'Shisa3'</span>,</span>
@@ -542,7 +543,7 @@ sample.</p>
 <span><span class="va">gobject_cell_metadata</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/pDataDT.html">pDataDT</a></span><span class="op">(</span><span class="va">sg</span><span class="op">)</span></span>
 <span><span class="va">cluster_order</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">gobject_cell_metadata</span><span class="op">$</span><span class="va">leiden_clus</span><span class="op">)</span></span>
 <span><span class="co"># Plot markers to clusters heatmap</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_clus'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">selected_genes</span>,</span>
 <span>                    custom_feat_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">selected_genes</span><span class="op">)</span>,</span>
@@ -557,7 +558,7 @@ sample.</p>
 <h3 id="establish-delaunay-network">9.1 Establish Delaunay Network<a class="anchor" aria-label="anchor" href="#establish-delaunay-network"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>, maximum_distance <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>, maximum_distance <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span>
 <span><span class="va">sg</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createSpatialNetwork.html">createSpatialNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>, minimum_k <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                          maximum_distance_delaunay <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span>
 <span><span class="va">sg</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createSpatialNetwork.html">createSpatialNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">sg</span>, minimum_k <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -569,7 +570,7 @@ sample.</p>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">km_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">sg</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="va">km_spatialgenes</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'no_border'</span>, </span>
 <span>               show_network <span class="op">=</span> <span class="cn">F</span>, network_color <span class="op">=</span> <span class="st">'lightgrey'</span>, point_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -581,7 +582,7 @@ sample.</p>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rank_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">sg</span>, bin_method <span class="op">=</span> <span class="st">'rank'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="va">rank_spatialgenes</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'no_border'</span>, </span>
 <span>               show_network <span class="op">=</span> <span class="cn">F</span>, network_color <span class="op">=</span> <span class="st">'lightgrey'</span>, point_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -605,7 +606,7 @@ sample.</p>
 <span><span class="co"># 2. identify most similar spatially correlated genes for one gene</span></span>
 <span><span class="va">Acsm2_top10_genes</span> <span class="op">=</span> <span class="fu"><a href="../reference/showSpatialCorFeats.html">showSpatialCorFeats</a></span><span class="op">(</span><span class="va">spat_cor_obj</span>, feats <span class="op">=</span> <span class="st">'Acsm2'</span>, show_top_feats <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">sg</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="va">Acsm2_top10_genes</span><span class="op">$</span><span class="va">variable</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, point_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'no_border'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_genomics_mouse_kidney/Acsm2_SpatialCor.png"></p>
@@ -628,15 +629,15 @@ sample.</p>
 <span><span class="va">cluster_genes</span> <span class="op">=</span> <span class="va">top_netw_spat_cluster</span><span class="op">$</span><span class="va">clus</span>; <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cluster_genes</span><span class="op">)</span> <span class="op">=</span> <span class="va">top_netw_spat_cluster</span><span class="op">$</span><span class="va">feat_ID</span></span>
 <span></span>
 <span><span class="va">sg</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createMetafeats.html">createMetafeats</a></span><span class="op">(</span><span class="va">sg</span>, feat_clusters <span class="op">=</span> <span class="va">cluster_genes</span>, name <span class="op">=</span> <span class="st">'cluster_metagene'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'cluster_metagene'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">netw_ranks</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">clusters</span>,</span>
 <span>             point_size <span class="op">=</span> <span class="fl">0.05</span>, point_shape <span class="op">=</span> <span class="st">'no_border'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'cluster_metagene'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">netw_ranks</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">$</span><span class="va">clusters</span>,</span>
 <span>             point_size <span class="op">=</span> <span class="fl">0.05</span>, point_shape <span class="op">=</span> <span class="st">'no_border'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">sg</span>,</span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'cluster_metagene'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">netw_ranks</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">$</span><span class="va">clusters</span>,</span>
 <span>             point_size <span class="op">=</span> <span class="fl">0.05</span>, point_shape <span class="op">=</span> <span class="st">'no_border'</span><span class="op">)</span></span></code></pre></div>

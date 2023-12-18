@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -33,15 +33,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -176,7 +167,15 @@
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Spatial manipulation</li>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    <li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
     </li>
@@ -255,7 +254,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">load_merscope_folder</span><span class="op">(</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.load_merscope_folder</span><span class="op">(</span></span>
 <span>  <span class="va">dir_items</span>,</span>
 <span>  <span class="va">data_to_use</span>,</span>
 <span>  fovs <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -264,7 +263,7 @@
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">load_merscope_folder_subcellular</span><span class="op">(</span></span>
+<span><span class="fu">.load_merscope_folder_subcellular</span><span class="op">(</span></span>
 <span>  <span class="va">dir_items</span>,</span>
 <span>  <span class="va">data_to_use</span>,</span>
 <span>  cores <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -273,7 +272,7 @@
 <span>  fovs <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">load_merscope_folder_aggregate</span><span class="op">(</span></span>
+<span><span class="fu">.load_merscope_folder_aggregate</span><span class="op">(</span></span>
 <span>  <span class="va">dir_items</span>,</span>
 <span>  <span class="va">data_to_use</span>,</span>
 <span>  cores <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -284,7 +283,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>dir_items</dt>
-<dd><p>list of full filepaths from <code><a href="read_data_folder.html">read_merscope_folder</a></code></p></dd>
+<dd><p>list of full filepaths from <code><a href="read_data_folder.html">.read_merscope_folder</a></code></p></dd>
 
 
 <dt>data_to_use</dt>
@@ -309,8 +308,8 @@ to use for object creation</p></dd>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>load_merscope_folder_subcellular()</code>: Load items for 'subcellular' workflow</p></li>
-<li><p><code>load_merscope_folder_aggregate()</code>: Load items for 'aggregate' workflow</p></li>
+<ul><li><p><code>.load_merscope_folder_subcellular()</code>: Load items for 'subcellular' workflow</p></li>
+<li><p><code>.load_merscope_folder_aggregate()</code>: Load items for 'aggregate' workflow</p></li>
 </ul></div>
 
   </div>

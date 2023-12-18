@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -33,15 +33,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -176,7 +167,15 @@
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Spatial manipulation</li>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    <li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
     </li>
@@ -270,7 +269,9 @@
 <span>  difference_in_cov <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  var_threshold <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>  var_number <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cell_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  random_subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  set_seed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  seed_number <span class="op">=</span> <span class="fl">1234</span>,</span>
 <span>  show_plot <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  return_plot <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  save_plot <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -307,7 +308,7 @@
 
 
 <dt>logbase</dt>
-<dd><p>if reverse_log_scale is TRUE, which log base was used?</p></dd>
+<dd><p>if <code>reverse_log_scale</code> is TRUE, which log base was used?</p></dd>
 
 
 <dt>expression_threshold</dt>
@@ -315,11 +316,11 @@
 
 
 <dt>nr_expression_groups</dt>
-<dd><p>[cov_groups] number of expression groups for cov_groups</p></dd>
+<dd><p>(cov_groups) number of expression groups for cov_groups</p></dd>
 
 
 <dt>zscore_threshold</dt>
-<dd><p>[cov_groups] zscore to select hvg for cov_groups</p></dd>
+<dd><p>(cov_groups) zscore to select hvg for cov_groups</p></dd>
 
 
 <dt>HVFname</dt>
@@ -327,20 +328,28 @@
 
 
 <dt>difference_in_cov</dt>
-<dd><p>[cov_loess] minimum difference in coefficient of variance required</p></dd>
+<dd><p>(cov_loess) minimum difference in coefficient of variance required</p></dd>
 
 
 <dt>var_threshold</dt>
-<dd><p>[var_p_resid] variance threshold for features for var_p_resid method</p></dd>
+<dd><p>(var_p_resid) variance threshold for features for var_p_resid method</p></dd>
 
 
 <dt>var_number</dt>
-<dd><p>[var_p_resid] number of top variance features for var_p_resid method</p></dd>
+<dd><p>(var_p_resid) number of top variance features for var_p_resid method</p></dd>
 
 
-<dt>cell_ids</dt>
-<dd><p>Specific cell_IDs (`spatIDs()`) that the HVF detection
-should be performed on. Passing NULL (default) runs HVF on all cells.</p></dd>
+<dt>random_subset</dt>
+<dd><p>random subset to perform HVF detection on. Passing <code>NULL</code>
+runs HVF on all cells.</p></dd>
+
+
+<dt>set_seed</dt>
+<dd><p>logical. whether to set a seed when random_subset is used</p></dd>
+
+
+<dt>seed_number</dt>
+<dd><p>seed number to use when random_subset is used</p></dd>
 
 
 <dt>show_plot</dt>
@@ -348,15 +357,15 @@ should be performed on. Passing NULL (default) runs HVF on all cells.</p></dd>
 
 
 <dt>return_plot</dt>
-<dd><p>return ggplot object (overridden by `return_gobject`)</p></dd>
+<dd><p>return ggplot object (overridden by <code>return_gobject</code>)</p></dd>
 
 
 <dt>save_plot</dt>
-<dd><p>directly save the plot [boolean]</p></dd>
+<dd><p>logical. directly save the plot</p></dd>
 
 
 <dt>save_param</dt>
-<dd><p>list of saving parameters from <code><a href="https://drieslab.github.io/Giotto/reference/plot_save.html">GiottoVisuals::all_plots_save_function</a></code></p></dd>
+<dd><p>list of saving parameters from <code><a href="https://drieslab.github.io/GiottoVisuals/reference/plot_save.html">GiottoVisuals::all_plots_save_function()</a></code></p></dd>
 
 
 <dt>default_save_name</dt>
@@ -371,16 +380,16 @@ should be performed on. Passing NULL (default) runs HVF on all cells.</p></dd>
     <h2>Value</h2>
     
 
-<p>giotto object highly variable features appended to feature metadata (`fDataDT()`)</p>
+<p>giotto object highly variable features appended to feature metadata (<code><a href="https://drieslab.github.io/GiottoClass/reference/fDataDT.html">fDataDT()</a></code>)</p>
     </div>
     <div id="details">
     <h2>Details</h2>
     <p>Currently we provide 2 ways to calculate highly variable genes:</p>
-<p><b>1. high coeff of variance (COV) within groups: </b> <br>
+<p><strong>1. high coeff of variance (COV) within groups: </strong> <br>
 First genes are binned (<em>nr_expression_groups</em>) into average expression groups and
 the COV for each feature is converted into a z-score within each bin. Features with a z-score
 higher than the threshold (<em>zscore_threshold</em>) are considered highly variable.  <br></p>
-<p><b>2. high COV based on loess regression prediction: </b> <br>
+<p><strong>2. high COV based on loess regression prediction: </strong> <br>
 A predicted COV is calculated for each feature using loess regression (COV~log(mean expression))
 Features that show a higher than predicted COV (<em>difference_in_cov</em>) are considered highly variable. <br></p>
     </div>

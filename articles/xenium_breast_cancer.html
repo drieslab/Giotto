@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -434,7 +435,7 @@ assess the specificity of the assay</li>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load features metadata</span></span>
 <span><span class="co"># (make sure cell_feature_matrix folder is unpacked)</span></span>
-<span><span class="va">feature_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">feat_meta_path</span>, header <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">feature_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">feat_meta_path</span>, header <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">feature_dt</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ensembl_ID'</span>,<span class="st">'feat_name'</span>,<span class="st">'feat_type'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># find the feature IDs that belong to each feature type</span></span>
@@ -598,8 +599,8 @@ coordinates for individual transcript molecules detected during the
 Xenium run. It also contains a QC Phred score for which this tutorial
 will set a cutoff at 20, the same as what 10x uses.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tx_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">tx_path</span><span class="op">)</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">tx_dt</span>,</span>
+<code class="sourceCode R"><span><span class="va">tx_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">tx_path</span><span class="op">)</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">tx_dt</span>,</span>
 <span>                     old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'feature_name'</span>, <span class="st">'x_location'</span>, <span class="st">'y_location'</span><span class="op">)</span>,</span>
 <span>                     new <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'feat_ID'</span>, <span class="st">'x'</span>, <span class="st">'y'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">'Transcripts info available:\n '</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'"'</span>, <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">tx_dt</span><span class="op">)</span>, <span class="st">'"'</span><span class="op">)</span>, <span class="st">'\n'</span>,</span>
@@ -673,13 +674,13 @@ This function also determines the correct columns to use by looking for
 columns named <code>'poly_ID'</code>, <code>'x'</code>, and
 <code>'y'</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cellPoly_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">cell_bound_path</span><span class="op">)</span></span>
-<span><span class="va">nucPoly_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">nuc_bound_path</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cellPoly_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">cell_bound_path</span><span class="op">)</span></span>
+<span><span class="va">nucPoly_dt</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">nuc_bound_path</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cellPoly_dt</span>,</span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cellPoly_dt</span>,</span>
 <span>                     old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'cell_id'</span>, <span class="st">'vertex_x'</span>, <span class="st">'vertex_y'</span><span class="op">)</span>,</span>
 <span>                     new <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'poly_ID'</span>, <span class="st">'x'</span>, <span class="st">'y'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">nucPoly_dt</span>,</span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">nucPoly_dt</span>,</span>
 <span>                     old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'cell_id'</span>, <span class="st">'vertex_x'</span>, <span class="st">'vertex_y'</span><span class="op">)</span>,</span>
 <span>                     new <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'poly_ID'</span>, <span class="st">'x'</span>, <span class="st">'y'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1008,7 +1009,7 @@ aggregate information.</p>
 <h3 id="plot-the-generated-centroids-information">6.3 Plot the generated centroids information<a class="anchor" aria-label="anchor" href="#plot-the-generated-centroids-information"></a>
 </h3>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
 <span>           spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>           point_shape <span class="op">=</span> <span class="st">'no_border'</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -1138,8 +1139,8 @@ There are 313 rows in this file. One for each of the gene expression
 probes, thus these metadata should be appended only to feat_type
 ‘rna’.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panel_meta</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">panel_meta_path</span><span class="op">)</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">panel_meta</span>, <span class="st">'Name'</span>, <span class="st">'feat_ID'</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">panel_meta</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">panel_meta_path</span><span class="op">)</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">panel_meta</span>, <span class="st">'Name'</span>, <span class="st">'feat_ID'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Append this metadata</span></span>
 <span><span class="va">xenium_gobj</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addFeatMetadata.html">addFeatMetadata</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">xenium_gobj</span>,</span>
@@ -1472,7 +1473,7 @@ Instead, this time, using all genes is desireable, so
 <span>          save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>            save_name <span class="op">=</span> <span class="st">'3a_screePlot'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/showGiottoDimRed.html">showGiottoDimRed</a></span><span class="op">(</span><span class="va">xenium_gobj</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
 <span>        spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>        dim_reduction_name <span class="op">=</span> <span class="st">'pca'</span>,</span>
 <span>        dim1_to_use <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -1503,11 +1504,11 @@ Instead, this time, using all genes is desireable, so
 <span>                      dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
 <span>                      spat_unit <span class="op">=</span> <span class="st">'cell'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           save_name <span class="op">=</span> <span class="st">'4a_tSNE'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           save_name <span class="op">=</span> <span class="st">'4b_UMAP'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1527,7 +1528,7 @@ Instead, this time, using all genes is desireable, so
 <span>                              spat_unit <span class="op">=</span> <span class="st">'cell'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize UMAP cluster results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">xenium_gobj</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">xenium_gobj</span>,</span>
 <span>         spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         show_legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -1540,7 +1541,7 @@ Instead, this time, using all genes is desireable, so
 <h3 id="visualize-umap-and-spatial-results">8.4 Visualize UMAP and spatial results<a class="anchor" aria-label="anchor" href="#visualize-umap-and-spatial-results"></a>
 </h3>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">xenium_gobj</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">xenium_gobj</span>,</span>
 <span>           spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -1558,7 +1559,7 @@ Instead, this time, using all genes is desireable, so
 <h2 id="subcellular-visualization">9. Subcellular visualization<a class="anchor" aria-label="anchor" href="#subcellular-visualization"></a>
 </h2>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">xenium_gobj</span>,</span>
 <span>                     show_image <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.05</span>,</span>
@@ -1582,7 +1583,7 @@ features clearly so a spatial subset is needed.</p>
 <span>                                      y_max <span class="op">=</span> <span class="fl">5500</span>,</span>
 <span>                                      y_min <span class="op">=</span> <span class="fl">4500</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">xenium_gobj_subset</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">xenium_gobj_subset</span>,</span>
 <span>                     show_image <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>                       <span class="st">"LUM"</span>, <span class="st">"CXCR4"</span>, <span class="st">"ITGAX"</span><span class="op">)</span><span class="op">)</span>,</span>

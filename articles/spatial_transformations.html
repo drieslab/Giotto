@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -394,42 +395,42 @@ is its minima and maxima in the coordinate plane, also known as the
 boundaries or spatial <strong>extent</strong> of that information. It
 can be thought of as bounding box around where your information exists
 in space. <em>Giotto</em> incorporates usage of the
-<code>SpatExtent</code> class and associated <code>ext()</code> generic
+<code>SpatExtent</code> class and associated <code><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext()</a></code> generic
 from <em>terra</em> to describe objects spatially.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">image</span><span class="op">)</span>     <span class="co"># giottoLargeImage</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span>     <span class="co"># giottoLargeImage</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>SpatExtent <span class="sc">:</span> <span class="fl">6400.029</span>, <span class="fl">6900.037</span>, <span class="sc">-</span><span class="fl">5150.007</span>, <span class="sc">-</span><span class="fl">4699.967</span> (xmin, xmax, ymin, ymax)</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">spat_locs</span><span class="op">)</span> <span class="co"># spatLocsObj</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">spat_locs</span><span class="op">)</span> <span class="co"># spatLocsObj</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>SpatExtent <span class="sc">:</span> <span class="fl">6401.41164725267</span>, <span class="fl">6899.10802819571</span>, <span class="sc">-</span><span class="fl">5146.74746408943</span>, <span class="sc">-</span><span class="fl">4700.32590047134</span> (xmin, xmax, ymin, ymax)</span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">spat_net</span><span class="op">)</span>  <span class="co"># spatNetObj</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">spat_net</span><span class="op">)</span>  <span class="co"># spatNetObj</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>SpatExtent <span class="sc">:</span> <span class="fl">6401.411647</span>, <span class="fl">6899.108028</span>, <span class="sc">-</span><span class="fl">5146.747464</span>, <span class="sc">-</span><span class="fl">4700.3259</span> (xmin, xmax, ymin, ymax)</span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">gpoints</span><span class="op">)</span>   <span class="co"># giottoPoints</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">gpoints</span><span class="op">)</span>   <span class="co"># giottoPoints</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>SpatExtent <span class="sc">:</span> <span class="fl">6400.037</span>, <span class="fl">6900.0317</span>, <span class="sc">-</span><span class="fl">5149.9834</span>, <span class="sc">-</span><span class="fl">4699.9785</span> (xmin, xmax, ymin, ymax)</span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">gpoly</span><span class="op">)</span>     <span class="co"># giottoPolygon</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">gpoly</span><span class="op">)</span>     <span class="co"># giottoPolygon</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>SpatExtent <span class="sc">:</span> <span class="fl">6391.46568586489</span>, <span class="fl">6903.57332779812</span>, <span class="sc">-</span><span class="fl">5153.89721175534</span>, <span class="sc">-</span><span class="fl">4694.86823300896</span> (xmin, xmax, ymin, ymax)</span></code></pre></div>
 <div class="section level3">
 <h3 id="image-extent">5.1 Image extent<a class="anchor" aria-label="anchor" href="#image-extent"></a>
 </h3>
 <p>With <code>giottoLargeImage</code> objects, you are additionally able
-to assign how they map to space using <code>ext()</code>. Note that
+to assign how they map to space using <code><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext()</a></code>. Note that
 modifications performed on one <code>giottoLargeImage</code> are applied
-to all references to that object unless <code><a href="https://Rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy()</a></code> is used
+to all references to that object unless <code><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy()</a></code> is used
 first.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">ext</span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="co"># save extent</span></span>
+<code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="co"># save extent</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-5-1.png"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># modify extent</span></span>
-<span><span class="fu">ext</span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">40</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span> <span class="co"># xmin, xmax, ymin, ymax</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">40</span>,<span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span> <span class="co"># xmin, xmax, ymin, ymax</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-5-2.png"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ext</span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">e</span> <span class="co"># replace</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">e</span> <span class="co"># replace</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -438,8 +439,8 @@ first.</p>
 <p>Commonly used spatial transformations are coordinate translations,
 flips, and rotations. <em>Giotto</em> extends generics from
 <em>terra</em> through the use of <code><a href="https://drieslab.github.io/GiottoClass/reference/spatShift.html">spatShift()</a></code>
-(<code>shift()</code> in <em>terra</em>), <code>flip()</code>, and
-<code>spin()</code> respectively.</p>
+(<code>shift()</code> in <em>terra</em>), <code><a href="https://rdrr.io/pkg/terra/man/flip.html" class="external-link">flip()</a></code>, and
+<code><a href="https://rdrr.io/pkg/terra/man/spin.html" class="external-link">spin()</a></code> respectively.</p>
 <div class="section level3">
 <h3 id="coordinate-translation">6.1 coordinate translation<a class="anchor" aria-label="anchor" href="#coordinate-translation"></a>
 </h3>
@@ -457,7 +458,7 @@ translate along either axis.</p>
 <div class="section level3">
 <h3 id="flip">6.2 flip<a class="anchor" aria-label="anchor" href="#flip"></a>
 </h3>
-<p><code>flip()</code> will flip the data over a defined line of either
+<p><code><a href="https://rdrr.io/pkg/terra/man/flip.html" class="external-link">flip()</a></code> will flip the data over a defined line of either
 ‘vertical’ or ‘horizontal’ symmetry (default is ‘vertical’ with the line
 of symmetry being y = 0. The <code>direction</code> param partial
 matches for either ‘vertical’ or ‘horizontal’. The <code>y0</code> and
@@ -472,20 +473,20 @@ flipping. If the default behavior of flipping over the extent is
 desired, NULL can be passed to the relevant <code>y0</code> or
 <code>x0</code> param.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rb</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/getRainbowColors.html">getRainbowColors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">rb</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/Giotto/reference/getRainbowColors.html">getRainbowColors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gpoly</span>, col <span class="op">=</span> <span class="va">rb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-7-1.png"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">flip</span><span class="op">(</span><span class="va">gpoly</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">rb</span><span class="op">)</span> <span class="co"># flip to positive y</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/flip.html" class="external-link">flip</a></span><span class="op">(</span><span class="va">gpoly</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">rb</span><span class="op">)</span> <span class="co"># flip to positive y</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-7-2.png"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">flip</span><span class="op">(</span><span class="va">gpoly</span>, direction <span class="op">=</span> <span class="st">'h'</span>, x0 <span class="op">=</span> <span class="fl">1e4</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">rb</span><span class="op">)</span> <span class="co"># flip across x = 10000</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/flip.html" class="external-link">flip</a></span><span class="op">(</span><span class="va">gpoly</span>, direction <span class="op">=</span> <span class="st">'h'</span>, x0 <span class="op">=</span> <span class="fl">1e4</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">rb</span><span class="op">)</span> <span class="co"># flip across x = 10000</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-7-3.png"></p>
 </div>
 <div class="section level3">
 <h3 id="spin">6.3 spin<a class="anchor" aria-label="anchor" href="#spin"></a>
 </h3>
-<p><code>spin()</code> allows rotating of vector data through degrees
+<p><code><a href="https://rdrr.io/pkg/terra/man/spin.html" class="external-link">spin()</a></code> allows rotating of vector data through degrees
 passed to <code>angle</code> param. The rotation happens about a
 coordinate defined by <code>x0</code> and <code>y0</code>. By default
 <code>x0</code> and <code>y0</code> are defined as the object
@@ -494,10 +495,10 @@ center.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gpoints</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-8-1.png"></p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">spin</span><span class="op">(</span><span class="va">gpoints</span>, angle <span class="op">=</span> <span class="fl">45</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/spin.html" class="external-link">spin</a></span><span class="op">(</span><span class="va">gpoints</span>, angle <span class="op">=</span> <span class="fl">45</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-8-2.png"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">spin</span><span class="op">(</span><span class="va">gpoints</span>, angle <span class="op">=</span> <span class="fl">45</span>, x0 <span class="op">=</span> <span class="fl">0</span>, y0 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/spin.html" class="external-link">spin</a></span><span class="op">(</span><span class="va">gpoints</span>, angle <span class="op">=</span> <span class="fl">45</span>, x0 <span class="op">=</span> <span class="fl">0</span>, y0 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/spatial_transformations/unnamed-chunk-8-3.png"></p>
 </div>
 </div>

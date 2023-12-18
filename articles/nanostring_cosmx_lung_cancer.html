@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -442,7 +443,7 @@ happened in (0, Cytoplasm, Membrane, Nuclear)</li>
 <span><span class="va">data_path</span> <span class="op">=</span> <span class="st">'/path/to/data/Lung12-Flat_files_and_images/'</span></span>
 <span></span>
 <span><span class="co"># load transcript coordinates</span></span>
-<span><span class="va">tx_coord_all</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_tx_file.csv'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">tx_coord_all</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_tx_file.csv'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">tx_coord_all</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">'\n'</span><span class="op">)</span></span>
@@ -725,7 +726,7 @@ whole. This information is needed during the image attachment and
 alignment process.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#  load field of vision (fov) positions</span></span>
-<span><span class="va">fov_offset_file</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_fov_positions_file.csv'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fov_offset_file</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_fov_positions_file.csv'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#     fov x_global_px y_global_px</span></span>
 <span><span class="co">#  1:   1  -4977.7778   -160233.3</span></span>
@@ -858,7 +859,7 @@ above.</p>
 <p>When plotting subcellular data, Giotto uses the
 <code>spatInSituPlot</code> functions. Spatial plots showing the feature
 points and polygons are plotted using
-<code><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints()</a></code>.</p>
+<code><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints()</a></code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/showGiottoImageNames.html">showGiottoImageNames</a></span><span class="op">(</span><span class="va">fov_join</span><span class="op">)</span></span>
 <span></span>
@@ -867,7 +868,7 @@ points and polygons are plotted using
 <span><span class="va">new_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"fov0"</span>, <span class="va">id_set</span><span class="op">)</span></span>
 <span><span class="va">image_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">new_names</span>, <span class="st">'-image'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     image_name <span class="op">=</span> <span class="va">image_names</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'MMP2'</span>, <span class="st">'VEGFA'</span>, <span class="st">'IGF1R'</span>,</span>
@@ -886,12 +887,12 @@ points and polygons are plotted using
 <div class="section level3">
 <h3 id="visualize-cell-centroids">5.1 Visualize Cell Centroids<a class="anchor" aria-label="anchor" href="#visualize-cell-centroids"></a>
 </h3>
-<p>The standard <code><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D()</a></code> function can also be used, but
+<p>The standard <code><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D()</a></code> function can also be used, but
 this works off only the aggregated information that is assembled based
 on the subcellular information. Plotting information based on cell
 centroids can be done through this function.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="va">image_names</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           point_shape <span class="op">=</span> <span class="st">'no_border'</span>,</span>
@@ -1010,10 +1011,10 @@ the two sources of information.</p>
 <p>Density-based representations may sometimes be preferred instead of
 viewing the raw points information, especially when points are dense
 enough that there is overplotting. After overlaps information has been
-calculated, <code><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotDensity.html">spatInSituPlotDensity()</a></code> can be used in order to
+calculated, <code><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotDensity.html">spatInSituPlotDensity()</a></code> can be used in order to
 get a general idea of how much expression there is of a feature.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotDensity.html">spatInSituPlotDensity</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotDensity.html">spatInSituPlotDensity</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>                      feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>,</span>
 <span>                                <span class="st">'MKI67'</span>, <span class="st">'EPCAM'</span>, <span class="st">'KRT8'</span><span class="op">)</span>,</span>
 <span>                      cow_n_col <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -1090,7 +1091,7 @@ used for both.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load and prepare data</span></span>
 <span></span>
-<span><span class="va">nanoDT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_exprMat_file.csv'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">nanoDT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_path</span>, <span class="st">'Lung12_exprMat_file.csv'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">test1</span> <span class="op">=</span> <span class="va">nanoDT</span><span class="op">[</span><span class="va">fov</span> <span class="op">==</span> <span class="fl">2</span><span class="op">]</span></span>
 <span><span class="co"># Set up cell_IDs</span></span>
 <span><span class="va">test1</span><span class="op">[</span>, <span class="va">cell_ID</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'cell_'</span>, <span class="va">cell_ID</span><span class="op">)</span><span class="op">]</span></span>
@@ -1112,11 +1113,11 @@ used for both.</p>
 <span></span>
 <span><span class="co"># Prepare matrix comparison</span></span>
 <span><span class="co"># Summarise sparse matrices (i and j are matrix indices, x is value)</span></span>
-<span><span class="va">testg_f2_DT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">testg_f2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">testg_f2_DT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">testg_f2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">testg_f2_DT</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">'giotto'</span><span class="op">]</span></span>
-<span><span class="va">testnano_f2_DT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">testnano_f2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">testnano_f2_DT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">summary</span><span class="op">(</span><span class="va">testnano_f2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">testnano_f2_DT</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">'nanostring'</span><span class="op">]</span></span>
-<span><span class="va">testDT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">testg_f2_DT</span>, <span class="va">testnano_f2_DT</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">testDT</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">testg_f2_DT</span>, <span class="va">testnano_f2_DT</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Combine sparse matrix indices</span></span>
 <span><span class="va">testDT</span><span class="op">[</span>, <span class="va">combo</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">i</span>,<span class="st">'-'</span>,<span class="va">j</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
@@ -1149,7 +1150,7 @@ used for both.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># directly compare differences in matrix values (counts assigned)</span></span>
 <span><span class="va">vartestDT</span> <span class="op">=</span> <span class="va">testDT</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, diff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">i</span>,<span class="va">j</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">setorder</a></span><span class="op">(</span><span class="va">vartestDT</span>, <span class="va">var</span><span class="op">)</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">setorder</a></span><span class="op">(</span><span class="va">vartestDT</span>, <span class="va">var</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># check arbitrary index values</span></span>
 <span><span class="va">testDT</span><span class="op">[</span><span class="va">i</span> <span class="op">==</span> <span class="st">'812'</span> <span class="op">&amp;</span> <span class="va">j</span> <span class="op">==</span> <span class="st">'2'</span><span class="op">]</span></span>
@@ -1482,7 +1483,7 @@ the information. To retrieve the metadata information, instead use
 <h3 id="plot-spatially-as-centroids">8.2 Plot spatially as centroids<a class="anchor" aria-label="anchor" href="#plot-spatially-as-centroids"></a>
 </h3>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'total_expr'</span>,</span>
 <span>           color_as_factor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -1497,7 +1498,7 @@ the information. To retrieve the metadata information, instead use
 <h3 id="plot-spatially-as-color-scaled-polygons">8.3 Plot spatially as color-scaled polygons<a class="anchor" aria-label="anchor" href="#plot-spatially-as-color-scaled-polygons"></a>
 </h3>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'gray'</span>,</span>
 <span>                     polygon_line_size <span class="op">=</span> <span class="fl">0.05</span>,</span>
@@ -1506,7 +1507,7 @@ the information. To retrieve the metadata information, instead use
 <span>                     save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>base_height <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                                       save_name <span class="op">=</span> <span class="st">'5.4_rna_color_polys'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     feat_type <span class="op">=</span> <span class="st">'neg_probe'</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'gray'</span>,</span>
@@ -1588,7 +1589,7 @@ skipped since the pearson matrix is already scaled.</p>
 <span><span class="co"># screeplot uses the generated PCA. No need to specify expr values</span></span>
 <span><span class="fu"><a href="../reference/screePlot.html">screePlot</a></span><span class="op">(</span><span class="va">fov_join</span>, ncp <span class="op">=</span> <span class="fl">20</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'6.2_screeplot'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>        cell_color <span class="op">=</span> <span class="st">'nr_feats'</span>, <span class="co"># (from log norm statistics)</span></span>
 <span>        color_as_factor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        point_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -1605,14 +1606,14 @@ skipped since the pearson matrix is already scaled.</p>
 <span>                    dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
 <span>                    n_threads <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'6.4_UMAP'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'6.4_UMAP'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/nanostring_cosmx_lung_cancer/6.4_UMAP.png"></p>
 </div>
 <div class="section level3">
 <h3 id="plot-features-on-expression-space">9.3 Plot features on expression space<a class="anchor" aria-label="anchor" href="#plot-features-on-expression-space"></a>
 </h3>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/dimFeatPlot2D.html">dimFeatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/dimFeatPlot2D.html">dimFeatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>              feat_type <span class="op">=</span> <span class="st">'rna'</span>,</span>
 <span>              feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'MKI67'</span>, <span class="st">'CD8A'</span>, <span class="st">'CD4'</span>,</span>
 <span>                        <span class="st">'COL1A1'</span>, <span class="st">'MS4A1'</span>, <span class="st">'MZB1'</span><span class="op">)</span>,</span>
@@ -1641,7 +1642,7 @@ skipped since the pearson matrix is already scaled.</p>
 <span>                            n_iterations <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize UMAP cluster results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         cell_color_code <span class="op">=</span> <span class="va">pal10</span>,</span>
 <span>         show_NN_network <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -1654,7 +1655,7 @@ skipped since the pearson matrix is already scaled.</p>
 </h3>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># visualize UMAP and spatial results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>              show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>              image_name <span class="op">=</span> <span class="va">image_names</span>,</span>
 <span>              cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
@@ -1667,7 +1668,7 @@ skipped since the pearson matrix is already scaled.</p>
 <h3 id="map-clustering-spatially">10.3 Map clustering spatially<a class="anchor" aria-label="anchor" href="#map-clustering-spatially"></a>
 </h3>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'MMP2'</span>, <span class="st">'VEGFA'</span>, <span class="st">'IGF1R'</span>,</span>
 <span>                                            <span class="st">'MKI67'</span>, <span class="st">'EPCAM'</span>, <span class="st">'MZB1'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.15</span>,</span>
@@ -1698,7 +1699,7 @@ skipped since the pearson matrix is already scaled.</p>
 <span><span class="va">smallfeats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/fDataDT.html">fDataDT</a></span><span class="op">(</span><span class="va">smallfov</span><span class="op">)</span><span class="op">[</span>, <span class="va">feat_ID</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co">#plot all genes</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">smallfeats</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>                     polygon_line_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -1710,7 +1711,7 @@ skipped since the pearson matrix is already scaled.</p>
 <span>                     save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'8.1_smallfov_points'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># plot only the polygon outlines</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
 <span>                     polygon_line_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                     polygon_alpha <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'white'</span>,</span>
@@ -1721,7 +1722,7 @@ skipped since the pearson matrix is already scaled.</p>
 <span>                     save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'8.2_smallfov_poly'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># plot polygons colorlabeled with leiden clusters</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">smallfov</span>,</span>
 <span>                     polygon_line_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_fill <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
@@ -1749,7 +1750,7 @@ expression of cells and their spatial neighbors.</p>
 <span><span class="va">km_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">fov_join</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize spatial expression of selected genes obtained from binSpect</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>               expression_values <span class="op">=</span> <span class="st">'normalized'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="va">km_spatialgenes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'no_border'</span>,</span>
@@ -1778,7 +1779,7 @@ expression of cells and their spatial neighbors.</p>
 <span></span>
 <span><span class="co"># violinplot</span></span>
 <span><span class="va">topgini_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>           feats <span class="op">=</span> <span class="va">topgini_genes</span>,</span>
 <span>           cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>           strip_position <span class="op">=</span> <span class="st">'right'</span>,</span>
@@ -1843,7 +1844,7 @@ expression of cells and their spatial neighbors.</p>
 </h3>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cluster_order</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                    expression_values <span class="op">=</span> <span class="st">'normalized'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_clus'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">topgini_genes</span>,</span>
@@ -1859,7 +1860,7 @@ expression of cells and their spatial neighbors.</p>
 <code class="sourceCode R"><span><span class="co"># low, mid, high</span></span>
 <span><span class="va">custom_scale</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'#440154'</span>, <span class="st">'#1F968B'</span>, <span class="st">'#FDE725'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/dimFeatPlot2D.html">dimFeatPlot2D</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/dimFeatPlot2D.html">dimFeatPlot2D</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>              expression_values <span class="op">=</span> <span class="st">'normalized'</span>,</span>
 <span>              cell_color_gradient <span class="op">=</span> <span class="va">custom_scale</span>,</span>
 <span>              gradient_midpoint <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -1886,7 +1887,7 @@ expression of cells and their spatial neighbors.</p>
 <span>                          cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>                          name <span class="op">=</span> <span class="st">'cell_types'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>         cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>         cell_color_code <span class="op">=</span> <span class="va">viv10</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
@@ -1897,7 +1898,7 @@ expression of cells and their spatial neighbors.</p>
 <h3 id="visualize">13.5 Visualize<a class="anchor" aria-label="anchor" href="#visualize"></a>
 </h3>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">fov_join</span>,</span>
 <span>              show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>              image_name <span class="op">=</span> <span class="va">image_names</span>,</span>
 <span>              cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
@@ -1906,7 +1907,7 @@ expression of cells and their spatial neighbors.</p>
 <span>              save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'12_spatdim_type'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/nanostring_cosmx_lung_cancer/12_spatdim_type.png"></p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_feat_type <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'grey'</span>,</span>
@@ -1935,7 +1936,7 @@ expression of cells and their spatial neighbors.</p>
 <span><span class="va">icf_plotfeats</span> <span class="op">=</span> <span class="va">icf</span><span class="op">$</span><span class="va">ICFscores</span><span class="op">[</span><span class="va">type_int</span> <span class="op">==</span> <span class="st">'hetero'</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># Visualize ICF expression</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">fov_join</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">icf_plotfeats</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>

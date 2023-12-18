@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -405,7 +406,7 @@ locally.</p>
 <span>                              instructions <span class="op">=</span> <span class="va">instrs</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add additional metadata</span></span>
-<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">meta_path</span><span class="op">)</span></span>
+<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">meta_path</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">testobj</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addCellMetadata.html">addCellMetadata</a></span><span class="op">(</span><span class="va">testobj</span>, </span>
 <span>                          new_metadata <span class="op">=</span> <span class="va">metadata</span><span class="op">$</span><span class="va">layer_ID</span>, </span>
@@ -437,11 +438,11 @@ locally.</p>
 visualized both in 2D and 3D.</p>
 <p>In 2D:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-3-1.png"></p>
 <p>In 3D:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/newplot.png"></p>
 </div>
 <div class="section level2">
@@ -459,11 +460,11 @@ UMAP may also be plotted in 2D and 3D.</p>
 <code class="sourceCode R"><span><span class="co"># Run UMAP</span></span>
 <span><span class="va">testobj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, n_components <span class="op">=</span> <span class="fl">3</span>, n_threads <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co"># Plot UMAP in 2D</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_2D.html">plotUMAP_2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_2D.html">plotUMAP_2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-5-1.png"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot UMAP 3D</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="images/visualizations/newplot1.png"></p>
 <p>Now, the data may be clustered. Create a nearest network, and then
 create Leiden clusters. The clusters may be visualized in 2D or 3D, as
@@ -479,13 +480,13 @@ well as upon the UMAP and within the tissue.</p>
 <span>                           name <span class="op">=</span> <span class="st">'leiden_0.25.200'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot the clusters upon the UMAP</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, cell_color <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, cell_color <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>            show_center_label <span class="op">=</span> <span class="cn">F</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'leiden_0.25.200_UMAP_3D'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/newplot2.png"></p>
 <p>Visualize Leiden clusters within the tissue by creating a Spatial
 Plot, grouping by layer_ID.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, </span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, </span>
@@ -497,7 +498,7 @@ Plot, grouping by layer_ID, and specifying <em>cell_color</em> as the
 number of features detected per cell.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot cell_color as a representation of the number of features/ cell ("nr_feats")</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'nr_feats'</span>, color_as_factor <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">260</span>, <span class="fl">160</span>, <span class="fl">60</span>, <span class="op">-</span><span class="fl">40</span>, <span class="op">-</span><span class="fl">140</span>, <span class="op">-</span><span class="fl">240</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-9-1.png"></p>
@@ -507,11 +508,11 @@ number of features detected per cell.</p>
 </h2>
 <p>We can compare clusters using a heatmap:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, save_plot <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, save_plot <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-10-1.png"></p>
 <p>We can plot a dendogram to explore cluster similarity:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">testobj</span>, h <span class="op">=</span> <span class="fl">0.5</span>, rotate <span class="op">=</span> <span class="cn">T</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">testobj</span>, h <span class="op">=</span> <span class="fl">0.5</span>, rotate <span class="op">=</span> <span class="cn">T</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-11-1.png"></p>
 </div>
 <div class="section level2">
@@ -533,11 +534,11 @@ is employed; details on the gini method may be found <a href="../docs/reference/
 <code class="sourceCode R"><span><span class="va">topgini_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span><span class="op">)</span></span></code></pre></div>
 <p>Create a violinplot:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">testobj</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, strip_position <span class="op">=</span> <span class="st">'right'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">testobj</span>, feats <span class="op">=</span> <span class="va">topgini_genes</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, strip_position <span class="op">=</span> <span class="st">'right'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-13-1.png"></p>
 <p>Create a heatmap of top gini genes by cluster:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">testobj</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">testobj</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_0.25.200'</span><span class="op">)</span>,</span>
 <span>                    selected_feats <span class="op">=</span> <span class="va">topgini_genes</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-14-1.png"></p>
@@ -557,7 +558,7 @@ annotations. If cell types are known, Leiden clusters may be manually
 assigned to a cell type, as will be done here.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot the UMAP, annotated by cell type. </span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">testobj</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">testobj</span>, </span>
 <span>            cell_color <span class="op">=</span> <span class="st">'orig_cell_types'</span>, </span>
 <span>            save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'Original_Cell_Types_UMAP_3D'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/newplot3.png"></p>
@@ -593,7 +594,7 @@ assignment.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mycolorcode</span><span class="op">)</span> <span class="op">=</span> <span class="va">cell_types_in_plot</span></span>
 <span></span>
 <span><span class="co"># Visualize the assigned types in the UMAP</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">testobj</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP_3D.html">plotUMAP_3D</a></span><span class="op">(</span><span class="va">testobj</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
 <span>            cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>            save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'manual_cluster_typing_UMAP_3D'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/newplot4.png"></p>
@@ -602,26 +603,26 @@ may be viewed in tissue in 2D and in 3D within a Spatial Plot by
 specifying the <em>cell_color</em> parameter as the name of the
 annotation, ‘cell_types’.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>,</span>
 <span>          cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, </span>
 <span>          cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>          group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-17-1.png"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/newplot5.png"></p>
 <p>The plots may be subset by cell type in 2D and 3D.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, point_size <span class="op">=</span> <span class="fl">1.0</span>, </span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
 <span>           select_cell_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Microglia'</span>, <span class="st">'Ependymal'</span>, <span class="st">'Endothelial'</span><span class="op">)</span>, show_other_cells <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           group_by <span class="op">=</span> <span class="st">'layer_ID'</span>, cow_n_col <span class="op">=</span> <span class="fl">2</span>, group_by_subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">260</span>, <span class="op">-</span><span class="fl">290</span>, <span class="op">-</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-19-1.png"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot3D</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, axis_scale <span class="op">=</span> <span class="st">'real'</span>,</span>
 <span>           sdimx <span class="op">=</span> <span class="st">'sdimx'</span>, sdimy <span class="op">=</span> <span class="st">'sdimy'</span>, sdimz <span class="op">=</span> <span class="st">'sdimz'</span>,</span>
 <span>           show_grid <span class="op">=</span> <span class="cn">F</span>, cell_color_code <span class="op">=</span> <span class="va">mycolorcode</span>,</span>
@@ -641,7 +642,7 @@ k-nearest networks, will be shown.</p>
 <code class="sourceCode R"><span><span class="co">### Spatial Networks</span></span>
 <span><span class="co"># The following function provides insight to the Delaunay Network. It will be shown in-console</span></span>
 <span><span class="co"># if this command is run as written.</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject<span class="op">=</span> <span class="va">testobj</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject<span class="op">=</span> <span class="va">testobj</span>, </span>
 <span>                        method <span class="op">=</span> <span class="st">'delaunayn_geometry'</span>, </span>
 <span>                        maximum_distance <span class="op">=</span> <span class="fl">50</span>, </span>
 <span>                        show_plot <span class="op">=</span> <span class="cn">T</span>, </span>
@@ -684,25 +685,25 @@ k-nearest networks, will be shown.</p>
 <span>                            cluster_column <span class="op">=</span> <span class="st">'leiden_0.25.200'</span>, </span>
 <span>                            name <span class="op">=</span> <span class="st">'cell_types'</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'Delaunay_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">1.5</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'Delaunay_network_spatPlot'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-21-3.png"></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'spatial_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'spatial_network_spatPlot'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-22-1.png"></p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'large_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'large_network_spatPlot'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visualizations/unnamed-chunk-23-1.png"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subtestobj</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'distance_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>         save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">'distance_network_spatPlot'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

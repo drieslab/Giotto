@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -33,15 +33,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -176,7 +167,15 @@
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Spatial manipulation</li>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    <li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
     </li>
@@ -296,7 +295,8 @@ information to split</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">g</span> <span class="op">=</span> <span class="fu">GiottoData</span><span class="fu">::</span><span class="fu"><a href="https://drieslab.github.io/GiottoData/reference/loadGiottoMini.html">loadGiottoMini</a></span><span class="op">(</span><span class="st">'vizgen'</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://drieslab.github.io/Giotto/">Giotto</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">g</span> <span class="op">=</span> <span class="fu">GiottoData</span><span class="fu">::</span><span class="fu"><a href="https://drieslab.github.io/GiottoData/reference/loadGiottoMini.html">loadGiottoMini</a></span><span class="op">(</span><span class="st">'vizgen'</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 1. read Giotto object</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 2. read Giotto feature information</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library/GiottoData//Mini_datasets/Vizgen/VizgenObject//Features/rna_feature_spatVector.shp"</span>
@@ -330,15 +330,15 @@ information to split</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> no external python path was provided, but a giotto python environment was found</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  and will be used</span>
-<span class="r-in"><span><span class="fu">activeSpatUnit</span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">=</span> <span class="st">'aggregate'</span></span></span>
-<span class="r-in"><span><span class="fu">spatPlot2D</span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/activeSpatUnit-generic.html">activeSpatUnit</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">=</span> <span class="st">'aggregate'</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="spatialSplitCluster-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">g</span> <span class="op">=</span> <span class="fu">spatialSplitCluster</span><span class="op">(</span><span class="va">g</span>,</span></span>
 <span class="r-in"><span>                        cluster_col <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span></span>
 <span class="r-in"><span>                        split_clus_name <span class="op">=</span> <span class="st">'new'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># don't show legend since there are too many categories generated</span></span></span>
-<span class="r-in"><span><span class="fu">spatPlot2D</span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'new'</span>, show_legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span><span class="va">g</span>, cell_color <span class="op">=</span> <span class="st">'new'</span>, show_legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="spatialSplitCluster-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

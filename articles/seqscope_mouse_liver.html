@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -536,14 +537,14 @@ using terra and createGiottoPolygonsFromDfr.</p>
 <span></span>
 <span><span class="co"># create giotto points first to get the extent of the points (hdmi)</span></span>
 <span><span class="va">original_points</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createGiottoPoints.html">createGiottoPoints</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">gpoints</span><span class="op">[</span>,<span class="fu">.</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="va">gene</span>, <span class="va">hdmi</span>, <span class="va">counts</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">original_feat_ext</span> <span class="op">=</span> <span class="fu">ext</span><span class="op">(</span><span class="va">original_points</span><span class="op">@</span><span class="va">spatVector</span><span class="op">)</span></span>
+<span><span class="va">original_feat_ext</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">original_points</span><span class="op">@</span><span class="va">spatVector</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span></span>
 <span><span class="co"># convert polygon to spatRaster to change extent to that of original points</span></span>
 <span><span class="va">final_spatraster</span> <span class="op">=</span> <span class="fu">Giottopolygon_to_raster</span><span class="op">(</span>polygon <span class="op">=</span> <span class="va">final_polygons</span><span class="op">@</span><span class="va">spatVector</span><span class="op">)</span></span>
-<span><span class="fu">ext</span><span class="op">(</span><span class="va">final_spatraster</span><span class="op">$</span><span class="va">raster</span><span class="op">)</span> <span class="op">=</span> <span class="va">original_feat_ext</span></span>
-<span><span class="va">final_polygons</span><span class="op">@</span><span class="va">spatVector</span> <span class="op">=</span> <span class="fu">as.polygons</span><span class="op">(</span><span class="va">final_spatraster</span><span class="op">$</span><span class="va">raster</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="va">final_spatraster</span><span class="op">$</span><span class="va">raster</span><span class="op">)</span> <span class="op">=</span> <span class="va">original_feat_ext</span></span>
+<span><span class="va">final_polygons</span><span class="op">@</span><span class="va">spatVector</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/as.polygons.html" class="external-link">as.polygons</a></span><span class="op">(</span><span class="va">final_spatraster</span><span class="op">$</span><span class="va">raster</span><span class="op">)</span></span>
 <span><span class="va">final_polygons</span><span class="op">@</span><span class="va">spatVector</span><span class="op">$</span><span class="va">poly_ID</span> <span class="op">=</span> <span class="va">final_spatraster</span><span class="op">$</span><span class="va">ID_vector</span><span class="op">[</span><span class="va">final_polygons</span><span class="op">@</span><span class="va">spatVector</span><span class="op">$</span><span class="va">poly_i</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># flip and shift, if needed</span></span>
@@ -585,7 +586,7 @@ transcript file.</p>
 <span><span class="va">seqscope</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/overlapToMatrix.html">overlapToMatrix</a></span><span class="op">(</span><span class="va">seqscope</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Visualize top 200 expressed genes in situ</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">seqscope</span>, show_legend <span class="op">=</span> <span class="cn">F</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">seqscope</span>, show_legend <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>                     show_image <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="va">seqscope</span><span class="op">@</span><span class="va">feat_info</span><span class="op">$</span><span class="va">rna</span><span class="op">@</span><span class="va">spatVector</span><span class="op">$</span><span class="va">feat_ID</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">200</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>                     spat_unit <span class="op">=</span> <span class="st">'cell'</span>,</span>
@@ -622,7 +623,7 @@ transcript file.</p>
 <span><span class="co"># fDataDT(seqscope)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqscope</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqscope</span>,</span>
 <span>           cell_color <span class="op">=</span> <span class="st">'total_expr'</span>, color_as_factor <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           show_image <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">2.5</span>, point_alpha <span class="op">=</span> <span class="fl">0.75</span>, coord_fix_ratio <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
@@ -655,11 +656,11 @@ transcript file.</p>
 <span><span class="co"># visualize UMAP cluster results</span></span>
 <span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqscope</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqscope</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         show_NN_network <span class="op">=</span> <span class="cn">F</span>, point_size <span class="op">=</span> <span class="fl">3.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/seqscope_mouse_liver/leiden_umap.png"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">seqscope</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">seqscope</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'white'</span>,</span>
 <span>                     polygon_line_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -675,7 +676,7 @@ transcript file.</p>
 <code class="sourceCode R"><span><span class="va">seqscope</span><span class="op">&lt;-</span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createSpatialNetwork.html">createSpatialNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqscope</span>, minimum_k <span class="op">=</span> <span class="fl">2</span>, maximum_distance_delaunay <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">km_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">seqscope</span>, subset_feats <span class="op">=</span> <span class="va">seqscope</span><span class="op">@</span><span class="va">feat_ID</span><span class="op">$</span><span class="va">rna</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqscope</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqscope</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>,</span>
 <span>               feats <span class="op">=</span> <span class="va">km_spatialgenes</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span>
 <span>               cell_color_gradient <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'blue'</span>, <span class="st">'white'</span>, <span class="st">'red'</span><span class="op">)</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'border'</span>, point_border_stroke <span class="op">=</span> <span class="fl">0.01</span>,</span>

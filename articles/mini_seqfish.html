@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -441,18 +442,18 @@ slot.</li>
 <span><span class="fu"><a href="../reference/screePlot.html">screePlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, ncp <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/1-screePlot.png"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/2-PCA.png"></p>
 <ul>
 <li>Run UMAP and/or t-SNE on PCs (or directly on matrix)</li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, n_threads <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/3-UMAP.png"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="../reference/runtSNE.html">runtSNE</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotTSNE.html">plotTSNE</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/4-tSNE.png"></p>
 </div>
 <div class="section level2">
@@ -468,21 +469,21 @@ hclust are alternatives)</li>
 <code class="sourceCode R"><span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createNearestNetwork.html">createNearestNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="../reference/doLeidenCluster.html">doLeidenCluster</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, resolution <span class="op">=</span> <span class="fl">0.4</span>, n_iterations <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="co"># visualize UMAP cluster results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, show_NN_network <span class="op">=</span> <span class="cn">T</span>, point_size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, show_NN_network <span class="op">=</span> <span class="cn">T</span>, point_size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/5-UMAP.png"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># visualize UMAP and spatial results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, spat_point_shape <span class="op">=</span> <span class="st">'voronoi'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, spat_point_shape <span class="op">=</span> <span class="st">'voronoi'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/6-spatDimPlot2D.png"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># heatmap and dendrogram</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/7-showClusterHeatmap.png"></p>
 <p>The following step requires the installation of {ggdendro}.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages('ggdendro')</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/andrie/ggdendro" class="external-link">ggdendro</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, h <span class="op">=</span> <span class="fl">0.5</span>, rotate <span class="op">=</span> <span class="cn">T</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, h <span class="op">=</span> <span class="fl">0.5</span>, rotate <span class="op">=</span> <span class="cn">T</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/8-showClusterDendrogram.png"></p>
 </div>
 <div class="section level2">
@@ -498,12 +499,12 @@ hclust are alternatives)</li>
 <span>                                      min_det_gini_score <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co"># get top 2 genes per cluster and visualize with violin plot</span></span>
 <span><span class="va">topgenes_gini</span> <span class="op">=</span> <span class="va">gini_markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">2</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, feats <span class="op">=</span> <span class="va">topgenes_gini</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, feats <span class="op">=</span> <span class="va">topgenes_gini</span><span class="op">$</span><span class="va">feats</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/9-violinPlot.png"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get top 6 genes per cluster and visualize with heatmap</span></span>
 <span><span class="va">topgenes_gini2</span> <span class="op">=</span> <span class="va">gini_markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">6</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, selected_feats <span class="op">=</span> <span class="va">topgenes_gini2</span><span class="op">$</span><span class="va">feats</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, selected_feats <span class="op">=</span> <span class="va">topgenes_gini2</span><span class="op">$</span><span class="va">feats</span>,</span>
 <span>                    metadata_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'leiden_clus'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/10-plotMetaDataHeatmap.png"></p>
 </div>
@@ -521,13 +522,13 @@ hclust are alternatives)</li>
 <span><span class="co"># check new cell metadata</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/pDataDT.html">pDataDT</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span>
 <span><span class="co"># visualize annotations</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'cell_types'</span>, </span>
 <span>            spat_point_size <span class="op">=</span> <span class="fl">3</span>, dim_point_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/11-spatDimPlot2D.png"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># heatmap</span></span>
 <span><span class="va">topgenes_heatmap</span> <span class="op">=</span> <span class="va">gini_markers</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">.SD</span>, <span class="fl">4</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'cluster'</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotHeatmap.html">plotHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotHeatmap.html">plotHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>,</span>
 <span>            feats <span class="op">=</span> <span class="va">topgenes_heatmap</span><span class="op">$</span><span class="va">feats</span>, </span>
 <span>            feat_order <span class="op">=</span> <span class="st">'custom'</span>,</span>
 <span>            feat_custom_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">topgenes_heatmap</span><span class="op">$</span><span class="va">feats</span><span class="op">)</span>,</span>
@@ -548,7 +549,7 @@ hclust are alternatives)</li>
 <span>                                 minimum_padding <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/showGiottoSpatGrids.html">showGiottoSpatGrids</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span>
 <span><span class="co"># visualize grid</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_grid <span class="op">=</span> <span class="cn">T</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_grid <span class="op">=</span> <span class="cn">T</span>, point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/13-spatPlot2D.png"></p>
 </div>
 <div class="section level2">
@@ -560,7 +561,7 @@ hclust are alternatives)</li>
 <li>Create a spatial kNN network</li>
 </ul>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, maximum_distance <span class="op">=</span> <span class="fl">400</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, maximum_distance <span class="op">=</span> <span class="fl">400</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/14-plotStatDelaunayNetwork.png"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createSpatialNetwork.html">createSpatialNetwork</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, minimum_k <span class="op">=</span> <span class="fl">2</span>, </span>
@@ -569,12 +570,12 @@ hclust are alternatives)</li>
 <span>                                    method <span class="op">=</span> <span class="st">'kNN'</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/showGiottoSpatNetworks.html">showGiottoSpatNetworks</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span>
 <span><span class="co"># visualize the two different spatial networks  </span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'Delaunay_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/15-spatPlot2D.png"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, show_network <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>         network_color <span class="op">=</span> <span class="st">'blue'</span>, spatial_network_name <span class="op">=</span> <span class="st">'kNN_network'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/16-spatPlot2D.png"></p>
@@ -591,7 +592,7 @@ hclust are alternatives)</li>
 <p>Visualize top 4 genes per method.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">km_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">seqfish_mini</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
 <span>               feats <span class="op">=</span> <span class="va">km_spatialgenes</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'border'</span>, point_border_stroke <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>               show_network <span class="op">=</span> <span class="cn">F</span>, network_color <span class="op">=</span> <span class="st">'lightgrey'</span>, point_size <span class="op">=</span> <span class="fl">2.5</span>,</span>
@@ -599,7 +600,7 @@ hclust are alternatives)</li>
 <p><img src="images/mini_seqfish/17-spatFeatPlot2D.png"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rank_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/binSpect.html">binSpect</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, bin_method <span class="op">=</span> <span class="st">'rank'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
 <span>               feats <span class="op">=</span> <span class="va">rank_spatialgenes</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">feats</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'border'</span>, point_border_stroke <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>               show_network <span class="op">=</span> <span class="cn">F</span>, network_color <span class="op">=</span> <span class="st">'lightgrey'</span>, point_size <span class="op">=</span> <span class="fl">2.5</span>,</span>
@@ -607,7 +608,7 @@ hclust are alternatives)</li>
 <p><img src="images/mini_seqfish/18-spatFeatPlot2D.png"></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">silh_spatialgenes</span> <span class="op">=</span> <span class="fu"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span><span class="op">)</span> <span class="co"># TODO: suppress print output</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatFeatPlot2D.html">spatFeatPlot2D</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, expression_values <span class="op">=</span> <span class="st">'scaled'</span>, </span>
 <span>               feats <span class="op">=</span> <span class="va">silh_spatialgenes</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">$</span><span class="va">genes</span>,</span>
 <span>               point_shape <span class="op">=</span> <span class="st">'border'</span>, point_border_stroke <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>               show_network <span class="op">=</span> <span class="cn">F</span>, network_color <span class="op">=</span> <span class="st">'lightgrey'</span>, point_size <span class="op">=</span> <span class="fl">2.5</span>,</span>
@@ -653,7 +654,7 @@ network or grid and a subset of individual spatial genes.</p>
 <span><span class="va">seqfish_mini</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/createMetafeats.html">createMetafeats</a></span><span class="op">(</span><span class="va">seqfish_mini</span>,</span>
 <span>                               feat_clusters <span class="op">=</span> <span class="va">cluster_genes</span>,</span>
 <span>                               name <span class="op">=</span> <span class="st">'cluster_metagene'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>,</span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'cluster_metagene'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">netw_ranks</span><span class="op">$</span><span class="va">clusters</span>,</span>
 <span>             point_size <span class="op">=</span> <span class="fl">1.5</span>, cow_n_col <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -692,7 +693,7 @@ network or grid and a subset of individual spatial genes.</p>
 <span><span class="co"># visualize selected hmrf result</span></span>
 <span><span class="va">giotto_colors</span> <span class="op">=</span> <span class="fu">GiottogetDistinctColors</span><span class="op">(</span><span class="fl">9</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">giotto_colors</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">9</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'HMRF_k9_b.28'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'HMRF_k9_b.28'</span>,</span>
 <span>         point_size <span class="op">=</span> <span class="fl">3</span>, coord_fix_ratio <span class="op">=</span> <span class="fl">1</span>, cell_color_code <span class="op">=</span> <span class="va">giotto_colors</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/23-spatPlot2D.png"></p>
 </div>
@@ -755,7 +756,7 @@ network or grid and a subset of individual spatial genes.</p>
 <span>                                  cluster_column <span class="op">=</span> <span class="st">'cell_types'</span>,</span>
 <span>                                  cell_interaction <span class="op">=</span> <span class="va">spec_interaction</span>,</span>
 <span>                                  name <span class="op">=</span> <span class="st">'D_F_interactions'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'D_F_interactions'</span>, legend_symbol_size <span class="op">=</span> <span class="fl">3</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot</a></span><span class="op">(</span><span class="va">seqfish_mini</span>, cell_color <span class="op">=</span> <span class="st">'D_F_interactions'</span>, legend_symbol_size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>         select_cell_groups <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'other_cell D'</span>, <span class="st">'other_cell F'</span>, <span class="st">'select_cell D'</span>, <span class="st">'select_cell F'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/mini_seqfish/29-spatPlot2D.png"></p>
 </div>
@@ -802,7 +803,7 @@ network or grid and a subset of individual spatial genes.</p>
 <h2 id="cell-neighborhood-ligand-receptor-cell-cell-communication">14. Cell neighborhood: ligand-receptor cell-cell communication<a class="anchor" aria-label="anchor" href="#cell-neighborhood-ligand-receptor-cell-cell-communication"></a>
 </h2>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">LR_data</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_directory</span>, <span class="st">"mouse_ligand_receptors.txt"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">LR_data</span> <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">data_directory</span>, <span class="st">"mouse_ligand_receptors.txt"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">LR_data</span><span class="op">[</span>, <span class="va">ligand_det</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">mouseLigand</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">seqfish_mini</span><span class="op">@</span><span class="va">feat_ID</span><span class="op">[[</span><span class="st">'rna'</span><span class="op">]</span><span class="op">]</span>, <span class="cn">T</span>, <span class="cn">F</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">LR_data</span><span class="op">[</span>, <span class="va">receptor_det</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">mouseReceptor</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">seqfish_mini</span><span class="op">@</span><span class="va">feat_ID</span><span class="op">[[</span><span class="st">'rna'</span><span class="op">]</span><span class="op">]</span>, <span class="cn">T</span>, <span class="cn">F</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">LR_data_det</span> <span class="op">=</span> <span class="va">LR_data</span><span class="op">[</span><span class="va">ligand_det</span> <span class="op">==</span> <span class="cn">T</span> <span class="op">&amp;</span> <span class="va">receptor_det</span> <span class="op">==</span> <span class="cn">T</span><span class="op">]</span></span>
@@ -833,7 +834,7 @@ network or grid and a subset of individual spatial genes.</p>
 <span><span class="co">## * plot communication scores ####</span></span>
 <span><span class="co">## select top LR ##</span></span>
 <span><span class="va">selected_spat</span> <span class="op">=</span> <span class="va">spatial_all_scores</span><span class="op">[</span><span class="va">p.adj</span> <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">log2fc</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.1</span> <span class="op">&amp;</span> <span class="va">lig_nr</span> <span class="op">&gt;=</span> <span class="fl">2</span> <span class="op">&amp;</span> <span class="va">rec_nr</span> <span class="op">&gt;=</span> <span class="fl">2</span><span class="op">]</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">setorder</a></span><span class="op">(</span><span class="va">selected_spat</span>, <span class="op">-</span><span class="va">PI</span><span class="op">)</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setorder.html" class="external-link">setorder</a></span><span class="op">(</span><span class="va">selected_spat</span>, <span class="op">-</span><span class="va">PI</span><span class="op">)</span></span>
 <span><span class="va">top_LR_ints</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">selected_spat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">PI</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">$</span><span class="va">LR_comb</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">33</span><span class="op">]</span></span>
 <span><span class="va">top_LR_cell_ints</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">selected_spat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">PI</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">$</span><span class="va">LR_cell_comb</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">33</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/plotCCcomHeatmap.html">plotCCcomHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">seqfish_mini</span>,</span>

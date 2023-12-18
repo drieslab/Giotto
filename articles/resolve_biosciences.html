@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -437,12 +438,12 @@ Subcellular</h1>
 <code class="sourceCode R"><span><span class="co"># visualize overlay of calculated cell centroid with original image and segmentation mask file</span></span>
 <span><span class="co"># by setting show_plot to FALSE and save_plot to TRUE you can save quite some time when creating plots</span></span>
 <span><span class="co"># with big images it sometimes takes quite long for R/Rstudio to render them</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
 <span>           image_name <span class="op">=</span> <span class="st">'DAPI'</span>, </span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="images/resolve_biosciences/0-spatPlot2D.png"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testobj</span>, </span>
 <span>           image_name <span class="op">=</span> <span class="st">'segmentation'</span>, </span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/1-spatPlot2D.png"></p>
@@ -478,7 +479,7 @@ Subcellular</h1>
 <span>                          feat_det_in_min_cells <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>                          min_det_feats_per_cell <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="st">'segmentation'</span>, show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/69-spatPlot2D.png"></p>
@@ -525,7 +526,7 @@ Subcellular</h1>
 <span><span class="fu"><a href="../reference/screePlot.html">screePlot</a></span><span class="op">(</span><span class="va">subc_test</span>, ncp <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/6-screePlot.png"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotPCA.html">plotPCA</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
 <span>        dim1_to_use <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        dim2_to_use <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/7-PCA.png"></p>
@@ -534,7 +535,7 @@ Subcellular</h1>
 <span><span class="va">subc_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">subc_test</span>, </span>
 <span>                     dimensions_to_use <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, </span>
 <span>                     n_threads <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/8-UMAP.png"></p>
 </div>
 <div class="section level2">
@@ -555,7 +556,7 @@ Subcellular</h1>
 <span><span class="va">featcolor</span> <span class="op">=</span> <span class="fu">lacroix_palette</span><span class="op">(</span><span class="st">"KeyLime"</span>, type <span class="op">=</span> <span class="st">"discrete"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize UMAP cluster results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>, </span>
 <span>         cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>         show_NN_network <span class="op">=</span> <span class="cn">T</span>, </span>
 <span>         point_size <span class="op">=</span> <span class="fl">2.5</span>, </span>
@@ -563,7 +564,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/39-UMAP.png"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># visualize UMAP and spatial results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
 <span>              show_image <span class="op">=</span> <span class="cn">T</span>, </span>
 <span>              image_name <span class="op">=</span> <span class="st">'segmentation'</span>,</span>
 <span>              cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
@@ -572,13 +573,13 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/51-spatDimPlot2D.png"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot a cluster heatmap</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterHeatmap.html">showClusterHeatmap</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>, </span>
 <span>                   cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>                   save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_format <span class="op">=</span> <span class="st">'pdf'</span>,base_height <span class="op">=</span> <span class="fl">6</span>, base_width <span class="op">=</span> <span class="fl">8</span>, units <span class="op">=</span> <span class="st">'cm'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/resolve_biosciences/72-Heatmap.png"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See cluster relationships in a dendogram</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">subc_test</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/showClusterDendrogram.html">showClusterDendrogram</a></span><span class="op">(</span><span class="va">subc_test</span>, </span>
 <span>                      h <span class="op">=</span> <span class="fl">0.5</span>, </span>
 <span>                      rotate <span class="op">=</span> <span class="cn">T</span>, </span>
 <span>                      cluster_column <span class="op">=</span> <span class="st">'leiden_clus'</span><span class="op">)</span></span></code></pre></div>
@@ -593,7 +594,7 @@ Subcellular</h1>
 <span>                                 minimum_k <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                                 maximum_distance_delaunay <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">subc_test</span>,</span>
 <span>           image_name <span class="op">=</span> <span class="st">'segmentation'</span>, </span>
 <span>           show_image <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           point_size <span class="op">=</span> <span class="fl">1.5</span>, </span>
@@ -605,7 +606,7 @@ Subcellular</h1>
 </h2>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Visualize clustered cells</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_feat_type <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'white'</span>,</span>
@@ -618,7 +619,7 @@ Subcellular</h1>
 <code class="sourceCode R"><span><span class="co"># individual plotting of transcripts and polygon information</span></span>
 <span></span>
 <span><span class="co"># all cells</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">testobj</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -628,7 +629,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/16-spatInSituPlotPoints.png"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># filtered cells</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -638,7 +639,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/17-spatInSituPlotPoints.png"></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># faster plotting method if you have many points</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
 <span>                     plot_method <span class="op">=</span> <span class="st">'scattermore'</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.2</span>,</span>
@@ -660,7 +661,7 @@ Subcellular</h1>
 <span>                          poly_info <span class="op">=</span> <span class="st">'cell'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show subset of genes</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -670,7 +671,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/19-spatInSituPlotPoints.png"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show subset of genes and color cells according to clusters</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -685,7 +686,7 @@ Subcellular</h1>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show subset of genes and color cells according to total expression</span></span>
 <span><span class="co"># use a faster and more efficient point plotting method = scattermore</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
 <span>                     plot_method <span class="op">=</span> <span class="st">'scattermore'</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MMP2"</span>, <span class="st">"VEGFA"</span>, <span class="st">"IGF1R"</span>, <span class="st">'CDH2'</span>, <span class="st">'MKI67'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.6</span>,</span>
@@ -698,7 +699,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/61-spatInSituPlotPoints.png"></p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show cells and color them according to total expression</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_feat_type <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'white'</span>,</span>
@@ -708,7 +709,7 @@ Subcellular</h1>
 <p><img src="images/resolve_biosciences/22-spatInSituPlotPoints.png"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show cells and color them according to total cluster information</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subloc</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     polygon_feat_type <span class="op">=</span> <span class="st">'cell'</span>,</span>
 <span>                     polygon_color <span class="op">=</span> <span class="st">'white'</span>,</span>
@@ -732,7 +733,7 @@ Subcellular</h1>
 <span></span>
 <span><span class="va">test</span><span class="op">$</span><span class="va">ICFscores</span><span class="op">[</span><span class="va">type_int</span> <span class="op">==</span> <span class="st">'hetero'</span><span class="op">]</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatInSituPlotPoints.html">spatInSituPlotPoints</a></span><span class="op">(</span><span class="va">subc_test</span>,</span>
 <span>                     feats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'rna'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CTSD"</span>, <span class="st">"BMP1"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                     point_size <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>                     show_polygon <span class="op">=</span> <span class="cn">TRUE</span>,</span>

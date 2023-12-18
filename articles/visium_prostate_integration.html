@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.1</span>
       </span>
     </div>
 
@@ -51,15 +51,6 @@
     </li>
     <li>
       <a href="../articles/ecosystem.html">Giotto Ecosystem</a>
-    </li>
-    <li>
-      <a href="../articles/configuration.html">Giotto Configuration</a>
-    </li>
-    <li>
-      <a href="../articles/object_creation.html">Giotto Object Creation</a>
-    </li>
-    <li>
-      <a href="../articles/structure.html">Giotto Class Structure</a>
     </li>
     <li>
       <a href="../articles/structure.html">Giotto Class Structure</a>
@@ -233,6 +224,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/object_creation.html">Giotto Object Creation</a>
+    </li>
+    <li class="divider">
+    </li>
+<li>
+      <a href="../articles/configuration.html">Giotto Configuration</a>
+    </li>
+    <li class="divider">
+    </li>
 <li class="dropdown-header">Spatial manipulation</li>
     <li>
       <a href="../articles/spatial_transformations.html">Spatial transformations</a>
@@ -430,20 +431,20 @@ The Visium Normal Prostate data to run this tutorial can be found <a href="https
 <code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/showGiottoExpression.html">showGiottoExpression</a></span><span class="op">(</span><span class="va">testcombo</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># this plots all the images by list_ID</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
 <span>    show_image <span class="op">=</span> <span class="cn">T</span>, image_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NP-image"</span>, <span class="st">"CP-image"</span><span class="op">)</span>,</span>
 <span>    group_by <span class="op">=</span> <span class="st">'list_ID'</span>, point_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"1a_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-5-1.png"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># this plots one selected image</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
 <span>    show_image <span class="op">=</span> <span class="cn">T</span>, image_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NP-image"</span><span class="op">)</span>, point_alpha <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"1b_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-6-1.png"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># this plots two selected images</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, cell_color <span class="op">=</span> <span class="st">'in_tissue'</span>,</span>
 <span>    show_image <span class="op">=</span> <span class="cn">T</span>, image_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"NP-image"</span>, <span class="st">"CP-image"</span><span class="op">)</span>,</span>
 <span>    point_alpha <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"1c_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -475,14 +476,14 @@ The Visium Normal Prostate data to run this tutorial can be found <a href="https
 <span><span class="va">fmeta</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/fDataDT.html">fDataDT</a></span><span class="op">(</span><span class="va">testcombo</span><span class="op">)</span></span>
 <span><span class="va">testfeats</span> <span class="op">=</span> <span class="va">fmeta</span><span class="op">[</span><span class="va">perc_cells</span> <span class="op">&gt;</span> <span class="fl">20</span> <span class="op">&amp;</span> <span class="va">perc_cells</span> <span class="op">&lt;</span> <span class="fl">50</span><span class="op">]</span><span class="op">[</span><span class="fl">100</span><span class="op">:</span><span class="fl">110</span><span class="op">]</span><span class="op">$</span><span class="va">feat_ID</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">testcombo</span>, feats <span class="op">=</span> <span class="va">testfeats</span>, cluster_column <span class="op">=</span> <span class="st">'list_ID'</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2a_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/violinPlot.html">violinPlot</a></span><span class="op">(</span><span class="va">testcombo</span>, feats <span class="op">=</span> <span class="va">testfeats</span>, cluster_column <span class="op">=</span> <span class="st">'list_ID'</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2a_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-9-1.png"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">testcombo</span>, selected_feats <span class="op">=</span> <span class="va">testfeats</span>, metadata_cols <span class="op">=</span> <span class="st">'list_ID'</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2b_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span><span class="op">(</span><span class="va">testcombo</span>, selected_feats <span class="op">=</span> <span class="va">testfeats</span>, metadata_cols <span class="op">=</span> <span class="st">'list_ID'</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2b_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-9-3.png"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## visualize</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>, cell_color <span class="op">=</span> <span class="st">'nr_feats'</span>, color_as_factor <span class="op">=</span> <span class="cn">F</span>, point_size <span class="op">=</span> <span class="fl">0.75</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2c_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>, cell_color <span class="op">=</span> <span class="st">'nr_feats'</span>, color_as_factor <span class="op">=</span> <span class="cn">F</span>, point_size <span class="op">=</span> <span class="fl">0.75</span>, save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"2c_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-10-1.png"></p>
 </div>
 <div class="section level2">
@@ -520,18 +521,18 @@ integration methods.</p>
 <span><span class="co"># UMAP</span></span>
 <span><span class="va">testcombo</span> <span class="op">=</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">testcombo</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, show_NN_network <span class="op">=</span> <span class="cn">T</span>, point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4.1a_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-12-1.png"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>    point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4.1b_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-13-1.png"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4.1c_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-14-1.png"></p>
@@ -566,7 +567,7 @@ work well on spatial datasets.</p>
 <span><span class="va">testcombo</span> <span class="op">=</span> <span class="fu"><a href="../reference/runUMAP.html">runUMAP</a></span><span class="op">(</span><span class="va">testcombo</span>, dim_reduction_name <span class="op">=</span> <span class="st">'harmony'</span>, dim_reduction_to_use <span class="op">=</span> <span class="st">'harmony'</span>, name <span class="op">=</span> <span class="st">'umap_harmony'</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/plotUMAP.html">plotUMAP</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    dim_reduction_name <span class="op">=</span> <span class="st">'umap_harmony'</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_harmony'</span>, </span>
 <span>    show_NN_network <span class="op">=</span> <span class="cn">F</span>, </span>
@@ -577,25 +578,25 @@ work well on spatial datasets.</p>
 <code class="sourceCode R"><span><span class="co"># If you want to show NN network information, you will need to specify these arguments in the plotUMAP function</span></span>
 <span><span class="co"># show_NN_network = T, nn_network_to_use = 'sNN' , network_name = 'NN.harmony'</span></span></code></pre></div>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, group_by <span class="op">=</span> <span class="st">'list_ID'</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_harmony'</span>,</span>
 <span>    point_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4.2b_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-16-1.png"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatDimPlot.html">spatDimPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    dim_reduction_to_use <span class="op">=</span> <span class="st">'umap'</span>, dim_reduction_name <span class="op">=</span> <span class="st">'umap_harmony'</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_harmony'</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4.2c_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-17-1.png"></p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># compare to previous results</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_clus'</span>, </span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4_w_o_integration_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-18-1.png"></p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatPlot.html">spatPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>    cell_color <span class="op">=</span> <span class="st">'leiden_harmony'</span>,</span>
 <span>    save_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>save_name <span class="op">=</span> <span class="st">"4_w_integration_plot"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/visium_prostate_integration/unnamed-chunk-18-3.png"></p>
@@ -636,7 +637,7 @@ of this dataset using getSpatialDataset</p>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">giotto_SC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/addCellMetadata.html">addCellMetadata</a></span><span class="op">(</span><span class="va">giotto_SC</span>, </span>
-<span>                             new_metadata <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">sc_metadata</span><span class="op">)</span><span class="op">)</span></span>
+<span>                             new_metadata <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">sc_metadata</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">giotto_SC</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span><span class="op">(</span><span class="va">giotto_SC</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
@@ -670,7 +671,7 @@ of this dataset using getSpatialDataset</p>
 <span><span class="va">cell_types_subset</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">PAGE_matrix</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot PAGE enrichment result</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'PAGE'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">cell_types_subset</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>             cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="cn">NULL</span>, point_size <span class="op">=</span> <span class="fl">1.25</span>,</span>
@@ -685,7 +686,7 @@ of this dataset using getSpatialDataset</p>
 <span>                                    expression_values <span class="op">=</span> <span class="st">"normalized"</span>,</span>
 <span>                                    sign_matrix <span class="op">=</span> <span class="va">PAGE_matrix</span><span class="op">)</span></span>
 <span><span class="va">cell_types_subset</span> <span class="op">=</span> <span class="fu"><a href="https://drieslab.github.io/GiottoClass/reference/row-plus-colnames-generic.html">colnames</a></span><span class="op">(</span><span class="va">PAGE_matrix</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, </span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, </span>
 <span>             spat_enr_names <span class="op">=</span> <span class="st">'hypergeometric'</span>,</span>
 <span>             cell_annotation_values <span class="op">=</span> <span class="va">cell_types_subset</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>             cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="cn">NULL</span>, point_size <span class="op">=</span> <span class="fl">1.75</span>,</span>
@@ -710,7 +711,7 @@ of this dataset using getSpatialDataset</p>
 <span><span class="va">testcombo</span> <span class="op">=</span> <span class="fu"><a href="../reference/runRankEnrich.html">runRankEnrich</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>, sign_matrix <span class="op">=</span> <span class="va">rank_matrix</span>,expression_values <span class="op">=</span> <span class="st">"normalized"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot Rank enrichment result</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>               spat_enr_names <span class="op">=</span> <span class="st">'rank'</span>,</span>
 <span>               cell_annotation_values <span class="op">=</span> <span class="va">cell_types_subset</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>               cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="cn">NULL</span>, point_size <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -730,7 +731,7 @@ of this dataset using getSpatialDataset</p>
 <span></span>
 <span></span>
 <span><span class="co"># Plot DWLS deconvolution result</span></span>
-<span><span class="fu"><a href="https://drieslab.github.io/Giotto/reference/spatCellPlot.html">spatCellPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
+<span><span class="fu"><a href="https://drieslab.github.io/GiottoVisuals/reference/spatCellPlot.html">spatCellPlot2D</a></span><span class="op">(</span>gobject <span class="op">=</span> <span class="va">testcombo</span>,</span>
 <span>               spat_enr_names <span class="op">=</span> <span class="st">'DWLS'</span>,</span>
 <span>               cell_annotation_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">prostate_feats</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span>
 <span>               cow_n_col <span class="op">=</span> <span class="fl">2</span>,coord_fix_ratio <span class="op">=</span> <span class="cn">NULL</span>, point_size <span class="op">=</span> <span class="fl">1</span>,</span>
