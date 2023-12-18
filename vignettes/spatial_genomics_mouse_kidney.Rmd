@@ -1,6 +1,5 @@
 ---
 title: "Spatial Genomics Mouse Kidney"
-date: 8/9/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Spatial Genomics Mouse Kidney}

@@ -1,6 +1,5 @@
 ---
 title: "Vizgen Mouse Brain Receptor Map"
-date: 2021-09-29
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vizgen Mouse Brain Receptor Map}

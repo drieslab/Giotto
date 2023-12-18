@@ -1,0 +1,44 @@
+# From https://medium.com/@karlstad/create-a-github-actions-workflow-that-auto-merges-the-master-back-to-dev-branch-8b1ebe7009b3
+
+name: PRs to Suite
+on:
+  push:
+    branches:
+      - 'suite'
+jobs:
+  merge-suite-back-to-suite_dev:
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Git config
+      run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+    - name: Merge suite back to suite_dev
+      run: |
+          git fetch --unshallow
+          git checkout suite_dev
+          git pull
+          git merge --no-ff suite -m "Auto-merge suite back to suite_dev"
+          git push
+
+
+  update-pkgdown:
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Git config
+      run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+    - name: Update pkgdown from suite
+      run: |
+          git fetch --unshallow
+          git checkout pkgdown
+          git pull
+          git merge --no-ff suite -m "Auto-update pkgdown"
+          git push

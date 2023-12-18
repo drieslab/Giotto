@@ -1,0 +1,18 @@
+---
+title: "Presentations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Presentations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# BioC 2023
+
+[![](images/presentations/bioc-giotto-pres.png){.align-center}](https://www.youtube.com/watch?v=vJhZtfTDK9I)
+
+# The Visualization and User Experience Seminars, November 21st 2023
+
+[![](images/presentations/vues2023.png)](https://www.dropbox.com/scl/fi/z97wixwv7eksnehazn6qu/20231121_VUES.mp4?rlkey=22f5hxje1eicktcexkm4vfozb&dl=1){.align-center}
+
+

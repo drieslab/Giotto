@@ -1,6 +1,5 @@
 ---
 title: "MERFISH Mouse Hypothalamic Preoptic Region"
-date: 2022-09-16
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{MERFISH Mouse Hypothalamic Preoptic Region}
