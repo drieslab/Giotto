@@ -2,13 +2,13 @@
 
 name: PRs to Suite
 on:
-  pull_request:
-    branches: [suite]
-    types: [closed]
+  push:
+    branches:
+      - 'suite'
 jobs:
   merge-suite-back-to-suite_dev:
-    if: github.event.pull_request.merged == true
-    timeout-minutes: 2
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,8 +26,8 @@ jobs:
 
 
   update-pkgdown:
-    if: github.event.pull_request.merged == true
-    timeout-minutes: 2
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
