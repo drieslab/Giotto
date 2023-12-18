@@ -1,6 +1,5 @@
 ---
 title: "Codex Mouse Spleen"
-date: 2022-09-16
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Codex Mouse Spleen}

@@ -1,6 +1,5 @@
 ---
 title: "Seq-Scope Mouse liver"
-date: 2022-11-15
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Seq-Scope Mouse liver}
