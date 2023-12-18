@@ -1,6 +1,5 @@
 ---
 title: "mini seqFISH"
-date: 2022-09-16
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{mini seqFISH}

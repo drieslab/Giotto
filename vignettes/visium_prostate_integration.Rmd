@@ -1,6 +1,5 @@
 ---
 title: "Visium Prostate Integration"
-date: 5/5/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium Prostate Integration}
@@ -503,7 +502,7 @@ top_markers <- markers_scran[, head(.SD, 10), by="cluster"]
 celltypes<-levels(factor(markers_scran$cluster))
 sign_list<-list()
 
-for (i in seq_along(celltypes)){
+for (i in 1:length(celltypes)){
   sign_list[[i]]<-top_markers[which(top_markers$cluster == celltypes[i]),]$feats
 }
 
