@@ -450,9 +450,9 @@ get10Xmatrix = function(path_to_data,
   colnames(MMmatrix) = barcodes_vec
 
 
-  # Split by type of feature (features.tzv 3rd col)
+  # Split by type of feature (features.tsv 3rd col)
   feat_classes = unique(featuresDT$V3)
-  if(length(feat_classes) > 1) {
+  if(length(feat_classes) > 1 && isTRUE(split_by_type)) {
     result_list = list()
 
     for(fclass in feat_classes) {
@@ -536,9 +536,11 @@ get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
   length_missing = length(missing_barcodes_cell_ids)
 
   if(length_missing > 0) {
-    missing_matrixDT = data.table(gene_id_num = rep(1, length_missing),
-                                  cell_id_num = missing_barcodes_cell_ids,
-                                  umi = rep(0, length_missing))
+    missing_matrixDT = data.table(
+      gene_id_num = rep(1, length_missing),
+      cell_id_num = missing_barcodes_cell_ids,
+      umi = rep(0, length_missing)
+    )
     matrixDT = rbind(matrixDT, missing_matrixDT)
   }
 
@@ -552,10 +554,13 @@ get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
   names(sort_gene_id_vec) = unique(matrixDT$gene_id)
   matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
 
-  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num,
-                                   j = matrixDT$cell_id_num,
-                                   x = matrixDT$umi,
-                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
+  sparsemat = Matrix::sparseMatrix(
+    i = matrixDT$sort_gene_id_num,
+    j = matrixDT$cell_id_num,
+    x = matrixDT$umi,
+    dimnames = list(unique(matrixDT$gene_id),
+                    unique(matrixDT$cell_id))
+  )
 
   return(sparsemat)
 

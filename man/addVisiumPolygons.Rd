@@ -7,18 +7,19 @@
 addVisiumPolygons(gobject, scalefactor_path = NULL)
 }
 \arguments{
-\item{gobject}{Giotto Object created with visium data, containing
-spatial location corresponding to spots}
+\item{gobject}{Giotto Object created with visium data, containing spatial
+locations corresponding to spots}
 
 \item{scalefactor_path}{path to scalefactors_json.json Visium output}
 }
 \value{
-Giotto Object with circular polygons added at each spatial location
+Giotto Object with to-scale circular polygons added at each spatial
+location
 }
 \description{
 Add Visium Polygons to Giotto Object
 }
 \details{
-Adds circular giottoPolygons to a the spatial_info slot of a Giotto Object
+Adds circular giottoPolygons to the spatial_info slot of a Giotto Object
 for the "cell" spatial unit.
 }

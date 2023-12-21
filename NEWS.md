@@ -1,5 +1,15 @@
 
 
+# Giotto Suite 4.0.3
+
+## Breaking Changes
+* Remove `do_manual_adj` and image adjustment params from `createGiottoVisiumObject()`
+* Change `createGiottoVisiumObject()` so that it creates `giottoLargeImage` for spatial images.
+
+## Changes
+* Update `get10Xmatrix()` so it obeys `split_by_type = FALSE`
+
+
 # Giotto Suite 4.0.1 (2023/12/16)
 
 ## Breaking Changes
