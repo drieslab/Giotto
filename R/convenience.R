@@ -338,30 +338,18 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                  gene_column_index = gene_column_index)
   }
 
+  # if expr_results is not a list, make it a list compatible with downstream
   if (!is.list(expr_results)) expr_results = list("Gene Expression" = expr_results)
 
-  raw_matrix_list <- list(
-    createExprObj(expr_results[['Gene Expression']],
-                  name = "raw",
-                  spat_unit = "cell",
-                  feat_type = "rna",
-                  provenance = "cell")
-  )
+  # format expected data into list to be used with readExprData()
+  raw_matrix_list <- list("cell" = list("rna" = list("raw" = expr_results[["Gene Expression"]])))
 
+  # add protein expression data to list if it exists
   if ('Antibody Capture' %in% names(expr_results)) {
-    raw_matrix_list <- c(
-      raw_matrix_list,
-      list(
-        createExprObj(expr_results[['Antibody Capture']],
-                      name = "raw",
-                      spat_unit = "cell",
-                      feat_type = "protein",
-                      provenance = "cell")
-      )
-    )
+    raw_matrix_list$cell$protein$raw <- expr_results[["Antibody Capture"]]
   }
 
-browser()
+
   # 2. spatial locations
   spatial_results <- data.table::fread(tissue_positions_path)
   colnames(spatial_results) <- c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
