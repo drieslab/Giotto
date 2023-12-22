@@ -1,9 +1,4 @@
 
-# Giotto Suite 4.0.2 (2023/12/21)
-
-## Changes
-* Move *GiottoClass* back to depends to fix access to some generics
-
 # Giotto Suite 4.0.3
 
 ## Breaking Changes
@@ -12,6 +7,13 @@
 
 ## Changes
 * Update `get10Xmatrix()` so it obeys `split_by_type = FALSE`
+
+
+
+# Giotto Suite 4.0.2 (2023/12/21)
+
+## Changes
+* Move *GiottoClass* back to depends to fix access to some generics
 
 
 # Giotto Suite 4.0.1 (2023/12/16)
