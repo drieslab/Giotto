@@ -353,7 +353,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   # 2. spatial locations
   spatial_results <- data.table::fread(tissue_positions_path)
   colnames(spatial_results) <- c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
-  spatial_results <- spatial_results[match(colnames(raw_matrix_list[[1]]), barcode)]
+  spatial_results <- spatial_results[match(colnames(raw_matrix_list$cell[[1]]$raw), barcode)]
   data.table::setnames(spatial_results, old = "barcode", new = "cell_ID")
   spatial_locs <- spatial_results[,.(cell_ID, row_pxl,-col_pxl)] # flip x and y
   colnames(spatial_locs) <- c("cell_ID", 'sdimx', 'sdimy')
@@ -373,26 +373,26 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     )
   }
 
+  # 5. metadata
+  meta_results <- spatial_results[,.(cell_ID, in_tissue, array_row, array_col)]
+  expr_types <- names(raw_matrix_list$cell)
+  meta_list <- list()
+  for (etype in expr_types) {
+    meta_list[[etype]] <- meta_results
+  }
 
-  # 5. giotto object
 
-  expr_types <- seq_along(raw_matrix_list)
-  names(expr_types) <- names(raw_matrix_list)
-  meta_list <- lapply(
-    expr_types,
-    spatial_results[,.(cell_ID, in_tissue, array_row, array_col)]
-  )
-
+  # 6. giotto object
   giotto_object <- createGiottoObject(
     expression = raw_matrix_list,
     spatial_locs = spatial_locs,
     instructions = instructions,
     cell_metadata = meta_list,
-    images = visium_png_list
+    largeImages = visium_png_list
   )
 
 
-  # 6. polygon information
+  # 7. polygon information
   if(!is.null(json_info)){
     visium_polygons = .visium_spot_poly(
       spatlocs = spatial_locs,
