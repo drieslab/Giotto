@@ -735,7 +735,7 @@ addVisiumPolygons <- function(gobject,
     raster_object = image_path,
     name = "image",
     negative_y = TRUE,
-    scale_factor = scale_factor
+    scale_factor = (1/scale_factor)
   )
 
   visium_img_list = list(visium_img)
