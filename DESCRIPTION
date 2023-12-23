@@ -1,20 +1,22 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.1
+Version: 4.0.2
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
 	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
 		 role = c("aut")),
-	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
-		 role = c("aut")),
+	person("Joselyn C.", "Chávez-Fuentes", email = "joselynchavezf@gmail.com",
+		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591")),
 	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut")),
-  person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
+    person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
 		 role = c("aut")),
-	person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
-		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591")),
 	person("Edward", "Ruiz", email = "ecruiz@bu.edu",
+		 role = c("aut")),
+	person("Wen", "Wang", email = "wen.wang@mssm.edu",
+		 role = c("aut")),
+	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
 		 role = c("aut"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
@@ -30,6 +32,7 @@ Depends:
     utils (>= 3.5.0),
     R (>= 3.5.0),
     methods,
+    GiottoClass (>= 0.1.1)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -39,9 +42,8 @@ Imports:
     dbscan (>= 1.1-3),
     ggplot2 (>= 3.1.1),
     ggrepel,
-    GiottoUtils (>= 0.1.0.1),
-    GiottoClass (>= 0.1.0.1),
-    GiottoVisuals (>= 0.1.0.1),
+    GiottoUtils (>= 0.1.1),
+    GiottoVisuals (>= 0.1.1),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
@@ -87,6 +89,7 @@ Suggests:
     hdf5r,
     htmlwidgets,
     jackstraw,
+    kableExtra,
     knitr,
     MAST,
     miniUI,

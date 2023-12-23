@@ -1,6 +1,5 @@
 ---
 title: "Visium CytAssist Multi-omics Human Glioblastoma"
-date: 9/7/23
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium CytAssist Multi-omics Human Glioblastoma}

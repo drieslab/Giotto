@@ -1,5 +1,10 @@
 
-# Giotto Suite 4.0.1 (release TBD)
+# Giotto Suite 4.0.2 (2023/12/21)
+
+## Changes
+* Move *GiottoClass* back to depends to fix access to some generics
+
+# Giotto Suite 4.0.1 (2023/12/16)
 
 ## Breaking Changes
 * Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
@@ -13,7 +18,7 @@
 ## Changes
 * Fix `createGiottoXeniumObject()` feature metadata reading for `.json` file
 * Update `runGiottoHarmony()` to call `harmony::RunHarmony()` 
-* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* can resolve issues with Matrix incompatibility. See: https://github.com/bwlewis/irlba/issues/70)
+* Update *Matrix* requirement to >= 1.6.2 (a re-install of *irlba* may resolve issues with Matrix incompatibility.)
 
 
 
@@ -32,10 +37,12 @@
 * New function `addVisiumPolygons()` within `convenience.R` (along with its requisite internal functions) that adds  circular polygons centered at the spatial locations of a Giotto Object made with Visium data. Takes a Giotto Object and a path to the Visium output file `scalefactors_json.json` as input arguments.
 * Added `addVisiumPolygons()` to `createGiottoVisiumObject()` workflow.
 * Add `cell_ids` param to `calculateHVF()` to allow calculation of HVFs on a subset of cells
+* Add seed setting to `runGiottoHarmony()`
+* Update `runGiottoHarmony()` to call `harmony::RunHarmony()`
 
 
 ## Changes
-
+* Update *Matrix* requirement to >= 1.6.3
 
 
 

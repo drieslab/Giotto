@@ -1,6 +1,5 @@
 ---
 title: "osmFISH Mouse SS Cortex"
-date: 2022-09-16
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{osmFISH Mouse SS Cortex}
