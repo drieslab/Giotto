@@ -7,7 +7,6 @@
 
 ## Changes
 * Update `get10Xmatrix()` so it obeys `split_by_type = FALSE`
-* Change `createGiottoVisiumObject()` default `gene_column_index` to 2
 
 
 

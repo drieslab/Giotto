@@ -234,7 +234,7 @@ NULL
 #' @export
 createGiottoVisiumObject = function(visium_dir = NULL,
                                     expr_data = c('raw', 'filter'),
-                                    gene_column_index = 2,
+                                    gene_column_index = 1,
                                     h5_visium_path = NULL,
                                     h5_gene_ids = c('symbols', 'ensembl'),
                                     h5_tissue_positions_path = NULL,
@@ -416,7 +416,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 .visium_read_folder <- function(
     visium_dir = NULL,
     expr_data = c("raw", "filter"),
-    gene_column_index = 2,
+    gene_column_index = 1,
     png_name = NULL,
     verbose = NULL
 )
