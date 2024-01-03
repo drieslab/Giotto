@@ -47,8 +47,6 @@ navbar:
         href: articles/errorsfaqsandtips.html
       - text: FAQs
         href: articles/faqs.html
-      - text: Branches
-        href: articles/branches.html
       - text: How to report a bug
         href: articles/github_issues.html
     reference:
@@ -175,6 +173,8 @@ navbar:
         href: news/index.html
       - text: Presentations
         href: articles/presentations.html
+      - text: Branches
+        href: articles/branches.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/drieslab/Giotto/
