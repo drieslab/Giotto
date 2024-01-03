@@ -34,6 +34,34 @@ test_that("highly variable gene detection", {
   checkmate::expect_character(fDataDT(g)$hvf)
 })
 
+test_that("highly variable gene detections - pearson resid", {
+  # reset feature metadata
+  g <- setFeatureMetadata(g, NULL, spat_unit = "cell", feat_type = "rna", verbose = FALSE)
+  expect_false(any(c("var", "hvf") %in% names(fDataDT(g))))
+
+  g <- normalizeGiotto(
+    gobject = g,
+    feat_type = 'rna',
+    scalefactor = 5000,
+    verbose = FALSE,
+    norm_methods = 'pearson_resid',
+    update_slot = 'pearson'
+  )
+
+  g <- calculateHVF(
+    g,
+    method = 'var_p_resid',
+    var_threshold = 7,
+    expression_values = 'pearson'
+  )
+
+  expect_true(any(c("var", "hvf") %in% names(fDataDT(g))))
+
+  # character "yes" and "no" expected
+  checkmate::expect_numeric(fDataDT(g)$var)
+  checkmate::expect_character(fDataDT(g)$hvf)
+})
+
 
 # statistics ####
 
