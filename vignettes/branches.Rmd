@@ -13,7 +13,7 @@ The Suite branch of Giotto is the latest and extended version of Giotto and is u
 
 Using established packages optimized for large(r) data, Giotto Suite adopts fast and memory efficient methods to create an interactive analysis. Click the logo below to learn more about the Giotto Suite branch.
 
-[![](images/branches/GiottoLogo.png){width="200px"}](https://giottosuite.com)
+[![](images/branches/GiottoLogo.png){width="200px"}](https://drieslab.github.io/Giotto/articles/ecosystem.html)
 
 # Giotto Master
 

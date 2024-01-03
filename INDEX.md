@@ -21,16 +21,17 @@ Giotto Suite is a major upgrade to the Giotto package that provides tools to pro
 ## Installation
 
 To install Giotto suite use
-`devtools::install_github("drieslab/Giotto@suite_modular")`. 
+`devtools::install_github("drieslab/Giotto")`. 
 
 Visit the Giotto [Discussions](https://github.com/drieslab/Giotto/discussions) page for more information.
 
 ## Website description  
 
-- **Examples:** Here you can find end-to-end  examples for different technologies and datasets
-- **Tutorials:** Here you can find various tutorials on working with Giotto (analysis, visualizations, working on the cloud, …)
 - **Get started:** Here you can find more advanced information about the Giotto object, Giotto ecosystem, Giotto configuration, and installation FAQs.
-- **NEWS:** Here you can find the changelog for every Giotto release and video recordings from previous presentations. 
+- **Documentation:** Here you will find all Giotto functions grouped by their purpose (Helpers, Getters & Setters, Visualization, ...)
+- **Examples:** Here you can find end-to-end  examples for different technologies and datasets.
+- **Tutorials:** Here you can find various tutorials on working with Giotto (analysis, visualizations, working on the cloud, ...)
+- **News:** Here you can find the changelog for every Giotto release and video recordings from previous presentations. 
 
 
 ## References
