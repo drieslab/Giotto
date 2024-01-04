@@ -6,6 +6,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
+^INDEX.md$
 
 ^docs
 ^vignettes
