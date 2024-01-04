@@ -27,7 +27,7 @@ Visit the Giotto [Discussions](https://github.com/drieslab/Giotto/discussions) p
 
 ## Website Update!
 
-With Giotto version 4.0, we updated the website at https://giottosuite.com, you can still find the previous website at https://giottosuite.readthedocs.io/en/latest/
+With Giotto version 4.0, we updated the website at http://giottosuite.com, you can still find the previous website at https://giottosuite.readthedocs.io/en/latest/
 
 ## Website description  
 

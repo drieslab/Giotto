@@ -96,7 +96,7 @@ estimateCellCellDistance <- function(gobject,
                                      method=c("mean","median")
                                      ){
 
-  delaunay_network_DT = gobject@spatial_network[[thickness_unit]][[spatial_network_name]]@networkDT
+  delaunay_network_DT = gobject@spatial_network[['thickness_unit']][[spatial_network_name]]@networkDT
 
   CellCellDistance = get_distance(networkDT= delaunay_network_DT,
                                               method=method)
