@@ -640,35 +640,92 @@ sessionInfo()
 ```
 
 ```{r, eval=FALSE}
-    R version 4.2.1 (2022-06-23)
-    Platform: x86_64-apple-darwin17.0 (64-bit)
-    Running under: macOS Big Sur ... 10.16
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.2.1
 
-    Matrix products: default
-    BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-    LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
 
-    locale:
-    [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
-    attached base packages:
-    [1] stats     graphics  grDevices utils     datasets  methods   base     
+time zone: America/Mexico_City
+tzcode source: internal
 
-    other attached packages:
-    [1] data.table_1.14.8 GiottoData_0.2.2  Giotto_3.3.1     
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods  
+[7] base     
 
-    loaded via a namespace (and not attached):
-     [1] Rcpp_1.0.11      pillar_1.9.0     compiler_4.2.1   tools_4.2.1     
-     [5] digest_0.6.31    jsonlite_1.8.4   evaluate_0.21    lifecycle_1.0.3 
-     [9] tibble_3.2.1     gtable_0.3.3     lattice_0.20-45  png_0.1-8       
-    [13] pkgconfig_2.0.3  rlang_1.1.1      igraph_1.4.2     Matrix_1.5-4    
-    [17] cli_3.6.1        rstudioapi_0.14  parallel_4.2.1   yaml_2.3.7      
-    [21] xfun_0.39        fastmap_1.1.1    terra_1.7-39     withr_2.5.0     
-    [25] dplyr_1.1.2      knitr_1.42       generics_0.1.3   vctrs_0.6.2     
-    [29] rprojroot_2.0.3  grid_4.2.1       tidyselect_1.2.0 here_1.0.1      
-    [33] reticulate_1.28  glue_1.6.2       R6_2.5.1         fansi_1.0.4     
-    [37] rmarkdown_2.21   ggplot2_3.4.2    magrittr_2.0.3   scales_1.2.1    
-    [41] codetools_0.2-18 htmltools_0.5.5  colorspace_2.1-0 utf8_1.2.3      
-    [45] munsell_0.5.0   
+other attached packages:
+[1] data.table_1.14.10 GiottoData_0.2.6.1 GiottoUtils_0.1.2 
+[4] Giotto_4.0.2       GiottoClass_0.1.2 
 
+loaded via a namespace (and not attached):
+  [1] rstudioapi_0.15.0           jsonlite_1.8.8             
+  [3] magrittr_2.0.3              magick_2.8.2               
+  [5] rmarkdown_2.25              fs_1.6.3                   
+  [7] zlibbioc_1.48.0             vctrs_0.6.5                
+  [9] memoise_2.0.1               RCurl_1.98-1.13            
+ [11] terra_1.7-65                usethis_2.2.2              
+ [13] htmltools_0.5.7             S4Arrays_1.2.0             
+ [15] progress_1.2.3              curl_5.2.0                 
+ [17] Rhdf5lib_1.24.1             SparseArray_1.2.3          
+ [19] rhdf5_2.46.1                KernSmooth_2.23-22         
+ [21] htmlwidgets_1.6.4           cachem_1.0.8               
+ [23] igraph_1.6.0                mime_0.12                  
+ [25] lifecycle_1.0.4             pkgconfig_2.0.3            
+ [27] Matrix_1.6-4                R6_2.5.1                   
+ [29] fastmap_1.1.1               GenomeInfoDbData_1.2.11    
+ [31] MatrixGenerics_1.14.0       shiny_1.8.0                
+ [33] digest_0.6.33               colorspace_2.1-0           
+ [35] AnnotationDbi_1.64.1        S4Vectors_0.40.2           
+ [37] pkgload_1.3.3               GenomicRanges_1.54.1       
+ [39] RSQLite_2.3.4               filelock_1.0.3             
+ [41] progressr_0.14.0            fansi_1.0.6                
+ [43] httr_1.4.7                  abind_1.4-5                
+ [45] compiler_4.3.2              proxy_0.4-27               
+ [47] remotes_2.4.2.1             bit64_4.0.5                
+ [49] withr_2.5.2                 backports_1.4.1            
+ [51] DBI_1.2.0                   pkgbuild_1.4.3             
+ [53] biomaRt_2.58.0              sessioninfo_1.2.2          
+ [55] rappdirs_0.3.3              DelayedArray_0.28.0        
+ [57] rjson_0.2.21                classInt_0.4-10            
+ [59] GiottoVisuals_0.1.1         tools_4.3.2                
+ [61] units_0.8-5                 httpuv_1.6.13              
+ [63] glue_1.6.2                  rhdf5filters_1.14.1        
+ [65] promises_1.2.1              grid_4.3.2                 
+ [67] sf_1.0-15                   checkmate_2.3.1            
+ [69] generics_0.1.3              gtable_0.3.4               
+ [71] class_7.3-22                hms_1.1.3                  
+ [73] xml2_1.3.6                  utf8_1.2.4                 
+ [75] XVector_0.42.0              BiocGenerics_0.48.1        
+ [77] pillar_1.9.0                stringr_1.5.1              
+ [79] later_1.3.2                 dplyr_1.1.4                
+ [81] BiocFileCache_2.10.1        lattice_0.21-9             
+ [83] gmp_0.7-3                   bit_4.0.5                  
+ [85] tidyselect_1.2.0            SingleCellExperiment_1.24.0
+ [87] Biostrings_2.70.1           miniUI_0.1.1.1             
+ [89] knitr_1.45                  IRanges_2.36.0             
+ [91] SummarizedExperiment_1.32.0 stats4_4.3.2               
+ [93] xfun_0.41                   Biobase_2.62.0             
+ [95] devtools_2.4.5              matrixStats_1.2.0          
+ [97] stringi_1.8.3               yaml_2.3.8                 
+ [99] evaluate_0.23               codetools_0.2-19           
+[101] tibble_3.2.1                colorRamp2_0.1.0           
+[103] cli_3.6.2                   arrow_14.0.0.2             
+[105] xtable_1.8-4                reticulate_1.34.0          
+[107] munsell_0.5.0               Rcpp_1.0.11                
+[109] GenomeInfoDb_1.38.5         dbplyr_2.4.0               
+[111] png_0.1-8                   XML_3.99-0.16              
+[113] parallel_4.3.2              ellipsis_0.3.2             
+[115] ggplot2_3.4.4               assertthat_0.2.1           
+[117] blob_1.2.4                  prettyunits_1.2.0          
+[119] ClusterR_1.3.2              profvis_0.3.8              
+[121] urlchecker_1.0.1            bitops_1.0-7               
+[123] SpatialExperiment_1.12.0    scales_1.3.0               
+[125] e1071_1.7-14                purrr_1.0.2                
+[127] crayon_1.5.2                rlang_1.1.2                
+[129] cowplot_1.1.2               KEGGREST_1.42.0            
 ```
