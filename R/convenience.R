@@ -2633,7 +2633,7 @@ createArchRProj <- function(fragmentsPath,
 
   if(!requireNamespace('ArchR')) {
     wrap_msg('ArchR is needed. Install the package using remotes::install_github("GreenleafLab/ArchR")')
-  } else {require(ArchR)}
+  }
 
   ## Add reference genome
   wrap_msg('Loading reference genome')
