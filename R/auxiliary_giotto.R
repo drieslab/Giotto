@@ -53,6 +53,8 @@
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
+  } else if(methods::is(mymatrix, 'dbMatrix')) {
+    mymatrix = logNormDB(dbMatrix = mymatrix, base = base, offset = offset)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }

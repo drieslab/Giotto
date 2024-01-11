@@ -32,3 +32,42 @@ libNormDB <- function(dbMatrix, scalefactor) {
 
   return(dbMatrix)
 }
+
+#' Perform log normalization on a dbSparseMatrix object
+#' @name logNormDB
+#' @details
+#' An offset is added to each non-zero value in dbSparseMatrix, the natural log is taken
+#' and then divided by log(base).
+#' @param dbMatrix tbl_duckdb_connection (required)
+#' @param base base of log divisor to scale sparse matrix (required)
+#' @param offset numeric value to add to each value in the sparse matrix (required)
+#'
+#' @return dbMatrix
+#' @export
+#'
+#' @examples
+#' # using a dbSparseMatrix object
+#' dbsm <- dbMatrix::sim_dbSparseMatrix()
+#' log_dbsm <- logNorm(dbMatrix = dbsm, base = 2, offset = 1000)
+logNormDB <- function(dbMatrix, base, offset){
+  # check inputs
+  if(!is.numeric(base) | base == 0 | base == 1){
+    stop("base must be numeric, non-zero, nor equal to 1")
+  }
+
+  if (!is.numeric(offset)) {
+    stop("offset must be numeric")
+  }
+
+  if (!inherits(dbMatrix, "dbMatrix")) {
+    stop("Invalid `dbMatrix`. `dbMatrix` must be a `dbMatrix` object")
+  }
+
+  res = dbMatrix[] |>
+    dplyr::mutate(x = log(x + offset)/log(base)) |>
+    dplyr::collapse()
+
+  dbMatrix[] <- res
+
+  return(dbMatrix)
+}
