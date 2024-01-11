@@ -18,6 +18,7 @@
   }))
 }
 
+
 #' @title Normalize expression matrix for library size
 #' @param mymatrix matrix object
 #' @param scalefactor scalefactor
@@ -32,7 +33,11 @@
                      filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
 
-  norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+  if(inherits(mymatrix, 'dbMatrix')) {
+    norm_expr = libNormDB(dbSparseMat = mymatrix, scalefactor = scalefactor)
+  } else {
+    norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+  }
   return(norm_expr)
 }
 
