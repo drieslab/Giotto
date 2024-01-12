@@ -33,8 +33,8 @@
                      filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
 
-  if(inherits(mymatrix, 'dbMatrix')) {
-    norm_expr = libNormDB(dbSparseMat = mymatrix, scalefactor = scalefactor)
+  if(inherits(mymatrix, 'dbSparseMatrix')) {
+    norm_expr = libNormDB(dbMatrix = mymatrix, scalefactor = scalefactor)
   } else {
     norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
   }
@@ -654,7 +654,7 @@ filterGiotto = function(gobject,
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
     norm_expr = .lib_norm_giotto(mymatrix = raw_expr[],
-                               scalefactor = scalefactor)
+                                 scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr[]
   }
