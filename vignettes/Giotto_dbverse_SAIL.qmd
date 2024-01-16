@@ -1,0 +1,162 @@
+---
+title: "Giotto dbverse implementation SAIL"
+format: html
+---
+
+## Overview
+This is a minimal example of how we plan to implement the dbMatrix package in our lab's 
+spatial analysis toolkit, Giotto Suite. 
+
+For a refresher on `dbMatrix` please see [this](https://drieslab.github.io/dbMatrix/articles/overview.html) page. 
+
+Matrix operations are common in processing spatial omic data. However, recent
+spatial technologies are producing massive datasets that are difficult to handle
+in memory. We are therefore exploring the use of database-backed matrices to
+enable scalable analysis of spatial omic data. 
+
+The below steps involve several matrix operations that are implemented in Giotto Suite.
+The idea is to replace the in-memory matrix operations with `dbMatrix` operations
+that are backed by a fast DuckDB database.
+
+## Questions for SAIL
+- How can we improve our implementation of `dbMatrix`?
+- Important: do not focus on Giotto necessarily, but the implementation of `dbMatrix` in Giotto
+
+### Load deps
+We first load the `db` branch of the Giotto Suite packages. This branch contains
+the `dbMatrix` implementation. 
+
+You can install these github repos below
+- https://github.com/drieslab/Giotto
+- https://github.com/drieslab/GiottoClass
+- https://github.com/drieslab/GiottoData
+- https://github.com/drieslab/dbMatrix
+
+Note: Checkout the appropriate branch on each repo shown below
+
+```{r, message=FALSE}
+#| vscode: {languageId: r}
+# Note: Please update the file paths to your installation
+devtools::load_all(path = '/Users/user/Documents/dries/GiottoSuite/Giotto') #db branch
+devtools::load_all(path = '/Users/user/Documents/dries/GiottoSuite/GiottoClass') #db branch
+devtools::load_all(path = '/Users/user/Documents/dries/GiottoSuite/GiottoData') #master branch
+
+# load dbMatrix
+devtools::load_all(path = '/Users/user/Documents/dries/dbverse/drieslab/dbMatrix_drieslab') #dev branch
+```
+
+## 1. Create exprObj with dbMatrix
+We use the `GiottoData` package to load a test dataset which contains an in-memory 
+sparse matrix.The rows are genes and the columns represent cells. Like most spatial data,
+the data is sparse.
+
+```{r, message=FALSE}
+#| vscode: {languageId: r}
+# Get example data from GiottoData package
+visium = GiottoData::loadGiottoMini(dataset = "visium")
+dgc = getExpression(visium, output = "matrix")
+```
+
+We then create a `dbSparseMatrix` using the sparse matrix loaded from the test dataset.
+Below shows the constructor for `dbMatrix`. 
+```{r}
+#| vscode: {languageId: r}
+# Create dummy dbSparseMatrix
+dbsm = createDBMatrix(value = dgc, 
+                      db_path = ":temp:", 
+                      name = 'dgc', 
+                      class = "dbSparseMatrix", 
+                      overwrite = TRUE)
+dbsm
+```
+
+We then create an `exprObj` which is an object that is used in our lab's
+Giotto Suite implementation to store sparse matrices specifically for
+gene expression data. From this we create a `Giotto` object which stores
+the `exprObj` and other information about the spatial data.
+```{r}
+#| vscode: {languageId: r}
+# Create exprObj with dbsm
+expObj_db = createExprObj(expression_data = dbsm, 
+                          expression_matrix_class = 'dbSparseMatrix', 
+                          name = 'raw')
+
+# Create Giotto object using the exprObj
+gobject_db = createGiottoObject(expression = expObj_db)
+gobject_db
+
+# Preview the dbMatrix in the gobject
+Giotto::getExpression(gobject_db, values = "raw")
+```
+
+## 2. filterGiotto
+We next move on to the first step of the Giotto workflow which involves
+filtering genes and cells in the Giotto object.
+
+```{r}
+# debug(filterGiotto)
+
+gobject_db_filtered = filterGiotto(gobject_db,
+                                   spat_unit = "cell",
+                                   feat_type = "rna",
+                                   expression_values = "raw")
+```
+
+## 3. Update .rna_standard_normalization
+The following demonstrates the normalization steps in the Giotto workflow.
+
+### library normalization
+
+```{r}
+# debug(normalizeGiotto)
+
+gobject_db = normalizeGiotto(gobject = gobject_db,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             expression_values = 'raw',
+                             scalefactor = 5000,
+                             log_norm = FALSE)
+
+# Preview the normalized dbMatrix in the gobject
+Giotto::getExpression(gobject_db, values = "normalized")
+```
+
+### log normalization
+```{r, eval = FALSE}
+# debug(normalizeGiotto)
+
+gobject_db = normalizeGiotto(gobject = gobject_db,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             expression_values = 'raw',
+                             scalefactor = 5000,
+                             library_size_norm = FALSE)
+
+# Preview the normalized dbMatrix in the gobject
+Giotto::getExpression(gobject_db, values = "normalized")
+```
+
+#### scaling
+```{r}
+# debug(normalizeGiotto)
+
+gobject_db = normalizeGiotto(gobject = gobject_db,
+                             spat_unit = 'cell',
+                             feat_type = 'rna',
+                             expression_values = 'raw',
+                             scalefactor = 5000,
+                             library_size_norm = FALSE,
+                             log_norm = FALSE)
+
+# Preview the scaled dbMatrix in the gobject
+Giotto::getExpression(gobject_db, values = "scaled")
+```
+
+
+# Session Info
+
+```{r}
+#| vscode: {languageId: r}
+sessionInfo()
+```
+
