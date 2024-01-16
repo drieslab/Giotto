@@ -33,11 +33,8 @@
                      filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
 
-  if(inherits(mymatrix, 'dbSparseMatrix')) {
-    norm_expr = libNormDB(dbMatrix = mymatrix, scalefactor = scalefactor)
-  } else {
-    norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
-  }
+  norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+
   return(norm_expr)
 }
 
@@ -54,7 +51,7 @@
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else if(methods::is(mymatrix, 'dbMatrix')) {
-    mymatrix = logNormDB(dbMatrix = mymatrix, base = base, offset = offset)
+    mymatrix = log(mymatrix@x + offset)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
