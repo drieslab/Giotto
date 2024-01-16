@@ -520,13 +520,13 @@ filterGiotto = function(gobject,
   # 2. then remove cells that do not have sufficient detected genes
 
   ## filter features
-  filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
+  filter_index_feats = GiottoClass::rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
   selected_feat_ids = names(filter_index_feats[filter_index_feats == TRUE])
 
 
 
   ## filter cells
-  filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
+  filter_index_cells = GiottoClass::colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = names(filter_index_cells[filter_index_cells == TRUE])
 
 
