@@ -383,13 +383,13 @@ spatPlot2D(visium,
 ```{r, eval=FALSE}
 sessionInfo()
 
-R version 4.3.1 (2023-06-16)
-Platform: x86_64-apple-darwin20 (64-bit)
-Running under: macOS Ventura 13.5.1
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.1.2
 
 Matrix products: default
-BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A                /Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib          /libRlapack.dylib;  LAPACK version 3.11.0
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -398,39 +398,13 @@ time zone: America/New_York
 tzcode source: internal
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base
-
-other attached packages:
-[1] Giotto_3.3.2             GiottoVisuals_0.0.0.9002
-[3] GiottoClass_0.0.0.9003   GiottoUtils_0.0.0.9002
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
-[1] gtable_0.3.4       xfun_0.40          ggplot2_3.4.3
-[4] htmlwidgets_1.6.2  devtools_2.4.5     remotes_2.4.2.1
-[7] processx_3.8.2     lattice_0.21-8     callr_3.7.3
-[10] vctrs_0.6.3        tools_4.3.1        ps_1.7.5
-[13] generics_0.1.3     parallel_4.3.1     tibble_3.2.1
-[16] fansi_1.0.4        colorRamp2_0.1.0   pkgconfig_2.0.3
-[19] Matrix_1.6-1       data.table_1.14.8  checkmate_2.2.0
-[22] RColorBrewer_1.1-3 lifecycle_1.0.3    farver_2.1.1
-[25] compiler_4.3.1     stringr_1.5.0      textshaping_0.3.6
-[28] munsell_0.5.0      terra_1.7-39       codetools_0.2-19
-[31] httpuv_1.6.11      htmltools_0.5.6    usethis_2.2.2
-[34] yaml_2.3.7         later_1.3.1        pillar_1.9.0
-[37] crayon_1.5.2       urlchecker_1.0.1   ellipsis_0.3.2
-[40] cachem_1.0.8       magick_2.7.5       sessioninfo_1.2.2
-[43] mime_0.12          tidyselect_1.2.0   digest_0.6.33
-[46] stringi_1.7.12     dplyr_1.1.2        purrr_1.0.2
-[49] labeling_0.4.2     cowplot_1.1.1      fastmap_1.1.1
-[52] grid_4.3.1         colorspace_2.1-0   cli_3.6.1
-[55] magrittr_2.0.3     pkgbuild_1.4.2     utf8_1.2.3
-[58] withr_2.5.0        prettyunits_1.1.1  scales_1.2.1
-[61] promises_1.2.1     backports_1.4.1    rmarkdown_2.24
-[64] igraph_1.5.1       reticulate_1.31    ragg_1.2.5
-[67] png_0.1-8          memoise_2.0.1      shiny_1.7.5
-[70] evaluate_0.21      knitr_1.43         miniUI_0.1.1.1
-[73] profvis_0.3.8      rlang_1.1.1        Rcpp_1.0.11
-[76] xtable_1.8-4       glue_1.6.2         pkgload_1.3.2.1
-[79] jsonlite_1.8.7     rstudioapi_0.15.0  R6_2.5.1
-[82] systemfonts_1.0.4  fs_1.6.3
-```
+ [1] vctrs_0.6.5       cli_3.6.2         knitr_1.45        rlang_1.1.3       xfun_0.41         stringi_1.8.3    
+ [7] purrr_1.0.2       pkgload_1.3.4     promises_1.2.1    shiny_1.8.0       xtable_1.8-4      glue_1.7.0       
+[13] htmltools_0.5.7   httpuv_1.6.13     pkgbuild_1.4.3    rmarkdown_2.25    evaluate_0.23     ellipsis_0.3.2   
+[19] fastmap_1.1.1     yaml_2.3.8        lifecycle_1.0.4   memoise_2.0.1     stringr_1.5.1     compiler_4.3.2   
+[25] miniUI_0.1.1.1    sessioninfo_1.2.2 fs_1.6.3          htmlwidgets_1.6.4 Rcpp_1.0.12       urlchecker_1.0.1 
+[31] rstudioapi_0.15.0 later_1.3.2       digest_0.6.34     R6_2.5.1          usethis_2.2.2     magrittr_2.0.3   
+[37] tools_4.3.2       mime_0.12         devtools_2.4.5    profvis_0.3.8     remotes_2.4.2.1   cachem_1.0.8    

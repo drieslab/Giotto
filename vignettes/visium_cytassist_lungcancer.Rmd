@@ -55,17 +55,14 @@ The minimum requirements are
 
 ```{r, eval=FALSE}
 # Provide path to visium folder
-data_path = paste0(temp_dir, '/data/')
-
-# Only run the following line if the spatial data has not been previously downloaded
-# getSpatialDataset(dataset = 'cytassist_lungcancer', directory = data_path, method = 'wget')
+data_path = '/path/to/data/directory'
 
 # Create Giotto object
-  visium_lungcancer = createGiottoVisiumObject(visium_dir = data_path,
-                                               expr_data = 'raw',
-                                               png_name = 'tissue_lowres_image.png',
-                                               gene_column_index = 2,
-                                               instructions = myinstructions)
+visium_lungcancer = createGiottoVisiumObject(visium_dir = data_path,
+                                             expr_data = 'raw',
+                                             png_name = 'tissue_lowres_image.png',
+                                             gene_column_index = 2,
+                                             instructions = myinstructions)
 
 # check metadata
 pDataDT(visium_lungcancer)
@@ -328,7 +325,9 @@ signature_matrix = makeSignMatrixPAGE(sign_names = c('T_Cells', 'Macrophage', 'D
 
 # 1.3 enrichment test with PAGE
 
-markers_scran = findMarkers_one_vs_all(gobject=visium_lungcancer, method="scran",
+giotto_SC = getSpatialDataset(dataset = 'mol_cart_lung_873_C1', directory = data_path, method = "curl")
+
+markers_scran = findMarkers_one_vs_all(gobject=giotto_SC, method="scran",
                                        expression_values="normalized", cluster_column = "leiden_clus", min_feats=3)
 
 top_markers <- markers_scran[, head(.SD, 10), by="cluster"]
@@ -517,7 +516,7 @@ visium_lungcancer = createSpatialNetwork(gobject = visium_lungcancer, minimum_k 
 my_spatial_genes <- kmtest[1:100]$feats
 
 # do HMRF with different betas
-hmrf_folder = paste0(temp_dir,'/','HMRF_results/')
+hmrf_folder = paste0(results_dir,'/','HMRF_results/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
 # if Rscript is not found, you might have to create a symbolic link, e.g.
@@ -560,53 +559,29 @@ spatPlot(gobject = visium_lungcancer, cell_color = 'HMRF_k5_b.10', point_size = 
 ```{r, eval=FALSE}
 sessionInfo()
 
-R version 4.2.2 (2022-10-31)
+R version 4.3.2 (2023-10-31)
 Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Monterey 12.5.1
+Running under: macOS Sonoma 14.1.2
 
 Matrix products: default
-LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base
+time zone: America/New_York
+tzcode source: internal
 
-other attached packages:
-[1] Giotto_3.0.1
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] bitops_1.0-7                matrixStats_0.63.0          fs_1.5.2
- [4] usethis_2.1.6               devtools_2.4.5              GenomeInfoDb_1.34.3
- [7] tools_4.2.2                 profvis_0.3.7               utf8_1.2.2
-[10] R6_2.5.1                    irlba_2.3.5.1               BiocGenerics_0.44.0
-[13] colorspace_2.0-3            urlchecker_1.0.1            tidyselect_1.2.0
-[16] prettyunits_1.1.1           processx_3.8.0              compiler_4.2.2
-[19] cli_3.4.1                   Biobase_2.58.0              BiocNeighbors_1.16.0
-[22] DelayedArray_0.24.0         scales_1.2.1                callr_3.7.3
-[25] stringr_1.4.1               digest_0.6.30               XVector_0.38.0
-[28] pkgconfig_2.0.3             htmltools_0.5.3             sessioninfo_1.2.2
-[31] sparseMatrixStats_1.10.0    MatrixGenerics_1.10.0       fastmap_1.1.0
-[34] limma_3.54.0                htmlwidgets_1.5.4           rlang_1.0.6
-[37] rstudioapi_0.14             shiny_1.7.3                 DelayedMatrixStats_1.20.0
-[40] generics_0.1.3              BiocParallel_1.32.1         dplyr_1.0.10
-[43] RCurl_1.98-1.9              magrittr_2.0.3              BiocSingular_1.14.0
-[46] GenomeInfoDbData_1.2.9      Matrix_1.5-3                Rcpp_1.0.9
-[49] munsell_0.5.0               S4Vectors_0.36.0            fansi_1.0.3
-[52] lifecycle_1.0.3             stringi_1.7.8               SummarizedExperiment_1.28.0
-[55] zlibbioc_1.44.0             pkgbuild_1.3.1              grid_4.2.2
-[58] parallel_4.2.2              promises_1.2.0.1            dqrng_0.3.0
-[61] crayon_1.5.2                miniUI_0.1.1.1              lattice_0.20-45
-[64] beachmat_2.14.0             locfit_1.5-9.6              ps_1.7.2
-[67] pillar_1.8.1                igraph_1.3.5                GenomicRanges_1.50.1
-[70] codetools_0.2-18            ScaledMatrix_1.6.0          stats4_4.2.2
-[73] pkgload_1.3.2               glue_1.6.2                  data.table_1.14.6
-[76] remotes_2.4.2               BiocManager_1.30.19         vctrs_0.5.1
-[79] httpuv_1.6.6                gtable_0.3.1                purrr_0.3.5
-[82] cachem_1.0.6                ggplot2_3.4.0               rsvd_1.0.5
-[85] mime_0.12                   xtable_1.8-4                later_1.3.0
-[88] SingleCellExperiment_1.20.0 tibble_3.1.8                memoise_2.0.1
-[91] IRanges_2.32.0              cluster_2.1.4               bluster_1.8.0
-[94] ellipsis_0.3.2
+ [1] vctrs_0.6.5       cli_3.6.2         knitr_1.45        rlang_1.1.3       xfun_0.41         stringi_1.8.3    
+ [7] purrr_1.0.2       pkgload_1.3.4     promises_1.2.1    shiny_1.8.0       xtable_1.8-4      glue_1.7.0       
+[13] htmltools_0.5.7   httpuv_1.6.13     pkgbuild_1.4.3    rmarkdown_2.25    evaluate_0.23     ellipsis_0.3.2   
+[19] fastmap_1.1.1     yaml_2.3.8        lifecycle_1.0.4   memoise_2.0.1     stringr_1.5.1     compiler_4.3.2   
+[25] miniUI_0.1.1.1    sessioninfo_1.2.2 fs_1.6.3          htmlwidgets_1.6.4 Rcpp_1.0.12       urlchecker_1.0.1 
+[31] rstudioapi_0.15.0 later_1.3.2       digest_0.6.34     R6_2.5.1          usethis_2.2.2     magrittr_2.0.3   
+[37] tools_4.3.2       mime_0.12         devtools_2.4.5    profvis_0.3.8     remotes_2.4.2.1   cachem_1.0.8    
 ```
