@@ -42,7 +42,7 @@ Visium technology:
 
 High resolution png from original tissue:
 
-[]images/general_figs/mouse_brain_highres.png)
+![]images/general_figs/mouse_brain_highres.png)
 
 # Part 1: Create Giotto Visium Object and visualize
 
