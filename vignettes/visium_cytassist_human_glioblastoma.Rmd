@@ -15,7 +15,6 @@ More information about this dataset can be found [here](https://www.10xgenomics.
 
 # 2 Start Giotto
 
-
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
@@ -30,8 +29,6 @@ if(!genv_exists){
   installGiottoEnvironment()
 }
 ```
-
-
 
 ```{r, eval=FALSE}
 # 1. set results directory
@@ -52,16 +49,14 @@ instrs = createGiottoInstructions(save_dir = results_directory,
                                   python_path = python_path)
 ```
 
-
 # 3 Create Giotto object
 
 The minimum requirements are
 
-- matrix with expression information (or path to)
-- x,y(,z) coordinates for cells or spots (or path to)
+-   matrix with expression information (or path to)
+-   x,y(,z) coordinates for cells or spots (or path to)
 
 createGiottoVisiumObject() will automatically detect both rna and protein modalities within the expression matrix creating a multi-omics Giotto object.
-
 
 ```{r, eval=FALSE}
 # Provide path to visium folder
@@ -75,14 +70,12 @@ visium = createGiottoVisiumObject(visium_dir = data_directory,
                                   instructions = instrs)
 ```
 
-
 How to work with Giotto instructions that are part of your Giotto object:
 
-- Show the instructions associated with your Giotto object with  showGiottoInstructions()
-- Change one or more instructions with changeGiottoInstructions()
-- Replace all instructions at once with replaceGiottoInstructions()
-- Read or get a specific Giotto instruction with readGiottoInstructions()
-
+-   Show the instructions associated with your Giotto object with showGiottoInstructions()
+-   Change one or more instructions with changeGiottoInstructions()
+-   Replace all instructions at once with replaceGiottoInstructions()
+-   Read or get a specific Giotto instruction with readGiottoInstructions()
 
 ```{r, eval=FALSE}
 # show instructions associated with the giotto object
@@ -90,14 +83,12 @@ How to work with Giotto instructions that are part of your Giotto object:
 showGiottoInstructions(visium)
 ```
 
-
 # 4 Processing
 
-- Filter features and cells based on detection frequencies
-- Normalize expression matrix (log transformation, scaling factor and/or z-scores)
-- Add cell and feature statistics (optional)
-- Adjust expression matrix for technical covariates or batches (optional).
-
+-   Filter features and cells based on detection frequencies
+-   Normalize expression matrix (log transformation, scaling factor and/or z-scores)
+-   Add cell and feature statistics (optional)
+-   Adjust expression matrix for technical covariates or batches (optional).
 
 ```{r, eval=FALSE}
 # Subset on spots that were covered by tissue
@@ -110,9 +101,7 @@ spatPlot2D(gobject = visium,
            point_alpha = 0.7)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/1-spatPlot2D.png)
-
+![](images/visium_cytassist_human_glioblastoma/0-spatPlot2D.png)
 
 ```{r, eval=FALSE}
 # Filtering, normalization, and statistics
@@ -138,8 +127,7 @@ spatPlot2D(gobject = visium,
            color_as_factor = FALSE)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/2-spatPlot2D.png)
+![](images/visium_cytassist_human_glioblastoma/1-spatPlot2D.png)
 
 ```{r, eval=FALSE}
 ## Protein feature 
@@ -171,20 +159,16 @@ spatPlot2D(gobject = visium,
            color_as_factor = FALSE)
 ```
 
-![](images/visium_cytassist_human_glioblastoma/3-spatPlot2D.png)
-
+![](images/visium_cytassist_human_glioblastoma/2-spatPlot2D.png)
 
 # 5 Dimention Reduction
-
 
 ```{r, eval=FALSE}
 # Identify highly variable features (HVF)
 visium <- calculateHVF(gobject = visium)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/4-HVFplot.png)
-
+![](images/visium_cytassist_human_glioblastoma/3-HVFplot.png)
 
 ```{r, eval=FALSE}
 # PCA
@@ -195,18 +179,14 @@ visium <- runPCA(gobject = visium)
 screePlot(visium, ncp = 30)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/5-screePlot.png)
-
+![](images/visium_cytassist_human_glioblastoma/4-screePlot.png)
 
 ```{r, eval=FALSE}
 ### Visualize RNA PCA
 plotPCA(gobject = visium)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/6-PCA.png)
-
+![](images/visium_cytassist_human_glioblastoma/5-PCA.png)
 
 ```{r, eval=FALSE}
 ## Protein
@@ -220,9 +200,7 @@ screePlot(visium,
           ncp = 30)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/7-screePlot.png)
-
+![](images/visium_cytassist_human_glioblastoma/6-screePlot.png)
 
 ```{r, eval=FALSE}
 ### Visualize Protein PCA
@@ -231,13 +209,9 @@ plotPCA(gobject = visium,
         feat_type = 'protein')
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/8-PCA.png)
-
-
+![](images/visium_cytassist_human_glioblastoma/7-PCA.png)
 
 # 6 Clustering
-
 
 ```{r, eval=FALSE}
 # cluster and run UMAP
@@ -281,8 +255,7 @@ plotUMAP(gobject = visium,
          point_size = 2)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/9-UMAP.png)
+![](images/visium_cytassist_human_glioblastoma/8-UMAP.png)
 
 ```{r, eval=FALSE}
 ## Protein feature 
@@ -299,8 +272,7 @@ plotUMAP(gobject = visium,
          point_size = 2)
 ```
 
-![](images/visium_cytassist_human_glioblastoma/10-UMAP.png)
-
+![](images/visium_cytassist_human_glioblastoma/9-UMAP.png)
 
 ```{r, eval=FALSE}
 # Visualize spatial plot
@@ -312,9 +284,7 @@ spatPlot2D(gobject = visium,
            point_size = 2)
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/11-rna_spatPlot2D.png)
-
+![](images/visium_cytassist_human_glioblastoma/10-spatPlot2D.png)
 
 ```{r, eval=FALSE}
 ## Protein feature
@@ -326,15 +296,11 @@ spatPlot2D(gobject = visium,
            point_size = 2)
 ```
 
+![](images/visium_cytassist_human_glioblastoma/11-spatPlot2D.png)
 
-![](images/visium_cytassist_human_glioblastoma/12-protein_spatPlot2D.png)
-
-
-
-# 7 Multi-omics integration 
+# 7 Multi-omics integration
 
 The Weighted Nearest Neighbors allows to integrate two or more modalities acquired from the same sample. WNN will re-calculate the clustering to provide an integrated umap and leiden clustering. For running WNN, the Giotto object must contain the results of running PCA calculation for each modality.
-
 
 ```{r, eval=FALSE}
 # Calculate kNN
@@ -397,8 +363,7 @@ plotUMAP(gobject = visium,
          axis_text = 10 )
 ```
 
-![](images/visium_cytassist_human_glioblastoma/13-UMAP.png)
-
+![](images/visium_cytassist_human_glioblastoma/12-UMAP.png)
 
 ```{r, eval=FALSE}
 # Visualize spatial plot with integrated clusters
@@ -411,9 +376,7 @@ spatPlot2D(visium,
            title = "Integrated Leiden clustering")
 ```
 
-
-![](images/visium_cytassist_human_glioblastoma/14-integrated_spatPlot2D.png)
-
+![](images/visium_cytassist_human_glioblastoma/13-spatPlot2D.png)
 
 # 8 Session Info
 
@@ -471,6 +434,3 @@ loaded via a namespace (and not attached):
 [79] jsonlite_1.8.7     rstudioapi_0.15.0  R6_2.5.1
 [82] systemfonts_1.0.4  fs_1.6.3
 ```
-
-
-
