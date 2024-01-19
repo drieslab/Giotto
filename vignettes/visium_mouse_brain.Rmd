@@ -30,7 +30,6 @@ if(!genv_exists){
 }
 ```
 
-
 # Dataset explanation
 
 [10X genomics](https://www.10xgenomics.com/spatial-transcriptomics/) recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.
@@ -41,14 +40,11 @@ Visium technology:
 
 ![](images/general_figs/visium_technology.png)
 
-
 High resolution png from original tissue:
 
-![]images/general_figs/mouse_brain_highres.png)
-
+[]images/general_figs/mouse_brain_highres.png)
 
 # Part 1: Create Giotto Visium Object and visualize
-
 
 ```{r, eval=FALSE}
 library(Giotto)
@@ -95,11 +91,9 @@ spatPlot2D(gobject = visium_brain,
            image_name = 'image')
 ```
 
-
 ![](images/visium_mouse_brain/0-spatPlot2D.png)
 
 # Part 2: Process Giotto Visium Object
-
 
 ```{r, eval=FALSE}
 ## subset on spots that were covered by tissue
@@ -132,11 +126,9 @@ spatPlot2D(gobject = visium_brain,
            color_as_factor = F)
 ```
 
-
 ![](images/visium_mouse_brain/1-spatPlot2D.png)
 
 # Part 3: Dimension Reduction
-
 
 ```{r, eval=FALSE}
 ## highly variable features / genes (HVF)
@@ -144,9 +136,7 @@ visium_brain <- calculateHVF(gobject = visium_brain,
                              save_plot = TRUE)
 ```
 
-
 ![](images/visium_mouse_brain/2-HVFplot.png)
-
 
 ```{r, eval=FALSE}
 ## run PCA on expression values (default)
@@ -160,18 +150,14 @@ visium_brain <- runPCA(gobject = visium_brain,
 screePlot(visium_brain, ncp = 30)
 ```
 
-
 ![](images/visium_mouse_brain/3-screePlot.png)
-
 
 ```{r, eval=FALSE}
 dimPlot2D(gobject = visium_brain,
           dim_reduction_to_use = "pca")
 ```
 
-
-![](images/visium_mouse_brain/4-PCA.png)
-
+![](images/visium_mouse_brain/4-dimPlot2D.png)
 
 ```{r, eval=FALSE}
 ## run UMAP and tSNE on PCA space (default)
@@ -180,9 +166,7 @@ visium_brain <- runUMAP(visium_brain,
 plotUMAP(gobject = visium_brain)
 ```
 
-
 ![](images/visium_mouse_brain/5-UMAP.png)
-
 
 ```{r, eval=FALSE}
 visium_brain <- runtSNE(visium_brain, 
@@ -190,11 +174,9 @@ visium_brain <- runtSNE(visium_brain,
 plotTSNE(gobject = visium_brain)
 ```
 
-
 ![](images/visium_mouse_brain/6-tSNE.png)
 
 # Part 4: Cluster
-
 
 ```{r, eval=FALSE}
 ## sNN network (default)
@@ -213,9 +195,7 @@ plotUMAP(gobject = visium_brain,
          point_size = 2.5)
 ```
 
-
 ![](images/visium_mouse_brain/7-UMAP.png)
-
 
 ```{r, eval=FALSE}
 # spatial and dimension plots
@@ -225,9 +205,7 @@ spatDimPlot(gobject = visium_brain,
             spat_point_size = 2.5)
 ```
 
-
 ![](images/visium_mouse_brain/8-spatDimPlot2D.png)
-
 
 ```{r, eval=FALSE}
 spatDimPlot(gobject = visium_brain, 
@@ -237,9 +215,7 @@ spatDimPlot(gobject = visium_brain,
             spat_point_size = 2.5)
 ```
 
-
 ![](images/visium_mouse_brain/9-spatDimPlot2D.png)
-
 
 ```{r, eval=FALSE}
 # dimension plots grouped by cluster
@@ -248,11 +224,9 @@ spatPlot2D(visium_brain,
            coord_fix_ratio = 1)
 ```
 
-
 ![](images/visium_mouse_brain/10-spatPlot2D.png)
 
 Plot with group by:
-
 
 ```{r, eval=FALSE}
 spatPlot2D(visium_brain, 
@@ -264,11 +238,9 @@ spatPlot2D(visium_brain,
            save_param = list(base_width = 14, base_height = 14))
 ```
 
-
 ![](images/visium_mouse_brain/11-spatPlot2D.png)
 
 Highlight one or more groups:
-
 
 ```{r, eval=FALSE}
 spatPlot2D(visium_brain, 
@@ -282,11 +254,9 @@ spatPlot2D(visium_brain,
            save_param = list(base_width = 7, base_height = 7))
 ```
 
-
 ![](images/visium_mouse_brain/12-spatPlot2D.png)
 
 # Part 5: subset data
-
 
 ```{r, eval=FALSE}
 # create and show subset
@@ -300,11 +270,9 @@ spatDimPlot(gobject = DG_subset,
             spat_point_size = 5)
 ```
 
-
 ![](images/visium_mouse_brain/13-spatDimPlot2D.png)
 
 # Part 6: marker gene detection for clusters
-
 
 ```{r, eval=FALSE}
 ## ------------------ ##
@@ -328,9 +296,7 @@ violinPlot(visium_brain,
            save_param = list(base_width = 5, base_height = 10))
 ```
 
-
 ![](images/visium_mouse_brain/14-violinPlot.png)
-
 
 ```{r, eval=FALSE}
 # cluster heatmap
@@ -340,9 +306,7 @@ plotMetaDataHeatmap(visium_brain,
                     x_text_size = 10, y_text_size = 10)
 ```
 
-
 ![](images/visium_mouse_brain/15-plotMetaDataHeatmap.png)
-
 
 ```{r, eval=FALSE}
 # umap plots
@@ -354,9 +318,7 @@ dimFeatPlot2D(visium_brain,
               save_param = list(base_width = 8, base_height = 8))
 ```
 
-
 ![](images/visium_mouse_brain/16-dimFeatPlot2D.png)
-
 
 ```{r, eval=FALSE}
 ## ------------------ ##
@@ -376,9 +338,7 @@ violinPlot(visium_brain,
            save_param = list(base_width = 5))
 ```
 
-
 ![](images/visium_mouse_brain/17-violinPlot.png)
-
 
 ```{r, eval=FALSE}
 # cluster heatmap
@@ -387,9 +347,7 @@ plotMetaDataHeatmap(visium_brain,
                     metadata_cols = c('leiden_clus'))
 ```
 
-
 ![](images/visium_mouse_brain/18-plotMetaDataHeatmap.png)
-
 
 ```{r, eval=FALSE}
 # umap plots
@@ -401,18 +359,16 @@ dimFeatPlot2D(visium_brain,
               save_param = list(base_width = 8, base_height = 8))
 ```
 
-
 ![](images/visium_mouse_brain/19-dimFeatPlot2D.png)
 
 # Part 7: Cell type enrichment
 
 Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides several ways to calculate enrichment of specific cell-type signature gene lists:
 
-- PAGE
-- hypergeometric test
-- Rank
-- [DWLS Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7) Corresponded Single cell dataset can be generated from [here](http://mousebrain.org/). Giotto_SC is processed from the downsampled [Loom](https://satijalab.org/loomr/loomr_tutorial) file and can also be downloaded from GiottoData::getSpatialDataset().
-
+-   PAGE
+-   hypergeometric test
+-   Rank
+-   [DWLS Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7) Corresponded Single cell dataset can be generated from [here](http://mousebrain.org/). Giotto_SC is processed from the downsampled [Loom](https://satijalab.org/loomr/loomr_tutorial) file and can also be downloaded from GiottoData::getSpatialDataset().
 
 ```{r, eval=FALSE}
 # download data to results directory ####
@@ -432,9 +388,7 @@ giotto_SC = addCellMetadata(giotto_SC,
 giotto_SC = normalizeGiotto(giotto_SC)
 ```
 
-
 ## 7.1 PAGE enrichment
-
 
 ```{r, eval=FALSE}
 # Create PAGE matrix
@@ -510,9 +464,7 @@ plotMetaDataCellsHeatmap(gobject = visium_brain,
                          y_text_size = 8)
 ```
 
-
 ![](images/visium_mouse_brain/20-plotMetaDataCellsHeatmap.png)
-
 
 ```{r, eval=FALSE}
 # 1.6 visualizations
@@ -525,9 +477,7 @@ spatCellPlot2D(gobject = visium_brain,
                show_legend = T)
 ```
 
-
 ![](images/visium_mouse_brain/21-spatCellPlot2D.png)
-
 
 ```{r, eval=FALSE}
 spatDimCellPlot2D(gobject = visium_brain,
@@ -539,11 +489,9 @@ spatDimCellPlot2D(gobject = visium_brain,
                   save_param = list(base_width=7, base_height=10))
 ```
 
-
 ![](images/visium_mouse_brain/22-spatDimCellPlot2D.png)
 
 ## 7.2 HyperGeometric test
-
 
 ```{r, eval=FALSE}
 visium_brain = runHyperGeometricEnrich(gobject = visium_brain,
@@ -560,11 +508,9 @@ spatCellPlot(gobject = visium_brain,
              point_size = 1.75)
 ```
 
-
 ![](images/visium_mouse_brain/23-spatCellPlot2D.png)
 
 ## 7.3 Rank Enrichment
-
 
 ```{r, eval=FALSE}
 # Create rank matrix, not that rank matrix is different from PAGE
@@ -590,11 +536,9 @@ spatCellPlot2D(gobject = visium_brain,
                save_param = list(save_name = "spat_enr_Rank_plot"))
 ```
 
-
 ![](images/visium_mouse_brain/spat_enr_Rank_plot.png)
 
 ## 7.4 DWLS spatial deconvolution
-
 
 ```{r, eval=FALSE}
 # Create DWLS matrix, not that DWLS matrix is different from PAGE and rank
@@ -619,9 +563,7 @@ spatCellPlot2D(gobject = visium_brain,
                save_param = list(save_name = "DWLS_plot"))
 ```
 
-
 ![](images/visium_mouse_brain/DWLS_plot.png)
-
 
 ```{r, eval=FALSE}
 # Plot DWLS deconvolution result with Pie plots
@@ -631,11 +573,9 @@ spatDeconvPlot(visium_brain,
                save_param = list(save_name = "spat_DWLS_pie_plot"))
 ```
 
-
 ![](images/visium_mouse_brain/spat_DWLS_pie_plot.png)
 
 # Part 8: Spatial Grid
-
 
 ```{r, eval=FALSE}
 visium_brain = createSpatialGrid(gobject = visium_brain,
@@ -652,11 +592,9 @@ spatPlot2D(visium_brain,
            spatial_grid_name = 'spatial_grid')
 ```
 
-
 ![](images/visium_mouse_brain/24-spatPlot2D.png)
 
 # Part 9: spatial network
-
 
 ```{r, eval=FALSE}
 visium_brain = createSpatialNetwork(gobject = visium_brain,
@@ -673,11 +611,9 @@ spatPlot2D(gobject = visium_brain,
            spatial_network_name = 'spatial_network')
 ```
 
-
 ![](images/visium_mouse_brain/25-spatPlot2D.png)
 
 # Part 10: Spatial Genes
-
 
 ```{r, eval=FALSE}
 ## rank binarization
@@ -694,11 +630,9 @@ spatFeatPlot2D(visium_brain,
                point_size = 1.5)
 ```
 
-
 ![](images/visium_mouse_brain/26-spatFeatPlot2D.png)
 
 # Part 11: Spatial Co-Expression modules
-
 
 ```{r, eval=FALSE}
 # cluster the top 500 spatial genes into 20 clusters
@@ -721,9 +655,7 @@ spatFeatPlot2D(visium_brain,
                point_size = 3)
 ```
 
-
 ![](images/visium_mouse_brain/27-spatFeatPlot2D.png)
-
 
 ```{r, eval=FALSE}
 # cluster spatial genes
@@ -739,9 +671,7 @@ heatmSpatialCorFeats(visium_brain,
                      save_param = list(base_height = 6, base_width = 8, units = 'cm'))
 ```
 
-
 ![](images/visium_mouse_brain/28-heatmSpatialCorFeats.png)
-
 
 ```{r, eval=FALSE}
 # 4. rank spatial correlated clusters and show genes for selected clusters
@@ -756,9 +686,7 @@ top_netw_spat_cluster = showSpatialCorFeats(spat_cor_netw_DT,
                                             show_top_feats = 1)
 ```
 
-
 ![](images/visium_mouse_brain/29-rankSpatialCorGroups.png)
-
 
 ```{r, eval=FALSE}
 # 5. create metagene enrichment score for clusters
@@ -782,11 +710,9 @@ spatCellPlot(visium_brain,
              save_param = list(base_width = 15))
 ```
 
-
 ![](images/visium_mouse_brain/30-spatCellPlot2D.png)
 
 # Part 12: Spatially informed clusters
-
 
 ```{r, eval=FALSE}
 # top 30 genes per spatial co-expression cluster
@@ -833,9 +759,7 @@ spatPlot2D(visium_brain,
            coord_fix_ratio = 1)
 ```
 
-
 ![](images/visium_mouse_brain/31-spatPlot2D.png)
-
 
 ```{r, eval=FALSE}
 plotUMAP(gobject = visium_brain, 
@@ -844,11 +768,9 @@ plotUMAP(gobject = visium_brain,
          point_size = 1.5)
 ```
 
-
 ![](images/visium_mouse_brain/32-UMAP.png)
 
 # Part 13: Spatial domains with HMRF
-
 
 ```{r, eval=FALSE}
 # do HMRF with different betas on top 30 genes per spatial co-expression module
@@ -872,6 +794,5 @@ visium_brain = addHMRF(gobject = visium_brain,
 spatPlot2D(gobject = visium_brain, 
            cell_color = 'HMRF_k20_b.40')
 ```
-
 
 ![](images/visium_mouse_brain/33-spatPlot2D.png)

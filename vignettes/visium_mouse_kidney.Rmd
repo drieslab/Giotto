@@ -7,7 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 Warning: This tutorial was written with Giotto version 2.0.0.9046.This is an older version and results could be slightly different
 
 ```{r, eval=FALSE}
@@ -29,7 +28,6 @@ if(!genv_exists){
 }
 ```
 
-
 ```{r, eval=FALSE}
 library(GiottoData)
 
@@ -41,7 +39,6 @@ results_folder = '/path/to/directory/'
 # installed Giotto environment will be used.
 python_path = NULL # alternatively, "/local/python/path/python" if desired.
 ```
-
 
 # Dataset explanation
 
@@ -278,9 +275,9 @@ dimFeatPlot2D(visium_kidney, expression_values = 'scaled',
 
 Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides 3 ways to calculate enrichment of specific cell-type signature gene list:
 
-- PAGE
-- rank
-- hypergeometric test
+-   PAGE
+-   rank
+-   hypergeometric test
 
 # 8. Spatial grid
 
@@ -365,7 +362,7 @@ spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT,
 heatmSpatialCorFeats(visium_kidney, 
                      spatCorObject = spat_cor_netw_DT, 
                      use_clus_name = 'spat_netw_clus',
-                     save_param = c(save_name = '22-z1-heatmap_correlated_genes', 
+                     save_param = list(save_name = '22-z1-heatmap_correlated_genes', 
                                     save_format = 'pdf',
                                     base_height = 6, 
                                     base_width = 8, units = 'cm'),
@@ -379,7 +376,7 @@ heatmSpatialCorFeats(visium_kidney,
 netw_ranks = rankSpatialCorGroups(visium_kidney, 
                                   spatCorObject = spat_cor_netw_DT,
                                   use_clus_name = 'spat_netw_clus',
-                                  save_param = c(save_name = '22-z2-rank_correlated_groups',
+                                  save_param = list(save_name = '22-z2-rank_correlated_groups',
                                                  base_height = 3,
                                                  base_width = 5))
 ```
@@ -440,8 +437,6 @@ HMRF_spatial_genes = doHMRF(gobject = visium_kidney,
                             output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_topgenes_k5_scaled'))
 ```
 
-
-
 ```{r, eval=FALSE}
 ## alternative way to view HMRF results
 #results = writeHMRFresults(gobject = ST_test,
@@ -492,4 +487,3 @@ exportGiottoViewer(gobject = visium_kidney,
                    expression_rounding = 2,
                    overwrite_dir = T)
 ```
-

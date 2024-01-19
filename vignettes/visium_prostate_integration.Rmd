@@ -7,9 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 # 1 Start Giotto
-
 
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
@@ -32,8 +30,6 @@ if(!genv_exists){
 }
 ```
 
-
-
 ```{r, eval=FALSE}
 # 1. set working directory
 results_directory = getwd()
@@ -47,8 +43,6 @@ if(is.null(python_path)) {
 }
 ```
 
-
-
 ```{r, eval=FALSE}
 # 3. create giotto instructions
 instrs = createGiottoInstructions(save_dir = results_directory,
@@ -56,7 +50,6 @@ instrs = createGiottoInstructions(save_dir = results_directory,
                                   show_plot = TRUE,
                                   python_path = python_path)
 ```
-
 
 # 2 Dataset explanation
 
@@ -76,7 +69,6 @@ High resolution png from original tissue:
 
 # 3 Create Giotto objects and join
 
-
 ```{r, eval=FALSE}
 # This dataset must be downlaoded manually; please do so and change the path below as appropriate
 data_directory <- getwd()
@@ -91,8 +83,6 @@ N_pros = createGiottoVisiumObject(
 )
 ```
 
- 
-
 ```{r, eval=FALSE}
 ## obese lower
 C_pros = createGiottoVisiumObject(
@@ -104,8 +94,6 @@ C_pros = createGiottoVisiumObject(
 )
 ```
 
- 
-
 ```{r, eval=FALSE}
 # join giotto objects
 # joining with x_shift has the advantage that you can join both 2D and 3D data
@@ -116,40 +104,32 @@ testcombo = joinGiottoObjects(gobject_list = list(N_pros, C_pros),
     join_method = 'shift', x_padding = 1000)
 ```
 
-
 ```{r, eval=FALSE}
 # join info is stored in this slot
 # simple list for now
 testcombo@join_info
 ```
 
- 
-
 ```{r, eval=FALSE}
 # check joined Giotto object
 fDataDT(testcombo)
 ```
 
- 
 ```{r, eval=FALSE}
 pDataDT(testcombo)
 ```
 
- 
 ```{r, eval=FALSE}
 showGiottoImageNames(testcombo)
 ```
 
- 
 ```{r, eval=FALSE}
 showGiottoSpatLocs(testcombo)
 ```
 
-
 ```{r, eval=FALSE}
 showGiottoExpression(testcombo)
 ```
-
 
 ```{r, eval=FALSE}
 # this plots all the images by list_ID
@@ -159,11 +139,7 @@ spatPlot2D(gobject = testcombo, cell_color = 'in_tissue',
     save_param = list(save_name = "1a_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-5-1.png)
-
-
-
+![](images/visium_prostate_integration/1a_plot.png)
 
 ```{r, eval=FALSE}
 # this plots one selected image
@@ -172,11 +148,7 @@ spatPlot2D(gobject = testcombo, cell_color = 'in_tissue',
     save_param = list(save_name = "1b_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-6-1.png)
-
-
-
+![](images/visium_prostate_integration/1b_plot.png)
 
 ```{r, eval=FALSE}
 # this plots two selected images
@@ -186,13 +158,9 @@ spatPlot2D(gobject = testcombo, cell_color = 'in_tissue',
     save_param = list(save_name = "1c_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-7-1.png)
-
-
+![](images/visium_prostate_integration/1c_plot.png)
 
 # 4 Process Giotto Objects
-
 
 ```{r, eval=FALSE}
 # subset on in-tissue spots
@@ -200,8 +168,6 @@ metadata = pDataDT(testcombo)
 in_tissue_barcodes = metadata[in_tissue == 1]$cell_ID
 testcombo = subsetGiotto(testcombo, cell_ids = in_tissue_barcodes)
 ```
-
-
 
 ```{r, eval=FALSE}
 ## filter
@@ -213,13 +179,10 @@ testcombo <- filterGiotto(gobject = testcombo,
     verbose = T)
 ```
 
- 
 ```{r, eval=FALSE}
 ## normalize
 testcombo <- normalizeGiotto(gobject = testcombo, scalefactor = 6000)
 ```
-
- 
 
 ```{r, eval=FALSE}
 ## add gene & cell statistics
@@ -231,63 +194,45 @@ testfeats = fmeta[perc_cells > 20 & perc_cells < 50][100:110]$feat_ID
 violinPlot(testcombo, feats = testfeats, cluster_column = 'list_ID', save_param = list(save_name = "2a_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-9-1.png)
-
+![](images/visium_prostate_integration/2a_plot.png)
 
 ```{r, eval=FALSE}
 plotMetaDataHeatmap(testcombo, selected_feats = testfeats, metadata_cols = 'list_ID', save_param = list(save_name = "2b_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-9-3.png)
-
-
-
+![](images/visium_prostate_integration/2b_plot.png)
 
 ```{r, eval=FALSE}
 ## visualize
 spatPlot2D(gobject = testcombo, group_by = 'list_ID', cell_color = 'nr_feats', color_as_factor = F, point_size = 0.75, save_param = list(save_name = "2c_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-10-1.png)
-
-
+![](images/visium_prostate_integration/2c_plot.png)
 
 # 5 Dimention Reduction
-
 
 ```{r, eval=FALSE}
 ## PCA ##
 testcombo <- calculateHVF(gobject = testcombo)
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-11-1.png)
-
+![](images/visium_prostate_integration/0-HVFplot.png)
 
 ```{r, eval=FALSE}
 testcombo <- runPCA(gobject = testcombo, center = TRUE, scale_unit = TRUE)
 ```
 
- 
-
 ```{r, eval=FALSE}
 screePlot(testcombo, ncp = 30, save_param = list(save_name = "3a_screeplot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-11-2.png)
-
-
+![](images/visium_prostate_integration/3a_screeplot.png)
 
 # 6 Clustering
 
 ## 6.1 Without Integration
 
 Integration is usually needed for dataset of different conditions to minimize batch effects. Without integration means without using any integration methods.
-
 
 ```{r, eval=FALSE}
 ## cluster and run UMAP ##
@@ -307,11 +252,7 @@ plotUMAP(gobject = testcombo,
     save_param = list(save_name = "4.1a_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-12-1.png)
-
-
-
+![](images/visium_prostate_integration/4.1a_plot.png)
 
 ```{r, eval=FALSE}
 spatPlot2D(gobject = testcombo, group_by = 'list_ID',
@@ -320,11 +261,7 @@ spatPlot2D(gobject = testcombo, group_by = 'list_ID',
     save_param = list(save_name = "4.1b_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-13-1.png)
-
-
-
+![](images/visium_prostate_integration/4.1b_plot.png)
 
 ```{r, eval=FALSE}
 spatDimPlot2D(gobject = testcombo,
@@ -332,15 +269,11 @@ spatDimPlot2D(gobject = testcombo,
     save_param = list(save_name = "4.1c_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-14-1.png)
-
-
+![](images/visium_prostate_integration/4.1c_plot.png)
 
 ## 6.2 With Harmony integration
 
 Harmony is a integration algorithm developed by [Korsunsky, I. et al.](https://www.nature.com/articles/s41592-019-0619-0). It was designed for integration of single cell data but also work well on spatial datasets.
-
 
 ```{r, eval=FALSE}
 ## data integration, cluster and run UMAP ##
@@ -351,13 +284,10 @@ Harmony is a integration algorithm developed by [Korsunsky, I. et al.](https://w
 library(harmony)
 ```
 
- 
 ```{r, eval=FALSE}
 ## run harmony integration
 testcombo = runGiottoHarmony(testcombo, vars_use = 'list_ID', do_pca = F)
 ```
-
- 
 
 ```{r, eval=FALSE}
 ## sNN network (default)
@@ -381,16 +311,12 @@ plotUMAP(gobject = testcombo,
     save_param = list(save_name = "4.2a_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-15-1.png)
-
+![](images/visium_prostate_integration/4.2a_plot.png)
 
 ```{r, eval=FALSE}
 # If you want to show NN network information, you will need to specify these arguments in the plotUMAP function
 # show_NN_network = T, nn_network_to_use = 'sNN' , network_name = 'NN.harmony'
 ```
-
-
 
 ```{r, eval=FALSE}
 spatPlot2D(gobject = testcombo, group_by = 'list_ID',
@@ -399,11 +325,7 @@ spatPlot2D(gobject = testcombo, group_by = 'list_ID',
     save_param = list(save_name = "4.2b_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-16-1.png)
-
-
-
+![](images/visium_prostate_integration/4.2b_plot.png)
 
 ```{r, eval=FALSE}
 spatDimPlot2D(gobject = testcombo,
@@ -412,11 +334,7 @@ spatDimPlot2D(gobject = testcombo,
     save_param = list(save_name = "4.2c_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-17-1.png)
-
-
-
+![](images/visium_prostate_integration/4.2c_plot.png)
 
 ```{r, eval=FALSE}
 # compare to previous results
@@ -425,9 +343,7 @@ spatPlot2D(gobject = testcombo,
     save_param = list(save_name = "4_w_o_integration_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-18-1.png)
-
+![](images/visium_prostate_integration/4_w_o_integration_plot.png)
 
 ```{r, eval=FALSE}
 spatPlot2D(gobject = testcombo,
@@ -435,22 +351,18 @@ spatPlot2D(gobject = testcombo,
     save_param = list(save_name = "4_w_integration_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-18-3.png)
-
-
+![](images/visium_prostate_integration/4_w_integration_plot.png)
 
 # 7 Cell type annotation
 
 Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides several ways to calculate enrichment of specific cell-type signature gene list:
 
-- PAGE
-- hypergeometric test
-- Rank
-- [DWLS Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7)
+-   PAGE
+-   hypergeometric test
+-   Rank
+-   [DWLS Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7)
 
 This is also the easiest way to integrate Visium datasets with single cell data. Example shown here is from [Ma et al.](https://pubmed.ncbi.nlm.nih.gov/33032611/) from two prostate cancer patients. The raw dataset can be found [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE157703) Giotto_SC is processed variable in the [single cell RNAseq tutorial](https://giottosuite.com/articles/singlecell_prostate_standard_Sep29_21.html). You can also get access to the processed files of this dataset using getSpatialDataset
-
 
 ```{r, eval=FALSE}
 # download data to results directory ####
@@ -458,8 +370,6 @@ This is also the easiest way to integrate Visium datasets with single cell data.
 # if you run into authentication issues with wget, then add " extra = '--no-check-certificate' "
 getSpatialDataset(dataset = 'scRNA_prostate', directory = data_directory)
 ```
-
-
 
 ```{r, eval=FALSE}
 sc_expression = paste0(data_directory, "/prostate_sc_expression_matrix.csv.gz")
@@ -471,8 +381,6 @@ giotto_SC <- createGiottoObject(
 )
 ```
 
-
-
 ```{r, eval=FALSE}
 giotto_SC <- addCellMetadata(giotto_SC, 
                              new_metadata = data.table::fread(sc_metadata))
@@ -480,9 +388,7 @@ giotto_SC <- addCellMetadata(giotto_SC,
 giotto_SC<- normalizeGiotto(giotto_SC)
 ```
 
-
 ## 7.1 PAGE enrichment
-
 
 ```{r, eval=FALSE}
 # Create PAGE matrix
@@ -494,8 +400,6 @@ markers_scran = findMarkers_one_vs_all(gobject=giotto_SC,
                                        cluster_column='prostate_labels',
                                        min_feats=3)
 ```
-
- 
 
 ```{r, eval=FALSE}
 top_markers <- markers_scran[, head(.SD, 10), by="cluster"]
@@ -509,8 +413,6 @@ for (i in 1:length(celltypes)){
 PAGE_matrix = makeSignMatrixPAGE(sign_names = celltypes,
                                  sign_list = sign_list)
 ```
-
-
 
 ```{r, eval=FALSE}
 testcombo = runPAGEEnrich(gobject = testcombo,
@@ -527,13 +429,9 @@ spatCellPlot(gobject = testcombo,
              save_param = list(save_name = "5a_PAGE_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-21-1.png)
-
-
+![](images/visium_prostate_integration/5a_PAGE_plot.png)
 
 ## 7.2 Hypergeometric test
-
 
 ```{r, eval=FALSE}
 testcombo = runHyperGeometricEnrich(gobject = testcombo,
@@ -547,13 +445,9 @@ spatCellPlot(gobject = testcombo,
              save_param = list(save_name = "5b_HyperGeometric_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-22-1.png)
-
-
+![](images/visium_prostate_integration/5b_HyperGeometric_plot.png)
 
 ## 7.3 Rank Enrichment
-
 
 ```{r, eval=FALSE}
 # Create rank matrix, not that rank matrix is different from PAGE
@@ -577,13 +471,9 @@ spatCellPlot2D(gobject = testcombo,
                save_param = list(save_name = "5c_Rank_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-23-1.png)
-
-
+![](images/visium_prostate_integration/5c_Rank_plot.png)
 
 ## 7.4 DWLS Deconvolution
-
 
 ```{r, eval=FALSE}
 # Create DWLS matrix, not that DWLS matrix is different from PAGE and rank
@@ -602,13 +492,9 @@ spatCellPlot2D(gobject = testcombo,
                save_param = list(save_name = "5d_DWLS_plot"))
 ```
 
- 
-![](images/visium_prostate_integration/unnamed-chunk-24-1.png)
-
-
+![](images/visium_prostate_integration/5d_DWLS_plot.png)
 
 # 8 Session Info
-
 
 ```{r, eval=FALSE}
 sessionInfo()
@@ -708,6 +594,3 @@ R version 4.2.2 (2022-10-31 ucrt)
     [143] MatrixGenerics_1.10.0       Rtsne_0.16                 
     [145] Biobase_2.58.0              shiny_1.7.4                
 ```
-
-    
-
