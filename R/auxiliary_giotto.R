@@ -32,7 +32,7 @@
                      This will likely result in normalization problems.
                      filter (filterGiotto) or impute (imputeGiotto) spatial units.'))
   }
-
+  
   norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
 
   return(norm_expr)
@@ -41,7 +41,7 @@
 #' @title Log normalize expression matrix
 #' @keywords internal
 .log_norm_giotto = function(mymatrix, base, offset) {
-
+  
   if(methods::is(mymatrix, 'DelayedArray')) {
     mymatrix = log(mymatrix + offset)/log(base)
     # } else if(methods::is(mymatrix, 'DelayedMatrix')) {
@@ -51,7 +51,8 @@
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else if(methods::is(mymatrix, 'dbMatrix')) {
-    mymatrix = log(mymatrix@x + offset)/log(base)
+    mymatrix[] = dplyr::mutate(mymatrix[], x = x + offset) # workaround for lack of @x slot
+    mymatrix = log(mymatrix)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
