@@ -127,7 +127,7 @@ screePlot(giotto_SC,
           save_param = list(save_name = '3_scree_plot'))
 ```
 
-![](images/sc_lung_adenocarcinoma/3_scree_plot.png)
+![](images/singlecell_lung_adenocarcinoma/3_scree_plot.png)
 
 ## Part 4: Cluster
 
@@ -154,7 +154,7 @@ plotUMAP(gobject = giotto_SC,
          save_param = list(save_name = "4_Cluster"))
 ```
 
-![](images/sc_lung_adenocarcinoma/4_Cluster.png)
+![](images/singlecell_lung_adenocarcinoma/4_Cluster.png)
 
 ## Part 5: Differential Expression
 
@@ -175,7 +175,7 @@ plotMetaDataHeatmap(giotto_SC,
                     save_param = list(save_name = '5_metaheatmap'))
 ```
 
-![](images/sc_lung_adenocarcinoma/5_metaheatmap.png)
+![](images/singlecell_lung_adenocarcinoma/5_metaheatmap.png)
 
 ## Part 6: FeaturePlot
 
@@ -187,7 +187,7 @@ dimFeatPlot2D(giotto_SC,
               save_param = list(save_name = "6_featureplot"))
 ```
 
-![](images/sc_lung_adenocarcinoma/6_featureplot.png)
+![](images/singlecell_lung_adenocarcinoma/6_featureplot.png)
 
 ## Part 7: Cell type Annotation
 
@@ -296,7 +296,7 @@ Heatmap(heatmap_matrix,
 dev.off()
 ```
 
-![](images/sc_lung_adenocarcinoma/6_heatmap_all_clusters_cell_types.png)
+![](images/singlecell_lung_adenocarcinoma/6_heatmap_all_clusters_cell_types.png)
 
 ``` {r, eval=FALSE}
 lung_labels<-c("carcinoma_cells",#1
@@ -346,7 +346,7 @@ dimPlot2D(gobject = giotto_SC,
           save_param = list(save_name = "7_Annotation"))
 ```
 
-![](images/sc_lung_adenocarcinoma/7_Annotation.png)
+![](images/singlecell_lung_adenocarcinoma/7_Annotation.png)
 
 ```{r, eval=FALSE}
 sessionInfo()
