@@ -166,6 +166,8 @@ navbar:
           href: articles/singlecell_prostate_standard.html
         - text: Prostate Integration
           href: articles/singlecell_prostate_integration.html
+        - text: Human Lung Adenocarcinoma
+          href: articles/singlecell_lung_adenocarcinoma.html
     news:
       text: News
       menu:
@@ -287,6 +289,7 @@ articles:
   contents:
   - singlecell_prostate_standard
   - singlecell_prostate_integration
+  - singlecell_lung_adenocarcinoma
 
 news:
   cran_dates: false
