@@ -58,19 +58,19 @@ To run this vignette, download the files from this [Google drive](https://drive.
 ## Part 1: Create Giotto object 
   
 Load data
-```{r load data}
+```{r, eval=FALSE}
 raw.data <- read.csv("Data_input/csv_files/S01_datafinal.csv", 
                      header=T, row.names = 1)
 ```
 
 Load metadata
-```{r load metadata}
+```{r, eval=FALSE}
 metadata <- read.csv("Data_input/csv_files/S01_metacells.csv",
                      row.names=1, header=T)
 ```
 
 Find ERCC's, compute the percent ERCC, and drop them from the raw data.
-```{r}
+```{r, eval=FALSE}
 erccs <- grep(pattern = "^ERCC-", 
               x = rownames(x = raw.data), 
               value = TRUE)
@@ -88,7 +88,7 @@ giotto_SC <- createGiottoObject(expression = raw.data,
 ```
 
 Calculate percent ribosomal genes and add to metadata
-```{r}
+```{r, eval=FALSE}
 ribo.genes <- grep(pattern = "^RP[SL][[:digit:]]", 
                    x = rownames(raw.data), value = TRUE)
 percent.ribo <- Matrix::colSums(raw.data[ribo.genes, ])/Matrix::colSums(raw.data)
@@ -208,7 +208,7 @@ marker_genes = list(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 library(dplyr)
 library(ComplexHeatmap)
 heatmap_table <- calculateMetaTable(gobject = giotto_SC,
