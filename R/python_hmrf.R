@@ -1393,13 +1393,10 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
     stop("\n cluster number 'k' not in the intialization object \n")
   }
   if (!"spat_unit" %in% names(HMRF_init_obj)) {
-    HMRF_init_obj[['spat_unit']] = set_default_spat_unit(gobject = gobject,
-                                                         spat_unit = spat_unit)
+    HMRF_init_obj[['spat_unit']] = NULL
   }
   if (!"feat_type" %in% names(HMRF_init_obj)) {
-    HMRF_init_obj[['feat_type']] = feat_type = set_default_feat_type(gobject = gobject,
-                                                                     spat_unit = spat_unit,
-                                                                     feat_type = feat_type)
+    HMRF_init_obj[['feat_type']] = NULL
   }
   
   y = HMRF_init_obj$y
@@ -1415,7 +1412,7 @@ doHMRF_V2 = function (HMRF_init_obj, betas = NULL)
   
   if(is.null(betas))
   {
-    beta_seq = max(ceiling(ncol(y)/10),5)
+    beta_seq = max(ceiling(ncol(y)/10),2)
     cat(paste0("\n Default value beta = ",beta_seq," is used...\n"))
   }else if(length(betas) != 3 || (sum(betas[1:3] < 0) > 0)) {
     stop("\n please provide betas as a vector of 3 non-negative numbers (initial value, nicrement, total iteration number) \n")
@@ -1468,6 +1465,12 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRF_V2() \n")
+  }
+  if (!"spat_unit" %in% names(HMRFoutput)) {
+    HMRF_init_obj[['spat_unit']] = NULL
+  }
+  if (!"feat_type" %in% names(HMRFoutput)) {
+    HMRF_init_obj[['feat_type']] = NULL
   }
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
