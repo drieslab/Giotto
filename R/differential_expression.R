@@ -38,7 +38,7 @@ findScranMarkers <- function(gobject,
                              group_1_name = NULL,
                              group_2 = NULL,
                              group_2_name = NULL,
-                             verbose = FALSE,
+                             verbose = TRUE,
                              ...) {
 
 
@@ -47,10 +47,12 @@ findScranMarkers <- function(gobject,
 
 
   # print message with information #
-  if(verbose) wrap_msg("using 'Scran' to detect marker genes. If used in published research, please cite:
+  if(isTRUE(verbose)) {
+  wrap_msg("Using 'Scran' to detect marker genes. If used in published research, please cite:
   Lun ATL, McCarthy DJ, Marioni JC (2016).
   'A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.'
-  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
+  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2.")
+  }
 
 
   # Set feat_type and spat_unit
@@ -912,7 +914,7 @@ findMastMarkers_one_vs_all = function(gobject,
   # save list
   result_list = list()
 
-  for(clus_i in 1:length(uniq_clusters)) {
+  for(clus_i in seq_along(uniq_clusters)) {
 
     selected_clus = uniq_clusters[clus_i]
     other_clus = uniq_clusters[uniq_clusters != selected_clus]

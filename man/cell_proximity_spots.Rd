@@ -2,23 +2,43 @@
 % Please edit documentation in R/spatial_interaction_spot.R
 \name{cell_proximity_spots}
 \alias{cell_proximity_spots}
-\title{cell_proximity_spots}
+\alias{.cell_proximity_spots_internal}
+\alias{.cell_proximity_spots_external}
+\alias{.cell_proximity_spots}
+\title{Cell type proximity for spots}
 \usage{
-cell_proximity_spots(cell_IDs, pairs_external, dwls_values)
+.cell_proximity_spots_internal(cell_IDs, dwls_values)
+
+.cell_proximity_spots_external(pairs, dwls_values)
+
+.cell_proximity_spots(cell_IDs, pairs_external, dwls_values)
 }
 \arguments{
-\item{cell_IDs}{cell_IDs to calculate internal cell-type/cell-type interactions}
+\item{cell_IDs}{cell_IDs}
 
 \item{dwls_values}{data.table of cell type enrichment in each spot and multiply
 by cell number in each spot}
 
 \item{pairs}{data.table of paired spots. Format: cell_ID1, cell_ID2, N}
+
+\item{pairs_external}{data.table of paired spots. Format: cell_ID1, cell_ID2,
+N. Passes to `.cell_proximity_spots_external` `pairs` param}
 }
 \value{
 List of cell proximity observed value in data.table format. Columns:
 unified_int, type_int, V1, external, internal.
 }
 \description{
-Compute cell-cell interactions observed value for internal and external spots
+Compute cell-cell interactions observed value for internal and
+external spots
 }
+\section{Functions}{
+\itemize{
+\item \code{.cell_proximity_spots_internal()}: Compute cell-cell interactions observed value inner each spot
+
+\item \code{.cell_proximity_spots_external()}: Compute cell-cell interactions observed value for interacted spots
+
+\item \code{.cell_proximity_spots()}: Wrapper function
+
+}}
 \keyword{internal}

@@ -9,7 +9,10 @@ plotRankSpatvsExpr(
   combCC,
   expr_rnk_column = "LR_expr_rnk",
   spat_rnk_column = "LR_spat_rnk",
-  midpoint = 10,
+  dot_color_gradient = NULL,
+  midpoint = deprecated(),
+  gradient_midpoint = 10,
+  gradient_style = c("divergent", "sequential"),
   size_range = c(0.01, 1.5),
   xlims = NULL,
   ylims = NULL,
@@ -24,13 +27,21 @@ plotRankSpatvsExpr(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{combCC}{combined communinication scores from \code{\link{combCCcom}}}
+\item{combCC}{combined communication scores from \code{\link{combCCcom}}}
 
 \item{expr_rnk_column}{column with expression rank information to use}
 
 \item{spat_rnk_column}{column with spatial rank information to use}
 
-\item{midpoint}{midpoint of colors}
+\item{dot_color_gradient}{character. continuous colors to use. palette to
+use or vector of colors to use (minimum of 2).}
+
+\item{midpoint}{deprecated}
+
+\item{gradient_midpoint}{numeric. default = 10. midpoint of colors}
+
+\item{gradient_style}{either 'divergent' (midpoint is used in color scaling)
+or 'sequential' (scaled based on data range)}
 
 \item{size_range}{size ranges of dotplot}
 
@@ -40,13 +51,13 @@ plotRankSpatvsExpr(
 
 \item{selected_ranks}{numerical vector, will be used to print out the percentage of top spatial ranks are recovered}
 
-\item{show_plot}{show plots}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return plotting object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

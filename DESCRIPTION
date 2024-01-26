@@ -1,18 +1,22 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 3.3.0
+Version: 4.0.2
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
 	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
 		 role = c("aut")),
-	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
-		 role = c("aut")),
+	person("Joselyn C.", "Chávez-Fuentes", email = "joselynchavezf@gmail.com",
+		 role = c("aut"), comment = c(ORCID = "0000-0002-4974-4591")),
 	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut")),
     person("Matthew", "O'Brien", email = "mobrien2@bu.edu",
 		 role = c("aut")),
-		 person("Joselyn", "Chávez", email = "joselynchavezf@gmail.com",
+	person("Edward", "Ruiz", email = "ecruiz@bu.edu",
+		 role = c("aut")),
+	person("Wen", "Wang", email = "wen.wang@mssm.edu",
+		 role = c("aut")),
+	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
 		 role = c("aut"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
@@ -27,45 +31,41 @@ Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),
     R (>= 3.5.0),
-    methods
+    methods,
+    GiottoClass (>= 0.1.1)
 Imports:
+    BiocParallel,
     BiocSingular,
+    checkmate,
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
-    deldir (>= 1.0.6),
-    future.apply,
     ggplot2 (>= 3.1.1),
     ggrepel,
-    grDevices,
-    graphics,
+    GiottoUtils (>= 0.1.1),
+    GiottoVisuals (>= 0.1.1),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
-    Matrix,
+    Matrix (>= 1.6.2),
     MatrixGenerics,
-    magick,
-    magrittr,
-    matrixStats (>= 0.55.0),
     plotly,
-    parallel,
     progressr,
-    RColorBrewer (>= 1.1-2),
     reshape2,
     reticulate (>= 1.25),
     Rtsne (>= 0.15),
     scales (>= 1.0.0),
-    sp,
     sparseMatrixStats,
     stats,
-    terra (>= 1.5-12),
+    terra (>= 1.7-39),
     uwot (>= 0.0.0.9010)
 Suggests:
+    ArchR,
     arrow,
     Biobase,
     biomaRt,
-    circlize,
     ClusterR,
+    clustree,
     ComplexHeatmap (>= 1.20.0),
     DelayedArray,
     DelayedMatrixStats,
@@ -75,86 +75,87 @@ Suggests:
     FactoMineR,
     factoextra,
     fitdistrplus,
+    FNN,
+    future,
+    future.apply,
     geometry,
     GiottoData,
     ggalluvial,
     ggdendro,
     ggforce,
     ggraph,
-    ggrepel,
+    graphcoloring,
     HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
-    irlba,
     jackstraw,
+    kableExtra,
     knitr,
     MAST,
     miniUI,
     multinet (>= 3.0.2),
+    networkD3,
     png,
     quadprog,
     harmony,
+    R.utils,
+    remotes,
     Rfast,
+    rlang,
     rhdf5,
     RTriangle (>= 1.6-0.10),
     Rvision,
     S4Vectors,
-    Seurat,
-    sf,
     scatterpie,
     scattermore,
     scran (>= 1.10.1),
+    Seurat,
+    sf,
     shiny,
     SingleCellExperiment,
     smfishHmrf,
     SPARK,
     SpatialExperiment,
+    spdep,
     SummarizedExperiment,
+    tidygraph,
     tiff,
     trendsceek,
     testthat (>= 3.0.0),
     qs
+Remotes:
+    drieslab/GiottoUtils,
+    drieslab/GiottoClass,
+    drieslab/GiottoVisuals
 Collate:
-    'NN_network.R'
-    'accessors.R'
-    'classes.R'
-    'assert.R'
     'auxiliary_giotto.R'
-    'auxiliary_visuals.R'
     'cell_segmentation.R'
     'clustering.R'
     'convenience.R'
     'cross_section.R'
-    'data_evaluation.R'
-    'data_input.R'
     'dd.R'
     'differential_expression.R'
     'dimension_reduction.R'
     'feature_set_enrichment.R'
     'general_help.R'
-    'giotto_structures.R'
-    'generics.R'
-    'giotto.R'
     'giotto_viewer.R'
     'globals.R'
+    'gstop.R'
+    'suite_reexports.R'
     'image_registration.R'
-    'images.R'
     'interactivity.R'
-    'interoperability.R'
-    'poly_influence.r'
-    'python_environment.R'
+    'package_imports.R'
+    'poly_influence.R'
     'python_hmrf.R'
     'python_scrublet.R'
+    'spatial_clusters.R'
     'spatial_enrichment.R'
+    'spatial_enrichment_visuals.R'
     'spatial_genes.R'
-    'spatial_in_situ_visuals.R'
     'spatial_interaction.R'
     'spatial_interaction_spot.R'
     'spatial_interaction_visuals.R'
-    'spatial_structures.R'
-    'spatial_visuals.R'
-    'utilities.R'
-    'utils-pipe.R'
+    'spdep.R'
     'variable_genes.R'
     'wnn.R'
     'zzz.R'

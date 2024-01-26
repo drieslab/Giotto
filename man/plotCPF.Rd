@@ -53,15 +53,16 @@ plotCPF(
 
 \item{direction}{differential expression directions to keep}
 
-\item{cell_color_code}{vector of colors with cell types as names}
+\item{cell_color_code}{character. discrete colors to use. palette to use or
+named vector of colors}
 
-\item{show_plot}{show plots}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return plotting object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. save the plot}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

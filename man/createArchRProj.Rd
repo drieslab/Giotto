@@ -12,22 +12,22 @@ createArchRProj(
     0, TileMatParams = list(tileSize = 5000)),
   ArchRProject_params = list(outputDirectory = getwd(), copyArrows = FALSE),
   addIterativeLSI_params = list(),
-  threads = getArchRThreads(),
+  threads = ArchR::getArchRThreads(),
   force = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{fragmentsPath}{A character vector containing the paths to the input 
-files to use to generate the ArrowFiles. 
-These files can be in one of the following formats: (i) scATAC tabix files, 
+\item{fragmentsPath}{A character vector containing the paths to the input
+files to use to generate the ArrowFiles.
+These files can be in one of the following formats: (i) scATAC tabix files,
 (ii) fragment files, or (iii) bam files.}
 
-\item{genome}{A string indicating the default genome to be used for all ArchR 
-functions. Currently supported values include "hg19","hg38","mm9", and "mm10". 
-This value is stored as a global environment variable, not part of the ArchRProject. 
-This can be overwritten on a per-function basis using the given function's 
-geneAnnotationand genomeAnnotation parameter. For something other than one of 
+\item{genome}{A string indicating the default genome to be used for all ArchR
+functions. Currently supported values include "hg19","hg38","mm9", and "mm10".
+This value is stored as a global environment variable, not part of the ArchRProject.
+This can be overwritten on a per-function basis using the given function's
+geneAnnotationand genomeAnnotation parameter. For something other than one of
 the currently supported, see createGeneAnnnotation() and createGenomeAnnnotation()}
 
 \item{createArrowFiles_params}{list of parameters passed to `ArchR::createArrowFiles`}

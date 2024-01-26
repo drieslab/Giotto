@@ -82,23 +82,7 @@ read_crossSection <- function(gobject,
   return(crossSection_obj)
 }
 
-#' @title get_distance
-#' @name get_distance
-#' @description estimate average distance between neighboring cells with network table as input
-#' @param networkDT networkDT
-#' @param method method
-#' @keywords internal
-get_distance <- function(networkDT,
-                         method=c("mean","median")
-                         ){
 
-  if (method=="median"){
-    distance = stats::median(networkDT$distance)
-  }else if(method=="mean"){
-    distance = mean(networkDT$distance)
-  }
-  return(distance)
-}
 
 #' @title estimateCellCellDistance
 #' @name estimateCellCellDistance
@@ -442,9 +426,9 @@ createCrossSection <- function(gobject,
 
   colnames_to_extract = c("sdimx", "sdimy", "sdimz")
   spatial_locations = spatial_locations[, colnames_to_extract]
-  
+
   spatial_locations = spatial_locations@coordinates
-  
+
   spatial_locations = as.matrix(spatial_locations)
   rownames(spatial_locations) = cell_IDs
   cell_ID_vec = c(1:nrow(spatial_locations))
@@ -554,7 +538,7 @@ createCrossSection <- function(gobject,
     gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[name]] = crossSection_obj
 
     return(gobject)
-    
+
   }
   else {
     return(crossSection_obj)
@@ -576,24 +560,31 @@ createCrossSection <- function(gobject,
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... parameters for spatGenePlot2D
+#' @param ... parameters for spatFeatPlot2D
 #' @return ggplot
 #' @details Description of parameters.
+#' @md
+#' @seealso [GiottoVisuals::spatGenePlot3D] and [GiottoVisuals::spatFeatPlot2D]
 #' @export
-#' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
-#'
-crossSectionGenePlot <-function(gobject=NULL,
-                                spat_loc_name = 'raw',
-                                crossSection_obj=NULL,
-                                name=NULL,
-                                spatial_network_name = "Delaunay_network",
-                                default_save_name = "crossSectionGenePlot",...){
+crossSectionGenePlot <- function(
+    gobject=NULL,
+    spat_loc_name = 'raw',
+    crossSection_obj=NULL,
+    name=NULL,
+    spatial_network_name = "Delaunay_network",
+    default_save_name = "crossSectionGenePlot",
+    ...
+) {
 
   # load cross section object
   if (!is.null(crossSection_obj)){
     crossSection_obj = crossSection_obj
-  }else{
-    crossSection_obj = read_crossSection(gobject,name=name,spatial_network_name = spatial_network_name)
+  } else {
+    crossSection_obj = read_crossSection(
+      gobject,
+      name=name,
+      spatial_network_name = spatial_network_name
+    )
   }
 
   cell_subset = crossSection_obj$cell_subset
@@ -604,11 +595,13 @@ crossSectionGenePlot <-function(gobject=NULL,
   temp_gobject@spatial_locs[[spat_loc_name]]$sdimx=cell_subset_projection_coords[,1]
   temp_gobject@spatial_locs[[spat_loc_name]]$sdimy=cell_subset_projection_coords[,2]
   temp_gobject@spatial_locs[[spat_loc_name]]$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
-  # call spatGenePlot2D to generate the plots
-  spatGenePlot2D(gobject = temp_gobject,
-                 spatial_network_name = spatial_network_name,
-                 default_save_name = default_save_name,
-                 ...)
+  # call spatFeatPlot2D to generate the plots
+  GiottoVisuals::spatFeatPlot2D(
+    gobject = temp_gobject,
+    spatial_network_name = spatial_network_name,
+    default_save_name = default_save_name,
+    ...
+  )
 }
 ####
 
@@ -634,7 +627,7 @@ crossSectionPlot <-function(gobject,
                             name = NULL,
                             spatial_network_name = "Delaunay_network",
                             default_save_name = "crossSectionPlot",
-                            ...){
+                            ...) {
 
 
   # specify feat_type
@@ -664,11 +657,12 @@ crossSectionPlot <-function(gobject,
   temp_gobject@spatial_locs[[spat_loc_name]]$sdimy=cell_subset_projection_coords[,2]
   temp_gobject@spatial_locs[[spat_loc_name]]$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
 
-  # call spatGenePlot2D to generate the plots
+  # call spatFeatPlot2D to generate the plots
   spatPlot2D(gobject = temp_gobject,
              feat_type = feat_type,
              spatial_network_name = spatial_network_name,
-             default_save_name = default_save_name,...)
+             default_save_name = default_save_name,
+             ...)
 
 
 }
@@ -867,28 +861,32 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @param custom_ratio custom_ratio
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_plot logical. directly save the plot
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function]
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @return ggplot
 #' @details Description of parameters.
+#' @md
 #' @export
-insertCrossSectionGenePlot3D <- function(gobject,
-                                         spat_loc_name = 'raw',
-                                         crossSection_obj=NULL,
-                                         name=NULL,
-                                         spatial_network_name = "Delaunay_network",
-                                         mesh_grid_color = "#1f77b4",
-                                         mesh_grid_width = 3,
-                                         mesh_grid_style = "dot",
-                                         sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
-                                         show_other_cells = F,
-                                         axis_scale = c("cube", "real", "custom"),
-                                         custom_ratio = NULL,
-                                         show_plot = NA, return_plot = NA, save_plot = NA,
-                                         save_param = list(),
-                                         default_save_name = "spatGenePlot3D_with_cross_section",...){
+insertCrossSectionGenePlot3D <- function(
+    gobject,
+    spat_loc_name = 'raw',
+    crossSection_obj=NULL,
+    name=NULL,
+    spatial_network_name = "Delaunay_network",
+    mesh_grid_color = "#1f77b4",
+    mesh_grid_width = 3,
+    mesh_grid_style = "dot",
+    sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
+    show_other_cells = F,
+    axis_scale = c("cube", "real", "custom"),
+    custom_ratio = NULL,
+    show_plot = NA, return_plot = NA, save_plot = NA,
+    save_param = list(),
+    default_save_name = "spatGenePlot3D_with_cross_section",
+    ...
+){
 
   # load cross section object
   if (!is.null(crossSection_obj)){
@@ -935,22 +933,15 @@ insertCrossSectionGenePlot3D <- function(gobject,
                                                   z=new_ratio[[3]])))
 
   cowplot = pl
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject,
-                                                              param = "show_plot"), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject,
-                                                              param = "save_plot"), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject,
-                                                                  param = "return_plot"), return_plot)
-  if (show_plot == TRUE) {
-    print(cowplot)
-  }
-  if (save_plot == TRUE) {
-    do.call("all_plots_save_function", c(list(gobject = gobject,
-                                              plot_object = cowplot, default_save_name = default_save_name),
-                                         save_param))
-  }
-  if (return_plot == TRUE) {
-    return(cowplot)
-  }
 
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = cowplot,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }

@@ -2,8 +2,8 @@
 % Please edit documentation in R/convenience.R
 \name{createGiottoMerscopeObject}
 \alias{createGiottoMerscopeObject}
-\alias{createGiottoMerscopeObject_subcellular}
-\alias{createGiottoMerscopeObject_aggregate}
+\alias{.createGiottoMerscopeObject_subcellular}
+\alias{.createGiottoMerscopeObject_aggregate}
 \title{Create Vizgen MERSCOPE Giotto Object}
 \usage{
 createGiottoMerscopeObject(
@@ -21,7 +21,7 @@ createGiottoMerscopeObject(
   verbose = TRUE
 )
 
-createGiottoMerscopeObject_subcellular(
+.createGiottoMerscopeObject_subcellular(
   data_list,
   calculate_overlap = TRUE,
   overlap_to_matrix = TRUE,
@@ -32,7 +32,7 @@ createGiottoMerscopeObject_subcellular(
   verbose = TRUE
 )
 
-createGiottoMerscopeObject_aggregate(data_list, cores = NA, verbose = TRUE)
+.createGiottoMerscopeObject_aggregate(data_list, cores = NA, verbose = TRUE)
 }
 \arguments{
 \item{merscope_dir}{full path to the exported merscope directory}
@@ -51,7 +51,7 @@ NULL loads all FOVs (very slow)}
 
 \item{aggregate_stack_param}{params to pass to \code{\link{aggregateStacks}}}
 
-\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 
@@ -80,9 +80,9 @@ where the \strong{bolded} portions are what this function matches against:
 }
 \section{Functions}{
 \itemize{
-\item \code{createGiottoMerscopeObject_subcellular()}: Create giotto object with 'subcellular' workflow
+\item \code{.createGiottoMerscopeObject_subcellular()}: Create giotto object with 'subcellular' workflow
 
-\item \code{createGiottoMerscopeObject_aggregate()}: Create giotto object with 'aggregate' workflow
+\item \code{.createGiottoMerscopeObject_aggregate()}: Create giotto object with 'aggregate' workflow
 
 }}
 \keyword{internal}

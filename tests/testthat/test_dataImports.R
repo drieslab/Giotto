@@ -3,27 +3,16 @@
 #   installGiottoEnvironment()
 # }
 
-if(!require(remotes)){
-  install.packages('R.utils', repos = 'http://cran.us.r-project.org')
-}
 
-if(!require(remotes)){
-  install.packages('remotes', repos = 'http://cran.us.r-project.org')
-}
-
-if(!require(GiottoData)){
-  library(remotes)
-  install_github('drieslab/GiottoData')
-}
 
 ### TESTS FOR DATA IMPORT FUNCTIONS
 # ------------------------------------
 
 test_that("Expression matrix is read correctly", {
-  
+
   # getSpatialDataset
   GiottoData::getSpatialDataset(dataset = "scRNA_mouse_brain", directory = paste0(getwd(), "/testdata/"))
-  
+
   # readExprMatrix
   expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
 

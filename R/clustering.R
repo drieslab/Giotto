@@ -184,29 +184,186 @@ doLeidenCluster = function(gobject,
 
 }
 
+
+
+
+
+
+
+#' @title doLeidenClusterIgraph
+#' @name doLeidenClusterIgraph
+#' @description cluster cells using a NN-network and the Leiden community
+#' detection algorithm as implemented in igraph
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param name name for cluster, default to "leiden_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
+#' @param objective_function objective function for the leiden algo
+#' @param weights weights of edges
+#' @param resolution_parameter resolution, default = 1
+#' @param beta leiden randomness
+#' @param initial_membership initial membership of cells for the partition
+#' @param n_iterations number of interations to run the Leiden algorithm.
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param set_seed set seed
+#' @param seed_number number for seed
+#' @inheritDotParams igraph::cluster_leiden -graph -objective_function -resolution_parameter -beta -weights -initial_membership -n_iterations
+#' @return giotto object with new clusters appended to cell metadata
+#' @details
+#' This function is a wrapper for the Leiden algorithm implemented in igraph,
+#' which can detect communities in graphs of millions of nodes (cells),
+#' as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}} for more information.
+#'
+#' Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
+#' Set \emph{weights = NA} if you don't want to use vertices weights
+#'
+#' @export
+doLeidenClusterIgraph = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 name = 'leiden_clus',
+                                 nn_network_to_use = 'sNN',
+                                 network_name = 'sNN.pca',
+                                 objective_function = c("modularity", "CPM"),
+                                 weights = NULL,
+                                 resolution_parameter = 1,
+                                 beta = 0.01,
+                                 initial_membership = NULL,
+                                 n_iterations = 1000,
+                                 return_gobject = TRUE,
+                                 set_seed = TRUE,
+                                 seed_number = 1234,
+                                 ...) {
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  ## get cell IDs ##
+  cell_ID_vec = gobject@cell_ID[[spat_unit]]
+
+  ## select network to use
+  igraph_object = get_NearestNetwork(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     nn_network_to_use = nn_network_to_use,
+                                     network_name = network_name,
+                                     output = 'igraph')
+
+  ## select partition type
+  objective_function = match.arg(objective_function,
+                                 choices = c("modularity", "CPM"))
+
+  ## set seed
+  if(isTRUE(set_seed)) {
+    seed_number = as.integer(seed_number)
+    set.seed(seed_number)
+    on.exit(expr = {GiottoUtils::random_seed(set.seed = TRUE)}, add = TRUE)
+  }
+
+  # make igraph network undirected
+  graph_object_undirected = igraph::as.undirected(igraph_object)
+  leiden_clusters = igraph::cluster_leiden(
+    graph = graph_object_undirected,
+    objective_function = objective_function,
+    resolution_parameter = resolution_parameter,
+    beta = beta,
+    weights = weights,
+    initial_membership = initial_membership,
+    n_iterations = n_iterations,
+    ...
+  )
+
+  # summarize results
+  ident_clusters_DT = data.table::data.table('cell_ID' = leiden_clusters$names, 'name' = leiden_clusters$membership)
+  data.table::setnames(ident_clusters_DT, 'name', name)
+
+
+
+  ## add clusters to metadata ##
+  if(isTRUE(return_gobject)) {
+
+
+    cluster_names = names(pDataDT(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type))
+    #cluster_names = names(gobject@cell_metadata[[spat_unit]][[feat_type]])
+
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = get_cell_metadata(gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        output = 'cellMetaObj',
+                                        copy_obj = TRUE)
+
+      cell_metadata[][, eval(name) := NULL]
+
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+      gobject = set_cell_metadata(gobject,
+                                  metadata = cell_metadata,
+                                  verbose = FALSE)
+      ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    }
+
+    gobject = addCellMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject, description = '_cluster')
+    return(gobject)
+
+
+  } else {
+
+    # else return clustering result
+    return(ident_clusters_DT)
+  }
+
+
+}
+
+
+
+
+
+
+
 #' @title doGiottoClustree
 #' @name doGiottoClustree
 #' @description cluster cells using leiden methodology to visualize different resolutions
 #' @param gobject giotto object
-#' @param res_vector vector of different resolutions to test 
+#' @param res_vector vector of different resolutions to test
 #' @param res_seq list of float numbers indicating start, end, and step size for resolution testing, i.e. (0.1, 0.6, 0.1)
 #' @param return_gobject default FALSE. See details for more info.
 #' @param show_plot by default, pulls from provided gobject instructions
 #' @param save_plot by default, pulls from provided gobject instructions
 #' @param return_plot by default, pulls from provided gobject instructions
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name name of saved plot, defaut "clustree"
+#' @param save_param list of saving parameters from [GiottoVisuals::all_plots_save_function()]
+#' @param default_save_name name of saved plot, default "clustree"
+#' @param verbose be verbose
+#' @inheritDotParams clustree::clustree -x
 #' @return a plot object (default), OR a giotto object (if specified)
 #' @details This function tests different resolutions for Leiden clustering and provides a visualization
-#' of cluster sizing as resolution varies. 
-#' 
+#' of cluster sizing as resolution varies.
+#'
 #' By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
-#' 
-#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information 
-#' will be returned. 
+#'
+#' If return_gobject is set to TRUE, and a giotto object with *all* tested leiden cluster information
+#' will be returned.
 #' @seealso \code{\link{doLeidenCluster}}
+#' @md
 #' @export
-doGiottoClustree <- function(gobject, 
+doGiottoClustree <- function(gobject,
                              res_vector = NULL,
                              res_seq = NULL,
                              return_gobject = FALSE,
@@ -214,7 +371,9 @@ doGiottoClustree <- function(gobject,
                              save_plot = NA,
                              return_plot = NA,
                              save_param = list(),
-                             default_save_name = "clustree", ...){
+                             default_save_name = "clustree",
+                             verbose = TRUE,
+                             ...) {
 
   package_check(pkg_name = "clustree", repository = "CRAN")
   ## setting resolutions to use
@@ -223,47 +382,40 @@ doGiottoClustree <- function(gobject,
       res_vector = seq(res_seq[1], res_seq[2], res_seq[3])
     } else stop("Please input res_vector or res_seq parameters")
   }
-  
+
   ## performing multiple leiden clusters at resolutions specified
   for (i in res_vector){
-    gobject = doLeidenCluster(gobject = gobject, resolution = i, name = paste0("leiden_clustree_", print(i), ...))
-  }
-  
-  ## plotting clustree graph
-  pl = clustree::clustree(pDataDT(gobject), prefix = "leiden_clustree_", ...)
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
-  ## add
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = "return_plot"), return_plot)
-  
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-  
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    if (isTRUE(verbose)) wrap_msg('Calculating leiden res:', i)
+    gobject = doLeidenCluster(
+      gobject = gobject,
+      resolution = i,
+      name = paste0("leiden_clustree_", i)
+    )
   }
 
-  ## return gobject with all newly developed leiden clusters
-  if(return_gobject == TRUE){
-    return(gobject)
-  }
-  
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  ## plotting clustree graph
+  pl = clustree::clustree(
+    x = pDataDT(gobject),
+    prefix = "leiden_clustree_",
+    ...
+  )
+
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
-#' @title doLouvainCluster_community
-#' @name doLouvainCluster_community
+#' @title doLouvainCluster community
+#' @name .doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -279,6 +431,7 @@ doGiottoClustree <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
+#' @param \dots additional params to pass
 #' @return giotto object with new clusters appended to cell metadata
 #' @details This function is a wrapper for the Louvain algorithm implemented in Python,
 #' which can detect communities in graphs of nodes (cells).
@@ -289,7 +442,7 @@ doGiottoClustree <- function(gobject,
 #'
 #' @keywords internal
 #'
-doLouvainCluster_community <- function(gobject,
+.doLouvainCluster_community <- function(gobject,
                                        spat_unit = NULL,
                                        feat_type = NULL,
                                        name = 'louvain_clus',
@@ -301,7 +454,8 @@ doLouvainCluster_community <- function(gobject,
                                        louv_random = FALSE,
                                        return_gobject = TRUE,
                                        set_seed = FALSE,
-                                       seed_number = 1234) {
+                                       seed_number = 1234,
+                                       ...) {
 
 
 
@@ -353,19 +507,19 @@ doLouvainCluster_community <- function(gobject,
       stop('\n weight column is not an igraph attribute \n')
     } else {
       # weight is defined by attribute of igraph object
-      network_edge_dt = network_edge_dt[,c('from', 'to', weight_col), with = F]
+      network_edge_dt = network_edge_dt[,c('from', 'to', weight_col), with = FALSE]
       setnames(network_edge_dt, weight_col, 'weight')
     }
   } else {
     # weight is the same
-    network_edge_dt = network_edge_dt[,c('from', 'to'), with = F]
+    network_edge_dt = network_edge_dt[,c('from', 'to'), with = FALSE]
     network_edge_dt[, weight := 1]
   }
 
   # do python louvain clustering
   if(louv_random == FALSE) {
     reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
-    pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, randomize = F)
+    pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, randomize = FALSE)
   } else {
     reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
     pyth_louv_result = python_louvain(df = network_edge_dt, resolution = resolution, random_state = seed_number)
@@ -439,8 +593,8 @@ doLouvainCluster_community <- function(gobject,
 }
 
 
-#' @title doLouvainCluster_multinet
-#' @name doLouvainCluster_multinet
+#' @title doLouvainCluster multinet
+#' @name .doLouvainCluster_multinet
 #' @description cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
@@ -458,7 +612,7 @@ doLouvainCluster_community <- function(gobject,
 #' more information.
 #'
 #' @keywords internal
-doLouvainCluster_multinet <- function(gobject,
+.doLouvainCluster_multinet <- function(gobject,
                                       spat_unit = NULL,
                                       feat_type = NULL,
                                       name = 'louvain_clus',
@@ -521,7 +675,7 @@ doLouvainCluster_multinet <- function(gobject,
 
 
   ## return
-  if(return_gobject == TRUE) {
+  if(isTRUE(return_gobject)) {
 
     # get cell metadata names
     cluster_names = names(pDataDT(gobject = gobject,
@@ -603,12 +757,12 @@ doLouvainCluster_multinet <- function(gobject,
 #' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method, default = 1
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = FALSE)
-#' @param ... arguments passed to \code{\link{doLouvainCluster_community}} or \code{\link{doLouvainCluster_multinet}}
+#' @param ... arguments passed to \code{\link{.doLouvainCluster_community}} or \code{\link{.doLouvainCluster_multinet}}
 #' @param seed_number number for seed
 #'
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
-#' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
+#' @seealso \code{\link{.doLouvainCluster_community}} and \code{\link{.doLouvainCluster_multinet}}
 #' @export
 doLouvainCluster = function(gobject,
                             spat_unit = NULL,
@@ -644,7 +798,7 @@ doLouvainCluster = function(gobject,
   # python community implementation
   if(version == 'community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = .doLouvainCluster_community(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         name = name,
@@ -664,7 +818,7 @@ doLouvainCluster = function(gobject,
     ## r multinet implementation
   } else if(version == 'multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = .doLouvainCluster_multinet(gobject = gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        name = name,
@@ -825,7 +979,7 @@ doSNNCluster <- function(gobject,
   igraph_DT = igraph_DT[order(from)]
 
   cell_id_numeric = unique(x = c(igraph_DT$from, igraph_DT$to))
-  names(cell_id_numeric) <- 1:length(cell_id_numeric)
+  names(cell_id_numeric) <- seq_along(cell_id_numeric)
   igraph_DT[, from_T := as.numeric(names(cell_id_numeric[cell_id_numeric == from])), by = 1:nrow(igraph_DT)]
   igraph_DT[, to_T := as.numeric(names(cell_id_numeric[cell_id_numeric == to])), by = 1:nrow(igraph_DT)]
   temp_igraph_DT = igraph_DT[,.(from_T, to_T, weight, distance)]
@@ -884,7 +1038,6 @@ doSNNCluster <- function(gobject,
 #' @param spat_unit spatial unit (e.g. "rna", "dna", "protein")
 #' @param expression_values expression values to use (e.g. "normalized", "scaled", "custom")
 #' @param feats_to_use subset of features to use
-#' @param genes_to_use deprecated use feats_to_use
 #' @param dim_reduction_to_use dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")
 #' @param dim_reduction_name dimensions reduction name, default to "pca"
 #' @param dimensions_to_use dimensions to use, default = 1:10
@@ -906,7 +1059,6 @@ doKmeans <- function(gobject,
                      spat_unit = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      feats_to_use = NULL,
-                     genes_to_use = NULL,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
                      dimensions_to_use = 1:10,
@@ -921,14 +1073,6 @@ doKmeans <- function(gobject,
                      return_gobject = TRUE,
                      set_seed = TRUE,
                      seed_number = 1234) {
-
-
-
-  ## deprecated arguments
-  if(!is.null(genes_to_use)) {
-    feats_to_use = genes_to_use
-    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
-  }
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -1074,7 +1218,7 @@ doKmeans <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes_to_use subset of genes to use
+#' @param feats_to_use subset of features to use
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimensions reduction name
 #' @param dimensions_to_use dimensions to use
@@ -1094,7 +1238,7 @@ doHclust <- function(gobject,
                      spat_unit = NULL,
                      feat_type = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
-                     genes_to_use = NULL,
+                     feats_to_use = NULL,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
                      dimensions_to_use = 1:10,
@@ -1157,8 +1301,8 @@ doHclust <- function(gobject,
                                         values = values)
 
     # subset expression matrix
-    if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    if(!is.null(feats_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% feats_to_use, ]
     }
 
     # features as columns
@@ -1273,7 +1417,7 @@ doHclust <- function(gobject,
 #' @param sNNclust_minPts SNNclust: min points
 #' @param borderPoints SNNclust: border points
 #' @param expression_values expression values to use
-#' @param genes_to_use = NULL,
+#' @param feats_to_use features to use in clustering,
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name name of reduction 'pca',
 #' @param dimensions_to_use dimensions to use
@@ -1290,7 +1434,7 @@ doHclust <- function(gobject,
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Wrapper for the different clustering methods.
-#' @seealso \code{\link{doLeidenCluster}}, \code{\link{doLouvainCluster_community}}, \code{\link{doLouvainCluster_multinet}},
+#' @seealso \code{\link{doLeidenCluster}}, \code{\link{.doLouvainCluster_community}}, \code{\link{.doLouvainCluster_multinet}},
 #' \code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
 #' \code{\link{doKmeans}}, \code{\link{doHclust}}
 #' @export
@@ -1329,7 +1473,7 @@ clusterCells <- function(gobject,
                          borderPoints = TRUE,
 
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         genes_to_use = NULL,
+                         feats_to_use = NULL,
                          dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                          dim_reduction_name = 'pca',
                          dimensions_to_use = 1:10,
@@ -1353,10 +1497,15 @@ clusterCells <- function(gobject,
                          seed_number = 1234) {
 
   ## select cluster method
-  cluster_method = match.arg(arg = cluster_method, choices = c('leiden',
-                                                               'louvain_community', 'louvain_multinet',
-                                                               'randomwalk', 'sNNclust',
-                                                               'kmeans', 'hierarchical'))
+  cluster_method = match.arg(
+    arg = cluster_method,
+    choices = c('leiden',
+                'louvain_community',
+                'louvain_multinet',
+                'randomwalk',
+                'sNNclust',
+                'kmeans',
+                'hierarchical'))
 
 
   if(cluster_method == 'leiden') {
@@ -1377,7 +1526,7 @@ clusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = .doLouvainCluster_community(gobject = gobject,
                                         name = name,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name,
@@ -1391,7 +1540,7 @@ clusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = .doLouvainCluster_multinet(gobject = gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
@@ -1433,7 +1582,7 @@ clusterCells <- function(gobject,
     result = doKmeans(gobject = gobject,
                       name = name,
                       expression_values = expression_values,
-                      genes_to_use = genes_to_use,
+                      feats_to_use = feats_to_use,
                       dim_reduction_to_use = dim_reduction_to_use,
                       dim_reduction_name = dim_reduction_name,
                       dimensions_to_use = dimensions_to_use,
@@ -1451,7 +1600,7 @@ clusterCells <- function(gobject,
     result = doHclust(gobject = gobject,
                       name = name,
                       expression_values = expression_values,
-                      genes_to_use = genes_to_use,
+                      feats_to_use = feats_to_use,
                       dim_reduction_to_use = dim_reduction_to_use,
                       dim_reduction_name = dim_reduction_name,
                       dimensions_to_use = dimensions_to_use,
@@ -1688,8 +1837,8 @@ doLeidenSubCluster = function(gobject,
 }
 
 
-#' @title doLouvainSubCluster_community
-#' @name doLouvainSubCluster_community
+#' @title doLouvainSubCluster community
+#' @name .doLouvainSubCluster_community
 #' @description subcluster cells using a NN-network and the Louvain community detection algorithm
 #' @param gobject giotto object
 #' @param name name for new clustering result
@@ -1719,9 +1868,9 @@ doLeidenSubCluster = function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain community clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_community}}
 #' @keywords internal
-doLouvainSubCluster_community = function(gobject,
+.doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
@@ -1803,7 +1952,7 @@ doLouvainSubCluster_community = function(gobject,
 
       ## Leiden Cluster
       ## TO DO: expand to all clustering options
-      temp_cluster = doLouvainCluster_community(gobject = temp_giotto,
+      temp_cluster = .doLouvainCluster_community(gobject = temp_giotto,
                                                 resolution = resolution,
                                                 python_path = python_path,
                                                 name = 'tempclus',
@@ -1870,8 +2019,8 @@ doLouvainSubCluster_community = function(gobject,
 
 
 
-#' @title doLouvainSubCluster_multinet
-#' @name doLouvainSubCluster_multinet
+#' @title doLouvainSubCluster multinet
+#' @name .doLouvainSubCluster_multinet
 #' @description subcluster cells using a NN-network and the Louvain multinet detection algorithm
 #' @param gobject giotto object
 #' @param name name for new clustering result
@@ -1901,9 +2050,9 @@ doLouvainSubCluster_community = function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain multinet clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}}
 #' @keywords internal
-doLouvainSubCluster_multinet =  function(gobject,
+.doLouvainSubCluster_multinet = function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
@@ -1993,7 +2142,7 @@ doLouvainSubCluster_multinet =  function(gobject,
 
       ## Leiden Cluster
       ## TO DO: expand to all clustering options
-      temp_cluster = doLouvainCluster_multinet(gobject = temp_giotto,
+      temp_cluster = .doLouvainCluster_multinet(gobject = temp_giotto,
                                                gamma = gamma,
                                                omega = omega,
                                                name = 'tempclus',
@@ -2088,7 +2237,7 @@ doLouvainSubCluster_multinet =  function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Louvain clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}} and \code{\link{.doLouvainCluster_community}}
 #' @export
 doLouvainSubCluster =  function(gobject,
                                 name = 'sub_louvain_clus',
@@ -2119,7 +2268,7 @@ doLouvainSubCluster =  function(gobject,
   # python community implementation
   if(version == 'community') {
 
-    result = doLouvainSubCluster_community(gobject = gobject,
+    result = .doLouvainSubCluster_community(gobject = gobject,
                                            cluster_column = cluster_column,
                                            selected_clusters = selected_clusters,
                                            hvg_param = hvg_param,
@@ -2137,7 +2286,7 @@ doLouvainSubCluster =  function(gobject,
 
   } else if(version == 'multinet') {
 
-    result = doLouvainSubCluster_multinet(gobject = gobject,
+    result = .doLouvainSubCluster_multinet(gobject = gobject,
                                           cluster_column = cluster_column,
                                           selected_clusters = selected_clusters,
                                           hvg_param = hvg_param,
@@ -2198,7 +2347,7 @@ doLouvainSubCluster =  function(gobject,
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do clustering}
 #' }
-#' @seealso \code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
+#' @seealso \code{\link{.doLouvainCluster_multinet}}, \code{\link{.doLouvainCluster_community}}
 #' and  @seealso \code{\link{doLeidenCluster}}
 #' @export
 subClusterCells <- function(gobject,
@@ -2256,7 +2405,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainSubCluster_community(gobject = gobject,
+    result = .doLouvainSubCluster_community(gobject = gobject,
                                         cluster_column = cluster_column,
                                         selected_clusters = selected_clusters,
                                         hvg_param = hvg_param,
@@ -2277,7 +2426,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainSubCluster_multinet(gobject = gobject,
+    result = .doLouvainSubCluster_multinet(gobject = gobject,
                                        cluster_column = cluster_column,
                                        selected_clusters = selected_clusters,
                                        hvg_param = hvg_param,
@@ -2505,7 +2654,7 @@ mergeClusters <- function(gobject,
                                       feat_type = feat_type))
 
   finalvec = NULL
-  for(ll in 1:length(finallist)) {
+  for(ll in seq_along(finallist)) {
     tempvec = finallist[[ll]]; names(tempvec) = rep(paste0('m_', ll), length(tempvec))
     finalvec = c(finalvec, tempvec)
   }
@@ -2554,13 +2703,13 @@ mergeClusters <- function(gobject,
 
 
 
-#' @title split_dendrogram_in_two
-#' @name split_dendrogram_in_two
+#' @title Split dendrogram in two
+#' @name .split_dendrogram_in_two
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param dend dendrogram object
 #' @return list of two dendrograms and height of node
 #' @keywords internal
-split_dendrogram_in_two = function(dend) {
+.split_dendrogram_in_two = function(dend) {
 
   top_height = attributes(dend)$height
   divided_leaves_labels = dendextend::cut_lower_fun(dend, h = top_height)
@@ -2583,14 +2732,14 @@ split_dendrogram_in_two = function(dend) {
 
 
 
-#' @title node_clusters
-#' @name node_clusters
+#' @title Node clusters
+#' @name .node_clusters
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param hclus_obj hclus object
 #' @param verbose be verbose
 #' @return list of splitted dendrogram nodes from high to low node height
 #' @keywords internal
-node_clusters = function(hclus_obj, verbose = TRUE) {
+.node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)
   mydend = stats::as.dendrogram(hclus_obj)
@@ -2619,7 +2768,7 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
     # select_dend_ind = which(available_h == n_height)
     select_dend_ind = which.min(abs(available_h - n_height))
     select_dend = dend_list[[select_dend_ind]]
-    tempres = split_dendrogram_in_two(dend = select_dend)
+    tempres = .split_dendrogram_in_two(dend = select_dend)
 
     # find leave labels
     toph = tempres[[1]]
@@ -2726,7 +2875,7 @@ getDendrogramSplits = function(gobject,
   }
 
 
-  splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
+  splitList = .node_clusters(hclus_obj = corclus, verbose = verbose)
 
   splitDT = data.table::as.data.table(t_flex(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
@@ -2737,4 +2886,177 @@ getDendrogramSplits = function(gobject,
 }
 
 
+
+
+
+
+# projection ####
+
+#' @title Projection of cluster labels
+#' @name doClusterProjection
+#' @description Use a fast KNN classifier to predict labels from a smaller giotto object
+#' @param target_gobject target giotto object
+#' @param target_cluster_label_name name for predicted clusters
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param source_gobject source giotto object with annotation data
+#' @param source_cluster_labels annotation/labels to use to train KNN classifier
+#' @param reduction reduction on cells or features (default = cells)
+#' @param reduction_method shared reduction method (default = pca space)
+#' @param reduction_name name of shared reduction space (default name = 'pca')
+#' @param dimensions_to_use dimensions to use in shared reduction space (default = 1:10)
+#' @param knn_k number of k-neighbors to train a KNN classifier
+#' @param prob output probabilities together with label predictions
+#' @param algorithm nearest neighbor search algorithm
+#' @param return_gobject return giotto object
+#' @return giotto object (default) or data.table with cell metadata
+#'
+#' @details Function to train a KNN with \code{\link[FNN]{knn}}. The training data
+#' is obtained from the source giotto object (source_gobject) using existing annotations
+#' within the cell metadata. Cells without annotation/labels from the target giotto
+#' object (target_gobject) will receive predicted labels (and optional probabilities
+#' with prob = TRUE).
+#'
+#' **IMPORTANT** This projection assumes that you're using the same dimension reduction
+#' space (e.g. PCA) and number of dimensions (e.g. first 10 PCs) to train the KNN
+#' classifier as you used to create the initial annotations/labels in the source
+#' Giotto object.
+#'
+#' Altogether this is a convenience function that allow you to work with very big
+#' data as you can predict cell labels on a smaller & subsetted Giotto object and then
+#' project the cell labels to the remaining cells in the target Giotto object.
+#' @export
+doClusterProjection = function(target_gobject,
+                               target_cluster_label_name = 'knn_labels',
+                               spat_unit = NULL,
+                               feat_type = NULL,
+                               source_gobject,
+                               source_cluster_labels = NULL,
+                               reduction = 'cells',
+                               reduction_method = 'pca',
+                               reduction_name = 'pca',
+                               dimensions_to_use = 1:10,
+                               knn_k = 10,
+                               prob = FALSE,
+                               algorithm = c("kd_tree",
+                                             "cover_tree", "brute"),
+                               return_gobject = TRUE) {
+
+  # NSE vars
+  cell_ID = temp_name_prob = NULL
+
+  # package check for dendextend
+  package_check(pkg_name = "FNN", repository = "CRAN")
+
+  spat_unit = set_default_spat_unit(gobject = target_gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = target_gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  # identify clusters from source object and create annotation vector
+  cell_meta_source = get_cell_metadata(gobject = source_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'data.table')
+  source_annot_vec = cell_meta_source[[source_cluster_labels]]
+  names(source_annot_vec) = cell_meta_source[['cell_ID']]
+
+  # create the matrix from the target object that you want to use for the kNN classifier
+  # the matrix should be the same for the source and target objects (e.g. same PCA space)
+  dim_obj = get_dimReduction(gobject = target_gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             reduction = reduction,
+                             reduction_method = reduction_method,
+                             name = reduction_name,
+                             output = 'dimObj')
+
+  dim_coord = dim_obj[]
+  dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
+  matrix_to_use = dim_coord[, dimensions_to_use]
+
+  ## create the training and testset from the matrix
+
+  # the training set is the set of cell IDs that are in both the source (w/ labels)
+  # and target giotto object
+  train = matrix_to_use[rownames(matrix_to_use) %in% names(source_annot_vec),]
+  train = train[match(names(source_annot_vec), rownames(train)), ]
+
+  # the test set are the remaining cell_IDs that need a label
+  test = matrix_to_use[!rownames(matrix_to_use) %in% names(source_annot_vec),]
+  cl = source_annot_vec
+
+  # make prediction
+  knnprediction = FNN::knn(train = train, test = test,
+                           cl = cl, k = knn_k, prob = prob,
+                           algorithm = algorithm)
+
+  # get prediction results
+  knnprediction_vec = as.vector(knnprediction)
+  names(knnprediction_vec) = rownames(test)
+
+  # add probability information
+  if(isTRUE(prob)) {
+    probs = attr(knnprediction, "prob")
+    names(probs) = rownames(test)
+  }
+
+
+
+  # create annotation vector for all cell IDs (from source and predicted)
+  all_vec = c(source_annot_vec, knnprediction_vec)
+
+  cell_meta_target = get_cell_metadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       output = 'data.table')
+  # data.table variables
+  temp_name = NULL
+  cell_meta_target[, temp_name := all_vec[cell_ID]]
+
+  if(isTRUE(prob)) {
+
+    cell_meta_target[, temp_name_prob := probs[cell_ID]]
+    cell_meta_target = cell_meta_target[,.(cell_ID, temp_name, temp_name_prob)]
+    cell_meta_target[, temp_name_prob := ifelse(is.na(temp_name_prob), 1, temp_name_prob)]
+
+    data.table::setnames(cell_meta_target,
+                         old = c('temp_name', 'temp_name_prob'),
+                         new = c(target_cluster_label_name, paste0(target_cluster_label_name,'_prob')))
+  } else {
+
+    cell_meta_target = cell_meta_target[,.(cell_ID, temp_name)]
+    data.table::setnames(cell_meta_target,
+                         old = 'temp_name',
+                         new = target_cluster_label_name)
+  }
+
+
+  if(return_gobject) {
+
+    if(isTRUE(prob)) {
+
+      prob_label = paste0(target_cluster_label_name,'_prob')
+
+      target_gobject = addCellMetadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name, prob_label), with = FALSE],
+                                       by_column = TRUE,
+                                       column_cell_ID = 'cell_ID')
+    } else {
+      target_gobject = addCellMetadata(gobject = target_gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       new_metadata = cell_meta_target[, c('cell_ID', target_cluster_label_name), with = FALSE],
+                                       by_column = TRUE,
+                                       column_cell_ID = 'cell_ID')
+    }
+
+  } else {
+    return(cell_meta_target)
+  }
+
+}
 

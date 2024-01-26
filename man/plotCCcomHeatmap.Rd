@@ -15,6 +15,8 @@ plotCCcomHeatmap(
   cor_method = c("pearson", "kendall", "spearman"),
   aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty",
     "median", "centroid"),
+  gradient_color = NULL,
+  gradient_style = c("divergent", "sequential"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -41,13 +43,19 @@ plotCCcomHeatmap(
 
 \item{aggl_method}{agglomeration method used by hclust}
 
-\item{show_plot}{show plots}
+\item{gradient_color}{character. continuous colors to use. palette to
+use or vector of colors to use (minimum of 2).}
 
-\item{return_plot}{return plotting object}
+\item{gradient_style}{either 'divergent' (midpoint is used in color scaling)
+or 'sequential' (scaled based on data range)}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{show_plot}{logical. show plot}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{return_plot}{logical. return ggplot object}
+
+\item{save_plot}{logical. save the plot}
+
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }

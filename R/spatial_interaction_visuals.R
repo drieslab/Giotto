@@ -3,16 +3,12 @@
 #' @title cellProximityBarplot
 #' @name cellProximityBarplot
 #' @description Create barplot from cell-cell proximity scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -55,43 +51,29 @@ cellProximityBarplot = function(gobject,
 
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = combo_plot,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 #' @title cellProximityHeatmap
 #' @name cellProximityHeatmap
 #' @description Create heatmap from cell-cell proximity scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param scale scale cell-cell proximity interaction scores
 #' @param order_cell_types order cell types based on enrichment correlation
 #' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
 #' @param color_names character color vector of length 3
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -149,7 +131,7 @@ cellProximityHeatmap = function(gobject,
     clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
-    names(mylabels) = 1:length(mylabels)
+    names(mylabels) = seq_along(mylabels)
     sample_order = mylabels[myorder]
 
     final_matrix = final_matrix[sample_order, sample_order]
@@ -167,32 +149,21 @@ cellProximityHeatmap = function(gobject,
     }
 
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
-                                    col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
+                                    col = GiottoVisuals::colorRamp2(breaks = color_breaks, colors = color_names))
   } else {
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
   }
 
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(heatm)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(heatm)
-  }
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = heatm,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 
 }
 
@@ -200,7 +171,8 @@ cellProximityHeatmap = function(gobject,
 #' @title cellProximityNetwork
 #' @name cellProximityNetwork
 #' @description Create network from cell-cell proximity scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param remove_self_edges remove enrichment/depletion edges with itself
 #' @param self_loop_strength size of self-loops
@@ -215,11 +187,6 @@ cellProximityHeatmap = function(gobject,
 #' @param node_size size of nodes
 #' @param node_color_code color code for the nodes (e.g. cell labels)
 #' @param node_text_size size of node labels
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return igraph plot
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -348,55 +315,51 @@ cellProximityNetwork = function(gobject,
                                                    axis.text = ggplot2::element_blank(),
                                                    axis.ticks = ggplot2::element_blank())
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(gpl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(gpl)
-  }
-
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = gpl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 
 }
 
 
-#' @title cellProximityVisPlot_2D_ggplot
-#' @name cellProximityVisPlot_2D_ggplot
-#' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
-#' @return ggplot
-#' @details Description of parameters.
+
+
+
+#' @title cellProximityVisPlot internals
+#' @name cellProximityVisPlot_internals
+#' @description
+#' Create the plots for `cellProximityVisPlot()`
+#' @seealso [cellProximityVisPlot()] [cellProximitySpatPlot3D()]
+NULL
+
+
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @keywords internal
-cellProximityVisPlot_2D_ggplot <- function(gobject,
+.cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
                                            sdimy = NULL,
                                            cell_color = NULL,
                                            cell_color_code = NULL,
-                                           color_as_factor = T,
-                                           show_other_cells = F,
-                                           show_network = F,
-                                           show_other_network = F,
+                                           color_as_factor = TRUE,
+                                           show_other_cells = FALSE,
+                                           show_network = FALSE,
+                                           show_other_network = FALSE,
                                            network_color = NULL,
                                            spatial_network_name = 'Delaunay_network',
-                                           show_grid = F,
+                                           show_grid = FALSE,
                                            grid_color = NULL,
                                            spatial_grid_name = 'spatial_grid',
                                            coord_fix_ratio = 1,
-                                           show_legend = T,
+                                           show_legend = TRUE,
                                            point_size_select = 2,
                                            point_select_border_col = 'black',
                                            point_select_border_stroke = 0.05,
@@ -513,11 +476,19 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = getDistinctColors(n = number_colors)
+        cell_color_code = set_default_color_discrete_cell(instrs = instructions(gobject))(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
-        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+        pl <- pl + set_default_color_continuous_cell(
+          colors = cell_color_code,
+          instrs = instructions(gobject),
+          midpoint = NULL,
+          style = 'sequential',
+          type_default = list(
+            pal = c('blue', 'red')
+          )
+        )
       }
 
     } else {
@@ -546,11 +517,10 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 }
 
 
-#' @title cellProximityVisPlot_2D_plotly
-#' @name cellProximityVisPlot_2D_plotly
-#' @description Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
+
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-cellProximityVisPlot_2D_plotly <- function(gobject,
+.cellProximityVisPlot_2D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
@@ -679,7 +649,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = getDistinctColors(n = number_colors)
+        cell_color_code = set_default_color_discrete_cell(instrs = instructions(gobject))(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -720,11 +690,11 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                    marker = list(size = point_size_select,color = "lightblue",colors = "lightblue"))
     if(show_other_cells){
       pl <- pl %>% plotly::add_trace(type = 'scatter',mode = 'markers',
-                             data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
-                             x = ~sdimx, y = ~sdimy,
-                             name = "selected cells outside network",
-                             marker = list(size = point_size_select*0.7,color = "lightblue",colors = "lightblue"),
-                             opacity = point_alpha_other)
+                                     data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
+                                     x = ~sdimx, y = ~sdimy,
+                                     name = "selected cells outside network",
+                                     marker = list(size = point_size_select*0.7,color = "lightblue",colors = "lightblue"),
+                                     opacity = point_alpha_other)
     }
     pl <-  pl %>%  plotly::add_trace(type = 'scatter',mode = "markers",
                                      name = "unselected cells",
@@ -744,11 +714,10 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
 
 }
 
-#' @title cellProximityVisPlot_3D_plotly
-#' @name cellProximityVisPlot_3D_plotly
-#' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
+
+#' @describeIn cellProximityVisPlot_internals Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-cellProximityVisPlot_3D_plotly <- function(gobject,
+.cellProximityVisPlot_3D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
                                            sdimx = NULL,
@@ -836,7 +805,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = getDistinctColors(n = number_colors)
+        cell_color_code = set_default_color_discrete_cell(instrs = instructions(gobject))(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -882,11 +851,11 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                         opacity = point_alpha_other)
     if(show_other_cells){
       pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
-                             data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
-                             x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                             name = "selected cells outside network",
-                             marker = list(size = point_size_select*0.7,color = "lightblue",colors = "lightblue"),
-                             opacity = point_alpha_other)
+                                     data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
+                                     x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                                     name = "selected cells outside network",
+                                     marker = list(size = point_size_select*0.7,color = "lightblue",colors = "lightblue"),
+                                     opacity = point_alpha_other)
     }
   }
   if(!is.null(spatial_network) & show_network == TRUE) {
@@ -1013,7 +982,7 @@ cellProximityVisPlot <- function(gobject,
     if(length(c(sdimx, sdimy, sdimz)) == 3){
       warning("ggplot is not able to produce 3D plot! Please choose plotly method\n")
     }
-    result = cellProximityVisPlot_2D_ggplot(gobject = gobject,
+    result = .cellProximityVisPlot_2D_ggplot(gobject = gobject,
                                             interaction_name = interaction_name,
                                             cluster_column = cluster_column,
                                             sdimx = sdimx,
@@ -1045,7 +1014,7 @@ cellProximityVisPlot <- function(gobject,
 
     if(length(c(sdimx, sdimy, sdimz)) == 3) {
 
-      result = cellProximityVisPlot_3D_plotly(gobject = gobject,
+      result = .cellProximityVisPlot_3D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
                                               cluster_column = cluster_column,
                                               sdimx = sdimx,
@@ -1081,7 +1050,7 @@ cellProximityVisPlot <- function(gobject,
       }
 
       ## run: visPlot_2D_plotly
-      result = cellProximityVisPlot_2D_plotly(gobject = gobject,
+      result = .cellProximityVisPlot_2D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
                                               cluster_column = cluster_column,
                                               sdimx = sdimx,
@@ -1124,25 +1093,15 @@ cellProximityVisPlot <- function(gobject,
 # * ####
 # NEW plots ####
 
-#' @title plotCellProximityGenes
-#' @name plotCellProximityGenes
-#' @description Create visualization for cell proximity feature scores
-#' @inheritDotParams plotCellProximityFeats
-#' @export
-plotCellProximityGenes <- function(...){
-
-  .Deprecated(new="plotCellProximityFeats")
-
-  plotCellProximityFeats(...)
-
-}
 
 
 
 #' @title plotCellProximityFeats
 #' @name plotCellProximityFeats
 #' @description Create visualization for cell proximity feature scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_cell_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
@@ -1155,12 +1114,6 @@ plotCellProximityGenes <- function(...){
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or featuress
 #' @param direction differential expression directions to keep
-#' @param cell_color_code vector of colors with cell types as names
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
 plotCellProximityFeats = function(gobject,
@@ -1380,8 +1333,8 @@ plotCellProximityFeats = function(gobject,
     changed_feats_d = data.table::dcast.data.table(changed_feats, cell_type~int_cell_type, value.var = 'N', fill = 0)
     changed_feats_m = dt_to_matrix(changed_feats_d)
 
-    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_feats_m+1)),
-                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+    col_fun = GiottoVisuals::colorRamp2(breaks = stats::quantile(log2(changed_feats_m+1)),
+                                     colors =  c("white", 'white', "blue", "yellow", "red"))
 
     heatm = ComplexHeatmap::Heatmap(log2(changed_feats_m+1), col = col_fun,
                                     row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
@@ -1403,28 +1356,26 @@ plotCellProximityFeats = function(gobject,
 
   }
 
-
 }
 
 
-#' @title plotCPG
-#' @name plotCPG
-#' @description Create visualization for cell proximity feature scores
-#' @inheritDotParams plotCellProximityFeats
-#' @export
-plotCPG <- function(...){
 
-  .Deprecated(new="plotCPF")
 
-  plotCellProximityFeats(...)
 
-}
+
+
+
+
+
+
 
 
 #' @title plotCPF
 #' @name plotCPF
 #' @description Create visualization for cell proximity feature scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_cell_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
@@ -1437,12 +1388,6 @@ plotCPG <- function(...){
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
-#' @param cell_color_code vector of colors with cell types as names
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
 plotCPF = function(gobject,
@@ -1494,17 +1439,13 @@ plotCPF = function(gobject,
 #' @title Plot interaction changed features
 #' @name plotInteractionChangedFeats
 #' @description Create barplot to visualize interaction changed features
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_cell_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
-#' @param cell_color_code cell color code for the interacting cell types
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
 plotInteractionChangedFeats = function(gobject,
@@ -1552,7 +1493,7 @@ plotInteractionChangedFeats = function(gobject,
 
 
   if(is.null(cell_color_code)) {
-    mycolors = getDistinctColors(n = length(unique(tempDT$int_cell_type)))
+    mycolors = set_default_color_discrete_cell(instrs = instructions(gobject))(n = length(unique(tempDT$int_cell_type)))
     names(mycolors) = unique(tempDT$int_cell_type)
   } else {
     mycolors = cell_color_code
@@ -1567,64 +1508,35 @@ plotInteractionChangedFeats = function(gobject,
   pl = pl + ggplot2::scale_fill_manual(values = mycolors)
   pl = pl + ggplot2::labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
 
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
 
 
-#' @title Plot interaction changed genes
-#' @name plotInteractionChangedGenes
-#' @description Create barplot to visualize interaction changed features
-#' @inheritDotParams plotInteractionChangedFeats
-#' @seealso \code{\link{plotInteractionChangedFeats}}
-#' @export
-plotInteractionChangedGenes = function(...) {
 
-  .Deprecated(new="plotInteractionChangedFeats")
-
-  plotInteractionChangedFeats(...)
-
-}
 
 
 #' @title Plot interaction changed features
 #' @name plotICF
 #' @description Create barplot to visualize interaction changed features
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_cell_params
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
-#' @param cell_color_code cell color code for the interacting cell types
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
 plotICF = function(gobject,
@@ -1657,26 +1569,15 @@ plotICF = function(gobject,
 
 
 
-#' @title plotICG
-#' @name plotICG
-#' @description Create barplot to visualize interaction changed features
-#' @inheritDotParams plotICF
-#' @seealso \code{\link{plotICF}}
-#' @export
-plotICG = function(...) {
 
-  .Deprecated(new="plotICF")
-
-  plotInteractionChangedFeats(...)
-
-}
 
 
 
 #' @title plotCombineInteractionChangedFeats
 #' @name plotCombineInteractionChangedFeats
 #' @description Create visualization for combined (pairwise) ICF scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param combIcfObject ICFscores, output from combineInteractionChangedFeats()
 #' @param selected_interactions interactions to show
 #' @param selected_feat_to_feat pairwise feature combinations to show
@@ -1687,11 +1588,6 @@ plotICG = function(...) {
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotCombineInteractionChangedFeats <- function(gobject,
@@ -1784,65 +1680,30 @@ plotCombineInteractionChangedFeats <- function(gobject,
     }
   }
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
 
 
-#' @title plotCombineInteractionChangedGenes
-#' @name plotCombineInteractionChangedGenes
-#' @description Create visualization for combined (pairwise) ICF scores
-#' @inheritDotParams plotCombineInteractionChangedFeats
-#' @seealso \code{\link{plotCombineInteractionChangedFeats}}
-#' @export
-plotCombineInteractionChangedGenes <- function(...) {
 
-  .Deprecated(new="plotCombineInteractionChangedFeats")
-
-  plotCombineInteractionChangedFeats(...)
-
-}
-
-
-
-#' @title plotCombineCellProximityGenes
-#' @description Create visualization for combined (pairwise) ICG scores
-#' @inheritDotParams plotCombineInteractionChangedFeats
-#' @seealso \code{\link{plotCombineInteractionChangedFeats}}
-#' @export
-plotCombineCellProximityGenes <- function(...) {
-
-  .Deprecated(new = "plotCombineInteractionChangedFeats")
-
-  plotCombineInteractionChangedGenes(...)
-
-}
 
 
 #' @title plotCombineICF
 #' @name plotCombineICF
 #' @description Create visualization for combined (pairwise) ICF scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param combIcfObject ICFscores, output from combineInteractionChangedFeats()
 #' @param selected_interactions interactions to show
 #' @param selected_feat_to_feat pairwise feature combinations to show
@@ -1853,11 +1714,6 @@ plotCombineCellProximityGenes <- function(...) {
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotCombineICF <- function(gobject,
@@ -1896,33 +1752,11 @@ plotCombineICF <- function(gobject,
 
 
 
-#' @title plotCombineICG
-#' @name plotCombineICG
-#' @description Create visualization for combined (pairwise) ICF scores
-#' @inheritDotParams plotCombineICF
-#' @seealso \code{\link{plotCombineICF}}
-plotCombineICG <- function(...) {
-
-  .Deprecated(new = "plotCombineICF")
-
-  plotCombineICF(...)
-
-}
 
 
 
-#' @title plotCombineCPG
-#' @description Create visualization for combined (pairwise) ICF scores
-#' @inheritDotParams plotCombineICF
-#' @seealso \code{\link{plotCombineICF}}
-#' @export
-plotCombineCPG <- function(...) {
 
-  .Deprecated(new = "plotCombineICF")
 
-  plotCombineICF(...)
-
-}
 
 
 
@@ -1933,7 +1767,8 @@ plotCombineCPG <- function(...) {
 #' @title plotCombineCellCellCommunication
 #' @name plotCombineCellCellCommunication
 #' @description Create visualization for combined (pairwise) cell proximity gene scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param combCCcom combined communcation scores, output from combCCcom()
 #' @param selected_LR selected ligand-receptor pair
 #' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
@@ -1944,11 +1779,6 @@ plotCombineCPG <- function(...) {
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotCombineCellCellCommunication <- function(gobject,
@@ -2036,26 +1866,17 @@ plotCombineCellCellCommunication <- function(gobject,
     }
   }
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2063,7 +1884,8 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @title plotCombineCCcom
 #' @name plotCombineCCcom
 #' @description Create visualization for combined (pairwise) cell proximity gene scores
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
 #' @param combCCcom combined communcation scores, output from combCCcom()
 #' @param selected_LR selected ligand-receptor pair
 #' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
@@ -2074,11 +1896,6 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotCombineCCcom = function(gobject,
@@ -2123,7 +1940,9 @@ plotCombineCCcom = function(gobject,
 #' @title plotCCcomHeatmap
 #' @name plotCCcomHeatmap
 #' @description Plots heatmap for ligand-receptor communication scores in cell-cell interactions
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_params
 #' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
 #' @param selected_LR selected ligand-receptor combinations
 #' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
@@ -2132,11 +1951,6 @@ plotCombineCCcom = function(gobject,
 #' @param show values to show on heatmap
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotCCcomHeatmap = function(gobject,
@@ -2148,6 +1962,8 @@ plotCCcomHeatmap = function(gobject,
                             show = c('PI', 'LR_expr', 'log2fc'),
                             cor_method = c("pearson", "kendall", "spearman"),
                             aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                            gradient_color = NULL,
+                            gradient_style = c('divergent', 'sequential'),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
@@ -2184,7 +2000,7 @@ plotCCcomHeatmap = function(gobject,
   corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
@@ -2192,7 +2008,7 @@ plotCCcomHeatmap = function(gobject,
   corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
   selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
 
@@ -2200,38 +2016,32 @@ plotCCcomHeatmap = function(gobject,
 
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::geom_raster(data = selDT, aes_string(x = 'LR_cell_comb',
-                                                  y = 'LR_comb', fill = show))
+                                                          y = 'LR_comb', fill = show))
 
   pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_blank(),
-                                     axis.ticks = element_blank(),
-                                     axis.text.y = element_blank())
+                                                      axis.ticks = element_blank(),
+                                                      axis.text.y = element_blank())
   if(show_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.y = element_text(),
-                                             axis.ticks.y = element_line())
+                                                      axis.ticks.y = element_line())
   if(show_cell_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
-                                                  axis.ticks.x = element_line())
-  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+                                                           axis.ticks.x = element_line())
+  pl = pl + set_default_color_continuous_CCcom_heatmap(
+    colors = gradient_color,
+    instrs = instructions(gobject),
+    style = gradient_style
+  )
   pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 
 }
 
@@ -2240,7 +2050,9 @@ plotCCcomHeatmap = function(gobject,
 #' @title plotCCcomDotplot
 #' @name plotCCcomDotplot
 #' @description Plots dotplot for ligand-receptor communication scores in cell-cell interactions
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_params
 #' @param comScores communication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
 #' @param selected_LR selected ligand-receptor combinations
 #' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
@@ -2249,11 +2061,8 @@ plotCCcomHeatmap = function(gobject,
 #' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param dot_color_gradient character. continuous colors to use. palette to
+#' use or vector of colors to use (minimum of 2).
 #' @return ggplot
 #' @export
 plotCCcomDotplot = function(gobject,
@@ -2265,6 +2074,8 @@ plotCCcomDotplot = function(gobject,
                             cluster_on = c('PI', 'LR_expr', 'log2fc'),
                             cor_method = c("pearson", "kendall", "spearman"),
                             aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                            dot_color_gradient = NULL,
+                            gradient_style = c('divergent', 'sequential'),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
@@ -2311,7 +2122,7 @@ plotCCcomDotplot = function(gobject,
   corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
@@ -2319,7 +2130,7 @@ plotCCcomDotplot = function(gobject,
   corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
-  names(clus_names) = 1:length(clus_names)
+  names(clus_names) = seq_along(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
   selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
 
@@ -2327,36 +2138,40 @@ plotCCcomDotplot = function(gobject,
 
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::geom_point(data = selDT, aes_string(x = 'LR_cell_comb',
-                                                 y = 'LR_comb', size = 'pvalue', color = 'log2fc'))
+                                                         y = 'LR_comb', size = 'pvalue', color = 'log2fc'))
   pl = pl + ggplot2::theme_classic()
   if(show_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.y = element_text(),
-                                             axis.ticks.y = element_line())
+                                                     axis.ticks.y = element_line())
   if(show_cell_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
-                                                  axis.ticks.x = element_line())
-  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
-  pl = pl + ggplot2::scale_size_continuous(range = c(5, 0.5)) + scale_color_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+                                                          axis.ticks.x = element_line())
+  pl = pl + set_default_color_continuous_CCcom_dotplot(
+    colors = dot_color_gradient,
+    instrs = instructions(gobject),
+    midpoint = NULL,
+    style = gradient_style,
+    type = 'fill'
+  )
+  pl = pl + ggplot2::scale_size_continuous(range = c(5, 0.5)) +
+    set_default_color_continuous_CCcom_dotplot(
+      colors = dot_color_gradient,
+      instrs = instructions(gobject),
+      midpoint = NULL,
+      style = gradient_style,
+      type = 'color'
+    )
   pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2364,27 +2179,31 @@ plotCCcomDotplot = function(gobject,
 #' @title plotRankSpatvsExpr
 #' @name plotRankSpatvsExpr
 #' @description Plots dotplot to compare ligand-receptor rankings from spatial and expression information
-#' @param gobject giotto object
-#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @param combCC combined communication scores from \code{\link{combCCcom}}
 #' @param expr_rnk_column column with expression rank information to use
 #' @param spat_rnk_column column with spatial rank information to use
-#' @param midpoint midpoint of colors
+#' @param gradient_midpoint numeric. default = 10. midpoint of colors
+#' @param dot_color_gradient character. continuous colors to use. palette to
+#' use or vector of colors to use (minimum of 2).
+#' @param gradient_style either 'divergent' (midpoint is used in color scaling)
+#' or 'sequential' (scaled based on data range)
+#' @param midpoint deprecated
 #' @param size_range size ranges of dotplot
 #' @param xlims x-limits, numerical vector of 2
 #' @param ylims y-limits, numerical vector of 2
 #' @param selected_ranks numerical vector, will be used to print out the percentage of top spatial ranks are recovered
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotRankSpatvsExpr = function(gobject,
                               combCC,
                               expr_rnk_column = 'LR_expr_rnk',
                               spat_rnk_column = 'LR_spat_rnk',
-                              midpoint = 10,
+                              dot_color_gradient = NULL,
+                              midpoint = deprecated(),
+                              gradient_midpoint = 10,
+                              gradient_style = c('divergent', 'sequential'),
                               size_range = c(0.01, 1.5),
                               xlims = NULL,
                               ylims = NULL,
@@ -2394,6 +2213,14 @@ plotRankSpatvsExpr = function(gobject,
                               save_plot = NA,
                               save_param =  list(),
                               default_save_name = 'plotRankSpatvsExpr') {
+
+  # deprecate
+  if (GiottoUtils::is_present(midpoint)) {
+    deprecate_warn('0.0.0.9000',
+                   'GiottoVisuals::plotRankSpatvsExpr(midpoint = )',
+                   'GiottoVisuals::plotRankSpatvsExpr(gradient_midpoint = )')
+    gradient_midpoint <- midpoint
+  }
 
 
   # data.table variables
@@ -2410,10 +2237,10 @@ plotRankSpatvsExpr = function(gobject,
     spt_list[[rnk]] = names(mytab)
   }
 
-  rnk_res = as.data.table(do.call('rbind', rnk_list))
+  rnk_res = data.table::as.data.table(do.call('rbind', rnk_list))
   rnk_res[, spt_rank := 1:total_rnks]
 
-  rnk_res_m = melt.data.table(rnk_res, id.vars = 'spt_rank')
+  rnk_res_m = data.table::melt.data.table(rnk_res, id.vars = 'spt_rank')
   rnk_res_m[, spt_rank := as.numeric(spt_rank)]
   rnk_res_m[, variable := as.numeric(variable)]
 
@@ -2429,7 +2256,17 @@ plotRankSpatvsExpr = function(gobject,
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text = element_blank())
   pl = pl + ggplot2::geom_point(data = rnk_res_m, ggplot2::aes(x = variable, y = spt_rank, size = value, color = value))
-  pl = pl + ggplot2::scale_color_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint, guide = guide_legend(title = ''))
+  pl = pl + set_default_color_continuous_CCcom_dotplot(
+    colors = dot_color_gradient,
+    instrs = instructions(gobject),
+    midpoint = gradient_midpoint,
+    style = gradient_style,
+    type = 'color',
+    type_default = list(
+      pal = c('blue', 'yellow', 'red')
+    ),
+    guide = guide_legend(title = '')
+  )
   pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = "none")
   pl = pl + ggplot2::labs(x = 'expression rank', y = 'spatial rank')
 
@@ -2441,40 +2278,30 @@ plotRankSpatvsExpr = function(gobject,
     pl = pl + ylim(ylims)
   }
 
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 
 }
 
 
 
 
-#' @title plotRecovery_sub
-#' @name plotRecovery_sub
+#' @title Create recovery plot
+#' @name .plotRecovery_sub
 #' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
-plotRecovery_sub = function(combCC,
+#' @keywords internal
+.plotRecovery_sub = function(combCC,
                             first_col = 'LR_expr_rnk',
                             second_col = 'LR_spat_rnk') {
 
@@ -2528,16 +2355,12 @@ plotRecovery_sub = function(combCC,
 #' @title plotRecovery
 #' @name plotRecovery
 #' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
-#' @param gobject giotto object
-#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @param combCC combined communication scores from \code{\link{combCCcom}}
 #' @param expr_rnk_column column with expression rank information to use
 #' @param spat_rnk_column column with spatial rank information to use
 #' @param ground_truth what to consider as ground truth (default: spatial)
-#' @param show_plot show plots
-#' @param return_plot return plotting object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
 plotRecovery = function(gobject,
@@ -2556,40 +2379,30 @@ plotRecovery = function(gobject,
 
   if(ground_truth == 'spatial') {
 
-    pl = plotRecovery_sub(combCC = combCC,
+    pl = .plotRecovery_sub(combCC = combCC,
                           first_col = spat_rnk_column,
                           second_col = expr_rnk_column)
     pl = pl + ggplot2::labs(x = '% expression rank included', y = '% highest spatial rank recovered')
 
   } else if(ground_truth == 'expression') {
 
-    pl = plotRecovery_sub(combCC = combCC,
+    pl = .plotRecovery_sub(combCC = combCC,
                           first_col = expr_rnk_column,
                           second_col = spat_rnk_column)
     pl = pl + ggplot2::labs(x = '% spatial rank included', y = '% highest expression rank recovered')
 
   }
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  return(plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2606,27 +2419,24 @@ plotRecovery = function(gobject,
 #' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_cell_params
+#' @inheritParams plot_spatnet_params
+#' @inheritParams plot_params
 #' @param spat_loc_name spatial locations to use
 #' @param interaction_name cell-cell interaction name
 #' @param cluster_column cluster column with cell clusters
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
 #' @param show_network show spatial network of selected cells
 #' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
 #' @param point_size_select size of selected points
 #' @param point_select_border_col border color of selected points
 #' @param point_select_border_stroke stroke size of selected points
@@ -2634,11 +2444,6 @@ plotRecovery = function(gobject,
 #' @param point_alpha_other opacity of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
-#' @param show_plot show plots
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2804,11 +2609,19 @@ cellProximitySpatPlot2D <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = getDistinctColors(n = number_colors)
+        cell_color_code = set_default_color_discrete_cell(instrs = instructions(gobject))(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
-        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+        pl <- pl + set_default_color_continuous_cell(
+          colors = cell_color_code,
+          instrs = instructions(gobject),
+          midpoint = NULL,
+          style = 'sequential',
+          type_default = list(
+            pal = c('blue', 'red')
+          )
+        )
       }
 
     } else {
@@ -2833,27 +2646,17 @@ cellProximitySpatPlot2D <- function(gobject,
 
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2876,24 +2679,23 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @title cellProximitySpatPlot3D
 #' @name cellProximitySpatPlot3D
 #' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
-#' @param gobject giotto object
+#' @inheritParams data_access_params
+#' @inheritParams plot_output_params
+#' @inheritParams plot_spatnet_params
+#' @inheritParams plot_cell_params
+#' @inheritParams plot_params
 #' @param interaction_name cell-cell interaction name
 #' @param cluster_column cluster column with cell clusters
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param sdimz z-axis dimension name (default = 'sdimz')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
 #' @param show_network show spatial network of selected cells
 #' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
-#' @param show_legend show legend
 #' @param point_size_select size of selected points
 #' @param point_size_other size of other points
 #' @param point_alpha_other opacity of other points
@@ -2902,11 +2704,6 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @param y_ticks ticks on y-axis
 #' @param z_ticks ticks on z-axis
 #' @param custom_ratio custom ratio of axes
-#' @param show_plot show plots
-#' @param return_plot return plotly object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param \dots additional parameters
 #' @return plotly
 #' @details Description of parameters.
@@ -2919,16 +2716,16 @@ cellProximitySpatPlot3D = function(gobject,
                                    sdimz = "sdimz",
                                    cell_color = NULL,
                                    cell_color_code = NULL,
-                                   color_as_factor = T,
-                                   show_other_cells = T,
-                                   show_network = T,
-                                   show_other_network = F,
+                                   color_as_factor = TRUE,
+                                   show_other_cells = TRUE,
+                                   show_network = TRUE,
+                                   show_other_network = FALSE,
                                    network_color = NULL,
                                    spatial_network_name = 'Delaunay_network',
-                                   show_grid = F,
+                                   show_grid = FALSE,
                                    grid_color = NULL,
                                    spatial_grid_name = 'spatial_grid',
-                                   show_legend = T,
+                                   show_legend = TRUE,
                                    point_size_select = 4,
                                    point_size_other = 2,
                                    point_alpha_other = 0.5,
@@ -2942,9 +2739,9 @@ cellProximitySpatPlot3D = function(gobject,
                                    save_plot = NA,
                                    save_param =  list(),
                                    default_save_name = 'cellProximitySpatPlot3D',
-                                   ...){
-  if(is.null(sdimz)){
-    pl = cellProximityVisPlot_2D_plotly(gobject = gobject,
+                                   ...) {
+  if (is.null(sdimz)){
+    pl = .cellProximityVisPlot_2D_plotly(gobject = gobject,
                                         interaction_name = interaction_name,
                                         cluster_column = cluster_column,
                                         sdimx = sdimx,
@@ -2971,7 +2768,7 @@ cellProximitySpatPlot3D = function(gobject,
                                         ...)
   }
   else{
-    pl = cellProximityVisPlot_3D_plotly(gobject = gobject,
+    pl = .cellProximityVisPlot_3D_plotly(gobject = gobject,
                                         interaction_name = interaction_name,
                                         cluster_column = cluster_column,
                                         sdimx = sdimx,
@@ -2999,24 +2796,17 @@ cellProximitySpatPlot3D = function(gobject,
                                         z_ticks = z_ticks,
                                         ...)
   }
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 

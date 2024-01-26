@@ -1,0 +1,62 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# lintr provides static code analysis for R.
+# It checks for adherence to a given style,
+# identifying syntax errors and possible semantic issues,
+# then reports them to you so you can take action.
+# More details at https://lintr.r-lib.org/
+
+name: lintr
+
+on:
+  push:
+    branches: [ "suite" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "suite" ]
+  schedule:
+    - cron: '16 20 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  lintr:
+    name: Run lintr scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # for checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up R environment
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Set up dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        env:
+          _R_CHECK_FORCE_SUGGESTS: false
+          _R_CHECK_RD_XREFS: false
+        with:
+          dependencies: '"hard"' # do not use suggested dependencies
+          extra-packages: any::lintr, local::.
+          needs: lint
+
+      - name: Run lintr
+        run: lintr::sarif_output(lintr::lint_dir("."), "lintr-results.sarif")
+        shell: Rscript {0}
+        continue-on-error: true
+
+      - name: Upload analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: lintr-results.sarif
+          wait-for-processing: true

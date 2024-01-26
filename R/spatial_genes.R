@@ -2,11 +2,14 @@
 
 ## spatial gene detection ####
 
-#' @title spat_fish_func
-#' @name spat_fish_func
-#' @description performs fisher exact test
+#' @title Fisher exact test
+#' @name spat_fisher_exact
+#' @description Perform fisher exact test
+NULL
+
+#' @rdname spat_fisher_exact
 #' @keywords internal
-spat_fish_func = function(feat,
+.spat_fish_func = function(feat,
                           bin_matrix,
                           spat_mat,
                           calc_hub = F,
@@ -68,11 +71,9 @@ spat_fish_func = function(feat,
 
 }
 
-#' @title spat_fish_func_DT
-#' @name spat_fish_func_DT
-#' @description performs fisher exact test with data.table implementation
+#' @describeIn spat_fisher_exact data.table implementation
 #' @keywords internal
-spat_fish_func_DT = function(bin_matrix_DTm,
+.spat_fish_func_dt = function(bin_matrix_DTm,
                              spat_netw_min,
                              calc_hub = F,
                              hub_min_int = 3,
@@ -146,14 +147,18 @@ spat_fish_func_DT = function(bin_matrix_DTm,
 
 
 
-#' @title spat_OR_func
-#' @name spat_OR_func
+
+#' @title Spatial odds-ratio
+#' @name spat_odds_ratio
 #' @description calculate odds-ratio
+NULL
+
+#' @rdname spat_odds_ratio
 #' @keywords internal
-spat_OR_func = function(feat,
+.spat_or_func = function(feat,
                         bin_matrix,
                         spat_mat,
-                        calc_hub = F,
+                        calc_hub = FALSE,
                         hub_min_int = 3) {
 
   feat_vector = bin_matrix[rownames(bin_matrix) == feat,]
@@ -217,11 +222,9 @@ spat_OR_func = function(feat,
 }
 
 
-#' @title spat_OR_func_DT
-#' @name spat_OR_func_DT
-#' @description calculate odds-ratio with data.table implementation
+#' @describeIn spat_odds_ratio data.table implementation
 #' @keywords internal
-spat_OR_func_DT = function(bin_matrix_DTm,
+.spat_or_func_dt = function(bin_matrix_DTm,
                            spat_netw_min,
                            calc_hub = F,
                            hub_min_int = 3,
@@ -260,7 +263,7 @@ spat_OR_func_DT = function(bin_matrix_DTm,
 
   # sort the combinations and run fisher test
   setorder(freq_summary2, feat_ID, combn, -N)
-  or_results = freq_summary2[, OR_test_fnc(matrix(N, nrow = 2)), by = feat_ID]
+  or_results = freq_summary2[, .or_test_func(matrix(N, nrow = 2)), by = feat_ID]
 
 
   ## hubs ##
@@ -294,22 +297,26 @@ spat_OR_func_DT = function(bin_matrix_DTm,
 }
 
 
-#' @title OR_test_fnc
-#' @name OR_test_fnc
+#' @title Odds ratio test
+#' @name .or_test_func
 #' @description calculate odds-ratio from a 2x2 matrix
 #' @keywords internal
-OR_test_fnc = function(matrix) {
+.or_test_func = function(matrix) {
   OR = ((matrix[1]*matrix[4]) / (matrix[2]*matrix[3]))
   list('estimate' = OR)
 }
 
 
 
-#' @title calc_spatial_enrichment_minimum
-#' @name calc_spatial_enrichment_minimum
-#' @description calculate spatial enrichment using a simple and efficient for loop
+#' @title Calculate spatial enrichment
+#' @name calculate_spatial_enrichment
+#' @description Calculate spatial enrichment. Multiple methods are provided.
+NULL
+
+
+#' @describeIn calculate_spatial_enrichment calculate using a 'simple' and efficient for loop
 #' @keywords internal
-calc_spatial_enrichment_minimum = function(spatial_network,
+.calc_spatial_enrichment_minimum = function(spatial_network,
                                            bin_matrix,
                                            adjust_method = 'fdr',
                                            do_fisher_test = TRUE) {
@@ -391,7 +398,7 @@ calc_spatial_enrichment_minimum = function(spatial_network,
 
   } else {
 
-    results = rable_resDTm[,  OR_test_fnc(matrix(value, nrow = 2)), by = feats]
+    results = rable_resDTm[, .or_test_func(matrix(value, nrow = 2)), by = feats]
     data.table::setorder(results, -estimate)
 
   }
@@ -400,11 +407,9 @@ calc_spatial_enrichment_minimum = function(spatial_network,
 
 }
 
-#' @title calc_spatial_enrichment_matrix
-#' @name calc_spatial_enrichment_matrix
-#' @description calculate spatial enrichment using a matrix approach
+#' @describeIn calculate_spatial_enrichment calculate using 'matrix' implementation
 #' @keywords internal
-calc_spatial_enrichment_matrix = function(spatial_network,
+.calc_spatial_enrichment_matrix = function(spatial_network,
                                           bin_matrix,
                                           adjust_method = 'fdr',
                                           do_fisher_test = TRUE,
@@ -429,12 +434,12 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 
     if(do_fisher_test == TRUE) {
 
-      save_list = suppressMessages(flex_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
+      save_list = suppressMessages(lapply_flex(X = rownames(bin_matrix), cores = cores, fun = .spat_fish_func,
                                                bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                calc_hub = calc_hub, hub_min_int = hub_min_int))
 
     } else {
-      save_list =  suppressMessages(flex_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
+      save_list =  suppressMessages(lapply_flex(X = rownames(bin_matrix), cores = cores, fun = .spat_or_func,
                                                 bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                 calc_hub = calc_hub, hub_min_int = hub_min_int))
 
@@ -449,7 +454,7 @@ calc_spatial_enrichment_matrix = function(spatial_network,
       for(feat in rownames(bin_matrix)) {
         if(verbose == TRUE) print(feat)
 
-        save_list[[feat]] = suppressMessages(spat_fish_func(feat = feat, bin_matrix = bin_matrix, spat_mat = spat_mat,
+        save_list[[feat]] = suppressMessages(.spat_fish_func(feat = feat, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                             calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
@@ -457,7 +462,7 @@ calc_spatial_enrichment_matrix = function(spatial_network,
       for(feat in rownames(bin_matrix)) {
         if(verbose == TRUE) print(feat)
 
-        save_list[[feat]] = suppressMessages(spat_OR_func(feat = feat, bin_matrix = bin_matrix, spat_mat = spat_mat,
+        save_list[[feat]] = suppressMessages(.spat_or_func(feat = feat, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                           calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
@@ -491,11 +496,9 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 }
 
 
-#' @title calc_spatial_enrichment_DT
-#' @name calc_spatial_enrichment_DT
-#' @description calculate spatial enrichment using the data.table implementation
+#' @describeIn calculate_spatial_enrichment calculate using 'data.table' implementation
 #' @keywords internal
-calc_spatial_enrichment_DT = function(bin_matrix,
+.calc_spatial_enrichment_dt = function(bin_matrix,
                                       spatial_network,
                                       calc_hub = F,
                                       hub_min_int = 3,
@@ -547,13 +550,13 @@ calc_spatial_enrichment_DT = function(bin_matrix,
     bin_matrix_DTm = data.table::melt.data.table(bin_matrix_DT, id.vars = 'feat_ID')
 
     if(do_fisher_test == TRUE) {
-      test = spat_fish_func_DT(bin_matrix_DTm = bin_matrix_DTm,
+      test = .spat_fish_func_dt(bin_matrix_DTm = bin_matrix_DTm,
                                spat_netw_min = spat_netw_min,
                                calc_hub = calc_hub,
                                hub_min_int = hub_min_int,
                                cores = cores)
     } else {
-      test = spat_OR_func_DT(bin_matrix_DTm = bin_matrix_DTm,
+      test = .spat_or_func_dt(bin_matrix_DTm = bin_matrix_DTm,
                              spat_netw_min = spat_netw_min,
                              calc_hub = calc_hub,
                              hub_min_int = hub_min_int,
@@ -733,7 +736,7 @@ binSpectSingleMatrix = function(expression_matrix,
     }
 
 
-    result = calc_spatial_enrichment_minimum(spatial_network = spatial_network,
+    result = .calc_spatial_enrichment_minimum(spatial_network = spatial_network,
                                              bin_matrix = bin_matrix,
                                              adjust_method = adjust_method,
                                              do_fisher_test = do_fisher_test)
@@ -741,7 +744,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
   } else if(implementation == 'matrix') {
 
-    result = calc_spatial_enrichment_matrix(spatial_network = spatial_network,
+    result = .calc_spatial_enrichment_matrix(spatial_network = spatial_network,
                                             bin_matrix = bin_matrix,
                                             adjust_method = adjust_method,
                                             do_fisher_test = do_fisher_test,
@@ -753,7 +756,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
   } else if(implementation == 'data.table') {
 
-    result = calc_spatial_enrichment_DT(bin_matrix = bin_matrix,
+    result = .calc_spatial_enrichment_dt(bin_matrix = bin_matrix,
                                         spatial_network = spatial_network,
                                         calc_hub = calc_hub,
                                         hub_min_int = hub_min_int,
@@ -1305,7 +1308,7 @@ binSpectMultiMatrix = function(expression_matrix,
     result_list = vector(mode = 'list', length = total_trials)
     i = 1
 
-    for(k in 1:length(spatial_networks)) {
+    for(k in seq_along(spatial_networks)) {
 
       for(rank_i in percentage_rank) {
 
@@ -1355,7 +1358,7 @@ binSpectMultiMatrix = function(expression_matrix,
                                          sample_nr = sample_nr,
                                          set.seed = set.seed)
 
-    for(k in 1:length(spatial_networks)) {
+    for(k in seq_along(spatial_networks)) {
 
       if(verbose == TRUE) cat('\n Run for spatial network = ', k,'\n')
 
@@ -1444,6 +1447,8 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
+#' @param return_gobject whether to return values attached to the gobject or
+#' separately (default)
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -1501,7 +1506,7 @@ binSpect = function(gobject,
                     set.seed = NULL,
                     bin_matrix = NULL,
                     summarize = c('p.value', 'adj.p.value'),
-                    return_gobject = F) {
+                    return_gobject = FALSE) {
 
 
   if(!is.null(spatial_network_k)) {
@@ -1577,7 +1582,7 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject, 
+    gobject<-addFeatMetadata(gobject,
                              spat_unit = spat_unit,
                              feat_type = feat_type,
                              result_dt, by_column=T, column_feat_ID="feats")
@@ -1716,8 +1721,9 @@ silhouetteRankTest = function(gobject,
   if ('eva' %in% rownames(installed.packages()) == FALSE) {
     stop("\n package ", 'eva', " is not yet installed \n",
          "To install: \n",
-         "install.packages('eva_0.2.5.tar.gz', repos=NULL, type='source')",
-         "see https://cran.r-project.org/src/contrib/Archive/eva/")
+         "install.packages('eva')")
+         # "install.packages('eva_0.2.5.tar.gz', repos=NULL, type='source')",
+         # "see https://cran.r-project.org/src/contrib/Archive/eva/")
   }
 
   ## test if python package is installed
@@ -1745,8 +1751,9 @@ silhouetteRankTest = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      values = values)
+  expr_values = getExpression(gobject = gobject,
+                              values = values,
+                              output = 'matrix')
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1972,13 +1979,17 @@ spatialDE <- function(gobject = NULL,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## create plot
-  if(show_plot == TRUE | save_plot == TRUE | return_plot == TRUE) {
-    FSV_plot = FSV_show(results = results,
-                        ms_results = ms_results,
-                        size =size,
-                        color = color,
-                        sig_alpha = sig_alpha,
-                        unsig_alpha = unsig_alpha)
+  if(isTRUE(show_plot) ||
+     isTRUE(save_plot) ||
+     isTRUE(return_plot)) {
+    FSV_plot = FSV_show(
+      results = results,
+      ms_results = ms_results,
+      size =size,
+      color = color,
+      sig_alpha = sig_alpha,
+      unsig_alpha = unsig_alpha
+    )
   }
 
   ## print plot
@@ -2084,7 +2095,7 @@ spatialAEH <- function(gobject = NULL,
 
   if(return_gobject == TRUE) {
 
-    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res = data.table::as.data.table(spatial_pattern_results[['cell_pattern_score']])
     dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
     gobject@spatial_enrichment[[name_pattern]] = dt_res
     return(gobject)
@@ -2099,15 +2110,14 @@ spatialAEH <- function(gobject = NULL,
 
 #' @title FSV_show
 #' @name FSV_show
-#' @description Visualize spatial varible genes caculated by spatial_DE
-#' @param results results caculated by spatial_DE
-#' @param ms_results ms_results caculated by spatial_DE
+#' @description Visualize spatial variable genes calculated by spatial_DE
+#' @param results results calculated by spatial_DE
+#' @param ms_results ms_results calculated by spatial_DE
 #' @param size indicate different levels of qval
 #' @param color indicate different SV features
 #' @param sig_alpha transparency of significant genes
 #' @param unsig_alpha transparency of unsignificant genes
 #' @return ggplot object
-#' @details Description of parameters.
 #' @keywords internal
 FSV_show <- function(results,
                      ms_results = NULL,
@@ -2124,8 +2134,8 @@ FSV_show <- function(results,
     results$model_bic = results$model
   }
   else{
-    results= merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
-                   suffixes=(c(" ",'_bic')))
+    results = merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
+                    suffixes=(c(" ",'_bic')))
   }
 
   results$model_bic <- factor(results$model_bic)
@@ -2422,7 +2432,12 @@ detectSpatialPatterns <- function(gobject,
                                   show_plot = T,
                                   PC_zscore = 1.5) {
 ##########################################################################################
-  stop(wrap_txt("This function has not been updated for use with the current version of Giotto. See https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537 for details."))
+  stop(wrap_txt(
+    "This function has not been updated for use with the current version of Giotto.
+    See details:
+    https://github.com/drieslab/Giotto/issues/666#issuecomment-1540447537",
+    errWidth = TRUE)
+  )
 ##########################################################################################
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -2513,7 +2528,7 @@ detectSpatialPatterns <- function(gobject,
                                            loc_ID = colnames(loc_av_expr_matrix))
     data.table::setnames(pca_matrix_DT, old = 'dimkeep', dims_to_keep)
   } else {
-    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:length(dims_to_keep)])
+    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,seq_along(dims_to_keep)])
     pca_matrix_DT[, loc_ID := colnames(loc_av_expr_matrix)]
   }
 
@@ -2525,7 +2540,7 @@ detectSpatialPatterns <- function(gobject,
                                             gene_ID = rownames(loc_av_expr_matrix))
     data.table::setnames(feat_matrix_DT, old = 'featkeep', dims_to_keep)
   } else {
-    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:length(dims_to_keep)])
+    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,seq_along(dims_to_keep)])
     feat_matrix_DT[, gene_ID := rownames(loc_av_expr_matrix)]
   }
 
@@ -2614,26 +2629,17 @@ showPattern2D <- function(gobject,
   dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(dpl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(dpl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = dpl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 #' @title showPattern
@@ -2745,26 +2751,17 @@ showPattern3D <- function(gobject,
                        z=ratio[[3]])))
   dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(dpl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(dpl)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = dpl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -2835,26 +2832,17 @@ showPatternGenes <- function(gobject,
   pl <- pl + ggplot2::labs(x = 'correlation', y = '', title = selected_PC)
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -3784,26 +3772,17 @@ heatmSpatialCorFeats = function(gobject,
                                   show_column_names = show_column_names,
                                   top_annotation = ha, ...)
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(heatm)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(heatm)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = heatm,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = NULL
+  ))
 }
 
 
@@ -3878,7 +3857,7 @@ rankSpatialCorGroups = function(gobject,
   res_neg_cor_list = list()
   nr_feats_list = list()
 
-  for(id in 1:length(unique(clusters_part))) {
+  for(id in seq_along(unique(clusters_part))) {
 
     clus_id = unique(clusters_part)[id]
     selected_feats = names(clusters_part[clusters_part == clus_id])
@@ -3907,35 +3886,24 @@ rankSpatialCorGroups = function(gobject,
   data.table::setorder(res_cor_DT, -adj_cor_score)
   res_cor_DT[, clusters := factor(x = clusters, levels = rev(clusters))]
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  pl = gg_simple_scatter(data = res_cor_DT,
+                         x = 'clusters',
+                         y = 'adj_cor_score',
+                         size = 'nr_feats',
+                         xlab = 'cluster',
+                         ylab = 'pos r x (1 - (neg_r - min(neg_r)))')
 
-
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_feats))
-  pl = pl + ggplot2::theme_classic()
-  pl = pl + ggplot2::labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  } else {
-    return(res_cor_DT)
-  }
-
+  # output plot
+  return(GiottoVisuals::plot_output_handler(
+    gobject = gobject,
+    plot_object = pl,
+    save_plot = save_plot,
+    return_plot = return_plot,
+    show_plot = show_plot,
+    default_save_name = default_save_name,
+    save_param = save_param,
+    else_return = res_cor_DT
+  ))
 }
 
 
@@ -3985,7 +3953,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     }
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       selected_cluster_features = names(clusters[clusters == clus])
 
@@ -4015,7 +3983,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     cor_data = spatCorObject$cor_DT
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       if(verbose) print(clus)
 
@@ -4023,15 +3991,15 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
       selected_cluster_features = names(clusters[clusters == clus])
       subset_cor_data = cor_data[feat_ID %in% selected_cluster_features & variable %in% selected_cluster_features]
       subset_cor_data = subset_cor_data[feat_ID != variable]
-      subset_cor_data = sort_combine_two_DT_columns(DT = subset_cor_data,
+      subset_cor_data = dt_sort_combine_two_columns(DT = subset_cor_data,
                                                     column1 = 'feat_ID',
                                                     column2 =  'variable', myname = 'combo')
       subset_cor_data = subset_cor_data[duplicated(combo)]
       data.table::setorder(subset_cor_data, -spat_cor)
 
       # create a ranked data.table
-      rnk1DT = data.table::data.table(feat_id = subset_cor_data$feat_ID, rnk = 1:length(subset_cor_data$feat_ID))
-      rnk2DT = data.table::data.table(feat_id = subset_cor_data$variable, rnk = 1:length(subset_cor_data$variable))
+      rnk1DT = data.table::data.table(feat_id = subset_cor_data$feat_ID, rnk = seq_along(subset_cor_data$feat_ID))
+      rnk2DT = data.table::data.table(feat_id = subset_cor_data$variable, rnk = seq_along(subset_cor_data$variable))
       rnkDT = data.table::rbindlist(list(rnk1DT, rnk2DT))
       data.table::setorder(rnkDT, rnk)
 
@@ -4068,11 +4036,11 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
     }
 
     # informed_ranking vector should be a ranked gene list
-    informed_ranking_numerical = 1:length(informed_ranking)
+    informed_ranking_numerical = seq_along(informed_ranking)
     names(informed_ranking_numerical) = informed_ranking
 
     result_list = list()
-    for(clus in 1:length(unique(clusters))) {
+    for(clus in seq_along(unique(clusters))) {
 
       selected_cluster_features = names(clusters[clusters == clus])
 
@@ -4330,7 +4298,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
   # save plot
   if(save_plot == TRUE) {
 
-    spatGenePlot2D(simulate_patch, expression_values = 'norm', genes = gene_name,
+    spatFeatPlot2D(simulate_patch, expression_values = 'norm', feats = gene_name,
                    point_shape = 'border', point_border_stroke = 0.1, point_size = 2.5,
                    cow_n_col = 1, show_plot = F,
                    save_plot = T, save_param = list(save_dir = save_dir, save_folder = pattern_name,
@@ -4367,7 +4335,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
   if(run_simulations == TRUE) {
 
     result_list = list()
-    for(test in 1:length(spat_methods)) {
+    for(test in seq_along(spat_methods)) {
 
       # method
       selected_method = spat_methods[test]
@@ -4586,7 +4554,7 @@ run_spatial_sim_tests_multi = function(gobject,
 
 
   prob_list = list()
-  for(prob_ind in 1:length(spatial_probs)) {
+  for(prob_ind in seq_along(spatial_probs)) {
 
     prob_i = spatial_probs[prob_ind]
 
@@ -4718,35 +4686,46 @@ runPatternSimulation = function(gobject,
 
 
   all_results = list()
-  for(gene_ind in 1:length(gene_names)) {
+  for(gene_ind in seq_along(gene_names)) {
 
     gene = gene_names[gene_ind]
 
     # plot original expression
-    spatGenePlot2D(gobject, expression_values = 'norm', genes = gene,
-                   point_shape = 'border', point_border_stroke = 0.1,
-                   show_network = F, network_color = 'lightgrey', point_size = 2.5,
-                   cow_n_col = 1, show_plot = F,
-                   save_plot = save_plot, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(gene,'_original'),
-                                                            base_width = 9, base_height = 7, units = 'cm'))
+    GiottoVisuals::spatFeatPlot2D(
+      gobject = gobject,
+      expression_values = 'norm',
+      feats = gene,
+      point_shape = 'border', point_border_stroke = 0.1,
+      show_network = F, network_color = 'lightgrey',
+      point_size = 2.5,
+      cow_n_col = 1,
+      show_plot = FALSE,
+      save_plot = save_plot,
+      save_param = list(save_dir = save_dir, save_folder = 'original',
+                        save_name = paste0(gene,'_original'),
+                        base_width = 9, base_height = 7,
+                        units = 'cm')
+    )
 
 
-    generesults = run_spatial_sim_tests_multi(gobject,
-                                              pattern_name = pattern_name,
-                                              pattern_cell_ids = pattern_cell_ids,
-                                              gene_name = gene,
-                                              spatial_network_name = spatial_network_name,
-                                              spat_methods = spat_methods,
-                                              spat_methods_params = spat_methods_params,
-                                              spat_methods_names = spat_methods_names,
-                                              save_plot = save_plot,
-                                              save_raw = save_raw,
-                                              save_norm = save_norm,
-                                              save_dir = save_dir,
-                                              spatial_probs = spatial_probs,
-                                              reps = reps,
-                                              run_simulations = run_simulations,
-                                              ...)
+    generesults = run_spatial_sim_tests_multi(
+      gobject,
+      pattern_name = pattern_name,
+      pattern_cell_ids = pattern_cell_ids,
+      gene_name = gene,
+      spatial_network_name = spatial_network_name,
+      spat_methods = spat_methods,
+      spat_methods_params = spat_methods_params,
+      spat_methods_names = spat_methods_names,
+      save_plot = save_plot,
+      save_raw = save_raw,
+      save_norm = save_norm,
+      save_dir = save_dir,
+      spatial_probs = spatial_probs,
+      reps = reps,
+      run_simulations = run_simulations,
+      ...
+    )
 
     if(run_simulations == TRUE) {
       generesults[, prob := as.factor(prob)]
