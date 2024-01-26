@@ -286,11 +286,18 @@ Visium spatial transcriptomics does not provide single-cell resolution, making c
 -   Rank
 -   DWLS
 
-[Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7) Corresponded Single cell dataset can be generated from [here](http://mousebrain.org/). Giotto_SC is processed from the downsampled [Loom](https://satijalab.org/loomr/loomr_tutorial) file and can also be downloaded from getSpatialDataset.
+Corresponded Single cell dataset can be generated from [Single Cell Human Lung Adenocarcinoma](https://drieslab.github.io/Giotto/articles/singlecell_lung_adenocarcinoma.html) vignette. You can also download the Giotto object, or count matrix and metadata from [here](https://drive.google.com/drive/folders/1lv3KYkJoTy4vzJxyRT0zhm6RALVO89M8)
+
+Load the single-cell object
+
+```{r, eval=FALSE}
+giotto_SC <- Giotto::loadGiotto("sc_lung_carcinoma")
+```
 
 ## PAGE
 
 The cell-type specific signature gene list was obtained from a previous study focused on investigating the therapy-induced evolution of lung cancer revealed by single-cell RNA sequencing. More information about the paper and scRNA-seq dataset can be found [here](https://doi.org/10.1016/j.cell.2020.07.017).
+
 
 ```{r, eval=FALSE}
 # umap plots
