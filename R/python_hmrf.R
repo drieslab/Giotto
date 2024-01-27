@@ -1094,7 +1094,7 @@ initHMRF_V2 =
     gx = fDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
     cx = pDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
     
-    spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, output ='networkDT', copy_obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject, spat_unit = spat_unit, name = spatial_network_name, output ='networkDT', copy_obj = FALSE)
     spatial_network = spatial_network[, .(to, from)]
 
     if(use_neighborhood_composition)
