@@ -86,6 +86,8 @@ navbar:
       - text: Interoperability
       - text: AnnData
         href: articles/interoperability_anndata.html
+      - text: SpatialExperiment
+        href: articles/interoperability_spatialexperiment.html
       - text: -------
       - text: Try Giotto in the Cloud
       - text: Terra.bio
