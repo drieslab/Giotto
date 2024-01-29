@@ -96,12 +96,14 @@ metadata = data.table::fread(file = meta_path)
 osm_test = addCellMetadata(osm_test, new_metadata = metadata,
                            by_column = T, column_cell_ID = 'CellID')
 ## filter
-osm_test <- filterGiotto(gobject = osm_test,
-                         expression_threshold = 1,
-                         feat_det_in_min_cells = 10,
-                         min_det_feats_per_cell = 10,
-                         expression_values = c('raw'),
-                         verbose = T)
+osm_test <- filterGiotto(
+    gobject = osm_test,
+    expression_threshold = 1,
+    feat_det_in_min_cells = 10,
+    min_det_feats_per_cell = 10,
+    expression_values = c('raw'),
+    verbose = TRUE
+)
 
 ## normalize Giotto
 ## there are two ways for osmFISH object
@@ -110,11 +112,11 @@ osm_test <- filterGiotto(gobject = osm_test,
 osm_test <- normalizeGiotto(gobject = osm_test)
 
 # 2. osmFISH way
-raw_expr_matrix = get_expression_values(osm_test, values = "raw")
-norm_genes = (raw_expr_matrix/GiottorowSums_flex(raw_expr_matrix)) * nrow(raw_expr_matrix)
+raw_expr_matrix = getExpression(osm_test, values = "raw")
+norm_genes = (raw_expr_matrix/rowSums(raw_expr_matrix)) * nrow(raw_expr_matrix)
 
-norm_genes_cells = Giottot_flex((Giottot_flex(norm_genes)/GiottocolSums_flex(norm_genes)) * ncol(raw_expr_matrix))
-osm_test = set_expression_values(osm_test, values = norm_genes_cells , name = "custom")
+norm_genes_cells = t((t(norm_genes)/colSums(norm_genes)) * ncol(raw_expr_matrix))
+osm_test = setExpression(osm_test, values = norm_genes_cells , name = "custom")
 
 ## add gene & cell statistics
 osm_test <- addStatistics(gobject = osm_test)
