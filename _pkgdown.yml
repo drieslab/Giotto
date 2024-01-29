@@ -92,6 +92,8 @@ navbar:
         href: articles/terra.html
       - text: Docker
         href: articles/docker.html
+      - text: Singularity
+        href: articles/singularity.html
     articles:
       text: Examples
       menu:
@@ -210,6 +212,7 @@ articles:
   contents:
   - terra
   - docker
+  - singularity
 - title: Spatial Manipulation
   navbar: ~
   contents:
