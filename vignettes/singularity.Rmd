@@ -9,7 +9,7 @@ vignette: >
 
 # Singularity container with bash terminal
 
-You can set up a Singularity container based on the [Giotto Docker Image]  (https://hub.docker.com/r/giottopackage/suite) able to run in a bash environment.
+You can set up a Singularity container based on the [Giotto Docker Image](https://hub.docker.com/r/giottopackage/suite) able to run in a bash environment.
 
 ## Instructions
 
