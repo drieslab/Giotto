@@ -298,7 +298,6 @@ giotto_SC <- Giotto::loadGiotto("sc_lung_carcinoma")
 
 The cell-type specific signature gene list was obtained from a previous study focused on investigating the therapy-induced evolution of lung cancer revealed by single-cell RNA sequencing. More information about the paper and scRNA-seq dataset can be found [here](https://doi.org/10.1016/j.cell.2020.07.017).
 
-
 ```{r, eval=FALSE}
 # umap plots
 # Create PAGE matrix
