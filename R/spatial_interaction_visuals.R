@@ -2262,9 +2262,6 @@ plotRankSpatvsExpr = function(gobject,
     midpoint = gradient_midpoint,
     style = gradient_style,
     type = 'color',
-    type_default = list(
-      pal = c('blue', 'yellow', 'red')
-    ),
     guide = guide_legend(title = '')
   )
   pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = "none")
