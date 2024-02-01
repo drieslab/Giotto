@@ -28,14 +28,12 @@ if(!genv_exists){
 }
 ```
 
-## Set Giotto instructions (optional)
+# 1. Load the Giotto object
 
 ```{r, eval=FALSE}
 library(Giotto)
 library(GiottoData)
 ```
-
-# 1. Load the Giotto object
 
 A small seqFISH data is available through the giottoData package.
 
@@ -44,6 +42,8 @@ A small seqFISH data is available through the giottoData package.
 seqfish_mini = loadGiottoMini("seqfish",
                               python_path = NULL)
 ```
+
+## Set Giotto instructions (optional)
 
 How to work with Giotto instructions that are part of your Giotto
 object:
