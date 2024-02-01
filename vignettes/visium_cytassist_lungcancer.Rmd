@@ -330,9 +330,6 @@ signature_matrix = makeSignMatrixPAGE(sign_names = c('T_Cells', 'Macrophage', 'D
            pdcs_markers))
 
 # 1.3 enrichment test with PAGE
-
-giotto_SC = getSpatialDataset(dataset = 'mol_cart_lung_873_C1', directory = data_path, method = "curl")
-
 markers_scran = findMarkers_one_vs_all(gobject=giotto_SC, method="scran",
                                        expression_values="normalized", cluster_column = "leiden_clus", min_feats=3)
 
@@ -479,7 +476,7 @@ heatmSpatialCorFeats(visium_lungcancer,
                      heatmap_legend_param = list(title = NULL))
 ```
 
-![](images/visium_cytassist_lungcancer/22-z1-heatmap_correlated_genes.pdf){width="50.0%"}
+![](images/visium_cytassist_lungcancer/22-z1-heatmap_correlated_genes.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 # 4. rank spatial correlated clusters and show genes for selected clusters
