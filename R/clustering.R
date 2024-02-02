@@ -1265,29 +1265,40 @@ doHclust <- function(gobject,
                                     feat_type = feat_type)
 
 
-  dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
-  distance_method = match.arg(distance_method, choices = c("pearson", "spearman",  "original",
-                                                           "euclidean", "maximum", "manhattan",
-                                                           "canberra", "binary", "minkowski"))
-  agglomeration_method = match.arg(agglomeration_method, choices = c("ward.D2","ward.D", "single",
-                                                                     "complete", "average", "mcquitty",
-                                                                     "median", "centroid" ))
+  dim_reduction_to_use = match.arg(
+    dim_reduction_to_use,
+    choices = c('cells', 'pca', 'umap', 'tsne')
+  )
+  distance_method = match.arg(
+    distance_method,
+    choices = c("pearson", "spearman",  "original",
+                "euclidean", "maximum", "manhattan",
+                "canberra", "binary", "minkowski")
+  )
+  agglomeration_method = match.arg(
+    agglomeration_method,
+    choices = c("ward.D2","ward.D", "single",
+                "complete", "average", "mcquitty",
+                "median", "centroid" )
+  )
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
 
   ## using dimension reduction ##
-  if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
+  if(dim_reduction_to_use != 'cells' && !is.null(dim_reduction_to_use)) {
 
     ## TODO: check if reduction exists
 
     # use only available dimensions if dimensions < dimensions_to_use
-    dim_coord = get_dimReduction(gobject = gobject,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 reduction = 'cells',
-                                 reduction_method = dim_reduction_to_use,
-                                 name = dim_reduction_name,
-                                 output = 'data.table')
+    dim_coord = get_dimReduction(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      reduction = 'cells',
+      reduction_method = dim_reduction_to_use,
+      name = dim_reduction_name,
+      output = 'data.table'
+    )
 
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]
@@ -1295,10 +1306,13 @@ doHclust <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = get_expression_values(gobject = gobject,
-                                        spat_unit = spat_unit,
-                                        feat_type = feat_type,
-                                        values = values)
+    expr_values = get_expression_values(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = values,
+      output = "matrix"
+    )
 
     # subset expression matrix
     if(!is.null(feats_to_use)) {
