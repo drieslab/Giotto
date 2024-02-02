@@ -58,19 +58,19 @@ To run this vignette, download the files from this [Google drive](https://drive.
 ## Part 1: Create Giotto object 
   
 Load data
-```{r load data}
+```{r, eval=FALSE}
 raw.data <- read.csv("Data_input/csv_files/S01_datafinal.csv", 
                      header=T, row.names = 1)
 ```
 
 Load metadata
-```{r load metadata}
+```{r, eval=FALSE}
 metadata <- read.csv("Data_input/csv_files/S01_metacells.csv",
                      row.names=1, header=T)
 ```
 
 Find ERCC's, compute the percent ERCC, and drop them from the raw data.
-```{r}
+```{r, eval=FALSE}
 erccs <- grep(pattern = "^ERCC-", 
               x = rownames(x = raw.data), 
               value = TRUE)
@@ -88,7 +88,7 @@ giotto_SC <- createGiottoObject(expression = raw.data,
 ```
 
 Calculate percent ribosomal genes and add to metadata
-```{r}
+```{r, eval=FALSE}
 ribo.genes <- grep(pattern = "^RP[SL][[:digit:]]", 
                    x = rownames(raw.data), value = TRUE)
 percent.ribo <- Matrix::colSums(raw.data[ribo.genes, ])/Matrix::colSums(raw.data)
@@ -127,7 +127,7 @@ screePlot(giotto_SC,
           save_param = list(save_name = '3_scree_plot'))
 ```
 
-![](images/sc_lung_adenocarcinoma/3_scree_plot.png)
+![](images/singlecell_lung_adenocarcinoma/3_scree_plot.png)
 
 ## Part 4: Cluster
 
@@ -154,7 +154,7 @@ plotUMAP(gobject = giotto_SC,
          save_param = list(save_name = "4_Cluster"))
 ```
 
-![](images/sc_lung_adenocarcinoma/4_Cluster.png)
+![](images/singlecell_lung_adenocarcinoma/4_Cluster.png)
 
 ## Part 5: Differential Expression
 
@@ -175,7 +175,7 @@ plotMetaDataHeatmap(giotto_SC,
                     save_param = list(save_name = '5_metaheatmap'))
 ```
 
-![](images/sc_lung_adenocarcinoma/5_metaheatmap.png)
+![](images/singlecell_lung_adenocarcinoma/5_metaheatmap.png)
 
 ## Part 6: FeaturePlot
 
@@ -187,7 +187,7 @@ dimFeatPlot2D(giotto_SC,
               save_param = list(save_name = "6_featureplot"))
 ```
 
-![](images/sc_lung_adenocarcinoma/6_featureplot.png)
+![](images/singlecell_lung_adenocarcinoma/6_featureplot.png)
 
 ## Part 7: Cell type Annotation
 
@@ -208,7 +208,7 @@ marker_genes = list(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 library(dplyr)
 library(ComplexHeatmap)
 heatmap_table <- calculateMetaTable(gobject = giotto_SC,
@@ -296,7 +296,7 @@ Heatmap(heatmap_matrix,
 dev.off()
 ```
 
-![](images/sc_lung_adenocarcinoma/6_heatmap_all_clusters_cell_types.png)
+![](images/singlecell_lung_adenocarcinoma/6_heatmap_all_clusters_cell_types.png)
 
 ``` {r, eval=FALSE}
 lung_labels<-c("carcinoma_cells",#1
@@ -346,7 +346,7 @@ dimPlot2D(gobject = giotto_SC,
           save_param = list(save_name = "7_Annotation"))
 ```
 
-![](images/sc_lung_adenocarcinoma/7_Annotation.png)
+![](images/singlecell_lung_adenocarcinoma/7_Annotation.png)
 
 ```{r, eval=FALSE}
 sessionInfo()
