@@ -1,4 +1,7 @@
 
+## Fix
+- `doHclust()` now works again
+
 # Giotto Suite 4.0.2 (2023/12/21)
 
 ## Changes

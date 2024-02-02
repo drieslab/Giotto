@@ -7,7 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 # Dataset Explanation
 
 The human lung cancer (FFPE) dataset was obtained from 10x Genomics using their CytAssist Visium technology that has been recently developed to allow users to perform standard histology workflows on two standard glass slides before transferring the transcriptional probes on the two-area capture visium slide.
@@ -41,32 +40,29 @@ if(!genv_exists){
 }
 
 # to automatically save figures in save_dir set save_plot to TRUE
-temp_dir = getwd()
-myinstructions = createGiottoInstructions(save_dir = temp_dir,
+results_dir = '/path/to/results/directory'
+myinstructions = createGiottoInstructions(save_dir = results_dir,
                                           save_plot = TRUE,
                                           show_plot = TRUE)
 ```
-
 
 # 1. Create a Giotto object
 
 The minimum requirements are
 
-- matrix with expression information (or path to)
-- x,y(,z) coordinates for cells or spots (or path to)
-
+-   matrix with expression information (or path to)
+-   x,y(,z) coordinates for cells or spots (or path to)
 
 ```{r, eval=FALSE}
 # Provide path to visium folder
-data_path = paste0(temp_dir, '/data/')
-getSpatialDataset(dataset = 'cytassist_lungcancer', directory = data_path, method = 'wget')
+data_path = '/path/to/data/directory'
 
 # Create Giotto object
-  visium_lungcancer = createGiottoVisiumObject(visium_dir = data_path,
-                                               expr_data = 'raw',
-                                               png_name = 'tissue_lowres_image.png',
-                                               gene_column_index = 2,
-                                               instructions = myinstructions)
+visium_lungcancer = createGiottoVisiumObject(visium_dir = data_path,
+                                             expr_data = 'raw',
+                                             png_name = 'tissue_lowres_image.png',
+                                             gene_column_index = 2,
+                                             instructions = myinstructions)
 
 # check metadata
 pDataDT(visium_lungcancer)
@@ -78,30 +74,26 @@ showGiottoImageNames(visium_lungcancer) # "image" is the default name
 spatPlot(gobject = visium_lungcancer, cell_color = 'in_tissue', show_image = T, point_alpha = 0.7)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/0-spatPlot2D.png){width="50.0%"}
 
 How to work with Giotto instructions that are part of your Giotto object:
 
-- show the instructions associated with your Giotto object with  **showGiottoInstructions()**
-- change one or more instructions with **changeGiottoInstructions()**
-- replace all instructions at once with  **replaceGiottoInstructions()**
-- read or get a specific Giotto instruction with  **readGiottoInstructions()**
-
+-   show the instructions associated with your Giotto object with **showGiottoInstructions()**
+-   change one or more instructions with **changeGiottoInstructions()**
+-   replace all instructions at once with **replaceGiottoInstructions()**
+-   read or get a specific Giotto instruction with **readGiottoInstructions()**
 
 ```{r, eval=FALSE}
 # show instructions associated with giotto object (visium_lungcancer)
 showGiottoInstructions(visium_lungcancer)
 ```
 
-
 # 2. Processing steps
 
-- filter genes and cells based on detection frequencies
-- normalize expression matrix (log transformation, scaling factor and/or z-scores)
-- add cell and gene statistics (optional)
-- adjust expression matrix for technical covariates or batches  (optional). These results will be stored in the *custom* slot.
-
+-   filter genes and cells based on detection frequencies
+-   normalize expression matrix (log transformation, scaling factor and/or z-scores)
+-   add cell and gene statistics (optional)
+-   adjust expression matrix for technical covariates or batches (optional). These results will be stored in the *custom* slot.
 
 ```{r, eval=FALSE}
 visium_lungcancer <- filterGiotto(gobject = visium_lungcancer,
@@ -114,83 +106,67 @@ visium_lungcancer <- normalizeGiotto(gobject = visium_lungcancer, scalefactor = 
 visium_lungcancer <- addStatistics(gobject = visium_lungcancer)
 ```
 
-
 ## Visualize aligned tissue with number of features after processing
-
 
 ```{r, eval=FALSE}
 spatPlot2D(gobject = visium_lungcancer, show_image = T, point_alpha = 0.7)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/1-spatPlot2D.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 spatPlot2D(gobject = visium_lungcancer, show_image = T, point_alpha = 0.7,
            cell_color = 'nr_feats', color_as_factor = F)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/2-spatPlot2D.png){width="50.0%"}
 
 # 3. Dimension Reduction
 
-- identify highly variable features (HVF)
-
+-   identify highly variable features (HVF)
 
 ```{r, eval=FALSE}
 visium_lungcancer <- calculateHVF(gobject = visium_lungcancer)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/3-HVFplot.png){width="50.0%"}
 
-- perform PCA
-- identify number of significant principal components (PCs)
-
+-   perform PCA
+-   identify number of significant principal components (PCs)
 
 ```{r, eval=FALSE}
 visium_lungcancer <- runPCA(gobject = visium_lungcancer)
 screePlot(visium_lungcancer, ncp = 30)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/4-screePlot.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 plotPCA(gobject = visium_lungcancer)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/5-PCA.png){width="50.0%"}
 
-- run UMAP and/or t-SNE on PCs (or directly on matrix)
-
+-   run UMAP and/or t-SNE on PCs (or directly on matrix)
 
 ```{r, eval=FALSE}
 visium_lungcancer <- runUMAP(visium_lungcancer, dimensions_to_use = 1:10)
 plotUMAP(gobject = visium_lungcancer)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/6-UMAP.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 visium_lungcancer <- runtSNE(visium_lungcancer, dimensions_to_use = 1:10)
 plotTSNE(gobject = visium_lungcancer)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/7-tSNE.png){width="50.0%"}
 
 # 4. Clustering
 
-- create a shared (default) nearest network in PCA space (or directly on matrix)
-- cluster on nearest network with Leiden or Louvain (k-means and hclust are alternatives)
-
+-   create a shared (default) nearest network in PCA space (or directly on matrix)
+-   cluster on nearest network with Leiden or Louvain (k-means and hclust are alternatives)
 
 ```{r, eval=FALSE}
 # Create shared nearest network (SNN) and perform leiden clustering
@@ -201,18 +177,14 @@ visium_lungcancer <- doLeidenCluster(gobject = visium_lungcancer, spat_unit = 'c
 plotUMAP(gobject = visium_lungcancer, cell_color = 'leiden_clus', show_NN_network = T, point_size = 2)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/8-UMAP.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # visualize tSNE cluster results
 plotTSNE(gobject = visium_lungcancer, cell_color = 'leiden_clus', show_NN_network = T, point_size = 2)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/9-tSNE.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # visualize expression and spatial results
@@ -220,20 +192,16 @@ spatDimPlot(gobject = visium_lungcancer, cell_color = 'leiden_clus',
             dim_point_size = 2, spat_point_size = 2)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/10-spatDimPlot2D.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 spatDimPlot(gobject = visium_lungcancer, cell_color = 'nr_feats', color_as_factor = F,
             dim_point_size = 2, dim_show_legend = T, spat_show_legend = T, spat_point_size = 2)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/11-spatDimPlot2D.png){width="50.0%"}
 
 # 5. Differential expression
-
 
 ```{r, eval=FALSE}
 # Cell type marker detection
@@ -252,9 +220,7 @@ violinPlot(visium_lungcancer, feats = unique(topgenes_gini), cluster_column = 'l
            strip_text = 8, strip_position = 'right')
 ```
 
-
 ![](images/visium_cytassist_lungcancer/12-violinPlot.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # cluster heatmap
@@ -264,9 +230,7 @@ plotMetaDataHeatmap(visium_lungcancer,
                     x_text_size = 10, y_text_size = 10)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/13-plotMetaDataHeatmap.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # umap plots
@@ -276,9 +240,7 @@ dimFeatPlot2D(visium_lungcancer,
               cow_n_col = 3, point_size = 1)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/14-dimFeatPlot2D.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # Cell type marker detection
@@ -295,9 +257,7 @@ violinPlot(visium_lungcancer, feats = unique(topgenes_scran),
            strip_text = 10, strip_position = 'right')
 ```
 
-
 ![](images/visium_cytassist_lungcancer/15-violinPlot.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # cluster heatmap
@@ -307,9 +267,7 @@ plotMetaDataHeatmap(visium_lungcancer,
                     x_text_size = 10, y_text_size = 10)
 ```
 
-
 ![](images/visium_cytassist_lungcancer/16-plotMetaDataHeatmap.png){width="50.0%"}
-
 
 ```{r, eval=FALSE}
 # umap plots
@@ -319,18 +277,22 @@ dimFeatPlot2D(visium_lungcancer,
               cow_n_col = 3, point_size = 1)
 ```
 
-
 # 6. Cell Type Enrichment
 
 Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides several ways to calculate enrichment of specific cell-type signature gene lists:
 
-- PAGE
-- hypergeometric test
-- Rank
-- DWLS
+-   PAGE
+-   hypergeometric test
+-   Rank
+-   DWLS
 
-[Deconvolution](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02362-7)
-Corresponded Single cell dataset can be generated from [here](http://mousebrain.org/). Giotto_SC is processed from the downsampled [Loom](https://satijalab.org/loomr/loomr_tutorial) file and can also be downloaded from getSpatialDataset.
+Corresponded Single cell dataset can be generated from [Single Cell Human Lung Adenocarcinoma](https://drieslab.github.io/Giotto/articles/singlecell_lung_adenocarcinoma.html) vignette. You can also download the Giotto object, or count matrix and metadata from [here](https://drive.google.com/drive/folders/1lv3KYkJoTy4vzJxyRT0zhm6RALVO89M8)
+
+Load the single-cell object
+
+```{r, eval=FALSE}
+giotto_SC <- Giotto::loadGiotto("sc_lung_carcinoma")
+```
 
 ## PAGE
 
@@ -370,8 +332,10 @@ signature_matrix = makeSignMatrixPAGE(sign_names = c('T_Cells', 'Macrophage', 'D
 
 # 1.3 enrichment test with PAGE
 
+giotto_SC = getSpatialDataset(dataset = 'mol_cart_lung_873_C1', directory = data_path, method = "curl")
+
 markers_scran = findMarkers_one_vs_all(gobject=giotto_SC, method="scran",
-                                       expression_values="normalized", cluster_column = "Class", min_feats=3)
+                                       expression_values="normalized", cluster_column = "leiden_clus", min_feats=3)
 
 top_markers <- markers_scran[, head(.SD, 10), by="cluster"]
 celltypes<-levels(factor(markers_scran$cluster))
@@ -398,9 +362,7 @@ plotMetaDataCellsHeatmap(gobject = visium_lungcancer,
                          save_param = list(save_name="7_a_metaheatmap"))
 ```
 
-
-![](images/visium_cytassist_lungcancer/17-metaheatmap.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/7_a_metaheatmap.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 cell_types_subset = colnames(signature_matrix)
@@ -411,9 +373,7 @@ spatCellPlot(gobject = visium_lungcancer,
              save_param = list(save_name="7_b_spatcellplot_1"))
 ```
 
-
-![](images/visium_cytassist_lungcancer/18-spatcellplot_1.png){width="80.0%"}
-
+![](images/visium_cytassist_lungcancer/7_b_spatcellplot_1.png){width="80.0%"}
 
 ```{r, eval=FALSE}
 spatDimCellPlot(gobject = visium_lungcancer,
@@ -424,11 +384,9 @@ spatDimCellPlot(gobject = visium_lungcancer,
                 save_param = list(save_name="7_d_spatDimCellPlot", base_width=7, base_height=10))
 ```
 
-
-![](images/visium_cytassist_lungcancer/19-spatDimCellPlot.png){width="80.0%"}
+![](images/visium_cytassist_lungcancer/7_d_spatDimCellPlot.png){width="80.0%"}
 
 # 7. Spatial Grids
-
 
 ```{r, eval=FALSE}
 visium_lungcancer <- createSpatialGrid(gobject = visium_lungcancer,
@@ -440,20 +398,16 @@ spatPlot(visium_lungcancer, cell_color = 'leiden_clus', point_size = 2.5, show_g
 grid_color = 'red', spatial_grid_name = 'spatial_grid')
 ```
 
-
-![](images/visium_cytassist_lungcancer/20-spatPlot2D.png){width="50.0%"}
+![](images/visium_cytassist_lungcancer/18-spatPlot2D.png){width="50.0%"}
 
 # 8. Spatial Network
-
 
 ```{r, eval=FALSE}
 ## Delaunay network: stats + creation
 plotStatDelaunayNetwork(gobject = visium_lungcancer, maximum_distance = 400)
 ```
 
-
-![](images/visium_cytassist_lungcancer/21-plotStatDelaunayNetwork.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/19-plotStatDelaunayNetwork.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 visium_lungcancer = createSpatialNetwork(gobject = visium_lungcancer, minimum_k = 0)
@@ -462,11 +416,9 @@ spatPlot(gobject = visium_lungcancer, show_network = T,
 network_color = 'blue', spatial_network_name = 'Delaunay_network')
 ```
 
-
-![](images/visium_cytassist_lungcancer/22-spatPlot2D.png){width="50.0%"}
+![](images/visium_cytassist_lungcancer/20-spatPlot2D.png){width="50.0%"}
 
 # 9. Spatial Genes
-
 
 ```{r, eval=FALSE}
 # kmeans binarization
@@ -475,9 +427,7 @@ spatFeatPlot2D(visium_lungcancer, expression_values = 'scaled',
                feats = kmtest$feats[1:6], cow_n_col = 2, point_size = 1.5)
 ```
 
-
-![](images/visium_cytassist_lungcancer/23-spatFeatPlot2D.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/21-spatFeatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 ## rank binarization
@@ -486,7 +436,7 @@ spatFeatPlot2D(visium_lungcancer, expression_values = 'scaled',
                feats = ranktest$feats[1:6], cow_n_col = 2, point_size = 1.5)
 ```
 
-
+![](images/visium_cytassist_lungcancer/22-spatFeatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 ## spatially correlated genes ##
@@ -506,30 +456,31 @@ spatFeatPlot2D(visium_lungcancer, expression_values = 'scaled',
                feats = c('RSPH1', 'C20orf85', 'DNAAF1','TEKT2'), point_size = 3)
 ```
 
-
-![](images/visium_cytassist_lungcancer/24-spatFeatPlot2D.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/23-spatFeatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 spatFeatPlot2D(visium_lungcancer, expression_values = 'scaled',
                feats = c('TEKT2', 'CFAP157', 'MAPK15', 'MS4A8', 'CDHR3', 'C9orf24'), point_size = 3)
 ```
 
-
-![](images/visium_cytassist_lungcancer/25-spatFeatPlot2D.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/24-spatFeatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 # 3. cluster correlated genes & visualize
-spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT, name = ‘spat_netw_clus’, k = 10)
+spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT, name = "spat_netw_clus", k = 10)
 
-heatmSpatialCorFeats(visium_lungcancer, spatCorObject = spat_cor_netw_DT, use_clus_name = ‘spat_netw_clus’,
-save_param = c(save_name = ‘22-z1-heatmap_correlated_genes’, save_format = ‘pdf’, base_height = 6, base_width = 8, units = ‘cm’), heatmap_legend_param = list(title = NULL))
+heatmSpatialCorFeats(visium_lungcancer,
+                     spatCorObject = spat_cor_netw_DT,
+                     use_clus_name = 'spat_netw_clus',
+                     save_param = list(save_name = '22-z1-heatmap_correlated_genes',
+                                    save_format = 'pdf',
+                                    base_height = 6,
+                                    base_width = 8,
+                                    units = 'cm'),
+                     heatmap_legend_param = list(title = NULL))
 ```
 
-
-![](images/visium_cytassist_lungcancer/26-heatmap_correlated_genes.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/22-z1-heatmap_correlated_genes.pdf){width="50.0%"}
 
 ```{r, eval=FALSE}
 # 4. rank spatial correlated clusters and show genes for selected clusters
@@ -543,9 +494,7 @@ top_netw_spat_cluster = showSpatialCorFeats(spat_cor_netw_DT, use_clus_name = 's
                                             selected_clusters = 6, show_top_feats = 1)
 ```
 
-
-![](images/visium_cytassist_lungcancer/27-rank_correlated_groups.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/22-z2-rank_correlated_groups.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 # 5. create metagene enrichment score for clusters
@@ -562,11 +511,9 @@ spatCellPlot(visium_lungcancer,
              point_size = 1.5, cow_n_col = 4)
 ```
 
-
-![](images/visium_cytassist_lungcancer/28-spatCellPlot2D.png){width="80.0%"}
+![](images/visium_cytassist_lungcancer/25-spatCellPlot2D.png){width="80.0%"}
 
 # 10. HMRF Domains
-
 
 ```{r, eval=FALSE}
 # HMRF requires a fully connected network!
@@ -576,7 +523,7 @@ visium_lungcancer = createSpatialNetwork(gobject = visium_lungcancer, minimum_k 
 my_spatial_genes <- kmtest[1:100]$feats
 
 # do HMRF with different betas
-hmrf_folder = paste0(results_folder,'/','HMRF_results/')
+hmrf_folder = paste0(results_dir,'/','HMRF_results/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
 # if Rscript is not found, you might have to create a symbolic link, e.g.
@@ -608,69 +555,40 @@ showGiottoSpatEnrichments(visium_lungcancer)
 spatPlot(gobject = visium_lungcancer, cell_color = 'HMRF_k5_b.0', point_size = 3)
 ```
 
-
-![](images/visium_cytassist_lungcancer/29-spatPlot2D.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/26-spatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 spatPlot(gobject = visium_lungcancer, cell_color = 'HMRF_k5_b.10', point_size = 3)
 ```
 
-
-![](images/visium_cytassist_lungcancer/30-spatPlot2D.png){width="50.0%"}
-
+![](images/visium_cytassist_lungcancer/27-spatPlot2D.png){width="50.0%"}
 
 ```{r, eval=FALSE}
 sessionInfo()
 
-R version 4.2.2 (2022-10-31)
+R version 4.3.2 (2023-10-31)
 Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Monterey 12.5.1
+Running under: macOS Sonoma 14.1.2
 
 Matrix products: default
-LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base
+time zone: America/New_York
+tzcode source: internal
 
-other attached packages:
-[1] Giotto_3.0.1
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] bitops_1.0-7                matrixStats_0.63.0          fs_1.5.2
- [4] usethis_2.1.6               devtools_2.4.5              GenomeInfoDb_1.34.3
- [7] tools_4.2.2                 profvis_0.3.7               utf8_1.2.2
-[10] R6_2.5.1                    irlba_2.3.5.1               BiocGenerics_0.44.0
-[13] colorspace_2.0-3            urlchecker_1.0.1            tidyselect_1.2.0
-[16] prettyunits_1.1.1           processx_3.8.0              compiler_4.2.2
-[19] cli_3.4.1                   Biobase_2.58.0              BiocNeighbors_1.16.0
-[22] DelayedArray_0.24.0         scales_1.2.1                callr_3.7.3
-[25] stringr_1.4.1               digest_0.6.30               XVector_0.38.0
-[28] pkgconfig_2.0.3             htmltools_0.5.3             sessioninfo_1.2.2
-[31] sparseMatrixStats_1.10.0    MatrixGenerics_1.10.0       fastmap_1.1.0
-[34] limma_3.54.0                htmlwidgets_1.5.4           rlang_1.0.6
-[37] rstudioapi_0.14             shiny_1.7.3                 DelayedMatrixStats_1.20.0
-[40] generics_0.1.3              BiocParallel_1.32.1         dplyr_1.0.10
-[43] RCurl_1.98-1.9              magrittr_2.0.3              BiocSingular_1.14.0
-[46] GenomeInfoDbData_1.2.9      Matrix_1.5-3                Rcpp_1.0.9
-[49] munsell_0.5.0               S4Vectors_0.36.0            fansi_1.0.3
-[52] lifecycle_1.0.3             stringi_1.7.8               SummarizedExperiment_1.28.0
-[55] zlibbioc_1.44.0             pkgbuild_1.3.1              grid_4.2.2
-[58] parallel_4.2.2              promises_1.2.0.1            dqrng_0.3.0
-[61] crayon_1.5.2                miniUI_0.1.1.1              lattice_0.20-45
-[64] beachmat_2.14.0             locfit_1.5-9.6              ps_1.7.2
-[67] pillar_1.8.1                igraph_1.3.5                GenomicRanges_1.50.1
-[70] codetools_0.2-18            ScaledMatrix_1.6.0          stats4_4.2.2
-[73] pkgload_1.3.2               glue_1.6.2                  data.table_1.14.6
-[76] remotes_2.4.2               BiocManager_1.30.19         vctrs_0.5.1
-[79] httpuv_1.6.6                gtable_0.3.1                purrr_0.3.5
-[82] cachem_1.0.6                ggplot2_3.4.0               rsvd_1.0.5
-[85] mime_0.12                   xtable_1.8-4                later_1.3.0
-[88] SingleCellExperiment_1.20.0 tibble_3.1.8                memoise_2.0.1
-[91] IRanges_2.32.0              cluster_2.1.4               bluster_1.8.0
-[94] ellipsis_0.3.2
+ [1] vctrs_0.6.5       cli_3.6.2         knitr_1.45        rlang_1.1.3       xfun_0.41         stringi_1.8.3    
+ [7] purrr_1.0.2       pkgload_1.3.4     promises_1.2.1    shiny_1.8.0       xtable_1.8-4      glue_1.7.0       
+[13] htmltools_0.5.7   httpuv_1.6.13     pkgbuild_1.4.3    rmarkdown_2.25    evaluate_0.23     ellipsis_0.3.2   
+[19] fastmap_1.1.1     yaml_2.3.8        lifecycle_1.0.4   memoise_2.0.1     stringr_1.5.1     compiler_4.3.2   
+[25] miniUI_0.1.1.1    sessioninfo_1.2.2 fs_1.6.3          htmlwidgets_1.6.4 Rcpp_1.0.12       urlchecker_1.0.1 
+[31] rstudioapi_0.15.0 later_1.3.2       digest_0.6.34     R6_2.5.1          usethis_2.2.2     magrittr_2.0.3   
+[37] tools_4.3.2       mime_0.12         devtools_2.4.5    profvis_0.3.8     remotes_2.4.2.1   cachem_1.0.8    
 ```
-

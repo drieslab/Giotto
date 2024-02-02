@@ -17,14 +17,13 @@ vignette: >
 
 
 ```{r, eval=FALSE}
-# Ensure Giotto Suite is installed.
-if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
-}
+# Ensure Giotto Suite and GiottoData, a small, helper module for tutorials, are installed.
+pkgs <- c("Giotto", "GiottoData")
+need_install <- pkgs[sapply(pkgs, function(pkg) !requireNamespace(pkg, quietly = TRUE))]
 
-# Ensure GiottoData, a small, helper module for tutorials, is installed.
-if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
+if (length(need_install) > 0L) {
+  if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
+  pak::pak(sprintf("drieslab/%s", need_install))
 }
 
 library(Giotto)
@@ -76,9 +75,9 @@ instrs = createGiottoInstructions(save_plot = TRUE,
                                   save_dir = results_folder,
                                   python_path = python_path)
 
-expr_path = paste0(results_folder, "osmFISH_prep_expression.txt")
-loc_path = paste0(results_folder, "osmFISH_prep_cell_coordinates.txt")
-meta_path = paste0(results_folder, "osmFISH_prep_cell_metadata.txt")
+expr_path = file.path(results_folder, "osmFISH_prep_expression.txt")
+loc_path = file.path(results_folder, "osmFISH_prep_cell_coordinates.txt")
+meta_path = file.path(results_folder, "osmFISH_prep_cell_metadata.txt")
 ```
 
 
@@ -96,12 +95,14 @@ metadata = data.table::fread(file = meta_path)
 osm_test = addCellMetadata(osm_test, new_metadata = metadata,
                            by_column = T, column_cell_ID = 'CellID')
 ## filter
-osm_test <- filterGiotto(gobject = osm_test,
-                         expression_threshold = 1,
-                         feat_det_in_min_cells = 10,
-                         min_det_feats_per_cell = 10,
-                         expression_values = c('raw'),
-                         verbose = T)
+osm_test <- filterGiotto(
+    gobject = osm_test,
+    expression_threshold = 1,
+    feat_det_in_min_cells = 10,
+    min_det_feats_per_cell = 10,
+    expression_values = c('raw'),
+    verbose = TRUE
+)
 
 ## normalize Giotto
 ## there are two ways for osmFISH object
@@ -110,18 +111,23 @@ osm_test <- filterGiotto(gobject = osm_test,
 osm_test <- normalizeGiotto(gobject = osm_test)
 
 # 2. osmFISH way
-raw_expr_matrix = get_expression_values(osm_test, values = "raw")
-norm_genes = (raw_expr_matrix/GiottorowSums_flex(raw_expr_matrix)) * nrow(raw_expr_matrix)
+raw_expr_matrix <- getExpression(osm_test, values = "raw", output = "matrix")
+norm_genes <- (raw_expr_matrix/Matrix::rowSums(raw_expr_matrix)) * nrow(raw_expr_matrix)
 
-norm_genes_cells = Giottot_flex((Giottot_flex(norm_genes)/GiottocolSums_flex(norm_genes)) * ncol(raw_expr_matrix))
-osm_test = set_expression_values(osm_test, values = norm_genes_cells , name = "custom")
+norm_genes_cells <- Matrix::t((Matrix::t(norm_genes)/Matrix::colSums(norm_genes)) * ncol(raw_expr_matrix))
+norm_genes_cells <- Giotto::createExprObj(norm_genes_cells, name = "custom")
+osm_test <- setGiotto(osm_test, x = norm_genes_cells)
 
 ## add gene & cell statistics
 osm_test <- addStatistics(gobject = osm_test)
 
 # save according to giotto instructions
-spatPlot2D(gobject = osm_test, cell_color = 'ClusterName', point_size = 1.5,
-         save_param = list(save_name = '2_a_original_clusters'))
+spatPlot2D(
+    gobject = osm_test,
+    cell_color = 'ClusterName',
+    point_size = 1.3,
+    save_param = list(save_name = '2_a_original_clusters')
+)
 ```
 
 
@@ -129,8 +135,24 @@ spatPlot2D(gobject = osm_test, cell_color = 'ClusterName', point_size = 1.5,
 
 
 ```{r, eval=FALSE}
-spatPlot2D(gobject = osm_test, cell_color = 'Region',
-         save_param = list(save_name = '2_b_original_regions'))
+spatPlot2D(gobject = osm_test,
+           cell_color = 'Region',
+           cell_color_code = c(
+             "Excluded" = "lightsteelblue4",
+             "Hippocampus" = "gold",
+             "White matter" = "cyan",
+             "Internal Capsule Caudoputamen" = "#9730F2",
+             "Ventricle" = "green",
+             "Layer 2-3 lateral" = "blue",
+             "Layer 2-3 medial" = "yellowgreen",
+             "Layer 3-4" = "brown",
+             "Layer 4" = "orange",
+             "Layer 5" = "red",
+             "Layer 6" = "magenta",
+             "Pia Layer 1" = "mediumturquoise"
+           ),
+           point_size = 1.5,
+           save_param = list(save_name = '2_b_original_regions'))
 ```
 
 
@@ -138,8 +160,12 @@ spatPlot2D(gobject = osm_test, cell_color = 'Region',
 
 
 ```{r, eval=FALSE}
-spatPlot2D(gobject = osm_test, cell_color = 'ClusterID',
-         save_param = list(save_name = '2_c_clusterID'))
+spatPlot2D(
+    gobject = osm_test,
+    cell_color = 'ClusterID',
+    point_size = 1.5,
+    save_param = list(save_name = '2_c_clusterID')
+)
 ```
 
 
@@ -147,9 +173,17 @@ spatPlot2D(gobject = osm_test, cell_color = 'ClusterID',
 
 
 ```{r, eval=FALSE}
-spatPlot2D(gobject = osm_test, cell_color = 'total_expr', color_as_factor = F, gradient_midpoint = 160,
-         gradient_limits = c(120,220),
-         save_param = list(save_name = '2_d_total_expr_limits'))
+spatPlot2D(
+  gobject = osm_test, 
+  cell_color = 'total_expr', 
+  color_as_factor = FALSE,
+  point_size = 1.5,
+  gradient_style = "sequential",
+  gradient_midpoint = 160,
+  gradient_limits = c(120,220),
+  background_color = "black",
+  save_param = list(save_name = '2_d_total_expr_limits')
+)
 ```
 
 
@@ -163,7 +197,10 @@ spatPlot2D(gobject = osm_test, cell_color = 'total_expr', color_as_factor = F, g
 # only 33 genes so use all genes
 
 ## run PCA on expression values (default)
-osm_test <- runPCA(gobject = osm_test, expression_values = 'custom', scale_unit = F, center = F)
+osm_test <- runPCA(gobject = osm_test,
+                   expression_values = 'custom', 
+                   scale_unit = F, 
+                   center = F)
 screePlot(osm_test, ncp = 30,
           save_param = list(save_name = '3_a_screeplot'))
 ```
@@ -185,7 +222,7 @@ plotPCA(osm_test,
 ## run UMAP and tSNE on PCA space (default)
 osm_test <- runUMAP(osm_test, dimensions_to_use = 1:31, n_threads = 4)
 plotUMAP(gobject = osm_test,
-         save_param = list(save_name = '3_c_UMAP_reduction.png'))
+         save_param = list(save_name = '3_c_UMAP_reduction'))
 ```
 
 
@@ -193,9 +230,17 @@ plotUMAP(gobject = osm_test,
 
 
 ```{r, eval=FALSE}
-plotUMAP(gobject = osm_test,
-         cell_color = 'total_expr', color_as_factor = F, gradient_midpoint = 180, gradient_limits = c(120, 220),
-         save_param = list(save_name = '3_d_UMAP_reduction_expression.png'))
+plotUMAP(
+  gobject = osm_test,
+  cell_color = 'total_expr', 
+  color_as_factor = FALSE,
+  point_size = 2,
+  gradient_style = "sequential",
+  gradient_midpoint = 180,
+  gradient_limits = c(120, 220),
+  background_color = "black",
+  save_param = list(save_name = '3_d_UMAP_reduction_expression')
+)
 ```
 
 
@@ -203,7 +248,12 @@ plotUMAP(gobject = osm_test,
 
 
 ```{r, eval=FALSE}
-osm_test <- runtSNE(osm_test, dimensions_to_use = 1:31, perplexity = 70, check_duplicates = F)
+osm_test <- runtSNE(
+  osm_test, 
+  dimensions_to_use = 1:31, 
+  perplexity = 70, 
+  check_duplicates = F
+)
 plotTSNE(gobject = osm_test,  save_param = list(save_name = '3_e_tSNE_reduction'))
 ```
 
@@ -215,7 +265,11 @@ plotTSNE(gobject = osm_test,  save_param = list(save_name = '3_e_tSNE_reduction'
 
 ```{r, eval=FALSE}
 ## hierarchical clustering
-osm_test = doHclust(gobject = osm_test, expression_values = 'custom', k = 36)
+osm_test = doHclust(
+  gobject = osm_test, 
+  expression_values = 'custom', 
+  k = 36
+)
 plotUMAP(gobject = osm_test, cell_color = 'hclust', point_size = 2.5,
          show_NN_network = F, edge_alpha = 0.05,
          save_param = list(save_name = '4_a_UMAP_hclust'))
@@ -227,7 +281,14 @@ plotUMAP(gobject = osm_test, cell_color = 'hclust', point_size = 2.5,
 
 ```{r, eval=FALSE}
 ## kmeans clustering
-osm_test = doKmeans(gobject = osm_test, expression_values = 'normalized', dim_reduction_to_use = 'pca', dimensions_to_use = 1:20, centers = 36, nstart = 2000)
+osm_test = doKmeans(
+  gobject = osm_test, 
+  expression_values = 'normalized', 
+  dim_reduction_to_use = 'pca', 
+  dimensions_to_use = 1:20, 
+  centers = 36, 
+  nstart = 2000
+)
 plotUMAP(gobject = osm_test, cell_color = 'kmeans',
          point_size = 2.5, show_NN_network = F, edge_alpha = 0.05, 
          save_param =  list(save_name = '4_b_UMAP_kmeans'))
@@ -303,8 +364,13 @@ showClusterDendrogram(osm_test, cluster_column = 'leiden_clus_m', h = 1, rotate 
 
 ```{r, eval=FALSE}
 # expression and spatial
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus', spat_point_size = 2,
-              save_param = list(save_name = '5_a_covis_leiden'))
+spatDimPlot2D(
+  gobject = osm_test, 
+  cell_color = 'leiden_clus', 
+  spat_point_size = 2,
+  plot_alignment = 'horizontal',
+  save_param = list(save_name = '5_a_covis_leiden')
+)
 ```
 
 
@@ -312,8 +378,13 @@ spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus', spat_point_size = 
 
 
 ```{r, eval=FALSE}
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m', spat_point_size = 2,
-              save_param = list(save_name = '5_b_covis_leiden_m'))
+spatDimPlot2D(
+  gobject = osm_test, 
+  cell_color = 'leiden_clus_m', 
+  spat_point_size = 2,  
+  plot_alignment = 'horizontal', 
+  save_param = list(save_name = '5_b_covis_leiden_m')
+)
 ```
 
 
@@ -321,9 +392,15 @@ spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m', spat_point_size 
 
 
 ```{r, eval=FALSE}
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m', 
-              dim_point_size = 2, spat_point_size = 2, select_cell_groups = 'm_8',
-              save_param = list(save_name = '5_c_covis_leiden_merged_selected'))
+spatDimPlot2D(
+  gobject = osm_test, 
+  cell_color = 'leiden_clus_m', 
+  dim_point_size = 2, 
+  spat_point_size = 2, 
+  select_cell_groups = '29',  
+  plot_alignment = 'horizontal',
+  save_param = list(save_name = '5_c_covis_leiden_merged_selected')
+)
 ```
 
 
@@ -331,9 +408,22 @@ spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m',
 
 
 ```{r, eval=FALSE}
-spatDimPlot2D(gobject = osm_test, cell_color = 'total_expr', color_as_factor = F,
-              gradient_midpoint = 160, gradient_limits = c(120,220),
-              save_param = list(save_name = '5_d_total_expr'))
+spatDimPlot2D(
+  gobject = osm_test, 
+  cell_color = 'total_expr', 
+  color_as_factor = FALSE,
+  dim_point_shape = "no_border",
+  spat_point_shape = "no_border",
+  dim_point_size = 0.4,
+  spat_point_size = 0.4,
+  dim_background_color = "black",
+  spat_background_color = "black",
+  gradient_style = "sequential",
+  gradient_midpoint = 160, 
+  gradient_limits = c(120,220),  
+  plot_alignment = 'horizontal',
+  save_param = list(save_name = '5_d_total_expr')
+)
 ```
 
 
@@ -347,11 +437,14 @@ spatDimPlot2D(gobject = osm_test, cell_color = 'total_expr', color_as_factor = F
 dendsplits = getDendrogramSplits(gobject = osm_test,
                                  expression_values = 'custom',
                                  cluster_column = 'leiden_clus_m')
-split_3_markers = findMarkers(gobject = osm_test,
-                                         method = 'gini',
-                                         expression_values = 'custom',
-                                         cluster_column = 'leiden_clus_m',
-group_1 = unlist(dendsplits[3]$tree_1), group_2 = unlist(dendsplits[3]$tree_2))
+split_3_markers = findMarkers(
+    gobject = osm_test,
+    method = 'gini',
+    expression_values = 'custom',
+    cluster_column = 'leiden_clus_m',
+    group_1 = unlist(dendsplits[3]$tree_1), 
+    group_2 = unlist(dendsplits[3]$tree_2)
+)
 ```
 
 
@@ -369,7 +462,7 @@ markers = findMarkers_one_vs_all(gobject = osm_test,
 topgenes = markers[, head(.SD, 1), by = 'cluster']$feats
 violinPlot(osm_test, feats = unique(topgenes), cluster_column = 'leiden_clus_m', expression_values = 'custom',
            strip_text = 5, strip_position = 'right',
-           save_param = c(save_name = '6_a_violinplot'))
+           save_param = list(save_name = '6_a_violinplot'))
 ```
 
 
@@ -379,7 +472,7 @@ violinPlot(osm_test, feats = unique(topgenes), cluster_column = 'leiden_clus_m',
 ```{r, eval=FALSE}
 plotMetaDataHeatmap(osm_test, expression_values = 'custom',
                     metadata_cols = c('leiden_clus_m'), 
-                    save_param = c(save_name = '6_b_metaheatmap'))
+                    save_param = list(save_name = '6_b_metaheatmap'))
 ```
 
 
@@ -389,7 +482,7 @@ plotMetaDataHeatmap(osm_test, expression_values = 'custom',
 ```{r, eval=FALSE}
 plotMetaDataHeatmap(osm_test, expression_values = 'custom',
                     metadata_cols = c('leiden_clus_m'), 
-                    save_param = c(save_name = '6_e_metaheatmap_all_genes'))
+                    save_param = list(save_name = '6_e_metaheatmap_all_genes'))
 ```
 
 
@@ -399,7 +492,7 @@ plotMetaDataHeatmap(osm_test, expression_values = 'custom',
 ```{r, eval=FALSE}
 plotMetaDataHeatmap(osm_test, expression_values = 'custom',
                     metadata_cols = c('ClusterName'), 
-                    save_param = c(save_name = '6_f_metaheatmap_all_genes_names'))
+                    save_param = list(save_name = '6_f_metaheatmap_all_genes_names'))
 ```
 
 
@@ -417,11 +510,15 @@ osm_test <- createSpatialGrid(gobject = osm_test,
                               sdimx_stepsize = 2000,
                               sdimy_stepsize = 2000,
                               minimum_padding = 0)
-spatPlot2D(osm_test, cell_color = 'ClusterName', show_grid = T,
-
-           grid_color = 'lightblue', spatial_grid_name = 'spatial_grid',
-           point_size = 1.5,
-           save_param = c(save_name = '8_grid_det_cell_types'))
+spatPlot2D(
+    osm_test, 
+    cell_color = 'ClusterName', 
+    show_grid = TRUE,
+    grid_color = 'lightblue', 
+    spatial_grid_name = 'spatial_grid',
+    point_size = 1.5,
+    save_param = list(save_name = "8_grid_det_cell_types")
+)
 ```
 
 
@@ -435,7 +532,7 @@ osm_test <- createSpatialNetwork(gobject = osm_test)
 spatPlot2D(gobject = osm_test, show_network = T,
            network_color = 'blue',
            point_size = 1.5, cell_color = 'ClusterName', legend_symbol_size = 2,
-           save_param = c(save_name = '9_spatial_network_k10'))
+           save_param = list(save_name = '9_spatial_network_k10'))
 ```
 
 
@@ -449,10 +546,18 @@ spatPlot2D(gobject = osm_test, show_network = T,
 kmtest = binSpect(osm_test, calc_hub = T, hub_min_int = 5,
                   bin_method = 'kmeans')
 
-spatDimFeatPlot2D(osm_test, expression_values = 'scaled',
-               feats = kmtest$feats[1:3], plot_alignment = 'horizontal',
-               cow_n_col = 1,
-               save_param = c(save_name = '10_a_spatial_genes_km'))
+spatDimFeatPlot2D(
+    osm_test, 
+    expression_values = 'scaled',
+    feats = kmtest$feats[1:3], 
+    plot_alignment = 'horizontal',
+    spat_point_shape = "no_border",
+    dim_point_shape = "no_border",
+    spat_point_size = 0.1,
+    dim_point_size = 0.1,
+    cow_n_col = 1,
+    save_param = list(save_name = '10_a_spatial_genes_km')
+)
 ```
 
 
@@ -467,8 +572,13 @@ cell_proximities = cellProximityEnrichment(gobject = osm_test,
                                            cluster_column = 'ClusterName',
                                            number_of_simulations = 1000)
 ## barplot
-cellProximityBarplot(gobject = osm_test, CPscore = cell_proximities, min_orig_ints = 25, min_sim_ints = 25,
-                     save_param = c(save_name = '12_a_barplot_cell_cell_enrichment'))
+cellProximityBarplot(
+    gobject = osm_test, 
+    CPscore = cell_proximities, 
+    min_orig_ints = 25, 
+    min_sim_ints = 25,
+    save_param = list(save_name = '12_a_barplot_cell_cell_enrichment')
+)
 ```
 
 
@@ -477,9 +587,16 @@ cellProximityBarplot(gobject = osm_test, CPscore = cell_proximities, min_orig_in
 
 ```{r, eval=FALSE}
 ## heatmap
-cellProximityHeatmap(gobject = osm_test, CPscore = cell_proximities, order_cell_types = T, scale = T,
-                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'),
-                     save_param = c(save_name = '12_b_heatmap_cell_cell_enrichment', unit = 'in'))
+cellProximityHeatmap(
+    gobject = osm_test, 
+    CPscore = cell_proximities, 
+    order_cell_types = T, 
+    scale = T,
+    color_breaks = c(-1.5, 0, 1.5), 
+    color_names = c('blue', 'white', 'red'),
+    save_param = list(save_name = '12_b_heatmap_cell_cell_enrichment', 
+                      unit = 'in')
+)
 ```
 
 
@@ -488,8 +605,13 @@ cellProximityHeatmap(gobject = osm_test, CPscore = cell_proximities, order_cell_
 
 ```{r, eval=FALSE}
 ## network
-cellProximityNetwork(gobject = osm_test, CPscore = cell_proximities, remove_self_edges = F, only_show_enrichment_edges = T,
-                     save_param = c(save_name = '12_c_network_cell_cell_enrichment'))
+cellProximityNetwork(
+    gobject = osm_test, 
+    CPscore = cell_proximities, 
+    remove_self_edges = F, 
+    only_show_enrichment_edges = T,
+    save_param = list(save_name = '12_c_network_cell_cell_enrichment')
+)
 ```
 
 
@@ -499,13 +621,108 @@ cellProximityNetwork(gobject = osm_test, CPscore = cell_proximities, remove_self
 ```{r, eval=FALSE}
 ## visualization
 spec_interaction = "Astrocyte_Mfge8--Oligodendrocyte_Precursor_cells"
-cellProximitySpatPlot(gobject = osm_test,
-                      interaction_name = spec_interaction,
-                      cluster_column = 'ClusterName', 
-                      cell_color = 'ClusterName', cell_color_code = c('Astrocyte_Mfge8' = 'blue', 'Oligodendrocyte_Precursor_cells' = 'red'),
-                      coord_fix_ratio = 0.5,  point_size_select = 3, point_size_other = 1.5,
-                      save_param = c(save_name = '12_d_cell_cell_enrichment_selected'))
+cellProximitySpatPlot(
+    gobject = osm_test,
+    interaction_name = spec_interaction,
+    cluster_column = 'ClusterName', 
+    cell_color = 'ClusterName', 
+    cell_color_code = c('Astrocyte_Mfge8' = 'blue', 
+                        'Oligodendrocyte_Precursor_cells' = 'red'),
+    coord_fix_ratio = 0.5,  
+    point_size_select = 3, 
+    point_size_other = 1.5,
+    save_param = list(save_name = '12_d_cell_cell_enrichment_selected')
+)
 ```
 
 
 ![](images/osmfish_mouse_ss_cortex/12_d_cell_cell_enrichment_selected.png)
+
+## 13. Session Info
+```
+R version 4.3.2 (2023-10-31)
+Platform: x86_64-apple-darwin20 (64-bit)
+Running under: macOS Ventura 13.4
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/New_York
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] Giotto_4.0.2       testthat_3.2.0     GiottoData_0.2.6.3 GiottoClass_0.1.3 
+[5] GiottoUtils_0.1.3 
+
+loaded via a namespace (and not attached):
+  [1] fs_1.6.3                    matrixStats_1.2.0           bitops_1.0-7               
+  [4] devtools_2.4.5              httr_1.4.7                  RColorBrewer_1.1-3         
+  [7] doParallel_1.0.17           profvis_0.3.8               tools_4.3.2                
+ [10] backports_1.4.1             utf8_1.2.4                  R6_2.5.1                   
+ [13] DT_0.31                     lazyeval_0.2.2              uwot_0.1.16                
+ [16] GetoptLong_1.0.5            urlchecker_1.0.1            withr_2.5.2                
+ [19] prettyunits_1.2.0           gridExtra_2.3               progressr_0.14.0           
+ [22] cli_3.6.2                   Biobase_2.62.0              textshaping_0.3.7          
+ [25] factoextra_1.0.7            Cairo_1.6-2                 flashClust_1.01-2          
+ [28] labeling_0.4.3              mvtnorm_1.2-4               arrow_13.0.0.1             
+ [31] systemfonts_1.0.5           dbscan_1.1-12               scater_1.30.1              
+ [34] sessioninfo_1.2.2           limma_3.58.1                rstudioapi_0.15.0          
+ [37] FNN_1.1.3.2                 generics_0.1.3              shape_1.4.6                
+ [40] gtools_3.9.5                dplyr_1.1.4                 dendextend_1.17.1          
+ [43] leaps_3.1                   Matrix_1.6-3                ggbeeswarm_0.7.2           
+ [46] fansi_1.0.6                 S4Vectors_0.40.2            abind_1.4-5                
+ [49] terra_1.7-55                lifecycle_1.0.4             scatterplot3d_0.3-44       
+ [52] yaml_2.3.8                  edgeR_4.0.2                 SummarizedExperiment_1.32.0
+ [55] SparseArray_1.2.3           Rtsne_0.17                  grid_4.3.2                 
+ [58] promises_1.2.1              dqrng_0.3.2                 crayon_1.5.2               
+ [61] miniUI_0.1.1.1              lattice_0.22-5              beachmat_2.18.0            
+ [64] cowplot_1.1.2               magick_2.8.2                pillar_1.9.0               
+ [67] knitr_1.45                  ComplexHeatmap_2.18.0       metapod_1.10.0             
+ [70] GenomicRanges_1.54.1        rjson_0.2.21                estimability_1.4.1         
+ [73] pak_0.7.1                   codetools_0.2-19            glue_1.7.0                 
+ [76] data.table_1.14.10          remotes_2.4.2.1             vctrs_0.6.5                
+ [79] png_0.1-8                   gtable_0.3.4                assertthat_0.2.1           
+ [82] cachem_1.0.8                xfun_0.41                   S4Arrays_1.2.0             
+ [85] mime_0.12                   tidygraph_1.2.3             SingleCellExperiment_1.24.0
+ [88] iterators_1.0.14            statmod_1.5.0               bluster_1.12.0             
+ [91] ellipsis_0.3.2              ArchR_1.0.2                 usethis_2.2.2              
+ [94] bit64_4.0.5                 RcppAnnoy_0.0.21            GenomeInfoDb_1.38.1        
+ [97] rprojroot_2.0.4             irlba_2.3.5.1               vipor_0.4.7                
+[100] colorspace_2.1-0            BiocGenerics_0.48.1         tidyselect_1.2.0           
+[103] processx_3.8.2              emmeans_1.8.9               bit_4.0.5                  
+[106] compiler_4.3.2              BiocNeighbors_1.20.0        desc_1.4.2                 
+[109] ggdendro_0.1.23             DelayedArray_0.28.0         plotly_4.10.3              
+[112] checkmate_2.3.1             scales_1.3.0                multinet_4.1.2             
+[115] callr_3.7.3                 multcompView_0.1-9          stringr_1.5.1              
+[118] SpatialExperiment_1.12.0    digest_0.6.34               rmarkdown_2.25             
+[121] XVector_0.42.0              htmltools_0.5.7             GiottoVisuals_0.1.5        
+[124] pkgconfig_2.0.3             sparseMatrixStats_1.14.0    MatrixGenerics_1.14.0      
+[127] FactoMineR_2.9              fastmap_1.1.1               rlang_1.1.3                
+[130] GlobalOptions_0.1.2         htmlwidgets_1.6.4           shiny_1.8.0                
+[133] DelayedMatrixStats_1.24.0   farver_2.1.1                jsonlite_1.8.8             
+[136] BiocParallel_1.36.0         BiocSingular_1.18.0         RCurl_1.98-1.13            
+[139] magrittr_2.0.3              scuttle_1.12.0              GenomeInfoDbData_1.2.11    
+[142] munsell_0.5.0               Rcpp_1.0.12                 viridis_0.6.4              
+[145] reticulate_1.34.0           stringi_1.8.3               ggraph_2.1.0               
+[148] brio_1.1.3                  zlibbioc_1.48.0             MASS_7.3-60                
+[151] plyr_1.8.9                  pkgbuild_1.4.2              parallel_4.3.2             
+[154] ggrepel_0.9.5               deldir_2.0-2                graphlayouts_1.0.2         
+[157] circlize_0.4.15             locfit_1.5-9.8              colorRamp2_0.1.0           
+[160] ps_1.7.5                    clustree_0.5.1              igraph_1.6.0               
+[163] reshape2_1.4.4              stats4_4.3.2                ScaledMatrix_1.10.0        
+[166] pkgload_1.3.3               evaluate_0.23               scran_1.30.2               
+[169] foreach_1.5.2               tweenr_2.0.2                httpuv_1.6.13              
+[172] tidyr_1.3.0                 purrr_1.0.2                 polyclip_1.10-6            
+[175] clue_0.3-65                 ggplot2_3.4.4               ggforce_0.4.1              
+[178] rsvd_1.0.5                  xtable_1.8-4                later_1.3.2                
+[181] viridisLite_0.4.2           ragg_1.2.6                  tibble_3.2.1               
+[184] memoise_2.0.1               beeswarm_0.4.0              IRanges_2.36.0             
+[187] cluster_2.1.4              
+```
