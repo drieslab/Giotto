@@ -13,8 +13,3 @@ testdata
 merfish_preoptic/
 
 *.DS_Store
-:temp:
-*.wal
-
-*.RDS
-*.db
