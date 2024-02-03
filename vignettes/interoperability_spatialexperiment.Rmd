@@ -26,7 +26,7 @@ library(SpatialExperiment)
 ## 1.2 Load a Giotto Object
 
 First, we load a example dataset from the GiottoData package. For this tutorial, we import a mini mouse brain dataset generated using the visium protocol.
-```{r load-giotto-mini}
+```{r load-giotto-mini, message=FALSE}
 g <- loadGiottoMini(dataset = "visium")
 ```
 
@@ -46,7 +46,7 @@ spe <- gspe[[1]]
 ## 1.4 Downstream Analysis using SpatialExperiment object
 
 Now, we do some processing on the object including quality control, normalization, feature selection and dimensionality reduction.
-```{r downstream-packages}
+```{r downstream-packages, message=FALSE}
 library(ggspavis)
 library(pheatmap)
 ```
@@ -56,7 +56,7 @@ library(pheatmap)
 
 Using the *scater* package from Bioconductor, we perform some initial quality control analysis. We particularly look for mitochondrial genes and compute some quality control metrics including total counts and features per cell. We then visualize these metrics and select thresholds to remove low quality cells.
 
-```{r scater}
+```{r scater, message=FALSE}
 library(scater)
 
 # identify mitochondrial genes
@@ -97,7 +97,7 @@ spe
 ### 1.4.2 Normalization
 
 Now we calculate log-transformed normalized counts(logcounts) using library size factors using the scran package from Bioconductor.
-```{r normalization}
+```{r normalization, message=FALSE}
 library(scran)
 
 # calculate library size factors
@@ -186,7 +186,7 @@ plotExpression(spe, x = "label", features = top_genes)
 
 In this section, we load a sample dataset in the form of a SpatialExperiment object, convert it to Giotto and drive the downstream analysis with the Giotto toolkit.
 
-```{r spe-to-giotto}
+```{r spe-to-giotto, message=FALSE}
 library(SpatialExperiment)
 library(STexampleData)
 ```
@@ -195,7 +195,7 @@ library(STexampleData)
 
 Loading sample SpatialExperiment Object as spe
 
-```{r load-visium-dlpfc}
+```{r load-visium-dlpfc, message=FALSE}
 spe <- Visium_humanDLPFC()
 spe
 ```
@@ -204,7 +204,7 @@ spe
 
 Converting SpatialExperiment Object to giottoobj. The new giottoobject is n_g.
 
-```{r convert-to-giotto}
+```{r convert-to-giotto, message=FALSE}
 #create giottoObject from spe
 n_g <- spatialExperimentToGiotto(spe, python_path = instructions(g)$python_path)
 ```
@@ -216,7 +216,7 @@ We filter the giottoobj and then run normalization on it.
 
 ### 2.3.1 High Efficiency Data Processing
 
-```{r processgiotto}
+```{r processgiotto, message=FALSE}
 n_g <- processGiotto(
     n_g,
     filter_params = list(expression_threshold = 1,
@@ -238,14 +238,14 @@ We first find the highly variable features (HVF) and then use these to compute t
 
 Calculate HVF using the loess regression prediction model:
 
-```{r giotto-hvf}
+```{r giotto-hvf, message=FALSE}
 n_g <- calculateHVF(gobject = n_g, method = 'cov_loess')
 ```
 
 
 PCA can be run based on the highly variable genes. After PCA, a tSNE, a UMAP, or both may be run. For this example, highly variable genes have been identified using Loess Regression predictions.
 
-```{r giotto-pca}
+```{r giotto-pca, message=FALSE}
 ## Select genes highly variable genes that fit specified statistics
 # These are both found within feature metadata
 feature_metadata = getFeatureMetadata(n_g)[]
@@ -294,7 +294,7 @@ graph2 <- Giotto::plotUMAP(
 
 Using previously created spatial network to calculate spatially variable genes using binSpect method.
 
-```{r giotto-binspect}
+```{r giotto-binspect, message=FALSE}
 n_g <- Giotto::createSpatialDelaunayNetwork(gobject = n_g)
 showGiottoSpatNetworks(n_g)
 
@@ -342,7 +342,7 @@ graph3 <- heatmSpatialCorFeats(
 
 genes from each co-expression module and then aggregate genes into meta genes.
 
-```{r balanced-spat-coexpression-feats}
+```{r balanced-spat-coexpression-feats, message=FALSE}
 # 3.4 create metagenes / co-expression modules
 cluster_genes = getBalancedSpatCoexpressionFeats(spat_cor_netw_DT, maximum = 30)
 ```
