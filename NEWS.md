@@ -1,8 +1,9 @@
 
-## Fix
-- `doHclust()` now works again
 
 # Giotto Suite 4.0.2 (2023/12/21)
+
+## Bug Fixes
+- fix bug in `doHclust()`
 
 ## Changes
 * Move *GiottoClass* back to depends to fix access to some generics
