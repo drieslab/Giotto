@@ -7,7 +7,7 @@ visium = GiottoData::loadGiottoMini(dataset = "visium")
 dgc = getExpression(visium, output = "matrix")
 
 dbsm = dbMatrix::createDBMatrix(value = dgc, 
-                                db_path = ":temp:", 
+                                db_path = ":memory:", 
                                 name = 'dgc', 
                                 class = "dbSparseMatrix",
                                 overwrite = TRUE)
