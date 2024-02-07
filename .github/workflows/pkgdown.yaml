@@ -37,7 +37,7 @@ jobs:
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"hard"' # do not use suggested dependencies
-          extra-packages: any::pkgdown, local::., any::kableExtra
+          extra-packages: any::pkgdown, local::., any::kableExtra, any::ggspavis, any::pheatmap, any::scater, any::STexampleData, any::scran, any::ComplexHeatmap
           needs: website
 
       - name: Build site

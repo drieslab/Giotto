@@ -65,6 +65,9 @@ navbar:
       - text: Spatial transformations
         href: articles/spatial_transformations.html
       - text: -------
+      - text: Spatial geometries
+        href: https://drieslab.github.io/GiottoClass/articles/spatial_geometries.html
+      - text: -------
       - text: Image alignment
       - text: Image alignment
         href: articles/image_alignment.html
@@ -86,6 +89,8 @@ navbar:
       - text: Interoperability
       - text: AnnData
         href: articles/interoperability_anndata.html
+      - text: SpatialExperiment
+        href: articles/interoperability_spatialexperiment.html
       - text: -------
       - text: Try Giotto in the Cloud
       - text: Terra.bio
@@ -238,6 +243,7 @@ articles:
   navbar: ~
   contents:
   - interoperability_anndata
+  - interoperability_spatialexperiment
 - title: Seq-Scope
   navbar: ~
   contents:
