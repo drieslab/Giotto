@@ -39,15 +39,18 @@
 #' @title Log normalize expression matrix
 #' @keywords internal
 .log_norm_giotto = function(mymatrix, base, offset) {
-
+  
   if(methods::is(mymatrix, 'DelayedArray')) {
     mymatrix = log(mymatrix + offset)/log(base)
     # } else if(methods::is(mymatrix, 'DelayedMatrix')) {
     #   mymatrix = log(mymatrix + offset)/log(base)
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
-    mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'dgCMatrix')) { 
+    mymatrix@x = log(mymatrix@x + offset)/log(base)# replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
+  } else if(methods::is(mymatrix, 'dbMatrix')) {
+    mymatrix[] = dplyr::mutate(mymatrix[], x = x + offset) # workaround for lack of @x slot
+    mymatrix = log(mymatrix)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
