@@ -1,8 +1,8 @@
 ---
-title: "Mouse Embryo DBiT-Seq"
+title: "Multi-omics Mouse Embryo DBiT-Seq"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Mouse Embryo DBiT-Seq}
+  %\VignetteIndexEntry{Multi-omics Mouse Embryo DBiT-Seq}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
