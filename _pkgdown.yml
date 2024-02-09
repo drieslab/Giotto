@@ -125,6 +125,11 @@ navbar:
         - text: Mouse Kidney
           href: articles/spatial_genomics_mouse_kidney.html
       - text: -------
+      - text: DBiT-Seq
+        menu:
+        - text: Multi-omics Mouse Embryo DBiT-Seq
+          href: articles/mouse_embryo_dbitseq.html
+      - text: -------
       - text: Xenium
         menu:
         - text: Xenium Human breast cancer
@@ -260,6 +265,10 @@ articles:
   navbar: ~
   contents:
   - spatial_genomics_mouse_kidney
+- title: DBiT-Seq
+   navbar: ~
+   contents:
+   - mouse_embryo_dbitseq
 - title: Xenium
   navbar: ~
   contents:
