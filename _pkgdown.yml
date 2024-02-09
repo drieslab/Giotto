@@ -130,6 +130,11 @@ navbar:
         - text: Multi-omics Mouse Embryo DBiT-Seq
           href: articles/mouse_embryo_dbitseq.html
       - text: -------
+      - text: Spatial CITE-Seq
+        menu:
+        - text: Multi-omics Spatial CITE-Seq Human skin
+          href: articles/spatial_citeseq_human_skin.html
+      - text: -------
       - text: Xenium
         menu:
         - text: Xenium Human breast cancer
@@ -269,6 +274,10 @@ articles:
    navbar: ~
    contents:
    - mouse_embryo_dbitseq
+- title: Spatial CITE-Seq
+   navbar: ~
+   contents:
+   - spatial_citeseq_human_skin
 - title: Xenium
   navbar: ~
   contents:
