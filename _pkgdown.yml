@@ -43,8 +43,6 @@ navbar:
         href: articles/ecosystem.html
       - text: Giotto Class Structure
         href: articles/structure.html
-      - text: Solutions to Installation Errors
-        href: articles/errorsfaqsandtips.html
       - text: FAQs
         href: articles/faqs.html
       - text: How to report a bug
@@ -210,7 +208,6 @@ articles:
   - installation
   - ecosystem
   - structure
-  - errorsfaqsandtips
   - faqs
   - branches
   - github_issues
