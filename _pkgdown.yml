@@ -30,6 +30,7 @@ navbar:
     - articles
     - tools
     - news
+    - team
     right:
     - search
     - github
