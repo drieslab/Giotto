@@ -45,8 +45,10 @@ navbar:
         href: articles/structure.html
       - text: FAQs
         href: articles/faqs.html
-      - text: How to report a bug
+      - text: How to report a bug 
         href: articles/github_issues.html
+      - text: Contributing guide
+        href: articles/contributing.html
     reference:
       text: Documentation
       href: reference/index.html
@@ -211,6 +213,7 @@ articles:
   - faqs
   - branches
   - github_issues
+  - contributing
 - title: Giotto Object Creation
   navbar: ~
   contents:
