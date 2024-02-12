@@ -56,11 +56,47 @@ In the event that packages are inaccessible in the default installation of the G
 # Restart the R session, while maintaining workspace variables.
 # If using RStudio, the following command will do exactly that:
 .rs.restartR()
+
+# Creating Giotto Instructions without specifying a Python path will make 
+# reticulate activate the default Giotto environment. 
+default_instrs <- createGiottoInstructions()
+
+# Extract python path information
+default_python_path <- default_instrs$python_path
+
 # Direct reticulate to use Python within the Giotto Environment
 reticulate::use_python(default_python_path)
+
+# Make reticulate iteratively check for the packages
+pkg_check <- function(){
+  py_pkgs = c('pandas','networkx', 'igraph', 'leidenalg','community','sklearn','python.app')
+  py_pkg_error = character()
+  test_availability = TRUE
+  
+  for (i in py_pkgs){
+    if(i == 'python.app' & Sys.info()[['sysname']] != "Darwin"){
+      # If the machine OS is not OSX (Mac), break out of the loop
+      # Otherwise, also check for python.app
+      break
+    }
+    test_availability <- reticulate::py_module_available(i)
+    if(!test_availability) {py_pkg_error <- c(py_pkg_error,i)}
+  }
+  
+  if(test_availability){
+    cat('All Python packages for Giotto are accessible at environment:\n', default_python_path)
+  }else{
+    for (x in py_pkg_error) cat(x,'was not found within environment:\n',default_python_path,'\n\n')
+  }
+  
+  return(py_pkg_error)
+}
+
 # Check if packages exist again. Ensure function from above code block is defined.
 missing_packages <- pkg_check()
+
 retry_install <- length(missing_packages) > 0
+
 if(retry_install){
 
   # Attempt to reinstall all packages.
