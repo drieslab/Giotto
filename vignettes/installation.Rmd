@@ -374,7 +374,7 @@ pak::pkg_install("drieslab/Giotto")
 
 # 3. Try Giotto in the cloud
 
-You can also run analyses in Giotto on Terra.bio. Take a look on the [Terra tutorial]https://drieslab.github.io/Giotto/articles/terra.html).
+You can also run analyses in Giotto on Terra.bio. Take a look on the [Terra tutorial](https://drieslab.github.io/Giotto/articles/terra.html).
 
 Encountering errors? Checkout out the [Troubleshooting page](https://drieslab.github.io/Giotto/articles/errorsfaqsandtips.html) for help. Alternatively, post to an issue to the Giotto GitHub page [here](https://github.com/drieslab/Giotto). Please include the version numbers of R, Giotto, and the OS in use at the time of the issue.
 
