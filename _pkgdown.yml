@@ -194,16 +194,24 @@ navbar:
         href: articles/presentations.html
       - text: Branches
         href: articles/branches.html
+    team:
+      - text: Team
+        href: articles/team.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/drieslab/Giotto/
       aria-label: github
 
 articles:
+- title: Team
+  navbar: ~
+  contents:
+  - team
 - title: News
   navbar: ~
   contents:
   - presentations
+  - branches
 - title: Get started
   navbar: ~
   contents:
@@ -211,7 +219,6 @@ articles:
   - ecosystem
   - structure
   - faqs
-  - branches
   - github_issues
   - contributing
 - title: Giotto Object Creation
