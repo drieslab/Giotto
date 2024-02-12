@@ -18,6 +18,7 @@ To download this data, please ensure that [wget](https://www.gnu.org/software/wg
 
 ```{r, eval=FALSE}
 library(Giotto)
+library(GiottoData)
 
 genv_exists = checkGiottoEnvironment()
 if(!genv_exists){

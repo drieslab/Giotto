@@ -17,7 +17,7 @@ The dataset was created by [Liu, et al 2020](https://www.sciencedirect.com/scien
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto")
+  pak::pkg_install("drieslab/Giotto")
 }
 library(Giotto)
 

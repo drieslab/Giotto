@@ -46,15 +46,14 @@ You should now have the count matrix for Giotto Object. Note the Spatial Barcode
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed.
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  pak::pkg_install("drieslab/Giotto")
 }
 
-library(Giotto)
 # Ensure the Python environment for Giotto has been installed.
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment.
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 
@@ -63,6 +62,8 @@ if(!genv_exists){
 
 
 ```{r, eval=FALSE}
+library(Giotto)
+
 # 1. set working directory
 results_folder = 'path/to/result'
 

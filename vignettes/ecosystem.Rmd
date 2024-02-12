@@ -29,7 +29,7 @@ Find more information [here](https://drieslab.github.io/GiottoClass/)
 To install GiottoClass run:
 
 ```{r, eval=FALSE}
-devtools::install_github('drieslab/GiottoClass')
+pak::pkg_install('drieslab/GiottoClass')
 ```
 
 # 3. GiottoUtils
@@ -41,7 +41,7 @@ Find more information [here](https://drieslab.github.io/GiottoUtils/)
 To install GiottoUtils run:
 
 ```{r, eval=FALSE}
-devtools::install_github('drieslab/GiottoUtils')
+pak::pkg_install('drieslab/GiottoUtils')
 ```
 
 # 4. GiottoVisuals
@@ -53,7 +53,7 @@ Find more information [here](https://drieslab.github.io/GiottoVisuals/)
 To install GiottoVisuals run:
 
 ```{r, eval=FALSE}
-devtools::install_github('drieslab/GiottoVisuals')
+pak::pkg_install('drieslab/GiottoVisuals')
 ```
 
 # 5. GiottoData
@@ -67,7 +67,7 @@ Find more information [here](https://drieslab.github.io/GiottoData/)
 To install GiottoData run:
 
 ```{r, eval=FALSE}
-devtools::install_github('drieslab/GiottoData')
+pak::pkg_install('drieslab/GiottoData')
 ```
 
 
@@ -79,14 +79,14 @@ The scripts used to create both the mini giotto objects and mini objects are ava
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto")
+  pak::pkg_install("drieslab/Giotto")
 }
 
 library(Giotto)
 
 # Ensure Giotto Data is installed
 if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
+  pak::pkg_install("drieslab/GiottoData")
 }
 
 library(GiottoData)

@@ -11,20 +11,19 @@ vignette: >
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed.
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  pak::pkg_install("drieslab/Giotto")
 }
 
 # Ensure GiottoData, a small, helper module for tutorials, is installed.
 if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
+  pak::pkg_install("drieslab/GiottoData")
 }
 
-library(Giotto)
 # Ensure the Python environment for Giotto has been installed.
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment.
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 

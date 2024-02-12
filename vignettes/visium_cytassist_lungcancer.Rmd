@@ -22,28 +22,15 @@ To run the current vignette you need to install the Giotto Suite branch.
 ```{r, eval=FALSE}
 # Ensure Giotto Suite and GiottoData packages are installed
 if(!"Giotto" %in% installed.packages()) {
-   devtools::install_github("drieslab/Giotto@suite")
+   pak::pkg_install("drieslab/Giotto")
 }
-
-if(!"Giotto" %in% installed.packages()) {
-   devtools::install_github("drieslab/GiottoData")
-}
-
-library(Giotto)
-library(GiottoData)
 
 # Ensure the Python environment for Giotto has been installed
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
    # The following command need only be run once to install the Giotto environment.
-   installGiottoEnvironment()
+   Giotto::installGiottoEnvironment()
 }
-
-# to automatically save figures in save_dir set save_plot to TRUE
-results_dir = '/path/to/results/directory'
-myinstructions = createGiottoInstructions(save_dir = results_dir,
-                                          save_plot = TRUE,
-                                          show_plot = TRUE)
 ```
 
 # 1. Create a Giotto object
@@ -54,8 +41,17 @@ The minimum requirements are
 -   x,y(,z) coordinates for cells or spots (or path to)
 
 ```{r, eval=FALSE}
+library(Giotto)
+
 # Provide path to visium folder
 data_path = '/path/to/data/directory'
+
+# to automatically save figures in save_dir set save_plot to TRUE
+results_dir = '/path/to/results/directory'
+
+myinstructions = createGiottoInstructions(save_dir = results_dir,
+                                          save_plot = TRUE,
+                                          show_plot = TRUE)
 
 # Create Giotto object
 visium_lungcancer = createGiottoVisiumObject(visium_dir = data_path,

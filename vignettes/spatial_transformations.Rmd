@@ -19,19 +19,20 @@ Spatial-omics data is defined both by the biological information that it contain
 
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
-i_p = installed.packages()
-if(!"Giotto" %in% i_p) devtools::install_github("drieslab/Giotto@suite")
-library(Giotto)
+if(!"Giotto" %in% installed.packages()) {
+  pak::pkg_install("drieslab/Giotto")
+}
 
 # Ensure Giotto Data is installed
-if(!"GiottoData" %in% i_p) devtools::install_github("drieslab/GiottoData")
-library(GiottoData)
+if(!"GiottoData" %in% installed.packages()) {
+  pak::pkg_install("drieslab/GiottoData")
+}
 
 # Ensure the Python environment for Giotto has been installed
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 
@@ -42,6 +43,8 @@ First we will load in the a mini dataset put together from Vizgen's Mouse Brain 
 
 
 ```{r, eval=FALSE}
+library(Giotto)
+
 viz <- GiottoData::loadGiottoMini(dataset = 'vizgen')
 activeSpatUnit(viz) <- 'aggregate'
 ```

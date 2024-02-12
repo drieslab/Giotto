@@ -21,23 +21,19 @@ This tutorial uses a merFISH dataset of mouse hypothalamic preoptic regions from
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  pak::pkg_install("drieslab/Giotto")
 }
-
-library(Giotto)
 
 # Ensure Giotto Data is installed
 if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
+  pak::pkg_install("drieslab/GiottoData")
 }
 
-library(GiottoData)
-
 # Ensure the Python environment for Giotto has been installed
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 
@@ -46,6 +42,9 @@ if(!genv_exists){
 
 
 ```{r, eval=FALSE}
+library(Giotto)
+library(GiottoData)
+
 # Specify path from which data may be retrieved/stored
 data_directory = paste0(getwd(),'/gobject_visual_data/')
 # alternatively, "/path/to/where/the/data/lives/"

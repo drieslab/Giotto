@@ -17,12 +17,12 @@ You can use as input either a ggplot2 object, a terra::rast image, or the output
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed.
 if(!'Giotto' %in% installed.packages()) {
-  devtools::install_github('drieslab/Giotto@suite')
+  pak::pkg_install("drieslab/Giotto")
 }
 
 # Ensure GiottoData, a small, helper module for tutorials, is installed.
 if(!'GiottoData' %in% installed.packages()) {
-  devtools::install_github('drieslab/GiottoData')
+  pak::pkg_install('drieslab/GiottoData')
 }
 
 library(Giotto)

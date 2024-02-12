@@ -11,20 +11,19 @@ vignette: >
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed.
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  pak::pkg_install("drieslab/Giotto")
 }
 
 # Ensure GiottoData, a small, helper module for tutorials, is installed.
 if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
+  pak::pkg_install("drieslab/GiottoData")
 }
 
-library(Giotto)
 # Ensure the Python environment for Giotto has been installed.
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment.
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 
@@ -48,11 +47,9 @@ my_python_path = NULL # alternatively, "/local/python/path/python" if desired.
 
 # Dataset explanation
 
-The CODEX data to run this tutorial can be found [here](https://github.com/drieslab/spatial-datasets/tree/master/data/2018_codex_spleen). Alternatively you can use the **getSpatialDataset** to automatically
-download this dataset like we do in this example.
+The CODEX data to run this tutorial can be found [here](https://github.com/drieslab/spatial-datasets/tree/master/data/2018_codex_spleen). Alternatively you can use the **getSpatialDataset** to automatically download this dataset like we do in this example.
 
-[Goltsev et al.](https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf) created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101
-single cells. In this tutorial, 83,787 cells from sample "BALBc-3" were
+[Goltsev et al.](https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf) created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101 single cells. In this tutorial, 83,787 cells from sample "BALBc-3" were
 selected for the analysis.
 
 
