@@ -277,9 +277,7 @@ spatPlot2D(visium_brain,
            show_legend = FALSE)
 ```
 
-
 ![](images/interactive_selection/14-compare_spatplots.png)
-
 
 ```{r, eval=FALSE}
 ## Compare expression levels between regions
@@ -289,7 +287,6 @@ spatFeatPlot2D(visium_brain,
                feats = 'Psd',
                point_size = 1)
 ```
-
 
 ![](images/interactive_selection/15-compare_spatfeatplot.png)
 
@@ -305,11 +302,9 @@ plotPolygons(visium_brain,
              x = my_spatPlot)
 ```
 
-
 ![](images/interactive_selection/16-plotPolygons.png)
 
 Additionaly, you can plot a few polygons by providing a vector with the polygon IDs.
-
 
 ```{r, eval=FALSE}
 ## Plot a subset of polygons
@@ -319,5 +314,73 @@ plotPolygons(visium_brain,
              polygons = 'polygon 2')
 ```
 
-
 ![](images/interactive_selection/17-plotPolygon2.png)
+
+# 9. Session info
+
+```{r, eval=FALSE}
+sessionInfo()
+```
+
+```{r, eval=FALSE}
+R version 4.3.2 (2023-10-31)
+Platform: x86_64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.3.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/New_York
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] shiny_1.8.0       Giotto_4.0.2      GiottoClass_0.1.3
+
+loaded via a namespace (and not attached):
+  [1] colorRamp2_0.1.0            bitops_1.0-7                rlang_1.1.3                
+  [4] magrittr_2.0.3              GiottoUtils_0.1.5           matrixStats_1.2.0          
+  [7] compiler_4.3.2              png_0.1-8                   systemfonts_1.0.5          
+ [10] vctrs_0.6.5                 pkgconfig_2.0.3             SpatialExperiment_1.12.0   
+ [13] crayon_1.5.2                fastmap_1.1.1               ellipsis_0.3.2             
+ [16] backports_1.4.1             magick_2.8.2                XVector_0.42.0             
+ [19] labeling_0.4.3              utf8_1.2.4                  promises_1.2.1             
+ [22] rmarkdown_2.25              ragg_1.2.7                  xfun_0.42                  
+ [25] cachem_1.0.8                zlibbioc_1.48.0             beachmat_2.18.0            
+ [28] GenomeInfoDb_1.38.6         jsonlite_1.8.8              later_1.3.2                
+ [31] DelayedArray_0.28.0         BiocParallel_1.36.0         terra_1.7-71               
+ [34] irlba_2.3.5.1               parallel_4.3.2              R6_2.5.1                   
+ [37] bslib_0.6.1                 RColorBrewer_1.1-3          reticulate_1.35.0          
+ [40] parallelly_1.36.0           jquerylib_0.1.4             GenomicRanges_1.54.1       
+ [43] Rcpp_1.0.12                 SummarizedExperiment_1.32.0 knitr_1.45                 
+ [46] future.apply_1.11.1         R.utils_2.12.3              IRanges_2.36.0             
+ [49] FNN_1.1.4                   httpuv_1.6.14               Matrix_1.6-5               
+ [52] igraph_2.0.1.1              tidyselect_1.2.0            rstudioapi_0.15.0          
+ [55] abind_1.4-5                 yaml_2.3.8                  codetools_0.2-19           
+ [58] miniUI_0.1.1.1              listenv_0.9.1               lattice_0.22-5             
+ [61] tibble_3.2.1                Biobase_2.62.0              withr_3.0.0                
+ [64] evaluate_0.23               Rtsne_0.17                  future_1.33.1              
+ [67] pillar_1.9.0                MatrixGenerics_1.14.0       checkmate_2.3.1            
+ [70] stats4_4.3.2                generics_0.1.3              dbscan_1.1-12              
+ [73] RCurl_1.98-1.14             S4Vectors_0.40.2            ggplot2_3.4.4              
+ [76] munsell_0.5.0               scales_1.3.0                xtable_1.8-4               
+ [79] gtools_3.9.5                globals_0.16.2              glue_1.7.0                 
+ [82] tools_4.3.2                 GiottoVisuals_0.1.4         data.table_1.15.0          
+ [85] ScaledMatrix_1.10.0         cowplot_1.1.3               grid_4.3.2                 
+ [88] colorspace_2.1-0            SingleCellExperiment_1.24.0 GenomeInfoDbData_1.2.11    
+ [91] BiocSingular_1.18.0         cli_3.6.2                   rsvd_1.0.5                 
+ [94] textshaping_0.3.7           fansi_1.0.6                 S4Arrays_1.2.0             
+ [97] dplyr_1.1.4                 uwot_0.1.16                 gtable_0.3.4               
+[100] R.methodsS3_1.8.2           sass_0.4.8                  digest_0.6.34              
+[103] BiocGenerics_0.48.1         SparseArray_1.2.3           ggrepel_0.9.5              
+[106] rjson_0.2.21                farver_2.1.1                memoise_2.0.1              
+[109] htmltools_0.5.7             R.oo_1.26.0                 lifecycle_1.0.4            
+[112] mime_0.12   
+```
+
