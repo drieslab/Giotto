@@ -22,7 +22,7 @@ R.version.string
 ```
 
 ```{r, eval=FALSE}
-R version 4.0.4 (2021-02-15)
+R version 4.3.2 (2023-10-31)
 ```
 
 - What version of Giotto are you using?
@@ -32,30 +32,74 @@ packageVersion("Giotto")
 ```
 
 ```{r, eval=FALSE}
-2.0.0.9044
+4.0.2
 ```
 
 - Are you using the Giotto environment or your own python path?
 
 ```{r, eval=FALSE}
 # Check Giotto environment
-Giotto:::checkGiottoEnvironment()
+Giotto::checkGiottoEnvironment()
 ```
 
 ```{r, eval=FALSE}
 giotto environment found at 
-/Users/natalie_dr/Library/r-miniconda/envs/giotto_env/bin/pythonw 
+/Users/yuanlab/Library/r-miniconda/envs/giotto_env/bin/pythonw
 ```
 
 - Show sequential processing steps/commands in the Giotto object
 
 ```{r, eval=FALSE}
-Giotto:::showProcessingSteps(my_giotto_object)
+Giotto::showProcessingSteps(my_giotto_object)
 ```
 
 ```{r, eval=FALSE}
 Processing steps: 
 0_normalize 
+
+ 1_subset 
+
+ 2_filter 
+	 name info:  tag tag 
+
+ 3_feat_stats 
+
+ 4_cell_stats 
+
+ 5_hvf 
+	 name info:  hvf HVFplot 
+
+ 6_pca 
+
+ 7_umap 
+
+ 8_tsne 
+
+ 9_nn_network 
+
+ 10_cluster 
+	 name info:  leiden_clus sNN.pca 
+
+ 11_delaunay_spatial_network 
+	 name info:  Delaunay_network 
+
+ 12_spatial_network 
+	 name info:  spatial_network 
+
+ 13_create_metafeat 
+	 name info:  cluster_metagene 
+
+ 14_pca 
+	 name info:  custom_pca 
+
+ 15_umap 
+	 name info:  custom_pca custom_umap 
+
+ 16_nn_network 
+	 name info:  custom_pca custom_NN 
+
+ 17_cluster 
+	 name info:  custom_leiden custom_NN
 ```
 
 - Show the structure of the Giotto object
@@ -65,48 +109,90 @@ str(my_giotto_object, max.level = 3)
 ```
 
 ```{r, eval=FALSE}
-Formal class 'giotto' [package "Giotto"] with 20 slots
-..@ expression         :List of 1
-.. ..$ rna:List of 3
-..@ expression_feat    : chr "rna"
-..@ spatial_locs       :List of 1
-.. ..$ raw:Classes ‘data.table’ and 'data.frame':   73655 obs. of  4 variables:
-.. .. ..- attr(*, ".internal.selfref")=<externalptr> 
-..@ spatial_info       : NULL
-..@ cell_metadata      :List of 1
-.. ..$ rna:Classes ‘data.table’ and 'data.frame':   73655 obs. of  1 variable:
-.. .. ..- attr(*, ".internal.selfref")=<externalptr> 
-..@ feat_metadata      :List of 1
-.. ..$ rna:Classes ‘data.table’ and 'data.frame':   161 obs. of  1 variable:
-.. .. ..- attr(*, ".internal.selfref")=<externalptr> 
-..@ feat_info          : NULL
-..@ cell_ID            : chr [1:73655] "cell_1" "cell_2" "cell_3" "cell_4" ...
-..@ feat_ID            :List of 1
-.. ..$ rna: chr [1:161] "Ace2" "Adora2a" "Aldh1l1" "Amigo2" ...
-..@ spatial_network    : NULL
-..@ spatial_grid       : NULL
-..@ spatial_enrichment : NULL
-..@ dimension_reduction: NULL
-..@ nn_network         : NULL
-..@ images             : NULL
-..@ parameters         :List of 1
-.. ..$ 0_normalize: Named chr [1:13] "my_giotto_object" "standard" "TRUE" "6000" ...
-.. .. ..- attr(*, "names")= chr [1:13] "gobject" "norm_methods" "library_size_norm" "scalefactor" ...
-..@ instructions       :List of 11
-.. ..$ python_path: chr "/Users/natalie_dr/Library/r-miniconda/envs/giotto_env/bin/pythonw"
-.. ..$ show_plot  : logi TRUE
-.. ..$ return_plot: logi TRUE
-.. ..$ save_plot  : logi FALSE
-.. ..$ save_dir   : chr "/Users/natalie_dr/Desktop/my_giotto/giotto_user_help"
-.. ..$ plot_format: chr "png"
-.. ..$ dpi        : num 300
-.. ..$ units      : chr "in"
-.. ..$ height     : num 9
-.. ..$ width      : num 9
-.. ..$ is_docker  : logi FALSE
-..@ offset_file        : NULL
-..@ OS_platform        : chr "unix"
-..@ join_info          : NULL
+Formal class 'giotto' [package "Giotto"] with 23 slots
+  ..@ expression         :List of 1
+  .. ..$ cell:List of 1
+  ..@ expression_feat    : chr "rna"
+  ..@ spatial_locs       :List of 1
+  .. ..$ cell:List of 1
+  ..@ spatial_info       : NULL
+  ..@ cell_metadata      :List of 1
+  .. ..$ cell:List of 1
+  ..@ feat_metadata      :List of 1
+  .. ..$ cell:List of 1
+  ..@ feat_info          : NULL
+  ..@ cell_ID            :List of 1
+  .. ..$ cell: chr [1:624] "AAAGGGATGTAGCAAG-1" "AAATGGCATGTCTTGT-1" "AAATGGTCAATGTGCC-1" "AAATTAACGGGTAGCT-1" ...
+  ..@ feat_ID            :List of 1
+  .. ..$ rna: chr [1:634] "Gna12" "Ccnd2" "Btbd17" "Sox9" ...
+  ..@ spatial_network    :List of 1
+  .. ..$ cell:List of 2
+  ..@ spatial_grid       : NULL
+  ..@ spatial_enrichment :List of 1
+  .. ..$ cell:List of 1
+  ..@ dimension_reduction:List of 1
+  .. ..$ cells:List of 1
+  ..@ nn_network         :List of 1
+  .. ..$ cell:List of 1
+  ..@ images             : NULL
+  ..@ largeImages        :List of 1
+  .. ..$ image:Formal class 'giottoLargeImage' [package "Giotto"] with 13 slots
+  ..@ parameters         :List of 18
+  .. ..$ 0_normalize                : Named chr [1:14] "mini_visium" "raw" "standard" "TRUE" ...
+  .. .. ..- attr(*, "names")= chr [1:14] "gobject" "expression_values" "norm_methods" "library_size_norm" ...
+  .. ..$ 1_subset                   : Named chr [1:12] "gobject" "spat_unit" "feat_type" "selected_cell_ids" ...
+  .. .. ..- attr(*, "names")= chr [1:12] "gobject" "spat_unit" "feat_type" "cell_ids" ...
+  .. ..$ 2_filter                   : Named chr [1:13] "mini_visium" "raw" "1" "5" ...
+  .. .. ..- attr(*, "names")= chr [1:13] "gobject" "expression_values" "expression_threshold" "feat_det_in_min_cells" ...
+  .. ..$ 3_feat_stats               : Named chr [1:4] "mini_visium" "normalized" "0" "TRUE"
+  .. .. ..- attr(*, "names")= chr [1:4] "gobject" "expression_values" "detection_threshold" "return_gobject"
+  .. ..$ 4_cell_stats               : Named chr [1:4] "mini_visium" "normalized" "0" "TRUE"
+  .. .. ..- attr(*, "names")= chr [1:4] "gobject" "expression_values" "detection_threshold" "return_gobject"
+  .. ..$ 5_hvf                      : Named chr [1:17] "mini_visium" "normalized" "cov_groups" "FALSE" ...
+  .. .. ..- attr(*, "names")= chr [1:17] "gobject" "expression_values" "method" "reverse_log_scale" ...
+  .. ..$ 6_pca                      : Named chr [1:15] "mini_visium" "normalized" "cells" "hvf" ...
+  .. .. ..- attr(*, "names")= chr [1:15] "gobject" "expression_values" "reduction" "feats_to_use" ...
+  .. ..$ 7_umap                     : Named chr [1:17] "mini_visium" "normalized" "cells" "pca" ...
+  .. .. ..- attr(*, "names")= chr [1:17] "gobject" "expression_values" "reduction" "dim_reduction_to_use" ...
+  .. ..$ 8_tsne                     : Named chr [1:14] "mini_visium" "normalized" "cells" "pca" ...
+  .. .. ..- attr(*, "names")= chr [1:14] "gobject" "expression_values" "reduction" "dim_reduction_to_use" ...
+  .. ..$ 9_nn_network               : Named chr [1:11] "mini_visium" "sNN" "pca" "1:5" ...
+  .. .. ..- attr(*, "names")= chr [1:11] "gobject" "type" "dim_reduction_to_use" "dimensions_to_use" ...
+  .. ..$ 10_cluster                 : Named chr [1:11] "mini_visium" "leiden_clus" "sNN" "sNN.pca" ...
+  .. .. ..- attr(*, "names")= chr [1:11] "gobject" "name" "nn_network_to_use" "network_name" ...
+  .. ..$ 11_delaunay_spatial_network: Named chr [1:4] "dimensions: sdimx and sdimy" "deldir" "auto" "Delaunay_network"
+  .. .. ..- attr(*, "names")= chr [1:4] "dimensions used" "method" "maximum distance threshold" "name of spatial network"
+  .. ..$ 12_spatial_network         : Named chr [1:4] "10" "all" "400" "spatial_network"
+  .. .. ..- attr(*, "names")= chr [1:4] "k neighbours" "dimensions used" "maximum distance threshold" "name of spatial network"
+  .. ..$ 13_create_metafeat         : Named chr [1:5] "mini_visium" "normalized" "cluster_genes" "cluster_metagene" ...
+  .. .. ..- attr(*, "names")= chr [1:5] "gobject" "expression_values" "feat_clusters" "name" ...
+  .. ..$ 14_pca                     : Named chr [1:16] "mini_visium" "normalized" "cells" "custom_pca" ...
+  .. .. ..- attr(*, "names")= chr [1:16] "gobject" "expression_values" "reduction" "name" ...
+  .. ..$ 15_umap                    : Named chr [1:19] "mini_visium" "normalized" "cells" "pca" ...
+  .. .. ..- attr(*, "names")= chr [1:19] "gobject" "expression_values" "reduction" "dim_reduction_to_use" ...
+  .. ..$ 16_nn_network              : Named chr [1:13] "mini_visium" "sNN" "pca" "custom_pca" ...
+  .. .. ..- attr(*, "names")= chr [1:13] "gobject" "type" "dim_reduction_to_use" "dim_reduction_name" ...
+  .. ..$ 17_cluster                 : Named chr [1:11] "mini_visium" "custom_leiden" "sNN" "custom_NN" ...
+  .. .. ..- attr(*, "names")= chr [1:11] "gobject" "name" "nn_network_to_use" "network_name" ...
+  ..@ instructions       :List of 13
+  .. ..$ python_path     : chr "/Users/yuanlab/Library/r-miniconda/envs/giotto_env/bin/pythonw"
+  .. ..$ show_plot       : logi TRUE
+  .. ..$ return_plot     : logi FALSE
+  .. ..$ save_plot       : logi FALSE
+  .. ..$ save_dir        : logi NA
+  .. ..$ plot_format     : chr "png"
+  .. ..$ dpi             : num 300
+  .. ..$ units           : chr "in"
+  .. ..$ height          : num 9
+  .. ..$ width           : num 9
+  .. ..$ is_docker       : logi FALSE
+  .. ..$ active_spat_unit: chr "cell"
+  .. ..$ active_feat_type: chr "rna"
+  ..@ offset_file        : NULL
+  ..@ OS_platform        : chr "unix"
+  ..@ join_info          : NULL
+  ..@ multiomics         : NULL
+  ..@ h5_file            : NULL
 ```
 
 ### Warning Messages
@@ -115,7 +201,7 @@ Formal class 'giotto' [package "Giotto"] with 20 slots
 
 ```{r, eval=FALSE}
 my_giotto_object <- createGiottoObject(raw_exprs = "path/to/expression/data",
-                                   spatial_locs = "path/to/spatial/data")
+                                       spatial_locs = "path/to/spatial/data")
 ```
 
 ```{r, eval=FALSE}
@@ -128,7 +214,7 @@ In createGiottoObject(raw_exprs = "/Users/username/path/to/data",  :
 
 ```{r, eval=FALSE}
 my_giotto_object <- createGiottoObject(expression = "path/to/expression/data",
-                                   spatial_locs = "path/to/spatial/data")
+                                       spatial_locs = "path/to/spatial/data")
 ```
 
 ### Errors
@@ -191,6 +277,8 @@ I am having trouble adjusting my Giotto matix. I have inputted the
 following code:
 
 ```{r, eval=FALSE}
+my_giotto_object <- GiottoData::loadGiottoMini("visium")
+
 my_giotto_object <- adjustGiottoMatrix(gobject = my_giotto_object, 
                                        expression_values = c('normalized'),
                                        covariate_columns = c('nr_genes',
@@ -203,7 +291,7 @@ I expected that my matrix would be appropriately adjusted, but I got the followi
 Error in adjustGiottoMatrix(gobject = my_giotto_object, expression_values = c("normalized"): covariate column name(s) were not found in the cell metadata 
 ```
 
-For more context, I am running R version 4.04 and Giotto version 2.0.0.9044. I can send you the data I used if necessary.
+For more context, I am running R version 4.3.2 and Giotto version 4.0.2. I can send you the data I used if necessary.
 
 ### Example of a Bad GitHub issue
 
