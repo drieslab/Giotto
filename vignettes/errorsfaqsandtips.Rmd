@@ -303,3 +303,32 @@ installGiottoEnvironment(force_environment = TRUE, force_miniconda = TRUE)
 
 If the issue persists, please post an issue on the [GitHub](https://github.com/drieslab/Giotto/issues).
 
+# Time out
+
+If you're installing Giotto using devtools or remote packages, with the most recent version of Giotto, the following error has been observed:
+
+![](images/installation/timeout.png)
+
+
+This error is related to the time required for downloading the package. To solve the error, increase the limit of downloading time by running this code in your R console:
+
+```{r, eval=FALSE}
+options(timeout = max(1000, getOption("timeout")))
+```
+
+If you are doing the installation through a linux terminal, you can run instead this command to directly modify your R environment variable:
+
+```
+echo "R_DEFAULT_INTERNET_TIMEOUT = 1000" >> .Renviron
+```
+
+Alternatively, you can use the package pak to install Giotto
+
+```{r, eval=FALSE}
+if(!"pak" %in% installed.packages()) {
+  install.packages("pak")
+}
+
+pak::pkg_install("drieslab/Giotto")
+```
+

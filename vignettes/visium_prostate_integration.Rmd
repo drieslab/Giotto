@@ -7,30 +7,42 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# 1 Start Giotto
+# 1 Dataset explanation
+
+[10X genomics](https://www.10xgenomics.com/spatial-transcriptomics/) recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.
+
+The Visium Cancer Prostate data to run this tutorial can be found [here](https://www.10xgenomics.com/resources/datasets/human-prostate-cancer-adenocarcinoma-with-invasive-carcinoma-ffpe-1-standard-1-3-0) The Visium Normal Prostate data to run this tutorial can be found [here](https://www.10xgenomics.com/resources/datasets/normal-human-prostate-ffpe-1-standard-1-3-0)
+
+Visium technology:
+
+![](images/general_figs/visium_technology.png){width="50.0%"}
+
+High resolution png from original tissue:
+
+![](images/general_figs/Visium_FFPE_Human_Normal_Prostate_image.png){width="50.0%"}
+
+![](images/general_figs/Visium_FFPE_Human_Prostate_Cancer_image.png){width="50.0%"}
+
+
+# 2 Start Giotto
 
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  pak::pkg_install("drieslab/Giotto")
 }
-library(Giotto)
-
-# Ensure Giotto Data is installed
-if(!"GiottoData" %in% installed.packages()) {
-  devtools::install_github("drieslab/GiottoData")
-}
-library(GiottoData)
 
 # Ensure the Python environment for Giotto has been installed
-genv_exists = checkGiottoEnvironment()
+genv_exists = Giotto::checkGiottoEnvironment()
 if(!genv_exists){
   # The following command need only be run once to install the Giotto environment
-  installGiottoEnvironment()
+  Giotto::installGiottoEnvironment()
 }
 ```
 
 ```{r, eval=FALSE}
+library(Giotto)
+
 # 1. set working directory
 results_directory = getwd()
 
@@ -51,21 +63,6 @@ instrs = createGiottoInstructions(save_dir = results_directory,
                                   python_path = python_path)
 ```
 
-# 2 Dataset explanation
-
-[10X genomics](https://www.10xgenomics.com/spatial-transcriptomics/) recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.
-
-The Visium Cancer Prostate data to run this tutorial can be found [here](https://www.10xgenomics.com/resources/datasets/human-prostate-cancer-adenocarcinoma-with-invasive-carcinoma-ffpe-1-standard-1-3-0) The Visium Normal Prostate data to run this tutorial can be found [here](https://www.10xgenomics.com/resources/datasets/normal-human-prostate-ffpe-1-standard-1-3-0)
-
-Visium technology:
-
-![](images/general_figs/visium_technology.png){width="50.0%"}
-
-High resolution png from original tissue:
-
-![](images/general_figs/Visium_FFPE_Human_Normal_Prostate_image.png){width="50.0%"}
-
-![](images/general_figs/Visium_FFPE_Human_Prostate_Cancer_image.png){width="50.0%"}
 
 # 3 Create Giotto objects and join
 
