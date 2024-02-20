@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.2
+Version: 4.0.3
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -26,7 +26,7 @@ Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),

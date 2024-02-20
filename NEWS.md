@@ -1,6 +1,9 @@
+# Giotto 4.0.3 (2024/02/20)
 
+## Bug fixes
+- Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 
-# Giotto Suite 4.0.2 (2023/12/21)
+# Giotto 4.0.2 (2023/12/21)
 
 ## Bug Fixes
 - fix bug in `doHclust()`
@@ -8,7 +11,7 @@
 ## Changes
 * Move *GiottoClass* back to depends to fix access to some generics
 
-# Giotto Suite 4.0.1 (2023/12/16)
+# Giotto 4.0.1 (2023/12/16)
 
 ## Breaking Changes
 * Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
@@ -27,7 +30,7 @@
 
 
 
-# Giotto Suite 4.0.0 (2023/11/29)
+# Giotto 4.0.0 (2023/11/29)
 
 ## Breaking Changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
@@ -50,7 +53,7 @@
 
 
 
-# Giotto Suite 3.3.1 (2023/08/02)
+# Giotto 3.3.1 (2023/08/02)
 
 ## Breaking Changes
 
@@ -105,7 +108,7 @@
 * Fix bug in `readCellMetadata()` and `readFeatMetadata()`
 
 
-# Giotto Suite 3.3.0 (2023/04/18)
+# Giotto 3.3.0 (2023/04/18)
 
 ## Breaking Changes
 
@@ -163,7 +166,7 @@
 * Moved `depth()` from giotto.R to utilities.R
 
 
-# Giotto Suite 3.2.0 (2023/02/02)
+# Giotto 3.2.0 (2023/02/02)
 
 ## Breaking Changes
 
@@ -213,7 +216,7 @@
 * Fix `loadGiotto()` loss of over*allocation for data.tables*based objects after loading from disk
 
 
-# Giotto Suite 3.1.0 (2022/12/01)  
+# Giotto 3.1.0 (2022/12/01)  
   
 
 ## Added
@@ -233,7 +236,7 @@
 
 
 
-# Giotto Suite 3.0.1 (2022/11/20)
+# Giotto 3.0.1 (2022/11/20)
 
 ## Added
 
@@ -249,7 +252,7 @@
 
 
 
-# Giotto Suite 3.0.0 (2022/11/18)
+# Giotto 3.0.0 (2022/11/18)
 
 ## Breaking Changes
 
@@ -274,7 +277,7 @@
 
 
 
-# Giotto Suite 2.1.0 (2022/11/09)
+# Giotto 2.1.0 (2022/11/09)
 
 ## Breaking Changes
 
@@ -289,7 +292,7 @@
 
 
 
-# Giotto Suite 2.0.0.998
+# Giotto 2.0.0.998
 
 ## Added
 
