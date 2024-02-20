@@ -548,10 +548,11 @@ runPCA <- function(gobject,
     ncp = min_ncp-1
   }
 
-  # start seed
+  # seed
   if(isTRUE(set_seed)) {
     set.seed(seed = seed_number)
   }
+  on.exit(random_seed(), add = TRUE)
 
 
 
@@ -661,12 +662,6 @@ runPCA <- function(gobject,
 
     result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
 
-  }
-
-
-  # exit seed
-  if(isTRUE(set_seed)) {
-    set.seed(seed = Sys.time())
   }
 
   return(result)

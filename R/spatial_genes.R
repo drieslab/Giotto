@@ -615,7 +615,9 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -664,7 +666,19 @@ binSpectSingleMatrix = function(expression_matrix,
                                 do_parallel = TRUE,
                                 cores = NA,
                                 verbose = FALSE,
-                                set.seed = NULL) {
+                                set.seed = deprecated(),
+                                seed = 1234) {
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.2",
+      what = "binSpectSingleMatrix(set.seed)",
+      with = "binSpectSingleMatrix(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
+  }
 
 
   if(verbose == TRUE) cat('\n This is the single parameter version of binSpect')
@@ -711,7 +725,8 @@ binSpectSingleMatrix = function(expression_matrix,
                                            iter_max = iter_max,
                                            extreme_nr = extreme_nr,
                                            sample_nr = sample_nr,
-                                           set.seed = set.seed)
+                                           # set.seed = set.seed,
+                                           seed = seed)
 
     } else if(bin_method == 'rank') {
 
@@ -850,7 +865,9 @@ binSpectSingleMatrix = function(expression_matrix,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
@@ -904,7 +921,8 @@ binSpectSingle = function(gobject,
                           do_parallel = TRUE,
                           cores = NA,
                           verbose = TRUE,
-                          set.seed = NULL,
+                          set.seed = deprecated(),
+                          seed = 1234,
                           bin_matrix = NULL) {
 
 
@@ -912,6 +930,17 @@ binSpectSingle = function(gobject,
   if(!is.null(subset_genes)) {
     subset_feats = subset_genes
     warning('subset_genes is deprecated, use subset_feats in the future \n')
+  }
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.2",
+      what = "binSpectSingle(set.seed)",
+      with = "binSpectSingle(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
   }
 
   # Set feat_type and spat_unit
@@ -968,7 +997,8 @@ binSpectSingle = function(gobject,
                        do_parallel = do_parallel,
                        cores = cores,
                        verbose = verbose,
-                       set.seed = set.seed)
+                       # set.seed = set.seed,
+                       seed = seed)
 
 
 }
@@ -1007,7 +1037,9 @@ binSpectSingle = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
@@ -1060,9 +1092,10 @@ binSpectMulti = function(gobject,
                          group_size = 'automatic',
                          do_parallel = TRUE,
                          cores = NA,
-                         verbose = T,
+                         verbose = TRUE,
                          knn_params = NULL,
-                         set.seed = NULL,
+                         set.seed = deprecated(),
+                         seed = 1234,
                          summarize = c('adj.p.value', 'p.value')
 ) {
 
@@ -1071,6 +1104,17 @@ binSpectMulti = function(gobject,
   if(!is.null(subset_genes)) {
     subset_feats = subset_genes
     warning('subset_genes is deprecated, use subset_feats in the future \n')
+  }
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.2",
+      what = "binSpectMulti(set.seed)",
+      with = "binSpectMulti(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
   }
 
   # Set feat_type and spat_unit
@@ -1135,7 +1179,8 @@ binSpectMulti = function(gobject,
                                 do_parallel = do_parallel,
                                 cores = cores,
                                 verbose = verbose,
-                                set.seed = set.seed)
+                                # set.seed = set.seed,
+                                seed = seed)
 
         result_list[[i]] = result
         i = i+1
@@ -1166,7 +1211,8 @@ binSpectMulti = function(gobject,
                                          iter_max = iter_max,
                                          extreme_nr = extreme_nr,
                                          sample_nr = sample_nr,
-                                         set.seed = set.seed)
+                                         # set.seed = set.seed,
+                                         seed = seed)
 
     for(k in spatial_network_k) {
 
@@ -1204,7 +1250,8 @@ binSpectMulti = function(gobject,
                               do_parallel = do_parallel,
                               cores = cores,
                               verbose = verbose,
-                              set.seed = set.seed,
+                              # set.seed = set.seed,
+                              seed = seed,
                               bin_matrix = bin_matrix)
 
       result_list[[i]] = result
@@ -1258,7 +1305,9 @@ binSpectMulti = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated
+#' @param seed sets value as seed before kmeans binarization. If NULL, no seed
+#' is set.
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results
 binSpectMultiMatrix = function(expression_matrix,
@@ -1283,9 +1332,21 @@ binSpectMultiMatrix = function(expression_matrix,
                                cores = NA,
                                verbose = T,
                                knn_params = NULL,
-                               set.seed = NULL,
+                               set.seed = deprecated(),
+                               seed = 1234,
                                summarize = c('adj.p.value', 'p.value')
 ) {
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.2",
+      what = "binSpectMultiMatrix(set.seed)",
+      with = "binSpectMultiMatrix(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
+  }
 
 
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
@@ -1331,7 +1392,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                       do_parallel = do_parallel,
                                       cores = cores,
                                       verbose = verbose,
-                                      set.seed = set.seed)
+                                      # set.seed = set.seed,
+                                      seed = seed)
 
         result_list[[i]] = result
         i = i+1
@@ -1356,7 +1418,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                          iter_max = iter_max,
                                          extreme_nr = extreme_nr,
                                          sample_nr = sample_nr,
-                                         set.seed = set.seed)
+                                         # set.seed = set.seed,
+                                         seed = seed)
 
     for(k in seq_along(spatial_networks)) {
 
@@ -1383,7 +1446,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                     do_parallel = do_parallel,
                                     cores = cores,
                                     verbose = verbose,
-                                    set.seed = set.seed)
+                                    # set.seed = set.seed,
+                                    seed = seed)
 
       result_list[[i]] = result
       i = i+1
@@ -1444,7 +1508,9 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated. Use \code{seed} param instead
+#' @param seed seed for kmeans binarization. When \code{NULL}, no seed is set.
+#' Otherwise, accepts a numeric input that will be used as seed.
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
 #' @param return_gobject whether to return values attached to the gobject or
@@ -1501,13 +1567,27 @@ binSpect = function(gobject,
                     group_size = 'automatic',
                     do_parallel = TRUE,
                     cores = NA,
-                    verbose = T,
+                    verbose = TRUE,
                     knn_params = NULL,
-                    set.seed = NULL,
+                    set.seed = deprecated(),
+                    seed = 1234,
                     bin_matrix = NULL,
                     summarize = c('p.value', 'adj.p.value'),
                     return_gobject = FALSE) {
 
+  # TODO align set.seed, set_seed, seed_number naming and usage across packages
+  # use only param seed. If NULL, set no seed. If !NULL set value as seed
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.2",
+      what = "binSpect(set.seed)",
+      with = "binSpect(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
+  }
 
   if(!is.null(spatial_network_k)) {
 
@@ -1538,7 +1618,8 @@ binSpect = function(gobject,
                            cores = cores,
                            verbose = verbose,
                            knn_params = knn_params,
-                           set.seed = set.seed,
+                           seed = seed,
+                           # set.seed = set.seed,
                            summarize = summarize)
 
   } else {
@@ -1569,7 +1650,8 @@ binSpect = function(gobject,
                             do_parallel = do_parallel,
                             cores = cores,
                             verbose = verbose,
-                            set.seed = set.seed,
+                            seed = seed,
+                            # set.seed = set.seed,
                             bin_matrix = bin_matrix)
 
   }
@@ -3946,6 +4028,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
   if(rank == 'random') {
 
     if(!is.na(seed) & is.numeric(seed)) {
+      on.exit(random_seed(), add = TRUE)
       set.seed(seed)
       wrap_msg('Seed has been set for random')
     } else {
