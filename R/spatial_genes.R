@@ -4813,7 +4813,7 @@ runPatternSimulation = function(gobject,
 
     if(run_simulations == TRUE) {
       generesults[, prob := as.factor(prob)]
-      uniq_methods = sort(unique(generesults$method))
+      uniq_methods = mixedsort(unique(generesults$method))
       generesults[, method := factor(method, levels = uniq_methods)]
 
       if(save_plot == TRUE) {

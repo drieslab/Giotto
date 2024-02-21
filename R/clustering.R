@@ -1742,14 +1742,14 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
 
   # data.table variables
   hvf = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
 
 
-  for(cluster in unique_clusters) {
+  for (cluster in unique_clusters) {
 
     if(verbose == TRUE) cat('\n start with cluster: ', cluster, '\n')
 
@@ -1911,7 +1911,7 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
@@ -2100,7 +2100,7 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
