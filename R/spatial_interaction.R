@@ -2095,8 +2095,6 @@ average_feat_feat_expression_in_groups = function(gobject,
 #' @param random_iter number of iterations
 #' @param feat_set_1 first specific feature set from feature pairs
 #' @param feat_set_2 second specific feature set from feature pairs
-#' @param gene_set_1 deprecated. see \code{feat_set_1}
-#' @param gene_set_2 deprecated. see \code{feat_set_2}
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
@@ -2117,8 +2115,6 @@ exprCellCellcom = function(gobject,
                            random_iter = 1000,
                            feat_set_1,
                            feat_set_2,
-                           gene_set_1 = NULL,
-                           gene_set_2 = NULL,
                            log2FC_addendum = 0.1,
                            detailed = FALSE,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2135,16 +2131,6 @@ exprCellCellcom = function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-
-  ## deprecated arguments
-  if(!is.null(gene_set_1)) {
-    feat_set_1 = gene_set_1
-    warning('gene_set_1 is deprecated, use feat_set_1 in the future \n')
-  }
-  if(!is.null(gene_set_2)) {
-    feat_set_2 = gene_set_2
-    warning('gene_set_2 is deprecated, use feat_set_2 in the future \n')
-  }
 
   # data.table variables
   lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
