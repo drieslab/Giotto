@@ -63,41 +63,47 @@ doScrubletDetect = function(gobject,
   n_prin_comps = as.character(n_prin_comps)
 
   # 2. get expression data
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = expression_values,
-                                      output = 'matrix')
+  expr_values = get_expression_values(
+    gobject = gobject,
+    spat_unit = spat_unit,
+    feat_type = feat_type,
+    values = expression_values,
+    output = 'matrix'
+  )
 
-  # input is a sparse matrix with cells as rows and genes as columns   data.table::as.data.table()
-  scr_input = expr_values
-  scr_input = as.matrix(scr_input)
-  scr_input = t_flex(scr_input)
-  scr_input <- evaluate_input(type = 'expression', x = scr_input, sparse = TRUE)
+  # input is a sparse matrix with cells as rows and genes as columns
+  # scr_input = t_flex(expr_values)
+  # scr_input <- evaluate_input(type = 'expression', x = scr_input, sparse = TRUE)
+  scr_input <- to_scipy_sparse(expr_values, format = "C", transpose = TRUE)
 
-  scrublet_out = python_scrublet(counts_matrix = scr_input,
-                                 expected_doublet_rate = expected_doublet_rate,
-                                 min_counts = min_counts,
-                                 min_cells = min_cells,
-                                 min_gene_variability_pctl = min_gene_variability_pctl,
-                                 n_prin_comps = n_prin_comps)
+  scrublet_out <- python_scrublet(
+    counts_matrix = scr_input,
+    expected_doublet_rate = expected_doublet_rate,
+    min_counts = min_counts,
+    min_cells = min_cells,
+    min_gene_variability_pctl = min_gene_variability_pctl,
+    n_prin_comps = n_prin_comps
+  )
 
-  scrublet_out = data.frame(scrublet_out[1], scrublet_out[2])
-  names(scrublet_out) = c('doublet_scores','doublet')
+  scrublet_out <- data.table::data.table(
+    cell_ID = colnames(expr_values),
+    doublet_scores = scrublet_out[1],
+    doublet = scrublet_out[2]
+  )
 
-  # Add to metadata
-  if(return_gobject == TRUE) {
-    gobject = addCellMetadata(gobject = gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit,
-                              new_metadata = scrublet_out,
-                              by_column = FALSE)
+
+  if(isTRUE(return_gobject)) {
+    # Add to metadata
+    gobject <- addCellMetadata(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      new_metadata = scrublet_out,
+      by_column = TRUE,
+      column_cell_ID = "cell_ID"
+    )
     return(gobject)
-  } else {
-    return(cbind(cell_ID = pDataDT(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type)$cell_ID,
-                 scrublet_out))
   }
 
+  return(scrublet_out)
 }
