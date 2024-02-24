@@ -1664,10 +1664,14 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject,
-                             spat_unit = spat_unit,
-                             feat_type = feat_type,
-                             result_dt, by_column=T, column_feat_ID="feats")
+    gobject <- addFeatMetadata(
+      gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      new_metadata = result_dt,
+      by_column = TRUE,
+      column_feat_ID = "feats"
+    )
     return(gobject)
   }else{
     return(output)
@@ -4208,10 +4212,12 @@ simulateOneGenePatternGiottoObject = function(gobject,
   cell_meta = pDataDT(gobject)
   cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
 
-  newgobject = addCellMetadata(gobject,
-                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
-                               by_column = T,
-                               column_cell_ID = 'cell_ID')
+  newgobject = addCellMetadata(
+    gobject,
+    new_metadata = cell_meta[,c('cell_ID', pattern_name), with = FALSE],
+    by_column = TRUE,
+    column_cell_ID = 'cell_ID'
+  )
 
   # show pattern
   if(show_pattern == TRUE) {

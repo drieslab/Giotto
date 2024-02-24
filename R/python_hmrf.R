@@ -567,7 +567,7 @@ addHMRF <- function(gobject,
                               feat_type = feat_type,
                               column_cell_ID = 'cell_ID',
                               new_metadata = annot_DT,
-                              by_column = F)
+                              by_column = TRUE)
 
 
   }
@@ -1509,7 +1509,7 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
                               column_cell_ID = "cell_ID",
                               new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))],
                               vector_name = paste(name,names(HMRFoutput)[i]),
-                              by_column = F)
+                              by_column = TRUE)
   }
   return(gobject)
 }

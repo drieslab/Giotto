@@ -1380,11 +1380,14 @@ doHclust <- function(gobject,
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit,
-                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
 
 
@@ -2191,8 +2194,12 @@ doLeidenSubCluster = function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = F],
-                               by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(
+      gobject,
+      new_metadata = together[, c('cell_ID', name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
     ## update parameters used ##
     parameters_list = gobject@parameters
@@ -2695,11 +2702,14 @@ mergeClusters <- function(gobject,
       gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = feat_type,
-                              new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      new_metadata = metadata[, c('cell_ID', new_cluster_name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
 
     ## update parameters used ##
