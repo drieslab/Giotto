@@ -554,7 +554,7 @@ addHMRF <- function(gobject,
     cids <- gsub(basename(output_data), "", output_data) %>%
       gsub(pattern = "\"", replacement = "") %>%
       list.files(pattern = "expression_matrix",
-                 full.names = TRUE)[[1L]] %>%
+                 full.names = TRUE) %>%
       data.table::fread(nrows = 0L, header = TRUE) %>%
       colnames()
     cids <- cids[-1] # gene colname is also included
