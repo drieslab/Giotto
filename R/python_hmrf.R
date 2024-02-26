@@ -551,7 +551,9 @@ addHMRF <- function(gobject,
     output = system(command = result_command, intern = T)
 
     # get cell_IDs
-    cids <- file.path(output_data, "expression_matrix.txt") %>%
+    cids <- list.files(output_data,
+                       pattern = "expression_matrix",
+                       full.names = TRUE)[[1L]] %>%
       data.table::fread(nrows = 0L, header = TRUE) %>%
       colnames()
     cids <- cids[-1] # gene colname is also included
