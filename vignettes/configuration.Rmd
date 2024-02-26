@@ -18,7 +18,7 @@ Giotto contains several functions that contain wrappers to Python code and thus 
 ```{r, eval=FALSE}
 # Ensure Giotto Suite is installed
 if(!"Giotto" %in% installed.packages()) {
-  devtools::install_github("drieslab/Giotto@suite")
+  devtools::install_github("drieslab/Giotto")
 }
 
 library(Giotto)
@@ -29,6 +29,26 @@ if(!"GiottoData" %in% installed.packages()) {
 }
 
 library(GiottoData)
+```
+
+NOTE: With the most recent version of Giotto, the following error has been observed, particularly when installing the package from a terminal:
+
+![](images/installation/timeout.png)
+
+
+This error is related to the time required for downloading the package. To solve the error, increase the limit of downloading time by running this code in your R console:
+
+```{r, eval=FALSE}
+options(timeout = max(1000, getOption("timeout")))
+```
+
+If you are doing the installation through a linux terminal, you can run instead this command to directly modify your R environment variable:
+
+```
+echo "R_DEFAULT_INTERNET_TIMEOUT = 1000" >> .Renviron
+```
+
+```{r, eval=FALSE}
 
 # Ensure the Python environment for Giotto has been installed
 genv_exists = checkGiottoEnvironment()

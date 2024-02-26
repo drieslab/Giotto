@@ -1,0 +1,374 @@
+---
+title: "Interoperability: SpatialExperiment"
+output: rmarkdown::html_vignette
+author: Iqra Amin, Irzam Sarfraz
+vignette: >
+  %\VignetteIndexEntry{Interoperability: SpatialExperiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+Giotto allows seamless analysis of spatial transcriptomics data provided through a range of functions and algorithms. At the same time, it also allows effortless conversion to other object types, so the data can be analyzed with other tools including packages from Bioconductor that mostly use *Experiment objects and their derivatives. In this tutorial, we show how cross-conversion between Giotto and SpatialExperiment objects can complement spatial transcriptomic analyses.
+
+In the first part of the tutorial, we load an example Giotto object, convert it to SpatialExperiment object and use a multitude of packages from Bioconductor to analyze it. In the second part, we use an example SpatialExperiment object, convert it to Giotto and drive the analysis with the toolkit.
+
+## 1.0 Giottoobj to SpatialExperiment
+
+In this part of the tutorial, we show the conversion of a an example Giotto object to SpatialExperiment object and use several packages to process it. Initially, we load the required packages:
+```{r main-libraries, message=FALSE}
+library(Giotto)
+library(GiottoData)
+library(SpatialExperiment)
+```
+
+## 1.2 Load a Giotto Object
+
+First, we load a example dataset from the GiottoData package. For this tutorial, we import a mini mouse brain dataset generated using the visium protocol.
+```{r load-giotto-mini, message=FALSE}
+g <- loadGiottoMini(dataset = "visium")
+```
+
+## 1.3 Convert to a SpatialExperiment obj
+
+We now convert this imported giotto object into a SpatialExperiment object using the “giottoToSpatialExperiment” function.
+```{r convert-to-spe, message=FALSE}
+gspe <- giottoToSpatialExperiment(g)
+```
+For each spatial unit the converter function returns a separate SpatialExperiment object. The output is a list of objects (one object for each unit) therefore we select the first object and use it downstream.
+
+```{r select-first-spe}
+spe <- gspe[[1]]
+```
+
+
+## 1.4 Downstream Analysis using SpatialExperiment object
+
+Now, we do some processing on the object including quality control, normalization, feature selection and dimensionality reduction.
+```{r downstream-packages, message=FALSE}
+library(ggspavis)
+library(pheatmap)
+```
+
+
+### 1.4.1 Quality Control Metrics
+
+Using the *scater* package from Bioconductor, we perform some initial quality control analysis. We particularly look for mitochondrial genes and compute some quality control metrics including total counts and features per cell. We then visualize these metrics and select thresholds to remove low quality cells.
+
+```{r scater, message=FALSE}
+library(scater)
+
+# identify mitochondrial genes
+is_mito <- grepl("(^MT-)|(^mt-)", rownames(spe))
+table(is_mito)
+
+# calculate per-spot QC metrics and store in colData
+spe <- addPerCellQC(spe, subsets = list(mito = is_mito),assay.type = "raw_rna_cell")
+head(colData(spe))
+```
+
+
+We plot a histogram of library size and select a threshold of 50 to remove low quality cells.
+```{r lib-size}
+# histogram of library sizes
+hist(colData(spe)$sum, breaks = 20)
+
+# select QC threshold
+qc_lib_size <- colData(spe)$sum < 50
+```
+
+We select a threshold of 18 for number of features detected per cell and remove the low quality cells.
+```{r filtering}
+# histogram of numbers of expressed genes
+hist(colData(spe)$detected, breaks = 20)
+
+# select QC threshold for number of expressed genes
+qc_detected <- colData(spe)$detected < 18
+# combined set of discarded spots
+discard <- qc_lib_size | qc_detected 
+table(discard)
+
+colData(spe)$discard <- discard
+spe <- spe[, !colData(spe)$discard]
+spe
+```
+
+### 1.4.2 Normalization
+
+Now we calculate log-transformed normalized counts(logcounts) using library size factors using the scran package from Bioconductor.
+```{r normalization, message=FALSE}
+library(scran)
+
+# calculate library size factors
+spe <- computeLibraryFactors(spe, assay.type="raw_rna_cell")
+summary(sizeFactors(spe))
+
+hist(sizeFactors(spe), breaks = 20)
+
+# calculate logcounts and store in object
+spe <- logNormCounts(spe, assay.type="raw_rna_cell")
+
+# check
+assayNames(spe)
+```
+
+
+### 1.4.3 Feature selection
+
+To identify HVGs (highly variable genes), we use a mean-variance method “modelGeneVar” from the scran package.
+```{r hvg-detection}
+# fit mean-variance relationship
+dec <- modelGeneVar(spe)
+# visualize mean-variance relationship
+fit <- metadata(dec)
+plot(fit$mean, fit$var,
+     xlab = "mean of log-expression", ylab = "variance of log-expression")
+curve(fit$trend(x), col = "dodgerblue", add = TRUE, lwd = 2)
+```
+
+
+### 1.4.4 Dimentionality Reduction (PCA)
+
+Now we apply dimensionality reduction methods to visualize the data and to generate inputs for further downstream analyses. For this purpose, we use the runPCA method to compute the top principal components and then finally plot the top two components.
+```{r pca}
+# compute PCA
+set.seed(123)
+spe <- runPCA(spe)
+reducedDimNames(spe)
+
+# plot top 2 PCA dimensions
+plotDimRed(spe , type = "PCA")
+```
+
+
+To visualize the clusters, we use a non-linear method “UMAP”, perform clustering and plot the cluster labels over on the UMAP.
+```{r umap}
+spe <- scater::runUMAP(spe)
+colnames(reducedDim(spe,"UMAP")) <- c("UMAP1","UMAP2")
+
+plotDimRed(spe, type = "UMAP")
+
+# graph-based clustering
+set.seed(123)
+k <- 5
+gGraphsnn <- buildSNNGraph(spe, k = k, use.dimred = "PCA")
+g_walk <- igraph::cluster_walktrap(gGraphsnn)
+clus <- g_walk$membership
+table(clus)
+
+
+# plot clusters in UMAP reduced dimensions
+colData(spe)$label <- clus
+plotDimRed(spe, type = "UMAP",annotate = "label", palette = "libd_layer_colors")
+```
+
+We identify the marker genes in each cluster and visualize the top genes in each cluster using a pheatmap
+
+```{r marker-detection}
+# test for marker genes
+markers <- findMarkers(spe, test = "binom", direction = "up")
+# plot log-fold changes for one cluster over all other clusters
+# selecting cluster 1
+interesting <- markers[[1]]
+best_set <- interesting[interesting$Top <= 5, ]
+logFCs <- getMarkerEffects(best_set)
+pheatmap(logFCs, breaks = seq(-5, 5, length.out = 101))
+
+# plot log-transformed normalized expression of top genes for one cluster
+top_genes <- head(rownames(interesting))
+plotExpression(spe, x = "label", features = top_genes)
+```
+
+
+
+## 2.0 SpatialExperiment to Giottoobj
+
+In this section, we load a sample dataset in the form of a SpatialExperiment object, convert it to Giotto and drive the downstream analysis with the Giotto toolkit.
+
+```{r spe-to-giotto, message=FALSE}
+library(SpatialExperiment)
+library(STexampleData)
+```
+
+## 2.1 Load a sample SpatialExperiment obj
+
+Loading sample SpatialExperiment Object as spe
+
+```{r load-visium-dlpfc, message=FALSE}
+spe <- Visium_humanDLPFC()
+spe
+```
+
+## 2.2 Convert to a giotto obj
+
+Converting SpatialExperiment Object to giottoobj. The new giottoobject is n_g.
+
+```{r convert-to-giotto, message=FALSE}
+#create giottoObject from spe
+n_g <- spatialExperimentToGiotto(spe, python_path = instructions(g)$python_path)
+```
+
+
+## 2.3 Downstream analysis with the giotto toolkit
+
+We filter the giottoobj and then run normalization on it.
+
+### 2.3.1 High Efficiency Data Processing
+
+```{r processgiotto, message=FALSE}
+n_g <- processGiotto(
+    n_g,
+    filter_params = list(expression_threshold = 1,
+                         feat_det_in_min_cells = 100,
+                         min_det_feats_per_cell = 10),
+    norm_params = list(norm_methods = 'standard',
+                       scale_feats = TRUE,
+                       scalefactor = 6000),
+    stat_params = list(expression_values = 'normalized'),
+    adjust_params = list(expression_values = c('normalized'),
+                         covariate_columns = 'nr_feats')
+)
+```
+
+
+### 2.3.2 Dimension Reduction and PCA
+
+We first find the highly variable features (HVF) and then use these to compute the reduced dimensions using PCA.
+
+Calculate HVF using the loess regression prediction model:
+
+```{r giotto-hvf, message=FALSE}
+n_g <- calculateHVF(gobject = n_g, method = 'cov_loess')
+```
+
+
+PCA can be run based on the highly variable genes. After PCA, a tSNE, a UMAP, or both may be run. For this example, highly variable genes have been identified using Loess Regression predictions.
+
+```{r giotto-pca, message=FALSE}
+## Select genes highly variable genes that fit specified statistics
+# These are both found within feature metadata
+feature_metadata = getFeatureMetadata(n_g)[]
+featgenes = feature_metadata[hvf == 'yes' & perc_cells > 4 & mean_expr_det > 0.5]$feat_ID
+
+## run PCA on expression values (default)
+n_g <- Giotto::runPCA(gobject = n_g, feats_to_use = featgenes, scale_unit = F, center = F)
+```
+
+
+Run a UMAP based on PCA dimension reduction and view pre-clustering UMAP.
+
+```{r giotto-umap}
+n_g <- Giotto::runUMAP(n_g, dimensions_to_use = 1:15)
+graph1 <- Giotto::plotUMAP(gobject = n_g)
+```
+
+
+### 2.3.3 Clustering
+
+Cells may be clustered into distinct groups based on feature expression. To cluster, the Giotto Object must contain data that has undergone PCA dimension reduction, either tSNE or UMAP dimension reduction, and have a neighbor network.
+
+Create a shared nearest neighbor network (sNN), where k is the number of k neighbors to use:
+
+```{r giotto-nn}
+n_g <- createNearestNetwork(gobject = n_g, type = "sNN", dimensions_to_use = 1:15, k = 15)
+```
+
+Cells can be clustered in Giotto using k-means, Leiden, or Louvain clustering. These clustering algorithms return cluster information within cell_metadata, which is named accordingly by default. The name may be changed by providing the name argument, as shown in the code chunk below.
+
+```{r giotto-kmeans}
+## k-means clustering
+n_g <- doKmeans(gobject = n_g, dim_reduction_to_use = 'pca')
+
+#Plot UMAP post-clustering to visualize kmeans
+graph2 <- Giotto::plotUMAP(
+    gobject = n_g,
+    cell_color = 'kmeans',
+    show_NN_network = T,
+    point_size = 2.5
+)
+```
+
+
+### 2.3.4 Spatial co-expression
+
+Using previously created spatial network to calculate spatially variable genes using binSpect method.
+
+```{r giotto-binspect, message=FALSE}
+n_g <- Giotto::createSpatialDelaunayNetwork(gobject = n_g)
+showGiottoSpatNetworks(n_g)
+
+ranktest = binSpect(
+    n_g, bin_method = 'rank',
+    calc_hub = T, hub_min_int = 5,
+    spatial_network_name = 'Delaunay_network'
+)
+```
+
+Here we will subset on the top 300 spatial genes identified with binSpect. We will also show how to identify the top spatially correlated genes.
+
+```{r spatial-cor-genes}
+# 3.1 cluster the top 500 spatial genes into 20 clusters
+ext_spatial_genes = ranktest[1:300,]$feats
+
+# here we use existing detectSpatialCorGenes function to calculate pairwise distances between genes (but set network_smoothing=0 to use default clustering)
+spat_cor_netw_DT = detectSpatialCorFeats(
+    n_g,
+    method = 'network',
+    spatial_network_name = 'Delaunay_network',
+    subset_feats = ext_spatial_genes
+)
+# 3.2 identify most similar spatially correlated genes for one gene
+top10_genes = showSpatialCorFeats(spat_cor_netw_DT, feats = 'Dsp', show_top_feats = 10)
+```
+
+
+Use the pheatmap to identify spatial co-expression modules and adjust the number of clusters (k) accordingly.
+
+```{r coexpression-modules}
+# 3.3 identify potenial spatial co-expression
+spat_cor_netw_DT = clusterSpatialCorFeats(spat_cor_netw_DT, name = 'spat_netw_clus', k = 7)
+
+# visualize clusters
+graph3 <- heatmSpatialCorFeats(
+    n_g,
+    spatCorObject = spat_cor_netw_DT,
+    use_clus_name = 'spat_netw_clus',
+    heatmap_legend_param = list(title = NULL),
+    save_param = list(base_height = 6, base_width = 8, units = 'cm')
+)
+```
+
+
+genes from each co-expression module and then aggregate genes into meta genes.
+
+```{r balanced-spat-coexpression-feats, message=FALSE}
+# 3.4 create metagenes / co-expression modules
+cluster_genes = getBalancedSpatCoexpressionFeats(spat_cor_netw_DT, maximum = 30)
+```
+
+
+```{r create-meta-feats}
+n_g = createMetafeats(n_g, feat_clusters = cluster_genes, name = 'cluster_metagene')                     
+    
+    
+graph4 <- spatCellPlot(
+    n_g,
+    spat_enr_names = 'cluster_metagene',
+    cell_annotation_values = as.character(c(1:7)),
+    point_size = 1, cow_n_col = 3
+)   
+```
+
+
+## 3.0 Session Info
+
+```{r session-info}
+sessionInfo()
+```
+
+
+
+
+
+

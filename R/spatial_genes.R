@@ -1622,8 +1622,9 @@ silhouetteRank <- function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      values = values)
+  expr_values = getExpression(gobject = gobject,
+                              values = values,
+                              output = "matrix")
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1638,9 +1639,9 @@ silhouetteRank <- function(gobject,
 
   # spatial locations
   # spatlocs = as.matrix(gobject@spatial_locs[['cell']][['raw']][,.(sdimx, sdimy)])
-  spatlocs = get_spatial_locations(gobject,
+  spatlocs = getSpatialLocations(gobject,
                                    spat_unit = 'cell',
-                                   spat_loc_name = 'raw',
+                                   name = 'raw',
                                    output = 'data.table',
                                    copy_obj = TRUE)
   spatlocs = as.matrix(spatlocs[,.(sdimx, sdimy)])

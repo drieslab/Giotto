@@ -134,12 +134,26 @@ my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot,
 
 Now, let's add the polygon coordinates to the Giotto object:
 
+Create a polygon object
 
 ```{r, eval=FALSE}
 ## We must transform the data.table or data.frame with coordinates into a Giotto polygon object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coordinates, name = 'selections')
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coordinates, 
+                                                  name = 'selections')
+```
 
-## Then, add the polygons to the Giotto object
+If you plan to save and load your Giotto object after adding the selected polygons, include the centroids of the polygon by using the following argument:
+
+```{r, eval=FALSE}
+## We must transform the data.table or data.frame with coordinates into a Giotto polygon object
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coordinates, 
+                                                  name = 'selections',
+                                                  calc_centroids = TRUE)
+```
+
+Then, add the polygons to the Giotto object
+
+```{r, eval=FALSE}
 visium_brain <- addGiottoPolygons(gobject = visium_brain,
                                   gpolygons = list(my_giotto_polygons))
 ```

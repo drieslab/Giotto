@@ -65,6 +65,9 @@ navbar:
       - text: Spatial transformations
         href: articles/spatial_transformations.html
       - text: -------
+      - text: Spatial geometries
+        href: https://drieslab.github.io/GiottoClass/articles/spatial_geometries.html
+      - text: -------
       - text: Image alignment
       - text: Image alignment
         href: articles/image_alignment.html
@@ -86,12 +89,16 @@ navbar:
       - text: Interoperability
       - text: AnnData
         href: articles/interoperability_anndata.html
+      - text: SpatialExperiment
+        href: articles/interoperability_spatialexperiment.html
       - text: -------
       - text: Try Giotto in the Cloud
       - text: Terra.bio
         href: articles/terra.html
       - text: Docker
         href: articles/docker.html
+      - text: Singularity
+        href: articles/singularity.html
     articles:
       text: Examples
       menu:
@@ -166,6 +173,8 @@ navbar:
           href: articles/singlecell_prostate_standard.html
         - text: Prostate Integration
           href: articles/singlecell_prostate_integration.html
+        - text: Human Lung Adenocarcinoma
+          href: articles/singlecell_lung_adenocarcinoma.html
     news:
       text: News
       menu:
@@ -208,6 +217,7 @@ articles:
   contents:
   - terra
   - docker
+  - singularity
 - title: Spatial Manipulation
   navbar: ~
   contents:
@@ -233,6 +243,7 @@ articles:
   navbar: ~
   contents:
   - interoperability_anndata
+  - interoperability_spatialexperiment
 - title: Seq-Scope
   navbar: ~
   contents:
@@ -287,6 +298,7 @@ articles:
   contents:
   - singlecell_prostate_standard
   - singlecell_prostate_integration
+  - singlecell_lung_adenocarcinoma
 
 news:
   cran_dates: false

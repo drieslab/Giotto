@@ -25,6 +25,10 @@ To install Giotto suite use
 
 Visit the Giotto [Discussions](https://github.com/drieslab/Giotto/discussions) page for more information.
 
+## Website Update!
+
+With Giotto version 4.0, we updated the website at http://giottosuite.com, you can still find the previous website at https://giottosuite.readthedocs.io/en/latest/
+
 ## Website description  
 
 - **Get started:** Here you can find more advanced information about the Giotto object, Giotto ecosystem, Giotto configuration, and installation FAQs.
