@@ -671,7 +671,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
   if (is_present(set.seed) && !is.function(set.seed)) {
     deprecate_warn(
-      when = "4.0.2",
+      when = "4.0.3",
       what = "binSpectSingleMatrix(set.seed)",
       with = "binSpectSingleMatrix(seed)"
     )
@@ -934,7 +934,7 @@ binSpectSingle = function(gobject,
 
   if (is_present(set.seed) && !is.function(set.seed)) {
     deprecate_warn(
-      when = "4.0.2",
+      when = "4.0.3",
       what = "binSpectSingle(set.seed)",
       with = "binSpectSingle(seed)"
     )
@@ -1108,7 +1108,7 @@ binSpectMulti = function(gobject,
 
   if (is_present(set.seed) && !is.function(set.seed)) {
     deprecate_warn(
-      when = "4.0.2",
+      when = "4.0.3",
       what = "binSpectMulti(set.seed)",
       with = "binSpectMulti(seed)"
     )
@@ -1339,7 +1339,7 @@ binSpectMultiMatrix = function(expression_matrix,
 
   if (is_present(set.seed) && !is.function(set.seed)) {
     deprecate_warn(
-      when = "4.0.2",
+      when = "4.0.3",
       what = "binSpectMultiMatrix(set.seed)",
       with = "binSpectMultiMatrix(seed)"
     )
@@ -1580,7 +1580,7 @@ binSpect = function(gobject,
 
   if (is_present(set.seed) && !is.function(set.seed)) {
     deprecate_warn(
-      when = "4.0.2",
+      when = "4.0.3",
       what = "binSpect(set.seed)",
       with = "binSpect(seed)"
     )
@@ -1664,10 +1664,14 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject,
-                             spat_unit = spat_unit,
-                             feat_type = feat_type,
-                             result_dt, by_column=T, column_feat_ID="feats")
+    gobject <- addFeatMetadata(
+      gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      new_metadata = result_dt,
+      by_column = TRUE,
+      column_feat_ID = "feats"
+    )
     return(gobject)
   }else{
     return(output)
@@ -4002,7 +4006,7 @@ rankSpatialCorGroups = function(gobject,
 #' @param seed seed
 #' @param verbose verbosity
 #' @return balanced vector with features for each co-expression module
-#' @details There are 3 different ways of selectig features from the spatial
+#' @details There are 3 different ways of selecting features from the spatial
 #' co-expression modules
 #' \itemize{
 #'   \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
@@ -4033,7 +4037,7 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
       wrap_msg('Seed has been set for random')
     } else {
       wrap_msg('Random is selected, but no seed has been set \n
-               Results might be fully reproducible \n')
+               Results might not be fully reproducible \n')
     }
 
     result_list = list()
@@ -4208,10 +4212,12 @@ simulateOneGenePatternGiottoObject = function(gobject,
   cell_meta = pDataDT(gobject)
   cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
 
-  newgobject = addCellMetadata(gobject,
-                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
-                               by_column = T,
-                               column_cell_ID = 'cell_ID')
+  newgobject = addCellMetadata(
+    gobject,
+    new_metadata = cell_meta[,c('cell_ID', pattern_name), with = FALSE],
+    by_column = TRUE,
+    column_cell_ID = 'cell_ID'
+  )
 
   # show pattern
   if(show_pattern == TRUE) {

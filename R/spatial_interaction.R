@@ -2036,7 +2036,7 @@ average_feat_feat_expression_in_groups = function(gobject,
   colnames(average_DT) = new_colnames
 
   # keep order of colnames
-  colnames_order = mixedsort(new_colnames)
+  colnames_order = sort(new_colnames)
 
   # feat_set_1 and feat_set_2 need to have same length and all feats need to be present in data
   if(length(feat_set_1) != length(feat_set_2)) {
@@ -2095,8 +2095,6 @@ average_feat_feat_expression_in_groups = function(gobject,
 #' @param random_iter number of iterations
 #' @param feat_set_1 first specific feature set from feature pairs
 #' @param feat_set_2 second specific feature set from feature pairs
-#' @param gene_set_1 deprecated. see \code{feat_set_1}
-#' @param gene_set_2 deprecated. see \code{feat_set_2}
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
@@ -2117,8 +2115,6 @@ exprCellCellcom = function(gobject,
                            random_iter = 1000,
                            feat_set_1,
                            feat_set_2,
-                           gene_set_1 = NULL,
-                           gene_set_2 = NULL,
                            log2FC_addendum = 0.1,
                            detailed = FALSE,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2126,7 +2122,7 @@ exprCellCellcom = function(gobject,
                            adjust_target = c('feats', 'cells'),
                            set_seed = TRUE,
                            seed_number = 1234,
-                           verbose = T) {
+                           verbose = TRUE) {
 
 
   # Set feat_type and spat_unit
@@ -2135,16 +2131,6 @@ exprCellCellcom = function(gobject,
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-
-  ## deprecated arguments
-  if(!is.null(gene_set_1)) {
-    feat_set_1 = gene_set_1
-    warning('gene_set_1 is deprecated, use feat_set_1 in the future \n')
-  }
-  if(!is.null(gene_set_2)) {
-    feat_set_2 = gene_set_2
-    warning('gene_set_2 is deprecated, use feat_set_2 in the future \n')
-  }
 
   # data.table variables
   lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
@@ -2164,12 +2150,14 @@ exprCellCellcom = function(gobject,
   names(nr_cells) = nr_cell_types$cluster_column
 
 
-  comScore = average_feat_feat_expression_in_groups(gobject = gobject,
-                                                    feat_type = feat_type,
-                                                    spat_unit = spat_unit,
-                                                    cluster_column = cluster_column,
-                                                    feat_set_1 = feat_set_1,
-                                                    feat_set_2 = feat_set_2)
+  comScore = average_feat_feat_expression_in_groups(
+    gobject = gobject,
+    feat_type = feat_type,
+    spat_unit = spat_unit,
+    cluster_column = cluster_column,
+    feat_set_1 = feat_set_1,
+    feat_set_2 = feat_set_2
+  )
 
   comScore[, lig_nr := nr_cells[lig_cell_type]]
   comScore[, rec_nr := nr_cells[rec_cell_type]]
@@ -2207,19 +2195,23 @@ exprCellCellcom = function(gobject,
       set.seed(seed = seed_number)
     }
     random_cell_types = sample(x = cell_types, size = length(cell_types))
-    tempGiotto = addCellMetadata(gobject = tempGiotto,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 new_metadata = random_cell_types,
-                                 by_column = F)
+    tempGiotto = addCellMetadata(
+      gobject = tempGiotto,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      new_metadata = random_cell_types,
+      by_column = FALSE # on purpose since values are random
+    )
 
     # get random communication scores
-    randomScore = average_feat_feat_expression_in_groups(gobject = tempGiotto,
-                                                         feat_type = feat_type,
-                                                         spat_unit = spat_unit,
-                                                         cluster_column = 'random_cell_types',
-                                                         feat_set_1 = feat_set_1,
-                                                         feat_set_2 = feat_set_2)
+    randomScore = average_feat_feat_expression_in_groups(
+      gobject = tempGiotto,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      cluster_column = 'random_cell_types',
+      feat_set_1 = feat_set_1,
+      feat_set_2 = feat_set_2
+    )
 
     # average random score
     total_av = total_av + randomScore[['LR_expr']]

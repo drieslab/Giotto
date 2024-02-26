@@ -98,7 +98,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
                             spat_unit = spat_unit,
                             feat_type = feat_type,
                             new_metadata = cell_meta[,.(cell_ID, resize_switch, cluster_interactions)],
-                            by_column = T,
+                            by_column = TRUE,
                             column_cell_ID = 'cell_ID')
 
   poly_plot = spatInSituPlotPoints(gobject = gobject,
