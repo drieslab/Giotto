@@ -2036,7 +2036,7 @@ average_feat_feat_expression_in_groups = function(gobject,
   colnames(average_DT) = new_colnames
 
   # keep order of colnames
-  colnames_order = mixedsort(new_colnames)
+  colnames_order = sort(new_colnames)
 
   # feat_set_1 and feat_set_2 need to have same length and all feats need to be present in data
   if(length(feat_set_1) != length(feat_set_2)) {
