@@ -1551,10 +1551,10 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
     stop("\n HMRFoutput needs to be output from doHMRF_V2() \n")
   }
   if (!"spat_unit" %in% names(HMRFoutput)) {
-    HMRF_init_obj[['spat_unit']] = NULL
+    HMRFoutput[['spat_unit']] = NULL
   }
   if (!"feat_type" %in% names(HMRFoutput)) {
-    HMRF_init_obj[['feat_type']] = NULL
+    HMRFoutput[['feat_type']] = NULL
   }
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
