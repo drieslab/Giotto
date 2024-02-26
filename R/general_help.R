@@ -61,9 +61,12 @@ extended_gini_fun <- function(x,
 .kmeans_binarize = function(x,
                             nstart = 3,
                             iter.max = 10,
-                            set.seed = NULL) {
+                            seed = NULL) {
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
   mean_1 = mean(x[sel_gene_km == 1])
   mean_2 = mean(x[sel_gene_km == 2])
@@ -88,10 +91,13 @@ extended_gini_fun <- function(x,
 #' @name .kmeans_arma_binarize
 #' @description create binarized scores from a vector using kmeans_arma
 #' @keywords internal
-.kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
+.kmeans_arma_binarize = function(x, n_iter = 5, seed = NULL) {
 
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(x),
                                           clusters = 2,
                                           n_iter = n_iter)
@@ -125,7 +131,7 @@ extended_gini_fun <- function(x,
                                         n_iter = 5,
                                         extreme_nr = 20,
                                         sample_nr = 200,
-                                        set.seed = NULL) {
+                                        seed = NULL) {
 
   length_x = length(x)
 
@@ -135,7 +141,10 @@ extended_gini_fun <- function(x,
   random_set = sample(vector_x[(extreme_nr+1):(length_x-extreme_nr)], size = sample_nr)
   testset = c(first_set, last_set, random_set)
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(testset),
                                           clusters = 2,
                                           n_iter = n_iter)
@@ -175,7 +184,7 @@ kmeans_binarize_wrapper = function(
     iter_max = 10,
     extreme_nr = 50,
     sample_nr = 50,
-    set.seed = NULL
+    seed = NULL
 ) {
 
 
@@ -185,21 +194,29 @@ kmeans_binarize_wrapper = function(
   }
 
   # check parameter
-  kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
+  kmeans_algo = match.arg(
+    arg = kmeans_algo,
+    choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset')
+  )
 
-  if(kmeans_algo == 'kmeans') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_binarize,
-                              nstart = nstart, iter.max = iter_max, set.seed = set.seed))
-  } else if(kmeans_algo == 'kmeans_arma') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_binarize,
-                              n_iter = iter_max, set.seed = set.seed))
-  } else if(kmeans_algo == 'kmeans_arma_subset') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_subset_binarize,
-                              n_iter = iter_max,
-                              extreme_nr = extreme_nr,
-                              sample_nr = sample_nr,
-                              set.seed = set.seed))
-  }
+  bin_matrix <- switch(
+    kmeans_algo,
+    "kmeans" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_binarize,
+      nstart = nstart, iter.max = iter_max, seed = seed
+    )),
+    "kmeans_arma" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_arma_binarize,
+      n_iter = iter_max, seed = seed
+    )),
+    "kmeans_arma_subset" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_arma_subset_binarize,
+      n_iter = iter_max,
+      extreme_nr = extreme_nr,
+      sample_nr = sample_nr,
+      seed = seed
+    ))
+  )
 
   return(bin_matrix)
 

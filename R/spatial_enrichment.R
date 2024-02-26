@@ -2119,7 +2119,7 @@ enrich_deconvolution <- function(expr,
   dwls_results<-matrix(0,nrow =dim(enrich_matrix)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(enrich_matrix)
   colnames(dwls_results)<-colnames(expr)
-  cluster_sort<-sort(unique(cluster_info))
+  cluster_sort<-mixedsort(unique(cluster_info))
   cluster_info<-cluster_info
   for (i in seq_along(cluster_sort)){
     cluster_i_enrich<-enrich_result[,which(cluster_info==cluster_sort[i])]
@@ -2167,7 +2167,7 @@ spot_deconvolution<-function(expr,
   rownames(enrich_matrix)<-rownames(ct_exp)
   colnames(enrich_matrix)<-colnames(ct_exp)
 
-    cluster_sort<-sort(unique(cluster_info))
+    cluster_sort<-mixedsort(unique(cluster_info))
   ####initialize dwls matrix
   dwls_results<-matrix(0,nrow =dim(ct_exp)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(ct_exp)
@@ -2231,7 +2231,7 @@ spot_deconvolution<-function(expr,
 cluster_enrich_analysis <- function(exp_matrix,
                                     cluster_info,
                                     enrich_sig_matrix) {
-  uniq_cluster<-sort(unique(cluster_info))
+  uniq_cluster<-mixedsort(unique(cluster_info))
   if(length(uniq_cluster) == 1) {
     stop("Only one cluster identified, need at least two.")
   }

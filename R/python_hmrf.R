@@ -567,7 +567,7 @@ addHMRF <- function(gobject,
                               feat_type = feat_type,
                               column_cell_ID = 'cell_ID',
                               new_metadata = annot_DT,
-                              by_column = F)
+                              by_column = TRUE)
 
 
   }
@@ -1551,10 +1551,10 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
     stop("\n HMRFoutput needs to be output from doHMRF_V2() \n")
   }
   if (!"spat_unit" %in% names(HMRFoutput)) {
-    HMRF_init_obj[['spat_unit']] = NULL
+    HMRFoutput[['spat_unit']] = NULL
   }
   if (!"feat_type" %in% names(HMRFoutput)) {
-    HMRF_init_obj[['feat_type']] = NULL
+    HMRFoutput[['feat_type']] = NULL
   }
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
@@ -1569,7 +1569,7 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
                               column_cell_ID = "cell_ID",
                               new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))],
                               vector_name = paste(name,names(HMRFoutput)[i]),
-                              by_column = F)
+                              by_column = TRUE)
   }
   return(gobject)
 }

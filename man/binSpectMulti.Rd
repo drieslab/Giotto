@@ -30,9 +30,10 @@ binSpectMulti(
   group_size = "automatic",
   do_parallel = TRUE,
   cores = NA,
-  verbose = T,
+  verbose = TRUE,
   knn_params = NULL,
-  set.seed = NULL,
+  set.seed = deprecated(),
+  seed = 1234,
   summarize = c("adj.p.value", "p.value")
 )
 }
@@ -91,7 +92,10 @@ binSpectMulti(
 
 \item{knn_params}{list of parameters to create spatial kNN network}
 
-\item{set.seed}{set a seed before kmeans binarization}
+\item{set.seed}{deprecated.}
+
+\item{seed}{Seed for kmeans binarization. If NULL passed, no seed is set.
+Otherwise, the input value is used as seed.}
 
 \item{summarize}{summarize the p-values or adjusted p-values}
 }
