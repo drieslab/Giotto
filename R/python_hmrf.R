@@ -551,7 +551,9 @@ addHMRF <- function(gobject,
     output = system(command = result_command, intern = T)
 
     # get cell_IDs
-    cids <- list.files(output_data,
+    cids <- gsub(basename(output_data), "", output_data) %>%
+      gsub(pattern = "\"", replacement = "") %>%
+      list.files(output_data,
                        pattern = "expression_matrix",
                        full.names = TRUE)[[1L]] %>%
       data.table::fread(nrows = 0L, header = TRUE) %>%
