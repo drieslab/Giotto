@@ -1,4 +1,7 @@
+# Giotto 4.0.3 (2024/02/20)
 
+## Bug fixes
+- Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 
 # Giotto 4.0.2 (2023/12/21)
 

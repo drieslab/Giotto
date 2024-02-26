@@ -9,7 +9,7 @@
   n_iter = 5,
   extreme_nr = 20,
   sample_nr = 200,
-  set.seed = NULL
+  seed = NULL
 )
 }
 \description{

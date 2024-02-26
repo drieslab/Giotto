@@ -4,7 +4,7 @@
 \alias{.kmeans_arma_binarize}
 \title{.kmeans_arma_binarize}
 \usage{
-.kmeans_arma_binarize(x, n_iter = 5, set.seed = NULL)
+.kmeans_arma_binarize(x, n_iter = 5, seed = NULL)
 }
 \description{
 create binarized scores from a vector using kmeans_arma
