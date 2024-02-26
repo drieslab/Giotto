@@ -33,7 +33,7 @@ balanced vector with features for each co-expression module
 Extract features from spatial co-expression modules in a balanced manner
 }
 \details{
-There are 3 different ways of selectig features from the spatial
+There are 3 different ways of selecting features from the spatial
 co-expression modules
 \itemize{
   \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
