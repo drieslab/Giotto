@@ -550,8 +550,20 @@ addHMRF <- function(gobject,
     print(result_command)
     output = system(command = result_command, intern = T)
 
+    # get cell_IDs
+    cids <- gsub(basename(output_data), "", output_data) %>%
+      gsub(pattern = "\"", replacement = "") %>%
+      list.files(pattern = "expression_matrix",
+                 full.names = TRUE) %>%
+      data.table::fread(nrows = 0L, header = TRUE) %>%
+      colnames()
+    cids <- cids[-1] # gene colname is also included
+
     # create unique name
-    annot_DT = data.table::data.table(temp_name = output)
+    annot_DT = data.table::data.table(
+      cell_ID = cids,
+      temp_name = output
+    )
 
     if(!is.null(hmrf_name)) {
       annot_name = paste0(hmrf_name,'_k', k, '_b.',b)
@@ -982,10 +994,10 @@ checkAndFixSpatialGenes <- function(gobject,
 #' @param use_metagene if metagene expression is used for clustering
 #' @param cluster_metagene number of metagenes to use
 #' @param top_metagene = number of genes in each cluster for the metagene calculation
-#' @param existing_spatial_enrichm_to_use name of existing spatial enrichment result to use 
+#' @param existing_spatial_enrichm_to_use name of existing spatial enrichment result to use
 #' @param use_neighborhood_composition if neighborhood composition is used for hmrf
 #' @param spatial_network_name_for_neighborhood spatial network used to calculate neighborhood composition
-#' @param metadata_to_use metadata used to calculate neighborhood composition 
+#' @param metadata_to_use metadata used to calculate neighborhood composition
 #' @param hmrf_seed random number seed to generate initial mean vector of HMRF model
 #' @param cl.method clustering method to calculate the initial mean vector, selecting from 'km', 'leiden', or 'louvain'
 #' @param resolution.cl resolution of Leiden or Louvain clustering
@@ -1006,10 +1018,10 @@ checkAndFixSpatialGenes <- function(gobject,
 #'    2. use metagene expressions (selected by use_metagene)
 #'    3. sampling to select 500 spatial genes (controlled by gene_samples).
 #' Third, once spatial genes are finalized, we are using clustering method to initialize HMRF.
-#' Instead of select spatial genes for domain clustering, HMRF method could also applied on unit neighbohood composition of any group 
-#' membership(such as cell types), specified by parameter: use_neighborhood_composition,  spatial_network_name_for_neighborhood and 
+#' Instead of select spatial genes for domain clustering, HMRF method could also applied on unit neighbohood composition of any group
+#' membership(such as cell types), specified by parameter: use_neighborhood_composition,  spatial_network_name_for_neighborhood and
 #' metadata_to_use. Also HMRF provides the oppertunity for user to do clustering by any customized spatial enrichment matrix
-#' (existing_spatial_enrichm_to_use).   
+#' (existing_spatial_enrichm_to_use).
 #' There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is
 #' then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors),
 #' blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
@@ -1093,7 +1105,7 @@ initHMRF_V2 =
 
     gx = fDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
     cx = pDataDT(gobject,spat_unit = spat_unit,feat_type = feat_type)
-    
+
     spatial_network = get_spatialNetwork(gobject, spat_unit = spat_unit, name = spatial_network_name, output ='networkDT', copy_obj = FALSE)
     spatial_network = spatial_network[, .(to, from)]
 
@@ -1101,57 +1113,57 @@ initHMRF_V2 =
     {
       if(is.null(spatial_network_name_for_neighborhood))
       {
-        stop("spatial network is required to define neighborhood, set with \'spatial_network_name_for_neighborhood\' \n", 
+        stop("spatial network is required to define neighborhood, set with \'spatial_network_name_for_neighborhood\' \n",
              call. = FALSE)
       }else if(is.null(metadata_to_use))
       {
-        stop("please specify the cluster in meta data, set with \'metadata_to_use\' \n", 
+        stop("please specify the cluster in meta data, set with \'metadata_to_use\' \n",
              call. = FALSE)
       }else if(is.null(cx[[metadata_to_use]]))
       {
-        stop("please provide a valid index in meta data, set with \'metadata_to_use\' \n", 
+        stop("please provide a valid index in meta data, set with \'metadata_to_use\' \n",
              call. = FALSE)
       }
-      
+
       cat(paste0("\n use spatial network composition of \'",metadata_to_use, "\' for domain clustering \n"))
-      
+
       name.cl = as.character(sort(unique(cx[[metadata_to_use]])))
-      
-      spatial_network_for_neighborhood = get_spatialNetwork(gobject,spat_unit = spat_unit, 
+
+      spatial_network_for_neighborhood = get_spatialNetwork(gobject,spat_unit = spat_unit,
                                                             name = spatial_network_name_for_neighborhood, output ='networkDT', copy_obj = FALSE)
-      
+
       from.all = c(spatial_network_for_neighborhood$from,spatial_network_for_neighborhood$to)
       to.all = c(spatial_network_for_neighborhood$to,spatial_network_for_neighborhood$from)
-      
+
       ct.tab = aggregate(cx[[metadata_to_use]][match(to.all,cx[['cell_ID']])],
                          by = list(cell_ID = from.all),function(y){table(y)[name.cl]})
-      
+
       y0 = ct.tab[,-1]
       y0[is.na(y0)] = 0
       rownames(y0) = ct.tab$cell_ID
       y0 = y0/rowSums(y0)
-      
-      # cell.rm = setdiff(rownames(y0), unique(c(spatial_network$to, 
+
+      # cell.rm = setdiff(rownames(y0), unique(c(spatial_network$to,
       #                                          spatial_network$from)))
-      # 
-      # if (length(cell.rm) > 0) 
+      #
+      # if (length(cell.rm) > 0)
       #   y0 = y0[-match(cell.rm, rownames(y0)), ]
       # ################################################
       # ## is scale y0 matrix on each sample needed?
       # y = y0
-      
-    }else if(!is.null(existing_spatial_enrichm_to_use))  
+
+    }else if(!is.null(existing_spatial_enrichm_to_use))
     {
       y0 = getSpatialEnrichment(gobject,spat_unit = spat_unit,feat_type = feat_type,
                                 name = existing_spatial_enrichm_to_use,output = 'data.table')
       cell_ID_enrich = y0$cell_ID
       y0 = as.data.frame(y0[,-'cell_ID'])
       rownames(y0) = cell_ID_enrich
-      
+
       cat(paste0("\n Spatial enrichment result: \'",existing_spatial_enrichm_to_use,"\' is used.\n"))
-      
+
       if(sum(!rownames(y0)%in%cx$cell_ID)>0)
-      {stop("\n Rownames of selected spatial enrichment result do not match to (a subset of) Cell IDs, please fix them. \n", 
+      {stop("\n Rownames of selected spatial enrichment result do not match to (a subset of) Cell IDs, please fix them. \n",
             call. = FALSE)}
     }else{
       zscore = match.arg(zscore, unique(c("none", "rowcol", "colrow",
@@ -1301,12 +1313,12 @@ initHMRF_V2 =
     ##############################
     ## scale y matrix on each sample
     y = t(scale(t(y0)))
-    
+
     ## do not scale y if using neighborhood composition
     if(use_neighborhood_composition){
       y = y0
     }
-    
+
     # if(use_pca ==T)
     # {
     #   pc.y = prcomp(t(y))[[2]]

@@ -992,40 +992,34 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
 
   # 2. load and create giotto object
-  if(data_to_use == 'subcellular') {
-
-    cosmx_gobject = .createGiottoCosMxObject_subcellular(dir_items,
-                                                        FOVs = FOVs,
-                                                        remove_background_polygon = remove_background_polygon,
-                                                        background_algo = background_algo,
-                                                        remove_unvalid_polygons = remove_unvalid_polygons,
-                                                        cores = cores,
-                                                        verbose = verbose,
-                                                        instructions = instructions)
-
-  }
-
-  if(data_to_use == 'aggregate') {
-
-    cosmx_gobject = .createGiottoCosMxObject_aggregate(dir_items,
-                                                      cores = cores,
-                                                      verbose = verbose,
-                                                      instructions = instructions)
-
-  }
-
-  if(data_to_use == 'all') {
-
-    cosmx_gobject = .createGiottoCosMxObject_all(dir_items,
-                                                FOVs = FOVs,
-                                                remove_background_polygon = remove_background_polygon,
-                                                background_algo = background_algo,
-                                                remove_unvalid_polygons = remove_unvalid_polygons,
-                                                cores = cores,
-                                                verbose = verbose,
-                                                instructions = instructions)
-
-  }
+  cosmx_gobject <- switch(data_to_use,
+    "subcellular" = .createGiottoCosMxObject_subcellular(
+      dir_items,
+      FOVs = FOVs,
+      remove_background_polygon = remove_background_polygon,
+      background_algo = background_algo,
+      remove_unvalid_polygons = remove_unvalid_polygons,
+      cores = cores,
+      verbose = verbose,
+      instructions = instructions
+    ),
+    "aggregate" = .createGiottoCosMxObject_aggregate(
+      dir_items,
+      cores = cores,
+      verbose = verbose,
+      instructions = instructions
+    ),
+    "all" = .createGiottoCosMxObject_all(
+      dir_items,
+      FOVs = FOVs,
+      remove_background_polygon = remove_background_polygon,
+      background_algo = background_algo,
+      remove_unvalid_polygons = remove_unvalid_polygons,
+      cores = cores,
+      verbose = verbose,
+      instructions = instructions
+    )
+  )
 
 
   # load in subcellular information, subcellular FOV objects, then join
@@ -1038,7 +1032,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
 
 
-  message('done')
+  vmsg('done')
   return(cosmx_gobject)
 
 }
@@ -1049,22 +1043,26 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 #' @name .createGiottoCosMxObject_subcellular
 #' @inheritParams createGiottoCosMxObject
 #' @keywords internal
-.createGiottoCosMxObject_subcellular = function(dir_items,
-                                               FOVs = NULL,
-                                               remove_background_polygon = TRUE,
-                                               background_algo = c('range'),
-                                               remove_unvalid_polygons = TRUE,
-                                               cores,
-                                               verbose = TRUE,
-                                               instructions = NULL) {
+.createGiottoCosMxObject_subcellular <- function(
+    dir_items,
+    FOVs = NULL,
+    remove_background_polygon = TRUE,
+    background_algo = c('range'),
+    remove_unvalid_polygons = TRUE,
+    cores,
+    verbose = TRUE,
+    instructions = NULL
+) {
 
-  target = fov = NULL
+  target <- fov <- NULL
 
-  # load tx detections and FOV offsets
-  data_list = .load_cosmx_folder_subcellular(dir_items = dir_items,
-                                            FOVs = FOVs,
-                                            cores = cores,
-                                            verbose = verbose)
+  # load tx detections and FOV offsets ------------------------------------- #
+  data_list = .load_cosmx_folder_subcellular(
+    dir_items = dir_items,
+    FOVs = FOVs,
+    cores = cores,
+    verbose = verbose
+  )
 
   # unpack data_list
   FOV_ID = data_list$FOV_ID
@@ -1075,6 +1073,8 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
   tx_coord_all[, c('x_global_px', 'y_global_px', 'cell_ID') := NULL]
 
   data.table::setcolorder(tx_coord_all, c('target', 'x_local_px', 'y_local_px', 'z', 'fov'))
+
+  # feature detection type splitting --------------------------------------- #
 
   if(isTRUE(verbose)) wrap_msg('Splitting detections by feature vs neg probe')
   all_IDs = tx_coord_all[, unique(target)]
@@ -1090,26 +1090,42 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     message('  > NegProbes: ', neg_coords_all[, .N])
   }
 
-  # Start FOV lapply
+  # FOV-based processing --------------------------------------------------- #
+
   fov_gobjects_list = lapply(FOV_ID, function(x) {
 
-    # Build image paths
+    # images --------------------------------------------------- #
+    # build image paths
     if(isTRUE(verbose)) message('Loading image information...')
 
     composite_dir = Sys.glob(paths = file.path(dir_items$`CellComposite folder`, paste0('*',x, '*')))
     cellLabel_dir = Sys.glob(paths = file.path(dir_items$`CellLabels folder`, paste0('*',x, '*')))
     compartmentLabel_dir = Sys.glob(paths = file.path(dir_items$`CompartmentLabels folder`, paste0('*',x, '*')))
     cellOverlay_dir = Sys.glob(paths = file.path(dir_items$`CellOverlay folder`, paste0('*',x, '*')))
+
     # Missing warnings
-    if(length(composite_dir) == 0) {warning('[ FOV ', x, ' ] No composite images found') ; composite_dir = NULL}
-    if(length(cellLabel_dir) == 0) {stop('[ FOV ', x, ' ] No cell mask images found')} # cell masks are necessary
-    if(length(compartmentLabel_dir) == 0) {warning('[ FOV ', x, ' ] No compartment label images found') ; compartmentLabel_dir = NULL}
-    if(length(cellOverlay_dir) == 0) {warning('[ FOV ', x, ' ] No cell polygon overlay images found') ; cellOverlay_dir = NULL}
+    if(length(composite_dir) == 0) {
+      warning('[ FOV ', x, ' ] No composite images found')
+      composite_dir = NULL
+    }
+    if(length(cellLabel_dir) == 0) {
+      stop('[ FOV ', x, ' ] No cell mask images found')
+    } # cell masks are necessary
+    if(length(compartmentLabel_dir) == 0) {
+      warning('[ FOV ', x, ' ] No compartment label images found')
+      compartmentLabel_dir = NULL
+    }
+    if(length(cellOverlay_dir) == 0) {
+      warning('[ FOV ', x, ' ] No cell polygon overlay images found')
+      cellOverlay_dir = NULL
+    }
 
     if(isTRUE(verbose)) message('Image load done')
 
     if(isTRUE(verbose)) wrap_msg('[ FOV ', x, ']')
 
+
+    # transcripts ---------------------------------------------- #
     # get FOV specific tx locations
     if(isTRUE(verbose)) wrap_msg('Assigning FOV feature detections...')
 
@@ -1125,7 +1141,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     data.table::setnames(neg_coord, old = coord_oldnames, new = coord_newnames)
 
 
-    # build giotto object
+    # build giotto object -------------------------------------- #
     if(isTRUE(verbose)) wrap_msg('Building subcellular giotto object...')
     fov_subset = createGiottoObjectSubcellular(
       gpoints = list('rna' = feat_coord,
@@ -1145,14 +1161,16 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     )
 
 
-    # find centroids as spatial locations
+    # find centroids as spatial locations ---------------------- #
     if(isTRUE(verbose)) wrap_msg('Finding polygon centroids as cell spatial locations...')
-    fov_subset = addSpatialCentroidLocations(fov_subset,
-                                             poly_info = 'cell',
-                                             spat_loc_name = 'raw')
+    fov_subset = addSpatialCentroidLocations(
+      fov_subset,
+      poly_info = 'cell',
+      spat_loc_name = 'raw'
+    )
 
 
-    # create and add giotto image objects
+    # create and add giotto image objects ---------------------- #
     if(isTRUE(verbose)) {
       message('Attaching image files...')
       print(composite_dir)
@@ -1164,29 +1182,40 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
     # load image if files are found
     if(!is.null(composite_dir))
-      gImage_list$composite = createGiottoLargeImage(raster_object = composite_dir,
-                                                     negative_y = F,
-                                                     name = 'composite')
+      gImage_list$composite = createGiottoLargeImage(
+        raster_object = composite_dir,
+        negative_y = FALSE,
+        name = 'composite'
+      )
     if(!is.null(cellOverlay_dir))
-      gImage_list$overlay = createGiottoLargeImage(raster_object = cellOverlay_dir,
-                                                   negative_y = F,
-                                                   name = 'overlay')
+      gImage_list$overlay = createGiottoLargeImage(
+        raster_object = cellOverlay_dir,
+        negative_y = FALSE,
+        name = 'overlay'
+      )
     if(!is.null(compartmentLabel_dir))
-      gImage_list$compartment = createGiottoLargeImage(raster_object = compartmentLabel_dir,
-                                                       negative_y = F,
-                                                       name = 'compartment') #TODO
+      gImage_list$compartment = createGiottoLargeImage(
+        raster_object = compartmentLabel_dir,
+        negative_y = FALSE,
+        name = 'compartment'
+      ) #TODO
 
 
 
     if(length(gImage_list) > 0) {
-      fov_subset = addGiottoImage(gobject = fov_subset,
-                                  largeImages = gImage_list)
+      fov_subset = addGiottoImage(
+        gobject = fov_subset,
+        largeImages = gImage_list
+      )
 
       # convert to MG for faster loading (particularly relevant for pulling from server)
-      fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$composite,
-                                               gobject = fov_subset,
-                                               return_gobject = TRUE,
-                                               verbose = FALSE)
+      # TODO remove this
+      fov_subset = convertGiottoLargeImageToMG(
+        giottoLargeImage = gImage_list$composite,
+        gobject = fov_subset,
+        return_gobject = TRUE,
+        verbose = FALSE
+      )
       # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$overlay, gobject = fov_subset, return_gobject = TRUE)
       # fov_subset = convertGiottoLargeImageToMG(giottoLargeImage = gImage_list$compartment, gobject = fov_subset, return_gobject = TRUE)
     } else {
@@ -1195,6 +1224,8 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
 
 
   }) #lapply end
+
+  # returning -------------------------------------------------------------- #
 
   if(length(FOVs) == 1) {
     return(fov_gobjects_list[[1]])
@@ -1205,12 +1236,15 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     id_match = match(as.numeric(FOV_ID), fov_offset_file$fov)
     x_shifts = fov_offset_file[id_match]$x_global_px
     y_shifts = fov_offset_file[id_match]$y_global_px
+
     # Join giotto objects
-    cosmx_gobject = joinGiottoObjects(gobject_list = fov_gobjects_list,
-                                      gobject_names = new_gobj_names,
-                                      join_method = 'shift',
-                                      x_shift = x_shifts,
-                                      y_shift = y_shifts)
+    cosmx_gobject = joinGiottoObjects(
+      gobject_list = fov_gobjects_list,
+      gobject_names = new_gobj_names,
+      join_method = 'shift',
+      x_shift = x_shifts,
+      y_shift = y_shift
+    )
     return(cosmx_gobject)
   }
 

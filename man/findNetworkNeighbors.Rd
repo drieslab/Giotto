@@ -7,7 +7,7 @@
 findNetworkNeighbors(
   gobject,
   spat_unit = NULL,
-  spatial_network_name,
+  spatial_network_name = NULL,
   source_cell_ids = NULL,
   name = "nb_cells"
 )
