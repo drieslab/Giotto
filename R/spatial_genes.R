@@ -498,14 +498,16 @@ NULL
 
 #' @describeIn calculate_spatial_enrichment calculate using 'data.table' implementation
 #' @keywords internal
-.calc_spatial_enrichment_dt = function(bin_matrix,
-                                      spatial_network,
-                                      calc_hub = F,
-                                      hub_min_int = 3,
-                                      group_size = 'automatic',
-                                      do_fisher_test = TRUE,
-                                      adjust_method = 'fdr',
-                                      cores = NA) {
+.calc_spatial_enrichment_dt <- function(
+    bin_matrix,
+    spatial_network,
+    calc_hub = FALSE,
+    hub_min_int = 3,
+    group_size = 'automatic',
+    do_fisher_test = TRUE,
+    adjust_method = 'fdr',
+    cores = NA
+) {
 
 
   # set number of cores automatically, but with limit of 10
@@ -519,12 +521,12 @@ NULL
   spat_netw_min = spatial_network[,.(from, to)]
 
   # divide matrix in groups
-  if(!is.na(group_size) & is.numeric(group_size)) {
+  if (!is.na(group_size) & is.numeric(group_size)) {
     group_size = group_size
     if(group_size > nrow(bin_matrix)) {
       stop('group_size is too big, it can not be greater than the number of feats')
     }
-  } else if(group_size == 'automatic') {
+  } else if (group_size == 'automatic') {
 
     test_number = ceiling(nrow(bin_matrix)/10)
     test_number = max(2, test_number)
@@ -533,7 +535,7 @@ NULL
 
   groups = ceiling(nrow(bin_matrix)/group_size)
   cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
-  if(any(table(cut_groups) == 1)) {
+  if (any(table(cut_groups) == 1)) {
     stop('With group size = ', group_size, ' you have a single gene in a group. Manually pick another group size')
   }
   indexes = 1:nrow(bin_matrix)
@@ -541,7 +543,7 @@ NULL
 
 
   total_list = list()
-  for(group in unique(cut_groups)) {
+  for (group in unique(cut_groups)) {
 
     sel_indices = indexes[names(indexes) == group]
 
@@ -549,7 +551,7 @@ NULL
     bin_matrix_DT[, feat_ID := rownames(bin_matrix[sel_indices,])]
     bin_matrix_DTm = data.table::melt.data.table(bin_matrix_DT, id.vars = 'feat_ID')
 
-    if(do_fisher_test == TRUE) {
+    if (do_fisher_test == TRUE) {
       test = .spat_fish_func_dt(bin_matrix_DTm = bin_matrix_DTm,
                                spat_netw_min = spat_netw_min,
                                calc_hub = calc_hub,
@@ -570,7 +572,7 @@ NULL
 
   result = do.call('rbind', total_list)
 
-  if(do_fisher_test == TRUE) {
+  if (do_fisher_test == TRUE) {
     min_pvalue = min(result$p.value[result$p.value > 0])
     result[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
     result[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
@@ -680,8 +682,13 @@ binSpectSingleMatrix = function(expression_matrix,
     set.seed <- NULL
   }
 
+  do_parallel <- as.logical(do_parallel)
+  calc_hub <- as.logical(calc_hub)
+  get_av_expr <- as.logical(get_av_expr)
+  get_high_expr <- as.logical(get_high_expr)
+  do_fisher_test <- as.logical(do_fisher_test)
 
-  if(verbose == TRUE) cat('\n This is the single parameter version of binSpect')
+  vmsg(.v = verbose, '\n This is the single parameter version of binSpect')
 
 
   # set number of cores automatically, but with limit of 10
@@ -703,7 +710,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
   # spatial network
   # TODO: verify binarization of spatial network
-  if(is.null(spatial_network)) {
+  if (is.null(spatial_network)) {
     stop("You need to provide a spatial network in data.table format to the 'spatial_network' parameter \n")
   }
 
@@ -711,89 +718,86 @@ binSpectSingleMatrix = function(expression_matrix,
   ## start binarization ##
   ## ------------------ ##
 
-  if(!is.null(bin_matrix)) {
+  if (!is.null(bin_matrix)) {
     # TODO: verify format of bin_matrix and compatibility with spatial network
     bin_matrix = bin_matrix
   } else {
 
-    if(bin_method == 'kmeans') {
-
-      bin_matrix = kmeans_binarize_wrapper(expr_values = expression_matrix,
-                                           subset_feats = subset_feats,
-                                           kmeans_algo = kmeans_algo,
-                                           nstart = nstart,
-                                           iter_max = iter_max,
-                                           extreme_nr = extreme_nr,
-                                           sample_nr = sample_nr,
-                                           # set.seed = set.seed,
-                                           seed = seed)
-
-    } else if(bin_method == 'rank') {
-
-      bin_matrix = rank_binarize_wrapper(expr_values = expression_matrix,
-                                         subset_feats = subset_feats,
-                                         percentage_rank = percentage_rank)
-    }
+    bin_matrix <- switch(bin_method,
+      "kmeans" = kmeans_binarize_wrapper(
+        expr_values = expression_matrix,
+        subset_feats = subset_feats,
+        kmeans_algo = kmeans_algo,
+        nstart = nstart,
+        iter_max = iter_max,
+        extreme_nr = extreme_nr,
+        sample_nr = sample_nr,
+        # set.seed = set.seed,
+        seed = seed
+      ),
+      "rank" = rank_binarize_wrapper(
+        expr_values = expression_matrix,
+        subset_feats = subset_feats,
+        percentage_rank = percentage_rank
+      )
+    )
   }
 
-  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+  vmsg(.v = verbose, '\n 1. matrix binarization complete \n')
 
   ## start with enrichment ##
   ## --------------------- ##
 
-  if(implementation == 'simple') {
-    if(do_parallel == TRUE) {
-      warning('Parallel not yet implemented for simple. Enrichment will default to serial.')
-    }
+  result <- switch(implementation,
+    "simple" = {
+      if(do_parallel) {
+        warning('Parallel not yet implemented for simple. Enrichment will default to serial.')
+      }
+      if(calc_hub) {
+        warning('Hub calculation is not possible with the simple implementation, change to matrix if required.')
+      }
 
-    if(calc_hub == TRUE) {
-      warning('Hub calculation is not possible with the simple implementation, change to matrix if requird.')
-    }
+      .calc_spatial_enrichment_minimum(
+        spatial_network = spatial_network,
+        bin_matrix = bin_matrix,
+        adjust_method = adjust_method,
+        do_fisher_test = do_fisher_test
+      )
+    },
+    "matrix" = .calc_spatial_enrichment_matrix(
+      spatial_network = spatial_network,
+      bin_matrix = bin_matrix,
+      adjust_method = adjust_method,
+      do_fisher_test = do_fisher_test,
+      do_parallel = do_parallel,
+      cores = cores,
+      calc_hub = calc_hub,
+      hub_min_int = hub_min_int,
+      verbose = verbose
+    ),
+    "data.table" = .calc_spatial_enrichment_dt(
+      bin_matrix = bin_matrix,
+      spatial_network = spatial_network,
+      calc_hub = calc_hub,
+      hub_min_int = hub_min_int,
+      group_size = group_size,
+      do_fisher_test = do_fisher_test,
+      adjust_method = adjust_method,
+      cores = cores
+    )
+  )
 
-
-    result = .calc_spatial_enrichment_minimum(spatial_network = spatial_network,
-                                             bin_matrix = bin_matrix,
-                                             adjust_method = adjust_method,
-                                             do_fisher_test = do_fisher_test)
-
-
-  } else if(implementation == 'matrix') {
-
-    result = .calc_spatial_enrichment_matrix(spatial_network = spatial_network,
-                                            bin_matrix = bin_matrix,
-                                            adjust_method = adjust_method,
-                                            do_fisher_test = do_fisher_test,
-                                            do_parallel = do_parallel,
-                                            cores = cores,
-                                            calc_hub = calc_hub,
-                                            hub_min_int = hub_min_int,
-                                            verbose = verbose)
-
-  } else if(implementation == 'data.table') {
-
-    result = .calc_spatial_enrichment_dt(bin_matrix = bin_matrix,
-                                        spatial_network = spatial_network,
-                                        calc_hub = calc_hub,
-                                        hub_min_int = hub_min_int,
-                                        group_size = group_size,
-                                        do_fisher_test = do_fisher_test,
-                                        adjust_method = adjust_method,
-                                        cores = cores)
-  }
-
-  if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
-
-
+  vmsg(.v = verbose, '\n 2. spatial enrichment test completed \n')
 
 
 
   ## start with average high expression ##
   ## ---------------------------------- ##
 
-  if(get_av_expr == TRUE) {
+  if (get_av_expr) {
 
     # expression
-    if(!is.null(subset_feats)) {
+    if (!is.null(subset_feats)) {
       expr_values = expression_matrix[rownames(expression_matrix) %in% subset_feats, ]
     } else {
       expr_values = expression_matrix
@@ -806,7 +810,7 @@ binSpectSingleMatrix = function(expression_matrix,
     av_expr_DT = data.table::data.table(feats = names(av_expr), av_expr = av_expr)
     result = merge(result, av_expr_DT, by = 'feats')
 
-    if(verbose == TRUE) cat('\n 3. (optional) average expression of high expressing cells calculated \n')
+    vmsg(.v = verbose, '\n 3. (optional) average expression of high expressing cells calculated \n')
   }
 
 
@@ -814,17 +818,17 @@ binSpectSingleMatrix = function(expression_matrix,
   ## start with number of high expressing cells ##
   ## ------------------------------------------ ##
 
-  if(get_high_expr == TRUE) {
+  if (get_high_expr) {
     high_expr = rowSums(bin_matrix)
     high_expr_DT = data.table::data.table(feats = names(high_expr), high_expr = high_expr)
     result = merge(result, high_expr_DT, by = 'feats')
 
-    if(verbose == TRUE) cat('\n 4. (optional) number of high expressing cells calculated \n')
+    vmsg(.v = verbose, '\n 4. (optional) number of high expressing cells calculated \n')
   }
 
 
   # sort
-  if(do_fisher_test == TRUE) {
+  if (do_fisher_test) {
     data.table::setorder(result, -score)
   } else {
     data.table::setorder(result, -estimate)

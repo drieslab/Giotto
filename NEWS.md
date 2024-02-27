@@ -19,6 +19,7 @@
 ## Enhancements
 * Use `mixedsort()` for unique clusters metadata info
 * Remove unnecessary matrix densification and expose `seed` param in `doScrubletDetect()`
+* Remove unnecessary matrix densification in `makeSignMatrixRank()`
 
 
 # Giotto 4.0.3 (2024/02/20)
