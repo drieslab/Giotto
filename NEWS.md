@@ -3,7 +3,7 @@
 
 ## Breaking Changes
 * Remove `do_manual_adj` and image adjustment params from `createGiottoVisiumObject()`
-* Change `createGiottoVisiumObject()` so that it creates `giottoLargeImage` for spatial images.
+* `createGiottoVisiumObject()` now creates `giottoLargeImage` for spatial images.
 
 ## Changes
 * Update `get10Xmatrix()` so it obeys `split_by_type = FALSE`
