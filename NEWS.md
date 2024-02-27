@@ -1,12 +1,32 @@
+# Giotto 4.0.4
+
+## Breaking changes
+* `exprCellCellcom()` deprecated `gene_set_*` params removed
+
+## Bug fixes
+* Fix metadata appending/sorting issues introduced by *GiottoClass v0.1.3* (2024/01/12) that affected `addHMRF()`, `addFeatsPerc()`, and `doScrubletDetect()`
+* Provide default `spatial_network_name = NULL` value for `findNetworkNeighbors()`
+
+## Changes
+* Deprecate `set.seed` in favor of `seed` param for `binSpect()`
+* `binSpect()` now sets a seed by default for reproducibility
+* pkgdown files moved to separate [repo](https://github.com/drieslab/Giotto_website)
+
+## Enhancements
+* Use `mixedsort()` for unique clusters metadata info
+* Remove unnecessary matrix densification and expose `seed` param in `doScrubletDetect()`
+
+
+
 # Giotto 4.0.3 (2024/02/20)
 
 ## Bug fixes
-- Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
+* Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 
 # Giotto 4.0.2 (2023/12/21)
 
 ## Bug Fixes
-- fix bug in `doHclust()`
+* fix bug in `doHclust()`
 
 ## Changes
 * Move *GiottoClass* back to depends to fix access to some generics
@@ -14,7 +34,7 @@
 # Giotto 4.0.1 (2023/12/16)
 
 ## Breaking Changes
-* Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
+* Remove `cell_ids` param for `calculateHVF()` in favor of simpler `random_subset`
 * Move *GiottoUtils*, *GiottoClass*, and *GiottoVisuals* to imports
 
 ## Added
