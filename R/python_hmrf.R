@@ -1068,31 +1068,19 @@ initHMRF_V2 =
       Nature biotechnology 36 (12), 1183-1190. 2018\n"
     )
 
-    if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
-      stop("\n package ", "smfishHmrf", " is not yet installed \n",
-           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n",
-           "see http://spatial.rc.fas.harvard.edu for more information",
-           call. = FALSE)
-    }
-    if (!requireNamespace("tidygraph", quietly = TRUE)) {
-      stop("\n package ", "tidygraph", " is not yet installed \n",
-           call. = FALSE)
-    }
-    if (!requireNamespace("ggraph", quietly = TRUE)) {
-      stop("\n package ", "ggraph", " is not yet installed \n",
-           call. = FALSE)
-    }
-    if (!requireNamespace("graphcoloring", quietly = TRUE)) {
-      stop("\n package ", "graphcoloring", " is not yet installed \n",
-           "To install: \n", "devtools::install_bitbucket(\"qzhudfci/graphcoloring\") \n",
-           call. = FALSE)
-    }
-    library(smfishHmrf)
-    library(tidygraph)
-    library(ggraph)
-    library(graphcoloring)
+    package_check(
+      pkg_name = c(
+        "tidygraph", "ggraph", "dplyr", "smfishHmrf", "graphcoloring"
+      ),
+      repository = c(
+        "CRAN:tidygraph",
+        "CRAN:ggraph",
+        "CRAN:dplyr",
+        "bitbucket:qzhudfci/smfishHmrf-r",
+        "bitbucket:qzhudfci/graphcoloring"
+      )
+    )
 
-    package_check('dplyr')
 
     # DT vars
     to = from = clus = NULL
