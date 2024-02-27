@@ -1,5 +1,5 @@
-# Giotto 4.0.3
 
+# Giotto 4.0.4
 
 ## Breaking Changes
 * Remove `do_manual_adj` and image adjustment params from `createGiottoVisiumObject()`
@@ -9,12 +9,14 @@
 * Update `get10Xmatrix()` so it obeys `split_by_type = FALSE`
 
 
+# Giotto 4.0.3 (2024/02/20)
 
+## Bug Fixes
+- Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 
 # Giotto 4.0.2 (2023/12/21)
 
 ## Bug Fixes
-- Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 - fix bug in `doHclust()`
 
 ## Changes
