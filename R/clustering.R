@@ -1265,29 +1265,40 @@ doHclust <- function(gobject,
                                     feat_type = feat_type)
 
 
-  dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
-  distance_method = match.arg(distance_method, choices = c("pearson", "spearman",  "original",
-                                                           "euclidean", "maximum", "manhattan",
-                                                           "canberra", "binary", "minkowski"))
-  agglomeration_method = match.arg(agglomeration_method, choices = c("ward.D2","ward.D", "single",
-                                                                     "complete", "average", "mcquitty",
-                                                                     "median", "centroid" ))
+  dim_reduction_to_use = match.arg(
+    dim_reduction_to_use,
+    choices = c('cells', 'pca', 'umap', 'tsne')
+  )
+  distance_method = match.arg(
+    distance_method,
+    choices = c("pearson", "spearman",  "original",
+                "euclidean", "maximum", "manhattan",
+                "canberra", "binary", "minkowski")
+  )
+  agglomeration_method = match.arg(
+    agglomeration_method,
+    choices = c("ward.D2","ward.D", "single",
+                "complete", "average", "mcquitty",
+                "median", "centroid" )
+  )
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
 
   ## using dimension reduction ##
-  if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
+  if(dim_reduction_to_use != 'cells' && !is.null(dim_reduction_to_use)) {
 
     ## TODO: check if reduction exists
 
     # use only available dimensions if dimensions < dimensions_to_use
-    dim_coord = get_dimReduction(gobject = gobject,
-                                 feat_type = feat_type,
-                                 spat_unit = spat_unit,
-                                 reduction = 'cells',
-                                 reduction_method = dim_reduction_to_use,
-                                 name = dim_reduction_name,
-                                 output = 'data.table')
+    dim_coord = get_dimReduction(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      reduction = 'cells',
+      reduction_method = dim_reduction_to_use,
+      name = dim_reduction_name,
+      output = 'data.table'
+    )
 
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]
@@ -1295,10 +1306,13 @@ doHclust <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = get_expression_values(gobject = gobject,
-                                        spat_unit = spat_unit,
-                                        feat_type = feat_type,
-                                        values = values)
+    expr_values = get_expression_values(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = values,
+      output = "matrix"
+    )
 
     # subset expression matrix
     if(!is.null(feats_to_use)) {
@@ -1366,11 +1380,14 @@ doHclust <- function(gobject,
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit,
-                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
 
 
@@ -1728,14 +1745,14 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
 
   # data.table variables
   hvf = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
 
 
-  for(cluster in unique_clusters) {
+  for (cluster in unique_clusters) {
 
     if(verbose == TRUE) cat('\n start with cluster: ', cluster, '\n')
 
@@ -1897,7 +1914,7 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
@@ -2086,7 +2103,7 @@ doLeidenSubCluster = function(gobject,
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
-  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  unique_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
@@ -2177,8 +2194,12 @@ doLeidenSubCluster = function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = F],
-                               by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(
+      gobject,
+      new_metadata = together[, c('cell_ID', name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
     ## update parameters used ##
     parameters_list = gobject@parameters
@@ -2681,11 +2702,14 @@ mergeClusters <- function(gobject,
       gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = feat_type,
-                              new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      new_metadata = metadata[, c('cell_ID', new_cluster_name), with = FALSE],
+      by_column = TRUE,
+      column_cell_ID = 'cell_ID'
+    )
 
 
     ## update parameters used ##

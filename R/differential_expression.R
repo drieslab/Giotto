@@ -231,7 +231,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
 
   # sort uniq clusters
-  uniq_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  uniq_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
 
   # save list
@@ -602,7 +602,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
 
   # sort uniq clusters
-  uniq_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  uniq_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
 
   # GINI
@@ -909,7 +909,7 @@ findMastMarkers_one_vs_all = function(gobject,
   }
 
   ## sort uniq clusters
-  uniq_clusters = sort(unique(cell_metadata[[cluster_column]]))
+  uniq_clusters = mixedsort(unique(cell_metadata[[cluster_column]]))
 
   # save list
   result_list = list()

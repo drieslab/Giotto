@@ -12,7 +12,7 @@ kmeans_binarize_wrapper(
   iter_max = 10,
   extreme_nr = 50,
   sample_nr = 50,
-  set.seed = NULL
+  seed = NULL
 )
 }
 \description{

@@ -4,7 +4,9 @@ name: code coverage
 
 on:
   push:
-    branches: [ "suite" ]
+    branches:
+      - 'suite'
+      - 'suite_dev'
   # pull_request:
   #   types: closed
   #   branches: [ "main" ]

@@ -27,7 +27,8 @@ binSpectMultiMatrix(
   cores = NA,
   verbose = T,
   knn_params = NULL,
-  set.seed = NULL,
+  set.seed = deprecated(),
+  seed = 1234,
   summarize = c("adj.p.value", "p.value")
 )
 }
@@ -76,7 +77,10 @@ binSpectMultiMatrix(
 
 \item{knn_params}{list of parameters to create spatial kNN network}
 
-\item{set.seed}{set a seed before kmeans binarization}
+\item{set.seed}{deprecated}
+
+\item{seed}{sets value as seed before kmeans binarization. If NULL, no seed
+is set.}
 
 \item{summarize}{summarize the p-values or adjusted p-values}
 }

@@ -74,8 +74,10 @@ NULL
 #' @describeIn cell_proximity_spots Compute cell-cell interactions observed value for interacted spots
 #' @param pairs data.table of paired spots. Format: cell_ID1, cell_ID2, N
 #' @keywords internal
-.cell_proximity_spots_external = function(pairs,
-                                         dwls_values){
+.cell_proximity_spots_external <- function(
+    pairs,
+    dwls_values
+) {
 
   cell_IDs = unique(c(pairs$from, pairs$to))
   pairs = pairs[, .N, by = c('from','to')]
@@ -89,11 +91,11 @@ NULL
   pairs_mat = reshape2::acast(pairs_for_mat, from ~ to, value.var = 'N' ,fill = 0)
   pairs_mat = pairs_mat[cell_IDs,cell_IDs]
 
-  #calculate cell-tyep/cell-type interactions
+  #calculate cell-type/cell-type interactions
   dwls_sub = dwls_values[cell_IDs,]
   proximity_dt = data.table::data.table()
   cts = colnames(dwls_sub)
-  cts = sort(cts)
+  cts = mixedsort(cts)
   for (i in seq_along(cts)){
     ct1 = cts[i]
     dwls_ct1 = dwls_sub[, ct1]

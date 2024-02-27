@@ -2216,9 +2216,9 @@ plotRankSpatvsExpr = function(gobject,
 
   # deprecate
   if (GiottoUtils::is_present(midpoint)) {
-    deprecate_warn('0.0.0.9000',
-                   'GiottoVisuals::plotRankSpatvsExpr(midpoint = )',
-                   'GiottoVisuals::plotRankSpatvsExpr(gradient_midpoint = )')
+    deprecate_warn('4.0.0',
+                   'Giotto::plotRankSpatvsExpr(midpoint = )',
+                   'Giotto::plotRankSpatvsExpr(gradient_midpoint = )')
     gradient_midpoint <- midpoint
   }
 
@@ -2262,9 +2262,6 @@ plotRankSpatvsExpr = function(gobject,
     midpoint = gradient_midpoint,
     style = gradient_style,
     type = 'color',
-    type_default = list(
-      pal = c('blue', 'yellow', 'red')
-    ),
     guide = guide_legend(title = '')
   )
   pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = "none")

@@ -353,7 +353,7 @@ comparePolygonExpression <- function(gobject,
                                         heatmap_legend_param = list(title = "Normalized mean z score"),
                                         cluster_rows = FALSE,
                                         cluster_columns = FALSE,
-                                        column_order = sort(colnames(my_zscores_mean)),
+                                        column_order = mixedsort(colnames(my_zscores_mean)),
                                         ...)
   return(my_heatmap)
 }
@@ -505,6 +505,10 @@ plotInteractive3D <- function(gobject, spat_unit = 'cell', feat_type = 'rna',
                                              output = 'data.table')
 
   data <- merge(cell_metadata_table, spatial_coordinates)
+  extent <- c(xmin = min(data$sdimx), xmax = max(data$sdimx),
+              ymin = min(data$sdimy), ymax = max(data$sdimy),
+              zmin = min(data$sdimz), zmax = max(data$sdimz))
+  sorted_colors <- mixedsort(unique(data[[cell_color]]))
 
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("Slide to select axis range"),
@@ -513,24 +517,24 @@ plotInteractive3D <- function(gobject, spat_unit = 'cell', feat_type = 'rna',
         shiny::column(4, offset = 1,
                       # Move the slide bar to select z-axis ranges
                       shiny::sliderInput("xrange", label = "x-axis",
-                                         min = min(data$sdimx),
-                                         max = max(data$sdimx),
-                                         value = c(min(data$sdimx), max(data$sdimx))),
+                                         min = extent[["xmin"]],
+                                         max = extent[["xmax"]],
+                                         value = c(extent[["xmin"]], extent[["xmax"]])),
                       shiny::sliderInput("yrange", label = "y-axis",
-                                         min = min(data$sdimy),
-                                         max = max(data$sdimy),
-                                         value = c(min(data$sdimy), max(data$sdimy))),
+                                         min = extent[["ymin"]],
+                                         max = extent[["ymax"]],
+                                         value = c(extent[["ymin"]], extent[["ymax"]])),
                       shiny::sliderInput("zrange", label = "z-axis",
-                                         min = min(data$sdimz),
-                                         max = max(data$sdimz),
-                                         value = c(min(data$sdimz), max(data$sdimz)))
+                                         min = extent[["zmin"]],
+                                         max = extent[["zmax"]],
+                                         value = c(extent[["zmin"]], extent[["zmax"]]))
         ),
 
         shiny::column(4, offset = 2,
                       shiny::checkboxGroupInput("clusters",
                                                 label = "clusters",
-                                                choices = unique(sort(data[[cell_color]])),
-                                                selected = unique(sort(data[[cell_color]]))),
+                                                choices = sorted_colors,
+                                                selected = sorted_colors),
         )
       ),
 
