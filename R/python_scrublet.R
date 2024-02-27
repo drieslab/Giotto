@@ -1,19 +1,30 @@
 
 #' @title doScrubletDetect
 #' @name doScrubletDetect
-#' @description run scrublet doublet detection for raw expression.
+#' @description run *scrublet* doublet detection for raw expression.
 #' @param gobject giotto object containing expression data
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param expression_values expression values to use
-#' @param expected_doublet_rate expected transcriptomes that are doublets. 0.06 is from 10x Chromium guide.
-#' @param min_counts scrublet internal data filtering, min counts found to be considered a cell
-#' @param min_cells scrublet internal data filtering. min cells expressed to be considered a feat
-#' @param min_gene_variability_pctl scrublet internal PCA generation. highly variable gene percentile cutoff
+#' @param expected_doublet_rate expected transcriptomes that are doublets. 0.06
+#' is from 10x Chromium guide.
+#' @param min_counts scrublet internal data filtering, min counts found to be
+#' considered a cell
+#' @param min_cells scrublet internal data filtering. min cells expressed to be
+#' considered a feat
+#' @param min_gene_variability_pctl scrublet internal PCA generation. highly
+#' variable gene percentile cutoff
 #' @param n_prin_comps number of PCs to use in PCA for detection
-#' @param return_gobject return as gobject if TRUE, data.frame with cell_ID if FALSE
-#' @seealso This function wraps the python package scrublet \doi{10.1016/j.cels.2018.11.005}
-#' @return list including doublet scores and classifications
+#' @param return_gobject return as gobject if TRUE, data.frame with cell_ID if
+#' FALSE
+#' @param seed If a numeric is provided, then it will be used as a seed. If
+#' NULL, no seed will be set.
+#' @seealso This function wraps the python package scrublet
+#' \doi{10.1016/j.cels.2018.11.005}
+#' @return if `return_gobject = FALSE`, a `data.table` cell_ID, doublet scores,
+#' and classifications are returned. If `TRUE`, that information is appended into
+#' the input `giotto` object's metadata and the `giotto` object is returned.
+#' @md
 #' @export
 doScrubletDetect = function(gobject,
                             feat_type = NULL,
@@ -24,7 +35,8 @@ doScrubletDetect = function(gobject,
                             min_cells = 1,
                             min_gene_variability_pctl = 85,
                             n_prin_comps = 30,
-                            return_gobject = TRUE) {
+                            return_gobject = TRUE,
+                            seed = 1234) {
 
 
   # verify if optional package is installed
@@ -45,8 +57,11 @@ doScrubletDetect = function(gobject,
   reticulate::source_python(file = python_scrublet_function,convert = TRUE)
 
   # set seed
-  seed_number = 1234
-  reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
+  if (!is.null(seed)) {
+    seed_number = as.numeric(seed)
+    reticulate::py_set_seed(seed = seed_number,
+                            disable_hash_randomization = TRUE)
+  }
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -63,41 +78,45 @@ doScrubletDetect = function(gobject,
   n_prin_comps = as.character(n_prin_comps)
 
   # 2. get expression data
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = expression_values,
-                                      output = 'matrix')
+  expr_values = get_expression_values(
+    gobject = gobject,
+    spat_unit = spat_unit,
+    feat_type = feat_type,
+    values = expression_values,
+    output = 'matrix'
+  )
 
-  # input is a sparse matrix with cells as rows and genes as columns   data.table::as.data.table()
-  scr_input = expr_values
-  scr_input = as.matrix(scr_input)
-  scr_input = t_flex(scr_input)
-  scr_input <- evaluate_input(type = 'expression', x = scr_input, sparse = TRUE)
+  # input is a sparse matrix with cells as rows and genes as columns
+  scr_input <- to_scipy_sparse(expr_values, format = "C", transpose = TRUE)
 
-  scrublet_out = python_scrublet(counts_matrix = scr_input,
-                                 expected_doublet_rate = expected_doublet_rate,
-                                 min_counts = min_counts,
-                                 min_cells = min_cells,
-                                 min_gene_variability_pctl = min_gene_variability_pctl,
-                                 n_prin_comps = n_prin_comps)
+  scrublet_out <- python_scrublet(
+    counts_matrix = scr_input,
+    expected_doublet_rate = expected_doublet_rate,
+    min_counts = min_counts,
+    min_cells = min_cells,
+    min_gene_variability_pctl = min_gene_variability_pctl,
+    n_prin_comps = n_prin_comps
+  )
 
-  scrublet_out = data.frame(scrublet_out[1], scrublet_out[2])
-  names(scrublet_out) = c('doublet_scores','doublet')
+  scrublet_out <- data.table::data.table(
+    cell_ID = colnames(expr_values),
+    doublet_scores = scrublet_out[[1]],
+    doublet = scrublet_out[[2]]
+  )
 
-  # Add to metadata
-  if(return_gobject == TRUE) {
-    gobject = addCellMetadata(gobject = gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit,
-                              new_metadata = scrublet_out,
-                              by_column = FALSE)
+
+  if(isTRUE(return_gobject)) {
+    # Add to metadata
+    gobject <- addCellMetadata(
+      gobject = gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      new_metadata = scrublet_out,
+      by_column = TRUE,
+      column_cell_ID = "cell_ID"
+    )
     return(gobject)
-  } else {
-    return(cbind(cell_ID = pDataDT(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type)$cell_ID,
-                 scrublet_out))
   }
 
+  return(scrublet_out)
 }
