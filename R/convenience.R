@@ -1370,7 +1370,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
       gobject_names = new_gobj_names,
       join_method = 'shift',
       x_shift = x_shifts,
-      y_shift = y_shift
+      y_shift = y_shifts
     )
     return(cosmx_gobject)
   }

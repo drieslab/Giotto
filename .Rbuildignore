@@ -7,10 +7,12 @@
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
 ^INDEX.md$
+^CNAME$
 
 ^docs
 ^vignettes
 ^\.github
+^testdata
 
 ^codecov\.yml$
 ^_pkgdown\.yml$
