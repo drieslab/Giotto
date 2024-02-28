@@ -51,6 +51,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Set up dependencies (GiottoData)
+        run: |
+          suppressWarnings({
+            install.packages("remotes")
+            remotes::install_github("drieslab/GiottoData", build = FALSE)
+          })
+        shell: Rscript {0}
+
       - name: Set up dependencies (general)
         uses: r-lib/actions/setup-r-dependencies@v2
         env:
@@ -58,7 +66,17 @@ jobs:
           _R_CHECK_RD_XREFS: false
         with:
           dependencies: '"hard"' # do not use suggested dependencies
-          extra-packages: any::rcmdcheck, any::testthat, any::hdf5r, any::rlang, any::R.utils, any::remotes, any::covr, any::spdep, any::future.apply, github::drieslab/GiottoData
+          extra-packages: |
+            any::rcmdcheck
+            any::testthat
+            any::hdf5r
+            any::rlang
+            any::R.utils
+            any::remotes
+            any::covr
+            any::spdep
+            any::future.apply
+            GiottoData=?ignore
 
       - name: Test python env install
         run: |
