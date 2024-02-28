@@ -23,7 +23,7 @@ jobs:
     steps:
 
       - name: Checkout repo for workflow access
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up R environment
         uses: r-lib/actions/setup-r@v2
