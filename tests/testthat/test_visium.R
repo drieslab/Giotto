@@ -14,6 +14,7 @@ urls <- c(
 datadir <- paste0(getwd(), '/testdata/vis_1_3_0')
 if (!dir.exists(datadir)) dir.create(datadir)
 
+# download files
 lapply(
   urls,
   function(url) {
@@ -60,7 +61,7 @@ test_that("visium create dir raw is working", {
   # meta
   expect_true(nrow(pDataDT(g_nofil)) == 4992)
   expect_true(nrow(fDataDT(g_nofil)) == 19500)
-  expect_true("ENSMUSG00000051951" %in% fDataDT(g_fil)$feat_ID)
+  expect_true("ENSMUSG00000051951" %in% fDataDT(g_nofil)$feat_ID)
   # expression
   expect_true(identical(dim(getExpression(g_nofil)), c(19500L, 4992L)))
   # spatlocs

@@ -65,6 +65,8 @@ jobs:
           if (!GiottoClass::checkGiottoEnvironment()) {
             GiottoClass::installGiottoEnvironment()
           }
+
+          reticulate::py_list_packages(envname = "giotto_env")
         shell: Rscript {0}
 
       - name: Run R CMD check
