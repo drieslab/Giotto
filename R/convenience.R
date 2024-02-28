@@ -327,6 +327,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     verbose = NULL
 ) {
 
+  # NSE vars
+  barcode <- cell_ID <- row_pxl <- col_pxl <- in_tissue <- array_row <-
+    array_col <- NULL
+
   # Assume path checking has been done
 
   # 1. expression
