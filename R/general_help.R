@@ -61,9 +61,12 @@ extended_gini_fun <- function(x,
 .kmeans_binarize = function(x,
                             nstart = 3,
                             iter.max = 10,
-                            set.seed = NULL) {
+                            seed = NULL) {
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
   mean_1 = mean(x[sel_gene_km == 1])
   mean_2 = mean(x[sel_gene_km == 2])
@@ -88,10 +91,13 @@ extended_gini_fun <- function(x,
 #' @name .kmeans_arma_binarize
 #' @description create binarized scores from a vector using kmeans_arma
 #' @keywords internal
-.kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
+.kmeans_arma_binarize = function(x, n_iter = 5, seed = NULL) {
 
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(x),
                                           clusters = 2,
                                           n_iter = n_iter)
@@ -125,7 +131,7 @@ extended_gini_fun <- function(x,
                                         n_iter = 5,
                                         extreme_nr = 20,
                                         sample_nr = 200,
-                                        set.seed = NULL) {
+                                        seed = NULL) {
 
   length_x = length(x)
 
@@ -135,7 +141,10 @@ extended_gini_fun <- function(x,
   random_set = sample(vector_x[(extreme_nr+1):(length_x-extreme_nr)], size = sample_nr)
   testset = c(first_set, last_set, random_set)
 
-  if(!is.null(set.seed)) set.seed(1234)
+  if(!is.null(seed)) {
+    on.exit(random_seed(), add = TRUE)
+    set.seed(seed)
+  }
   sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(testset),
                                           clusters = 2,
                                           n_iter = n_iter)
@@ -175,7 +184,7 @@ kmeans_binarize_wrapper = function(
     iter_max = 10,
     extreme_nr = 50,
     sample_nr = 50,
-    set.seed = NULL
+    seed = NULL
 ) {
 
 
@@ -185,21 +194,29 @@ kmeans_binarize_wrapper = function(
   }
 
   # check parameter
-  kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
+  kmeans_algo = match.arg(
+    arg = kmeans_algo,
+    choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset')
+  )
 
-  if(kmeans_algo == 'kmeans') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_binarize,
-                              nstart = nstart, iter.max = iter_max, set.seed = set.seed))
-  } else if(kmeans_algo == 'kmeans_arma') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_binarize,
-                              n_iter = iter_max, set.seed = set.seed))
-  } else if(kmeans_algo == 'kmeans_arma_subset') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = .kmeans_arma_subset_binarize,
-                              n_iter = iter_max,
-                              extreme_nr = extreme_nr,
-                              sample_nr = sample_nr,
-                              set.seed = set.seed))
-  }
+  bin_matrix <- switch(
+    kmeans_algo,
+    "kmeans" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_binarize,
+      nstart = nstart, iter.max = iter_max, seed = seed
+    )),
+    "kmeans_arma" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_arma_binarize,
+      n_iter = iter_max, seed = seed
+    )),
+    "kmeans_arma_subset" = t_flex(apply(
+      X = expr_values, MARGIN = 1, FUN = .kmeans_arma_subset_binarize,
+      n_iter = iter_max,
+      extreme_nr = extreme_nr,
+      sample_nr = sample_nr,
+      seed = seed
+    ))
+  )
 
   return(bin_matrix)
 
@@ -450,9 +467,9 @@ get10Xmatrix = function(path_to_data,
   colnames(MMmatrix) = barcodes_vec
 
 
-  # Split by type of feature (features.tzv 3rd col)
+  # Split by type of feature (features.tsv 3rd col)
   feat_classes = unique(featuresDT$V3)
-  if(length(feat_classes) > 1) {
+  if(length(feat_classes) > 1 && isTRUE(split_by_type)) {
     result_list = list()
 
     for(fclass in feat_classes) {
@@ -482,84 +499,6 @@ get10Xmatrix = function(path_to_data,
 
 }
 
-
-
-#' @title get10XmatrixOLD
-#' @name get10XmatrixOLD
-#' @description This function creates an expression matrix from a 10X structured folder
-#' @param path_to_data path to the 10X folder
-#' @param gene_column_index which column from the features or genes .tsv file to use for row ids
-#' @return sparse expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
-#' \itemize{
-#'   \item{barcodes.tsv(.gz)}
-#'   \item{features.tsv(.gz) or genes.tsv(.gz)}
-#'   \item{matrix.mtx(.gz)}
-#' }
-#' By default the first column of the features or genes .tsv file will be used, however if multiple
-#' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
-get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
-
-  # data.table variables
-  total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
-
-  # data directory
-  files_10X = list.files(path_to_data)
-
-  # get barcodes and create vector
-  barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
-  barcodesDT = data.table::fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
-  barcodes_vec = barcodesDT$V1
-  names(barcodes_vec) = 1:nrow(barcodesDT)
-
-  # get features and create vector
-  features_file = grep(files_10X, pattern = 'features|genes', value = T)
-  featuresDT = data.table::fread(input = paste0(path_to_data,'/',features_file), header = F)
-
-  g_name = colnames(featuresDT)[gene_column_index]
-  ## convert ensembl gene id to gene symbol ##
-  ## TODO
-
-  featuresDT[, total := .N, by = get(g_name)]
-  featuresDT[, gene_symbol := ifelse(total > 1, paste0(get(g_name),'--',1:.N), get(g_name)), by = get(g_name)]
-  features_vec = featuresDT$gene_symbol
-  names(features_vec) = 1:nrow(featuresDT)
-
-  # get matrix
-  matrix_file = grep(files_10X, pattern = 'matrix', value = T)
-  matrixDT = data.table::fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
-  colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
-
-  # extend matrixDT with missing cell IDs
-  all_matrix_cell_ids = unique(matrixDT$cell_id_num)
-  missing_barcodes_cell_ids = as.integer(names(barcodes_vec)[!names(barcodes_vec) %in% all_matrix_cell_ids])
-  length_missing = length(missing_barcodes_cell_ids)
-
-  if(length_missing > 0) {
-    missing_matrixDT = data.table(gene_id_num = rep(1, length_missing),
-                                  cell_id_num = missing_barcodes_cell_ids,
-                                  umi = rep(0, length_missing))
-    matrixDT = rbind(matrixDT, missing_matrixDT)
-  }
-
-
-  # convert barcodes and features
-  matrixDT[, gene_id := features_vec[gene_id_num]]
-  matrixDT[, cell_id := barcodes_vec[cell_id_num]]
-
-  # make sure that gene id are consecutive
-  sort_gene_id_vec = seq_along(unique(matrixDT$gene_id))
-  names(sort_gene_id_vec) = unique(matrixDT$gene_id)
-  matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
-
-  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num,
-                                   j = matrixDT$cell_id_num,
-                                   x = matrixDT$umi,
-                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
-
-  return(sparsemat)
-
-}
 
 
 

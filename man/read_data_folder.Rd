@@ -14,11 +14,11 @@
   load_format = NULL,
   require_data_DT,
   cores = NA,
-  verbose = TRUE,
+  verbose = NULL,
   toplevel = 2L
 )
 
-.read_merscope_folder(merscope_dir, data_to_use, cores = NA, verbose = TRUE)
+.read_merscope_folder(merscope_dir, data_to_use, cores = NA, verbose = NULL)
 }
 \arguments{
 \item{spat_method}{spatial method for which the data is being read}
@@ -27,10 +27,12 @@
 
 \item{dir_items}{named list of directory items to expect and keywords to match}
 
-\item{data_to_use}{which type(s) of expression data to build the gobject with}
+\item{data_to_use}{character. Which type(s) of expression data to build the
+gobject with. Values should match with a \emph{workflow} item in require_data_DT
+(see details)}
 
 \item{require_data_DT}{data.table detailing if expected data items are required
-or optional for each \code{data_to_use} workflow}
+or optional for each \code{data_to_use} \emph{workflow}}
 
 \item{cores}{cores to use}
 
@@ -47,16 +49,55 @@ items.\cr
 reader functions should be built using it as a base.
 }
 \details{
-Steps performed:
+\strong{Steps performed:}
 \itemize{
 \item{1. detection of items within \code{data_dir} by looking for keywords
 assigned through \code{dir_items}}
 \item{2. check of detected items to see if everything needed has been found.
-Dictionary of necessary vs optional items for each \code{data_to_use} workflow
+Dictionary of necessary vs optional items for each \code{data_to_use} \emph{workflow}
 is provided through \code{require_data_DT}}
 \item{3. if multiple filepaths are found to be matching then select the first
 one. This function is only intended to find the first level subdirectories
 and files.}
+}
+
+\strong{Example reader implementation:}
+\preformatted{
+  foo <- function(x_dir,
+                  data_to_use,
+                  cores = NA,
+                  verbose = NULL) {
+    dir_items <- list(
+      data1 = "regex_pattern1",
+      data2 = "regex_pattern2",
+      data3 = "regex_pattern3"
+    )
+
+    # DT of info to check directory for. Has 3 cols
+    require_data_DT <- data.table::data.table(
+      workflow = "a", # data_to_use is matched against this
+      item = c(
+        "data1",
+        "data2",
+        "data3"
+      ),
+      needed = c(
+        FALSE, # data1 optional for this workflow (if missing: warn)
+        TRUE,  # data2 vital for this workflow (if missing: error)
+        TRUE   # data3 vital for this workflow (if missing: error)
+      )
+    )
+
+    .read_data_folder(
+      spat_method = "x_method",
+      data_dir = x_dir,
+      dir_items = dir_items,
+      data_to_use = data_to_use,
+      require_data_DT = require_data_DT,
+      cores = cores,
+      verbose = verbose
+    )
+  }
 }
 }
 \section{Functions}{

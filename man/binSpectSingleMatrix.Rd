@@ -27,7 +27,8 @@ binSpectSingleMatrix(
   do_parallel = TRUE,
   cores = NA,
   verbose = FALSE,
-  set.seed = NULL
+  set.seed = deprecated(),
+  seed = 1234
 )
 }
 \arguments{
@@ -75,7 +76,10 @@ binSpectSingleMatrix(
 
 \item{verbose}{be verbose}
 
-\item{set.seed}{set a seed before kmeans binarization}
+\item{set.seed}{deprecated.}
+
+\item{seed}{Seed for kmeans binarization. If NULL passed, no seed is set.
+Otherwise, the input value is used as seed.}
 }
 \value{
 data.table with results (see details)

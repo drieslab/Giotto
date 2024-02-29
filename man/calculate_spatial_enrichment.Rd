@@ -29,7 +29,7 @@
 .calc_spatial_enrichment_dt(
   bin_matrix,
   spatial_network,
-  calc_hub = F,
+  calc_hub = FALSE,
   hub_min_int = 3,
   group_size = "automatic",
   do_fisher_test = TRUE,

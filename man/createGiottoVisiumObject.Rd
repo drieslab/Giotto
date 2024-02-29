@@ -23,7 +23,7 @@ createGiottoVisiumObject(
   expression_matrix_class = c("dgCMatrix", "DelayedArray"),
   h5_file = NULL,
   cores = NA,
-  verbose = TRUE
+  verbose = NULL
 )
 }
 \arguments{
@@ -46,15 +46,15 @@ looks for matches in the filename for either 'hires' or 'lowres'}
 
 \item{png_name}{select name of png to use (see details)}
 
-\item{do_manual_adj}{flag to use manual adj values instead of automatic image alignment}
+\item{do_manual_adj}{deprecated}
 
-\item{xmax_adj}{adjustment of the maximum x-value to align the image}
+\item{xmax_adj}{deprecated}
 
-\item{xmin_adj}{adjustment of the minimum x-value to align the image}
+\item{xmin_adj}{deprecated}
 
-\item{ymax_adj}{adjustment of the maximum y-value to align the image}
+\item{ymax_adj}{deprecated}
 
-\item{ymin_adj}{adjustment of the minimum y-value to align the image}
+\item{ymin_adj}{deprecated}
 
 \item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
@@ -78,7 +78,7 @@ If starting from a Visium 10X directory:
   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
-  \item{the file scalefactors_json.json will be detected automaticated and used to attempt to align the data}
+  \item{the file scalefactors_json.json will be detected automatically and used to attempt to align the data}
 }
 
 If starting from a Visium 10X .h5 file

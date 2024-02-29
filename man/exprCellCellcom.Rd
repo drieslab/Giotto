@@ -12,8 +12,6 @@ exprCellCellcom(
   random_iter = 1000,
   feat_set_1,
   feat_set_2,
-  gene_set_1 = NULL,
-  gene_set_2 = NULL,
   log2FC_addendum = 0.1,
   detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
@@ -21,7 +19,7 @@ exprCellCellcom(
   adjust_target = c("feats", "cells"),
   set_seed = TRUE,
   seed_number = 1234,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{
@@ -38,10 +36,6 @@ exprCellCellcom(
 \item{feat_set_1}{first specific feature set from feature pairs}
 
 \item{feat_set_2}{second specific feature set from feature pairs}
-
-\item{gene_set_1}{deprecated. see \code{feat_set_1}}
-
-\item{gene_set_2}{deprecated. see \code{feat_set_2}}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 

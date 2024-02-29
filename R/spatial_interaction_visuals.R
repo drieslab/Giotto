@@ -2216,9 +2216,9 @@ plotRankSpatvsExpr = function(gobject,
 
   # deprecate
   if (GiottoUtils::is_present(midpoint)) {
-    deprecate_warn('0.0.0.9000',
-                   'GiottoVisuals::plotRankSpatvsExpr(midpoint = )',
-                   'GiottoVisuals::plotRankSpatvsExpr(gradient_midpoint = )')
+    deprecate_warn('4.0.0',
+                   'Giotto::plotRankSpatvsExpr(midpoint = )',
+                   'Giotto::plotRankSpatvsExpr(gradient_midpoint = )')
     gradient_midpoint <- midpoint
   }
 

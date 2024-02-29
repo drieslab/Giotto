@@ -23,9 +23,10 @@ initHMRF_V2(
   use_metagene = FALSE,
   cluster_metagene = 50,
   top_metagene = 20,
-  existing_dim_reduction_to_use = NULL,
-  existing_dim_reduction_name = NULL,
-  existing_dimensions_to_use = NULL,
+  existing_spatial_enrichm_to_use = NULL,
+  use_neighborhood_composition = F,
+  spatial_network_name_for_neighborhood = NULL,
+  metadata_to_use = NULL,
   hmrf_seed = 100,
   cl.method = c("km", "leiden", "louvain"),
   resolution.cl = 1,
@@ -74,11 +75,13 @@ initHMRF_V2(
 
 \item{top_metagene}{= number of genes in each cluster for the metagene calculation}
 
-\item{existing_dim_reduction_to_use}{name of dimension reduction method to use}
+\item{existing_spatial_enrichm_to_use}{name of existing spatial enrichment result to use}
 
-\item{existing_dim_reduction_name}{name of dimension reduction result to use as the expression value for clustering}
+\item{use_neighborhood_composition}{if neighborhood composition is used for hmrf}
 
-\item{existing_dimensions_to_use}{integers to selected dimensions in the specified dimension reduction result, set to NULL to select all}
+\item{spatial_network_name_for_neighborhood}{spatial network used to calculate neighborhood composition}
+
+\item{metadata_to_use}{metadata used to calculate neighborhood composition}
 
 \item{hmrf_seed}{random number seed to generate initial mean vector of HMRF model}
 
@@ -112,6 +115,10 @@ clustering, listed with selection priority:
    2. use metagene expressions (selected by use_metagene)
    3. sampling to select 500 spatial genes (controlled by gene_samples).
 Third, once spatial genes are finalized, we are using clustering method to initialize HMRF.
+Instead of select spatial genes for domain clustering, HMRF method could also applied on unit neighbohood composition of any group
+membership(such as cell types), specified by parameter: use_neighborhood_composition,  spatial_network_name_for_neighborhood and
+metadata_to_use. Also HMRF provides the oppertunity for user to do clustering by any customized spatial enrichment matrix
+(existing_spatial_enrichm_to_use).
 There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine initial centroids of HMRF. The initialization is
 then finished. This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors),
 blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist, init.cl (initial clusters),

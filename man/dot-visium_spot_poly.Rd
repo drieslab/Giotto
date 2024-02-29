@@ -4,10 +4,11 @@
 \alias{.visium_spot_poly}
 \title{Create Polygons for Visium Data}
 \usage{
-.visium_spot_poly(spatLocsObj = NULL, json_scalefactors)
+.visium_spot_poly(spatlocs = NULL, json_scalefactors)
 }
 \arguments{
-\item{spatLocsObj}{spatial locations object containing centroid locations of visium spots}
+\item{spatlocs}{spatial locations data.table or \code{spatLocsObj} containing
+centroid locations of visium spots}
 
 \item{json_scalefactors}{list of scalefactors from .visium_read_scalefactors()}
 }
