@@ -50,9 +50,12 @@ visium = GiottoData::loadGiottoMini(dataset = "visium")
 # Extract the cell expression matrix as a test dataset
 dgc = getExpression(visium, output = "matrix")
 
+# Create a DBI connection object
+con = DBI::dbConnect(duckb::duckdb(), ":memory:")
+
 # Create a dbSparseMatrix using the dbMatrix constructor function
 dbsm = dbMatrix::createDBMatrix(value = dgc, 
-                                db_path = ":memory:", 
+                                con = con, 
                                 name = 'dgc', 
                                 class = "dbSparseMatrix",
                                 overwrite = TRUE)
@@ -84,3 +87,7 @@ gobject_db_filtered = normalizeGiotto(gobject = gobject_db_filtered,
                                       scale_cells = TRUE)
 ```
 
+
+```{r}
+sessionInfo()
+```

@@ -39,12 +39,12 @@
 #' @title Log normalize expression matrix
 #' @keywords internal
 .log_norm_giotto = function(mymatrix, base, offset) {
-  
+
   if(methods::is(mymatrix, 'DelayedArray')) {
     mymatrix = log(mymatrix + offset)/log(base)
     # } else if(methods::is(mymatrix, 'DelayedMatrix')) {
     #   mymatrix = log(mymatrix + offset)/log(base)
-  } else if(methods::is(mymatrix, 'dgCMatrix')) { 
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)# replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
@@ -611,6 +611,46 @@ filterGiotto = function(gobject,
 
 ### normalization ####
 
+#' @title compute_dbMatrix
+#' @description saves dbMatrix to db if global option is set
+#' @details
+#' Set \code{options(giotto.dbmatrix_compute = FALSE)} if saving dbMatrix
+#' after each step of normalization workflow is not desired.
+#' @keywords internal
+.compute_dbMatrix <- function(dbMatrix, name, verbose = TRUE) {
+  # input validation
+  if(!inherits(dbMatrix, 'dbMatrix')) {
+    stop('dbMatrix must be of class dbMatrix')
+  }
+  
+  if(!is.character(name)) {
+    stop('name must be a character')
+  }
+  
+  # TODO: update with dbData generic
+  con = dbMatrix:::get_con(dbMatrix)
+  
+  # overwrite table by default
+  if(name %in% DBI::dbListTables(con)) {
+    DBI::dbRemoveTable(con, name)
+  }
+  
+  if(verbose){
+    msg <- glue::glue('Computing {name} expression matrix on disk...')
+    cat(msg)   
+  }
+  
+  dbMatrix[] |>
+    dplyr::compute(temporary=F, name = name)
+    
+  # TODO: update below with proper setters from dbMatrix
+  dbMatrix[] <- dplyr::tbl(con, name) # reassign to computed mat
+  dbMatrix@name <- name
+  
+  if(verbose) cat('done \n')
+  
+  return(dbMatrix)
+}
 
 #' @title RNA standard normalization
 #' @name .rna_standard_normalization
@@ -629,7 +669,6 @@ filterGiotto = function(gobject,
                                       scale_cells = TRUE,
                                       scale_order = c('first_feats', 'first_cells'),
                                       verbose = TRUE) {
-
   # check feature type compatibility
   if(!feat_type %in% c('rna', 'RNA')) {
     warning('Caution: Standard normalization was developed for RNA data \n')
@@ -644,13 +683,18 @@ filterGiotto = function(gobject,
   feat_names = rownames(raw_expr[])
   col_names = colnames(raw_expr[])
 
-
-
+  # set global option options(giotto.dbmatrix_compute = FALSE) if not desired
+  # see ?dplyr::compute() for more details
+  if(inherits(raw_expr[], "dbMatrix")){
+    compute_mat <- getOption("giotto.dbmatrix_compute", TRUE)
+  } else {
+    compute_mat <- FALSE
+  }
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
     norm_expr = .lib_norm_giotto(mymatrix = raw_expr[],
-                               scalefactor = scalefactor)
+                                scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr[]
   }
@@ -658,8 +702,8 @@ filterGiotto = function(gobject,
   ## 2. lognormalize
   if(log_norm == TRUE) {
     norm_expr = .log_norm_giotto(mymatrix = norm_expr,
-                               base = logbase,
-                               offset = log_offset)
+                                base = logbase,
+                                offset = log_offset)
   }
 
   ## 3. scale
@@ -721,12 +765,25 @@ filterGiotto = function(gobject,
   }
 
   ## 5. create and set exprObj
+  # Save dbMatrix to db if global option is set
+  if(compute_mat){
+    norm_expr <- .compute_dbMatrix(dbMatrix = norm_expr, 
+                                   name = 'normalized',
+                                   verbose = verbose) 
+  }
+
   norm_expr = create_expr_obj(name = 'normalized',
                               exprMat = norm_expr,
                               spat_unit = spat_unit,
                               feat_type = feat_type,
                               provenance = provenance,
                               misc = NULL)
+  
+  if(compute_mat){
+   norm_scaled_expr = .compute_dbMatrix(dbMatrix = norm_scaled_expr,
+                                        name = 'scaled',
+                                        verbose = verbose) 
+  }
 
   norm_scaled_expr = create_expr_obj(name = 'scaled',
                                      exprMat = norm_scaled_expr,
