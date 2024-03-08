@@ -2026,10 +2026,11 @@ spatialDE <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values)
+  expr_values = getExpression(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              values = values,
+                              output = "matrix")
 
   ## python path
   if(is.null(python_path)) {
@@ -2042,9 +2043,10 @@ spatialDE <- function(gobject = NULL,
   reticulate::source_python(file = reader_path)
 
   ## get spatial locations
-  spatial_locs = get_spatial_locations(gobject,
-                                       spat_unit = spat_unit,
-                                       spat_loc_name = spat_loc_name)
+  spatial_locs = getSpatialLocations(gobject,
+                                     spat_unit = spat_unit,
+                                     name = spat_loc_name,
+                                     output = "data.table")
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
