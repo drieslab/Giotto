@@ -1,3 +1,7 @@
+# Giotto TBD
+
+## Bug fixes
+* Fix Error "cannot coerce class ‘structure("spatLocsObj", package = "Giotto")’ to a data.frame" in `spatialDE()`
 
 # Giotto 4.0.4
 
