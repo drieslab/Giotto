@@ -1151,12 +1151,13 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 #' @param z_index either 'all' or a numeric vector of z_indices to get polygons for
 #' @param calc_centroids calculate centroids for the polygons (default = TRUE)
 #' @param verbose be verbose
-#' @keywords internal
 #' @export
-readPolygonVizgenParquet = function(file,
-                                    z_index = 'all',
-                                    calc_centroids = TRUE,
-                                    verbose = TRUE) {
+readPolygonVizgenParquet = function(
+    file,
+    z_index = 'all',
+    calc_centroids = TRUE,
+    verbose = TRUE
+) {
 
   # package checks
   package_check('arrow')
