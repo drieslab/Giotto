@@ -1,5 +1,12 @@
+# Giotto 4.0.5 (2024/03/12)
 
-# Giotto 4.0.4
+## Bug fixes
+* Fix Error "cannot coerce class ‘structure("spatLocsObj", package = "Giotto")’ to a data.frame" in `spatialDE()`
+
+## Enhancements
+* `readPolygonVizgenParquet()` now has `calc_centroids = TRUE` by default
+
+# Giotto 4.0.4 (2024/02/28)
 
 ## Breaking changes
 * Remove `do_manual_adj` and image adjustment params from `createGiottoVisiumObject()`

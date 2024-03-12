@@ -1149,12 +1149,15 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 #' can be selected.
 #' @param file parquet file to load
 #' @param z_index either 'all' or a numeric vector of z_indices to get polygons for
+#' @param calc_centroids calculate centroids for the polygons (default = TRUE)
 #' @param verbose be verbose
-#' @keywords internal
 #' @export
-readPolygonVizgenParquet = function(file,
-                                    z_index = 'all',
-                                    verbose = TRUE) {
+readPolygonVizgenParquet = function(
+    file,
+    z_index = 'all',
+    calc_centroids = TRUE,
+    verbose = TRUE
+) {
 
   # package checks
   package_check('arrow')
@@ -1223,6 +1226,12 @@ readPolygonVizgenParquet = function(file,
       spatVector = sv,
       unique_ID_cache = poly_table$EntityID
     )
+
+    if(isTRUE(calc_centroids)) {
+      # NOTE: will not recalculate if centroids are already attached
+      gpoly = GiottoClass::centroids(x = gpoly, append_gpolygon = TRUE)
+    }
+
   })
 
   return(out)

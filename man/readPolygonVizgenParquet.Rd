@@ -4,12 +4,19 @@
 \alias{readPolygonVizgenParquet}
 \title{Read MERSCOPE polygons from parquet}
 \usage{
-readPolygonVizgenParquet(file, z_index = "all", verbose = TRUE)
+readPolygonVizgenParquet(
+  file,
+  z_index = "all",
+  calc_centroids = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{file}{parquet file to load}
 
 \item{z_index}{either 'all' or a numeric vector of z_indices to get polygons for}
+
+\item{calc_centroids}{calculate centroids for the polygons (default = TRUE)}
 
 \item{verbose}{be verbose}
 }
@@ -17,4 +24,3 @@ readPolygonVizgenParquet(file, z_index = "all", verbose = TRUE)
 Read Vizgen exported cell boundary parquet files as giottoPolyons. The z level
 can be selected.
 }
-\keyword{internal}
