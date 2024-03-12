@@ -1228,7 +1228,7 @@ readPolygonVizgenParquet = function(file,
 
     if(isTRUE(calc_centroids)) {
       # NOTE: will not recalculate if centroids are already attached
-      gpoly = .calculate_centroids_polygons(gpolygon = gpoly, append_gpolygon = TRUE)
+      gpoly = GiottoClass::centroids(x = gpoly, append_gpolygon = TRUE)
     }
 
   })
