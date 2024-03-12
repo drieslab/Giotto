@@ -3812,6 +3812,9 @@ heatmSpatialCorFeats = function(gobject,
     stop('\n spatCorObject needs to be the output from detectSpatialCorFeats() \n')
   }
 
+  ## package check for ComplexHeatmap
+  package_check(pkg_name = 'ComplexHeatmap', repository = 'CRAN')
+
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
   cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = feat_ID~variable, value.var = 'spat_cor')
