@@ -9,10 +9,6 @@ on:
     branches:
       - 'suite'
       - 'suite_dev'
-  # pull_request:
-  #   branches:
-  #     - 'suite'
-  #     - 'suite_dev'
 
 permissions:
   contents: read
