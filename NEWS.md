@@ -1,3 +1,11 @@
+
+# Giotto 4.0.6
+
+## Enhancements
+* New `interpolateFeature()` for kriging interpolation of values
+
+
+
 # Giotto 4.0.5 (2024/03/12)
 
 ## Bug fixes
