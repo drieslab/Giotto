@@ -32,7 +32,7 @@ Depends:
     utils (>= 3.5.0),
     R (>= 3.5.0),
     methods,
-    GiottoClass (>= 0.2.0)
+    GiottoClass (>= 0.2.4)
 Imports:
     BiocParallel,
     BiocSingular,
