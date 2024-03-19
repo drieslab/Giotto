@@ -42,7 +42,7 @@ jobs:
         shell: bash
 
       - name: Checkout repo for workflow access
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up R environment
         uses: r-lib/actions/setup-r@v2
@@ -58,13 +58,25 @@ jobs:
           _R_CHECK_RD_XREFS: false
         with:
           dependencies: '"hard"' # do not use suggested dependencies
-          extra-packages: any::rcmdcheck, any::testthat, any::rlang, any::R.utils, any::remotes, any::covr, any::spdep, any::future.apply, github::drieslab/GiottoData
+          install-pandoc: false
+          extra-packages: |
+            any::rcmdcheck
+            any::testthat
+            any::hdf5r
+            any::rlang
+            any::R.utils
+            any::remotes
+            any::spdep
+            any::future.apply
+            github::drieslab/GiottoData
 
       - name: Test python env install
         run: |
           if (!GiottoClass::checkGiottoEnvironment()) {
             GiottoClass::installGiottoEnvironment()
           }
+
+          reticulate::py_list_packages(envname = "giotto_env")
         shell: Rscript {0}
 
       - name: Run R CMD check

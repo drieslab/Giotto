@@ -17,9 +17,5 @@ suppressWarnings({
   }
 })
 
-# install giotto environment
-if (!checkGiottoEnvironment()) {
-  installGiottoEnvironment()
-}
 
 test_check("Giotto")

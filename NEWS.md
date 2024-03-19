@@ -1,17 +1,54 @@
+# Giotto 4.0.5 (2024/03/12)
+
+## Bug fixes
+* Fix Error "cannot coerce class ‘structure("spatLocsObj", package = "Giotto")’ to a data.frame" in `spatialDE()`
+
+## Enhancements
+* `readPolygonVizgenParquet()` now has `calc_centroids = TRUE` by default
+
+# Giotto 4.0.4 (2024/02/28)
+
+## Breaking changes
+* Remove `do_manual_adj` and image adjustment params from `createGiottoVisiumObject()`
+* `createGiottoVisiumObject()` now creates `giottoLargeImage` for spatial images.
+* `exprCellCellcom()` deprecated `gene_set_*` params removed
+
+## Bug fixes
+* Fix metadata appending/sorting issues introduced by *GiottoClass v0.1.3* (2024/01/12). Affected functions: `addHMRF()`, `addFeatsPerc()`, `doScrubletDetect()`
+* `findNetworkNeighbors()` now has default `spatial_network_name` value of `NULL`
+* `get10Xmatrix()` now obeys `split_by_type = FALSE`
+
+## Changes
+* Deprecate `set.seed` in favor of `seed` param for `binSpect()`
+* `binSpect()` now sets a seed by default for reproducibility
+* pkgdown files moved to separate [repo](https://github.com/drieslab/Giotto_website)
+
+## Enhancements
+* Use `mixedsort()` for unique clusters metadata info
+* Remove unnecessary matrix densification and expose `seed` param in `doScrubletDetect()`
+* Remove unnecessary matrix densification in `makeSignMatrixRank()`
+
+
+# Giotto 4.0.3 (2024/02/20)
+
+
+## Bug fixes
+* Remove old argument `type_default = list(pal = c('blue', 'yellow', 'red'))` in plotRankSpatvsExpr()
 
 
 # Giotto 4.0.2 (2023/12/21)
 
 ## Bug Fixes
-- fix bug in `doHclust()`
+* fix bug in `doHclust()`
 
 ## Changes
 * Move *GiottoClass* back to depends to fix access to some generics
 
+
 # Giotto 4.0.1 (2023/12/16)
 
-## Breaking Changes
-* Remove `cell_ids` param for `calculateHVF` in favor of simpler `random_subset`
+## Breaking changes
+* Remove `cell_ids` param for `calculateHVF()` in favor of simpler `random_subset`
 * Move *GiottoUtils*, *GiottoClass*, and *GiottoVisuals* to imports
 
 ## Added
@@ -29,7 +66,7 @@
 
 # Giotto 4.0.0 (2023/11/29)
 
-## Breaking Changes
+## Breaking changes
 * Update to modular package organization with the main packages being `GiottoUtils`, `GiottoClass`, `GiottoVisuals`, and `Giotto` as the analytical umbrella package.
 
 ## Added
@@ -52,7 +89,7 @@
 
 # Giotto 3.3.1 (2023/08/02)
 
-## Breaking Changes
+## Breaking changes
 
 * Change `checkGiottoEnvironment()`. Downgrade from error to message and return FALSE when a provided directory does not exist
 
@@ -107,7 +144,7 @@
 
 # Giotto 3.3.0 (2023/04/18)
 
-## Breaking Changes
+## Breaking changes
 
 * Set Suite as default branch
 * Removed all deprecated accessors from `accessors.R`
@@ -165,7 +202,7 @@
 
 # Giotto 3.2.0 (2023/02/02)
 
-## Breaking Changes
+## Breaking changes
 
 * Removed support for deprecated nesting in `@nn_network` slot
 * `createSpatialNetwork()` will now output a `spatialNetworkObj` by default when `return_gobject = FALSE`. It is possible to change this back to the data.table output by setting `output = 'data.table'`
@@ -251,7 +288,7 @@
 
 # Giotto 3.0.0 (2022/11/18)
 
-## Breaking Changes
+## Breaking changes
 
 * S4 subobjects framework will require giotto objects to be remade
 
@@ -276,7 +313,7 @@
 
 # Giotto 2.1.0 (2022/11/09)
 
-## Breaking Changes
+## Breaking changes
 
 * Update of python version to **3.10.2** [details](https://giottosuite.readthedocs.io/en/latest/additionalinformation.html#giotto*suite*2*1*0*2202*11*09)
 
@@ -313,7 +350,7 @@
 * Deprecate `combineInteractionChangedGenes()`, `combineICG()`, `combineCPG()` in favor of `combineInteractionChangedFeats()` and `combineICF()`
 * Deprecate `combineCellProximityGenes_per_interaction()` in favor of `combineCellProximityFeatures_per_interaction()`
 
-## Breaking Changes
+## Breaking changes
 
 * ICF output internal object structure names have changed to use feats instead of genes
 

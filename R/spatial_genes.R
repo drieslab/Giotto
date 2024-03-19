@@ -498,14 +498,16 @@ NULL
 
 #' @describeIn calculate_spatial_enrichment calculate using 'data.table' implementation
 #' @keywords internal
-.calc_spatial_enrichment_dt = function(bin_matrix,
-                                      spatial_network,
-                                      calc_hub = F,
-                                      hub_min_int = 3,
-                                      group_size = 'automatic',
-                                      do_fisher_test = TRUE,
-                                      adjust_method = 'fdr',
-                                      cores = NA) {
+.calc_spatial_enrichment_dt <- function(
+    bin_matrix,
+    spatial_network,
+    calc_hub = FALSE,
+    hub_min_int = 3,
+    group_size = 'automatic',
+    do_fisher_test = TRUE,
+    adjust_method = 'fdr',
+    cores = NA
+) {
 
 
   # set number of cores automatically, but with limit of 10
@@ -519,12 +521,12 @@ NULL
   spat_netw_min = spatial_network[,.(from, to)]
 
   # divide matrix in groups
-  if(!is.na(group_size) & is.numeric(group_size)) {
+  if (!is.na(group_size) & is.numeric(group_size)) {
     group_size = group_size
     if(group_size > nrow(bin_matrix)) {
       stop('group_size is too big, it can not be greater than the number of feats')
     }
-  } else if(group_size == 'automatic') {
+  } else if (group_size == 'automatic') {
 
     test_number = ceiling(nrow(bin_matrix)/10)
     test_number = max(2, test_number)
@@ -533,7 +535,7 @@ NULL
 
   groups = ceiling(nrow(bin_matrix)/group_size)
   cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
-  if(any(table(cut_groups) == 1)) {
+  if (any(table(cut_groups) == 1)) {
     stop('With group size = ', group_size, ' you have a single gene in a group. Manually pick another group size')
   }
   indexes = 1:nrow(bin_matrix)
@@ -541,7 +543,7 @@ NULL
 
 
   total_list = list()
-  for(group in unique(cut_groups)) {
+  for (group in unique(cut_groups)) {
 
     sel_indices = indexes[names(indexes) == group]
 
@@ -549,7 +551,7 @@ NULL
     bin_matrix_DT[, feat_ID := rownames(bin_matrix[sel_indices,])]
     bin_matrix_DTm = data.table::melt.data.table(bin_matrix_DT, id.vars = 'feat_ID')
 
-    if(do_fisher_test == TRUE) {
+    if (do_fisher_test == TRUE) {
       test = .spat_fish_func_dt(bin_matrix_DTm = bin_matrix_DTm,
                                spat_netw_min = spat_netw_min,
                                calc_hub = calc_hub,
@@ -570,7 +572,7 @@ NULL
 
   result = do.call('rbind', total_list)
 
-  if(do_fisher_test == TRUE) {
+  if (do_fisher_test == TRUE) {
     min_pvalue = min(result$p.value[result$p.value > 0])
     result[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
     result[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
@@ -615,7 +617,9 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -664,10 +668,27 @@ binSpectSingleMatrix = function(expression_matrix,
                                 do_parallel = TRUE,
                                 cores = NA,
                                 verbose = FALSE,
-                                set.seed = NULL) {
+                                set.seed = deprecated(),
+                                seed = 1234) {
 
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.3",
+      what = "binSpectSingleMatrix(set.seed)",
+      with = "binSpectSingleMatrix(seed)"
+    )
 
-  if(verbose == TRUE) cat('\n This is the single parameter version of binSpect')
+    seed <- set.seed
+    set.seed <- NULL
+  }
+
+  do_parallel <- as.logical(do_parallel)
+  calc_hub <- as.logical(calc_hub)
+  get_av_expr <- as.logical(get_av_expr)
+  get_high_expr <- as.logical(get_high_expr)
+  do_fisher_test <- as.logical(do_fisher_test)
+
+  vmsg(.v = verbose, '\n This is the single parameter version of binSpect')
 
 
   # set number of cores automatically, but with limit of 10
@@ -689,7 +710,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
   # spatial network
   # TODO: verify binarization of spatial network
-  if(is.null(spatial_network)) {
+  if (is.null(spatial_network)) {
     stop("You need to provide a spatial network in data.table format to the 'spatial_network' parameter \n")
   }
 
@@ -697,88 +718,86 @@ binSpectSingleMatrix = function(expression_matrix,
   ## start binarization ##
   ## ------------------ ##
 
-  if(!is.null(bin_matrix)) {
+  if (!is.null(bin_matrix)) {
     # TODO: verify format of bin_matrix and compatibility with spatial network
     bin_matrix = bin_matrix
   } else {
 
-    if(bin_method == 'kmeans') {
-
-      bin_matrix = kmeans_binarize_wrapper(expr_values = expression_matrix,
-                                           subset_feats = subset_feats,
-                                           kmeans_algo = kmeans_algo,
-                                           nstart = nstart,
-                                           iter_max = iter_max,
-                                           extreme_nr = extreme_nr,
-                                           sample_nr = sample_nr,
-                                           set.seed = set.seed)
-
-    } else if(bin_method == 'rank') {
-
-      bin_matrix = rank_binarize_wrapper(expr_values = expression_matrix,
-                                         subset_feats = subset_feats,
-                                         percentage_rank = percentage_rank)
-    }
+    bin_matrix <- switch(bin_method,
+      "kmeans" = kmeans_binarize_wrapper(
+        expr_values = expression_matrix,
+        subset_feats = subset_feats,
+        kmeans_algo = kmeans_algo,
+        nstart = nstart,
+        iter_max = iter_max,
+        extreme_nr = extreme_nr,
+        sample_nr = sample_nr,
+        # set.seed = set.seed,
+        seed = seed
+      ),
+      "rank" = rank_binarize_wrapper(
+        expr_values = expression_matrix,
+        subset_feats = subset_feats,
+        percentage_rank = percentage_rank
+      )
+    )
   }
 
-  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+  vmsg(.v = verbose, '\n 1. matrix binarization complete \n')
 
   ## start with enrichment ##
   ## --------------------- ##
 
-  if(implementation == 'simple') {
-    if(do_parallel == TRUE) {
-      warning('Parallel not yet implemented for simple. Enrichment will default to serial.')
-    }
+  result <- switch(implementation,
+    "simple" = {
+      if(do_parallel) {
+        warning('Parallel not yet implemented for simple. Enrichment will default to serial.')
+      }
+      if(calc_hub) {
+        warning('Hub calculation is not possible with the simple implementation, change to matrix if required.')
+      }
 
-    if(calc_hub == TRUE) {
-      warning('Hub calculation is not possible with the simple implementation, change to matrix if requird.')
-    }
+      .calc_spatial_enrichment_minimum(
+        spatial_network = spatial_network,
+        bin_matrix = bin_matrix,
+        adjust_method = adjust_method,
+        do_fisher_test = do_fisher_test
+      )
+    },
+    "matrix" = .calc_spatial_enrichment_matrix(
+      spatial_network = spatial_network,
+      bin_matrix = bin_matrix,
+      adjust_method = adjust_method,
+      do_fisher_test = do_fisher_test,
+      do_parallel = do_parallel,
+      cores = cores,
+      calc_hub = calc_hub,
+      hub_min_int = hub_min_int,
+      verbose = verbose
+    ),
+    "data.table" = .calc_spatial_enrichment_dt(
+      bin_matrix = bin_matrix,
+      spatial_network = spatial_network,
+      calc_hub = calc_hub,
+      hub_min_int = hub_min_int,
+      group_size = group_size,
+      do_fisher_test = do_fisher_test,
+      adjust_method = adjust_method,
+      cores = cores
+    )
+  )
 
-
-    result = .calc_spatial_enrichment_minimum(spatial_network = spatial_network,
-                                             bin_matrix = bin_matrix,
-                                             adjust_method = adjust_method,
-                                             do_fisher_test = do_fisher_test)
-
-
-  } else if(implementation == 'matrix') {
-
-    result = .calc_spatial_enrichment_matrix(spatial_network = spatial_network,
-                                            bin_matrix = bin_matrix,
-                                            adjust_method = adjust_method,
-                                            do_fisher_test = do_fisher_test,
-                                            do_parallel = do_parallel,
-                                            cores = cores,
-                                            calc_hub = calc_hub,
-                                            hub_min_int = hub_min_int,
-                                            verbose = verbose)
-
-  } else if(implementation == 'data.table') {
-
-    result = .calc_spatial_enrichment_dt(bin_matrix = bin_matrix,
-                                        spatial_network = spatial_network,
-                                        calc_hub = calc_hub,
-                                        hub_min_int = hub_min_int,
-                                        group_size = group_size,
-                                        do_fisher_test = do_fisher_test,
-                                        adjust_method = adjust_method,
-                                        cores = cores)
-  }
-
-  if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
-
-
+  vmsg(.v = verbose, '\n 2. spatial enrichment test completed \n')
 
 
 
   ## start with average high expression ##
   ## ---------------------------------- ##
 
-  if(get_av_expr == TRUE) {
+  if (get_av_expr) {
 
     # expression
-    if(!is.null(subset_feats)) {
+    if (!is.null(subset_feats)) {
       expr_values = expression_matrix[rownames(expression_matrix) %in% subset_feats, ]
     } else {
       expr_values = expression_matrix
@@ -791,7 +810,7 @@ binSpectSingleMatrix = function(expression_matrix,
     av_expr_DT = data.table::data.table(feats = names(av_expr), av_expr = av_expr)
     result = merge(result, av_expr_DT, by = 'feats')
 
-    if(verbose == TRUE) cat('\n 3. (optional) average expression of high expressing cells calculated \n')
+    vmsg(.v = verbose, '\n 3. (optional) average expression of high expressing cells calculated \n')
   }
 
 
@@ -799,17 +818,17 @@ binSpectSingleMatrix = function(expression_matrix,
   ## start with number of high expressing cells ##
   ## ------------------------------------------ ##
 
-  if(get_high_expr == TRUE) {
+  if (get_high_expr) {
     high_expr = rowSums(bin_matrix)
     high_expr_DT = data.table::data.table(feats = names(high_expr), high_expr = high_expr)
     result = merge(result, high_expr_DT, by = 'feats')
 
-    if(verbose == TRUE) cat('\n 4. (optional) number of high expressing cells calculated \n')
+    vmsg(.v = verbose, '\n 4. (optional) number of high expressing cells calculated \n')
   }
 
 
   # sort
-  if(do_fisher_test == TRUE) {
+  if (do_fisher_test) {
     data.table::setorder(result, -score)
   } else {
     data.table::setorder(result, -estimate)
@@ -850,7 +869,9 @@ binSpectSingleMatrix = function(expression_matrix,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
@@ -904,7 +925,8 @@ binSpectSingle = function(gobject,
                           do_parallel = TRUE,
                           cores = NA,
                           verbose = TRUE,
-                          set.seed = NULL,
+                          set.seed = deprecated(),
+                          seed = 1234,
                           bin_matrix = NULL) {
 
 
@@ -912,6 +934,17 @@ binSpectSingle = function(gobject,
   if(!is.null(subset_genes)) {
     subset_feats = subset_genes
     warning('subset_genes is deprecated, use subset_feats in the future \n')
+  }
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.3",
+      what = "binSpectSingle(set.seed)",
+      with = "binSpectSingle(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
   }
 
   # Set feat_type and spat_unit
@@ -968,7 +1001,8 @@ binSpectSingle = function(gobject,
                        do_parallel = do_parallel,
                        cores = cores,
                        verbose = verbose,
-                       set.seed = set.seed)
+                       # set.seed = set.seed,
+                       seed = seed)
 
 
 }
@@ -1007,7 +1041,9 @@ binSpectSingle = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated.
+#' @param seed Seed for kmeans binarization. If NULL passed, no seed is set.
+#' Otherwise, the input value is used as seed.
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
@@ -1060,9 +1096,10 @@ binSpectMulti = function(gobject,
                          group_size = 'automatic',
                          do_parallel = TRUE,
                          cores = NA,
-                         verbose = T,
+                         verbose = TRUE,
                          knn_params = NULL,
-                         set.seed = NULL,
+                         set.seed = deprecated(),
+                         seed = 1234,
                          summarize = c('adj.p.value', 'p.value')
 ) {
 
@@ -1071,6 +1108,17 @@ binSpectMulti = function(gobject,
   if(!is.null(subset_genes)) {
     subset_feats = subset_genes
     warning('subset_genes is deprecated, use subset_feats in the future \n')
+  }
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.3",
+      what = "binSpectMulti(set.seed)",
+      with = "binSpectMulti(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
   }
 
   # Set feat_type and spat_unit
@@ -1135,7 +1183,8 @@ binSpectMulti = function(gobject,
                                 do_parallel = do_parallel,
                                 cores = cores,
                                 verbose = verbose,
-                                set.seed = set.seed)
+                                # set.seed = set.seed,
+                                seed = seed)
 
         result_list[[i]] = result
         i = i+1
@@ -1166,7 +1215,8 @@ binSpectMulti = function(gobject,
                                          iter_max = iter_max,
                                          extreme_nr = extreme_nr,
                                          sample_nr = sample_nr,
-                                         set.seed = set.seed)
+                                         # set.seed = set.seed,
+                                         seed = seed)
 
     for(k in spatial_network_k) {
 
@@ -1204,7 +1254,8 @@ binSpectMulti = function(gobject,
                               do_parallel = do_parallel,
                               cores = cores,
                               verbose = verbose,
-                              set.seed = set.seed,
+                              # set.seed = set.seed,
+                              seed = seed,
                               bin_matrix = bin_matrix)
 
       result_list[[i]] = result
@@ -1258,7 +1309,9 @@ binSpectMulti = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated
+#' @param seed sets value as seed before kmeans binarization. If NULL, no seed
+#' is set.
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results
 binSpectMultiMatrix = function(expression_matrix,
@@ -1283,9 +1336,21 @@ binSpectMultiMatrix = function(expression_matrix,
                                cores = NA,
                                verbose = T,
                                knn_params = NULL,
-                               set.seed = NULL,
+                               set.seed = deprecated(),
+                               seed = 1234,
                                summarize = c('adj.p.value', 'p.value')
 ) {
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.3",
+      what = "binSpectMultiMatrix(set.seed)",
+      with = "binSpectMultiMatrix(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
+  }
 
 
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
@@ -1331,7 +1396,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                       do_parallel = do_parallel,
                                       cores = cores,
                                       verbose = verbose,
-                                      set.seed = set.seed)
+                                      # set.seed = set.seed,
+                                      seed = seed)
 
         result_list[[i]] = result
         i = i+1
@@ -1356,7 +1422,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                          iter_max = iter_max,
                                          extreme_nr = extreme_nr,
                                          sample_nr = sample_nr,
-                                         set.seed = set.seed)
+                                         # set.seed = set.seed,
+                                         seed = seed)
 
     for(k in seq_along(spatial_networks)) {
 
@@ -1383,7 +1450,8 @@ binSpectMultiMatrix = function(expression_matrix,
                                     do_parallel = do_parallel,
                                     cores = cores,
                                     verbose = verbose,
-                                    set.seed = set.seed)
+                                    # set.seed = set.seed,
+                                    seed = seed)
 
       result_list[[i]] = result
       i = i+1
@@ -1444,7 +1512,9 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param knn_params list of parameters to create spatial kNN network
-#' @param set.seed set a seed before kmeans binarization
+#' @param set.seed deprecated. Use \code{seed} param instead
+#' @param seed seed for kmeans binarization. When \code{NULL}, no seed is set.
+#' Otherwise, accepts a numeric input that will be used as seed.
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
 #' @param return_gobject whether to return values attached to the gobject or
@@ -1501,13 +1571,27 @@ binSpect = function(gobject,
                     group_size = 'automatic',
                     do_parallel = TRUE,
                     cores = NA,
-                    verbose = T,
+                    verbose = TRUE,
                     knn_params = NULL,
-                    set.seed = NULL,
+                    set.seed = deprecated(),
+                    seed = 1234,
                     bin_matrix = NULL,
                     summarize = c('p.value', 'adj.p.value'),
                     return_gobject = FALSE) {
 
+  # TODO align set.seed, set_seed, seed_number naming and usage across packages
+  # use only param seed. If NULL, set no seed. If !NULL set value as seed
+
+  if (is_present(set.seed) && !is.function(set.seed)) {
+    deprecate_warn(
+      when = "4.0.3",
+      what = "binSpect(set.seed)",
+      with = "binSpect(seed)"
+    )
+
+    seed <- set.seed
+    set.seed <- NULL
+  }
 
   if(!is.null(spatial_network_k)) {
 
@@ -1538,7 +1622,8 @@ binSpect = function(gobject,
                            cores = cores,
                            verbose = verbose,
                            knn_params = knn_params,
-                           set.seed = set.seed,
+                           seed = seed,
+                           # set.seed = set.seed,
                            summarize = summarize)
 
   } else {
@@ -1569,7 +1654,8 @@ binSpect = function(gobject,
                             do_parallel = do_parallel,
                             cores = cores,
                             verbose = verbose,
-                            set.seed = set.seed,
+                            seed = seed,
+                            # set.seed = set.seed,
                             bin_matrix = bin_matrix)
 
   }
@@ -1582,10 +1668,14 @@ binSpect = function(gobject,
     #}
     result_dt = data.table::data.table(feats=output$feats, pval=output$adj.p.value)
     data.table::setnames(result_dt, old = "pval", new = "binSpect.pval")
-    gobject<-addFeatMetadata(gobject,
-                             spat_unit = spat_unit,
-                             feat_type = feat_type,
-                             result_dt, by_column=T, column_feat_ID="feats")
+    gobject <- addFeatMetadata(
+      gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      new_metadata = result_dt,
+      by_column = TRUE,
+      column_feat_ID = "feats"
+    )
     return(gobject)
   }else{
     return(output)
@@ -1936,10 +2026,11 @@ spatialDE <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      values = values)
+  expr_values = getExpression(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
+                              values = values,
+                              output = "matrix")
 
   ## python path
   if(is.null(python_path)) {
@@ -1952,9 +2043,10 @@ spatialDE <- function(gobject = NULL,
   reticulate::source_python(file = reader_path)
 
   ## get spatial locations
-  spatial_locs = get_spatial_locations(gobject,
-                                       spat_unit = spat_unit,
-                                       spat_loc_name = spat_loc_name)
+  spatial_locs = getSpatialLocations(gobject,
+                                     spat_unit = spat_unit,
+                                     name = spat_loc_name,
+                                     output = "data.table")
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
@@ -3720,6 +3812,9 @@ heatmSpatialCorFeats = function(gobject,
     stop('\n spatCorObject needs to be the output from detectSpatialCorFeats() \n')
   }
 
+  ## package check for ComplexHeatmap
+  package_check(pkg_name = 'ComplexHeatmap', repository = 'CRAN')
+
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
   cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = feat_ID~variable, value.var = 'spat_cor')
@@ -3920,7 +4015,7 @@ rankSpatialCorGroups = function(gobject,
 #' @param seed seed
 #' @param verbose verbosity
 #' @return balanced vector with features for each co-expression module
-#' @details There are 3 different ways of selectig features from the spatial
+#' @details There are 3 different ways of selecting features from the spatial
 #' co-expression modules
 #' \itemize{
 #'   \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
@@ -3946,11 +4041,12 @@ getBalancedSpatCoexpressionFeats = function(spatCorObject,
   if(rank == 'random') {
 
     if(!is.na(seed) & is.numeric(seed)) {
+      on.exit(random_seed(), add = TRUE)
       set.seed(seed)
       wrap_msg('Seed has been set for random')
     } else {
       wrap_msg('Random is selected, but no seed has been set \n
-               Results might be fully reproducible \n')
+               Results might not be fully reproducible \n')
     }
 
     result_list = list()
@@ -4125,10 +4221,12 @@ simulateOneGenePatternGiottoObject = function(gobject,
   cell_meta = pDataDT(gobject)
   cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
 
-  newgobject = addCellMetadata(gobject,
-                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
-                               by_column = T,
-                               column_cell_ID = 'cell_ID')
+  newgobject = addCellMetadata(
+    gobject,
+    new_metadata = cell_meta[,c('cell_ID', pattern_name), with = FALSE],
+    by_column = TRUE,
+    column_cell_ID = 'cell_ID'
+  )
 
   # show pattern
   if(show_pattern == TRUE) {
@@ -4730,7 +4828,7 @@ runPatternSimulation = function(gobject,
 
     if(run_simulations == TRUE) {
       generesults[, prob := as.factor(prob)]
-      uniq_methods = sort(unique(generesults$method))
+      uniq_methods = mixedsort(unique(generesults$method))
       generesults[, method := factor(method, levels = uniq_methods)]
 
       if(save_plot == TRUE) {

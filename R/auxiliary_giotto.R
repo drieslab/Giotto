@@ -1366,7 +1366,7 @@ addFeatStatistics <- function(gobject,
                               feat_type = feat_type,
                               spat_unit = spat_unit,
                               new_metadata = feat_stats,
-                              by_column = T,
+                              by_column = TRUE,
                               column_feat_ID = 'feats')
 
     ## update parameters used ##
@@ -1641,15 +1641,15 @@ addFeatsPerc = function(gobject,
 
   totalsum = colSums_flex(expr_data)
   feat_sum = colSums_flex(expr_data[rownames(expr_data) %in% feats,])
-  perc_feats = round((feat_sum/totalsum)*100, 2)
+  perc_feats = round((feat_sum/totalsum) * 100, 2)
 
-  if(return_gobject == TRUE) {
+  if(return_gobject) {
     temp_gobj = addCellMetadata(gobject = gobject,
                                 spat_unit = spat_unit,
                                 feat_type = feat_type,
                                 new_metadata = perc_feats,
                                 vector_name = vector_name,
-                                by_column = F)
+                                by_column = TRUE)
 
     ## update parameters used ##
     temp_gobj = update_giotto_params(temp_gobj, description = '_feats_perc')
@@ -1683,7 +1683,7 @@ addFeatsPerc = function(gobject,
 #' @export
 findNetworkNeighbors = function(gobject,
                                 spat_unit = NULL,
-                                spatial_network_name,
+                                spatial_network_name = NULL,
                                 source_cell_ids = NULL,
                                 name = 'nb_cells') {
 

@@ -183,11 +183,11 @@ makeSignMatrixRank = function(sc_matrix,
                               ties_method = c("random", "max"),
                               gobject = NULL) {
 
-  if(methods::is(sc_matrix, "sparseMatrix")){
-    sc_matrix = Matrix::as.matrix(sc_matrix)
-  }
   if(inherits(sc_matrix, 'exprObj')) {
     sc_matrix = sc_matrix[]
+  }
+  if (!inherits(sc_matrix, c("matrix", "Matrix", "DelayedArray"))) {
+    stop("'sc_matrix' must be a matrix input")
   }
 
   # select ties_method
@@ -207,7 +207,7 @@ makeSignMatrixRank = function(sc_matrix,
 
     group_id = unique(sc_cluster_ids)[group]
     cell_ind = which(sc_cluster_ids == group_id)
-    cluster_rowmeans = rowMeans(sc_matrix[,cell_ind])
+    cluster_rowmeans = rowMeans_flex(sc_matrix[,cell_ind])
     mean_list[[group_id]] = cluster_rowmeans
     group_list[[group]] = rep(group_id, total_nr_genes)
   }
@@ -216,17 +216,19 @@ makeSignMatrixRank = function(sc_matrix,
   group_list_res = data.table::as.data.table(do.call('c', group_list))
 
   # average expression for all cells
-  av_expression = rowMeans(sc_matrix)
+  av_expression = rowMeans_flex(sc_matrix)
   av_expression_res = rep(av_expression, length(unique(sc_cluster_ids)))
 
   gene_names = rownames(sc_matrix)
   gene_names_res = rep(gene_names, length(unique(sc_cluster_ids)))
 
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
-  comb_dt = data.table::data.table(genes = gene_names_res,
-                                   mean_expr = mean_list_res[[1]],
-                                   av_expr = av_expression_res,
-                                   clusters = group_list_res[[1]])
+  comb_dt = data.table::data.table(
+    genes = gene_names_res,
+    mean_expr = mean_list_res[[1]],
+    av_expr = av_expression_res,
+    clusters = group_list_res[[1]]
+  )
 
   # data.table variables
   fold = mean_expr = av_expr = rankFold = clusters = NULL
@@ -2119,7 +2121,7 @@ enrich_deconvolution <- function(expr,
   dwls_results<-matrix(0,nrow =dim(enrich_matrix)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(enrich_matrix)
   colnames(dwls_results)<-colnames(expr)
-  cluster_sort<-sort(unique(cluster_info))
+  cluster_sort<-mixedsort(unique(cluster_info))
   cluster_info<-cluster_info
   for (i in seq_along(cluster_sort)){
     cluster_i_enrich<-enrich_result[,which(cluster_info==cluster_sort[i])]
@@ -2167,7 +2169,7 @@ spot_deconvolution<-function(expr,
   rownames(enrich_matrix)<-rownames(ct_exp)
   colnames(enrich_matrix)<-colnames(ct_exp)
 
-    cluster_sort<-sort(unique(cluster_info))
+    cluster_sort<-mixedsort(unique(cluster_info))
   ####initialize dwls matrix
   dwls_results<-matrix(0,nrow =dim(ct_exp)[2],ncol = dim(expr)[2])
   rownames(dwls_results)<-colnames(ct_exp)
@@ -2231,7 +2233,7 @@ spot_deconvolution<-function(expr,
 cluster_enrich_analysis <- function(exp_matrix,
                                     cluster_info,
                                     enrich_sig_matrix) {
-  uniq_cluster<-sort(unique(cluster_info))
+  uniq_cluster<-mixedsort(unique(cluster_info))
   if(length(uniq_cluster) == 1) {
     stop("Only one cluster identified, need at least two.")
   }

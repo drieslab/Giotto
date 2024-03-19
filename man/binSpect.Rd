@@ -31,9 +31,10 @@ binSpect(
   group_size = "automatic",
   do_parallel = TRUE,
   cores = NA,
-  verbose = T,
+  verbose = TRUE,
   knn_params = NULL,
-  set.seed = NULL,
+  set.seed = deprecated(),
+  seed = 1234,
   bin_matrix = NULL,
   summarize = c("p.value", "adj.p.value"),
   return_gobject = FALSE
@@ -96,7 +97,10 @@ binSpect(
 
 \item{knn_params}{list of parameters to create spatial kNN network}
 
-\item{set.seed}{set a seed before kmeans binarization}
+\item{set.seed}{deprecated. Use \code{seed} param instead}
+
+\item{seed}{seed for kmeans binarization. When \code{NULL}, no seed is set.
+Otherwise, accepts a numeric input that will be used as seed.}
 
 \item{bin_matrix}{a binarized matrix, when provided it will skip the binarization process}
 
