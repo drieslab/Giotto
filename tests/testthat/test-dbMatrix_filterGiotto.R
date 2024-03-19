@@ -6,8 +6,10 @@ rlang::local_options(lifecycle_verbosity = "quiet")
 visium = GiottoData::loadGiottoMini(dataset = "visium")
 dgc = getExpression(visium, output = "matrix")
 
+con = DBI::dbConnect(duckdb::duckdb(), ":memory:")
+
 dbsm = dbMatrix::createDBMatrix(value = dgc, 
-                                db_path = ":memory:", 
+                                con = con, 
                                 name = 'dgc', 
                                 class = "dbSparseMatrix",
                                 overwrite = TRUE)
