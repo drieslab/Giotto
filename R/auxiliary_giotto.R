@@ -766,7 +766,7 @@ filterGiotto = function(gobject,
 
   ## 5. create and set exprObj
   # Save dbMatrix to db if global option is set
-  if(compute_mat){
+  if(compute_mat & !is.null(norm_expr)){
     norm_expr <- .compute_dbMatrix(dbMatrix = norm_expr, 
                                    name = 'normalized',
                                    verbose = verbose) 
@@ -779,7 +779,7 @@ filterGiotto = function(gobject,
                               provenance = provenance,
                               misc = NULL)
   
-  if(compute_mat){
+  if(compute_mat & !is.null(norm_scaled_expr)){
    norm_scaled_expr = .compute_dbMatrix(dbMatrix = norm_scaled_expr,
                                         name = 'scaled',
                                         verbose = verbose) 
