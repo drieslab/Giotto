@@ -134,6 +134,7 @@ Remotes:
 Collate:
     'auxiliary_giotto.R'
     'cell_segmentation.R'
+    'classes.R'
     'clustering.R'
     'convenience.R'
     'cross_section.R'
@@ -148,6 +149,7 @@ Collate:
     'suite_reexports.R'
     'image_registration.R'
     'interactivity.R'
+    'kriging.R'
     'package_imports.R'
     'poly_influence.R'
     'python_hmrf.R'

@@ -69,6 +69,8 @@ GiottoClass::copy
 #' @export
 GiottoClass::crop
 #' @export
+GiottoClass::density
+#' @export
 GiottoClass::flip
 #' @export
 GiottoClass::spin
@@ -294,6 +296,8 @@ GiottoClass::giottoToSeuratV5
 GiottoClass::giottoToSpatialExperiment
 #' @export
 GiottoClass::hexVertices
+#' @export
+GiottoClass::hist
 #' @export
 GiottoClass::installGiottoEnvironment
 #' @export
