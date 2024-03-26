@@ -2312,6 +2312,262 @@ NULL
 
 ## CosMx ####
 
+
+#' @param gpoints_params list of params passed to `createGiottoPoints()`.
+#' Mainly to allow access to `feat_type` and `split_keyword` params. Default
+#' is to split into rna and negprobes points objects
+.cosmx_transcript <- function(
+        path,
+        fovs = NULL,
+        gpoints_params = list(
+            feat_type = c("rna", "negprobes"),
+            split_keyword = list("NegPrb")
+        ),
+        cores = determine_cores(),
+        verbose = NULL
+    ) {
+    checkmate::assert_list(gpoints_params)
+    checkmate::assert_file_exists(path)
+
+    GiottoUtils::vmsg(.v = verbose, "loading feature detections...")
+
+    tx <- data.table::fread(input = path, nThread = cores)
+    if (!is.null(fovs)) {
+        # subset to only needed FOVs
+        tx <- tx[fov %in% as.numeric(fovs),]
+    }
+
+    # giottoPoints ----------------------------------------------------- #
+
+    # static gpoints params
+    gpoints_params$x_colname <- "x_global_px"
+    gpoints_params$y_colname <- "y_global_px"
+    gpoints_params$feat_ID_colname <- "target"
+
+    gpoints <- do.call(createGiottoPoints, c(list(x = tx), gpoints_params))
+    # ensure output is always a list
+    if (!is.list(gpoints)) {
+        gpoints <- list(gpoints)
+        names(gpoints) <- objName(gpoints[[1L]])
+    }
+
+    return(gpoints)
+}
+
+#' @returns data.table with three columns. 1. FOV (integer), xshift (numeric),
+#' yshift (numeric)
+.cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, flip_loc_y = NULL) {
+    fov <- NULL # NSE vars
+
+    if (!missing(tx_dt)) {
+        flip_loc_y %null% TRUE # default = TRUE
+        tx_head <- tx_dt[, head(.SD, 10L), by = fov]
+        x <- tx_head[, mean(x_global_px - x_local_px), by = fov]
+        if (flip_loc_y) {
+            # use +y if local y values are flipped
+            y <- tx_head[, mean(y_global_px + y_local_px), by = fov]
+        } else {
+            y <- tx_head[, mean(y_global_px - y_local_px), by = fov]
+        }
+    }
+
+    if (!missing(meta_dt)) {
+        flip_loc_y %null% FALSE # default = FALSE
+        meta_head <- meta_dt[, head(.SD, 10L), by = fov]
+        x <- meta_head[, mean(CenterX_global_px - CenterX_local_px), by = fov]
+        if (flip_loc_y) {
+            # use +y if local y values are flipped
+            y <- meta_head[, mean(CenterY_global_px + CenterY_local_px),
+                           by = fov]
+        } else {
+            y <- meta_head[, mean(CenterY_global_px - CenterY_local_px),
+                           by = fov]
+        }
+    }
+
+    res <- merge(x, y, by = "fov")
+    data.table::setnames(res, new = c("fov", "x", "y"))
+
+    return(res)
+}
+
+.cosmx_poly <- function(
+        path,
+        fovs = NULL,
+        mask_params = list(
+            # VERTICAL FLIP + NO VERTICAL SHIFT
+            flip_vertical = TRUE,
+            flip_horizontal = FALSE,
+            shift_vertical_step = FALSE,
+            shift_horizontal_step = FALSE,
+            ID_fmt = NULL
+        ),
+        offsets,
+        verbose = NULL
+) {
+    fovs <- fovs %null% seq_along(list.files(path))
+    gpolys <- lapply(fovs, function(fov) {
+        segfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
+        if (is.null(mask_params$ID_fmt)) {
+            mask_params$ID_fmt = paste0(sprintf("fov%03d", fov), "_cell%03d")
+        }
+        mask_params$verbose <- verbose %null% TRUE
+        gpoly <- do.call(
+            createGiottoPolygonsFromMask,
+            args = c(list(maskfile = segfile), mask_params)
+        )
+
+        gpoly_shift <- spatShift(
+            x = gpoly,
+            dx = offsets[fov, x],
+            dy = offsets[fov, y]
+        )
+    })
+
+    if (length(gpolys) > 1L) {
+        gpolys <- do.call(rbind, args = gpolys)
+    }
+
+    # never return lists. Only the single merged gpoly
+    return(gpolys)
+}
+
+.cosmx_cellmeta <- function(
+        path,
+        fovs = NULL,
+        dropcols = c(
+            "CenterX_local_px",
+            "CenterY_local_px",
+            "CenterX_global_px",
+            "CenterY_global_px"
+        ),
+        cores = determine_cores(),
+        verbose = NULL
+    ) {
+    verbose <- verbose %null% TRUE
+
+    meta_dt <- data.table::fread(input = path, nThread = cores)
+
+    # subset to needed fovs
+    if (!is.null(fovs)) {
+        fovs <- as.integer(fovs)
+        meta_dt <- meta_dt[fov %in% fovs,]
+    }
+
+    dropcols <- dropcols[dropcols %in% meta_dt]
+    meta_dt[, (dropcols) := NULL] # remove dropcols
+
+    # create cell ID as fov###_cell###
+    meta_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
+    # remove fov
+    meta_dt[, fov := NULL]
+
+    # TODO figure out what to do about protein expression here.
+    cx <- createCellMetaObj(
+        metadata = meta_dt,
+        spat_unit = "cell",
+        feat_type = "rna",
+        provenance = "cell",
+        verbose = verbose
+    )
+    return(cx)
+}
+
+.cosmx_expression <- function(
+        path,
+        fovs = NULL,
+        feat_type = c("rna", "negprobes"),
+        split_keyword = list("NegPrb"),
+        cores = determine_cores()
+    ) {
+    expr_dt <- data.table::fread(input = path, nThread = cores)
+
+    # subset to needed fovs
+    if (!is.null(fovs)) {
+        fovs <- as.integer(fovs)
+        expr_dt <- expr_dt[fov %in% fovs,]
+    }
+
+    # remove background values (cell 0)
+    expr_dt <- expr_dt[cell_ID != 0L,]
+
+    # create cell ID as fov###_cell###
+    expr_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
+    # remove fov
+    expr_dt[, fov := NULL]
+
+    # convert to Matrix
+    expr_mat <- dt_to_matrix(expr_dt)
+    expr_mat <- t_flex(expr_mat)
+    feat_ids <- rownames(expr_mat)
+
+    # split expression for rna / negprb if any split keywords provided.
+    # Output of this chunk should always be a named list of 1 or more matrices
+    if (length(split_keyword) > 0) {
+        expr_list <- list()
+        for (key_i in seq_along(split_keyword)) {
+            bool <- grepl(pattern = split_keyword[[key_i]], x = feat_ids)
+            # subset and store split matrix
+            sub_mat <- expr_mat[bool,]
+            expr_list[[feat_type[[key_i + 1L]]]] <- sub_mat
+            # remaining matrix
+            expr_mat <- expr_mat[!bool,]
+        }
+        expr_list[[feat_type[[1L]]]] <- expr_mat
+    } else {
+        expr_list <- list(expr_mat)
+        names(expr_list) <- feat_type[[1L]]
+    }
+
+    expr_list <- lapply(seq_along(expr_list), function(expr_i) {
+        createExprObj(expression_data = expr_list[[expr_i]],
+                      spat_unit = "cell",
+                      feat_type = names(expr_list)[[expr_i]],
+                      name = "raw",
+                      provenance = "cell")
+    })
+
+    return(expr_list)
+}
+
+.cosmx_image <- function(
+        path,
+        fovs = NULL,
+        img_name_fmt = "fov%03d",
+        negative_y = FALSE,
+        flip_vertical = FALSE,
+        flip_horizontal = FALSE,
+        offsets,
+        verbose = NULL
+    ) {
+    fovs <- fovs %null% seq_along(list.files(path))
+    verbose <- verbose %null% TRUE
+
+    gimg_list <- lapply(fovs, function(fov) {
+        imgfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
+        img_name <- sprintf(img_name_fmt, fov)
+
+        gimg <- createGiottoLargeImage(
+            raster_object = imgfile,
+            name = img_name,
+            negative_y = negative_y,
+            flip_vertical = flip_vertical,
+            flip_horizontal = flip_horizontal,
+            verbose = verbose
+        )
+
+        spatShift(
+            x = gimg,
+            dx = offsets[fov, x],
+            dy = offsets[fov, y]
+        )
+    })
+
+    return(gimg_list)
+}
+
+
+
 #' @title Load CosMx folder subcellular info
 #' @name .load_cosmx_folder_subcellular
 #' @description loads in the feature detections information. Note that the mask
