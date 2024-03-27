@@ -245,9 +245,17 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, f
         }
         g <- giotto()
 
+        # transcripts
         tx_list <- .Object@calls$load_transcripts()
-        polys <- .Object@calls$load_polys()
+        for (tx in tx_list) {
+            g <- setGiotto(g, tx)
+        }
 
+        # polys
+        polys <- .Object@calls$load_polys()
+        g <- setGiotto(g, polys)
+
+        # images
         if (!is.null(load_images)) {
             # convenient shortnames
             load_images[load_images == "composite"] <- composite_img_path
@@ -262,13 +270,8 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, f
                 )
                 imglist <- c(imglist, dir_imgs)
             }
+            g <- addGiottoLargeImage(g, largeImages = imglist)
         }
-
-        g <- setGiotto(g, gpoly)
-        for (tx in tx_list) {
-            g <- setGiotto(g, tx)
-        }
-        g@largeImages <- imglist
 
         # TODO expression & meta
         # Will need to check that names agree for poly/expr/meta
