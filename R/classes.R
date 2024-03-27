@@ -309,18 +309,24 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 setMethod("show", signature("CosmxReader"), function(object) {
     cat(sprintf("Giotto <%s>\n", "CosmxReader"))
     pre <- sprintf("%s :", format(c("dir", "fovs", "offsets", "funs")))
+
     d <- object@cosmx_dir
-    nch <- nchar(d)
-    if (nch > 60) {
-        d1 <- substring(d, first = 0L, last = 10L)
-        d2 <- substring(d, first = nch - 40, last = nch)
-        d <- paste0(d1, "[...]", d2)
+    if (length(d) > 0L) {
+        nch <- nchar(d)
+        if (nch > 60L) {
+            d1 <- substring(d, first = 0L, last = 10L)
+            d2 <- substring(d, first = nch - 40L, last = nch)
+            d <- paste0(d1, "[...]", d2)
+        }
+        cat(pre[1L], d, "\n")
+    } else {
+        cat(pre[1L], "\n")
     }
-    cat(pre[1], d, "\n")
+
     fovs <- object@fovs %none% "all"
-    cat(pre[2], paste(fovs, collapse = ", "), "\n")
+    cat(pre[2L], paste(fovs, collapse = ", "), "\n")
     offs_status <- ifelse(nrow(object@offsets) > 0L, "found", "none")
-    cat(pre[3], offs_status, "\n")
+    cat(pre[3L], offs_status, "\n")
 
     nfun <- length(object@calls)
     funs <- names(object@calls)
