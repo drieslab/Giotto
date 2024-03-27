@@ -266,13 +266,11 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, f
             for (imdir_i in seq_along(load_images)) {
                 dir_imgs <- .Object@calls$load_images(
                     path = load_images[[imdir_i]],
-                    img_name_fmt = paste0(dirnames, "_fov%03d")
+                    img_name_fmt = paste0(dirnames[[imdir_i]], "_fov%03d")
                 )
                 imglist <- c(imglist, dir_imgs)
             }
-            for (img_i in seq_along(imglist)) {
-                g <- addGiottoLargeImage(g, largeImages = imglist)
-            }
+            g <- addGiottoLargeImage(g, largeImages = imglist)
         }
 
         # TODO expression & meta
