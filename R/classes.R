@@ -1,7 +1,7 @@
 
 
 setClass(
-    "cosmx_reader",
+    "CosmxReader",
     slots = list(
         cosmx_dir = "character",
         fovs = "numeric",
@@ -13,9 +13,46 @@ setClass(
     )
 )
 
-cosmxReader <- function(cosmx_dir = NULL, fovs = NULL) {
+#' @title Import a CosMx Assay
+#' @name importCosMx
+#' @description
+#' Giotto import functionalities for CosMx datasets. This function generates
+#' a `CosmxReader` instance that has convenient reader functions for converting
+#' individual pieces of CosMx data into Giotto-compatible representations when
+#' the params `cosmx_dir` and `fovs` (if only a subset is desired) are provided.
+#' A function that creates the full `giotto` object is also available.
+#' These functions should have all param values provided as defaults, but
+#' can be flexibly modified to do things such as look in alternative
+#' directories or paths.
+#' @param cosmx_dir CosMx output directory
+#' @param fovs numeric. (optional) If provided, will load specific fovs.
+#' Otherwise, all FOVs will be loaded
+#' @returns CosmxReader object
+#' @examples
+#' # Create a `CosmxReader` object
+#' reader <- importCosMx()
+#'
+#' \dontrun{
+#' # Set the cosmx_dir and fov parameters
+#' reader$cosmx_dir <- "path to cosmx dir"
+#' reader$fov <- c(1, 4)
+#'
+#' # Load polygons, transcripts, and images
+#' polys <- reader$load_polys()
+#' tx <- reader$load_transcripts()
+#' imgs <- reader$load_images()
+#'
+#' # Create a `giotto` object and add the loaded data
+#' g <- giotto()
+#' g <- setGiotto(g, tx[["rna"]])
+#' g <- setGiotto(g, polys)
+#' g <- addGiottoLargeImage(g, largeImages = imgs)
+#' force(g)
+#' }
+#' @export
+importCosMx <- function(cosmx_dir = NULL, fovs = NULL) {
     # get params
-    a <- list(Class = "cosmx_reader")
+    a <- list(Class = "CosmxReader")
     if (!is.null(cosmx_dir)) {
         a$cosmx_dir <- cosmx_dir
     }
@@ -26,7 +63,7 @@ cosmxReader <- function(cosmx_dir = NULL, fovs = NULL) {
     do.call(new, args = a)
 }
 
-setMethod("initialize", signature("cosmx_reader"), function(.Object, cosmx_dir, fovs) {
+setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, fovs) {
 
     if (!missing(cosmx_dir)) {
         checkmate::assert_directory_exists(cosmx_dir)
@@ -244,7 +281,7 @@ setMethod("initialize", signature("cosmx_reader"), function(.Object, cosmx_dir, 
 })
 
 #' @export
-setMethod("$", signature("cosmx_reader"), function(x, name) {
+setMethod("$", signature("CosmxReader"), function(x, name) {
     basic_info <- c("offsets", "fovs", "cosmx_dir")
     if (name %in% basic_info) return(methods::slot(x, name))
 
@@ -252,7 +289,7 @@ setMethod("$", signature("cosmx_reader"), function(x, name) {
 })
 
 #' @export
-setMethod("$<-", signature("cosmx_reader"), function(x, name, value) {
+setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
     basic_info <- c("offsets", "fovs", "cosmx_dir")
     if (name %in% basic_info) {
         methods::slot(x, name) <- value
@@ -264,13 +301,13 @@ setMethod("$<-", signature("cosmx_reader"), function(x, name, value) {
 })
 
 #' @export
-`.DollarNames.cosmx_reader` <- function(x, pattern) {
+`.DollarNames.CosmxReader` <- function(x, pattern) {
     basic_info <- c("offsets", "fovs", "cosmx_dir")
     c(basic_info, paste0(names(methods::slot(x, "calls")), "()"))
 }
 
-setMethod("show", signature("cosmx_reader"), function(object) {
-    cat(sprintf("Giotto <%s>\n", "cosmx_reader"))
+setMethod("show", signature("CosmxReader"), function(object) {
+    cat(sprintf("Giotto <%s>\n", "CosmxReader"))
     pre <- sprintf("%s :", format(c("dir", "fovs", "offsets", "funs")))
     d <- object@cosmx_dir
     nch <- nchar(d)
@@ -295,7 +332,7 @@ setMethod("show", signature("cosmx_reader"), function(object) {
     }
 })
 
-setMethod("print", signature("cosmx_reader"), function(x, ...) show(x))
+setMethod("print", signature("CosmxReader"), function(x, ...) show(x))
 
 
 
