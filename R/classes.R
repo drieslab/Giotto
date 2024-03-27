@@ -252,7 +252,7 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, f
         }
 
         # polys
-        polys <- .Object@calls$load_polys()
+        polys <- .Object@calls$load_polys(verbose = FALSE)
         g <- setGiotto(g, polys)
 
         # images
@@ -270,7 +270,9 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, f
                 )
                 imglist <- c(imglist, dir_imgs)
             }
-            g <- addGiottoLargeImage(g, largeImages = imglist)
+            for (img_i in seq_along(imglist)) {
+                g <- addGiottoLargeImage(g, largeImages = imglist)
+            }
         }
 
         # TODO expression & meta
