@@ -253,7 +253,7 @@ setMethod("initialize", signature("CosmxReader"), function(
     img_fun <- function(
         path = composite_img_path,
         img_name_fmt = "composite_fov%03d",
-        negative_y = FALSE,
+        negative_y = TRUE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
         verbose = NULL
