@@ -2469,29 +2469,34 @@ NULL
     )
 
     fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
-    gpolys <- lapply(fovs, function(f) {
-        segfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
-        # naming format: c_SLIDENUMBER_FOVNUMBER_CELLID
-        mask_params$ID_fmt = paste0(
-            sprintf("c_%d_%d_", slide, f), "%d"
-        )
+    progressr::with_progress({
+        p <- progressr::progressor(along = fovs)
 
-        gpoly <- do.call(
-            createGiottoPolygonsFromMask,
-            args = c(list(maskfile = segfile), mask_params)
-        )
+        gpolys <- lapply(fovs, function(f) {
+            segfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
+            # naming format: c_SLIDENUMBER_FOVNUMBER_CELLID
+            mask_params$ID_fmt = paste0(
+                sprintf("c_%d_%d_", slide, f), "%d"
+            )
 
-        xshift <- offsets[fov == f, x]
-        yshift <- offsets[fov == f, y]
+            gpoly <- do.call(
+                createGiottoPolygonsFromMask,
+                args = c(list(maskfile = segfile), mask_params)
+            )
 
-        # if micron scale
-        if (mm) {
-            gpoly <- rescale(gpoly, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
-            xshift <- xshift * px2mm
-            yshift <- yshift * px2mm
-        }
+            xshift <- offsets[fov == f, x]
+            yshift <- offsets[fov == f, y]
 
-        gpoly_shift <- spatShift(x = gpoly, dx = xshift, dy = yshift)
+            # if micron scale
+            if (mm) {
+                gpoly <- rescale(gpoly, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
+                xshift <- xshift * px2mm
+                yshift <- yshift * px2mm
+            }
+
+            gpoly_shift <- spatShift(x = gpoly, dx = xshift, dy = yshift)
+            p(message = sprintf("F%03d", f))
+        })
     })
 
     if (length(gpolys) > 1L) {
@@ -2632,7 +2637,8 @@ NULL
 .cosmx_image <- function(
         path,
         fovs = NULL,
-        img_name_fmt = "fov%03d",
+        img_type = "composite",
+        img_name_fmt = paste(img_type, "_fov%03d"),
         negative_y = FALSE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
@@ -2648,35 +2654,41 @@ NULL
         ), call. = FALSE)
     }
 
-    GiottoUtils::vmsg(.v = verbose, sprintf("loading images..."))
+    GiottoUtils::vmsg(.v = verbose, sprintf("loading %s images...", img_type))
 
     fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
     verbose <- verbose %null% TRUE
 
-    gimg_list <- lapply(fovs, function(fov) {
-        imgfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, fov))
-        img_name <- sprintf(img_name_fmt, fov)
+    progressr::with_progress({
+        p <- progressr::progressor(along = fovs)
 
-        gimg <- createGiottoLargeImage(
-            raster_object = imgfile,
-            name = img_name,
-            negative_y = negative_y,
-            flip_vertical = flip_vertical,
-            flip_horizontal = flip_horizontal,
-            verbose = verbose
-        )
+        gimg_list <- lapply(fovs, function(f) {
+            imgfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
+            img_name <- sprintf(img_name_fmt, f)
 
-        xshift <- offsets[fov, x]
-        yshift <- offsets[fov, y]
+            gimg <- createGiottoLargeImage(
+                raster_object = imgfile,
+                name = img_name,
+                negative_y = negative_y,
+                flip_vertical = flip_vertical,
+                flip_horizontal = flip_horizontal,
+                verbose = verbose
+            )
 
-        if (mm) {
-            gimg <- rescale(gimg, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
-            xshift <- xshift * px2mm
-            yshift <- yshift * px2mm
-        }
+            xshift <- offsets[fov == f, x]
+            yshift <- offsets[fov == f, y]
 
-        spatShift(x = gimg, dx = xshift, dy = yshift)
+            if (mm) {
+                gimg <- rescale(gimg, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
+                xshift <- xshift * px2mm
+                yshift <- yshift * px2mm
+            }
+
+            spatShift(x = gimg, dx = xshift, dy = yshift)
+            p(message = sprintf("F%03d", f))
+        })
     })
+
 
     return(gimg_list)
 }

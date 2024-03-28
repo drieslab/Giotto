@@ -324,7 +324,7 @@ setMethod("initialize", signature("CosmxReader"), function(
 
         # images
         if (!is.null(load_images)) {
-            # convenient shortnames
+            # replace convenient shortnames
             load_images[load_images == "composite"] <- composite_img_path
             load_images[load_images == "overlay"] <- overlay_img_path
 
@@ -333,7 +333,8 @@ setMethod("initialize", signature("CosmxReader"), function(
             for (imdir_i in seq_along(load_images)) {
                 dir_imgs <- .Object@calls$load_images(
                     path = load_images[[imdir_i]],
-                    img_name_fmt = paste0(dirnames[[imdir_i]], "_fov%03d")
+                    img_type = dirnames[[imdir_i]],
+                    img_name_fmt = paste(img_type, "_fov%03d")
                 )
                 imglist <- c(imglist, dir_imgs)
             }
