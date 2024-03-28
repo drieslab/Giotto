@@ -2537,14 +2537,15 @@ NULL
 
     meta_dt <- data.table::fread(input = path, nThread = cores)
 
+    # remove unneeded cols
+    dropcols <- dropcols[dropcols %in% colnames(meta_dt)]
+    meta_dt[, (dropcols) := NULL] # remove dropcols
+
     # subset to needed fovs
     if (!is.null(fovs)) {
         fovs <- as.integer(fovs)
         meta_dt <- meta_dt[fov %in% fovs,]
     }
-
-    dropcols <- dropcols[dropcols %in% meta_dt]
-    meta_dt[, `:=`(dropcols, NULL)] # remove dropcols
 
     # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
     if ("cell" %in% colnames(meta_dt)) {
