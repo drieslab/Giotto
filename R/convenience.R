@@ -2339,7 +2339,8 @@ NULL
 
     checkmate::assert_file_exists(path)
 
-    GiottoUtils::vmsg(.v = verbose, "loading feature detections...")
+    vmsg(.v = verbose, "loading feature detections...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     tx <- data.table::fread(input = path, nThread = cores, drop = dropcols)
     if (!is.null(fovs)) {
@@ -2449,6 +2450,7 @@ NULL
     }
 
     GiottoUtils::vmsg(.v = verbose, "loading segmentation masks...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     mask_params <- list(
         # static params
@@ -2528,6 +2530,7 @@ NULL
     }
 
     GiottoUtils::vmsg(.v = verbose, "loading cell metadata...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     verbose <- verbose %null% TRUE
 
@@ -2583,6 +2586,7 @@ NULL
     }
 
     GiottoUtils::vmsg(.v = verbose, "loading expression matrix...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     expr_dt <- data.table::fread(input = path, nThread = cores)
 
@@ -2655,6 +2659,7 @@ NULL
     }
 
     GiottoUtils::vmsg(.v = verbose, sprintf("loading %s images...", img_type))
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
     verbose <- verbose %null% TRUE
