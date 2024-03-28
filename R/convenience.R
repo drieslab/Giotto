@@ -2313,33 +2313,52 @@ NULL
 ## CosMx ####
 
 
-#' @param gpoints_params list of params passed to `createGiottoPoints()`.
-#' Mainly to allow access to `feat_type` and `split_keyword` params. Default
-#' is to split into rna and negprobes points objects
+
 .cosmx_transcript <- function(
         path,
         fovs = NULL,
-        gpoints_params = list(
-            feat_type = c("rna", "negprobes"),
-            split_keyword = list("NegPrb")
+        feat_type = c("rna", "negprobes"),
+        split_keyword = list("NegPrb"),
+        dropcols = c(
+            "x_local_px",
+            "y_local_px",
+            "cell_ID",
+            "cell"
         ),
+        mm = FALSE,
+        px2mm = 0.12028,
         cores = determine_cores(),
         verbose = NULL
     ) {
-    checkmate::assert_list(gpoints_params)
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to tx file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
     checkmate::assert_file_exists(path)
 
     GiottoUtils::vmsg(.v = verbose, "loading feature detections...")
 
-    tx <- data.table::fread(input = path, nThread = cores)
+    tx <- data.table::fread(input = path, nThread = cores, drop = dropcols)
     if (!is.null(fovs)) {
         # subset to only needed FOVs
         tx <- tx[fov %in% as.numeric(fovs),]
     }
 
+    # mm scaling if desired
+    if (mm) {
+        tx[, x_global_px := x_global_px * px2mm]
+        tx[, y_global_px := y_global_px * px2mm]
+    }
+
     # giottoPoints ----------------------------------------------------- #
 
     # static gpoints params
+    gpoints_params <- list()
+    gpoints_params$feat_type <- feat_type
+    gpoints_params$split_keyword <- split_keyword
     gpoints_params$x_colname <- "x_global_px"
     gpoints_params$y_colname <- "y_global_px"
     gpoints_params$feat_ID_colname <- "target"
@@ -2355,7 +2374,7 @@ NULL
 }
 
 #' @returns data.table with three columns. 1. FOV (integer), xshift (numeric),
-#' yshift (numeric)
+#' yshift (numeric). Values should always be in pixels
 .cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, flip_loc_y = NULL) {
     fov <- NULL # NSE vars
 
@@ -2391,37 +2410,88 @@ NULL
     return(res)
 }
 
+.cosmx_imgname_fovparser <- function(
+        path
+) {
+    im_names <- list.files(path)
+    fovs <- as.numeric(sub(".*F(\\d+)\\..*", "\\1", im_names))
+    if (any(is.na(fovs))) {
+        warning(wrap_txt(
+            "Images to load should be sets of images/fov in subdirectories.
+            No other files should be present."
+        ))
+    }
+    return(fovs)
+}
+
 .cosmx_poly <- function(
         path,
+        slide = 1,
         fovs = NULL,
-        mask_params = list(
-            # VERTICAL FLIP + NO VERTICAL SHIFT
-            flip_vertical = TRUE,
-            flip_horizontal = FALSE,
-            shift_vertical_step = FALSE,
-            shift_horizontal_step = FALSE,
-            ID_fmt = NULL
-        ),
+        name = "cell",
+        # VERTICAL FLIP + NO SHIFTS
+        flip_vertical = TRUE,
+        flip_horizontal = FALSE,
+        shift_vertical_step = FALSE,
+        shift_horizontal_step = FALSE,
+        mm = FALSE,
+        px2mm = 0.12028,
         offsets,
         verbose = NULL
 ) {
-    fovs <- fovs %null% seq_along(list.files(path))
-    gpolys <- lapply(fovs, function(fov) {
-        segfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
-        if (is.null(mask_params$ID_fmt)) {
-            mask_params$ID_fmt = paste0(sprintf("fov%03d", fov), "_cell%03d")
-        }
-        mask_params$verbose <- verbose %null% TRUE
+    # NSE params
+    f <- x <- y <- NULL
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to polys subdirectory provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading segmentation masks...")
+
+    mask_params <- list(
+        # static params
+        mask_method = "multiple",
+        # if removal is TRUE, a real cell segmentation gets removed.
+        # There is no background poly for nanostring masks
+        remove_background_polygon = FALSE,
+        fill_holes = TRUE,
+        calc_centroids = TRUE,
+        remove_unvalid_polygons = TRUE,
+        # input params
+        name = name,
+        flip_vertical = flip_vertical,
+        flip_horizontal = flip_horizontal,
+        shift_vertical_step = shift_vertical_step,
+        shift_horizontal_step = shift_horizontal_step,
+        verbose = FALSE
+    )
+
+    fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
+    gpolys <- lapply(fovs, function(f) {
+        segfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
+        # naming format: c_SLIDENUMBER_FOVNUMBER_CELLID
+        mask_params$ID_fmt = paste0(
+            sprintf("c_%d_%d_", slide, f), "%d"
+        )
+
         gpoly <- do.call(
             createGiottoPolygonsFromMask,
             args = c(list(maskfile = segfile), mask_params)
         )
 
-        gpoly_shift <- spatShift(
-            x = gpoly,
-            dx = offsets[fov, x],
-            dy = offsets[fov, y]
-        )
+        xshift <- offsets[fov == f, x]
+        yshift <- offsets[fov == f, y]
+
+        # if micron scale
+        if (mm) {
+            gpoly <- rescale(gpoly, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
+            xshift <- xshift * px2mm
+            yshift <- yshift * px2mm
+        }
+
+        gpoly_shift <- spatShift(x = gpoly, dx = xshift, dy = yshift)
     })
 
     if (length(gpolys) > 1L) {
@@ -2434,6 +2504,7 @@ NULL
 
 .cosmx_cellmeta <- function(
         path,
+        slide = 1,
         fovs = NULL,
         dropcols = c(
             "CenterX_local_px",
@@ -2444,6 +2515,15 @@ NULL
         cores = determine_cores(),
         verbose = NULL
     ) {
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to metadata file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading cell metadata...")
+
     verbose <- verbose %null% TRUE
 
     meta_dt <- data.table::fread(input = path, nThread = cores)
@@ -2457,10 +2537,18 @@ NULL
     dropcols <- dropcols[dropcols %in% meta_dt]
     meta_dt[, (dropcols) := NULL] # remove dropcols
 
-    # create cell ID as fov###_cell###
-    meta_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
-    # remove fov
-    meta_dt[, fov := NULL]
+    # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
+    if ("cell" %in% colnames(meta_dt)) {
+        # assume already formatted (current datasets Mar-27-2024)
+        meta_dt[, c("fov", "cell_ID") := NULL]
+        data.table::setnames(meta_dt, old = "cell", "cell_ID")
+    } else {
+        # older datasets
+        meta_dt[, cell_ID := sprintf("c_%d_%d_%d", slide, fov, cell_ID)]
+        # remove fov
+        meta_dt[, fov := NULL]
+    }
+
 
     # TODO figure out what to do about protein expression here.
     cx <- createCellMetaObj(
@@ -2475,11 +2563,22 @@ NULL
 
 .cosmx_expression <- function(
         path,
+        slide = 1,
         fovs = NULL,
         feat_type = c("rna", "negprobes"),
         split_keyword = list("NegPrb"),
-        cores = determine_cores()
+        cores = determine_cores(),
+        verbose = NULL
     ) {
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to exprMat file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading expression matrix...")
+
     expr_dt <- data.table::fread(input = path, nThread = cores)
 
     # subset to needed fovs
@@ -2491,8 +2590,8 @@ NULL
     # remove background values (cell 0)
     expr_dt <- expr_dt[cell_ID != 0L,]
 
-    # create cell ID as fov###_cell###
-    expr_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
+    # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
+    expr_dt[, cell_ID := sprintf("c_%d_%d_%d", slide, fov, cell_ID)]
     # remove fov
     expr_dt[, fov := NULL]
 
@@ -2537,14 +2636,25 @@ NULL
         negative_y = FALSE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
+        mm = FALSE,
+        px2mm = 0.12028,
         offsets,
         verbose = NULL
     ) {
-    fovs <- fovs %null% seq_along(list.files(path))
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to image subdirectory to load provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, sprintf("loading images..."))
+
+    fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
     verbose <- verbose %null% TRUE
 
     gimg_list <- lapply(fovs, function(fov) {
-        imgfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
+        imgfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, fov))
         img_name <- sprintf(img_name_fmt, fov)
 
         gimg <- createGiottoLargeImage(
@@ -2556,11 +2666,16 @@ NULL
             verbose = verbose
         )
 
-        spatShift(
-            x = gimg,
-            dx = offsets[fov, x],
-            dy = offsets[fov, y]
-        )
+        xshift <- offsets[fov, x]
+        yshift <- offsets[fov, y]
+
+        if (mm) {
+            gimg <- rescale(gimg, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
+            xshift <- xshift * px2mm
+            yshift <- yshift * px2mm
+        }
+
+        spatShift(x = gimg, dx = xshift, dy = yshift)
     })
 
     return(gimg_list)

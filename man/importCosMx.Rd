@@ -2,15 +2,29 @@
 % Please edit documentation in R/classes.R
 \name{importCosMx}
 \alias{importCosMx}
-\title{Import a CosMx Assay}
+\title{Import a Nanostring CosMx Assay}
 \usage{
-importCosMx(cosmx_dir = NULL, fovs = NULL)
+importCosMx(
+  cosmx_dir = NULL,
+  slide = 1,
+  fovs = NULL,
+  mm = FALSE,
+  px2mm = 0.12028
+)
 }
 \arguments{
 \item{cosmx_dir}{CosMx output directory}
 
+\item{slide}{numeric. Slide number. Defaults to 1}
+
 \item{fovs}{numeric. (optional) If provided, will load specific fovs.
 Otherwise, all FOVs will be loaded}
+
+\item{mm}{logical. Whether to scale spatial information as millimeters
+instead of the default pixels}
+
+\item{px2mm}{numeric. Scalefactor from pixels to mm. Defaults to 0.12028
+based on `CosMx-ReadMe.html` info}
 }
 \value{
 CosmxReader object
@@ -24,6 +38,13 @@ A function that creates the full `giotto` object is also available.
 These functions should have all param values provided as defaults, but
 can be flexibly modified to do things such as look in alternative
 directories or paths.
+}
+\details{
+Loading functions are generated after the `cosmx_dir` is added.
+Transcripts, expression, and metadata loading are all expected to be done
+from the top level of the directory. Loading of polys, and any image sets
+are expected to be from specific subdirectories containing only those
+images for the set of FOVs.
 }
 \examples{
 # Create a `CosmxReader` object
