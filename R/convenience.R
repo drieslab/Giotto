@@ -2544,7 +2544,7 @@ NULL
     }
 
     dropcols <- dropcols[dropcols %in% meta_dt]
-    meta_dt[, (dropcols) := NULL] # remove dropcols
+    meta_dt[, `:=`(dropcols, NULL)] # remove dropcols
 
     # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
     if ("cell" %in% colnames(meta_dt)) {
