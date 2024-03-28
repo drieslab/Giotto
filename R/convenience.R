@@ -2496,8 +2496,9 @@ NULL
                 yshift <- yshift * px2mm
             }
 
-            gpoly_shift <- spatShift(x = gpoly, dx = xshift, dy = yshift)
+            gpoly <- spatShift(x = gpoly, dx = xshift, dy = yshift)
             p(message = sprintf("F%03d", f))
+            return(gpoly)
         })
     })
 
@@ -2689,8 +2690,9 @@ NULL
                 yshift <- yshift * px2mm
             }
 
-            spatShift(x = gimg, dx = xshift, dy = yshift)
+            gimg <- spatShift(x = gimg, dx = xshift, dy = yshift)
             p(message = sprintf("F%03d", f))
+            return(gimg)
         })
     })
 
