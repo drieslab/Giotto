@@ -2348,8 +2348,8 @@ NULL
         tx <- tx[fov %in% as.numeric(fovs),]
     }
 
-    # mm scaling if desired
-    if (mm) {
+    # micron scaling if desired
+    if (micron) {
         px2micron <- px2mm / 1000
         tx[, x_global_px := x_global_px * px2micron]
         tx[, y_global_px := y_global_px * px2micron]
@@ -2538,7 +2538,7 @@ NULL
             yshift <- offsets[fov == f, y]
 
             # if micron scale
-            if (mm) {
+            if (micron) {
                 px2micron <- px2mm / 1000
                 gpoly <- rescale(
                     gpoly, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0
@@ -2739,7 +2739,7 @@ NULL
             xshift <- offsets[fov == f, x]
             yshift <- offsets[fov == f, y]
 
-            if (mm) {
+            if (micron) {
                 px2micron <- px2mm / 1000
                 gimg <- rescale(
                     gimg, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0

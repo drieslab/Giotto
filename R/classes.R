@@ -410,7 +410,7 @@ setMethod("initialize", signature("CosmxReader"), function(
 
 #' @export
 setMethod("$", signature("CosmxReader"), function(x, name) {
-    basic_info <- c("cosmx_dir", "slide", "fovs", "mm", "px2mm", "offsets")
+    basic_info <- c("cosmx_dir", "slide", "fovs", "micron", "px2mm", "offsets")
     if (name %in% basic_info) return(methods::slot(x, name))
 
     return(x@calls[[name]])
@@ -418,7 +418,7 @@ setMethod("$", signature("CosmxReader"), function(x, name) {
 
 #' @export
 setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
-    basic_info <- c("cosmx_dir", "slide", "fovs", "mm", "px2mm")
+    basic_info <- c("cosmx_dir", "slide", "fovs", "micron", "px2mm")
     if (name %in% basic_info) {
         methods::slot(x, name) <- value
         return(initialize(x))
@@ -435,7 +435,7 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 
 #' @export
 `.DollarNames.CosmxReader` <- function(x, pattern) {
-    dn <- c("cosmx_dir", "slide", "fovs", "mm", "px2mm", "offsets")
+    dn <- c("cosmx_dir", "slide", "fovs", "micron", "px2mm", "offsets")
     if (length(methods::slot(x, "calls")) > 0) {
         dn <- c(dn, paste0(names(methods::slot(x, "calls")), "()"))
     }
