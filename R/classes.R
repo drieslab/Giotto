@@ -301,7 +301,7 @@ setMethod("initialize", signature("CosmxReader"), function(
     # build gobject call
     gobject_fun <- function(
         transcript_path = tx_path,
-        mask_dir = mask_dir,
+        cell_labels_dir = mask_dir,
         expression_path = expr_path,
         metadata_path = meta_path,
         feat_type = c("rna", "negprobes"),
@@ -342,7 +342,7 @@ setMethod("initialize", signature("CosmxReader"), function(
 
         # polys
         polys <- funs$load_polys(
-            path = mask_dir,
+            path = cell_labels_dir,
             verbose = FALSE
         )
         g <- setGiotto(g, polys)
