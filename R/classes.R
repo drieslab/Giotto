@@ -359,7 +359,6 @@ setMethod("initialize", signature("CosmxReader"), function(
                 dir_imgs <- funs$load_images(
                     path = load_images[[imdir_i]],
                     img_type = dirnames[[imdir_i]],
-                    img_name_fmt = paste(img_type, "_fov%03d")
                 )
                 imglist <- c(imglist, dir_imgs)
             }
