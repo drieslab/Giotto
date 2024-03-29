@@ -131,9 +131,9 @@ setMethod("initialize", signature("CosmxReader"), function(
     tx_path <- .detect_in_dir("tx_file")
     mask_dir <- .detect_in_dir("CellLabels")
     expr_path <- .detect_in_dir("exprMat_file")
-    composite_img_path <- .detect_in_dir("CellComposite")
-    overlay_img_path <- .detect_in_dir("CellOverlay")
-    compart_img_path <- .detect_in_dir("CompartmentLabels")
+    composite_img_dir <- .detect_in_dir("CellComposite")
+    overlay_img_dir <- .detect_in_dir("CellOverlay")
+    compart_img_dir <- .detect_in_dir("CompartmentLabels")
 
 
     # load fov offsets through one of several methods
@@ -251,7 +251,7 @@ setMethod("initialize", signature("CosmxReader"), function(
 
     # images load call
     img_fun <- function(
-        path = composite_img_path,
+        path = composite_img_dir,
         img_type = "composite",
         img_name_fmt = paste0(img_type, "_fov%03d"),
         negative_y = TRUE,
@@ -297,8 +297,17 @@ setMethod("initialize", signature("CosmxReader"), function(
     }
     .Object@calls$load_cellmeta <- meta_fun
 
+
     # build gobject call
     gobject_fun <- function(
+        transcript_path = tx_path,
+        mask_dir = mask_dir,
+        expression_path = expr_path,
+        metadata_path = meta_path,
+        feat_type = c("rna", "negprobes"),
+        split_keyword = list(
+            "NegPrb"
+        ),
         load_images = list(
             composite = "composite",
             overlay = "overlay"
@@ -306,34 +315,48 @@ setMethod("initialize", signature("CosmxReader"), function(
         load_expression = FALSE,
         load_cellmeta = FALSE
     ) {
+        load_expression <- as.logical(load_expression)
+        load_cellmeta <- as.logical(load_cellmeta)
+
         if (!is.null(load_images)) {
             checkmate::assert_list(load_images)
             if (is.null(names(load_images))) {
                 stop("Images directories provided to 'load_images' must be named")
             }
         }
+
+        funs <- .Object@calls
+
+        # init gobject
         g <- giotto()
 
         # transcripts
-        tx_list <- .Object@calls$load_transcripts()
+        tx_list <- funs$load_transcripts(
+            path = transcript_path,
+            feat_type = feat_type,
+            split_keyword = split_keyword
+        )
         for (tx in tx_list) {
             g <- setGiotto(g, tx)
         }
 
         # polys
-        polys <- .Object@calls$load_polys(verbose = FALSE)
+        polys <- funs$load_polys(
+            path = mask_dir,
+            verbose = FALSE
+        )
         g <- setGiotto(g, polys)
 
         # images
         if (!is.null(load_images)) {
             # replace convenient shortnames
-            load_images[load_images == "composite"] <- composite_img_path
-            load_images[load_images == "overlay"] <- overlay_img_path
+            load_images[load_images == "composite"] <- composite_img_dir
+            load_images[load_images == "overlay"] <- overlay_img_dir
 
             imglist <- list()
             dirnames <- names(load_images)
             for (imdir_i in seq_along(load_images)) {
-                dir_imgs <- .Object@calls$load_images(
+                dir_imgs <- funs$load_images(
                     path = load_images[[imdir_i]],
                     img_type = dirnames[[imdir_i]],
                     img_name_fmt = paste(img_type, "_fov%03d")
@@ -343,8 +366,33 @@ setMethod("initialize", signature("CosmxReader"), function(
             g <- addGiottoLargeImage(g, largeImages = imglist)
         }
 
-        # TODO expression & meta
-        # Will need to check that names agree for poly/expr/meta
+        # expression & meta
+        # Need to check that names agree for poly/expr/meta
+        allowed_ids <- spatIDs(polys)
+
+        if (load_expression) {
+            exlist <- funs$load_expression(
+                path = expression_path,
+                feat_type = feat_type,
+                split_keyword = split_keyword
+            )
+
+            # only keep allowed cells and set into gobject
+            for (ex in exlist) {
+                bool <- colnames(ex[]) %in% allowed_ids
+                ex[] <- ex[][, bool]
+                g <- setGiotto(g, ex)
+            }
+        }
+
+        if (load_cellmeta) {
+            cx <- funs$load_cellmeta(
+                path = metadata_path
+            )
+
+            cx[] <- c[][cell_ID %in% allowed_ids,]
+            g <- setGiotto(g, cx)
+        }
 
         return(g)
     }
