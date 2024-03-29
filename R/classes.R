@@ -389,7 +389,7 @@ setMethod("initialize", signature("CosmxReader"), function(
                 path = metadata_path
             )
 
-            cx[] <- c[][cell_ID %in% allowed_ids,]
+            cx[] <- cx[][cell_ID %in% allowed_ids,]
             g <- setGiotto(g, cx)
         }
 
