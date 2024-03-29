@@ -2614,16 +2614,19 @@ NULL
     # split expression for rna / negprb if any split keywords provided.
     # Output of this chunk should always be a named list of 1 or more matrices
     if (length(split_keyword) > 0) {
-        expr_list <- list()
+        expr_list <- vector(mode = "list", length = length(feat_type))
+        names(expr_list) <- feat_type
+        # iterate through other expr types
         for (key_i in seq_along(split_keyword)) {
             bool <- grepl(pattern = split_keyword[[key_i]], x = feat_ids)
             # subset and store split matrix
             sub_mat <- expr_mat[bool,]
-            expr_list[[feat_type[[key_i + 1L]]]] <- sub_mat
+            expr_list[[key_i + 1L]] <- sub_mat
             # remaining matrix
             expr_mat <- expr_mat[!bool,]
         }
-        expr_list[[feat_type[[1L]]]] <- expr_mat
+        # assign the main expr
+        expr_list[[1L]] <- expr_mat
     } else {
         expr_list <- list(expr_mat)
         names(expr_list) <- feat_type[[1L]]
