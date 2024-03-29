@@ -2387,32 +2387,61 @@ NULL
 #' (Only one of tx_dt or meta_dt should be used)
 #' @param navg max n values to check per FOV to find average shift
 #' @param flip_loc_y whether a y flip needs to be performed on the local y
-#' values before camparing with global y values
+#' values before comparing with global y values. See details
 #' @returns data.table with three columns. 1. FOV (integer), xshift (numeric),
 #' yshift (numeric). Values should always be in pixels
+#' @details
+#' Shifts are found by looking at the average of differences between xy global
+#' and local coordinates in either the metadata or transcripts file. The number
+#' of shift value to average across is determined with `navg`. The average is
+#' in place to get rid of small differences in shifts, likely due to rounding
+#' errors. Across the different versions of the CosMx exports, whether the
+#' local y values are flipped compared to the global values has differed, so
+#' there is also a step that checks the variance of y values per sampled set
+#' per fov. In cases where the shift is calculated with the correct (inverted
+#' or non-inverted) y local values, the variance is expected to be very low.
+#' When the variance is higher than 0.001, the function is re-run with the
+#' opposite `flip_loc_y` value.
 #' @keywords internal
 .cosmx_infer_fov_shifts <- function(
-        tx_dt, meta_dt, flip_loc_y = NULL, navg = 100L
+        tx_dt, meta_dt, flip_loc_y = TRUE, navg = 100L
 ) {
     fov <- NULL # NSE vars
-
     if (!missing(tx_dt)) {
-        flip_loc_y %null% TRUE # default = TRUE
         tx_head <- tx_dt[, head(.SD, navg), by = fov]
         x <- tx_head[, mean(x_global_px - x_local_px), by = fov]
         if (flip_loc_y) {
+
+            # test if flip is needed
+            # Usual yshift variance / fov expected when correct is 0 to 1e-22
+            # if var is too high for any fov, swap `flip_loc_y` value
+            y <- tx_head[, var(y_global_px + y_local_px), by = fov]
+            if (y[, any(V1 > 0.001)]) {
+                return(.cosmx_infer_fov_shifts(
+                    tx_dt = tx_dt, flip_loc_y = FALSE, navg = navg
+                ))
+            }
+
             # use +y if local y values are flipped
             y <- tx_head[, mean(y_global_px + y_local_px), by = fov]
         } else {
             y <- tx_head[, mean(y_global_px - y_local_px), by = fov]
         }
-    }
-
-    if (!missing(meta_dt)) {
-        flip_loc_y %null% FALSE # default = FALSE
+    } else if (!missing(meta_dt)) {
         meta_head <- meta_dt[, head(.SD, navg), by = fov]
         x <- meta_head[, mean(CenterX_global_px - CenterX_local_px), by = fov]
         if (flip_loc_y) {
+
+            # test if flip is needed
+            # Usual yshift variance / fov expected when correct is 0 to 1e-22
+            # if var is too high for any fov, swap `flip_loc_y` value
+            y <- meta_head[, var(CenterY_global_px + CenterY_local_px), by = fov]
+            if (y[, any(V1 > 0.001)]) {
+                return(.cosmx_infer_fov_shifts(
+                    meta_dt = meta_dt, flip_loc_y = FALSE, navg = navg
+                ))
+            }
+
             # use +y if local y values are flipped
             y <- meta_head[, mean(CenterY_global_px + CenterY_local_px),
                            by = fov]
@@ -2420,6 +2449,8 @@ NULL
             y <- meta_head[, mean(CenterY_global_px - CenterY_local_px),
                            by = fov]
         }
+    } else {
+        stop("One of tx_dt or meta_dt must be provided\n")
     }
 
     res <- merge(x, y, by = "fov")

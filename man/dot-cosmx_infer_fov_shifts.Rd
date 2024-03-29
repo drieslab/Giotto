@@ -4,7 +4,7 @@
 \alias{.cosmx_infer_fov_shifts}
 \title{Infer CosMx local to global shifts}
 \usage{
-.cosmx_infer_fov_shifts(tx_dt, meta_dt, flip_loc_y = NULL, navg = 100L)
+.cosmx_infer_fov_shifts(tx_dt, meta_dt, flip_loc_y = TRUE, navg = 100L)
 }
 \arguments{
 \item{tx_dt}{transcript data.table input to use
@@ -14,7 +14,7 @@
 (Only one of tx_dt or meta_dt should be used)}
 
 \item{flip_loc_y}{whether a y flip needs to be performed on the local y
-values before camparing with global y values}
+values before comparing with global y values. See details}
 
 \item{navg}{max n values to check per FOV to find average shift}
 }
@@ -26,5 +26,18 @@ yshift (numeric). Values should always be in pixels
 From NanoString CosMx spatial info, infer the FOV shifts needed. These
 values are needed for anything that requires the use of images, since those
 do not come with spatial extent information embedded.
+}
+\details{
+Shifts are found by looking at the average of differences between xy global
+and local coordinates in either the metadata or transcripts file. The number
+of shift value to average across is determined with `navg`. The average is
+in place to get rid of small differences in shifts, likely due to rounding
+errors. Across the different versions of the CosMx exports, whether the
+local y values are flipped compared to the global values has differed, so
+there is also a step that checks the variance of y values per sampled set
+per fov. In cases where the shift is calculated with the correct (inverted
+or non-inverted) y local values, the variance is expected to be very low.
+When the variance is higher than 0.001, the function is re-run with the
+opposite `flip_loc_y` value.
 }
 \keyword{internal}
