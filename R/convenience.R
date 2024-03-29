@@ -2609,7 +2609,6 @@ NULL
     # convert to Matrix
     expr_mat <- dt_to_matrix(expr_dt)
     expr_mat <- t_flex(expr_mat)
-    feat_ids <- rownames(expr_mat)
 
     # split expression for rna / negprb if any split keywords provided.
     # Output of this chunk should always be a named list of 1 or more matrices
@@ -2618,6 +2617,7 @@ NULL
         names(expr_list) <- feat_type
         # iterate through other expr types
         for (key_i in seq_along(split_keyword)) {
+            feat_ids <- rownames(expr_mat)
             bool <- grepl(pattern = split_keyword[[key_i]], x = feat_ids)
             # subset and store split matrix
             sub_mat <- expr_mat[bool,]
