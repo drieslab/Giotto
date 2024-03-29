@@ -2325,7 +2325,7 @@ NULL
             "cell_ID",
             "cell"
         ),
-        mm = FALSE,
+        micron = FALSE,
         px2mm = 0.12028,
         cores = determine_cores(),
         verbose = NULL
@@ -2350,8 +2350,9 @@ NULL
 
     # mm scaling if desired
     if (mm) {
-        tx[, x_global_px := x_global_px * px2mm]
-        tx[, y_global_px := y_global_px * px2mm]
+        px2micron <- px2mm / 1000
+        tx[, x_global_px := x_global_px * px2micron]
+        tx[, y_global_px := y_global_px * px2micron]
     }
 
     # giottoPoints ----------------------------------------------------- #
@@ -2374,14 +2375,30 @@ NULL
     return(gpoints)
 }
 
+#' @name .cosmx_infer_fov_shifts
+#' @title Infer CosMx local to global shifts
+#' @description
+#' From NanoString CosMx spatial info, infer the FOV shifts needed. These
+#' values are needed for anything that requires the use of images, since those
+#' do not come with spatial extent information embedded.
+#' @param tx_dt transcript data.table input to use
+#' (Only one of tx_dt or meta_dt should be used)
+#' @param meta_dt cell metadata data.table input to use
+#' (Only one of tx_dt or meta_dt should be used)
+#' @param navg max n values to check per FOV to find average shift
+#' @param flip_loc_y whether a y flip needs to be performed on the local y
+#' values before camparing with global y values
 #' @returns data.table with three columns. 1. FOV (integer), xshift (numeric),
 #' yshift (numeric). Values should always be in pixels
-.cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, flip_loc_y = NULL) {
+#' @keywords internal
+.cosmx_infer_fov_shifts <- function(
+        tx_dt, meta_dt, flip_loc_y = NULL, navg = 100L
+) {
     fov <- NULL # NSE vars
 
     if (!missing(tx_dt)) {
         flip_loc_y %null% TRUE # default = TRUE
-        tx_head <- tx_dt[, head(.SD, 10L), by = fov]
+        tx_head <- tx_dt[, head(.SD, navg), by = fov]
         x <- tx_head[, mean(x_global_px - x_local_px), by = fov]
         if (flip_loc_y) {
             # use +y if local y values are flipped
@@ -2393,7 +2410,7 @@ NULL
 
     if (!missing(meta_dt)) {
         flip_loc_y %null% FALSE # default = FALSE
-        meta_head <- meta_dt[, head(.SD, 10L), by = fov]
+        meta_head <- meta_dt[, head(.SD, navg), by = fov]
         x <- meta_head[, mean(CenterX_global_px - CenterX_local_px), by = fov]
         if (flip_loc_y) {
             # use +y if local y values are flipped
@@ -2435,7 +2452,7 @@ NULL
         flip_horizontal = FALSE,
         shift_vertical_step = FALSE,
         shift_horizontal_step = FALSE,
-        mm = FALSE,
+        micron = FALSE,
         px2mm = 0.12028,
         offsets,
         verbose = NULL
@@ -2491,9 +2508,12 @@ NULL
 
             # if micron scale
             if (mm) {
-                gpoly <- rescale(gpoly, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
-                xshift <- xshift * px2mm
-                yshift <- yshift * px2mm
+                px2micron <- px2mm / 1000
+                gpoly <- rescale(
+                    gpoly, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0
+                )
+                xshift <- xshift * px2micron
+                yshift <- yshift * px2micron
             }
 
             gpoly <- spatShift(x = gpoly, dx = xshift, dy = yshift)
@@ -2648,10 +2668,10 @@ NULL
         fovs = NULL,
         img_type = "composite",
         img_name_fmt = paste(img_type, "_fov%03d"),
-        negative_y = FALSE,
+        negative_y = TRUE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
-        mm = FALSE,
+        micron = FALSE,
         px2mm = 0.12028,
         offsets,
         verbose = NULL
@@ -2689,9 +2709,12 @@ NULL
             yshift <- offsets[fov == f, y]
 
             if (mm) {
-                gimg <- rescale(gimg, fx = px2mm, fy = px2mm, x0 = 0, y0 = 0)
-                xshift <- xshift * px2mm
-                yshift <- yshift * px2mm
+                px2micron <- px2mm / 1000
+                gimg <- rescale(
+                    gimg, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0
+                )
+                xshift <- xshift * px2micron
+                yshift <- yshift * px2micron
             }
 
             gimg <- spatShift(x = gimg, dx = xshift, dy = yshift)

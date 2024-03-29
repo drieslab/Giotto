@@ -8,7 +8,7 @@ importCosMx(
   cosmx_dir = NULL,
   slide = 1,
   fovs = NULL,
-  mm = FALSE,
+  micron = FALSE,
   px2mm = 0.12028
 )
 }
@@ -20,7 +20,7 @@ importCosMx(
 \item{fovs}{numeric. (optional) If provided, will load specific fovs.
 Otherwise, all FOVs will be loaded}
 
-\item{mm}{logical. Whether to scale spatial information as millimeters
+\item{micron}{logical. Whether to scale spatial information as micron
 instead of the default pixels}
 
 \item{px2mm}{numeric. Scalefactor from pixels to mm. Defaults to 0.12028
@@ -54,6 +54,8 @@ reader <- importCosMx()
 # Set the cosmx_dir and fov parameters
 reader$cosmx_dir <- "path to cosmx dir"
 reader$fov <- c(1, 4)
+
+plot(reader) # displays FOVs (top left corner) in px scale.
 
 # Load polygons, transcripts, and images
 polys <- reader$load_polys()

@@ -6,14 +6,14 @@ setClass(
         cosmx_dir = "character",
         slide = "numeric",
         fovs = "numeric",
-        mm = "logical",
+        micron = "logical",
         px2mm = "numeric",
         offsets = "ANY",
         calls = "list"
     ),
     prototype = list(
         slide = 1,
-        mm = FALSE,
+        micron = FALSE,
         px2mm = 0.12028, # from cosmx output help files
         offsets = NULL,
         calls = list()
@@ -35,7 +35,7 @@ setClass(
 #' @param slide numeric. Slide number. Defaults to 1
 #' @param fovs numeric. (optional) If provided, will load specific fovs.
 #' Otherwise, all FOVs will be loaded
-#' @param mm logical. Whether to scale spatial information as millimeters
+#' @param micron logical. Whether to scale spatial information as micron
 #' instead of the default pixels
 #' @param px2mm numeric. Scalefactor from pixels to mm. Defaults to 0.12028
 #' based on `CosMx-ReadMe.html` info
@@ -55,6 +55,8 @@ setClass(
 #' reader$cosmx_dir <- "path to cosmx dir"
 #' reader$fov <- c(1, 4)
 #'
+#' plot(reader) # displays FOVs (top left corner) in px scale.
+#'
 #' # Load polygons, transcripts, and images
 #' polys <- reader$load_polys()
 #' tx <- reader$load_transcripts()
@@ -69,7 +71,7 @@ setClass(
 #' }
 #' @export
 importCosMx <- function(
-        cosmx_dir = NULL, slide = 1, fovs = NULL, mm = FALSE, px2mm = 0.12028
+        cosmx_dir = NULL, slide = 1, fovs = NULL, micron = FALSE, px2mm = 0.12028
 ) {
     # get params
     a <- list(Class = "CosmxReader")
@@ -80,14 +82,14 @@ importCosMx <- function(
         a$fovs <- fovs
     }
     a$slide <- slide
-    a$mm <- mm
+    a$micron <- micron
     a$px2mm <- px2mm
 
     do.call(new, args = a)
 }
 
 setMethod("initialize", signature("CosmxReader"), function(
-        .Object, cosmx_dir, slide, fovs, mm, px2mm
+        .Object, cosmx_dir, slide, fovs, micron, px2mm
 ) {
     # provided params (if any)
     if (!missing(cosmx_dir)) {
@@ -100,8 +102,8 @@ setMethod("initialize", signature("CosmxReader"), function(
     if (!missing(fovs)) {
         .Object@fovs <- fovs
     }
-    if (!missing(mm)) {
-        .Object@mm <- mm
+    if (!missing(micron)) {
+        .Object@micron <- micron
     }
     if (!missing(px2mm)) {
         .Object@px2mm <- px2mm
@@ -153,7 +155,7 @@ setMethod("initialize", signature("CosmxReader"), function(
         if (!is.null(meta_path) && is.null(pos)) {
             pos <- .cosmx_infer_fov_shifts(
                 meta_dt = data.table::fread(meta_path),
-                flip_loc_y = FALSE
+                flip_loc_y = TRUE
             )
         } else if (!is.null(tx_path) && is.null(pos)) {
             warning(wrap_txt(
@@ -197,7 +199,7 @@ setMethod("initialize", signature("CosmxReader"), function(
             feat_type = feat_type,
             split_keyword = split_keyword,
             dropcols = dropcols,
-            mm = .Object@mm,
+            micron = .Object@micron,
             px2mm = .Object@px2mm,
             cores = determine_cores(),
             verbose = verbose
@@ -224,7 +226,7 @@ setMethod("initialize", signature("CosmxReader"), function(
             flip_horizontal = flip_horizontal,
             shift_vertical_step = shift_vertical_step,
             shift_horizontal_step = shift_horizontal_step,
-            mm = .Object@mm,
+            micron = .Object@micron,
             px2mm = .Object@px2mm,
             offsets = .Object@offsets,
             verbose = verbose
@@ -267,7 +269,7 @@ setMethod("initialize", signature("CosmxReader"), function(
             negative_y = negative_y,
             flip_vertical = flip_vertical,
             flip_horizontal = flip_horizontal,
-            mm = .Object@mm,
+            micron = .Object@micron,
             px2mm = .Object@px2mm,
             offsets = .Object@offsets,
             verbose = verbose
@@ -444,7 +446,7 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 # show ####
 setMethod("show", signature("CosmxReader"), function(object) {
     cat(sprintf("Giotto <%s>\n", "CosmxReader"))
-    print_slots <- c("dir", "slide", "fovs", "mm", "offsets", "funs")
+    print_slots <- c("dir", "slide", "fovs", "micron", "offsets", "funs")
     pre <- sprintf(
         "%s :", format(print_slots)
     )
@@ -472,9 +474,9 @@ setMethod("show", signature("CosmxReader"), function(object) {
     fovs <- object@fovs %none% "all"
     cat(pre["fovs"], paste(fovs, collapse = ", "), "\n")
 
-    # mm scaling
-    mm <- ifelse(object@mm, object@px2mm, FALSE)
-    cat(pre["mm"], mm, "\n")
+    # micron scaling
+    micron <- ifelse(object@micron, object@px2mm / 1000, FALSE)
+    cat(pre["micron"], micron, "\n")
 
     # offsets
     offs_status <- ifelse(nrow(object@offsets) > 0L, "found", "none")
@@ -493,5 +495,18 @@ setMethod("show", signature("CosmxReader"), function(object) {
 
 setMethod("print", signature("CosmxReader"), function(x, ...) show(x))
 
+setMethod(
+    "plot", signature(x = "CosmxReader", y = "missing"),
+    function(x, cex = 0.8, ...) {
+        a <- list(...)
+        dat <- x@offsets
 
+        if (is.null(dat)) { # don't run if no offsets
+            cat("no offsets to plot\n")
+            return(invisible(NULL))
+        }
+
+        plot(y ~ x, data = dat, asp = 1L, type = "n", ...)
+        text(y ~ x, data = dat, labels = dat$fov, cex = cex, ...)
+    })
 
