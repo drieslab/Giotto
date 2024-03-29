@@ -2313,33 +2313,54 @@ NULL
 ## CosMx ####
 
 
-#' @param gpoints_params list of params passed to `createGiottoPoints()`.
-#' Mainly to allow access to `feat_type` and `split_keyword` params. Default
-#' is to split into rna and negprobes points objects
+
 .cosmx_transcript <- function(
         path,
         fovs = NULL,
-        gpoints_params = list(
-            feat_type = c("rna", "negprobes"),
-            split_keyword = list("NegPrb")
+        feat_type = c("rna", "negprobes"),
+        split_keyword = list("NegPrb"),
+        dropcols = c(
+            "x_local_px",
+            "y_local_px",
+            "cell_ID",
+            "cell"
         ),
+        micron = FALSE,
+        px2mm = 0.12028,
         cores = determine_cores(),
         verbose = NULL
     ) {
-    checkmate::assert_list(gpoints_params)
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to tx file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
     checkmate::assert_file_exists(path)
 
-    GiottoUtils::vmsg(.v = verbose, "loading feature detections...")
+    vmsg(.v = verbose, "loading feature detections...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
-    tx <- data.table::fread(input = path, nThread = cores)
+    tx <- data.table::fread(input = path, nThread = cores, drop = dropcols)
     if (!is.null(fovs)) {
         # subset to only needed FOVs
         tx <- tx[fov %in% as.numeric(fovs),]
     }
 
+    # micron scaling if desired
+    if (micron) {
+        px2micron <- px2mm / 1000
+        tx[, x_global_px := x_global_px * px2micron]
+        tx[, y_global_px := y_global_px * px2micron]
+    }
+
     # giottoPoints ----------------------------------------------------- #
 
     # static gpoints params
+    gpoints_params <- list()
+    gpoints_params$feat_type <- feat_type
+    gpoints_params$split_keyword <- split_keyword
     gpoints_params$x_colname <- "x_global_px"
     gpoints_params$y_colname <- "y_global_px"
     gpoints_params$feat_ID_colname <- "target"
@@ -2354,28 +2375,73 @@ NULL
     return(gpoints)
 }
 
+#' @name .cosmx_infer_fov_shifts
+#' @title Infer CosMx local to global shifts
+#' @description
+#' From NanoString CosMx spatial info, infer the FOV shifts needed. These
+#' values are needed for anything that requires the use of images, since those
+#' do not come with spatial extent information embedded.
+#' @param tx_dt transcript data.table input to use
+#' (Only one of tx_dt or meta_dt should be used)
+#' @param meta_dt cell metadata data.table input to use
+#' (Only one of tx_dt or meta_dt should be used)
+#' @param navg max n values to check per FOV to find average shift
+#' @param flip_loc_y whether a y flip needs to be performed on the local y
+#' values before comparing with global y values. See details
 #' @returns data.table with three columns. 1. FOV (integer), xshift (numeric),
-#' yshift (numeric)
-.cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, flip_loc_y = NULL) {
+#' yshift (numeric). Values should always be in pixels
+#' @details
+#' Shifts are found by looking at the average of differences between xy global
+#' and local coordinates in either the metadata or transcripts file. The number
+#' of shift value to average across is determined with `navg`. The average is
+#' in place to get rid of small differences in shifts, likely due to rounding
+#' errors. Across the different versions of the CosMx exports, whether the
+#' local y values are flipped compared to the global values has differed, so
+#' there is also a step that checks the variance of y values per sampled set
+#' per fov. In cases where the shift is calculated with the correct (inverted
+#' or non-inverted) y local values, the variance is expected to be very low.
+#' When the variance is higher than 0.001, the function is re-run with the
+#' opposite `flip_loc_y` value.
+#' @keywords internal
+.cosmx_infer_fov_shifts <- function(
+        tx_dt, meta_dt, flip_loc_y = TRUE, navg = 100L
+) {
     fov <- NULL # NSE vars
-
     if (!missing(tx_dt)) {
-        flip_loc_y %null% TRUE # default = TRUE
-        tx_head <- tx_dt[, head(.SD, 10L), by = fov]
+        tx_head <- tx_dt[, head(.SD, navg), by = fov]
         x <- tx_head[, mean(x_global_px - x_local_px), by = fov]
         if (flip_loc_y) {
+
+            # test if flip is needed
+            # Usual yshift variance / fov expected when correct is 0 to 1e-22
+            # if var is too high for any fov, swap `flip_loc_y` value
+            y <- tx_head[, var(y_global_px + y_local_px), by = fov]
+            if (y[, any(V1 > 0.001)]) {
+                return(.cosmx_infer_fov_shifts(
+                    tx_dt = tx_dt, flip_loc_y = FALSE, navg = navg
+                ))
+            }
+
             # use +y if local y values are flipped
             y <- tx_head[, mean(y_global_px + y_local_px), by = fov]
         } else {
             y <- tx_head[, mean(y_global_px - y_local_px), by = fov]
         }
-    }
-
-    if (!missing(meta_dt)) {
-        flip_loc_y %null% FALSE # default = FALSE
-        meta_head <- meta_dt[, head(.SD, 10L), by = fov]
+    } else if (!missing(meta_dt)) {
+        meta_head <- meta_dt[, head(.SD, navg), by = fov]
         x <- meta_head[, mean(CenterX_global_px - CenterX_local_px), by = fov]
         if (flip_loc_y) {
+
+            # test if flip is needed
+            # Usual yshift variance / fov expected when correct is 0 to 1e-22
+            # if var is too high for any fov, swap `flip_loc_y` value
+            y <- meta_head[, var(CenterY_global_px + CenterY_local_px), by = fov]
+            if (y[, any(V1 > 0.001)]) {
+                return(.cosmx_infer_fov_shifts(
+                    meta_dt = meta_dt, flip_loc_y = FALSE, navg = navg
+                ))
+            }
+
             # use +y if local y values are flipped
             y <- meta_head[, mean(CenterY_global_px + CenterY_local_px),
                            by = fov]
@@ -2383,6 +2449,8 @@ NULL
             y <- meta_head[, mean(CenterY_global_px - CenterY_local_px),
                            by = fov]
         }
+    } else {
+        stop("One of tx_dt or meta_dt must be provided\n")
     }
 
     res <- merge(x, y, by = "fov")
@@ -2391,37 +2459,98 @@ NULL
     return(res)
 }
 
+.cosmx_imgname_fovparser <- function(
+        path
+) {
+    im_names <- list.files(path)
+    fovs <- as.numeric(sub(".*F(\\d+)\\..*", "\\1", im_names))
+    if (any(is.na(fovs))) {
+        warning(wrap_txt(
+            "Images to load should be sets of images/fov in subdirectories.
+            No other files should be present."
+        ))
+    }
+    return(fovs)
+}
+
 .cosmx_poly <- function(
         path,
+        slide = 1,
         fovs = NULL,
-        mask_params = list(
-            # VERTICAL FLIP + NO VERTICAL SHIFT
-            flip_vertical = TRUE,
-            flip_horizontal = FALSE,
-            shift_vertical_step = FALSE,
-            shift_horizontal_step = FALSE,
-            ID_fmt = NULL
-        ),
+        name = "cell",
+        # VERTICAL FLIP + NO SHIFTS
+        flip_vertical = TRUE,
+        flip_horizontal = FALSE,
+        shift_vertical_step = FALSE,
+        shift_horizontal_step = FALSE,
+        micron = FALSE,
+        px2mm = 0.12028,
         offsets,
         verbose = NULL
 ) {
-    fovs <- fovs %null% seq_along(list.files(path))
-    gpolys <- lapply(fovs, function(fov) {
-        segfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
-        if (is.null(mask_params$ID_fmt)) {
-            mask_params$ID_fmt = paste0(sprintf("fov%03d", fov), "_cell%03d")
-        }
-        mask_params$verbose <- verbose %null% TRUE
-        gpoly <- do.call(
-            createGiottoPolygonsFromMask,
-            args = c(list(maskfile = segfile), mask_params)
-        )
+    # NSE params
+    f <- x <- y <- NULL
 
-        gpoly_shift <- spatShift(
-            x = gpoly,
-            dx = offsets[fov, x],
-            dy = offsets[fov, y]
-        )
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to polys subdirectory provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading segmentation masks...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
+
+    mask_params <- list(
+        # static params
+        mask_method = "multiple",
+        # if removal is TRUE, a real cell segmentation gets removed.
+        # There is no background poly for nanostring masks
+        remove_background_polygon = FALSE,
+        fill_holes = TRUE,
+        calc_centroids = TRUE,
+        remove_unvalid_polygons = TRUE,
+        # input params
+        name = name,
+        flip_vertical = flip_vertical,
+        flip_horizontal = flip_horizontal,
+        shift_vertical_step = shift_vertical_step,
+        shift_horizontal_step = shift_horizontal_step,
+        verbose = FALSE
+    )
+
+    fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
+    progressr::with_progress({
+        p <- progressr::progressor(along = fovs)
+
+        gpolys <- lapply(fovs, function(f) {
+            segfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
+            # naming format: c_SLIDENUMBER_FOVNUMBER_CELLID
+            mask_params$ID_fmt = paste0(
+                sprintf("c_%d_%d_", slide, f), "%d"
+            )
+
+            gpoly <- do.call(
+                createGiottoPolygonsFromMask,
+                args = c(list(maskfile = segfile), mask_params)
+            )
+
+            xshift <- offsets[fov == f, x]
+            yshift <- offsets[fov == f, y]
+
+            # if micron scale
+            if (micron) {
+                px2micron <- px2mm / 1000
+                gpoly <- rescale(
+                    gpoly, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0
+                )
+                xshift <- xshift * px2micron
+                yshift <- yshift * px2micron
+            }
+
+            gpoly <- spatShift(x = gpoly, dx = xshift, dy = yshift)
+            p(message = sprintf("F%03d", f))
+            return(gpoly)
+        })
     })
 
     if (length(gpolys) > 1L) {
@@ -2434,6 +2563,7 @@ NULL
 
 .cosmx_cellmeta <- function(
         path,
+        slide = 1,
         fovs = NULL,
         dropcols = c(
             "CenterX_local_px",
@@ -2444,9 +2574,23 @@ NULL
         cores = determine_cores(),
         verbose = NULL
     ) {
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to metadata file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading cell metadata...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
+
     verbose <- verbose %null% TRUE
 
     meta_dt <- data.table::fread(input = path, nThread = cores)
+
+    # remove unneeded cols
+    dropcols <- dropcols[dropcols %in% colnames(meta_dt)]
+    meta_dt[, (dropcols) := NULL] # remove dropcols
 
     # subset to needed fovs
     if (!is.null(fovs)) {
@@ -2454,13 +2598,18 @@ NULL
         meta_dt <- meta_dt[fov %in% fovs,]
     }
 
-    dropcols <- dropcols[dropcols %in% meta_dt]
-    meta_dt[, (dropcols) := NULL] # remove dropcols
+    # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
+    if ("cell" %in% colnames(meta_dt)) {
+        # assume already formatted (current datasets Mar-27-2024)
+        meta_dt[, c("fov", "cell_ID") := NULL]
+        data.table::setnames(meta_dt, old = "cell", "cell_ID")
+    } else {
+        # older datasets
+        meta_dt[, cell_ID := sprintf("c_%d_%d_%d", slide, fov, cell_ID)]
+        # remove fov
+        meta_dt[, fov := NULL]
+    }
 
-    # create cell ID as fov###_cell###
-    meta_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
-    # remove fov
-    meta_dt[, fov := NULL]
 
     # TODO figure out what to do about protein expression here.
     cx <- createCellMetaObj(
@@ -2475,11 +2624,23 @@ NULL
 
 .cosmx_expression <- function(
         path,
+        slide = 1,
         fovs = NULL,
         feat_type = c("rna", "negprobes"),
         split_keyword = list("NegPrb"),
-        cores = determine_cores()
+        cores = determine_cores(),
+        verbose = NULL
     ) {
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to exprMat file provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, "loading expression matrix...")
+    vmsg(.v = verbose, .is_debug = TRUE, path)
+
     expr_dt <- data.table::fread(input = path, nThread = cores)
 
     # subset to needed fovs
@@ -2491,29 +2652,32 @@ NULL
     # remove background values (cell 0)
     expr_dt <- expr_dt[cell_ID != 0L,]
 
-    # create cell ID as fov###_cell###
-    expr_dt[, cell_ID := sprintf("fov%03d_cell%03d", fov, cell_ID)]
+    # create cell ID as `c_SLIDENUMBER_FOVNUMBER_CELLID`
+    expr_dt[, cell_ID := sprintf("c_%d_%d_%d", slide, fov, cell_ID)]
     # remove fov
     expr_dt[, fov := NULL]
 
     # convert to Matrix
     expr_mat <- dt_to_matrix(expr_dt)
     expr_mat <- t_flex(expr_mat)
-    feat_ids <- rownames(expr_mat)
 
     # split expression for rna / negprb if any split keywords provided.
     # Output of this chunk should always be a named list of 1 or more matrices
     if (length(split_keyword) > 0) {
-        expr_list <- list()
+        expr_list <- vector(mode = "list", length = length(feat_type))
+        names(expr_list) <- feat_type
+        # iterate through other expr types
         for (key_i in seq_along(split_keyword)) {
+            feat_ids <- rownames(expr_mat)
             bool <- grepl(pattern = split_keyword[[key_i]], x = feat_ids)
             # subset and store split matrix
             sub_mat <- expr_mat[bool,]
-            expr_list[[feat_type[[key_i + 1L]]]] <- sub_mat
+            expr_list[[key_i + 1L]] <- sub_mat
             # remaining matrix
             expr_mat <- expr_mat[!bool,]
         }
-        expr_list[[feat_type[[1L]]]] <- expr_mat
+        # assign the main expr
+        expr_list[[1L]] <- expr_mat
     } else {
         expr_list <- list(expr_mat)
         names(expr_list) <- feat_type[[1L]]
@@ -2533,35 +2697,63 @@ NULL
 .cosmx_image <- function(
         path,
         fovs = NULL,
-        img_name_fmt = "fov%03d",
-        negative_y = FALSE,
+        img_type = "composite",
+        img_name_fmt = paste(img_type, "_fov%03d"),
+        negative_y = TRUE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
+        micron = FALSE,
+        px2mm = 0.12028,
         offsets,
         verbose = NULL
     ) {
-    fovs <- fovs %null% seq_along(list.files(path))
+
+    if (missing(path)) {
+        stop(wrap_txt(
+            "No path to image subdirectory to load provided or auto-detected"
+        ), call. = FALSE)
+    }
+
+    GiottoUtils::vmsg(.v = verbose, sprintf("loading %s images...", img_type))
+    vmsg(.v = verbose, .is_debug = TRUE, path)
+
+    fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
     verbose <- verbose %null% TRUE
 
-    gimg_list <- lapply(fovs, function(fov) {
-        imgfile <- Sys.glob(paths = sprintf("%s/*%03d*", path, fov))
-        img_name <- sprintf(img_name_fmt, fov)
+    progressr::with_progress({
+        p <- progressr::progressor(along = fovs)
 
-        gimg <- createGiottoLargeImage(
-            raster_object = imgfile,
-            name = img_name,
-            negative_y = negative_y,
-            flip_vertical = flip_vertical,
-            flip_horizontal = flip_horizontal,
-            verbose = verbose
-        )
+        gimg_list <- lapply(fovs, function(f) {
+            imgfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
+            img_name <- sprintf(img_name_fmt, f)
 
-        spatShift(
-            x = gimg,
-            dx = offsets[fov, x],
-            dy = offsets[fov, y]
-        )
+            gimg <- createGiottoLargeImage(
+                raster_object = imgfile,
+                name = img_name,
+                negative_y = negative_y,
+                flip_vertical = flip_vertical,
+                flip_horizontal = flip_horizontal,
+                verbose = verbose
+            )
+
+            xshift <- offsets[fov == f, x]
+            yshift <- offsets[fov == f, y]
+
+            if (micron) {
+                px2micron <- px2mm / 1000
+                gimg <- rescale(
+                    gimg, fx = px2micron, fy = px2micron, x0 = 0, y0 = 0
+                )
+                xshift <- xshift * px2micron
+                yshift <- yshift * px2micron
+            }
+
+            gimg <- spatShift(x = gimg, dx = xshift, dy = yshift)
+            p(message = sprintf("F%03d", f))
+            return(gimg)
+        })
     })
+
 
     return(gimg_list)
 }
