@@ -2569,7 +2569,8 @@ NULL
             "CenterX_local_px",
             "CenterY_local_px",
             "CenterX_global_px",
-            "CenterY_global_px"
+            "CenterY_global_px",
+            "cell_id"
         ),
         cores = determine_cores(),
         verbose = NULL

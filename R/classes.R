@@ -1,5 +1,117 @@
 
 
+# common internals ####
+abbrev_path <- function(path, head = 15, tail = 35L) {
+    nch <- nchar(path)
+    if (nch > 60L) {
+        p1 <- substring(path, first = 0L, last = head)
+        p2 <- substring(path, first = nch - tail, last = nch)
+        path <- paste0(p1, "[...]", p2)
+    }
+    return(path)
+}
+
+.reader_fun_prints <- function(x, pre) {
+    nfun <- length(x@calls)
+    funs <- names(x@calls)
+    if (nfun > 0L) {
+        pre_funs <- format(c(pre, rep("", nfun - 1L)))
+        for (i in seq_len(nfun)) {
+            cat(pre_funs[i], " ", funs[i], "()\n", sep = "")
+        }
+    }
+}
+
+
+# Xenium ####
+
+setClass(
+    "XeniumReader",
+    slots = list(
+        xenium_dir = "character",
+        format = "character",
+        fovs = "numeric",
+        qv = "ANY",
+        calls = "list"
+    ),
+    prototype = list(
+        format = "parquet",
+        qv = 20,
+        calls = list()
+    )
+)
+
+setMethod("show", signature("XeniumReader"), function(object) {
+    cat(sprintf("Giotto <%s>\n", "XeniumReader"))
+    print_slots <- c("dir", "format", "fovs", "qv_cutoff", "funs")
+    pre <- sprintf(
+        "%s :", format(print_slots)
+    )
+    names(pre) <- print_slots
+
+    # dir
+    d <- object@xenium_dir
+    if (length(d) > 0L) {
+        d <- abbrev_path(d)
+        cat(pre["dir"], d, "\n")
+    } else {
+        cat(pre["dir"], "\n")
+    }
+
+    # format
+    form <- object@format
+    cat(pre["format"], paste(form, collapse = ", "), "\n")
+
+    # fovs
+    fovs <- object@fovs %none% "all"
+    cat(pre["fovs"], paste(fovs, collapse = ", "), "\n")
+
+    # qv
+    qv <- object@qv
+    cat(pre["qv_cutoff"], paste(qv, collapse = ", "), "\n")
+
+    # funs
+    .fun_prints(x = object, pre = pre["fun"])
+})
+
+
+
+# access ####
+
+#' @export
+setMethod("$", signature("XeniumReader"), function(x, name) {
+    basic_info <- c("xenium_dir", "format", "fovs", "qv")
+    if (name %in% basic_info) return(methods::slot(x, name))
+
+    return(x@calls[[name]])
+})
+
+#' @export
+setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
+    basic_info <- c("xenium_dir", "format", "fovs", "qv")
+    if (name %in% basic_info) {
+        methods::slot(x, name) <- value
+        return(initialize(x))
+    }
+
+    stop(sprintf("Only items in '%s' can be set",
+                 paste0(basic_info, collapse = "', '")))
+})
+
+#' @export
+`.DollarNames.XeniumReader` <- function(x, pattern) {
+    dn <- c("xenium_dir", "format", "fovs", "qv")
+    if (length(methods::slot(x, "calls")) > 0) {
+        dn <- c(dn, paste0(names(methods::slot(x, "calls")), "()"))
+    }
+    return(dn)
+}
+
+
+
+
+# CosMx ####
+
 setClass(
     "CosmxReader",
     slots = list(
@@ -19,6 +131,64 @@ setClass(
         calls = list()
     )
 )
+
+setMethod("show", signature("CosmxReader"), function(object) {
+    cat(sprintf("Giotto <%s>\n", "CosmxReader"))
+    print_slots <- c("dir", "slide", "fovs", "micron", "offsets", "funs")
+    pre <- sprintf(
+        "%s :", format(print_slots)
+    )
+    names(pre) <- print_slots
+
+    # dir
+    d <- object@cosmx_dir
+    if (length(d) > 0L) {
+        nch <- nchar(d)
+        d <- abbrev_path(d)
+        cat(pre["dir"], d, "\n")
+    } else {
+        cat(pre["dir"], "\n")
+    }
+
+    # slide
+    slide <- object@slide
+    cat(pre["slide"], slide, "\n")
+
+    # fovs
+    fovs <- object@fovs %none% "all"
+    cat(pre["fovs"], paste(fovs, collapse = ", "), "\n")
+
+    # micron scaling
+    micron <- ifelse(object@micron, object@px2mm / 1000, FALSE)
+    cat(pre["micron"], micron, "\n")
+
+    # offsets
+    offs_status <- ifelse(nrow(object@offsets) > 0L, "found", "none")
+    cat(pre["offsets"], offs_status, "\n")
+
+    # funs
+    .fun_prints(x = object, pre = pre["fun"])
+})
+
+setMethod("print", signature("CosmxReader"), function(x, ...) show(x))
+
+setMethod(
+    "plot", signature(x = "CosmxReader", y = "missing"),
+    function(x, cex = 0.8, ...) {
+        a <- list(...)
+        dat <- x@offsets
+
+        if (is.null(dat)) { # don't run if no offsets
+            cat("no offsets to plot\n")
+            return(invisible(NULL))
+        }
+
+        plot(y ~ x, data = dat, asp = 1L, type = "n", ...)
+        text(y ~ x, data = dat, labels = dat$fov, cex = cex, ...)
+    })
+
+
+
 
 #' @title Import a Nanostring CosMx Assay
 #' @name importCosMx
@@ -285,7 +455,8 @@ setMethod("initialize", signature("CosmxReader"), function(
             "CenterX_local_px",
             "CenterY_local_px",
             "CenterX_global_px",
-            "CenterY_global_px"
+            "CenterY_global_px",
+            "cell_id"
         ),
         verbose = NULL
     ) {
@@ -443,70 +614,5 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 }
 
 
-# show ####
-setMethod("show", signature("CosmxReader"), function(object) {
-    cat(sprintf("Giotto <%s>\n", "CosmxReader"))
-    print_slots <- c("dir", "slide", "fovs", "micron", "offsets", "funs")
-    pre <- sprintf(
-        "%s :", format(print_slots)
-    )
-    names(pre) <- print_slots
 
-    # dir
-    d <- object@cosmx_dir
-    if (length(d) > 0L) {
-        nch <- nchar(d)
-        if (nch > 60L) {
-            d1 <- substring(d, first = 0L, last = 15L)
-            d2 <- substring(d, first = nch - 35L, last = nch)
-            d <- paste0(d1, "[...]", d2)
-        }
-        cat(pre["dir"], d, "\n")
-    } else {
-        cat(pre["dir"], "\n")
-    }
-
-    # slide
-    slide <- object@slide
-    cat(pre["slide"], slide, "\n")
-
-    # fovs
-    fovs <- object@fovs %none% "all"
-    cat(pre["fovs"], paste(fovs, collapse = ", "), "\n")
-
-    # micron scaling
-    micron <- ifelse(object@micron, object@px2mm / 1000, FALSE)
-    cat(pre["micron"], micron, "\n")
-
-    # offsets
-    offs_status <- ifelse(nrow(object@offsets) > 0L, "found", "none")
-    cat(pre["offsets"], offs_status, "\n")
-
-    # funs
-    nfun <- length(object@calls)
-    funs <- names(object@calls)
-    if (nfun > 0L) {
-        pre_funs <- format(c(pre["funs"], rep("", nfun - 1L)))
-        for (i in seq_len(nfun)) {
-            cat(pre_funs[i], " ", funs[i], "()\n", sep = "")
-        }
-    }
-})
-
-setMethod("print", signature("CosmxReader"), function(x, ...) show(x))
-
-setMethod(
-    "plot", signature(x = "CosmxReader", y = "missing"),
-    function(x, cex = 0.8, ...) {
-        a <- list(...)
-        dat <- x@offsets
-
-        if (is.null(dat)) { # don't run if no offsets
-            cat("no offsets to plot\n")
-            return(invisible(NULL))
-        }
-
-        plot(y ~ x, data = dat, asp = 1L, type = "n", ...)
-        text(y ~ x, data = dat, labels = dat$fov, cex = cex, ...)
-    })
 
