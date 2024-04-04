@@ -541,7 +541,7 @@ setMethod("show", signature("CosmxReader"), function(object) {
     cat(pre["offsets"], offs_status, "\n")
 
     # funs
-    .fun_prints(x = object, pre = pre["funs"])
+    .reader_fun_prints(x = object, pre = pre["funs"])
 })
 
 # * print ####
@@ -710,9 +710,12 @@ setMethod("initialize", signature("CosmxReader"), function(
         else {
             pos <- data.table::data.table()
             warning(wrap_txt(
-                "fov_positions_file, tx_file, and metadata_file not auto detected.
-                One of these must be provided to infer FOV shifts"
-            ))
+                "NO FOV SHIFTS.
+                fov_positions_file, tx_file, and metadata_file not auto detected.
+                One of these must be provided to infer FOV shifts.\n
+                Alternatively, directly supply a data.table with:
+                fov(int), x(numeric), y(numeric) in px scaling to `$offsets`"
+            ), call. = FALSE)
         }
 
         .Object@offsets <- pos
