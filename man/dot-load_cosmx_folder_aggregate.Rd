@@ -7,7 +7,8 @@
 .load_cosmx_folder_aggregate(dir_items, cores, verbose = TRUE)
 }
 \arguments{
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }

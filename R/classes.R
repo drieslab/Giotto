@@ -22,6 +22,54 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
     }
 }
 
+.filetype_prints <- function(x, pre) {
+    nftype <- length(x@filetype)
+    datatype <- format(names(x@filetype))
+    pre_ftypes <- format(c(pre, rep("", nftype - 1L)))
+    cat(sprintf("%s %s -- %s\n",
+                pre_ftypes,
+                datatype,
+                x@filetype),
+        sep = "")
+}
+
+# pattern - list.files pattern to use to search for specific files/dirs
+# warn - whether to warn when a pattern does not find any files
+# first - whether to only return the first match
+.detect_in_dir <- function(
+        path, pattern, platform, warn = TRUE, first = TRUE
+) {
+    f <- list.files(path, pattern = pattern, full.names = TRUE)
+    lenf <- length(f)
+    if (lenf == 1L) return(f) # one match
+    else if (lenf == 0L) { # no matches
+        if (warn) {
+            warning(sprintf(
+                "%s not detected in %s directory",
+                pattern,
+                platform
+            ),
+            call. = FALSE)
+        }
+        return(NULL)
+    }
+
+    # more than one match
+    if (first) {
+        return(f[[1L]])
+    } else {
+        return(f)
+    }
+}
+
+
+
+
+
+
+
+
+
 
 # Xenium ####
 
@@ -29,21 +77,26 @@ setClass(
     "XeniumReader",
     slots = list(
         xenium_dir = "character",
-        format = "character",
-        fovs = "numeric",
+        filetype = "list",
         qv = "ANY",
         calls = "list"
     ),
     prototype = list(
-        format = "parquet",
+        filetype = list(
+            transcripts = "parquet",
+            boundaries = "parquet",
+            expression = "h5",
+            cell_meta = "parquet"
+        ),
         qv = 20,
         calls = list()
     )
 )
 
+# * show ####
 setMethod("show", signature("XeniumReader"), function(object) {
     cat(sprintf("Giotto <%s>\n", "XeniumReader"))
-    print_slots <- c("dir", "format", "fovs", "qv_cutoff", "funs")
+    print_slots <- c("dir", "filetype", "qv_cutoff", "funs")
     pre <- sprintf(
         "%s :", format(print_slots)
     )
@@ -58,21 +111,339 @@ setMethod("show", signature("XeniumReader"), function(object) {
         cat(pre["dir"], "\n")
     }
 
-    # format
-    form <- object@format
-    cat(pre["format"], paste(form, collapse = ", "), "\n")
-
-    # fovs
-    fovs <- object@fovs %none% "all"
-    cat(pre["fovs"], paste(fovs, collapse = ", "), "\n")
-
     # qv
     qv <- object@qv
     cat(pre["qv_cutoff"], paste(qv, collapse = ", "), "\n")
 
+    # filetype
+    .filetype_prints(x = object, pre = pre["filetype"])
+
     # funs
-    .fun_prints(x = object, pre = pre["fun"])
+    .reader_fun_prints(x = object, pre = pre["funs"])
 })
+
+# * print ####
+setMethod("print", signature("XeniumReader"), function(x, ...) show(x))
+
+# * init ####
+setMethod(
+    "initialize", signature("XeniumReader"),
+    function(
+        .Object,
+        xenium_dir,
+        filetype,
+        qv_cutoff
+    ) {
+        .Object <- callNextMethod(.Object)
+
+        # provided params (if any)
+        if (!missing(xenium_dir)) {
+            checkmate::assert_directory_exists(xenium_dir)
+            .Object@xenium_dir <- xenium_dir
+        }
+        if (!missing(filetype)) {
+            .Object@filetype <- filetype
+        }
+        if (!missing(qv_cutoff)) {
+            .Object@qv <- qv_cutoff
+        }
+
+
+        # check filetype
+        ftype_data <- c("transcripts", "boundaries", "expression", "cell_meta")
+        if (!all(ftype_data %in% names(.Object@filetype))) {
+            stop(wrap_txt("`$filetype` must have entries for each of:\n",
+                          paste(ftype_data, collapse = ", ")))
+        }
+
+        ftype <- .Object@filetype
+        ft_tab <- c("csv", "parquet")
+        ft_exp <- c("h5", "mtx", "zarr")
+        if (!ftype$transcripts %in% ft_tab) {
+            stop(wrap_txt("`$filetype$transcripts` must be one of",
+                          paste(ft_tab, collapse = ", ")),
+                 call. = FALSE)
+        }
+        if (!ftype$boundaries %in% ft_tab) {
+            stop(wrap_txt("`$filetype$boundaries` must be one of",
+                          paste(ft_tab, collapse = ", ")),
+                 call. = FALSE)
+        }
+        if (!ftype$cell_meta %in% ft_tab) {
+            stop(wrap_txt("`$filetype$cell_meta` must be one of",
+                          paste(ft_tab, collapse = ", ")),
+                 call. = FALSE)
+        }
+        if (!ftype$expression %in% ft_exp) {
+            stop(wrap_txt("`$filetype$expression` must be one of",
+                          paste(ft_tab, collapse = ", ")),
+                 call. = FALSE)
+        }
+
+
+        # detect paths and subdirs
+        p <- .Object@xenium_dir
+        .xenium_detect <- function(pattern, ...) {
+            .detect_in_dir(
+                pattern = pattern, ...,
+                path = p, platform = "Xenium",
+            )
+        }
+
+        cell_meta_path <- .xenium_detect("cells", first = FALSE)
+        panel_meta_path <- .xenium_detect("panel") # json
+        experiment_info_path <- .xenium_detect(".xenium") # json
+
+        # 3D stack - DAPI
+        img_path <- .xenium_detect("morphology.", warn = FALSE)
+        # 2D fusion images
+        # - DAPI
+        # - stainings for multimodal segmentation
+        img_focus_path <- .xenium_detect("morphology_focus", warn = FALSE)
+        # Maximum intensity projection (MIP) of the morphology image.
+        # (Xenium Outputs v1.0 - 1.9. only)
+        img_mip_path <- .xenium_detect("morphology_mip", warn = FALSE)
+
+        tx_path <- .xenium_detect("transcripts", first = FALSE)
+        cell_bound_path <- .xenium_detect("cell_bound", first = FALSE)
+        nuc_bound_path <- .xenium_detect("nucleus_bound", first = FALSE)
+
+        expr_path <- .xenium_detect("cell_feature_matrix", first = FALSE)
+
+        .xenium_ftype <- function(paths, ftype) {
+            paths[grepl(pattern = paste0(".", ftype), x = paths)]
+        }
+
+
+        # select file formats based on reader settings
+        tx_path <- .xenium_ftype(tx_path, ftype$transcripts)
+        cell_bound_path <- .xenium_ftype(cell_bound_path, ftype$boundaries)
+        nuc_bound_path <- .xenium_ftype(nuc_bound_path, ftype$boundaries)
+        expr_path <- .xenium_ftype(expr_path, ftype$expression)
+        cell_meta_path <- .xenium_ftype(cell_meta_path, ftype$cell_meta)
+
+
+        # transcripts load call
+        tx_fun <- function(
+        path = tx_path,
+        feat_type = c(
+            "rna",
+            "NegControlProbe",
+            "UnassignedCodeword",
+            "NegControlCodeword"
+        ),
+        split_keyword = list(
+            "NegControlProbe",
+            "UnassignedCodeword",
+            "NegControlCodeword"
+        ),
+        dropcols = c(),
+        qv_threshold = .Object@qv,
+        cores = determine_cores(),
+        verbose = NULL
+        ) {
+            .xenium_transcript(
+                path = path,
+                feat_type = feat_type,
+                split_keyword = split_keyword,
+                dropcols = dropcols,
+                qv_threshold = qv_threshold,
+                cores = cores,
+                verbose = verbose
+            )
+        }
+        .Object@calls$load_transcripts <- tx_fun
+
+        # load polys call
+        poly_fun <- function(
+        path = cell_bound_path,
+        name = "cell",
+        calc_centroids = TRUE,
+        cores = determine_cores(),
+        verbose = NULL
+        ) {
+            .xenium_poly(
+                path = path,
+                name = name,
+                calc_centroids = calc_centroids,
+                cores = cores,
+                verbose = verbose
+            )
+        }
+        .Object@calls$load_polys <- poly_fun
+
+        # load cellmeta
+        cmeta_fun <- function(
+        path = cell_meta_path,
+        dropcols = c(),
+        cores = determine_cores(),
+        verbose = NULL
+        ) {
+            .xenium_cellmeta(
+                path = path,
+                dropcols = dropcols,
+                cores = cores,
+                verbose = verbose
+            )
+        }
+        .Object@calls$load_cellmeta <- cmeta_fun
+
+        # load featmeta
+        fmeta_fun <- function(
+        path = panel_meta_path,
+        dropcols = c(),
+        cores = determine_cores(),
+        verbose = NULL
+        ) {
+            .xenium_featmeta(
+                path = path,
+                gene_ids,
+                dropcols = dropcols,
+                verbose = verbose
+            )
+        }
+        .Object@calls$load_featmeta <- fmeta_fun
+
+        # load expression call
+        expr_fun <- function(
+        path,
+        gene_ids = "symbols",
+        remove_zero_rows = TRUE,
+        split_by_type = TRUE,
+        verbose = NULL
+        ) {
+            .xenium_expression(
+                path = path,
+                gene_ids = gene_ids,
+                remove_zero_rows = remove_zero_rows,
+                split_by_type = split_by_type,
+                verbose = verbose
+            )
+        }
+        .Object@calls$load_expression <- expr_fun
+
+        # load image call
+
+
+
+
+        # create giotto object call
+        gobject_fun <- function(
+        transcript_path = tx_path,
+        load_bounds = list(
+            cell = "cell",
+            nucleus = "nucleus"
+        ),
+        expression_path = expr_path,
+        metadata_path = meta_path,
+        feat_type = c(
+            "rna",
+            "NegControlProbe",
+            "UnassignedCodeword",
+            "NegControlCodeword"
+        ),
+        split_keyword = list(
+            "NegControlProbe",
+            "UnassignedCodeword",
+            "NegControlCodeword"
+        ),
+        load_images = list(
+            morphology = "focus",
+        ),
+        load_expression = FALSE,
+        load_cellmeta = FALSE
+        ) {
+            load_expression <- as.logical(load_expression)
+            load_cellmeta <- as.logical(load_cellmeta)
+
+            if (!is.null(load_images)) {
+                checkmate::assert_list(load_images)
+                if (is.null(names(load_images))) {
+                    stop("Images paths provided to 'load_images' must be named")
+                }
+            }
+            if (!is.null(load_bounds)) {
+                checkmate::assert_list(load_bounds)
+                if (is.null(names(load_bounds))) {
+                    stop("bounds paths provided to 'load_bounds' must be named")
+                }
+            }
+
+
+
+            funs <- .Object@calls
+
+            # init gobject
+            g <- giotto()
+
+
+            # transcripts
+            tx_list <- funs$load_transcripts(
+                path = transcript_path,
+                feat_type = feat_type,
+                split_keyword = split_keyword
+            )
+            for (tx in tx_list) {
+                g <- setGiotto(g, tx)
+            }
+
+
+            # polys
+            if (!is.null(load_bounds)) {
+                # replace convenient shortnames
+                load_bounds[load_bounds == "cell"] <- cell_bound_path
+                load_bounds[load_bounds == "nucleus"] <- nuc_bound_path
+
+                blist <- list()
+                bnames <- names(load_bounds)
+                for (b_i in seq_along(load_bounds)) {
+                    b <- funs$load_polys(
+                        path = load_bounds[[b_i]],
+                        name = bnames[[b_i]]
+                    )
+                    blist <- c(blist, b)
+                }
+                for (gpoly_i in seq_along(blist)) {
+                    g <- setGiotto(g, blist[[gpoly_i]])
+                }
+            }
+
+
+            # feat metadata
+            fx <- funs$load_featmeta(
+                path =
+            )
+
+
+            # expression
+            if (load_expression) {
+
+            }
+
+
+            # cell metadata
+            if (load_cellmeta) {
+
+            }
+
+
+            # images
+            if (!is.null(load_images)) {
+                # replace convenient shortnames
+                load_images[load_images == "focus"] <- img_focus_path
+            }
+
+
+
+
+        }
+        .Object@calls$create_gobject <- gobject_fun
+
+
+        return(.Object)
+    }
+)
+
 
 
 
@@ -80,7 +451,7 @@ setMethod("show", signature("XeniumReader"), function(object) {
 
 #' @export
 setMethod("$", signature("XeniumReader"), function(x, name) {
-    basic_info <- c("xenium_dir", "format", "fovs", "qv")
+    basic_info <- c("xenium_dir", "filetype", "qv")
     if (name %in% basic_info) return(methods::slot(x, name))
 
     return(x@calls[[name]])
@@ -88,7 +459,7 @@ setMethod("$", signature("XeniumReader"), function(x, name) {
 
 #' @export
 setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
-    basic_info <- c("xenium_dir", "format", "fovs", "qv")
+    basic_info <- c("xenium_dir", "filetype", "qv")
     if (name %in% basic_info) {
         methods::slot(x, name) <- value
         return(initialize(x))
@@ -100,12 +471,14 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 
 #' @export
 `.DollarNames.XeniumReader` <- function(x, pattern) {
-    dn <- c("xenium_dir", "format", "fovs", "qv")
+    dn <- c("xenium_dir", "filetype", "qv")
     if (length(methods::slot(x, "calls")) > 0) {
         dn <- c(dn, paste0(names(methods::slot(x, "calls")), "()"))
     }
     return(dn)
 }
+
+
 
 
 
@@ -132,6 +505,7 @@ setClass(
     )
 )
 
+# * show ####
 setMethod("show", signature("CosmxReader"), function(object) {
     cat(sprintf("Giotto <%s>\n", "CosmxReader"))
     print_slots <- c("dir", "slide", "fovs", "micron", "offsets", "funs")
@@ -167,11 +541,13 @@ setMethod("show", signature("CosmxReader"), function(object) {
     cat(pre["offsets"], offs_status, "\n")
 
     # funs
-    .fun_prints(x = object, pre = pre["fun"])
+    .fun_prints(x = object, pre = pre["funs"])
 })
 
+# * print ####
 setMethod("print", signature("CosmxReader"), function(x, ...) show(x))
 
+# * plot ####
 setMethod(
     "plot", signature(x = "CosmxReader", y = "missing"),
     function(x, cex = 0.8, ...) {
@@ -258,6 +634,7 @@ importCosMx <- function(
     do.call(new, args = a)
 }
 
+# * init ####
 setMethod("initialize", signature("CosmxReader"), function(
         .Object, cosmx_dir, slide, fovs, micron, px2mm
 ) {
@@ -287,25 +664,18 @@ setMethod("initialize", signature("CosmxReader"), function(
 
     # detect paths and subdirs
     p <- .Object@cosmx_dir
-    .detect_in_dir <- function(pattern) {
-        f <- list.files(p, pattern = pattern, full.names = TRUE)
-        lenf <- length(f)
-        if (lenf == 1L) return(f)
-        else if (lenf == 0L) {
-            warning(pattern, " not detected in CosMx directory", call. = FALSE)
-            return(NULL)
-        }
-        return(f[[1L]]) # more than one match
+    .cosmx_detect <- function(pattern) {
+        .detect_in_dir(pattern = pattern, path = p, platform = "CosMx")
     }
 
-    shifts_path <- .detect_in_dir("fov_positions_file")
-    meta_path <- .detect_in_dir("metadata_file")
-    tx_path <- .detect_in_dir("tx_file")
-    mask_dir <- .detect_in_dir("CellLabels")
-    expr_path <- .detect_in_dir("exprMat_file")
-    composite_img_dir <- .detect_in_dir("CellComposite")
-    overlay_img_dir <- .detect_in_dir("CellOverlay")
-    compart_img_dir <- .detect_in_dir("CompartmentLabels")
+    shifts_path <- .cosmx_detect("fov_positions_file")
+    meta_path <- .cosmx_detect("metadata_file")
+    tx_path <- .cosmx_detect("tx_file")
+    mask_dir <- .cosmx_detect("CellLabels")
+    expr_path <- .cosmx_detect("exprMat_file")
+    composite_img_dir <- .cosmx_detect("CellComposite")
+    overlay_img_dir <- .cosmx_detect("CellOverlay")
+    compart_img_dir <- .cosmx_detect("CompartmentLabels")
 
 
     # load fov offsets through one of several methods
@@ -387,6 +757,7 @@ setMethod("initialize", signature("CosmxReader"), function(
         flip_horizontal = FALSE,
         shift_vertical_step = FALSE,
         shift_horizontal_step = FALSE,
+        remove_background_polygon = TRUE,
         verbose = NULL
     ) {
         .cosmx_poly(
@@ -396,6 +767,7 @@ setMethod("initialize", signature("CosmxReader"), function(
             flip_horizontal = flip_horizontal,
             shift_vertical_step = shift_vertical_step,
             shift_horizontal_step = shift_horizontal_step,
+            remove_background_polygon = remove_background_polygon,
             micron = .Object@micron,
             px2mm = .Object@px2mm,
             offsets = .Object@offsets,
@@ -577,7 +949,7 @@ setMethod("initialize", signature("CosmxReader"), function(
 
 
 
-# access ####
+# * access ####
 
 #' @export
 setMethod("$", signature("CosmxReader"), function(x, name) {

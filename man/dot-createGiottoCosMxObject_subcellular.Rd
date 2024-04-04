@@ -24,11 +24,13 @@
 
 \item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 
-\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result
+from \code{\link[GiottoClass]{createGiottoInstructions}}}
 }
 \description{
 Load and create a CosMx Giotto object from subcellular info

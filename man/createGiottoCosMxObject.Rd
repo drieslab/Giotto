@@ -31,9 +31,11 @@ coordinates only. \code{'aggregate'} loads the provided aggregated expression ma
 
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 
-\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result
+from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
