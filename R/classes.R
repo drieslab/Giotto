@@ -861,7 +861,8 @@ setMethod("initialize", signature("CosmxReader"), function(
             overlay = "overlay"
         ),
         load_expression = FALSE,
-        load_cellmeta = FALSE
+        load_cellmeta = FALSE,
+        instructions = NULL
     ) {
         load_expression <- as.logical(load_expression)
         load_cellmeta <- as.logical(load_cellmeta)
@@ -877,6 +878,9 @@ setMethod("initialize", signature("CosmxReader"), function(
 
         # init gobject
         g <- giotto()
+        if (!is.null(instructions)) {
+            instructions(g) <- instructions
+        }
 
         # transcripts
         tx_list <- funs$load_transcripts(
