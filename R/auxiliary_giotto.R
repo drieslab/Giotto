@@ -686,9 +686,7 @@ filterGiotto = function(gobject,
   # set global option options(giotto.dbmatrix_compute = FALSE) if not desired
   # see ?dplyr::compute() for more details
   if(inherits(raw_expr[], "dbMatrix")){
-    compute_mat <- getOption("giotto.dbmatrix_compute", TRUE)
-  } else {
-    compute_mat <- FALSE
+    compute_mat <- getOption("giotto.dbmatrix_compute", FALSE)
   }
 
   ## 1. library size normalize
