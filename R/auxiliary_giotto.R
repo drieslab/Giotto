@@ -1254,11 +1254,14 @@ addFeatStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    values = expression_values,
-                                    output = 'exprObj')
+  expr_data <- getExpression(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = expression_values,
+      output = 'exprObj',
+      set_defaults = FALSE
+  )
 
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data[]),
@@ -1277,11 +1280,14 @@ addFeatStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    feat_metadata = get_feature_metadata(gobject,
-                                         spat_unit = spat_unit,
-                                         feat_type = feat_type,
-                                         output = 'featMetaObj',
-                                         copy_obj = TRUE)
+      feat_metadata <- getFeatureMetadata(
+          gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          output = 'featMetaObj',
+          copy_obj = TRUE,
+          set_defaults = FALSE
+      )
 
     if(isS4(expr_data)) {
       if(!identical(expr_data@provenance, feat_metadata@provenance)) {
@@ -1384,11 +1390,14 @@ addCellStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    values = expression_values,
-                                    output = 'exprObj')
+  expr_data <- getExpression(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = expression_values,
+      output = 'exprObj',
+      set_defaults = FALSE
+  )
 
   # calculate stats
 
@@ -1400,11 +1409,14 @@ addCellStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = get_cell_metadata(gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      output = 'cellMetaObj',
-                                      copy_obj = TRUE)
+      cell_metadata = getCellMetadata(
+          gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          output = 'cellMetaObj',
+          copy_obj = TRUE,
+          set_defaults = FALSE
+      )
 
     if(isS4(expr_data)) {
       if(!identical(expr_data@provenance, cell_metadata@provenance)) {
