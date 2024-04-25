@@ -227,7 +227,7 @@ addPolygonCells <- function(gobject,
   data.table::setnames(polygon_cells, old = 'poly_ID', new = polygon_name)
 
   ## get original cell metadata
-  cell_metadata <- get_cell_metadata(gobject = gobject,
+  cell_metadata <- getCellMetadata(gobject = gobject,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type,
                                      output = 'data.table',
@@ -295,7 +295,7 @@ comparePolygonExpression <- function(gobject,
                                         output = 'matrix')
 
   # get cell_ID and poly_ID from metadata
-  my_metadata = get_cell_metadata(gobject,
+  my_metadata = getCellMetadata(gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
                                   output = 'data.table',
@@ -382,7 +382,7 @@ compareCellAbundance <- function(gobject,
   }
 
   # get poly_ID and cell_type from metadata
-  my_metadata <- get_cell_metadata(gobject = gobject,
+  my_metadata <- getCellMetadata(gobject = gobject,
                                    spat_unit = spat_unit,
                                    feat_type = feat_type,
                                    output = 'data.table',
