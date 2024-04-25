@@ -149,26 +149,34 @@ doLeidenCluster = function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject,
-                                        spat_unit = spat_unit,
-                                        feat_type = feat_type,
-                                        output = 'cellMetaObj',
-                                        copy_obj = TRUE)
+        cell_metadata = getCellMetadata(
+            gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            output = 'cellMetaObj',
+            copy_obj = TRUE
+        )
 
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject <- setCellMetadata(
+          gobject,
+          x = cell_metadata,
+          verbose = FALSE,
+          initialize = FALSE
+      )
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = feat_type,
-                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
-                              by_column = TRUE, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+        by_column = TRUE,
+        column_cell_ID = 'cell_ID'
+    )
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_cluster')
@@ -297,7 +305,7 @@ doLeidenClusterIgraph = function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject,
+      cell_metadata <- getCellMetadata(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         output = 'cellMetaObj',
@@ -306,17 +314,21 @@ doLeidenClusterIgraph = function(gobject,
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject = setCellMetadata(gobject,
+                                  x = cell_metadata,
+                                  verbose = FALSE,
+                                initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
-    gobject = addCellMetadata(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = feat_type,
-                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
-                              by_column = TRUE, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+        by_column = TRUE,
+        column_cell_ID = 'cell_ID'
+    )
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_cluster')
@@ -540,7 +552,7 @@ doGiottoClustree <- function(gobject,
     # set name/cluster results to NULL if already exist
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject,
+      cell_metadata <- getCellMetadata(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         output = 'cellMetaObj',
@@ -549,9 +561,10 @@ doGiottoClustree <- function(gobject,
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject = setCellMetadata(gobject,
+                                  x = cell_metadata,
+                                  verbose = FALSE,
+                                initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -686,7 +699,7 @@ doGiottoClustree <- function(gobject,
     # set name/cluster results to NULL if already exist
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject,
+      cell_metadata = getCellMetadata(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         output = 'cellMetaObj',
@@ -695,9 +708,10 @@ doGiottoClustree <- function(gobject,
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject = setCellMetadata(gobject,
+                                  x = cell_metadata,
+                                  verbose = FALSE,
+                                initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -1173,7 +1187,7 @@ doKmeans <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject = gobject,
+      cell_metadata <- getCellMetadata(gobject = gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         output = 'cellMetaObj',
@@ -1182,9 +1196,10 @@ doKmeans <- function(gobject,
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject = gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject = setCellMetadata(gobject = gobject,
+                                  x = cell_metadata,
+                                  verbose = FALSE,
+                                initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -1365,7 +1380,7 @@ doHclust <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = get_cell_metadata(gobject,
+      cell_metadata <- getCellMetadata(gobject,
                                         spat_unit = spat_unit,
                                         feat_type = feat_type,
                                         output = 'cellMetaObj',
@@ -1374,9 +1389,10 @@ doHclust <- function(gobject,
       cell_metadata[][, eval(name) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_cell_metadata(gobject,
-                                  metadata = cell_metadata,
-                                  verbose = FALSE)
+      gobject <- setCellMetadata(gobject,
+                                  x = cell_metadata,
+                                  verbose = FALSE,
+                                 initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -2979,7 +2995,7 @@ doClusterProjection = function(target_gobject,
                                     feat_type = feat_type)
 
   # identify clusters from source object and create annotation vector
-  cell_meta_source = get_cell_metadata(gobject = source_gobject,
+  cell_meta_source <- getCellMetadata(gobject = source_gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        output = 'data.table')
@@ -3031,7 +3047,7 @@ doClusterProjection = function(target_gobject,
   # create annotation vector for all cell IDs (from source and predicted)
   all_vec = c(source_annot_vec, knnprediction_vec)
 
-  cell_meta_target = get_cell_metadata(gobject = target_gobject,
+  cell_meta_target <- getCellMetadata(gobject = target_gobject,
                                        spat_unit = spat_unit,
                                        feat_type = feat_type,
                                        output = 'data.table')

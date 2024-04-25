@@ -331,7 +331,7 @@ addCellIntMetadata = function(gobject,
                             spatial_network_annot[unified_int == cell_interaction]$from))
 
   # cell_metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata = getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'cellMetaObj',

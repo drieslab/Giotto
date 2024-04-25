@@ -47,7 +47,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
     stop(wrap_txt(paste0("Alternative spatial unit ", alt_spat_unit, " not found. Please ensure it exists."), errWidth = T))
   }
 
-  meta_cols = names(get_cell_metadata(gobject, spat_unit = spat_unit, feat_type = feat_type, output = "data.table"))
+  meta_cols = names(getCellMetadata(gobject, spat_unit = spat_unit, feat_type = feat_type, output = "data.table"))
 
   if (!clus_name %in% meta_cols){
     stop(wrap_txt(paste0("Cluster name ",clus_name, " not found within cell metadata. Please ensure it exists."), errWidth = T))
@@ -334,7 +334,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
   package_check("networkD3")
 
   #Extract cell metadata
-  cmeta = get_cell_metadata(gobject = gobject,
+  cmeta = getCellMetadata(gobject = gobject,
                             spat_unit = spat_unit,
                             feat_type = feat_type,
                             output = "data.table")
@@ -348,7 +348,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
   }
 
 
-  small_cmeta = get_cell_metadata(gobject = gobject,
+  small_cmeta = getCellMetadata(gobject = gobject,
                                   spat_unit = alt_spat_unit,
                                   feat_type = feat_type,
                                   output = "data.table")

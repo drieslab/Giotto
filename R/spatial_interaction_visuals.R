@@ -2502,7 +2502,7 @@ cellProximitySpatPlot2D <- function(gobject,
                                  name = spatial_grid_name,
                                  return_grid_Obj = FALSE)
 
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'data.table',

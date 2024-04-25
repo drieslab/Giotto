@@ -396,7 +396,7 @@ calculateHVF <- function(gobject,
   if(isTRUE(return_gobject)) {
 
     # add HVG metadata to feat_metadata
-    feat_metadata = get_feature_metadata(gobject,
+    feat_metadata <- getFeatureMetadata(gobject,
                                          spat_unit = spat_unit,
                                          feat_type = feat_type,
                                          output = 'featMetaObj',
@@ -409,9 +409,10 @@ calculateHVF <- function(gobject,
       feat_metadata[][, eval(HVFname) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_feature_metadata(gobject,
-                                     metadata = feat_metadata,
-                                     verbose = FALSE)
+      gobject = setFeatureMetadata(gobject,
+                                     x = feat_metadata,
+                                     verbose = FALSE,
+                                   initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
