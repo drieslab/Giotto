@@ -22,9 +22,9 @@ calculateHVF(
   random_subset = NULL,
   set_seed = TRUE,
   seed_number = 1234,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "HVFplot",
   return_gobject = TRUE

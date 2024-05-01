@@ -12,9 +12,9 @@ plotCellTypesFromEnrichment(
   title = NULL,
   save_param = list(),
   default_save_name = "cell_types_from_enrichment",
-  save_plot = NA,
-  show_plot = NA,
-  return_plot = NA
+  save_plot = NULL,
+  show_plot = NULL,
+  return_plot = NULL
 )
 }
 \arguments{

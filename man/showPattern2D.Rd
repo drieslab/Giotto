@@ -13,9 +13,9 @@ showPattern2D(
   grid_border_color = "grey",
   show_legend = T,
   point_size = 1,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "showPattern2D"
 )

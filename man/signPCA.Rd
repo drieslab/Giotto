@@ -23,9 +23,9 @@ signPCA(
   jack_threshold = 0.01,
   jack_ylim = c(0, 1),
   verbose = TRUE,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "signPCA"
 )
