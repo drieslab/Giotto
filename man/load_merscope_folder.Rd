@@ -38,7 +38,8 @@
 \item{data_to_use}{which of either the 'subcellular' or 'aggregate' information
 to use for object creation}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }

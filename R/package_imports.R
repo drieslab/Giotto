@@ -3,7 +3,7 @@
 #' @import GiottoVisuals
 #' @import methods
 #' @import utils
-#' @import stats
+#' @rawNamespace import(stats, except = density)
 #' @import ggplot2
 #' @importClassesFrom data.table data.table
 #' @importFrom data.table setnames setorder setDT

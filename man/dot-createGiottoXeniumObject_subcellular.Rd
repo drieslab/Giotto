@@ -22,9 +22,11 @@ into separate giottoPoints objects by feat_type}
 \item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included as
 a subcellular transcript detection (default = 20)}
 
-\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result
+from \code{\link[GiottoClass]{createGiottoInstructions}}}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
