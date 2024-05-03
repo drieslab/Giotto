@@ -2026,11 +2026,13 @@ spatialAutoCorLocal = function(gobject = NULL,
     #META====================================================================#
     if(is.null(meta_cols)) stop(wrap_txt('Metadata columns to autocorrelate must be given',
                                          errWidth = TRUE))
-    use_values = get_cell_metadata(gobject = gobject,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type,
-                                   output = 'data.table',
-                                   copy_obj = TRUE)
+      use_values = getCellMetadata(
+          gobject = gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          output = 'data.table',
+          copy_obj = TRUE
+      )
 
     # ensure identical ordering with giotto weight matrix
     if(exists('wm_colnames')) {

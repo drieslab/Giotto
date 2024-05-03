@@ -71,7 +71,7 @@ findScranMarkers <- function(gobject,
                                     output = 'matrix')
 
   # cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'data.table',
@@ -202,7 +202,7 @@ findScranMarkers_one_vs_all <- function(gobject,
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   # cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'data.table',
@@ -221,7 +221,7 @@ findScranMarkers_one_vs_all <- function(gobject,
                            feat_type = feat_type,
                            cell_ids = subset_cell_IDs,
                            verbose = FALSE)
-    cell_metadata = get_cell_metadata(gobject,
+    cell_metadata <- getCellMetadata(gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       output = 'data.table',
@@ -375,7 +375,7 @@ findGiniMarkers <- function(gobject,
 
 
   # cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'cellMetaObj',
@@ -575,7 +575,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
 
   # cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'data.table',
@@ -593,7 +593,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
                            feat_type = feat_type,
                            spat_unit = spat_unit,
                            cell_ids = subset_cell_IDs)
-    cell_metadata = get_cell_metadata(gobject,
+    cell_metadata <- getCellMetadata(gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       output = 'data.table',
@@ -705,7 +705,7 @@ findMastMarkers <- function(gobject,
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   ## cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'cellMetaObj',
@@ -768,13 +768,13 @@ findMastMarkers <- function(gobject,
                                     values = values,
                                     output = 'matrix')
   # column & row data
-  column_data = get_cell_metadata(gobject,
+  column_data <- getCellMetadata(gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
                                   output = 'data.table',
                                   copy_obj = TRUE)
   setnames(column_data, 'cell_ID', 'wellKey')
-  row_data = get_feature_metadata(gobject,
+  row_data <- getFeatureMetadata(gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
                                   output = 'data.table',
@@ -882,7 +882,7 @@ findMastMarkers_one_vs_all = function(gobject,
 
 
   ## cluster column
-  cell_metadata = get_cell_metadata(gobject,
+  cell_metadata <- getCellMetadata(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     output = 'data.table',
@@ -901,7 +901,7 @@ findMastMarkers_one_vs_all = function(gobject,
                            feat_type = feat_type,
                            cell_ids = subset_cell_IDs,
                            verbose = FALSE)
-    cell_metadata = get_cell_metadata(gobject,
+    cell_metadata <- getCellMetadata(gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       output = 'data.table',

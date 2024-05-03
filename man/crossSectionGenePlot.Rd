@@ -39,5 +39,5 @@ Visualize cells and gene expression in a virtual cross section according to spat
 Description of parameters.
 }
 \seealso{
-\link[GiottoVisuals:spatGenePlot3D]{GiottoVisuals::spatGenePlot3D} and \link[GiottoVisuals:spatFeatPlot2D]{GiottoVisuals::spatFeatPlot2D}
+\link[GiottoVisuals:spatFeatPlot3D]{GiottoVisuals::spatGenePlot3D} and \link[GiottoVisuals:spatFeatPlot2D]{GiottoVisuals::spatFeatPlot2D}
 }

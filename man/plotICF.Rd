@@ -11,9 +11,9 @@ plotICF(
   source_markers,
   ICF_feats,
   cell_color_code = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotICF"
 )

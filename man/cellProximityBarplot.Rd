@@ -10,9 +10,9 @@ cellProximityBarplot(
   min_orig_ints = 5,
   min_sim_ints = 5,
   p_val = 0.05,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "cellProximityBarplot"
 )

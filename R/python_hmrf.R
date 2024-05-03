@@ -1559,17 +1559,25 @@ addHMRF_V2 = function (gobject, HMRFoutput, name = 'hmrf')
   spat_unit = HMRFoutput$spat_unit
   feat_type = HMRFoutput$feat_type
 
-  cx = get_cell_metadata(gobject,spat_unit = spat_unit,feat_type = feat_type,output = 'data.table',copy_obj = T)
+  cx = getCellMetadata(
+      gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      output = 'data.table',
+      copy_obj = TRUE
+  )
   ordered_cell_IDs = cx$cell_ID
 
-  for (i in seq_along(grep('k',names(HMRFoutput)))) {
-    gobject = addCellMetadata(gobject = gobject,
-                              spat_unit = spat_unit,
-                              feat_type = feat_type,
-                              column_cell_ID = "cell_ID",
-                              new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))],
-                              vector_name = paste(name,names(HMRFoutput)[i]),
-                              by_column = TRUE)
+  for (i in seq_along(grep('k', names(HMRFoutput)))) {
+      gobject = addCellMetadata(
+          gobject = gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          column_cell_ID = "cell_ID",
+          new_metadata = HMRFoutput[[i]]$class[match(ordered_cell_IDs,names(HMRFoutput[[i]]$class))],
+          vector_name = paste(name,names(HMRFoutput)[i]),
+          by_column = TRUE
+      )
   }
   return(gobject)
 }
