@@ -33,9 +33,9 @@ cellProximitySpatPlot2D(
   point_alpha_other = 0.3,
   point_other_border_col = "lightgrey",
   point_other_border_stroke = 0.01,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "cellProximitySpatPlot2D"
 )

@@ -115,9 +115,9 @@ filterDistributions <- function(gobject,
                                 fill_color = 'lightblue',
                                 scale_axis = 'identity',
                                 axis_offset = 0,
-                                show_plot = NA,
-                                return_plot = NA,
-                                save_plot = NA,
+                                show_plot = NULL,
+                                return_plot = NULL,
+                                save_plot = NULL,
                                 save_param =  list(),
                                 default_save_name = 'filterDistributions') {
 
@@ -281,7 +281,7 @@ filterCombinations <- function(gobject,
                                y_axis_offset = 0,
                                show_plot = TRUE,
                                return_plot = FALSE,
-                               save_plot = NA,
+                               save_plot = NULL,
                                save_param =  list(),
                                default_save_name = 'filterCombinations') {
 

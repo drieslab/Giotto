@@ -19,9 +19,9 @@ insertCrossSectionGenePlot3D(
   show_other_cells = F,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "spatGenePlot3D_with_cross_section",
   ...

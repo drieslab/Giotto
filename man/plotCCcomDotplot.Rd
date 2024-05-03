@@ -17,9 +17,9 @@ plotCCcomDotplot(
     "median", "centroid"),
   dot_color_gradient = NULL,
   gradient_style = c("divergent", "sequential"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotCCcomDotplot"
 )

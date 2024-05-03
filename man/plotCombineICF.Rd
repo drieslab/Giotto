@@ -16,9 +16,9 @@ plotCombineICF(
   facet_ncol = length(selected_feat_to_feat),
   facet_nrow = length(selected_interactions),
   colors = c("#9932CC", "#FF8C00"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotCombineICF"
 )
