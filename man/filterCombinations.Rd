@@ -18,7 +18,7 @@ filterCombinations(
   y_axis_offset = 0,
   show_plot = TRUE,
   return_plot = FALSE,
-  save_plot = NA,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "filterCombinations"
 )

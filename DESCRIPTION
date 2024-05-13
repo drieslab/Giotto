@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.5
+Version: 4.0.6
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -32,7 +32,7 @@ Depends:
     utils (>= 3.5.0),
     R (>= 3.5.0),
     methods,
-    GiottoClass (>= 0.2.0)
+    GiottoClass (>= 0.3.0)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -43,7 +43,7 @@ Imports:
     ggplot2 (>= 3.1.1),
     ggrepel,
     GiottoUtils (>= 0.1.6),
-    GiottoVisuals (>= 0.1.1),
+    GiottoVisuals (>= 0.2.0),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
@@ -148,6 +148,7 @@ Collate:
     'suite_reexports.R'
     'image_registration.R'
     'interactivity.R'
+    'kriging.R'
     'package_imports.R'
     'poly_influence.R'
     'python_hmrf.R'

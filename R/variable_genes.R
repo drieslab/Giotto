@@ -3,9 +3,9 @@
 .calc_cov_group_hvf = function(feat_in_cells_detected,
                                nr_expression_groups = 20,
                                zscore_threshold = 1,
-                               show_plot = NA,
-                               return_plot = NA,
-                               save_plot = NA) {
+                               show_plot = NULL,
+                               return_plot = NULL,
+                               save_plot = NULL) {
 
   # NSE vars
   cov_group_zscore <- cov <- selected <- mean_expr <- NULL
@@ -48,9 +48,9 @@
 
 .calc_cov_loess_hvf = function(feat_in_cells_detected,
                               difference_in_cov = 0.1,
-                              show_plot = NA,
-                              return_plot = NA,
-                              save_plot = NA) {
+                              show_plot = NULL,
+                              return_plot = NULL,
+                              save_plot = NULL) {
 
   # NSE vars
   cov_diff <- pred_cov_feats <- selected <- NULL
@@ -79,9 +79,9 @@
 .calc_var_hvf = function(scaled_matrix,
                         var_threshold = 1.5,
                         var_number = NULL,
-                        show_plot = NA,
-                        return_plot = NA,
-                        save_plot = NA,
+                        show_plot = NULL,
+                        return_plot = NULL,
+                        save_plot = NULL,
                         use_parallel = FALSE) {
 
   # NSE vars
@@ -269,9 +269,9 @@ calculateHVF <- function(gobject,
                          random_subset = NULL,
                          set_seed = TRUE,
                          seed_number = 1234,
-                         show_plot = NA,
-                         return_plot = NA,
-                         save_plot = NA,
+                         show_plot = NULL,
+                         return_plot = NULL,
+                         save_plot = NULL,
                          save_param = list(),
                          default_save_name = 'HVFplot',
                          return_gobject = TRUE) {
@@ -396,7 +396,7 @@ calculateHVF <- function(gobject,
   if(isTRUE(return_gobject)) {
 
     # add HVG metadata to feat_metadata
-    feat_metadata = get_feature_metadata(gobject,
+    feat_metadata <- getFeatureMetadata(gobject,
                                          spat_unit = spat_unit,
                                          feat_type = feat_type,
                                          output = 'featMetaObj',
@@ -409,9 +409,10 @@ calculateHVF <- function(gobject,
       feat_metadata[][, eval(HVFname) := NULL]
 
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-      gobject = set_feature_metadata(gobject,
-                                     metadata = feat_metadata,
-                                     verbose = FALSE)
+      gobject = setFeatureMetadata(gobject,
+                                     x = feat_metadata,
+                                     verbose = FALSE,
+                                   initialize = FALSE)
       ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 

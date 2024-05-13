@@ -55,7 +55,8 @@ expression matrix}
 
 \item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }

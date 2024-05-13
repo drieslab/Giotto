@@ -8,9 +8,9 @@ rankSpatialCorGroups(
   gobject,
   spatCorObject,
   use_clus_name = NULL,
-  show_plot = NA,
+  show_plot = NULL,
   return_plot = FALSE,
-  save_plot = NA,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "rankSpatialCorGroups"
 )

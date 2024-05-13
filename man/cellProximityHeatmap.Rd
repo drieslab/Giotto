@@ -11,9 +11,9 @@ cellProximityHeatmap(
   order_cell_types = T,
   color_breaks = NULL,
   color_names = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "cellProximityHeatmap"
 )

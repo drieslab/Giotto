@@ -392,7 +392,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     spatial_locs = spatial_locs,
     instructions = instructions,
     cell_metadata = meta_list,
-    largeImages = visium_png_list
+    images = visium_png_list
   )
 
 
@@ -1034,7 +1034,7 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
     gpolygons = list('cell' = gpoly),
     instructions = instructions
   )
-  sg = addGiottoLargeImage(sg, largeImages = list(image = gimg))
+  sg = addGiottoImage(sg, images = list(image = gimg))
   # Return SG object
   return(sg)
 }
@@ -1336,7 +1336,7 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
     if(length(gImage_list) > 0) {
       fov_subset = addGiottoImage(
         gobject = fov_subset,
-        largeImages = gImage_list
+        images = gImage_list
       )
 
       # convert to MG for faster loading (particularly relevant for pulling from server)

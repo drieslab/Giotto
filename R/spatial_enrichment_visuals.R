@@ -102,9 +102,9 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
                                         title = NULL,
                                         save_param =  list(),
                                         default_save_name = 'cell_types_from_enrichment',
-                                        save_plot = NA,
-                                        show_plot = NA,
-                                        return_plot = NA){
+                                        save_plot = NULL,
+                                        show_plot = NULL,
+                                        return_plot = NULL){
     # guard clauses handled at first step downstream
     # therefore, omitting here.
     id_and_types = findCellTypesFromEnrichment(gobject = gobject,
@@ -165,9 +165,9 @@ pieCellTypesFromEnrichment <- function(gobject = NULL,
                                        title = NULL,
                                        save_param =  list(),
                                        default_save_name = 'cell_types_from_enrichment_pie',
-                                       save_plot = NA,
-                                       show_plot = NA,
-                                       return_plot = NA){
+                                       save_plot = NULL,
+                                       show_plot = NULL,
+                                       return_plot = NULL){
     # guard clauses handled one step downstream
 
     freq_table = findCellTypesFromEnrichment(gobject = gobject,

@@ -115,9 +115,9 @@ filterDistributions <- function(gobject,
                                 fill_color = 'lightblue',
                                 scale_axis = 'identity',
                                 axis_offset = 0,
-                                show_plot = NA,
-                                return_plot = NA,
-                                save_plot = NA,
+                                show_plot = NULL,
+                                return_plot = NULL,
+                                save_plot = NULL,
                                 save_param =  list(),
                                 default_save_name = 'filterDistributions') {
 
@@ -281,7 +281,7 @@ filterCombinations <- function(gobject,
                                y_axis_offset = 0,
                                show_plot = TRUE,
                                return_plot = FALSE,
-                               save_plot = NA,
+                               save_plot = NULL,
                                save_param =  list(),
                                default_save_name = 'filterCombinations') {
 
@@ -526,18 +526,22 @@ filterGiotto = function(gobject,
 
   # update cell metadata
   if(isTRUE(tag_cells)) {
-    cell_meta = get_cell_metadata(gobject = gobject, copy_obj = TRUE)
+    cell_meta = getCellMetadata(gobject = gobject, copy_obj = TRUE)
     cell_meta[][, c(tag_cell_name) := ifelse(cell_ID %in% selected_cell_ids, 0, 1)]
-    gobject = set_cell_metadata(gobject = gobject, metadata = cell_meta)
+    gobject = setCellMetadata(
+        gobject = gobject, x = cell_meta, initialize = FALSE
+    )
 
     # set selected cells back to all cells
     selected_cell_ids = names(filter_index_cells)
   }
 
   if(isTRUE(tag_feats)) {
-    feat_meta = get_feature_metadata(gobject = gobject, copy_obj = TRUE)
+    feat_meta = getFeatureMetadata(gobject = gobject, copy_obj = TRUE)
     feat_meta[][, c(tag_feats_name) := ifelse(feat_ID %in% selected_feat_ids, 0, 1)]
-    gobject = set_feature_metadata(gobject = gobject, metadata = feat_meta)
+    gobject = setFeatureMetadata(
+        gobject = gobject, x = feat_meta, initialize = FALSE
+    )
 
     # set selected feats back to all feats
     selected_feat_ids = names(filter_index_feats)
@@ -1053,11 +1057,13 @@ adjustGiottoMatrix <- function(gobject,
                                     feat_type = feat_type)
 
   # metadata
-  cell_metadata = get_cell_metadata(gobject,
-                                    feat_type = feat_type,
-                                    spat_unit = spat_unit,
-                                    output = 'data.table',
-                                    copy_obj = TRUE)
+  cell_metadata = getCellMetadata(
+      gobject,
+      feat_type = feat_type,
+      spat_unit = spat_unit,
+      output = 'data.table',
+      copy_obj = TRUE
+  )
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
@@ -1254,11 +1260,14 @@ addFeatStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    values = expression_values,
-                                    output = 'exprObj')
+  expr_data <- getExpression(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = expression_values,
+      output = 'exprObj',
+      set_defaults = FALSE
+  )
 
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data[]),
@@ -1277,11 +1286,14 @@ addFeatStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    feat_metadata = get_feature_metadata(gobject,
-                                         spat_unit = spat_unit,
-                                         feat_type = feat_type,
-                                         output = 'featMetaObj',
-                                         copy_obj = TRUE)
+      feat_metadata <- getFeatureMetadata(
+          gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          output = 'featMetaObj',
+          copy_obj = TRUE,
+          set_defaults = FALSE
+      )
 
     if(isS4(expr_data)) {
       if(!identical(expr_data@provenance, feat_metadata@provenance)) {
@@ -1384,11 +1396,14 @@ addCellStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    values = expression_values,
-                                    output = 'exprObj')
+  expr_data <- getExpression(
+      gobject = gobject,
+      spat_unit = spat_unit,
+      feat_type = feat_type,
+      values = expression_values,
+      output = 'exprObj',
+      set_defaults = FALSE
+  )
 
   # calculate stats
 
@@ -1400,11 +1415,14 @@ addCellStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = get_cell_metadata(gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type,
-                                      output = 'cellMetaObj',
-                                      copy_obj = TRUE)
+      cell_metadata = getCellMetadata(
+          gobject,
+          spat_unit = spat_unit,
+          feat_type = feat_type,
+          output = 'cellMetaObj',
+          copy_obj = TRUE,
+          set_defaults = FALSE
+      )
 
     if(isS4(expr_data)) {
       if(!identical(expr_data@provenance, cell_metadata@provenance)) {
