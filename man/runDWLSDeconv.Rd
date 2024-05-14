@@ -45,9 +45,12 @@ runDWLSDeconv(
 giotto object or deconvolution results
 }
 \description{
-Function to perform DWLS deconvolution based on single cell expression data
+Function to perform DWLS deconvolution based on single cell 
+expression data
 }
 \seealso{
-\url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk deconvolution method,
-and \doi{10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
+\url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk 
+deconvolution method,
+and \doi{10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial 
+implementation used here.
 }

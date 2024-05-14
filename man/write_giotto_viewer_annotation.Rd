@@ -21,6 +21,7 @@ write_giotto_viewer_annotation(
 write a .txt and .annot file for the selection annotation
 }
 \description{
-write out factor-like annotation data from a giotto object for the Viewer
+write out factor-like annotation data from a giotto object for 
+the Viewer
 }
 \keyword{internal}

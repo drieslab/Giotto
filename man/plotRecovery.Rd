@@ -42,5 +42,6 @@ plotRecovery(
 ggplot
 }
 \description{
-Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+Plots recovery plot to compare ligand-receptor rankings from 
+spatial and expression information
 }

@@ -14,6 +14,7 @@
 \item{method}{which method is used for image registration}
 }
 \description{
-Performs appropriate transforms to align spatial locations with registered images.
+Performs appropriate transforms to align spatial locations 
+with registered images.
 }
 \keyword{internal}

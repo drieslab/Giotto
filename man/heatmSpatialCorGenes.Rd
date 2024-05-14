@@ -12,7 +12,8 @@ heatmSpatialCorGenes(...)
   \describe{
     \item{\code{gobject}}{giotto object}
     \item{\code{spatCorObject}}{spatial correlation object}
-    \item{\code{use_clus_name}}{name of clusters to visualize (from clusterSpatialCorFeats())}
+    \item{\code{use_clus_name}}{name of clusters to visualize 
+(from clusterSpatialCorFeats())}
     \item{\code{show_cluster_annot}}{show cluster annotation on top of heatmap}
     \item{\code{show_row_dend}}{show row dendrogram}
     \item{\code{show_column_dend}}{show column dendrogram}
@@ -21,8 +22,10 @@ heatmSpatialCorGenes(...)
     \item{\code{show_plot}}{show plot}
     \item{\code{return_plot}}{return ggplot object}
     \item{\code{save_plot}}{directly save the plot [boolean]}
-    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
-    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+    \item{\code{save_param}}{list of saving parameters, see 
+\code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, 
+change save_name in save_param}
   }}
 }
 \description{

@@ -39,9 +39,10 @@ makeSignMatrixDWLS(
 matrix
 }
 \description{
-Function to convert a matrix within a Giotto object into a format
- that can be used with \code{\link{runDWLSDeconv}} for deconvolution. A vector of cell types
- for parameter \code{cell_type_vector} can be created from the cell metadata (\code{\link{pDataDT}}).
+Function to convert a matrix within a Giotto object into a 
+format that can be used with \code{\link{runDWLSDeconv}} for deconvolution. 
+A vector of cell types for parameter \code{cell_type_vector} can be created 
+from the cell metadata (\code{\link{pDataDT}}).
 }
 \seealso{
 \code{\link{runDWLSDeconv}}

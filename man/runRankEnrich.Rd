@@ -57,16 +57,20 @@ runRankEnrich(
 data.table with enrichment results
 }
 \description{
-Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
+Function to calculate gene signature enrichment scores per 
+spatial position using a rank based approach.
 }
 \details{
-sign_matrix: a rank-fold matrix with genes as row names and cell-types as column names.
-Alternatively a scRNA-seq matrix and vector with clusters can be provided to makeSignMatrixRank, which will create
-the matrix for you. \cr
+sign_matrix: a rank-fold matrix with genes as row names and cell-types 
+as column names.
+Alternatively a scRNA-seq matrix and vector with clusters can be provided 
+to makeSignMatrixRank, which will create the matrix for you. \cr
 
 First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
-fold-change for each gene in each spot and R2 is the rank of each marker in each cell type.
-The Rank-Biased Precision is then calculated as: RBP = (1 - 0.99) * (0.99)^(R - 1)
+fold-change for each gene in each spot and R2 is the rank of each marker in 
+each cell type.
+The Rank-Biased Precision is then calculated as: 
+RBP = (1 - 0.99) * (0.99)^(R - 1)
 and the final enrichment score is then calculated as the sum of top 100 RBPs.
 }
 \seealso{

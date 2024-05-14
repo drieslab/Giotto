@@ -7,8 +7,8 @@
 cellProximityHeatmap(
   gobject,
   CPscore,
-  scale = T,
-  order_cell_types = T,
+  scale = TRUE,
+  order_cell_types = TRUE,
   color_breaks = NULL,
   color_names = NULL,
   show_plot = NULL,
@@ -27,7 +27,8 @@ cellProximityHeatmap(
 
 \item{order_cell_types}{order cell types based on enrichment correlation}
 
-\item{color_breaks}{numerical vector of length 3 to represent min, mean and maximum}
+\item{color_breaks}{numerical vector of length 3 to represent min, mean 
+and maximum}
 
 \item{color_names}{character color vector of length 3}
 

@@ -35,11 +35,13 @@ spark(
 
 \item{num_core}{number of cores to use}
 
-\item{covariates}{The covariates in experiments, i.e. confounding factors/batch effect. Column name of giotto cell metadata.}
+\item{covariates}{The covariates in experiments, i.e. confounding 
+factors/batch effect. Column name of giotto cell metadata.}
 
 \item{return_object}{type of result to return (data.table or spark object)}
 
-\item{\dots}{Additional parameters to the \code{\link[SPARK]{spark.vc}} function}
+\item{\dots}{Additional parameters to the \code{\link[SPARK]{spark.vc}} 
+function}
 }
 \value{
 data.table with SPARK spatial genes results or the SPARK object
@@ -48,7 +50,8 @@ data.table with SPARK spatial genes results or the SPARK object
 Compute spatially expressed genes with SPARK method
 }
 \details{
-This function is a wrapper for the method implemented in the SPARK package:
+This function is a wrapper for the method implemented in the 
+SPARK package:
 \itemize{
  \item{1. CreateSPARKObject }{create a SPARK object from a Giotto object}
  \item{2. spark.vc }{ Fits the count-based spatial model to estimate the parameters,

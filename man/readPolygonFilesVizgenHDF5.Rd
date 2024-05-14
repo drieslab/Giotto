@@ -35,8 +35,8 @@ readPolygonFilesVizgenHDF5(
 \item{segm_to_use}{segmentation results to use (usually = 1. Depends on if
 alternative segmentations were generated)}
 
-\item{custom_polygon_names}{a character vector to provide custom polygon names
-(optional)}
+\item{custom_polygon_names}{a character vector to provide custom polygon 
+names (optional)}
 
 \item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
 
@@ -54,11 +54,12 @@ alternative segmentations were generated)}
 
 \item{cores}{cores to use}
 
-\item{create_gpoly_parallel}{(default = TRUE) Whether to run gpoly creation in
-parallel}
+\item{create_gpoly_parallel}{(default = TRUE) Whether to run gpoly creation 
+in parallel}
 
 \item{create_gpoly_bin}{(Optional, default = FALSE) Parallelization option.
-Accepts integer values as an binning size when generating giottoPolygon objects}
+Accepts integer values as an binning size when generating giottoPolygon 
+objects}
 
 \item{verbose}{be verbose}
 
@@ -68,11 +69,12 @@ Accepts integer values as an binning size when generating giottoPolygon objects}
 }
 \description{
 Read polygon info for all cells or for only selected FOVs from
-Vizgen HDF5 files. Data is returned as a list of giottoPolygons or data.tables
-of the requested z indices.
+Vizgen HDF5 files. Data is returned as a list of giottoPolygons or 
+data.tables of the requested z indices.
 }
 \details{
-Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
+Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission 
+issues.
 }
 \seealso{
 \code{\link{smoothGiottoPolygons}}

@@ -17,5 +17,8 @@ addHMRF_V2(gobject, HMRFoutput, name = "hmrf")
 function to add HMRF Domain Type to cell meta data
 }
 \details{
-This function appends HMRF domain clusters to corresponding cell meta data for all the beta values, with the given HMRF model names. For example, if name = ‘hmrf1’ and name of result in HMRFoutput is ‘k=8 b=0.00’, the appended cell meta data column will be named with ‘hmrf1 k=8 b=0.00’
+This function appends HMRF domain clusters to corresponding cell meta data 
+for all the beta values, with the given HMRF model names. For example, if 
+name = ‘hmrf1’ and name of result in HMRFoutput is ‘k=8 b=0.00’, the 
+appended cell meta data column will be named with ‘hmrf1 k=8 b=0.00’
 }

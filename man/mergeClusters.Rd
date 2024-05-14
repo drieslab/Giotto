@@ -39,9 +39,11 @@ mergeClusters(
 
 \item{max_group_size}{max cluster size that can be merged}
 
-\item{force_min_group_size}{size of clusters that will be merged with their most similar neighbor(s)}
+\item{force_min_group_size}{size of clusters that will be merged with their 
+most similar neighbor(s)}
 
-\item{max_sim_clusters}{maximum number of clusters to potentially merge to reach force_min_group_size}
+\item{max_sim_clusters}{maximum number of clusters to potentially merge to 
+reach force_min_group_size}
 
 \item{return_gobject}{return giotto object}
 
@@ -51,14 +53,18 @@ mergeClusters(
 Giotto object
 }
 \description{
-Merge selected clusters based on pairwise correlation scores and size of cluster.
+Merge selected clusters based on pairwise correlation scores 
+and size of cluster.
 }
 \details{
-Merge selected clusters based on pairwise correlation scores and size of cluster.
-To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
-be forcibly merged with their most similar pairwise cluster by adjusting the
-force_min_group_size parameter. Clusters smaller than this value will be merged
-independent on the provided min_cor_score value. The force_min_group_size might not always
-be reached if clusters have already been merged before \cr
-A giotto object is returned by default, if FALSE then the merging vector will be returned.
+Merge selected clusters based on pairwise correlation scores and 
+size of cluster.
+To avoid large clusters to merge the max_group_size can be lowered. Small 
+clusters can be forcibly merged with their most similar pairwise cluster by 
+adjusting the force_min_group_size parameter. Clusters smaller than this 
+value will be merged independent on the provided min_cor_score value. The 
+force_min_group_size might not always be reached if clusters have already 
+been merged before \cr
+A giotto object is returned by default, if FALSE then the merging vector 
+will be returned.
 }

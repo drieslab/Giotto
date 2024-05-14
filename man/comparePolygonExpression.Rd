@@ -26,9 +26,11 @@ comparePolygonExpression(
 
 \item{selected_feats}{vector of selected features to plot}
 
-\item{expression_values}{gene expression values to use ("normalized", "scaled", "custom")}
+\item{expression_values}{gene expression values to use 
+("normalized", "scaled", "custom")}
 
-\item{method}{method to use to detect differentially expressed feats ("scran", "gini", "mast")}
+\item{method}{method to use to detect differentially expressed feats 
+("scran", "gini", "mast")}
 
 \item{\dots}{Arguments passed to \link[ComplexHeatmap]{Heatmap}}
 }

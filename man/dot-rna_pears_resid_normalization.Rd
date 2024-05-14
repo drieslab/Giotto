@@ -15,7 +15,8 @@
 )
 }
 \description{
-function for RNA normalization according to Lause/Kobak et al paper
+function for RNA normalization according to Lause/Kobak et al 
+paper
 Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 }
 \keyword{internal}

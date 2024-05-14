@@ -18,7 +18,8 @@
 \arguments{
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 
-\item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
+\item{remove_background_polygon}{try to remove background polygon 
+(default: FALSE)}
 
 \item{background_algo}{algorithm to remove background polygon}
 

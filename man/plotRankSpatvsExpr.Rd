@@ -49,7 +49,8 @@ or 'sequential' (scaled based on data range)}
 
 \item{ylims}{y-limits, numerical vector of 2}
 
-\item{selected_ranks}{numerical vector, will be used to print out the percentage of top spatial ranks are recovered}
+\item{selected_ranks}{numerical vector, will be used to print out the 
+percentage of top spatial ranks are recovered}
 
 \item{show_plot}{logical. show plot}
 
@@ -65,5 +66,6 @@ or 'sequential' (scaled based on data range)}
 ggplot
 }
 \description{
-Plots dotplot to compare ligand-receptor rankings from spatial and expression information
+Plots dotplot to compare ligand-receptor rankings from 
+spatial and expression information
 }

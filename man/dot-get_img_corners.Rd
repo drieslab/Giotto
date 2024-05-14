@@ -10,6 +10,7 @@
 \item{img_object}{giottoImage or magick-image to use}
 }
 \description{
-finds four corner spatial coords of giottoImages or magick-images
+finds four corner spatial coords of giottoImages or 
+magick-images
 }
 \keyword{internal}

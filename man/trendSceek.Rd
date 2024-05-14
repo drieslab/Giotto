@@ -29,11 +29,14 @@ trendSceek(
 
 \item{subset_genes}{subset of genes to run trendsceek on}
 
-\item{nrand}{An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.}
+\item{nrand}{An integer specifying the number of random resamplings of the 
+mark distribution as to create the null-distribution.}
 
-\item{ncores}{An integer specifying the number of cores to be used by BiocParallel}
+\item{ncores}{An integer specifying the number of cores to be used by 
+BiocParallel}
 
-\item{\dots}{Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function}
+\item{\dots}{Additional parameters to the 
+\code{\link[trendsceek]{trendsceek_test}} function}
 }
 \value{
 data.frame with trendsceek spatial genes results
@@ -42,6 +45,7 @@ data.frame with trendsceek spatial genes results
 Compute spatial variable genes with trendsceek method
 }
 \details{
-This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
+This function is a wrapper for the trendsceek_test method 
+implemented in the trendsceek package
 Publication: \doi{10.1038/nmeth.4634}
 }

@@ -15,7 +15,8 @@ convertEnsemblToGeneSymbol(matrix, species = c("mouse", "human"))
 expression matrix with gene symbols as rownames
 }
 \description{
-This function convert ensembl gene IDs from a matrix to official gene symbols
+This function convert ensembl gene IDs from a matrix to 
+official gene symbols
 }
 \details{
 This function requires that the biomaRt library is installed

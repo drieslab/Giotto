@@ -21,8 +21,8 @@ create screeplot with ggplot
 }
 \examples{
 \dontrun{
-dr = GiottoData::loadSubObjectMini('dimObj')
-scree = create_screeplot(methods::slot(dr, 'misc')$eigenvalues)
+dr <- GiottoData::loadSubObjectMini("dimObj")
+scree <- create_screeplot(methods::slot(dr, "misc")$eigenvalues)
 scree
 }
 }

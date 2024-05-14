@@ -27,6 +27,7 @@ adapt_aspect_ratio(
 \item{mesh_obj}{mesh_obj}
 }
 \description{
-adapt the aspact ratio after inserting cross section mesh grid lines
+adapt the aspact ratio after inserting cross section mesh grid 
+lines
 }
 \keyword{internal}

@@ -9,8 +9,8 @@ plotCombineCellCellCommunication(
   combCCcom,
   selected_LR = NULL,
   selected_cell_LR = NULL,
-  detail_plot = T,
-  simple_plot = F,
+  detail_plot = TRUE,
+  simple_plot = FALSE,
   simple_plot_facet = c("interaction", "genes"),
   facet_scales = "fixed",
   facet_ncol = length(selected_LR),
@@ -30,7 +30,8 @@ plotCombineCellCellCommunication(
 
 \item{selected_LR}{selected ligand-receptor pair}
 
-\item{selected_cell_LR}{selected cell-cell interaction pair for ligand-receptor pair}
+\item{selected_cell_LR}{selected cell-cell interaction pair for 
+ligand-receptor pair}
 
 \item{detail_plot}{show detailed info in both interacting cell types}
 
@@ -60,5 +61,6 @@ plotCombineCellCellCommunication(
 ggplot
 }
 \description{
-Create visualization for combined (pairwise) cell proximity gene scores
+Create visualization for combined (pairwise) cell proximity 
+gene scores
 }

@@ -36,7 +36,8 @@ detectSpatialCorGenes(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{network_smoothing}{smoothing factor beteen 0 and 1 (default: automatic)}
+\item{network_smoothing}{smoothing factor beteen 0 and 1 
+(default: automatic)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
@@ -51,14 +52,19 @@ returns a spatial correlation object: "spatCorObject"
 Detect genes that are spatially correlated
 }
 \details{
-For method = network, it expects a fully connected spatial network. You can make sure to create a
-fully connected network by setting minimal_k > 0 in the \code{\link{createSpatialNetwork}} function.
+For method = network, it expects a fully connected spatial network. You 
+can make sure to create a
+fully connected network by setting minimal_k > 0 in the 
+\code{\link{createSpatialNetwork}} function.
 \itemize{
- \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
- \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell
- by using the neighbours within the predefined spatial network. b is a smoothening factor
- that defaults to 1 - 1/k, where k is the median number of  k-neighbors in the
- selected spatial network. Setting b = 0 means no smoothing and b = 1 means no contribution
+ \item{1. grid-averaging: }{average gene expression values within a 
+ predefined spatial grid}
+ \item{2. network-averaging: }{smoothens the gene expression matrix by 
+ averaging the expression within one cell
+ by using the neighbours within the predefined spatial network. b is a 
+ smoothening factor that defaults to 1 - 1/k, where k is the median 
+ number of  k-neighbors in the selected spatial network. Setting b = 0 
+ means no smoothing and b = 1 means no contribution
  from its own expression.}
 }
 The spatCorObject can be further explored with showSpatialCorGenes()

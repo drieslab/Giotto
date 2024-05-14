@@ -18,7 +18,8 @@ makeSignMatrixRank(
 
 \item{ties_method}{how to handle rank ties}
 
-\item{gobject}{if giotto object is given then only genes present in both datasets will be considered}
+\item{gobject}{if giotto object is given then only genes present in both 
+datasets will be considered}
 }
 \value{
 matrix

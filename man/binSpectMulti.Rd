@@ -56,7 +56,8 @@ binSpectMulti(
 
 \item{reduce_network}{default uses the full network}
 
-\item{kmeans_algo}{kmeans algorithm to use (kmeans, kmeans_arma, kmeans_arma_subset)}
+\item{kmeans_algo}{kmeans algorithm to use 
+(kmeans, kmeans_arma, kmeans_arma_subset)}
 
 \item{nstart}{kmeans: nstart parameter}
 
@@ -70,19 +71,22 @@ binSpectMulti(
 
 \item{do_fisher_test}{perform fisher test}
 
-\item{adjust_method}{p-value adjusted method to use (see \code{\link[stats]{p.adjust}})}
+\item{adjust_method}{p-value adjusted method to use 
+(see \code{\link[stats]{p.adjust}})}
 
 \item{calc_hub}{calculate the number of hub cells}
 
 \item{hub_min_int}{minimum number of cell-cell interactions for a hub cell}
 
-\item{get_av_expr}{calculate the average expression per gene of the high expressing cells}
+\item{get_av_expr}{calculate the average expression per gene of the high 
+expressing cells}
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
 
 \item{implementation}{enrichment implementation (data.table, simple, matrix)}
 
-\item{group_size}{number of genes to process together with data.table implementation (default = automatic)}
+\item{group_size}{number of genes to process together with data.table 
+implementation (default = automatic)}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
@@ -106,8 +110,9 @@ data.table with results (see details)
 binSpect for multiple spatial kNN networks
 }
 \details{
-We provide two ways to identify spatial genes based on gene expression binarization.
-Both methods are identicial except for how binarization is performed.
+We provide two ways to identify spatial genes based on gene 
+expression binarization.
+Both methods are identical except for how binarization is performed.
 \itemize{
   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
   \item{2. network: }{Alll cells are connected through a spatial network based on the physical coordinates}
@@ -127,7 +132,10 @@ Other statistics are provided (optional):
   \item{Average expression of each gene within high expressing cells }
   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
 }
-By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
-The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
-The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
+By selecting a subset of likely spatial genes 
+(e.g. soft thresholding highly variable genes) can accelerate the speed.
+The simple implementation is usually faster, but lacks the possibility to 
+run in parallel and to calculate hub cells.
+The data.table implementation might be more appropriate for large datasets 
+by setting the group_size (number of genes) parameter to divide the workload.
 }

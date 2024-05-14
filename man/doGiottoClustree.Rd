@@ -23,7 +23,8 @@ doGiottoClustree(
 
 \item{res_vector}{vector of different resolutions to test}
 
-\item{res_seq}{list of float numbers indicating start, end, and step size for resolution testing, i.e. (0.1, 0.6, 0.1)}
+\item{res_seq}{list of float numbers indicating start, end, and step size
+for resolution testing, i.e. (0.1, 0.6, 0.1)}
 
 \item{return_gobject}{default FALSE. See details for more info.}
 
@@ -33,7 +34,8 @@ doGiottoClustree(
 
 \item{return_plot}{by default, pulls from provided gobject instructions}
 
-\item{save_param}{list of saving parameters from \code{\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function()}}}
+\item{save_param}{list of saving parameters from
+\code{\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function()}}}
 
 \item{default_save_name}{name of saved plot, default "clustree"}
 
@@ -49,15 +51,18 @@ doGiottoClustree(
 a plot object (default), OR a giotto object (if specified)
 }
 \description{
-cluster cells using leiden methodology to visualize different resolutions
+cluster cells using leiden methodology to visualize different
+resolutions
 }
 \details{
-This function tests different resolutions for Leiden clustering and provides a visualization
-of cluster sizing as resolution varies.
+This function tests different resolutions for Leiden clustering and
+provides a visualization of cluster sizing as resolution varies.
 
-By default, the tested leiden clusters are NOT saved to the Giotto object, and a plot is returned.
+By default, the tested leiden clusters are NOT saved to the Giotto object,
+and a plot is returned.
 
-If return_gobject is set to TRUE, and a giotto object with \emph{all} tested leiden cluster information
+If return_gobject is set to TRUE, and a giotto object with \emph{all} tested
+leiden cluster information
 will be returned.
 }
 \seealso{

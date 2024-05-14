@@ -32,7 +32,8 @@ doLeidenClusterIgraph(
 
 \item{name}{name for cluster, default to "leiden_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to 
+"sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
 
@@ -73,7 +74,8 @@ detection algorithm as implemented in igraph
 \details{
 This function is a wrapper for the Leiden algorithm implemented in igraph,
 which can detect communities in graphs of millions of nodes (cells),
-as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}} for more information.
+as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}} 
+for more information.
 
 Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
 Set \emph{weights = NA} if you don't want to use vertices weights

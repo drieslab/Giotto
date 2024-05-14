@@ -41,11 +41,14 @@ findMarkers(
 
 \item{subset_clusters}{selection of clusters to compare}
 
-\item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
+\item{group_1}{group 1 cluster IDs from cluster_column for pairwise 
+comparison}
 
-\item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
+\item{group_2}{group 2 cluster IDs from cluster_column for pairwise 
+comparison}
 
-\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for expression}
+\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for 
+expression}
 
 \item{min_det_gini_score}{gini: filter minimum gini coefficient for detection}
 
@@ -61,9 +64,11 @@ findMarkers(
 
 \item{group_2_name}{mast: custom name for group_2 clusters}
 
-\item{adjust_columns}{mast: column in pDataDT to adjust for (e.g. detection rate)}
+\item{adjust_columns}{mast: column in pDataDT to adjust for 
+(e.g. detection rate)}
 
-\item{...}{additional parameters for the findMarkers function in scran or zlm function in MAST}
+\item{...}{additional parameters for the findMarkers function in scran or 
+zlm function in MAST}
 }
 \value{
 data.table with marker feats
@@ -72,8 +77,10 @@ data.table with marker feats
 Identify marker feats for selected clusters.
 }
 \details{
-Wrapper for all individual functions to detect marker feats for clusters.
+Wrapper for all individual functions to detect marker feats for 
+clusters.
 }
 \seealso{
-\code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
+\code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and 
+\code{\link{findMastMarkers}}
 }

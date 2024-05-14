@@ -69,7 +69,8 @@ ggplot object for jackstraw method
 identify significant prinicipal components (PCs)
 }
 \details{
-The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
- systematically permuting genes it identifies robust, and thus significant, PCs.
+The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} 
+ function. By systematically permuting genes it identifies robust, and thus 
+ significant, PCs.
  \cr
 }

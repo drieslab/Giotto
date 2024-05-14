@@ -53,11 +53,13 @@ named vector of colors}
 ggplot
 }
 \description{
-Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
+Visualize 2D cell-cell interactions according to spatial 
+coordinates in ggplot mode
 }
 \details{
 Description of parameters.
 }
 \seealso{
-\code{\link{cellProximitySpatPlot2D}} and \code{\link{cellProximitySpatPlot3D}} for 3D
+\code{\link{cellProximitySpatPlot2D}} and 
+\code{\link{cellProximitySpatPlot3D}} for 3D
 }

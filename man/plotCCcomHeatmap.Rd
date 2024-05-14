@@ -27,11 +27,13 @@ plotCCcomHeatmap(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{comScores}{communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}}
+\item{comScores}{communinication scores from \code{\link{exprCellCellcom}} 
+or \code{\link{spatCellCellcom}}}
 
 \item{selected_LR}{selected ligand-receptor combinations}
 
-\item{selected_cell_LR}{selected cell-cell combinations for ligand-receptor combinations}
+\item{selected_cell_LR}{selected cell-cell combinations for ligand-receptor 
+combinations}
 
 \item{show_LR_names}{show ligand-receptor names}
 
@@ -63,5 +65,6 @@ or 'sequential' (scaled based on data range)}
 ggplot
 }
 \description{
-Plots heatmap for ligand-receptor communication scores in cell-cell interactions
+Plots heatmap for ligand-receptor communication scores in 
+cell-cell interactions
 }

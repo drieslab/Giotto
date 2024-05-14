@@ -39,8 +39,8 @@ createGiottoVisiumObject(
 
 \item{h5_tissue_positions_path}{path to tissue locations (.csv file)}
 
-\item{h5_image_png_path}{path to tissue .png file (optional). Image autoscaling
-looks for matches in the filename for either 'hires' or 'lowres'}
+\item{h5_image_png_path}{path to tissue .png file (optional). Image 
+autoscaling looks for matches in the filename for either 'hires' or 'lowres'}
 
 \item{h5_json_scalefactors_path}{path to .json scalefactors (optional)}
 
@@ -56,13 +56,16 @@ looks for matches in the filename for either 'hires' or 'lowres'}
 
 \item{ymin_adj}{deprecated}
 
-\item{instructions}{list of instructions or output result from \code{\link[GiottoClass]{createGiottoInstructions}}}
+\item{instructions}{list of instructions or output result from 
+\code{\link[GiottoClass]{createGiottoInstructions}}}
 
-\item{expression_matrix_class}{class of expression matrix to use (e.g. 'dgCMatrix', 'DelayedArray')}
+\item{expression_matrix_class}{class of expression matrix to use 
+(e.g. 'dgCMatrix', 'DelayedArray')}
 
 \item{h5_file}{optional path to create an on-disk h5 file}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are 
+provided}
 
 \item{verbose}{be verbose}
 }
@@ -70,7 +73,8 @@ looks for matches in the filename for either 'hires' or 'lowres'}
 giotto object
 }
 \description{
-Create Giotto object directly from a 10X visium folder. Also accepts visium H5 outputs.
+Create Giotto object directly from a 10X visium folder. Also 
+accepts visium H5 outputs.
 }
 \details{
 If starting from a Visium 10X directory:

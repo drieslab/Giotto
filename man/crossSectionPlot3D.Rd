@@ -9,7 +9,7 @@ crossSectionPlot3D(
   crossSection_obj = NULL,
   name = NULL,
   spatial_network_name = "Delaunay_network",
-  show_other_cells = T,
+  show_other_cells = TRUE,
   other_cell_color = alpha("lightgrey", 0),
   default_save_name = "crossSection3D",
   ...
@@ -18,7 +18,8 @@ crossSectionPlot3D(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{crossSection_obj}{cross section object as alternative input. default = NULL.}
+\item{crossSection_obj}{cross section object as alternative input. 
+default = NULL.}
 
 \item{name}{name of virtual cross section to use}
 
@@ -26,9 +27,11 @@ crossSectionPlot3D(
 
 \item{show_other_cells}{display not selected cells}
 
-\item{other_cell_color}{color of cells outside the cross section. default = transparent.}
+\item{other_cell_color}{color of cells outside the cross section. 
+default = transparent.}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change, 
+change save_name in save_param}
 
 \item{...}{parameters for spatPlot3D}
 }
@@ -36,7 +39,8 @@ crossSectionPlot3D(
 ggplot
 }
 \description{
-Visualize cells in a virtual cross section according to spatial coordinates
+Visualize cells in a virtual cross section according to spatial 
+coordinates
 }
 \details{
 Description of parameters.

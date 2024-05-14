@@ -9,19 +9,18 @@
 # ------------------------------------
 
 test_that("Expression matrix is read correctly", {
+    # getSpatialDataset
+    GiottoData::getSpatialDataset(dataset = "scRNA_mouse_brain", directory = paste0(getwd(), "/testdata/"))
 
-  # getSpatialDataset
-  GiottoData::getSpatialDataset(dataset = "scRNA_mouse_brain", directory = paste0(getwd(), "/testdata/"))
+    # readExprMatrix
+    expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
 
-  # readExprMatrix
-  expr_mat <- readExprMatrix(paste0(getwd(), "/testdata/brain_sc_expression_matrix.txt.gz"))
+    expect_s4_class(expr_mat, "dgCMatrix")
+    expect_equal(expr_mat@Dim, c(27998, 8039))
 
-  expect_s4_class(expr_mat, "dgCMatrix")
-  expect_equal(expr_mat@Dim, c(27998, 8039))
-
-  # check a few genes
-  expect_equal(expr_mat@Dimnames[[1]][20], "Sgcz")
-  expect_equal(expr_mat@Dimnames[[1]][50], 'Zfp804a')
+    # check a few genes
+    expect_equal(expr_mat@Dimnames[[1]][20], "Sgcz")
+    expect_equal(expr_mat@Dimnames[[1]][50], "Zfp804a")
 })
 
 # get10Xmatrix_h5
@@ -36,10 +35,9 @@ test_that("Expression matrix is read correctly", {
 # -----------------------------
 # remove files after testing
 if (file.exists("./testdata/brain_sc_expression_matrix.txt.gz")) {
-  unlink("./testdata/brain_sc_expression_matrix.txt.gz")
+    unlink("./testdata/brain_sc_expression_matrix.txt.gz")
 }
 
 if (file.exists("./testdata/brain_sc_metadata.csv")) {
-  unlink("./testdata/brain_sc_metadata.csv")
+    unlink("./testdata/brain_sc_metadata.csv")
 }
-

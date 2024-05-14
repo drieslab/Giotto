@@ -44,16 +44,16 @@
   sdimy = NULL,
   cell_color = NULL,
   cell_color_code = NULL,
-  color_as_factor = T,
-  show_other_cells = F,
-  show_network = F,
-  show_other_network = F,
+  color_as_factor = TRUE,
+  show_other_cells = FALSE,
+  show_network = FALSE,
+  show_other_network = FALSE,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
-  show_grid = F,
+  show_grid = FALSE,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",
-  show_legend = T,
+  show_legend = TRUE,
   point_size_select = 2,
   point_size_other = 1,
   point_alpha_other = 0.3,
@@ -73,16 +73,16 @@
   sdimz = NULL,
   cell_color = NULL,
   cell_color_code = NULL,
-  color_as_factor = T,
-  show_other_cells = F,
-  show_network = F,
-  show_other_network = F,
+  color_as_factor = TRUE,
+  show_other_cells = FALSE,
+  show_network = FALSE,
+  show_other_network = FALSE,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
-  show_grid = F,
+  show_grid = FALSE,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",
-  show_legend = T,
+  show_legend = TRUE,
   point_size_select = 2,
   point_size_other = 1,
   point_alpha_other = 0.5,
@@ -99,11 +99,14 @@ Create the plots for `cellProximityVisPlot()`
 }
 \section{Functions}{
 \itemize{
-\item \code{.cellProximityVisPlot_2D_ggplot()}: Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
+\item \code{.cellProximityVisPlot_2D_ggplot()}: Visualize 2D cell-cell 
+interactions according to spatial coordinates in ggplot mode
 
-\item \code{.cellProximityVisPlot_2D_plotly()}: Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
+\item \code{.cellProximityVisPlot_2D_plotly()}: Visualize 2D cell-cell 
+interactions according to spatial coordinates in plotly mode
 
-\item \code{.cellProximityVisPlot_3D_plotly()}: Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
+\item \code{.cellProximityVisPlot_3D_plotly()}: Visualize 3D cell-cell 
+interactions according to spatial coordinates in plotly mode
 
 }}
 \seealso{
