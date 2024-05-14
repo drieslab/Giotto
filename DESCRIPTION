@@ -3,7 +3,7 @@ Title: Spatial Single-Cell Transcriptomics Toolbox
 Version: 4.0.6
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
-		 role = c("aut", "cre")),
+		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
 	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
 		 role = c("aut")),
 	person("Joselyn C.", "Chávez-Fuentes", email = "joselynchavezf@gmail.com",
@@ -19,9 +19,8 @@ Authors@R: c(
 	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
 		 role = c("aut"))
 	)
-Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
-License: GPL (>= 3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
@@ -127,10 +126,6 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     qs
-Remotes:
-    drieslab/GiottoUtils,
-    drieslab/GiottoClass,
-    drieslab/GiottoVisuals
 Collate:
     'auxiliary_giotto.R'
     'cell_segmentation.R'
@@ -164,6 +159,6 @@ Collate:
     'variable_genes.R'
     'wnn.R'
     'zzz.R'
-biocViews:
+biocViews: Software, Technology, Spatial, SingleCell, Transcriptomics
 VignetteBuilder: knitr
 Config/testthat/edition: 3
