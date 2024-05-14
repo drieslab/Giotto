@@ -19,7 +19,8 @@ spdepAutoCorr(
 \item{gobject}{Input a Giotto object.}
 
 \item{method}{Specify a method name to compute auto correlation.
-Available methods include \code{"geary.test", "lee.test", "lm.morantest","moran.test"}.}
+Available methods include 
+\code{"geary.test", "lee.test", "lm.morantest","moran.test"}.}
 
 \item{spat_unit}{spatial unit}
 
@@ -27,7 +28,8 @@ Available methods include \code{"geary.test", "lee.test", "lm.morantest","moran.
 
 \item{expression_values}{expression values to use, default = normalized}
 
-\item{spatial_network_to_use}{spatial network to use, default = spatial_network}
+\item{spatial_network_to_use}{spatial network to use, 
+default = spatial_network}
 
 \item{return_gobject}{if FALSE, results are returned as data.table.
 If TRUE, values will be appended to feature metadata}

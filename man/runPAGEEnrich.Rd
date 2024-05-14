@@ -34,8 +34,8 @@ runPAGEEnrich(
 
 \item{expression_values}{expression values to use}
 
-\item{min_overlap_genes}{minimum number of overlapping genes in 
-sign_matrix required to calculate enrichment}
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix 
+required to calculate enrichment}
 
 \item{reverse_log_scale}{reverse expression values from log scale}
 
@@ -68,8 +68,7 @@ spatial position using PAGE.
 sign_matrix: a binary matrix with genes as row names and cell-types as 
 column names.
 Alternatively a list of signature genes can be provided to 
-makeSignMatrixPAGE, which will create
-the matrix for you. \cr
+makeSignMatrixPAGE, which will create the matrix for you. \cr
 
 The enrichment Z score is calculated by using method (PAGE) from
 Kim SY et al., BMC bioinformatics, 2005 as 

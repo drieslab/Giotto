@@ -2,11 +2,13 @@
 #'
 #' @param gobject Input a Giotto object.
 #' @param method Specify a method name to compute auto correlation.
-#' Available methods include \code{"geary.test", "lee.test", "lm.morantest","moran.test"}.
+#' Available methods include 
+#' \code{"geary.test", "lee.test", "lm.morantest","moran.test"}.
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use, default = normalized
-#' @param spatial_network_to_use spatial network to use, default = spatial_network
+#' @param spatial_network_to_use spatial network to use, 
+#' default = spatial_network
 #' @param verbose be verbose
 #' @param return_gobject if FALSE, results are returned as data.table.
 #' If TRUE, values will be appended to feature metadata
@@ -36,7 +38,7 @@ spdepAutoCorr <- function(gobject,
             feat_type = feat_type
         )
     } else {
-        stop("gobject has not been provided\n")
+        stop("gobject has not been provided")
     }
 
     # Evaluate spatial autocorrelation using Giotto
@@ -72,7 +74,8 @@ spdepAutoCorr <- function(gobject,
 
     result_list <- list()
     progressr::with_progress({
-        if (step_size > 1) pb <- progressr::progressor(steps = nfeats / step_size)
+        if (step_size > 1) pb <- progressr::progressor(
+            steps = nfeats / step_size)
         result_list <- lapply_flex(
             seq_along(feat),
             future.packages = c("data.table", "spdep"),
@@ -84,7 +87,8 @@ spdepAutoCorr <- function(gobject,
                 )
                 # Extract the estimated value from the result
                 result_value <- callSpdepVar$estimate[1]
-                temp_dt <- data.table(feat_ID = feat[feat_value], value = result_value)
+                temp_dt <- data.table(
+                    feat_ID = feat[feat_value], value = result_value)
                 # increment progress
                 if (exists("pb")) if (feat_value %% step_size == 0) pb()
                 return(temp_dt)
@@ -135,10 +139,12 @@ callSpdep <- function(method, ...) {
 
     # Check if 'method' argument is NULL, if so, stop with an error
     if (is.null(method)) {
-        stop("The 'method' argument has not been provided. Please specify a valid method.")
+        stop("The 'method' argument has not been provided. Please specify a 
+            valid method.")
     }
 
-    # Check if 'method' exists in the 'spdep' package, if not, stop with an error
+    # Check if 'method' exists in the 'spdep' package, if not, stop with an 
+    # error
     method <- try(eval(get(method, envir = loadNamespace("spdep"))),
         silent = TRUE
     )
@@ -178,14 +184,16 @@ callSpdep <- function(method, ...) {
     if (all(!(names(methodparam)) %in% allArgs)) {
         stop("Invalid or missing parameters.")
     }
-    # A vector of specified arguments that trigger 'spW <- spweights.constants()'
+    # A vector of specified arguments that trigger 
+    # 'spW <- spweights.constants()'
     requiredArgs <- c("n", "n1", "n2", "n3", "nn", "S0", "S1", "S2")
 
     # Check if any of the specified arguments are required by the method
     if (any(requiredArgs %in% allArgs)) {
         # Obtain arguments from 'spweights.constants'
         spW <- spdep::spweights.constants(listw = methodparam$listw)
-        # Combine user-provided arguments and 'spW', checking only against 'feats' value
+        # Combine user-provided arguments and 'spW', checking only against 
+        # 'feats' value
         combinedParams <- append(methodparam, spW)
     } else {
         combinedParams <- methodparam

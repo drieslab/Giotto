@@ -69,8 +69,8 @@ expression ('expression') or cell metadata ('cell_meta')}
 
 \item{spatial_network_to_use}{spatial network to use}
 
-\item{wm_method}{type of weight matrix to generate from spatial network if 
-no weight matrix is found attached to the spatial network}
+\item{wm_method}{type of weight matrix to generate from spatial network 
+if no weight matrix is found attached to the spatial network}
 
 \item{wm_name}{name of attached weight matrix to use}
 
@@ -88,8 +88,7 @@ simulations to perform}
 
 \item{cor_name}{name to assign the results in global autocorrelation output}
 
-\item{return_gobject}{(default = FALSE) whether to return results appended 
-to}
+\item{return_gobject}{(default = FALSE) whether to return results appended to}
 
 \item{verbose}{be verbose}
 
@@ -101,10 +100,10 @@ metadata in the giotto object or as a data.table}
 }
 \description{
 Find spatial autocorrelation. Note that 
-\code{spatialAutoCorGlobal}
-will return values as a data.table instead of appending information to the 
-gobject. \code{spatialAutoCorLocal} will append the results as a spatial 
-enrichment object by default. \cr
+\code{spatialAutoCorGlobal} will return values as a data.table instead of 
+appending information to the gobject.
+\code{spatialAutoCorLocal} will append the results as a spatial enrichment 
+object by default. \cr
 If providing external data using either the \code{node_values} and/or 
 \code{weight_matrix} params, the order of values provided should be the 
 same as the ordering of the columns and rows of the weight matrix.

@@ -61,8 +61,8 @@ Function to calculate gene signature enrichment scores per
 spatial position using a rank based approach.
 }
 \details{
-sign_matrix: a rank-fold matrix with genes as row names and cell-types 
-as column names.
+sign_matrix: a rank-fold matrix with genes as row names and cell-types as 
+column names.
 Alternatively a scRNA-seq matrix and vector with clusters can be provided 
 to makeSignMatrixRank, which will create the matrix for you. \cr
 

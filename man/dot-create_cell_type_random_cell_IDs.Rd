@@ -21,7 +21,8 @@
 
 \item{cluster_column}{cluster column with cell type information}
 
-\item{needed_cell_types}{vector of cell type names for which a random id will be found}
+\item{needed_cell_types}{vector of cell type names for which a random id 
+will be found}
 
 \item{set_seed}{set a seed for reproducibility}
 

@@ -14,7 +14,8 @@ filterInteractionChangedGenes(...)
     \item{\code{min_cells}}{minimum number of source cell type}
     \item{\code{min_cells_expr}}{minimum expression level for source cell type}
     \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}
-    \item{\code{min_int_cells_expr}}{minimum expression level for interacting neighbor cell type}
+    \item{\code{min_int_cells_expr}}{minimum expression level for interacting neighbor 
+cell type}
     \item{\code{min_fdr}}{minimum adjusted p-value}
     \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
     \item{\code{min_log2_fc}}{minimum log2 fold-change}

@@ -13,7 +13,9 @@
 #' @param w_name_modality_2 name for modality 2 weights
 #' @param verbose be verbose
 #'
-#' @return A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.
+#' @return A Giotto object with integrated UMAP (integrated.umap) within the 
+#' dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the 
+#' cellular metadata.
 #' @export
 runWNN <- function(gobject,
     spat_unit = "cell",
@@ -33,21 +35,24 @@ runWNN <- function(gobject,
     }
 
     # validate modalities
-    if (!modality_1 %in% names(gobject@dimension_reduction$cells[[spat_unit]]) || !modality_2 %in% names(gobject@dimension_reduction$cells[[spat_unit]])) {
+    if (!modality_1 %in% names(
+        gobject@dimension_reduction$cells[[spat_unit]]) || 
+        !modality_2 %in% names(gobject@dimension_reduction$cells[[spat_unit]])) 
+        {
         stop(paste(modality_1, "and", modality_2, " pca must exist"))
     }
 
     # extract PCA
 
     ## modality 1
-    kNN_1 <- get_NearestNetwork(gobject,
+    kNN_1 <- getNearestNetwork(gobject,
         spat_unit = spat_unit,
         feat_type = modality_1,
-        nn_network_to_use = "kNN"
+        nn_type = "kNN"
     )
     kNN_1 <- slot(kNN_1, "igraph")
 
-    pca_1 <- get_dimReduction(gobject,
+    pca_1 <- getDimReduction(gobject,
         spat_unit = spat_unit,
         feat_type = modality_1,
         reduction = "cells",
@@ -57,14 +62,14 @@ runWNN <- function(gobject,
     pca_1 <- slot(pca_1, "coordinates")
 
     ## modality 2
-    kNN_2 <- get_NearestNetwork(gobject,
+    kNN_2 <- getNearestNetwork(gobject,
         spat_unit = spat_unit,
         feat_type = modality_2,
-        nn_network_to_use = "kNN"
+        nn_type = "kNN"
     )
     kNN_2 <- slot(kNN_2, "igraph")
 
-    pca_2 <- get_dimReduction(gobject,
+    pca_2 <- getDimReduction(gobject,
         spat_unit = "cell",
         feat_type = modality_2,
         reduction = "cells",
@@ -78,7 +83,7 @@ runWNN <- function(gobject,
 
     ######################## distances calculation ############################
 
-    print(paste("Calculating", modality_1, "-", modality_1, "distance"))
+    message(paste("Calculating", modality_1, "-", modality_1, "distance"))
 
     ### distances modality1 modality1
     cell_distances_1_1 <- list()
@@ -91,13 +96,14 @@ runWNN <- function(gobject,
 
         for (cell_i in names(my_kNN)) {
             dimensions_cell_a_i <- pca_1[c(cell_a, cell_i), ]
-            cell_distances_1_1[[cell_a]][cell_i] <- sqrt(sum((dimensions_cell_a_i[1, ] - dimensions_cell_a_i[2, ])^2))
+            cell_distances_1_1[[cell_a]][cell_i] <- sqrt(sum((
+                dimensions_cell_a_i[1, ] - dimensions_cell_a_i[2, ])^2))
         }
     }
 
     ### distances modality2 modality2
 
-    print(paste("Calculating", modality_2, "-", modality_2, "distance"))
+    message(paste("Calculating", modality_2, "-", modality_2, "distance"))
 
     cell_distances_2_2 <- list()
 
@@ -109,31 +115,36 @@ runWNN <- function(gobject,
 
         for (cell_i in names(my_kNN)) {
             dimensions_cell_a_i <- pca_2[c(cell_a, cell_i), ]
-            cell_distances_2_2[[cell_a]][cell_i] <- sqrt(sum((dimensions_cell_a_i[1, ] - dimensions_cell_a_i[2, ])^2))
+            cell_distances_2_2[[cell_a]][cell_i] <- sqrt(sum((
+                dimensions_cell_a_i[1, ] - dimensions_cell_a_i[2, ])^2))
         }
     }
 
-    ########################### all cell-cell distances ############################
+    ########################### all cell-cell distances ########################
 
     ## modality1 modality1
 
-    if (verbose) print(paste("Calculating low dimensional cell-cell distances for", modality_1))
+    if (verbose) 
+        message(paste("Calculating low dimensional cell-cell distances for", 
+                    modality_1))
 
     all_cell_distances_1_1 <- dist(pca_1)
     all_cell_distances_1_1 <- as.matrix(all_cell_distances_1_1)
 
     ## modality2 modality2
 
-    if (verbose) print(paste("Calculating low dimensional cell-cell distances for", modality_2))
+    if (verbose) 
+        message(paste("Calculating low dimensional cell-cell distances for", 
+                    modality_2))
 
 
     all_cell_distances_2_2 <- dist(pca_2)
     all_cell_distances_2_2 <- as.matrix(all_cell_distances_2_2)
 
 
-    ######################## within-modality prediction ############################
+    ######################## within-modality prediction ########################
 
-    if (verbose) print("Calculating within-modality prediction")
+    if (verbose) message("Calculating within-modality prediction")
 
     ### predicted modality1 modality1
     predicted_1_1 <- list()
@@ -153,9 +164,9 @@ runWNN <- function(gobject,
         predicted_2_2[[cell_a]] <- colSums(dimensions_cell_a) / k
     }
 
-    ######################## cross-modality prediction ############################
+    ######################## cross-modality prediction #########################
 
-    if (verbose) print("Calculating cross-modality prediction")
+    if (verbose) message("Calculating cross-modality prediction")
 
     ## predicted modality1 modality2
     predicted_1_2 <- list()
@@ -175,9 +186,9 @@ runWNN <- function(gobject,
         predicted_2_1[[cell_a]] <- colSums(dimensions_cell_a) / k
     }
 
-    ###################### calculate jaccard similarities ##########################
+    ###################### calculate jaccard similarities ######################
 
-    if (verbose) print("Calculating Jaccard similarities")
+    if (verbose) message("Calculating Jaccard similarities")
 
     ## modality1 modality1
     sNN_1 <- createNearestNetwork(gobject,
@@ -210,7 +221,7 @@ runWNN <- function(gobject,
 
     sNN_2 <- igraph::as_data_frame(sNN_2)
 
-    if (verbose) print("Calculating kernel bandwidths")
+    if (verbose) message("Calculating kernel bandwidths")
 
     # cell-specific kernel bandwidth.
 
@@ -222,12 +233,15 @@ runWNN <- function(gobject,
         jaccard_values <- sNN_1[sNN_1$from == cell_a, ]
 
         if (nrow(jaccard_values == 20)) {
-            further_cell_cell_distances <- all_cell_distances_1_1[cell_a, jaccard_values$to]
+            further_cell_cell_distances <- all_cell_distances_1_1[
+                cell_a, jaccard_values$to]
         } else {
-            further_cell_cell_distances <- tail(sort(all_cell_distances_1_1[cell_a, ]), 20)
+            further_cell_cell_distances <- tail(sort(all_cell_distances_1_1[
+                cell_a, ]), 20)
         }
 
-        modality1_sigma_i[cell_a] <- mean(further_cell_cell_distances) #  cell-specific kernel bandwidth.
+        modality1_sigma_i[cell_a] <- mean(further_cell_cell_distances) 
+        # cell-specific kernel bandwidth.
     }
 
     ## modality2
@@ -239,34 +253,42 @@ runWNN <- function(gobject,
         jaccard_values <- sNN_2[sNN_2$from == cell_a, ]
 
         if (nrow(jaccard_values == 20)) {
-            further_cell_cell_distances <- all_cell_distances_2_2[cell_a, jaccard_values$to]
+            further_cell_cell_distances <- all_cell_distances_2_2[
+                cell_a, jaccard_values$to]
         } else {
-            further_cell_cell_distances <- tail(sort(all_cell_distances_2_2[cell_a, ]), 20)
+            further_cell_cell_distances <- tail(sort(all_cell_distances_2_2[
+                cell_a, ]), 20)
         }
 
-        modality2_sigma_i[cell_a] <- mean(further_cell_cell_distances) #  cell-specific kernel bandwidth.
+        modality2_sigma_i[cell_a] <- mean(further_cell_cell_distances) 
+        # cell-specific kernel bandwidth.
     }
 
 
-    ###################### cell-specific modality weights ##########################
+    ###################### cell-specific modality weights ######################
 
-    if (verbose) print("Calculating modality weights")
+    if (verbose) message("Calculating modality weights")
 
     ## modality1 modality1
     theta_1_1 <- list()
 
     for (cell_a in cell_names) {
         modality1_i <- pca_1[cell_a, ] # profile of current cell
-        d_modality1_i_modality2_predicted <- sqrt(sum((modality1_i - predicted_1_1[[cell_a]])^2))
+        d_modality1_i_modality2_predicted <- sqrt(sum((
+            modality1_i - predicted_1_1[[cell_a]])^2))
 
         first_knn <- names(sort(cell_distances_1_1[[cell_a]]))[1]
         modality1_knn1 <- pca_1[first_knn, ] # profile of the nearest neighbor
-        d_modality1_i_modality1_knn1 <- sqrt(sum((modality1_i - modality1_knn1)^2))
+        d_modality1_i_modality1_knn1 <- sqrt(sum((
+            modality1_i - modality1_knn1)^2))
 
-        difference_distances <- d_modality1_i_modality2_predicted - d_modality1_i_modality1_knn1
+        difference_distances <- d_modality1_i_modality2_predicted - 
+            d_modality1_i_modality1_knn1
         max_value <- max(c(difference_distances, 0))
 
-        theta_1_1[[cell_a]] <- exp((-max_value) / (modality1_sigma_i[cell_a] - d_modality1_i_modality1_knn1))
+        theta_1_1[[cell_a]] <- exp((
+            -max_value) / (modality1_sigma_i[cell_a] - 
+                            d_modality1_i_modality1_knn1))
     }
 
     ## modality2 modality2
@@ -274,16 +296,21 @@ runWNN <- function(gobject,
 
     for (cell_a in cell_names) {
         modality2_i <- pca_2[cell_a, ] # profile of current cell
-        d_modality2_i_modality2_predicted <- sqrt(sum((modality2_i - predicted_2_2[[cell_a]])^2))
+        d_modality2_i_modality2_predicted <- sqrt(sum((
+            modality2_i - predicted_2_2[[cell_a]])^2))
 
         first_knn <- names(sort(cell_distances_2_2[[cell_a]]))[1]
         modality2_knn1 <- pca_2[first_knn, ] # profile of the nearest neighbor
-        d_modality2_i_modality2_knn1 <- sqrt(sum((modality2_i - modality2_knn1)^2))
+        d_modality2_i_modality2_knn1 <- sqrt(sum((
+            modality2_i - modality2_knn1)^2))
 
-        difference_distances <- d_modality2_i_modality2_predicted - d_modality2_i_modality2_knn1
+        difference_distances <- d_modality2_i_modality2_predicted - 
+            d_modality2_i_modality2_knn1
         max_value <- max(c(difference_distances, 0))
 
-        theta_modality2_modality2[[cell_a]] <- exp((-max_value) / (modality2_sigma_i[cell_a] - d_modality2_i_modality2_knn1))
+        theta_modality2_modality2[[cell_a]] <- exp((
+            -max_value) / (modality2_sigma_i[cell_a] - 
+                            d_modality2_i_modality2_knn1))
     }
 
 
@@ -292,16 +319,21 @@ runWNN <- function(gobject,
 
     for (cell_a in cell_names) {
         modality1_i <- pca_1[cell_a, ] # profile of current cell
-        d_modality1_i_modality2_predicted <- sqrt(sum((modality1_i - predicted_1_2[[cell_a]])^2))
+        d_modality1_i_modality2_predicted <- sqrt(sum((
+            modality1_i - predicted_1_2[[cell_a]])^2))
 
         first_knn <- names(sort(cell_distances_1_1[[cell_a]]))[1]
         modality1_knn1 <- pca_1[first_knn, ] # profile of the nearest neighbor
-        d_modality1_i_modality1_knn1 <- sqrt(sum((modality1_i - modality1_knn1)^2))
+        d_modality1_i_modality1_knn1 <- sqrt(sum((
+            modality1_i - modality1_knn1)^2))
 
-        difference_distances <- d_modality1_i_modality2_predicted - d_modality1_i_modality1_knn1
+        difference_distances <- d_modality1_i_modality2_predicted - 
+            d_modality1_i_modality1_knn1
         max_value <- max(c(difference_distances, 0))
 
-        theta_modality1_modality2[[cell_a]] <- exp((-max_value) / (modality1_sigma_i[cell_a] - d_modality1_i_modality1_knn1))
+        theta_modality1_modality2[[cell_a]] <- exp((
+            -max_value) / (modality1_sigma_i[cell_a] - 
+                            d_modality1_i_modality1_knn1))
     }
 
 
@@ -310,22 +342,27 @@ runWNN <- function(gobject,
 
     for (cell_a in cell_names) {
         modality2_i <- pca_2[cell_a, ] # profile of current cell
-        d_modality2_i_modality1_predicted <- sqrt(sum((modality2_i - predicted_2_1[[cell_a]])^2))
+        d_modality2_i_modality1_predicted <- sqrt(sum((
+            modality2_i - predicted_2_1[[cell_a]])^2))
 
         first_knn <- names(sort(cell_distances_2_2[[cell_a]]))[1]
         modality2_knn1 <- pca_2[first_knn, ] # profile of the nearest neighbor
-        d_modality2_i_modality2_knn1 <- sqrt(sum((modality2_i - modality2_knn1)^2))
+        d_modality2_i_modality2_knn1 <- sqrt(sum((
+            modality2_i - modality2_knn1)^2))
 
-        difference_distances <- d_modality2_i_modality1_predicted - d_modality2_i_modality2_knn1
+        difference_distances <- d_modality2_i_modality1_predicted - 
+            d_modality2_i_modality2_knn1
         max_value <- max(c(difference_distances, 0))
 
-        theta_modality2_modality1[[cell_a]] <- exp((-max_value) / (modality2_sigma_i[cell_a] - d_modality2_i_modality2_knn1))
+        theta_modality2_modality1[[cell_a]] <- exp((
+            -max_value) / (modality2_sigma_i[cell_a] - 
+                            d_modality2_i_modality2_knn1))
     }
 
 
-    ##################### ratio of affinities ######################################
+    ##################### ratio of affinities ##################################
 
-    if (verbose) print("Calculating WNN")
+    if (verbose) message("Calculating WNN")
 
     epsilon <- 10^-4
 
@@ -333,7 +370,8 @@ runWNN <- function(gobject,
     ratio_modality1 <- list()
 
     for (cell_a in cell_names) {
-        ratio_modality1[[cell_a]] <- theta_1_1[[cell_a]] / (theta_modality1_modality2[[cell_a]] + epsilon)
+        ratio_modality1[[cell_a]] <- theta_1_1[[cell_a]] / 
+            (theta_modality1_modality2[[cell_a]] + epsilon)
     }
 
 
@@ -341,32 +379,35 @@ runWNN <- function(gobject,
     ratio_modality2 <- list()
 
     for (cell_a in cell_names) {
-        ratio_modality2[[cell_a]] <- theta_modality2_modality2[[cell_a]] / (theta_modality2_modality1[[cell_a]] + epsilon)
+        ratio_modality2[[cell_a]] <- theta_modality2_modality2[[cell_a]] / 
+            (theta_modality2_modality1[[cell_a]] + epsilon)
     }
 
 
-    ########################### normalization ######################################
+    ########################### normalization ##################################
 
-    if (verbose) print("Calculating WNN normalization")
+    if (verbose) message("Calculating WNN normalization")
 
     w_modality1 <- rep(0, length(cell_names))
     names(w_modality1) <- cell_names
 
     for (cell_a in cell_names) {
-        w_modality1[cell_a] <- exp(ratio_modality1[[cell_a]]) / (exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
+        w_modality1[cell_a] <- exp(ratio_modality1[[cell_a]]) / 
+            (exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
     }
 
     w_modality2 <- rep(0, length(cell_names))
     names(w_modality2) <- cell_names
 
     for (cell_a in cell_names) {
-        w_modality2[cell_a] <- exp(ratio_modality2[[cell_a]]) / (exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
+        w_modality2[cell_a] <- exp(ratio_modality2[[cell_a]]) / 
+            (exp(ratio_modality1[[cell_a]]) + exp(ratio_modality2[[cell_a]]))
     }
 
 
-    ######################### Calculating a WNN graph ##############################
+    ######################### Calculating a WNN graph ##########################
 
-    if (verbose) print("Calculating WNN graph")
+    if (verbose) message("Calculating WNN graph")
 
     theta_weighted <- matrix(rep(0, length(cell_names) * length(cell_names)),
         ncol = length(cell_names),
@@ -380,18 +421,21 @@ runWNN <- function(gobject,
 
     ## theta_modality1
 
-    theta_modality1_cella_cellb <- exp(-1 * (all_cell_distances_1_1 / modality1_sigma_i)**kernelpower)
+    theta_modality1_cella_cellb <- exp(-1 * (all_cell_distances_1_1 / 
+                                                modality1_sigma_i)**kernelpower)
 
     ## theta_modality2
-    theta_modality2_cella_cellb <- exp(-1 * (all_cell_distances_2_2 / modality2_sigma_i)**kernelpower)
+    theta_modality2_cella_cellb <- exp(-1 * (all_cell_distances_2_2 / 
+                                                modality2_sigma_i)**kernelpower)
 
     ## theta_weighted
-    theta_weighted <- w_modality1 * theta_modality1_cella_cellb + w_modality2 * theta_modality2_cella_cellb
+    theta_weighted <- w_modality1 * theta_modality1_cella_cellb + 
+        w_modality2 * theta_modality2_cella_cellb
 
 
     # save theta_weighted
 
-    if (verbose) print("Saving WNN results")
+    if (verbose) message("Saving WNN results")
 
 
     ## set integrated feat_type and result name if not provided
@@ -490,18 +534,19 @@ runIntegratedUMAP <- function(gobject,
         result_name = matrix_result_name
     )
 
-    # theta_weighted <- gobject@dimension_reduction$cells$cell$WNN$theta_weighted
     theta_weighted[is.na(theta_weighted)] <- 0
 
-    if (is.null(gobject@nn_network[[spat_unit]][[modality1]]$kNN$integrated_kNN) || force == TRUE) {
-        ################# Calculate integrated Nearest Neighbors #######################
+    if (is.null(gobject@nn_network[[spat_unit]][[
+        modality1]]$kNN$integrated_kNN) || force == TRUE) {
+        ################# Calculate integrated Nearest Neighbors ###############
 
-        print("Calculating integrated Nearest Neighbors")
+        message("Calculating integrated Nearest Neighbors")
 
         cell_names <- colnames(theta_weighted)
 
         nn_network <- dbscan::kNN(x = theta_weighted, k = k, sort = TRUE)
-        from <- to <- weight <- distance <- from_cell_ID <- to_cell_ID <- shared <- NULL
+        from <- to <- weight <- distance <- from_cell_ID <- to_cell_ID <- 
+            shared <- NULL
         nn_network_dt <- data.table::data.table(
             from = rep(
                 1:nrow(nn_network$id),
@@ -513,13 +558,15 @@ runIntegratedUMAP <- function(gobject,
         )
         nn_network_dt[, `:=`(from_cell_ID, cell_names[from])]
         nn_network_dt[, `:=`(to_cell_ID, cell_names[to])]
-        all_index <- unique(x = c(nn_network_dt$from_cell_ID, nn_network_dt$to_cell_ID))
+        all_index <- unique(
+            x = c(nn_network_dt$from_cell_ID, nn_network_dt$to_cell_ID))
 
-        ################################ Create igraph #################################
+        ################################ Create igraph #########################
 
-        print("Creating igraph")
+        message("Creating igraph")
 
-        nn_network_igraph <- igraph::graph_from_data_frame(nn_network_dt[, .(from_cell_ID, to_cell_ID, weight, distance)],
+        nn_network_igraph <- igraph::graph_from_data_frame(
+            nn_network_dt[, .(from_cell_ID, to_cell_ID, weight, distance)],
             directed = TRUE,
             vertices = all_index
         )
@@ -565,18 +612,18 @@ runIntegratedUMAP <- function(gobject,
         )
     }
 
-    ######################### Calculate integrated UMAP ############################
+    ######################### Calculate integrated UMAP ########################
 
-    print("Calculating integrated UMAP")
+    message("Calculating integrated UMAP")
 
-    nn_network_id <- get_multiomics(gobject,
+    nn_network_id <- getMultiomics(gobject,
         spat_unit = spat_unit,
         feat_type = integrated_feat_type,
         integration_method = integration_method,
         result_name = "integrated_kNN_id"
     )
 
-    nn_network_dist <- get_multiomics(gobject,
+    nn_network_dist <- getMultiomics(gobject,
         spat_unit = spat_unit,
         feat_type = integrated_feat_type,
         integration_method = integration_method,
@@ -601,7 +648,8 @@ runIntegratedUMAP <- function(gobject,
     colnames(integrated_umap) <- c("Dim.1", "Dim.2")
 
     ## add umap
-    gobject@dimension_reduction$cells[[spat_unit]][[modality1]][["umap"]][["integrated.umap"]] <- list(
+    gobject@dimension_reduction$cells[[spat_unit]][[modality1]][["umap"]][[
+        "integrated.umap"]] <- list(
         name = "integrated.umap",
         feat_type = modality1,
         spat_unit = spat_unit,
@@ -610,7 +658,8 @@ runIntegratedUMAP <- function(gobject,
         misc = NULL
     )
 
-    gobject@dimension_reduction$cells[[spat_unit]][[modality2]][["umap"]][["integrated.umap"]] <- list(
+    gobject@dimension_reduction$cells[[spat_unit]][[modality2]][["umap"]][[
+        "integrated.umap"]] <- list(
         name = "integrated.umap",
         feat_type = modality2,
         spat_unit = spat_unit,

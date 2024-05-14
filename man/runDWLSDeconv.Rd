@@ -50,7 +50,6 @@ expression data
 }
 \seealso{
 \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk 
-deconvolution method,
-and \doi{10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial 
-implementation used here.
+deconvolution method, and \doi{10.1186/s13059-021-02362-7} for 
+\emph{spatialDWLS}, the spatial implementation used here.
 }
