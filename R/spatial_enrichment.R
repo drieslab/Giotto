@@ -2149,7 +2149,7 @@ enrich_deconvolution <- function(expr,
   #####remove negative values
   for (i in dim(dwls_results)[1]){
     negtive_index<-which(dwls_results[i,]<0)
-    dwls_results[i,negtive_index]==0
+    dwls_results[i,negtive_index]=0   ####* fixed a typo, with "==" the negative values weren't removed
   }
   return(dwls_results)
 }
@@ -2203,6 +2203,10 @@ spot_deconvolution<-function(expr,
       for(k in 1:(dim(cluster_cell_exp)[2])){
         B<-Matrix::as.matrix(cluster_cell_exp[,k])
         ct_spot_k<-rownames(cluster_i_matrix)[which(cluster_i_matrix[,k]==1)]
+        if (sum(B)==0 || length(ct_spot_k)==0){  ####* must include the case where all genes are 0
+           dwls_results[,colnames(cluster_cell_exp)[k]]<-NA  ####* will produce NAs for some spots in the output
+           next;  ####* no need to look into this spot any more
+        } 
         if (length(ct_spot_k)==1){
           dwls_results[ct_spot_k[1],colnames(cluster_cell_exp)[k]]<-1
         } else {
@@ -2213,8 +2217,12 @@ spot_deconvolution<-function(expr,
           }
           uniq_ct_k_gene<-intersect(rownames(ct_exp),unique(ct_k_gene))
           S_k<-Matrix::as.matrix(ct_exp[uniq_ct_k_gene,ct_spot_k])
-          solDWLS<-optimize_solveDampenedWLS(S_k,B[uniq_ct_k_gene,],constant_J)
-          dwls_results[names(solDWLS),colnames(cluster_cell_exp)[k]]<-solDWLS
+          if (sum(B[uniq_ct_k_gene,])==0){  ####* must include the case all genes are 0
+             dwls_results[,colnames(cluster_cell_exp)[k]]<-NA  ####* will produce NAs for some spots in the output
+          }  else {
+             solDWLS<-optimize_solveDampenedWLS(S_k,B[uniq_ct_k_gene,],constant_J)
+             dwls_results[names(solDWLS),colnames(cluster_cell_exp)[k]]<-solDWLS
+          }
         }
       }
     }
@@ -2222,7 +2230,7 @@ spot_deconvolution<-function(expr,
   #####remove negative values
   for (i in dim(dwls_results)[1]){
     negtive_index<-which(dwls_results[i,]<0)
-    dwls_results[i,negtive_index]==0
+    dwls_results[i,negtive_index]=0    ####* fixed a typo, with "==" the negative values weren't removed
   }
   return(dwls_results)
 }
@@ -2314,8 +2322,10 @@ optimize_deconvolute_dwls <- function(exp,
     if (sum(B)>0){
       solDWLS<-optimize_solveDampenedWLS(S,B,constant_J)
     } else{
-      solDWLS <- rep(0, length(B))
-      names(solDWLS) <- names(B)
+       # solDWLS <- rep(0, length(B))  ####*  wrong dimension, causes warnings
+       solDWLS <- rep(0, ncol(S))  ####* corrected dim
+       # names(solDWLS) <- names(B)  ####*  wrong dim name
+       names(solDWLS) <- colnames(S)  ####* corrected dim name
     }
     allCounts_DWLS<-cbind(allCounts_DWLS,solDWLS)
   }
