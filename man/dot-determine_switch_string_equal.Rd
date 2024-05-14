@@ -30,6 +30,7 @@ Where:
    y_m is a cluster number from the resized spatial unit
    n is the number of clusters
 
-Clusters are determined to be corresponding based on % overlap in cell_IDs in each cluster.
+Clusters are determined to be corresponding based on % overlap in cell_IDs 
+in each cluster.
 }
 \keyword{internal}

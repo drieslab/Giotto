@@ -19,6 +19,6 @@ featExpDWLS(gobject, spat_unit = NULL, feat_type = NULL, ave_celltype_exp)
 matrix
 }
 \description{
-Compute predicted feature expression value by spatialDWSL results and
-average feature expression for cell type
+Compute predicted feature expression value by spatialDWSL 
+results and average feature expression for cell type
 }

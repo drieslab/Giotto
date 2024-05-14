@@ -17,5 +17,6 @@ plotInteractivePolygons(x, width = "auto", height = "auto", ...)
 A `data.table` containing x,y coordinates from the plotted polygons.
 }
 \description{
-Plot interactive polygons on an image and retrieve the polygons coordinates.
+Plot interactive polygons on an image and retrieve the polygons 
+coordinates.
 }

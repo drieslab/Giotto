@@ -24,7 +24,8 @@ cellProximityEnrichmentEachSpot(
 \item{cluster_column}{name of column to use for clusters}
 }
 \value{
-matrix that rownames are cell-cell interaction pairs and colnames are cell_IDs
+matrix that rownames are cell-cell interaction pairs and colnames 
+are cell_IDs
 }
 \description{
 Compute cell-cell interaction enrichment for each spot with its

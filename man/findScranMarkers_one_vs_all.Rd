@@ -48,7 +48,8 @@ findScranMarkers_one_vs_all(
 data.table with marker feats
 }
 \description{
-Identify marker feats for all clusters in a one vs all manner based on scran's implementation of findMarkers.
+Identify marker feats for all clusters in a one vs all manner 
+based on scran's implementation of findMarkers.
 }
 \seealso{
 \code{\link{findScranMarkers}}

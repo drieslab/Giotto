@@ -19,8 +19,8 @@
 \item{key_list}{regex-based search keys for feature IDs to allow separation
 into separate giottoPoints objects by feat_type}
 
-\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included as
-a subcellular transcript detection (default = 20)}
+\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included 
+as a subcellular transcript detection (default = 20)}
 
 \item{instructions}{list of instructions or output result
 from \code{\link[GiottoClass]{createGiottoInstructions}}}

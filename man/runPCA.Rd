@@ -78,7 +78,8 @@ dimension reduction and clusterings are based on your features of interest.
   \item feats_to_use = NULL: will use all features from the selected matrix
   \item feats_to_use = <hvg name>: can be used to select a column name of
   highly variable features, created by (see \code{\link{calculateHVF}})
-  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
+  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually 
+  provided features
 }
 By default the number of principle components that we calculate is 100, which
 may not encompass all the variation within the dataset. Setting ncp to NULL

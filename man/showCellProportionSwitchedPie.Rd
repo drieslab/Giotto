@@ -21,6 +21,8 @@ showCellProportionSwitchedPie(
 showCellProportionSwitchedPie
 }
 \details{
-Creates a pie chart showing how many cells switched clusters after annotation resizing.
-The function showPolygonSizeInfluence() must have been run on the Giotto Object for this function to run.
+Creates a pie chart showing how many cells switched clusters after 
+annotation resizing.
+The function showPolygonSizeInfluence() must have been run on the Giotto 
+Object for this function to run.
 }

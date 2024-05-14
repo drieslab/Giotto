@@ -25,7 +25,7 @@ specificCellCellcommunicationScores(
   adjust_target = c("feats", "cells"),
   set_seed = FALSE,
   seed_number = 1234,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{
@@ -35,7 +35,8 @@ specificCellCellcommunicationScores(
 
 \item{spat_unit}{spatial unit}
 
-\item{spatial_network_name}{spatial network to use for identifying interacting cells}
+\item{spatial_network_name}{spatial network to use for identifying 
+interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
 
@@ -55,9 +56,11 @@ specificCellCellcommunicationScores(
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
-\item{min_observations}{minimum number of interactions needed to be considered}
+\item{min_observations}{minimum number of interactions needed to be 
+considered}
 
-\item{detailed}{provide more detailed information (random variance and z-score)}
+\item{detailed}{provide more detailed information 
+(random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
 
@@ -70,15 +73,19 @@ specificCellCellcommunicationScores(
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial interaction
+Cell-Cell communication scores for feature pairs based on spatial 
+interaction
 }
 \description{
-Specific Cell-Cell communication scores based on spatial expression of interacting cells
+Specific Cell-Cell communication scores based on spatial 
+expression of interacting cells
 }
 \details{
-Statistical framework to identify if pairs of features (such as ligand-receptor combinations)
-are expressed at higher levels than expected based on a reshuffled null distribution
-of feature expression values in cells that are spatially in proximity to eachother.
+Statistical framework to identify if pairs of features 
+(such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null 
+distribution of feature expression values in cells that are spatially in 
+proximity to eachother.
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}
  \item{lig_cell_type:}{ cell type to assess expression level of ligand }

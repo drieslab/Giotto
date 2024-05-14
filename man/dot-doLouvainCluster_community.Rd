@@ -30,7 +30,8 @@
 
 \item{name}{name for cluster, default to "louvain_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to 
+"sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
 
@@ -40,8 +41,9 @@
 
 \item{weight_col}{weight column to use for edges}
 
-\item{louv_random}{Will randomize the node evaluation order and the community evaluation
-order to get different partitions at each call (default = FALSE)}
+\item{louv_random}{Will randomize the node evaluation order and the 
+community evaluation order to get different partitions at each call 
+(default = FALSE)}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -55,12 +57,14 @@ order to get different partitions at each call (default = FALSE)}
 giotto object with new clusters appended to cell metadata
 }
 \description{
-cluster cells using a NN-network and the Louvain algorithm from the community module in Python
+cluster cells using a NN-network and the Louvain algorithm 
+from the community module in Python
 }
 \details{
-This function is a wrapper for the Louvain algorithm implemented in Python,
-which can detect communities in graphs of nodes (cells).
-See the \url{https://python-louvain.readthedocs.io/en/latest/index.html}{readthedocs}
+This function is a wrapper for the Louvain algorithm implemented in 
+Python, which can detect communities in graphs of nodes (cells).
+See the 
+\url{https://python-louvain.readthedocs.io/en/latest/index.html}{readthedocs}
 page for more information.
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.

@@ -22,13 +22,15 @@ crossSectionPlot(
 
 \item{feat_type}{feature type}
 
-\item{crossSection_obj}{cross section object as alternative input. default = NULL.}
+\item{crossSection_obj}{cross section object as alternative input. 
+default = NULL.}
 
 \item{name}{name of virtual cross section to use}
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change, 
+change save_name in save_param}
 
 \item{...}{parameters for spatPlot2D}
 }
@@ -36,7 +38,8 @@ crossSectionPlot(
 ggplot
 }
 \description{
-Visualize cells in a virtual cross section according to spatial coordinates
+Visualize cells in a virtual cross section according to 
+spatial coordinates
 }
 \details{
 Description of parameters.

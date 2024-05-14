@@ -27,6 +27,7 @@ run_spatial_sim_tests_multi(
 )
 }
 \description{
-runs all spatial tests for multiple probabilities and repetitions
+runs all spatial tests for multiple probabilities and 
+repetitions
 }
 \keyword{internal}

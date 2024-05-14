@@ -36,11 +36,13 @@ findGiniMarkers(
 
 \item{subset_clusters}{selection of clusters to compare}
 
-\item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
+\item{group_1}{group 1 cluster IDs from cluster_column for pairwise 
+comparison}
 
 \item{group_1_name}{custom name for group_1 clusters}
 
-\item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
+\item{group_2}{group 2 cluster IDs from cluster_column for pairwise 
+comparison}
 
 \item{group_2_name}{custom name for group_2 clusters}
 
@@ -60,10 +62,12 @@ findGiniMarkers(
 data.table with marker feats
 }
 \description{
-Identify marker feats for selected clusters based on gini detection and expression scores.
+Identify marker feats for selected clusters based on gini 
+detection and expression scores.
 }
 \details{
-Detection of marker feats using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+Detection of marker feats using the 
+\url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
 coefficient is based on the following steps/principles per feat:
 \itemize{
   \item{1. calculate average expression per cluster}
@@ -75,15 +79,20 @@ coefficient is based on the following steps/principles per feat:
   \item{7. for each feat sort on expression and detection rank and combined score}
 }
 
-As a results "top gini" feats are feats that are very selectivily expressed in a specific cluster,
-however not always expressed in all cells of that cluster. In other words highly specific, but
+As a results "top gini" feats are feats that are very selectivily expressed 
+in a specific cluster,
+however not always expressed in all cells of that cluster. In other words 
+highly specific, but
 not necessarily sensitive at the single-cell level.
 
 To perform differential expression between custom selected groups of cells
 you need to specify the cell_ID column to parameter \emph{cluster_column}
-and provide the individual cell IDs to the parameters \emph{group_1} and \emph{group_2}
+and provide the individual cell IDs to the parameters \emph{group_1} and 
+\emph{group_2}
 
-By default group names will be created by pasting the different id names within each selected group.
+By default group names will be created by pasting the different id names 
+within each selected group.
 When you have many different ids in a single group
-it is recommend to provide names for both groups to \emph{group_1_name} and \emph{group_2_name}
+it is recommend to provide names for both groups to \emph{group_1_name} and 
+\emph{group_2_name}
 }

@@ -28,7 +28,8 @@ rankEnrich(...)
   }}
 }
 \description{
-Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
+Function to calculate gene signature enrichment scores per 
+spatial position using a rank based approach.
 }
 \seealso{
 \code{\link{runRankEnrich}}

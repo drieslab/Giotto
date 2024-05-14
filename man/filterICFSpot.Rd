@@ -22,11 +22,13 @@ filterICFSpot(
 
 \item{min_cells}{minimum number of source cell type}
 
-\item{min_cells_expr_resi}{minimum expression residual level for source cell type}
+\item{min_cells_expr_resi}{minimum expression residual level for source 
+cell type}
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr_resi}{minimum expression residual level for interacting neighbor cell type}
+\item{min_int_cells_expr_resi}{minimum expression residual level for 
+interacting neighbor cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
 

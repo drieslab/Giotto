@@ -39,7 +39,8 @@ runSpatialEnrich(
 
 \item{expression_values}{expression values to use}
 
-\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix required to calculate enrichment (PAGE)}
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix 
+required to calculate enrichment (PAGE)}
 
 \item{reverse_log_scale}{reverse expression values from log scale}
 
@@ -47,7 +48,8 @@ runSpatialEnrich(
 
 \item{p_value}{calculate p-value (default = FALSE)}
 
-\item{n_times}{(page/rank) number of permutation iterations to calculate p-value}
+\item{n_times}{(page/rank) number of permutation iterations to calculate 
+p-value}
 
 \item{rbp_p}{(rank) fractional binarization threshold (default = 0.99)}
 
@@ -55,7 +57,8 @@ runSpatialEnrich(
 
 \item{max_block}{number of lines to process together (default = 20e6)}
 
-\item{top_percentage}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
+\item{top_percentage}{(hyper) percentage of cells that will be considered 
+to have gene expression with matrix binarization}
 
 \item{output_enrichment}{how to return enrichment output}
 
@@ -69,7 +72,8 @@ runSpatialEnrich(
 Giotto object or enrichment results if return_gobject = FALSE
 }
 \description{
-Function to calculate gene signature enrichment scores per spatial position using an enrichment test.
+Function to calculate gene signature enrichment scores per 
+spatial position using an enrichment test.
 }
 \details{
 For details see the individual functions:

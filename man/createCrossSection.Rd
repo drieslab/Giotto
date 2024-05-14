@@ -33,38 +33,58 @@ createCrossSection(
 
 \item{name}{name of cress section object. (default = cross_sectino)}
 
-\item{spatial_network_name}{name of spatial network object. (default = Delaunay_network)}
+\item{spatial_network_name}{name of spatial network object. 
+(default = Delaunay_network)}
 
-\item{thickness_unit}{unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)}
+\item{thickness_unit}{unit of the virtual section thickness. If "cell", 
+average size of the observed cells is used as length unit. If "natural", 
+the unit of cell location coordinates is used.(default = cell)}
 
 \item{slice_thickness}{thickness of slice. default = 2}
 
-\item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
+\item{cell_distance_estimate_method}{method to estimate average distance 
+between neighobring cells. (default = mean)}
 
-\item{extend_ratio}{deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)}
+\item{extend_ratio}{deciding the span of the cross section meshgrid, as a 
+ratio of extension compared to the borders of the vitural tissue section. 
+(default = 0.2)}
 
 \item{method}{method to define the cross section plane.
-If equation, the plane is defined by a four element numerical vector (equation) in the form of c(A,B,C,D), corresponding to a plane with equation Ax+By+Cz=D.
-If 3 points, the plane is define by the coordinates of 3 points, as given by point1, point2, and point3.
-If point and norm vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of one norm vector (normVector) to the plane.
-If point and two plane vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of two vectors (planeVector1, planeVector2) in the plane.
+If equation, the plane is defined by a four element numerical vector 
+(equation) in the form of c(A,B,C,D), corresponding to a plane with 
+equation Ax+By+Cz=D.
+If 3 points, the plane is define by the coordinates of 3 points, as given by 
+point1, point2, and point3.
+If point and norm vector, the plane is defined by the coordinates of one 
+point (point1) in the plane and the coordinates of one norm vector 
+(normVector) to the plane.
+If point and two plane vector, the plane is defined by the coordinates of 
+one point (point1) in the plane and the coordinates of two vectors 
+(planeVector1, planeVector2) in the plane.
 (default = equation)}
 
-\item{equation}{equation required by method "equation".equations needs to be a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.}
+\item{equation}{equation required by method "equation".equations needs to be 
+a numerical vector of length 4, in the form of c(A,B,C,D), which defines 
+plane Ax+By+Cz=D.}
 
-\item{point1}{coordinates of the first point required by method "3 points","point and norm vector", and "point and two plane vectors".}
+\item{point1}{coordinates of the first point required by method 
+"3 points","point and norm vector", and "point and two plane vectors".}
 
 \item{point2}{coordinates of the second point required by method "3 points"}
 
 \item{point3}{coordinates of the third point required by method "3 points"}
 
-\item{normVector}{coordinates of the norm vector required by method "point and norm vector"}
+\item{normVector}{coordinates of the norm vector required by method 
+"point and norm vector"}
 
-\item{planeVector1}{coordinates of the first plane vector required by method "point and two plane vectors"}
+\item{planeVector1}{coordinates of the first plane vector required by 
+method "point and two plane vectors"}
 
-\item{planeVector2}{coordinates of the second plane vector required by method "point and two plane vectors"}
+\item{planeVector2}{coordinates of the second plane vector required by 
+method "point and two plane vectors"}
 
-\item{mesh_grid_n}{numer of meshgrid lines to generate along both directions for the cross section plane.}
+\item{mesh_grid_n}{numer of meshgrid lines to generate along both directions 
+for the cross section plane.}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
@@ -75,5 +95,7 @@ giotto object with updated spatial network slot
 Create a virtual 2D cross section.
 }
 \details{
-Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
+Creates a virtual 2D cross section object for a given spatial 
+network object. The users need to provide the definition of the cross 
+section plane (see method).
 }

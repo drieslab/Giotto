@@ -10,6 +10,7 @@
 \item{inputstring}{string read in from TrakeEM2 xml file}
 }
 \description{
-Extract rigid registration transformation values from FIJI TrakEM2 xml file. Generated through register_virtual_stack_slices.
+Extract rigid registration transformation values from FIJI 
+TrakEM2 xml file. Generated through register_virtual_stack_slices.
 }
 \keyword{internal}

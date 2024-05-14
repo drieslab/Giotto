@@ -25,28 +25,31 @@ addPolygonCells(
 
 \item{feat_type}{feature name where metadata will be added}
 
-\item{polygons}{polygon names to plot (e.g. 'polygon_1'). If NULL, plots all available polygons}
+\item{polygons}{polygon names to plot (e.g. 'polygon_1'). If NULL, plots 
+all available polygons}
 
-\item{na.label}{polygon label for cells located outside of polygons area. Default = "no_polygon"}
+\item{na.label}{polygon label for cells located outside of polygons area. 
+Default = "no_polygon"}
 }
 \value{
 A Giotto object with a modified cell_metadata slot that includes the
-polygon name where each cell is located or no_polygon label if the cell is not located
-within a polygon area
+polygon name where each cell is located or no_polygon label if the cell is 
+not located within a polygon area
 }
 \description{
 Add corresponding polygon IDs to cell metadata
 }
 \examples{
-
 \dontrun{
 ## Plot interactive polygons
 my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
 
 ## Add polygon coordinates to Giotto object
 my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
-                                      gpolygons = list(my_giotto_polygons))
+my_giotto_object <- addGiottoPolygons(
+    gobject = my_giotto_object,
+    gpolygons = list(my_giotto_polygons)
+)
 
 ## Add polygon IDs to cell metadata
 my_giotto_object <- addPolygonCells(my_giotto_object)

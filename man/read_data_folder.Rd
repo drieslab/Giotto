@@ -25,14 +25,15 @@
 
 \item{data_dir}{exported data directory to read from}
 
-\item{dir_items}{named list of directory items to expect and keywords to match}
+\item{dir_items}{named list of directory items to expect and keywords to
+match}
 
 \item{data_to_use}{character. Which type(s) of expression data to build the
 gobject with. Values should match with a \emph{workflow} item in require_data_DT
 (see details)}
 
-\item{require_data_DT}{data.table detailing if expected data items are required
-or optional for each \code{data_to_use} \emph{workflow}}
+\item{require_data_DT}{data.table detailing if expected data items are
+required or optional for each \code{data_to_use} \emph{workflow}}
 
 \item{cores}{cores to use}
 
@@ -54,11 +55,11 @@ reader functions should be built using it as a base.
 \item{1. detection of items within \code{data_dir} by looking for keywords
 assigned through \code{dir_items}}
 \item{2. check of detected items to see if everything needed has been found.
-Dictionary of necessary vs optional items for each \code{data_to_use} \emph{workflow}
-is provided through \code{require_data_DT}}
-\item{3. if multiple filepaths are found to be matching then select the first
-one. This function is only intended to find the first level subdirectories
-and files.}
+Dictionary of necessary vs optional items for each \code{data_to_use}
+\emph{workflow} is provided through \code{require_data_DT}}
+\item{3. if multiple filepaths are found to be matching then select the
+first one. This function is only intended to find the first level
+subdirectories and files.}
 }
 
 \strong{Example reader implementation:}

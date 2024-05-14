@@ -49,9 +49,11 @@ spatialDE(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
+\item{save_param}{list of saving parameters, see 
+\code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change, 
+change save_name in save_param}
 }
 \value{
 a list of data.frames with results and plot (optional)
@@ -60,6 +62,7 @@ a list of data.frames with results and plot (optional)
 Compute spatial variable genes with spatialDE method
 }
 \details{
-This function is a wrapper for the SpatialDE method originally implemented
+This function is a wrapper for the SpatialDE method originally 
+implemented
 in python. See publication \doi{10.1038/nmeth.4636}
 }

@@ -9,8 +9,8 @@ readPolygonFilesVizgenHDF5_old(
   fovs = NULL,
   polygon_feat_types = 0:6,
   custom_polygon_names = NULL,
-  flip_x_axis = F,
-  flip_y_axis = F,
+  flip_x_axis = FALSE,
+  flip_y_axis = FALSE,
   smooth_polygons = TRUE,
   smooth_vertices = 60,
   set_neg_to_zero = FALSE,
@@ -26,8 +26,8 @@ readPolygonFilesVizgenHDF5_old(
 
 \item{polygon_feat_types}{a vector containing the polygon feature types}
 
-\item{custom_polygon_names}{a character vector to provide custom polygon names
-(optional)}
+\item{custom_polygon_names}{a character vector to provide custom polygon 
+names (optional)}
 
 \item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
 
@@ -46,10 +46,12 @@ readPolygonFilesVizgenHDF5_old(
 \item{verbose}{be verbose}
 }
 \description{
-Read and create polygons for all cells, or for only selected FOVs.
+Read and create polygons for all cells, or for only selected 
+FOVs.
 }
 \details{
-Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission issues.
+Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission 
+issues.
 }
 \seealso{
 \code{\link{smoothGiottoPolygons}}

@@ -20,7 +20,7 @@ findICF(
   adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
     "none"),
   nr_permutations = 100,
-  exclude_selected_cells_from_test = T,
+  exclude_selected_cells_from_test = TRUE,
   do_parallel = TRUE,
   set_seed = TRUE,
   seed_number = 1234
@@ -64,16 +64,19 @@ findICF(
 \item{seed_number}{seed number}
 }
 \value{
-icfObject that contains the Interaction Changed differential gene scores
+icfObject that contains the Interaction Changed differential gene 
+scores
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
-i.e. features that are differentially expressed due to proximity to other cell types.#'
+i.e. features that are differentially expressed due to proximity to other 
+cell types.
 }
 \details{
-Function to calculate if genes are differentially expressed in cell types
- when they interact (approximated by physical proximity) with other cell types.
- The results data.table in the icfObject contains - at least - the following columns:
+Function to calculate if genes are differentially expressed in 
+cell types when they interact (approximated by physical proximity) with 
+other cell types. The results data.table in the icfObject contains 
+- at least - the following columns:
 \itemize{
  \item{features:}{ All or selected list of tested features}
  \item{sel:}{ average feature expression in the interacting cells from the target cell type }

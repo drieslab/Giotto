@@ -6,12 +6,12 @@
 \alias{.spat_fish_func_dt}
 \title{Fisher exact test}
 \usage{
-.spat_fish_func(feat, bin_matrix, spat_mat, calc_hub = F, hub_min_int = 3)
+.spat_fish_func(feat, bin_matrix, spat_mat, calc_hub = FALSE, hub_min_int = 3)
 
 .spat_fish_func_dt(
   bin_matrix_DTm,
   spat_netw_min,
-  calc_hub = F,
+  calc_hub = FALSE,
   hub_min_int = 3,
   cores = NA
 )

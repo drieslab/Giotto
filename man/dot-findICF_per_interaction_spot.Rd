@@ -23,6 +23,7 @@
 )
 }
 \description{
-Identifies features that are differentially expressed due to proximity to other cell types for spots.
+Identifies features that are differentially expressed due to 
+proximity to other cell types for spots.
 }
 \keyword{internal}

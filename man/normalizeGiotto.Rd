@@ -55,7 +55,8 @@ normalizeGiotto(
 
 \item{theta}{theta parameter for the pearson residual normalization step}
 
-\item{update_slot}{slot or name to use for the results from osmFISH and pearson residual normalization}
+\item{update_slot}{slot or name to use for the results from osmFISH and 
+pearson residual normalization}
 
 \item{verbose}{be verbose}
 }
@@ -68,8 +69,8 @@ fast normalize and/or scale expresion values of Giotto object
 \details{
 Currently there are two 'methods' to normalize your raw counts data.
 
-A. The standard method follows the standard protocol which can be adjusted using
-the provided parameters and follows the following order: \cr
+A. The standard method follows the standard protocol which can be adjusted 
+using the provided parameters and follows the following order: \cr
 \itemize{
   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
   \item{2. Log transformation of data.}
@@ -87,6 +88,6 @@ C. The normalization method as provided by Lause/Kobak et al is also implemented
   \item{1. First calculate expected values based on Pearson correlations.}
   \item{2. Next calculate z-scores based on observed and expected values.}
 }
-By default the latter two results will be saved in the Giotto slot for scaled expression,
- this can be changed by changing the update_slot parameters
+By default the latter two results will be saved in the Giotto slot for 
+scaled expression, this can be changed by changing the update_slot parameters
 }

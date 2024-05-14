@@ -64,11 +64,12 @@ remove (character vector).}
 \item{...}{additional \code{\link[harmony]{HarmonyMatrix}} parameters}
 }
 \value{
-giotto object with updated Harmony dimension recuction
+giotto object with updated Harmony dimension reduction
 }
 \description{
 run UMAP
 }
 \details{
-This is a simple wrapper for the HarmonyMatrix function in the Harmony package \doi{10.1038/s41592-019-0619-0}.
+This is a simple wrapper for the HarmonyMatrix function in the 
+Harmony package \doi{10.1038/s41592-019-0619-0}.
 }

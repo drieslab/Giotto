@@ -16,7 +16,7 @@ insertCrossSectionGenePlot3D(
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
-  show_other_cells = F,
+  show_other_cells = FALSE,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
   show_plot = NULL,
@@ -32,7 +32,8 @@ insertCrossSectionGenePlot3D(
 
 \item{spat_loc_name}{name of spatial locations}
 
-\item{crossSection_obj}{cross section object as alternative input. default = NULL.}
+\item{crossSection_obj}{cross section object as alternative input.
+default = NULL.}
 
 \item{name}{name of virtual cross section to use}
 
@@ -62,9 +63,11 @@ insertCrossSectionGenePlot3D(
 
 \item{save_plot}{logical. directly save the plot}
 
-\item{save_param}{list of saving parameters from \link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function}}
+\item{save_param}{list of saving parameters from
+\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change,
+change save_name in save_param}
 
 \item{...}{parameters for spatGenePlot3D}
 }
@@ -72,7 +75,8 @@ insertCrossSectionGenePlot3D(
 ggplot
 }
 \description{
-Visualize cells and gene expression in a virtual cross section according to spatial coordinates
+Visualize cells and gene expression in a virtual cross section
+according to spatial coordinates
 }
 \details{
 Description of parameters.

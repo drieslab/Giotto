@@ -16,7 +16,7 @@ provided}
 }
 \description{
 loads in the feature detections information. Note that the mask
-images are still required for a working subcellular object, and those are loaded
-in \code{\link{.createGiottoCosMxObject_subcellular}}
+images are still required for a working subcellular object, and those are 
+loaded in \code{\link{.createGiottoCosMxObject_subcellular}}
 }
 \keyword{internal}

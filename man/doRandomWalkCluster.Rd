@@ -22,7 +22,8 @@ doRandomWalkCluster(
 
 \item{name}{name for cluster, default to "random_walk_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to 
+"sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
 

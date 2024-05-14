@@ -32,9 +32,11 @@ cellProximityEnrichmentSpots(
 
 \item{cells_in_spot}{cell number in each spot}
 
-\item{number_of_simulations}{number of simulations to create expected observations}
+\item{number_of_simulations}{number of simulations to create expected 
+observations}
 
-\item{adjust_method}{method to adjust p.values (e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")}
+\item{adjust_method}{method to adjust p.values 
+(e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")}
 
 \item{set_seed}{use of seed. Default = TRUE}
 
@@ -43,18 +45,21 @@ cellProximityEnrichmentSpots(
 \item{verbose}{be verbose}
 }
 \value{
-List of cell Proximity scores (CPscores) in data.table format. The first
-data.table (raw_sim_table) shows the raw observations of both the original and
-simulated networks. The second data.table (enrichm_res) shows the enrichment results.
+List of cell Proximity scores (CPscores) in data.table format. 
+The first
+data.table (raw_sim_table) shows the raw observations of both the original 
+and simulated networks. The second data.table (enrichm_res) shows the 
+enrichment results.
 }
 \description{
-Compute cell-cell interaction enrichment for spots (observed vs expected)
+Compute cell-cell interaction enrichment for spots 
+(observed vs expected)
 }
 \details{
-Spatial proximity enrichment or depletion between pairs of cell types
-is calculated by calculating the observed over the expected frequency
-of cell-cell proximity interactions. The expected frequency is the average frequency
-calculated from a number of spatial network simulations. Each individual simulation is
-obtained by reshuffling the cell type labels of each node (spot)
-in the spatial network.
+Spatial proximity enrichment or depletion between pairs of cell 
+types is calculated by calculating the observed over the expected frequency
+of cell-cell proximity interactions. The expected frequency is the average 
+frequency calculated from a number of spatial network simulations. Each 
+individual simulation is obtained by reshuffling the cell type labels of 
+each node (spot) in the spatial network.
 }

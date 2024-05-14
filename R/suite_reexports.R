@@ -1,4 +1,3 @@
-
 # GiottoUtils ####
 #' @export
 GiottoUtils::`%>%`
@@ -586,14 +585,3 @@ GiottoVisuals::spatNetwDistributionsKneighbors
 GiottoVisuals::subsetSankeySet
 #' @export
 GiottoVisuals::violinPlot
-
-
-
-
-
-
-
-
-
-
-

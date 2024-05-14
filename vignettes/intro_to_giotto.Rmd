@@ -1,0 +1,112 @@
+---
+title: "intro_to_giotto"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_to_giotto}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is an example of a standard visium analysis. For more information and additional examples, visit out Giotto website at http://giottosuite.com
+
+Load package
+
+```{r setup}
+library(Giotto)
+```
+
+Load a mini visium object
+
+```{r}
+g <- GiottoData::loadGiottoMini("visium")
+```
+
+Filtering
+
+```{r}
+g <- filterGiotto(g)
+```
+
+Normalization
+
+```{r}
+g <- normalizeGiotto(g)
+```
+
+Add statistics
+
+```{r}
+g <- addStatistics(g)
+```
+
+Find highly variable features
+
+```{r}
+g <- calculateHVF(g)
+```
+
+Run PCA
+
+```{r}
+g <- runPCA(g)
+```
+
+Plot PCA
+
+```{r}
+plotPCA(g, 
+        cell_color = "leiden_clus")
+```
+
+Run UMAP
+
+```{r}
+g <- runUMAP(g)
+```
+
+Plot UMAP
+
+```{r}
+plotUMAP(g,
+         cell_color = "leiden_clus")
+```
+
+Run tSNE
+
+```{r}
+g <- runtSNE(g)
+```
+
+Plot tSNE
+
+```{r}
+plotTSNE(g,
+         cell_color = "leiden_clus")
+```
+
+Do clustering
+
+```{r}
+g <- doLeidenCluster(g)
+```
+
+Spatial plot with clusters
+
+```{r}
+spatPlot2D(g,
+           cell_color = "leiden_clus")
+```
+
+Session info
+
+```{r}
+sessionInfo()
+```
+

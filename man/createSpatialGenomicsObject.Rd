@@ -9,7 +9,8 @@ createSpatialGenomicsObject(sg_dir = NULL, instructions = NULL)
 \arguments{
 \item{sg_dir}{full path to the exported Spatial Genomics directory}
 
-\item{instructions}{new instructions (e.g. result from createGiottoInstructions)}
+\item{instructions}{new instructions 
+(e.g. result from createGiottoInstructions)}
 }
 \description{
 Given the path to a Spatial Genomics data directory, creates a

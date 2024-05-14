@@ -19,9 +19,9 @@ runPatternSimulation(
   spat_methods_names = c("binSpect_single", "binSpect_multi", "spatialDE", "spark",
     "silhouetteRank"),
   scalefactor = 6000,
-  save_plot = T,
-  save_raw = T,
-  save_norm = T,
+  save_plot = TRUE,
+  save_raw = TRUE,
+  save_norm = TRUE,
   save_dir = "~",
   max_col = 4,
   height = 7,
@@ -41,7 +41,8 @@ runPatternSimulation(
 
 \item{gene_names}{selected genes}
 
-\item{spatial_probs}{probabilities to test for a high expressing gene value to be part of the spatial pattern}
+\item{spatial_probs}{probabilities to test for a high expressing gene 
+value to be part of the spatial pattern}
 
 \item{reps}{number of random simulation repetitions}
 
@@ -49,9 +50,11 @@ runPatternSimulation(
 
 \item{spat_methods}{vector of spatial methods to test}
 
-\item{spat_methods_params}{list of parameters list for each element in the vector of spatial methods to test}
+\item{spat_methods_params}{list of parameters list for each element in the 
+vector of spatial methods to test}
 
-\item{spat_methods_names}{name for each element in the vector of spatial elements to test}
+\item{spat_methods_names}{name for each element in the vector of spatial 
+elements to test}
 
 \item{scalefactor}{library size scaling factor when re-normalizing dataset}
 
@@ -77,5 +80,6 @@ runPatternSimulation(
 data.table with results
 }
 \description{
-Creates a known spatial pattern for selected genes one-by-one and runs the different spatial gene detection tests
+Creates a known spatial pattern for selected genes one-by-one 
+and runs the different spatial gene detection tests
 }

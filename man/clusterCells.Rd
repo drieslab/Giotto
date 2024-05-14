@@ -18,7 +18,7 @@ clusterCells(
   pyth_leid_iterations = 1000,
   pyth_louv_resolution = 1,
   pyth_louv_weight_col = NULL,
-  python_louv_random = F,
+  python_louv_random = FALSE,
   python_path = NULL,
   louvain_gamma = 1,
   louvain_omega = 1,
@@ -138,7 +138,10 @@ cluster cells using a variety of different methods
 Wrapper for the different clustering methods.
 }
 \seealso{
-\code{\link{doLeidenCluster}}, \code{\link{.doLouvainCluster_community}}, \code{\link{.doLouvainCluster_multinet}},
-\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
+\code{\link{doLeidenCluster}}, 
+\code{\link{.doLouvainCluster_community}}, 
+\code{\link{.doLouvainCluster_multinet}},
+\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, 
+\code{\link{doSNNCluster}},
 \code{\link{doKmeans}}, \code{\link{doHclust}}
 }

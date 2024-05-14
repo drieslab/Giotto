@@ -1,5 +1,3 @@
-
-
 # ------------------------------------------------------------------------- #
 # This script contains reusable dummy documentation / templates for
 # commonly used params.
@@ -225,13 +223,3 @@ NULL
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @keywords internal
 NULL
-
-
-
-
-
-
-
-
-
-

@@ -68,7 +68,8 @@ Test spot interactions using permutations
 
 \item \code{.do_multi_permuttest_random_spot()}: Calculate multiple random values for spots
 
-\item \code{.do_permuttest_spot()}: Performs permutation test on subsets of a matrix for spots
+\item \code{.do_permuttest_spot()}: Performs permutation test on subsets of a 
+matrix for spots
 
 }}
 \keyword{internal}

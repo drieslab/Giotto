@@ -22,9 +22,11 @@ plotPolygons(
 
 \item{spat_unit}{spatial unit}
 
-\item{polygons}{character. Vector of polygon names to plot. If NULL, all polygons are plotted}
+\item{polygons}{character. Vector of polygon names to plot. If NULL, all 
+polygons are plotted}
 
-\item{...}{Additional parameters passed to ggplot2::geom_polygon() or graphics::polygon}
+\item{...}{Additional parameters passed to ggplot2::geom_polygon() or 
+graphics::polygon}
 }
 \value{
 A ggplot2 image

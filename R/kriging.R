@@ -1,4 +1,3 @@
-
 # interpolateFeature ####
 setGeneric(
     "interpolateFeature",
@@ -44,22 +43,19 @@ NULL
 #' @export
 setMethod(
     "interpolateFeature", signature(x = "giotto", y = "missing"),
-    function(
-        x,
-        spat_unit = NULL,
-        feat_type = NULL,
-        feats,
-        spatvalues_params = list(),
-        spat_loc_name = "raw",
-        ext = NULL,
-        buffer = 50,
-        name_fmt = "%s",
-        savedir = file.path(getwd(), "interp_rasters"),
-        overwrite = FALSE,
-        verbose = NULL,
-        ...
-    ) {
-
+    function(x,
+    spat_unit = NULL,
+    feat_type = NULL,
+    feats,
+    spatvalues_params = list(),
+    spat_loc_name = "raw",
+    ext = NULL,
+    buffer = 50,
+    name_fmt = "%s",
+    savedir = file.path(getwd(), "interp_rasters"),
+    overwrite = FALSE,
+    verbose = NULL,
+    ...) {
         # This method prepares the data from the giotto object to pass
         # downstream where the actual interpolation happens
 
@@ -120,7 +116,7 @@ setMethod(
         # Note that this object will need to be reconnected.
         interp_img_list <- do.call(interpolateFeature, args = a)
 
-        for(i in seq_along(interp_img_list)) {
+        for (i in seq_along(interp_img_list)) {
             x <- setGiotto(
                 gobject = x,
                 x = interp_img_list[[i]]
@@ -146,17 +142,15 @@ setMethod(
 setMethod(
     "interpolateFeature",
     signature(x = "spatLocsObj", y = "data.frame"),
-    function(
-        x, y,
-        ext = NULL,
-        buffer = 50,
-        rastersize = 500,
-        name_fmt = "%s",
-        savedir = file.path(getwd(), "interp_rasters"),
-        overwrite = FALSE,
-        # cores = GiottoUtils::determine_cores(),
-        ...
-    ) {
+    function(x, y,
+    ext = NULL,
+    buffer = 50,
+    rastersize = 500,
+    name_fmt = "%s",
+    savedir = file.path(getwd(), "interp_rasters"),
+    overwrite = FALSE,
+    # cores = GiottoUtils::determine_cores(),
+    ...) {
         checkmate::assert_character(savedir)
         checkmate::assert_character(name_fmt)
         checkmate::assert_logical(overwrite)
@@ -193,7 +187,6 @@ setMethod(
             interp_img_list <- lapply_flex(
                 feats,
                 function(feat) {
-
                     name <- sprintf(name_fmt, feat)
                     filename <- file.path(savedir, paste0(name, ".tif"))
 
@@ -201,7 +194,7 @@ setMethod(
                     model <- gstat::gstat(
                         id = feat,
                         formula = as.formula(paste(feat, "~ 1")),
-                        locations = ~sdimx + sdimy,
+                        locations = ~ sdimx + sdimy,
                         data = annotatedlocs,
                         nmax = 7,
                         set = list(
@@ -267,31 +260,3 @@ setMethod(
         return(interp_img_list)
     }
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

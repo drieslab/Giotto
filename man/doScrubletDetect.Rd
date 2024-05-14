@@ -49,8 +49,9 @@ NULL, no seed will be set.}
 }
 \value{
 if \code{return_gobject = FALSE}, a \code{data.table} cell_ID, doublet scores,
-and classifications are returned. If \code{TRUE}, that information is appended into
-the input \code{giotto} object's metadata and the \code{giotto} object is returned.
+and classifications are returned. If \code{TRUE}, that information is appended
+into the input \code{giotto} object's metadata and the \code{giotto} object is
+returned.
 }
 \description{
 run \emph{scrublet} doublet detection for raw expression.

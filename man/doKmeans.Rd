@@ -32,17 +32,21 @@ doKmeans(
 
 \item{spat_unit}{spatial unit (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
+\item{expression_values}{expression values to use 
+(e.g. "normalized", "scaled", "custom")}
 
 \item{feats_to_use}{subset of features to use}
 
-\item{dim_reduction_to_use}{dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")}
+\item{dim_reduction_to_use}{dimension reduction to use 
+(e.g. "cells", "pca", "umap", "tsne")}
 
 \item{dim_reduction_name}{dimensions reduction name, default to "pca"}
 
 \item{dimensions_to_use}{dimensions to use, default = 1:10}
 
-\item{distance_method}{distance method (e.g. "original", "pearson", "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")}
+\item{distance_method}{distance method (e.g. "original", "pearson", 
+"spearman", "euclidean", "maximum", "manhattan", "canberra", "binary", 
+"minkowski")}
 
 \item{centers}{number of final clusters, default = 10}
 

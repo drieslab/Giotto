@@ -37,9 +37,11 @@ registerImagesFIJI(
 
 \item{output_img_dir}{Folder to save registered images to}
 
-\item{transforms_save_dir}{(jython implementation only) Folder to save transforms to}
+\item{transforms_save_dir}{(jython implementation only) Folder to save 
+transforms to}
 
-\item{ref_img_name}{(jython implementation only) File name of reference image for the registration}
+\item{ref_img_name}{(jython implementation only) File name of reference 
+image for the registration}
 
 \item{init_gauss_blur}{Point detector option: initial image blurring}
 
@@ -84,11 +86,14 @@ registerImagesFIJI(
 executing it.}
 }
 \value{
-list of registered giotto objects where the registered images and spatial locations
+list of registered giotto objects where the registered images and 
+spatial locations
 }
 \description{
-Wrapper function for Register Virtual Stack Slices plugin in FIJI
+Wrapper function for Register Virtual Stack Slices plugin in 
+FIJI
 }
 \details{
-This function was adapted from runFijiMacro function in jimpipeline by jefferislab
+This function was adapted from runFijiMacro function in 
+jimpipeline by jefferislab
 }

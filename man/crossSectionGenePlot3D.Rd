@@ -23,9 +23,11 @@ crossSectionGenePlot3D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{other_cell_color}{color of cells outside the cross section. default = transparent.}
+\item{other_cell_color}{color of cells outside the cross section. 
+default = transparent.}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change, change 
+save_name in save_param}
 
 \item{...}{parameters for spatGenePlot3D}
 }
@@ -33,7 +35,8 @@ crossSectionGenePlot3D(
 ggplot
 }
 \description{
-Visualize cells and gene expression in a virtual cross section according to spatial coordinates
+Visualize cells and gene expression in a virtual cross section 
+according to spatial coordinates
 }
 \details{
 Description of parameters.

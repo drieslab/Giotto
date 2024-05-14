@@ -10,7 +10,8 @@
 \item{spatlocs}{spatial locations data.table or \code{spatLocsObj} containing
 centroid locations of visium spots}
 
-\item{json_scalefactors}{list of scalefactors from .visium_read_scalefactors()}
+\item{json_scalefactors}{list of scalefactors from
+.visium_read_scalefactors()}
 }
 \value{
 giottoPolygon object
