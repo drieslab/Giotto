@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 This is an example of a standard visium analysis. For more information and additional examples, visit out Giotto website at http://giottosuite.com
 
+Running time: This vignette takes ~ 25 seconds to run in a local machine with a processor 2.6 GHz 6-Core Intel Core i7, RAM 16 GB, platform x86_64-apple-darwin20, running under macOS Sonoma 14.4.1.
+
 Load package
 
 ```{r setup}
