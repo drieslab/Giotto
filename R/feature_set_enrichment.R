@@ -27,6 +27,7 @@
 #' in Basic Fields in GSEA Application
 #' @param set_min default 15, equivalent to "min size; exclude smaller sets" 
 #' in Basic Fields in GSEA Application
+#' @returns data.table
 #' @details
 #' NECESSARY PREREQUISITES
 #' 1. download and install the COMMAND line (all platforms) gsea-XXX.jar

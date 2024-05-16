@@ -81,3 +81,8 @@ either the features or the cells (spatial units) \cr
 \item{3. mean: calculate mean of the features, i.e. average expression}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterDistributions(g)
+}

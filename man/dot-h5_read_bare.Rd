@@ -13,6 +13,9 @@
 
 \item{dapl}{HDF5 property list (H5Pcreate('H5P_DATASET_ACCESS'))}
 }
+\value{
+HDF5 contents
+}
 \description{
 Read dataset from opened HDF5 with C functions
 }

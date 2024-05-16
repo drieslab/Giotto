@@ -8,6 +8,7 @@
 #' @param overlapping_pixels numeric; the number of pixels to overlap when
 #' calculating the rolling window
 #' @param python_path specify specific path to python if required
+#' @returns segmentation results
 #' @details
 #' This function is a wrapper for the Mesmer algorithm implemented in python.
 #' It segments the cells in tissue by applying a rolling window on the complete

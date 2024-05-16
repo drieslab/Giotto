@@ -99,3 +99,8 @@ Creates a virtual 2D cross section object for a given spatial
 network object. The users need to provide the definition of the cross 
 section plane (see method).
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+createCrossSection(gobject = g, spatial_network_name = "spatial_network")
+}

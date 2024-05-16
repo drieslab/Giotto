@@ -16,6 +16,9 @@ in the same folder as the images and named
 \item{name}{character. name to assign the image. Multiple should be provided
 if image_file is a list.}
 }
+\value{
+giottoLargeImage
+}
 \description{
 Read MERSCOPE stitched images as giottoLargeImage. Images will also be
 transformed to match the spatial coordinate reference system of the paired

@@ -57,6 +57,13 @@ fully connected network by setting minimal_k > 0 in the
 }
 The spatCorObject can be further explored with showSpatialCorGenes()
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+detectSpatialCorFeatsMatrix(expression_matrix = getExpression(
+g, output = "matrix"), method = "network", 
+spatial_network = getSpatialNetwork(g, output = "networkDT"))
+}
 \seealso{
 \code{\link{showSpatialCorFeats}}
 }

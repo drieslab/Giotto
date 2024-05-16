@@ -63,6 +63,9 @@ in Basic Fields in GSEA Application}
 \item{set_min}{default 15, equivalent to "min size; exclude smaller sets" 
 in Basic Fields in GSEA Application}
 }
+\value{
+data.table
+}
 \description{
 Preform Gene Set Enrichment Analysis using marker genes
 }

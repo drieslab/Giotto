@@ -72,5 +72,9 @@ identify significant prinicipal components (PCs)
 The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} 
  function. By systematically permuting genes it identifies robust, and thus 
  significant, PCs.
- \cr
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+jackstrawPlot(gobject = g)
 }

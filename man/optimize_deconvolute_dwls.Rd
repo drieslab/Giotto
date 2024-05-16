@@ -6,6 +6,9 @@
 \usage{
 optimize_deconvolute_dwls(exp, Signature)
 }
+\value{
+matrix
+}
 \description{
 Rui to fill in
 }

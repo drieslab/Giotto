@@ -123,3 +123,11 @@ run in parallel and to calculate hub cells.
 The data.table implementation might be more appropriate for large datasets 
 by setting the group_size (number of genes) parameter to divide the workload.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g_expression <- getExpression(g, output = "matrix")
+g_spat_net <- getSpatialNetwork(g, output = "networkDT")
+
+binSpectSingleMatrix(expression_matrix = g_expression, 
+spatial_network = g_spat_net)
+}

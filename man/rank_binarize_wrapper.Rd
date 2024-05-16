@@ -6,6 +6,9 @@
 \usage{
 rank_binarize_wrapper(expr_values, subset_feats = NULL, percentage_rank = 30)
 }
+\value{
+matrix
+}
 \description{
 wrapper for rank binarization function
 }

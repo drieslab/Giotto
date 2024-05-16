@@ -25,6 +25,9 @@ calculating the rolling window}
 
 \item{python_path}{specify specific path to python if required}
 }
+\value{
+segmentation results
+}
 \description{
 segment cells in Dapi image
 }

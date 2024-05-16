@@ -11,6 +11,9 @@ getGEFtxCoords(gef_file, bin_size = "bin100")
 
 \item{bin_size}{bin size to select from .gef file}
 }
+\value{
+transcript with coordinates
+}
 \description{
 Converts .gef file (output stereo-seq pipeline) into
 transcript with coordinates

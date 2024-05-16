@@ -11,6 +11,9 @@ reshape_to_mesh_grid_obj(data_points, mesh_grid_n)
 
 \item{mesh_grid_n}{mesh_grid_n}
 }
+\value{
+list
+}
 \description{
 reshape a data point matrix to a mesh grid line object
 }

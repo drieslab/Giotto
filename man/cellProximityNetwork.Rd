@@ -80,3 +80,10 @@ Create network from cell-cell proximity scores
 This function creates a network that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximityNetwork(gobject = g, CPscore = x)
+}

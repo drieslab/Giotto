@@ -14,6 +14,9 @@
   cor_name
 )
 }
+\value{
+data.table
+}
 \description{
 .run_spat_autocor_global
 }

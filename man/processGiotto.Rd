@@ -40,3 +40,9 @@ information about the different parameters in each step. If you do not
 provide them it will use the default values. If no adjustment is required, 
 adjust_params must be set to NULL
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+processGiotto(gobject = g, 
+adjust_params = list(covariate_columns = "leiden_clus"))
+}

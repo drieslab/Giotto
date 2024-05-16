@@ -114,6 +114,9 @@ best initialization}
 
 \item{python_path}{python_path}
 }
+\value{
+initialized HMRF
+}
 \description{
 Run initialzation for HMRF model
 }

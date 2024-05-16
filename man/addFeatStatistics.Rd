@@ -42,3 +42,8 @@ This function will add the following statistics to feature metadata:
   \item{mean_expr_det: }{Average feature expression in cells with detectable levels of the gene}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addFeatStatistics(g)
+}

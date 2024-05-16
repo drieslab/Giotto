@@ -34,3 +34,25 @@ A ggplot2 image
 \description{
 Plot stored polygons
 }
+\examples{
+## Plot interactive polygons
+g <- GiottoData::loadGiottoMini("visium")
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+
+## Add polygon coordinates to Giotto object
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+name = "selections")
+g <- addGiottoPolygons(
+    gobject = g,
+    gpolygons = list(my_giotto_polygons)
+)
+
+## Add polygon cells
+g <- addPolygonCells(g)
+
+## Create spatplot
+x <- spatPlot2D(g, return_plot = TRUE)
+
+plotPolygons(g, x = x)
+}

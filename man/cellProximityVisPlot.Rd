@@ -117,3 +117,11 @@ coordinates
 \details{
 Description of parameters.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximityVisPlot(gobject = g, interaction_name = x,
+cluster_column = "leiden_clus", sdimx = "sdimx", sdimy = "sdimy")
+}

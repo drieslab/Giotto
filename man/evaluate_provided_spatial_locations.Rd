@@ -6,6 +6,9 @@
 \usage{
 evaluate_provided_spatial_locations(spatial_locs)
 }
+\value{
+character
+}
 \description{
 Evaluate provided spatial locations
 }

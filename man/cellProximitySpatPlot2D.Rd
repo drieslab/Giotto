@@ -120,3 +120,11 @@ coordinates in ggplot mode
 \details{
 Description of parameters.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximitySpatPlot2D(gobject = g, cluster_column = "leiden_clus",
+interaction_name = x)
+}

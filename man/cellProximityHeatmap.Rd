@@ -52,3 +52,10 @@ Create heatmap from cell-cell proximity scores
 This function creates a heatmap that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximityHeatmap(gobject = g, CPscore = x)
+}

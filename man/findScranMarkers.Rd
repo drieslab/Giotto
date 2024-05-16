@@ -68,3 +68,8 @@ When you have many different ids in a single group
 it is recommend to provide names for both groups to \emph{group_1_name} and 
 \emph{group_2_name}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findScranMarkers(g, cluster_column = "leiden_clus")
+}

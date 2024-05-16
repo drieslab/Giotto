@@ -6,6 +6,9 @@
 \usage{
 .do_page_permutation(gobject, sig_gene, ntimes)
 }
+\value{
+PAGEEnrich test
+}
 \description{
 creates permutation for the PAGEEnrich test
 }

@@ -11,6 +11,9 @@ find_x_y_ranges(data, extend_ratio)
 
 \item{extend_ratio}{extend_ratio}
 }
+\value{
+list
+}
 \description{
 get the extended ranges of x and y
 }

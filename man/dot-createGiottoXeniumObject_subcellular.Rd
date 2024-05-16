@@ -30,6 +30,9 @@ provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+giotto object
+}
 \description{
 Subcellular workflow for createGiottoXeniumObject
 }

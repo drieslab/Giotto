@@ -9,6 +9,9 @@
 \arguments{
 \item{img_object}{giottoImage or magick-image to use}
 }
+\value{
+data.frame
+}
 \description{
 finds four corner spatial coords of giottoImages or 
 magick-images

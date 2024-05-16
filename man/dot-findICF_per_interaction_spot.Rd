@@ -22,6 +22,9 @@
   seed_number = 1234
 )
 }
+\value{
+data.table
+}
 \description{
 Identifies features that are differentially expressed due to 
 proximity to other cell types for spots.

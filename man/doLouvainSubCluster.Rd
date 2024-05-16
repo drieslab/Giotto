@@ -93,6 +93,11 @@ The systematic steps are:
   \item{5. do Louvain clustering}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLouvainSubCluster(g, cluster_column = "leiden_clus")
+}
 \seealso{
 \code{\link{.doLouvainCluster_multinet}} and 
 \code{\link{.doLouvainCluster_community}}

@@ -29,6 +29,9 @@ required to calculate enrichment}
     \item{\code{return_gobject}}{return giotto object}
   }}
 }
+\value{
+gene enrichment
+}
 \description{
 Function to calculate gene signature enrichment scores per 
 spatial position using PAGE.

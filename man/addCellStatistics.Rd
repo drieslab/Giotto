@@ -40,3 +40,8 @@ This function will add the following statistics to cell metadata:
   \item{total_expr: }{Shows the total sum of feature expression per cell}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addCellStatistics(g)
+}

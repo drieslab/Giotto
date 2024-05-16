@@ -12,6 +12,9 @@ provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+list
+}
 \description{
 Load CosMx folder aggregate info
 }

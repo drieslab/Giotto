@@ -13,6 +13,9 @@ chooseAvailableSpatialGenes(gobject, spat_unit = NULL, feat_type = NULL)
 
 \item{feat_type}{feature type}
 }
+\value{
+character
+}
 \description{
 function to find the test name for existing spatial gene sets 
 in Giotto

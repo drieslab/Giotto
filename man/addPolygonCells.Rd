@@ -40,19 +40,19 @@ not located within a polygon area
 Add corresponding polygon IDs to cell metadata
 }
 \examples{
-\dontrun{
 ## Plot interactive polygons
-my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+g <- GiottoData::loadGiottoMini("visium")
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 
 ## Add polygon coordinates to Giotto object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-my_giotto_object <- addGiottoPolygons(
-    gobject = my_giotto_object,
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+name = "selections")
+g <- addGiottoPolygons(
+    gobject = g,
     gpolygons = list(my_giotto_polygons)
 )
 
 ## Add polygon IDs to cell metadata
-my_giotto_object <- addPolygonCells(my_giotto_object)
-}
-
+addPolygonCells(g)
 }

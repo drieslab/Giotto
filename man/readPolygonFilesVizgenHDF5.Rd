@@ -67,6 +67,9 @@ objects}
 
 \item{polygon_feat_types}{deprecated. Use \code{z_indices}}
 }
+\value{
+list of giottoPolygon or data.table
+}
 \description{
 Read polygon info for all cells or for only selected FOVs from
 Vizgen HDF5 files. Data is returned as a list of giottoPolygons or 

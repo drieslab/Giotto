@@ -25,9 +25,15 @@
 #' @param python_path python path to use
 #' @param output_folder output folder to save results
 #' @param overwrite_output overwrite output folder
-#' @return Creates a directory with results that can be viewed with 
+#' @returns Creates a directory with results that can be viewed with 
 #' viewHMRFresults
 #' @details Description of HMRF parameters ...
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' spat_genes <- binSpect(g)
+#' 
+#' doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats, 
+#' output_folder = tempdir())
 #' @export
 doHMRF <- function(gobject,
     spat_unit = NULL,
@@ -338,8 +344,16 @@ doHMRF <- function(gobject,
 #' @param betas_used betas that were tested
 #' @param python_path_used python path that was used
 #' @param output_folder_used output folder that was used
-#' @return reloads a previous ran HMRF from doHRMF
-#' @details Description of HMRF parameters ...
+#' @returns reloads a previous ran HMRF from doHRMF
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- tempdir()
+#' doHMRF(g, spatial_genes = c("Gna12", "Ccnd2"), output_folder = x,
+#' betas = c(0, 2, 50))
+#' 
+#' loadHMRF(output_folder_used = x, betas_used = c(0, 2, 50), 
+#' python_path_used = NULL)
+#' 
 #' @export
 loadHMRF <- function(name_used = "test",
     output_folder_used,
@@ -536,7 +550,7 @@ writeHMRFresults <- function(gobject,
 #' @param k number of domains
 #' @param betas_to_add results from different betas that you want to add
 #' @param hmrf_name specify a custom name
-#' @return giotto object
+#' @returns giotto object
 #' @export
 addHMRF <- function(gobject,
     spat_unit = NULL,
@@ -861,6 +875,7 @@ sampling_sp_genes <- function(clust,
 #' @param slope slope to compare
 #' @param x location point of the line to compare, integer from 1 to length of 
 #' myVector
+#' @returns numeric
 #' @details
 #' This function calculates the number of data points in a sorted sequence 
 #' below a line with given slope through a certain point on this sequence.
@@ -885,11 +900,16 @@ numPts_below_line <- function(myVector,
 #' @param max max number of genes selected from spatial test
 #' @param name name of spatial gene test for the filtering
 #' @param method method of spatial gene selection
+#' @returns list
 #' @details
 #' This function filters given gene list with the gene sets of selected 
 #' spatial gene test in Giotto,
 #' also controls the total size of the gene set with given max number.
 #' @keywords external
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' filterSpatialGenes(g, spatial_genes = "Gm19935")
 #' @export
 filterSpatialGenes <- function(
         gobject, spat_unit = NULL, feat_type = NULL, spatial_genes, max = 2500,
@@ -972,6 +992,7 @@ filterSpatialGenes <- function(
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @returns character
 #' @details
 #' This function outputs the available test name for existing spatial gene sets 
 #' in Giotto,
@@ -1007,6 +1028,7 @@ chooseAvailableSpatialGenes <- function(
 #' @param feat_type feature type
 #' @param use_spatial_genes test name of spatial gene set to check
 #' @param use_score logical variable to select silhouetteRank score
+#' @returns character
 #' @details
 #' This function checks the user specified test name of spatial gene set in 
 #' Giotto object.
@@ -1110,6 +1132,7 @@ checkAndFixSpatialGenes <- function(gobject,
 #' best initialization
 #' @param factor_step dampened factor step
 #' @param python_path python_path
+#' @returns initialized HMRF
 #' @details
 #' This function is the initialization step of HMRF domain clustering. First, 
 #' user specify which of Giotto's spatial genes to run,
@@ -1649,6 +1672,7 @@ initHMRF_V2 <-
 #' clustering. NULL value of beta will provide default values based on feature 
 #' numbers, otherwise, a vector of three values: initial beta, beta increment, 
 #' and number of betas
+#' @returns HMRF model
 #' @details
 #' This function will run a HMRF model after initialization of HMRF. Of note 
 #' is the beta parameter, the smoothing parameter.
@@ -1773,6 +1797,7 @@ doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
 #' @param gobject giotto object
 #' @param HMRFoutput result object from HMRF model
 #' @param name name of HMRF models
+#' @returns giotto object
 #' @details
 #' This function appends HMRF domain clusters to corresponding cell meta data 
 #' for all the beta values, with the given HMRF model names. For example, if 

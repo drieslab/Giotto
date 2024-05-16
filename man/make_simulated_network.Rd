@@ -15,6 +15,9 @@ make_simulated_network(
   seed_number = 1234
 )
 }
+\value{
+data.table
+}
 \description{
 Simulate random network.
 }

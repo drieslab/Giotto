@@ -24,6 +24,9 @@ cell type}
     \item{\code{direction}}{differential expression directions to keep}
   }}
 }
+\value{
+proximity genes
+}
 \description{
 Filter Interaction Changed Feature scores.
 }

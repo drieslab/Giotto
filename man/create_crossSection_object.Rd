@@ -60,6 +60,9 @@ selected cells onto the cross section plane}
 \item{cell_subset_projection_coords}{2D PCA coordinates of selected cells 
 in the cross section plane}
 }
+\value{
+crossSection object
+}
 \description{
 create a crossSection object
 }

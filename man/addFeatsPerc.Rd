@@ -37,3 +37,8 @@ results
 Calculates the total percentage of (normalized) counts for a 
 subset of selected genes
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addFeatsPerc(g, feats = c("Gm19935", "9630013A20Rik", "2900040C04Rik"))
+}

@@ -55,3 +55,9 @@ Cluster cells using a SNN cluster approach.
 \details{
 See \code{\link[dbscan]{sNNclust}} from dbscan package
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- createNearestNetwork(g, type = "kNN")
+
+doSNNCluster(g)
+}

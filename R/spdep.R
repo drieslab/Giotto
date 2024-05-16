@@ -129,10 +129,9 @@ spdepAutoCorr <- function(gobject,
 #' parameters.
 #' @param ... Additional parameters for the function. See spdep documentation
 #' for relevant parameters.
-#' @return Computed statistics from the specified method.
+#' @returns Computed statistics from the specified method.
 #' @export
 #' @seealso \url{https://cran.r-project.org/web/packages/spdep/index.html}
-
 callSpdep <- function(method, ...) {
     # Load the 'spdep' package if not already installed
     package_check(pkg_name = "spdep", repository = "CRAN", optional = FALSE)
