@@ -17,6 +17,9 @@
 
 \item{second_col}{second column to use}
 }
+\value{
+ggplot
+}
 \description{
 Plots recovery plot to compare ligand-receptor rankings from 
 spatial and expression information

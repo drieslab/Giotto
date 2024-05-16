@@ -33,6 +33,9 @@ provided}
 \item{instructions}{list of instructions or output result
 from \code{\link[GiottoClass]{createGiottoInstructions}}}
 }
+\value{
+giotto object
+}
 \description{
 Load and create a CosMx Giotto object from subcellular info
 }

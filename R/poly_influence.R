@@ -162,7 +162,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #' @param cell_meta cell_metadata from the original spatial_unit
 #' @param cell_meta_new cell_metadata from the resized spatial unit
 #' @param clus_name name of the cluster type, likely "kmeans"
-#' @return switch_str, a vector of corresponding cluster numbers in strings
+#' @returns switch_str, a vector of corresponding cluster numbers in strings
 #' @details creates a string in the format c("x_1-y_1", "x_2-y_2"..."x_n, y_n")
 #' Where:
 #'    x_n is a cluster number from the original spatial unit
@@ -211,7 +211,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #' @name .determine_switch_string_unequal
 #' @param num_orig sorted vector of cluster numbers in the original metadata
 #' @param num_new sorted vector of cluster numbers in the new, resized metadata
-#' @return switch_str, a vector of corresponding cluster numbers in strings
+#' @returns switch_str, a vector of corresponding cluster numbers in strings
 #' @details determines how to create a string in the format 
 #' c("x_1-y_1", "x_2-y_2"..."x_n, y_m")
 #' Where:
@@ -253,7 +253,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #' @name .create_switch_string_unequal
 #' @param num_first sorted vector of cluster numbers in the outer for loop
 #' @param num_second sorted vector of cluster numbers in the inner for loop
-#' @return switch_str, a vector of corresponding cluster numbers in strings
+#' @returns switch_str, a vector of corresponding cluster numbers in strings
 #' @details creates a string in the format c("x_1-y_1", "x_2-y_2"..."x_n, y_m")
 #' Where:
 #'    x_n is a cluster number from the original spatial unit

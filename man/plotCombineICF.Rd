@@ -62,3 +62,16 @@ ggplot
 \description{
 Create visualization for combined (pairwise) ICF scores
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+g_icf <- findInteractionChangedFeats(g, 
+cluster_column = "leiden_clus", 
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+combIcfObject <- combineInteractionChangedFeats(g_icf)
+
+plotCombineICF(gobject = g, combIcfObject = combIcfObject, 
+selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
+selected_interactions = "1--8")
+}

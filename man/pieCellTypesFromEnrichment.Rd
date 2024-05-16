@@ -42,6 +42,9 @@ Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`}
 
 \item{return_plot}{logical. return ggplot object}
 }
+\value{
+pie plot
+}
 \description{
 pieCellTypesFromEnrichment
 }

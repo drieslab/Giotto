@@ -12,6 +12,9 @@ createSpatialGenomicsObject(sg_dir = NULL, instructions = NULL)
 \item{instructions}{new instructions 
 (e.g. result from createGiottoInstructions)}
 }
+\value{
+giotto object
+}
 \description{
 Given the path to a Spatial Genomics data directory, creates a
 Giotto object.

@@ -91,3 +91,8 @@ C. The normalization method as provided by Lause/Kobak et al is also implemented
 By default the latter two results will be saved in the Giotto slot for 
 scaled expression, this can be changed by changing the update_slot parameters
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+normalizeGiotto(g)
+}

@@ -6,6 +6,9 @@
 \usage{
 .rank_binarize(x, max_rank = 200)
 }
+\value{
+data.table
+}
 \description{
 create binarized scores from a vector using arbitrary rank
 }

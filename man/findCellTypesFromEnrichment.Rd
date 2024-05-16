@@ -26,6 +26,9 @@ Default value is "PAGE_Z_score"}
 
 \item{return_frequency_table}{see details. Default FALSE}
 }
+\value{
+table
+}
 \description{
 findCellTypesFromEnrichment
 }

@@ -20,11 +20,15 @@
 #' NULL, no seed will be set.
 #' @seealso This function wraps the python package scrublet
 #' \doi{10.1016/j.cels.2018.11.005}
-#' @return if `return_gobject = FALSE`, a `data.table` cell_ID, doublet scores,
+#' @returns if `return_gobject = FALSE`, a `data.table` cell_ID, doublet scores,
 #' and classifications are returned. If `TRUE`, that information is appended 
 #' into the input `giotto` object's metadata and the `giotto` object is 
 #' returned.
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' doScrubletDetect(g)
 #' @export
 doScrubletDetect <- function(gobject,
     feat_type = NULL,

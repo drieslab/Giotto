@@ -245,7 +245,7 @@
 #' @param default_save_name default save name for saving, don't change, change 
 #' save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object highly variable features appended to feature metadata 
+#' @returns giotto object highly variable features appended to feature metadata 
 #' (`fDataDT()`)
 #' @details
 #' Currently we provide 2 ways to calculate highly variable genes:
@@ -263,6 +263,10 @@
 #' are considered highly variable. \cr
 #'
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' calculateHVF(g)
 #' @export
 calculateHVF <- function(gobject,
     spat_unit = NULL,

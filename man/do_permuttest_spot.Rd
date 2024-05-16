@@ -57,6 +57,9 @@
   seed_number = 1234
 )
 }
+\value{
+data.table
+}
 \description{
 Test spot interactions using permutations
 }

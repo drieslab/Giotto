@@ -15,6 +15,9 @@ clustering. NULL value of beta will provide default values based on feature
 numbers, otherwise, a vector of three values: initial beta, beta increment, 
 and number of betas}
 }
+\value{
+HMRF model
+}
 \description{
 function to run HMRF model
 }

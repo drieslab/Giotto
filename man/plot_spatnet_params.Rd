@@ -16,6 +16,9 @@
 
 \item{spat_network_alpha}{alpha of spatial network}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_spatnet_params
 }

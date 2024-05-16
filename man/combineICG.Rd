@@ -26,6 +26,9 @@ combineICG(...)
     \item{\code{verbose}}{verbose}
   }}
 }
+\value{
+ICF scores
+}
 \description{
 Combine ICF scores in a pairwise manner.
 }

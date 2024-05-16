@@ -27,6 +27,9 @@ rankEnrich(...)
     \item{\code{return_gobject}}{return giotto object}
   }}
 }
+\value{
+gene enrichment
+}
 \description{
 Function to calculate gene signature enrichment scores per 
 spatial position using a rank based approach.

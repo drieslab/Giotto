@@ -46,3 +46,9 @@ icfObject that contains the filtered differential feature scores
 \description{
 Filter Interaction Changed Feature scores for spots.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+
+filterICFSpot(icfObject = icfObject)
+}

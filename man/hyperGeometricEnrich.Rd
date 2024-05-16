@@ -25,6 +25,9 @@ gene expression with matrix binarization}
     \item{\code{return_gobject}}{return giotto object}
   }}
 }
+\value{
+enrichment scores
+}
 \description{
 Function to calculate gene signature enrichment scores per 
 spatial position using a hypergeometric test.

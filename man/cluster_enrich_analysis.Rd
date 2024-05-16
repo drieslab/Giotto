@@ -6,6 +6,9 @@
 \usage{
 cluster_enrich_analysis(exp_matrix, cluster_info, enrich_sig_matrix)
 }
+\value{
+enrichment values
+}
 \description{
 Rui to fill in
 }

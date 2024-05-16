@@ -68,3 +68,12 @@ ggplot
 Plots heatmap for ligand-receptor communication scores in 
 cell-cell interactions
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+
+plotCCcomHeatmap(gobject = g, comScores = comScores, show_plot = TRUE)
+}

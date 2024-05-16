@@ -26,6 +26,9 @@
 
 \item{method}{method of registration}
 }
+\value{
+list
+}
 \description{
 finds new minmax boundaries of registration transformed images
 }

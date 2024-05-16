@@ -28,6 +28,9 @@ heatmSpatialCorGenes(...)
 change save_name in save_param}
   }}
 }
+\value{
+heatmap
+}
 \description{
 Create heatmap of spatially correlated genes
 }

@@ -30,6 +30,9 @@ findCPG(...)
     \item{\code{seed_number}}{seed number}
   }}
 }
+\value{
+cell-to-cell Interaction Changed Genes
+}
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
 i.e. genes that are differentially expressed due to proximity to other cell 

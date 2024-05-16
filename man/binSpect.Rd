@@ -153,3 +153,8 @@ run in parallel and to calculate hub cells.
 The data.table implementation might be more appropriate for large datasets 
 by setting the group_size (number of genes) parameter to divide the workload.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+binSpect(g)
+}

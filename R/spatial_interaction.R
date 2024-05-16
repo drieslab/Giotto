@@ -3,6 +3,7 @@
 #' @title make_simulated_network
 #' @name make_simulated_network
 #' @description Simulate random network.
+#' @returns data.table
 #' @keywords internal
 make_simulated_network <- function(gobject,
     spat_unit = NULL,
@@ -102,7 +103,7 @@ make_simulated_network <- function(gobject,
 #' @param adjust_method method to adjust p.values
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
-#' @return List of cell Proximity scores (CPscores) in data.table format. The 
+#' @returns List of cell Proximity scores (CPscores) in data.table format. The 
 #' first data.table (raw_sim_table) shows the raw observations of both the 
 #' original and simulated networks. The second data.table (enrichm_res) shows 
 #' the enrichment results.
@@ -112,6 +113,10 @@ make_simulated_network <- function(gobject,
 #' frequency calculated from a number of spatial network simulations. Each 
 #' individual simulation is obtained by reshuffling the cell type labels of 
 #' each node (cell) in the spatial network.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' cellProximityEnrichment(g, cluster_column = "leiden_clus")
 #' @export
 cellProximityEnrichment <- function(gobject,
     spat_unit = NULL,
@@ -328,7 +333,7 @@ cellProximityEnrichment <- function(gobject,
 #' @param cell_interaction cell-cell interaction to use
 #' @param name name for the new metadata column
 #' @param return_gobject return an updated giotto object
-#' @return Giotto object
+#' @returns Giotto object
 #' @details This function will create an additional metadata column which 
 #' selects interacting cell types for a specific cell-cell
 #' interaction. For example, if you want to color interacting astrocytes and 
@@ -336,6 +341,11 @@ cellProximityEnrichment <- function(gobject,
 #' the values "select_astrocytes", "select_oligodendrocytes", 
 #' "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is 
 #' all other cell types found within the selected cell type column.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' addCellIntMetadata(g, cluster_column = "leiden_clus", 
+#' cell_interaction = "custom_leiden")
 #' @export
 addCellIntMetadata <- function(gobject,
     spat_unit = NULL,
@@ -443,6 +453,7 @@ addCellIntMetadata <- function(gobject,
 #' @name cell_proximity_tests
 #' @description
 #' Perform specified test on subsets of a matrix
+#' @returns cell proximity values
 NULL
 
 
@@ -783,6 +794,7 @@ NULL
 #' @name .do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
 #' @param expr_values Matrix object
+#' @returns differential test on subsets of a matrix
 #' @keywords internal
 #' @seealso [cell_proximity_tests]
 .do_cell_proximity_test <- function(expr_values,
@@ -851,6 +863,7 @@ NULL
 #' @description Identifies features that are differentially expressed due to 
 #' proximity to other cell types.
 #' @param expr_values Matrix object
+#' @returns data.table
 #' @keywords internal
 #' @seealso [.do_cell_proximity_test()] for specific tests
 .findCellProximityFeats_per_interaction <- function(sel_int,
@@ -1059,7 +1072,7 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @return icfObject that contains the Interaction Changed differential feature 
+#' @returns icfObject that contains the Interaction Changed differential feature 
 #' scores
 #' @details Function to calculate if features are differentially expressed in 
 #' cell types when they interact (approximated by physical proximity) with 
@@ -1081,6 +1094,11 @@ NULL
 #'  \item{int_nr_other:}{ number of other cells for interacting cell type}
 #'  \item{unif_int:}{ cell-cell interaction}
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
 #' @export
 findInteractionChangedFeats <- function(gobject,
     feat_type = NULL,
@@ -1257,6 +1275,7 @@ findInteractionChangedFeats <- function(gobject,
 #' cell types.
 #' @param ... params to pass to \code{findInteractionChangedFeats}
 #' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns interaction changed genes
 #' @export
 findInteractionChangedGenes <- function(...) {
     .Deprecated(new = "findInteractionChangedFeats")
@@ -1273,6 +1292,7 @@ findInteractionChangedGenes <- function(...) {
 #' types.
 #' @inheritDotParams findInteractionChangedFeats
 #' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns cell-cell interaction changed genes
 #' @export
 findCellProximityGenes <- function(...) {
     .Deprecated(new = "findInteractionChangedFeats")
@@ -1307,7 +1327,7 @@ findCellProximityGenes <- function(...) {
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @return icfObject that contains the Interaction Changed differential gene 
+#' @returns icfObject that contains the Interaction Changed differential gene 
 #' scores
 #' @details Function to calculate if genes are differentially expressed in 
 #' cell types when they interact (approximated by physical proximity) with 
@@ -1330,6 +1350,11 @@ findCellProximityGenes <- function(...) {
 #'  \item{unif_int:}{ cell-cell interaction}
 #' }
 #' @seealso \code{\link{findInteractionChangedFeats}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' findICF(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
 #' @export
 findICF <- function(gobject,
     feat_type = NULL,
@@ -1384,6 +1409,7 @@ findICF <- function(gobject,
 #' cell types.
 #' @inheritDotParams findICF
 #' @seealso \code{\link{findICF}}
+#' @returns cell-cell interaction changed features
 #' @export
 findICG <- function(...) {
     .Deprecated(new = "findICF")
@@ -1399,6 +1425,7 @@ findICG <- function(...) {
 #' i.e. genes that are differentially expressed due to proximity to other cell 
 #' types.
 #' @inheritDotParams findICF
+#' @returns cell-to-cell Interaction Changed Genes
 #' @seealso \code{\link{findICF}}
 #' @export
 findCPG <- function(...) {
@@ -1425,7 +1452,7 @@ findCPG <- function(...) {
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
-#' @return icfObject that contains the filtered differential feature scores
+#' @returns icfObject that contains the filtered differential feature scores
 #' @export
 filterInteractionChangedFeats <- function(icfObject,
     min_cells = 4,
@@ -1500,6 +1527,7 @@ filterInteractionChangedFeats <- function(icfObject,
 #' @description Filter Interaction Changed Feature scores.
 #' @inheritDotParams filterInteractionChangedFeats
 #' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns filtered interaction changed feature scores
 #' @export
 filterInteractionChangedGenes <- function(...) {
     .Deprecated(new = "filterInteractionChangedFeats")
@@ -1513,6 +1541,7 @@ filterInteractionChangedGenes <- function(...) {
 #' @description Filter Interaction Changed Feature scores.
 #' @inheritDotParams filterInteractionChangedFeats
 #' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns proximity genes
 #' @export
 filterCellProximityGenes <- function(...) {
     .Deprecated(new = "filterInteractionChangedFeats")
@@ -1539,7 +1568,13 @@ filterCellProximityGenes <- function(...) {
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
-#' @return icfObject that contains the filtered differential feature scores
+#' @returns icfObject that contains the filtered differential feature scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+#' 
+#' filterICF(g_icf)
 #' @export
 filterICF <- function(icfObject,
     min_cells = 4,
@@ -1575,6 +1610,7 @@ filterICF <- function(icfObject,
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterICF
 #' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
 #' @export
 filterICG <- function(...) {
     .Deprecated(new = "filterICF")
@@ -1589,6 +1625,7 @@ filterICG <- function(...) {
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterICF
 #' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
 #' @export
 filterCPG <- function(...) {
     .Deprecated(new = "filterICF")
@@ -1605,6 +1642,7 @@ filterCPG <- function(...) {
 #' @title Combine ICF scores per interaction
 #' @name .combineInteractionChangedFeatures_per_interaction
 #' @description Combine ICF scores per interaction
+#' @returns data.table
 #' @keywords internal
 .combineInteractionChangedFeatures_per_interaction <- function(icfObject,
     sel_int,
@@ -1958,7 +1996,14 @@ filterCPG <- function(...) {
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param verbose verbose
-#' @return combIcfObject that contains the filtered differential feature scores
+#' @returns combIcfObject that contains the filtered differential feature scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g_icf <- findInteractionChangedFeats(g, 
+#' cluster_column = "leiden_clus", 
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' combineInteractionChangedFeats(g_icf)
 #' @export
 combineInteractionChangedFeats <- function(icfObject,
     selected_ints = NULL,
@@ -2072,6 +2117,7 @@ combineInteractionChangedFeats <- function(icfObject,
 #' @name combineInteractionChangedGenes
 #' @description Combine ICF scores in a pairwise manner.
 #' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
 #' @seealso \code{\link{combineInteractionChangedFeats}}
 #' @export
 combineInteractionChangedGenes <- function(...) {
@@ -2085,6 +2131,7 @@ combineInteractionChangedGenes <- function(...) {
 #' @name combineCellProximityGenes
 #' @description Combine ICF scores in a pairwise manner.
 #' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
 #' @seealso \code{\link{combineInteractionChangedFeats}}
 #' @export
 combineCellProximityGenes <- function(...) {
@@ -2110,7 +2157,13 @@ combineCellProximityGenes <- function(...) {
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param verbose verbose
-#' @return icfObject that contains the filtered differential feats scores
+#' @returns icfObject that contains the filtered differential feats scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' combineICF(g_icf)
 #' @export
 combineICF <- function(icfObject,
     selected_ints = NULL,
@@ -2145,6 +2198,7 @@ combineICF <- function(icfObject,
 #' @name combineICG
 #' @description Combine ICF scores in a pairwise manner.
 #' @inheritDotParams combineICF
+#' @returns ICF scores
 #' @seealso \code{\link{combineICF}}
 #' @export
 combineICG <- function(...) {
@@ -2157,6 +2211,7 @@ combineICG <- function(...) {
 #' @name combineCPG
 #' @description Combine ICF scores in a pairwise manner.
 #' @inheritDotParams combineICF
+#' @returns ICF scores
 #' @seealso \code{\link{combineICF}}
 #' @export
 combineCPG <- function(...) {
@@ -2181,7 +2236,7 @@ combineCPG <- function(...) {
 #' @param cluster_column cluster column with cell type information
 #' @param feat_set_1 first specific feat set from feat pairs
 #' @param feat_set_2 second specific feat set from feat pairs
-#' @return data.table with average expression scores for each cluster
+#' @returns data.table with average expression scores for each cluster
 #' @keywords internal
 average_feat_feat_expression_in_groups <- function(gobject,
     spat_unit = NULL,
@@ -2289,7 +2344,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
 #' @param set_seed set seed for random simulations (default = TRUE)
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @return Cell-Cell communication scores for feature pairs based on 
+#' @returns Cell-Cell communication scores for feature pairs based on 
 #' expression only
 #' @details Statistical framework to identify if pairs of features 
 #' (such as ligand-receptor combinations)
@@ -2297,6 +2352,11 @@ average_feat_feat_expression_in_groups <- function(gobject,
 #' distribution of feature expression values,
 #' without considering the spatial position of cells.
 #' More details will follow soon.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 #' @export
 exprCellCellcom <- function(gobject,
     feat_type = NULL,
@@ -2482,7 +2542,7 @@ exprCellCellcom <- function(gobject,
 #' will be found
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @return list of randomly sampled cell ids with same cell type composition
+#' @returns list of randomly sampled cell ids with same cell type composition
 #' @keywords internal
 .create_cell_type_random_cell_IDs <- function(gobject,
     feat_type = NULL,
@@ -2851,7 +2911,7 @@ specificCellCellcommunicationScores <- function(gobject,
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @return Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial 
 #' interaction
 #' @details Statistical framework to identify if pairs of genes 
 #' (such as ligand-receptor combinations)
@@ -2879,6 +2939,12 @@ specificCellCellcommunicationScores <- function(gobject,
 #'  \item{p.adj:}{ adjusted p-value }
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#' random_iter = 10)
 #' @export
 spatCellCellcom <- function(gobject,
     feat_type = NULL,
@@ -3050,7 +3116,17 @@ spatCellCellcom <- function(gobject,
 #' @param min_av_diff minimum average expression difference
 #' @param detailed detailed option used with \code{\link{spatCellCellcom}} 
 #' (default = FALSE)
-#' @return combined data.table with spatial and expression communication data
+#' @returns combined data.table with spatial and expression communication data
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#' random_iter = 10)
+#' 
+#' combCCcom(spatialCC = spatialCC, exprCC = exprCC)
 #' @export
 combCCcom <- function(spatialCC,
     exprCC,

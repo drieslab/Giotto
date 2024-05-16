@@ -54,3 +54,8 @@ frequency calculated from a number of spatial network simulations. Each
 individual simulation is obtained by reshuffling the cell type labels of 
 each node (cell) in the spatial network.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+cellProximityEnrichment(g, cluster_column = "leiden_clus")
+}

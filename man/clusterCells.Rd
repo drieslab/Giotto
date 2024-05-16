@@ -137,6 +137,11 @@ cluster cells using a variety of different methods
 \details{
 Wrapper for the different clustering methods.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+clusterCells(g)
+}
 \seealso{
 \code{\link{doLeidenCluster}}, 
 \code{\link{.doLouvainCluster_community}}, 

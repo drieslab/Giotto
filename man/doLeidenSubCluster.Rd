@@ -106,6 +106,11 @@ The systematic steps are:
   \item{5. do Leiden clustering}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLeidenSubCluster(g, cluster_column = "leiden_clus")
+}
 \seealso{
 \code{\link{doLeidenCluster}}
 }

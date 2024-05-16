@@ -75,3 +75,10 @@ big data as you can predict cell labels on a smaller & subsetted Giotto
 object and then project the cell labels to the remaining cells in the target 
 Giotto object.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+x <- pDataDT(g)
+g_small <- subsetGiotto(g, cell_ids = sample(x$cell_ID,300))
+doClusterProjection(target_gobject = g, source_gobject = g_small,
+source_cluster_labels = "leiden_clus")
+}

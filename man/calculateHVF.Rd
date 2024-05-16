@@ -107,3 +107,8 @@ A predicted COV is calculated for each feature using loess regression
 Features that show a higher than predicted COV (\emph{difference_in_cov})
 are considered highly variable. \cr
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+calculateHVF(g)
+}

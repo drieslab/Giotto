@@ -8,6 +8,7 @@
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
 #'  Default value is "PAGE_Z_score"
 #' @param return_frequency_table see details. Default FALSE
+#' @returns table
 #' @details
 #' This function returns a two-column matrix, one column
 #' will contain cell IDs and the other will contain the
@@ -169,13 +170,13 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
 #' @param title Title of the generated plot.
 #'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
 #' @inheritParams plot_output_params
+#' @returns pie plot
 #' @details
 #'
 #' This function generates a pie chart of cell types by frequency.
 #' These cell type resutls are based on the provided `enrichment_name`,
 #' and will be determined by the maximum value of the z-score
 #' or p-value for a given cell or annotation.
-#'
 #' @export
 pieCellTypesFromEnrichment <- function(gobject = NULL,
     spat_unit = NULL,

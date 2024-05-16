@@ -8,6 +8,7 @@
 #' @title Mean expression detected test
 #' @param mymatrix matrix of expression info
 #' @param detection_threshold detection threshold. Defaults to 1 count.
+#' @returns numeric
 #' @keywords internal
 .mean_expr_det_test <- function(mymatrix, detection_threshold = 1) {
     unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
@@ -19,6 +20,7 @@
 #' @title Normalize expression matrix for library size
 #' @param mymatrix matrix object
 #' @param scalefactor scalefactor
+#' @returns matrix
 #' @keywords internal
 .lib_norm_giotto <- function(mymatrix, scalefactor) {
     libsizes <- colSums_flex(mymatrix)
@@ -36,6 +38,7 @@
 }
 
 #' @title Log normalize expression matrix
+#' @returns matrix
 #' @keywords internal
 .log_norm_giotto <- function(mymatrix, base, offset) {
     if (methods::is(mymatrix, "DelayedArray")) {
@@ -95,6 +98,7 @@
 #' [GiottoVisuals::all_plots_save_function]
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
+#' @returns ggplot object
 #' @details
 #' There are 3 ways to create a distribution profile and summarize it for 
 #' either the features or the cells (spatial units) \cr
@@ -103,8 +107,11 @@
 #'   \item{2. sum: summarize the features, i.e. total of a feature}
 #'   \item{3. mean: calculate mean of the features, i.e. average expression}
 #' }
-#' @return ggplot object
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' filterDistributions(g)
 #' @export
 filterDistributions <- function(gobject,
     feat_type = NULL,
@@ -284,12 +291,16 @@ filterDistributions <- function(gobject,
 #' @param scale_y_axis ggplot transformation for y-axis (e.g. log2)
 #' @param y_axis_offset y-axis offset to be used together with the scaling 
 #' transformation
-#' @return list of data.table and ggplot object
+#' @returns list of data.table and ggplot object
 #' @details Creates a scatterplot that visualizes the number of genes and 
 #' cells that are lost with a specific combination of a gene and cell 
 #' threshold given an arbitrary cutoff to call a gene expressed. This function 
 #' can be used to make an informed decision at the filtering step with 
 #' filterGiotto.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' filterCombinations(g)
 #' @export
 filterCombinations <- function(gobject,
     feat_type = NULL,
@@ -465,7 +476,7 @@ filterCombinations <- function(gobject,
 #' @param tag_feats_name column name for tagged features in metadata
 #' @param verbose verbose
 #'
-#' @return giotto object
+#' @returns giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to 
 #' explore the effect of different parameter values.
 #' Please note that this function filters data in a predefined order, features, 
@@ -475,6 +486,10 @@ filterCombinations <- function(gobject,
 #' the threshold value of cells,
 #' feat_det_in_min_cells. This behavior is explained in detail here:
 #' \url{https://github.com/drieslab/Giotto/issues/500#issuecomment-1396083446}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' filterGiotto(g)
 #' @export
 filterGiotto <- function(gobject,
     spat_unit = NULL,
@@ -694,6 +709,7 @@ filterGiotto <- function(gobject,
 #' @title RNA standard normalization
 #' @name .rna_standard_normalization
 #' @description standard function for RNA normalization
+#' @returns giotto object
 #' @keywords internal
 .rna_standard_normalization <- function(gobject,
     raw_expr,
@@ -835,6 +851,7 @@ filterGiotto <- function(gobject,
 #' @title RNA osmfish normalization
 #' @name .rna_osmfish_normalization
 #' @description function for RNA normalization according to osmFISH paper
+#' @returns giotto object
 #' @keywords internal
 .rna_osmfish_normalization <- function(gobject,
     raw_expr,
@@ -884,6 +901,7 @@ filterGiotto <- function(gobject,
 #' @description function for RNA normalization according to Lause/Kobak et al 
 #' paper
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
+#' @returns giotto object
 #' @keywords internal
 .rna_pears_resid_normalization <- function(gobject,
     raw_expr,
@@ -986,7 +1004,7 @@ filterGiotto <- function(gobject,
 #' @param update_slot slot or name to use for the results from osmFISH and 
 #' pearson residual normalization
 #' @param verbose be verbose
-#' @return giotto object
+#' @returns giotto object
 #' @details Currently there are two 'methods' to normalize your raw counts data.
 #'
 #' A. The standard method follows the standard protocol which can be adjusted 
@@ -1010,6 +1028,10 @@ filterGiotto <- function(gobject,
 #' }
 #' By default the latter two results will be saved in the Giotto slot for 
 #' scaled expression, this can be changed by changing the update_slot parameters
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' normalizeGiotto(g)
 #' @export
 normalizeGiotto <- function(gobject,
     spat_unit = NULL,
@@ -1132,12 +1154,15 @@ normalizeGiotto <- function(gobject,
 #' regress out
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
-#' @return giotto object or exprObj
+#' @returns giotto object or exprObj
 #' @details This function implements the \code{\link[limma]{removeBatchEffect}} 
 #' function to remove known batch effects and to adjust expression values 
 #' according to provided covariates.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' adjustGiottoMatrix(g, covariate_columns = "leiden_clus")
 #' @export
-#'
 adjustGiottoMatrix <- function(gobject,
     spat_unit = NULL,
     feat_type = NULL,
@@ -1284,14 +1309,18 @@ adjustGiottoMatrix <- function(gobject,
 #' @param adjust_params additional parameters to adjustGiottoMatrix; set to 
 #' NULL if not required
 #' @param verbose be verbose (default is TRUE)
-#' @return giotto object
+#' @returns giotto object
 #' @details See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
 #' \code{\link{addStatistics}}, and \code{\link{adjustGiottoMatrix}}. For more
 #' information about the different parameters in each step. If you do not 
 #' provide them it will use the default values. If no adjustment is required, 
 #' adjust_params must be set to NULL
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' processGiotto(gobject = g, 
+#' adjust_params = list(covariate_columns = "leiden_clus"))
 #' @export
-#'
 processGiotto <- function(gobject,
     filter_params = list(),
     norm_params = list(),
@@ -1358,7 +1387,7 @@ processGiotto <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if return_gobject = TRUE
+#' @returns giotto object if return_gobject = TRUE
 #' @details
 #' This function will add the following statistics to feature metadata:
 #' \itemize{
@@ -1368,6 +1397,10 @@ processGiotto <- function(gobject,
 #'   \item{mean_expr: }{Average feature expression in all cells}
 #'   \item{mean_expr_det: }{Average feature expression in cells with detectable levels of the gene}
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' addFeatStatistics(g)
 #' @export
 addFeatStatistics <- function(gobject,
     feat_type = NULL,
@@ -1516,7 +1549,7 @@ addFeatStatistics <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if return_gobject = TRUE
+#' @returns giotto object if return_gobject = TRUE
 #' @details
 #' This function will add the following statistics to cell metadata:
 #' \itemize{
@@ -1524,6 +1557,10 @@ addFeatStatistics <- function(gobject,
 #'   \item{perc_feats: }{Denotes what percentage of features is detected per cell}
 #'   \item{total_expr: }{Shows the total sum of feature expression per cell}
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' addCellStatistics(g)
 #' @export
 addCellStatistics <- function(gobject,
     feat_type = NULL,
@@ -1659,8 +1696,13 @@ addCellStatistics <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a feature detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if return_gobject = TRUE, else a list with results
-#' @details See \code{\link{addFeatStatistics}} and \code{\link{addCellStatistics}}
+#' @returns giotto object if return_gobject = TRUE, else a list with results
+#' @details See \code{\link{addFeatStatistics}} and 
+#' \code{\link{addCellStatistics}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' addStatistics(g)
 #' @export
 addStatistics <- function(gobject,
     feat_type = NULL,
@@ -1725,8 +1767,12 @@ addStatistics <- function(gobject,
 #' @param feats vector of selected features
 #' @param vector_name column name as seen in \code{\link{pDataDT}}
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if \code{return_gobject = TRUE}, else a vector with % 
+#' @returns giotto object if \code{return_gobject = TRUE}, else a vector with % 
 #' results
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' addFeatsPerc(g, feats = c("Gm19935", "9630013A20Rik", "2900040C04Rik"))
 #' @export
 addFeatsPerc <- function(gobject,
     spat_unit = NULL,
@@ -1813,7 +1859,12 @@ addFeatsPerc <- function(gobject,
 #' @param source_cell_ids cell ids for which you want to know the spatial 
 #' neighbors
 #' @param name name of the results
-#' @return data.table
+#' @returns data.table
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' findNetworkNeighbors(gobject = g, spatial_network_name = "spatial_network",
+#' source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1"))
 #' @export
 findNetworkNeighbors <- function(gobject,
     spat_unit = NULL,

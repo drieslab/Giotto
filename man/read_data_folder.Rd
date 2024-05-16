@@ -42,6 +42,9 @@ required or optional for each \code{data_to_use} \emph{workflow}}
 \item{toplevel}{stackframes back where the user-facing function was called.
 default is one stackframe above \code{.read_data_folder}.}
 }
+\value{
+data.table
+}
 \description{
 Framework function for reading the exported folder of a spatial
 method and detecting the presence of needed files. NULL values denote missing

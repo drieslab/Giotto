@@ -13,6 +13,9 @@
   verbose = TRUE
 )
 }
+\value{
+giotto object
+}
 \description{
 function for RNA normalization according to osmFISH paper
 }

@@ -6,6 +6,9 @@
 \arguments{
 \item{spat_enr_names}{character. names of spatial enrichment results to include}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_spatenr_params
 }

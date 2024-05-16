@@ -15,6 +15,9 @@ greatest}
 \item{x}{location point of the line to compare, integer from 1 to length of 
 myVector}
 }
+\value{
+numeric
+}
 \description{
 function to calculate the number of data points below a given 
 line

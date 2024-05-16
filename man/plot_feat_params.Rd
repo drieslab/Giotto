@@ -8,6 +8,9 @@
 
 \item{feat_shape_code}{code to shape the provided feature types}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_feat_params
 }

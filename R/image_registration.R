@@ -8,6 +8,7 @@
 #' @description Extract rigid registration transformation values from FIJI 
 #' TrakEM2 xml file. Generated through register_virtual_stack_slices.
 #' @param inputstring string read in from TrakeEM2 xml file
+#' @returns rigid registration transformation values
 #' @keywords internal
 .trakem2_rigid_transforms <- function(inputstring) {
     # Catch wrong inputs
@@ -82,6 +83,7 @@
 #' @param spatlocs input spatial locations
 #' @param transform_values transformation values to use
 #' @param method which method is used for image registration
+#' @returns spatlocs
 #' @keywords internal
 # Rotation is performed first, followed by XY transform.
 .rigid_transform_spatial_locations <- function(spatlocs,
@@ -130,6 +132,7 @@
 #' @param scale_factor scale factors for registered images relative to spatlocs.
 #' @param transform_values transformation values to use
 #' @param method method of registration
+#' @returns list
 #' @keywords internal
 # Automatically account for changes in image size due to alignment
 .reg_img_minmax_finder <- function(gobject_list,
@@ -217,6 +220,7 @@
 #' @description finds four corner spatial coords of giottoImages or 
 #' magick-images
 #' @param img_object giottoImage or magick-image to use
+#' @returns data.frame
 #' @keywords internal
 .get_img_corners <- function(img_object) {
     if (methods::is(img_object, "giottoImage")) {
@@ -271,7 +275,7 @@
 #' @param allow_rvision_autoscale Whether or not to allow rvision to 
 #' automatically scale the images when performing image registration
 #' @param verbose Be verbose
-#' @return List of registered giotto objects where the registered images and 
+#' @returns List of registered giotto objects where the registered images and 
 #' spatial locations
 #' @export
 registerGiottoObjectList <- function(gobject_list,
@@ -346,7 +350,7 @@ registerGiottoObjectList <- function(gobject_list,
 #' @param scale_factor vector of scaling factors of images used in registration 
 #' vs spatlocs
 #' @param verbose be verbose
-#' @return list of registered giotto objects where the registered images and 
+#' @returns list of registered giotto objects where the registered images and 
 #' spatial locations
 #' @export
 registerGiottoObjectListFiji <- function(gobject_list,
@@ -591,7 +595,7 @@ registerGiottoObjectListFiji <- function(gobject_list,
 #' @param spatloc_reg_name name for registered spatial locations to. Defaults 
 #' to replacement of spat_unreg (optional)
 #' @param verbose be verbose
-#' @return list of registered giotto objects where the registered images and 
+#' @returns list of registered giotto objects where the registered images and 
 #' spatial locations
 #' @export
 # Register giotto objects when given raw images and spatial locations
@@ -752,7 +756,7 @@ registerGiottoObjectListRvision <- function(gobject_list = gobject_list,
 #'
 #' @rdname runFijiMacro
 #' @param fijiPath manually set filepath to Fiji executable
-#' @export
+#' @returns character
 #' @examples
 #' \dontrun{
 #' # Path to current Fiji executable
@@ -762,6 +766,7 @@ registerGiottoObjectListRvision <- function(gobject_list = gobject_list,
 #' # you can also set options(giotto.fiji="/some/path")
 #' fiji("/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx")
 #' }
+#' @export
 fiji <- function(fijiPath = NULL) {
     if (!is.null(fijiPath)) {
         if (!file.exists(fijiPath)) {
@@ -783,7 +788,7 @@ fiji <- function(fijiPath = NULL) {
                     fijiPath <- macapp
                 } else {
                     stop(
-                        "Unable to find fiji!",
+                        "Unable to find fiji! ",
                         "Set options('giotto.fiji') to point to the fiji 
                         command line executable!"
                     )
@@ -829,7 +834,7 @@ fiji <- function(fijiPath = NULL) {
 #'   \code{options(giotto.fiji="/some/path")})
 #' @param DryRun Whether to return the command to be run rather than actually
 #'   executing it.
-#' @return list of registered giotto objects where the registered images and 
+#' @returns list of registered giotto objects where the registered images and 
 #' spatial locations
 #' @details This function was adapted from runFijiMacro function in 
 #' jimpipeline by jefferislab
@@ -973,7 +978,7 @@ registerImagesFIJI <- function(source_img_dir,
 #' 2x3 or 3x3 values. This function reads the matrix and extracts the values
 #' needed to perform them.
 #' @param x object coercible to matrix with a 2x3 or 3x3 affine matrix
-#' @return a list of transforms information.
+#' @returns a list of transforms information.
 #' @keywords internal
 parse_affine <- function(x) {
     x <- as.matrix(x)

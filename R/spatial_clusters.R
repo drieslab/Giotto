@@ -8,7 +8,7 @@
 #' @param g igraph object
 #' @param clus_attr character. A categorical node attribute
 #' @md
-#' @return igraph
+#' @returns igraph
 #' @keywords internal
 .igraph_remove_hetero_edges <- function(g, clus_attr) {
     clus_attr_values <- igraph::vertex_attr(g, name = clus_attr)
@@ -42,7 +42,7 @@
 #' Get which weakly connected set of vertices each vertex is part of
 #' @param g igraph
 #' @param clus_name character. name to assign column of clustering info
-#' @return data.table
+#' @returns data.table
 #' @keywords internal
 .igraph_vertex_membership <- function(g, clus_name) {
     membership <- igraph::components(g)$membership %>%

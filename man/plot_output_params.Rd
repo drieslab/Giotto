@@ -14,6 +14,9 @@
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_output_params
 }

@@ -21,6 +21,9 @@
 \arguments{
 \item{expr_values}{matrix of expression values}
 }
+\value{
+data.table
+}
 \description{
 PAGE data.table method
 }

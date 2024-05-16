@@ -7,9 +7,14 @@
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
-#' @return ggplot barplot
+#' @returns ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
+#'  @examples
+#'  g <- GiottoData::loadGiottoMini("visium")
+#'  
+#'  cellProximityBarplot(gobject = g, 
+#'  CPscore = cellProximityEnrichment(g, cluster_column = "leiden_clus"))
 #' @export
 cellProximityBarplot <- function(gobject,
     CPscore,
@@ -83,9 +88,15 @@ cellProximityBarplot <- function(gobject,
 #' @param color_breaks numerical vector of length 3 to represent min, mean 
 #' and maximum
 #' @param color_names character color vector of length 3
-#' @return ggplot heatmap
+#' @returns ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+#' 
+#' cellProximityHeatmap(gobject = g, CPscore = x)
 #' @export
 cellProximityHeatmap <- function(gobject,
     CPscore,
@@ -207,9 +218,15 @@ cellProximityHeatmap <- function(gobject,
 #' @param node_size size of nodes
 #' @param node_color_code color code for the nodes (e.g. cell labels)
 #' @param node_text_size size of node labels
-#' @return igraph plot
+#' @returns igraph plot
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+#' 
+#' cellProximityNetwork(gobject = g, CPscore = x)
 #' @export
 cellProximityNetwork <- function(gobject,
     CPscore,
@@ -369,6 +386,7 @@ cellProximityNetwork <- function(gobject,
 #' @description
 #' Create the plots for `cellProximityVisPlot()`
 #' @seealso [cellProximityVisPlot()] [cellProximitySpatPlot3D()]
+#' @returns cell proximity plot
 NULL
 
 
@@ -412,9 +430,12 @@ NULL
     }
 
 
-    cell_locations <- gobject@spatial_locs
-    spatial_grid <- gobject@spatial_grid[[spatial_grid_name]]
-    cell_metadata <- gobject@cell_metadata
+    cell_locations <- getSpatialLocations(gobject = gobject,
+                                          output = "data.table")
+    spatial_grid <- getSpatialGrid(gobject = gobject,
+                                   name = spatial_grid_name)
+    cell_metadata <- getCellMetadata(gobject = gobject,
+                                    output = "data.table")
 
 
 
@@ -1107,8 +1128,15 @@ NULL
 #' @param z_ticks z ticks
 #' @param plot_method method to plot
 #' @param \dots additional parameters
-#' @return ggplot or plotly
+#' @returns ggplot or plotly
 #' @details Description of parameters.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
+#' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+#' 
+#' cellProximityVisPlot(gobject = g, interaction_name = x,
+#' cluster_column = "leiden_clus", sdimx = "sdimx", sdimy = "sdimy")
 #' @export
 cellProximityVisPlot <- function(gobject,
     interaction_name = NULL,
@@ -1152,7 +1180,7 @@ cellProximityVisPlot <- function(gobject,
         if (is.null(sdimx) | is.null(sdimy)) {
             warning("plot_method = ggplot, but spatial dimensions for sdimx 
             and sdimy for 2D plotting are not given. \n
-             It will default to the 'sdimx' and 'sdimy'")
+            It will default to the 'sdimx' and 'sdimy'")
             sdimx <- "sdimx"
             sdimy <- "sdimy"
         }
@@ -1289,7 +1317,13 @@ cellProximityVisPlot <- function(gobject,
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or featuress
 #' @param direction differential expression directions to keep
-#' @return plot
+#' @returns volcano, cell_barplot, cell-cell, cell_sankey, heatmap, or dotplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+#' 
+#' plotCellProximityFeats(gobject = g, icfObject = icfObject,
+#' show_plot = TRUE, save_plot = FALSE, return_plot = FALSE)
 #' @export
 plotCellProximityFeats <- function(gobject,
     icfObject,
@@ -1613,7 +1647,14 @@ plotCellProximityFeats <- function(gobject,
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
-#' @return plot
+#' @returns plot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' plotCPF(gobject = g, icfObject = icfObject, show_plot = TRUE,
+#' save_plot = FALSE, return_plot = FALSE)
 #' @export
 plotCPF <- function(gobject,
     icfObject,
@@ -1670,7 +1711,15 @@ plotCPF <- function(gobject,
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
-#' @return plot
+#' @returns plot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' plotInteractionChangedFeats(gobject = g, icfObject = icfObject,
+#' source_type = "1", source_markers = "Ccnd2", 
+#' ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
 #' @export
 plotInteractionChangedFeats <- function(gobject,
     icfObject,
@@ -1713,8 +1762,8 @@ plotInteractionChangedFeats <- function(gobject,
 
     tempDT <- ICFscores[feats %in% all_feats][cell_type == source_type][
         int_cell_type %in% neighbor_types]
-    tempDT[, feats := factor(feats, levels = all_feats)]
-    tempDT[, group := names(all_feats[all_feats == feats]), by = 1:nrow(tempDT)]
+    tempDT[, feats := factor(feats, levels = detected_feats)]
+    tempDT[, group := names(ICF_feats[ICF_feats == feats]), by = 1:nrow(tempDT)]
 
 
     if (is.null(cell_color_code)) {
@@ -1771,7 +1820,15 @@ plotInteractionChangedFeats <- function(gobject,
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICF_feats named character vector of ICF features
-#' @return plot
+#' @returns plot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' plotICF(gobject = g, icfObject = icfObject,
+#' source_type = "1", source_markers = "Ccnd2", 
+#' ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
 #' @export
 plotICF <- function(gobject,
     icfObject,
@@ -1821,7 +1878,20 @@ plotICF <- function(gobject,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' g_icf <- findInteractionChangedFeats(g, 
+#' cluster_column = "leiden_clus", 
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' combIcfObject <- combineInteractionChangedFeats(g_icf)
+#' 
+#' plotCombineInteractionChangedFeats(gobject = g, 
+#' combIcfObject = combIcfObject, 
+#' selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
+#' selected_interactions = "1--8")
 #' @export
 plotCombineInteractionChangedFeats <- function(gobject,
     combIcfObject,
@@ -1844,7 +1914,7 @@ plotCombineInteractionChangedFeats <- function(gobject,
         stop("combIcfObject needs to be the output from 
             combineInteractionChangedFeats() or combineICF()")
     }
-    combIcfscore <- copy(combIcfObject[["combIcfscores"]])
+    combIcfscore <- copy(combIcfObject[["combICFscores"]])
 
     if (is.null(selected_interactions) | is.null(selected_feat_to_feat)) {
         stop("You need to provide a selection of cell-cell interactions and 
@@ -1990,7 +2060,19 @@ plotCombineInteractionChangedFeats <- function(gobject,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' g_icf <- findInteractionChangedFeats(g, 
+#' cluster_column = "leiden_clus", 
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' combIcfObject <- combineInteractionChangedFeats(g_icf)
+#' 
+#' plotCombineICF(gobject = g, combIcfObject = combIcfObject, 
+#' selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
+#' selected_interactions = "1--8")
 #' @export
 plotCombineICF <- function(gobject,
     combIcfObject,
@@ -2059,7 +2141,23 @@ plotCombineICF <- function(gobject,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+#' 
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
+#' 
+#' combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' 
+#' plotCombineCellCellCommunication(gobject = g, combCCcom = combCCcom,
+#' selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
 #' @export
 plotCombineCellCellCommunication <- function(gobject,
     combCCcom,
@@ -2217,7 +2315,23 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with two colors to use
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+#' 
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
+#' 
+#' combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' 
+#' plotCombineCCcom(gobject = g, combCCcom = combCCcom,
+#' selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
 #' @export
 plotCombineCCcom <- function(gobject,
     combCCcom,
@@ -2274,7 +2388,15 @@ plotCombineCCcom <- function(gobject,
 #' @param show values to show on heatmap
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+#' 
+#' plotCCcomHeatmap(gobject = g, comScores = comScores, show_plot = TRUE)
 #' @export
 plotCCcomHeatmap <- function(gobject,
     comScores,
@@ -2409,7 +2531,15 @@ plotCCcomHeatmap <- function(gobject,
 #' @param aggl_method agglomeration method used by hclust
 #' @param dot_color_gradient character. continuous colors to use. palette to
 #' use or vector of colors to use (minimum of 2).
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+#' 
+#' plotCCcomDotplot(gobject = g, comScores = comScores, show_plot = TRUE)
 #' @export
 plotCCcomDotplot <- function(gobject,
     comScores,
@@ -2563,7 +2693,19 @@ plotCCcomDotplot <- function(gobject,
 #' @param ylims y-limits, numerical vector of 2
 #' @param selected_ranks numerical vector, will be used to print out the 
 #' percentage of top spatial ranks are recovered
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#' random_iter = 10)
+#' 
+#' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' 
+#' plotRankSpatvsExpr(gobject = g, combCC = combCC)
 #' @export
 plotRankSpatvsExpr <- function(gobject,
     combCC,
@@ -2674,6 +2816,7 @@ plotRankSpatvsExpr <- function(gobject,
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
+#' @returns ggplot
 #' @keywords internal
 .plotRecovery_sub <- function(combCC,
     first_col = "LR_expr_rnk",
@@ -2734,7 +2877,19 @@ plotRankSpatvsExpr <- function(gobject,
 #' @param expr_rnk_column column with expression rank information to use
 #' @param spat_rnk_column column with spatial rank information to use
 #' @param ground_truth what to consider as ground truth (default: spatial)
-#' @return ggplot
+#' @returns ggplot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#' random_iter = 10)
+#' 
+#' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' 
+#' plotRecovery(gobject = g, combCC = combCC)
 #' @export
 plotRecovery <- function(gobject,
     combCC,
@@ -2822,8 +2977,15 @@ plotRecovery <- function(gobject,
 #' @param point_alpha_other opacity of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
+#' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+#' 
+#' cellProximitySpatPlot2D(gobject = g, cluster_column = "leiden_clus",
+#' interaction_name = x)
 #' @export
 cellProximitySpatPlot2D <- function(gobject,
     spat_unit = NULL,
@@ -2937,7 +3099,7 @@ cellProximitySpatPlot2D <- function(gobject,
 
     # first 2 dimensions need to be defined
     if (is.null(sdimx) | is.null(sdimy)) {
-        message("first and second dimenion need to be defined, default is 
+        message("first and second dimension need to be defined, default is 
                 first 2")
         sdimx <- "sdimx"
         sdimy <- "sdimy"
@@ -3032,7 +3194,7 @@ cellProximitySpatPlot2D <- function(gobject,
 
             if (!is.null(cell_color_code)) {
                 pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-            } else if (color_as_factor == TRIE) {
+            } else if (color_as_factor == TRUE) {
                 number_colors <- length(unique(factor_data))
                 cell_color_code <- set_default_color_discrete_cell(
                     instrs = instructions(gobject))(n = number_colors)
@@ -3102,7 +3264,7 @@ cellProximitySpatPlot2D <- function(gobject,
 #' coordinates in ggplot mode
 #' @param gobject giotto object
 #' @inheritDotParams cellProximitySpatPlot2D -gobject
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @export
 #' @seealso  \code{\link{cellProximitySpatPlot2D}} and 
@@ -3142,7 +3304,7 @@ cellProximitySpatPlot <- function(gobject, ...) {
 #' @param z_ticks ticks on z-axis
 #' @param custom_ratio custom ratio of axes
 #' @param \dots additional parameters
-#' @return plotly
+#' @returns plotly
 #' @details Description of parameters.
 #' @export
 cellProximitySpatPlot3D <- function(gobject,

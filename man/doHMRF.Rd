@@ -84,3 +84,10 @@ Run HMRF
 \details{
 Description of HMRF parameters ...
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+spat_genes <- binSpect(g)
+
+doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats, 
+output_folder = tempdir())
+}

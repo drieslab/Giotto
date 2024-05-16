@@ -73,6 +73,11 @@ cluster cells using kmeans algorithm
 \details{
 Description on how to use Kmeans clustering method.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doKmeans(g)
+}
 \seealso{
 \code{\link[stats]{kmeans}}
 }

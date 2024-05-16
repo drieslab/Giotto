@@ -17,6 +17,9 @@ create_mesh_grid_lines(
 
 \item{mesh_grid_n}{mesh_grid_n}
 }
+\value{
+mesh grid lines
+}
 \description{
 create mesh grid lines for cross section
 }
