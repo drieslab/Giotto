@@ -73,3 +73,8 @@ run UMAP
 This is a simple wrapper for the HarmonyMatrix function in the 
 Harmony package \doi{10.1038/s41592-019-0619-0}.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runGiottoHarmony(g, vars_use = "leiden_clus")
+}

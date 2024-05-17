@@ -28,7 +28,7 @@ cellProximityEnrichment(
 
 \item{cluster_column}{name of column to use for clusters}
 
-\item{number_of_simulations}{number of simulations to create expected 
+\item{number_of_simulations}{number of simulations to create expected
 observations}
 
 \item{adjust_method}{method to adjust p.values}
@@ -38,20 +38,20 @@ observations}
 \item{seed_number}{seed number to use}
 }
 \value{
-List of cell Proximity scores (CPscores) in data.table format. The 
-first data.table (raw_sim_table) shows the raw observations of both the 
-original and simulated networks. The second data.table (enrichm_res) shows 
+List of cell Proximity scores (CPscores) in data.table format. The
+first data.table (raw_sim_table) shows the raw observations of both the
+original and simulated networks. The second data.table (enrichm_res) shows
 the enrichment results.
 }
 \description{
 Compute cell-cell interaction enrichment (observed vs expected)
 }
 \details{
-Spatial proximity enrichment or depletion between pairs of cell 
+Spatial proximity enrichment or depletion between pairs of cell
 types is calculated by calculating the observed over the expected frequency
-of cell-cell proximity interactions. The expected frequency is the average 
-frequency calculated from a number of spatial network simulations. Each 
-individual simulation is obtained by reshuffling the cell type labels of 
+of cell-cell proximity interactions. The expected frequency is the average
+frequency calculated from a number of spatial network simulations. Each
+individual simulation is obtained by reshuffling the cell type labels of
 each node (cell) in the spatial network.
 }
 \examples{

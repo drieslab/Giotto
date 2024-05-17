@@ -35,11 +35,15 @@ Adds feature statistics to the giotto object
 \details{
 This function will add the following statistics to feature metadata:
 \itemize{
-  \item{nr_cells: }{Denotes in how many cells the feature is detected}
-  \item{per_cells: }{Denotes in what percentage of cells the feature is detected}
-  \item{total_expr: }{Shows the total sum of feature expression in all cells}
-  \item{mean_expr: }{Average feature expression in all cells}
-  \item{mean_expr_det: }{Average feature expression in cells with detectable levels of the gene}
+  \item{\strong{nr_cells:} Denotes in how many cells the feature is
+  detected}
+  \item{\strong{per_cells:} Denotes in what percentage of cells the feature
+  is detected}
+  \item{\strong{total_expr:} Shows the total sum of feature expression in
+  all cells}
+  \item{\strong{mean_expr:} Average feature expression in all cells}
+  \item{\strong{mean_expr_det:} Average feature expression in cells with
+  detectable levels of the gene}
 }
 }
 \examples{

@@ -45,13 +45,13 @@ Calculate spatial enrichment. Multiple methods are provided.
 }
 \section{Functions}{
 \itemize{
-\item \code{.calc_spatial_enrichment_minimum()}: calculate using a 'simple' and 
+\item \code{.calc_spatial_enrichment_minimum()}: calculate using a 'simple' and
 efficient for loop
 
-\item \code{.calc_spatial_enrichment_matrix()}: calculate using 'matrix' 
+\item \code{.calc_spatial_enrichment_matrix()}: calculate using 'matrix'
 implementation
 
-\item \code{.calc_spatial_enrichment_dt()}: calculate using 'data.table' 
+\item \code{.calc_spatial_enrichment_dt()}: calculate using 'data.table'
 implementation
 
 }}

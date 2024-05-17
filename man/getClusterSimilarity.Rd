@@ -30,13 +30,13 @@ getClusterSimilarity(
 data.table
 }
 \description{
-Creates data.table with pairwise correlation scores between 
+Creates data.table with pairwise correlation scores between
 each cluster.
 }
 \details{
-Creates data.table with pairwise correlation scores between each 
-cluster and the group size (# of cells) for each cluster. This information 
-can be used together with mergeClusters to combine very similar or small 
+Creates data.table with pairwise correlation scores between each
+cluster and the group size (# of cells) for each cluster. This information
+can be used together with mergeClusters to combine very similar or small
 clusters into bigger clusters.
 }
 \examples{

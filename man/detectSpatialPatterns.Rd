@@ -20,7 +20,7 @@ detectSpatialPatterns(
 
 \item{expression_values}{expression values to use}
 
-\item{spatial_grid_name}{name of spatial grid to use 
+\item{spatial_grid_name}{name of spatial grid to use
 (default = 'spatial_grid')}
 
 \item{min_cells_per_grid}{minimum number of cells in a grid to be considered}
@@ -37,7 +37,7 @@ detectSpatialPatterns(
 spatial pattern object 'spatPatObj'
 }
 \description{
-Identify spatial patterns through PCA on average expression 
+Identify spatial patterns through PCA on average expression
 in a spatial grid.
 }
 \details{

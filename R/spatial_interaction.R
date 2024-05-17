@@ -47,7 +47,7 @@ make_simulated_network <- function(gobject,
     s1_list <- list()
     s2_list <- list()
 
-    all_cell_type <- c(spatial_network_annot$from_cell_type, 
+    all_cell_type <- c(spatial_network_annot$from_cell_type,
                         spatial_network_annot$to_cell_type)
     middle_point <- length(all_cell_type) / 2
 
@@ -98,24 +98,24 @@ make_simulated_network <- function(gobject,
 #' @param feat_type feature type
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
-#' @param number_of_simulations number of simulations to create expected 
+#' @param number_of_simulations number of simulations to create expected
 #' observations
 #' @param adjust_method method to adjust p.values
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
-#' @returns List of cell Proximity scores (CPscores) in data.table format. The 
-#' first data.table (raw_sim_table) shows the raw observations of both the 
-#' original and simulated networks. The second data.table (enrichm_res) shows 
+#' @returns List of cell Proximity scores (CPscores) in data.table format. The
+#' first data.table (raw_sim_table) shows the raw observations of both the
+#' original and simulated networks. The second data.table (enrichm_res) shows
 #' the enrichment results.
-#' @details Spatial proximity enrichment or depletion between pairs of cell 
+#' @details Spatial proximity enrichment or depletion between pairs of cell
 #' types is calculated by calculating the observed over the expected frequency
-#' of cell-cell proximity interactions. The expected frequency is the average 
-#' frequency calculated from a number of spatial network simulations. Each 
-#' individual simulation is obtained by reshuffling the cell type labels of 
+#' of cell-cell proximity interactions. The expected frequency is the average
+#' frequency calculated from a number of spatial network simulations. Each
+#' individual simulation is obtained by reshuffling the cell type labels of
 #' each node (cell) in the spatial network.
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' cellProximityEnrichment(g, cluster_column = "leiden_clus")
 #' @export
 cellProximityEnrichment <- function(gobject,
@@ -237,8 +237,8 @@ cellProximityEnrichment <- function(gobject,
             "simulations", 0)])
 
     table_results <- do.call(
-        "rbind", 
-        list(table_results, create_missing_for_original, 
+        "rbind",
+        list(table_results, create_missing_for_original,
             create_missing_for_simulations))
 
 
@@ -257,14 +257,14 @@ cellProximityEnrichment <- function(gobject,
 
         length_simulations <- length(sim_values)
         if (length_simulations != number_of_simulations) {
-            additional_length_needed <- number_of_simulations - 
+            additional_length_needed <- number_of_simulations -
                 length_simulations
             sim_values <- c(sim_values, rep(0, additional_length_needed))
         }
 
-        p_orig_higher <- 1 - (sum((orig_value + 1) > (sim_values + 1)) / 
+        p_orig_higher <- 1 - (sum((orig_value + 1) > (sim_values + 1)) /
                                 number_of_simulations)
-        p_orig_lower <- 1 - (sum((orig_value + 1) < (sim_values + 1)) / 
+        p_orig_lower <- 1 - (sum((orig_value + 1) < (sim_values + 1)) /
                                 number_of_simulations)
 
         combo_list[[int_combo]] <- this_combo
@@ -272,8 +272,8 @@ cellProximityEnrichment <- function(gobject,
         p_low[[int_combo]] <- p_orig_lower
     }
     res_pvalue_DT <- data.table::data.table(
-        unified_int = as.vector(combo_list), 
-        p_higher_orig = p_high, 
+        unified_int = as.vector(combo_list),
+        p_higher_orig = p_high,
         p_lower_orig = p_low)
 
 
@@ -281,7 +281,7 @@ cellProximityEnrichment <- function(gobject,
     table_mean_results <- table_results[, .(mean(V1)), by = c(
         "orig", "unified_int", "type_int")]
     table_mean_results_dc <- data.table::dcast.data.table(
-        data = table_mean_results, formula = type_int + unified_int ~ orig, 
+        data = table_mean_results, formula = type_int + unified_int ~ orig,
         value.var = "V1")
     table_mean_results_dc[, original := ifelse(is.na(original), 0, original)]
     table_mean_results_dc[, enrichm := log2((original + 1) / (simulations + 1))]
@@ -295,7 +295,7 @@ cellProximityEnrichment <- function(gobject,
     # adjust p-values for mht
 
     # data.table variables
-    p.adj_higher <- p.adj_lower <- p_lower_orig <- p_higher_orig <- 
+    p.adj_higher <- p.adj_lower <- p_lower_orig <- p_higher_orig <-
         PI_value <- int_ranking <- NULL
 
     table_mean_results_dc[, p.adj_higher := stats::p.adjust(
@@ -314,7 +314,7 @@ cellProximityEnrichment <- function(gobject,
     table_mean_results_dc <- table_mean_results_dc[order(-PI_value)]
     table_mean_results_dc[, int_ranking := 1:.N]
 
-    return(list(raw_sim_table = table_results, 
+    return(list(raw_sim_table = table_results,
                 enrichm_res = table_mean_results_dc))
 }
 
@@ -322,7 +322,7 @@ cellProximityEnrichment <- function(gobject,
 
 #' @title addCellIntMetadata
 #' @name addCellIntMetadata
-#' @description Creates an additional metadata column with information about 
+#' @description Creates an additional metadata column with information about
 #' interacting and non-interacting cell types of the
 #' selected cell-cell interaction.
 #' @param gobject giotto object
@@ -334,17 +334,17 @@ cellProximityEnrichment <- function(gobject,
 #' @param name name for the new metadata column
 #' @param return_gobject return an updated giotto object
 #' @returns Giotto object
-#' @details This function will create an additional metadata column which 
+#' @details This function will create an additional metadata column which
 #' selects interacting cell types for a specific cell-cell
-#' interaction. For example, if you want to color interacting astrocytes and 
+#' interaction. For example, if you want to color interacting astrocytes and
 #' oligodendrocytes it will create a new metadata column with
-#' the values "select_astrocytes", "select_oligodendrocytes", 
-#' "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is 
+#' the values "select_astrocytes", "select_oligodendrocytes",
+#' "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is
 #' all other cell types found within the selected cell type column.
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' addCellIntMetadata(g, cluster_column = "leiden_clus", 
+#'
+#' addCellIntMetadata(g, cluster_column = "leiden_clus",
 #' cell_interaction = "custom_leiden")
 #' @export
 addCellIntMetadata <- function(gobject,
@@ -368,7 +368,7 @@ addCellIntMetadata <- function(gobject,
 
 
     if (is.null(spatial_network)) {
-        stop("spatial_network must be provided, this must be an existing 
+        stop("spatial_network must be provided, this must be an existing
             spatial network")
     }
 
@@ -378,7 +378,7 @@ addCellIntMetadata <- function(gobject,
     }
 
     if (is.null(cell_interaction)) {
-        stop("cell_interaction must be provided, this must be cell--cell 
+        stop("cell_interaction must be provided, this must be cell--cell
             interaction between cell types in cluster_column")
     }
 
@@ -415,10 +415,10 @@ addCellIntMetadata <- function(gobject,
         cell_type_1, cell_type_2), "other",
         ifelse(get(cluster_column) == cell_type_1 & cell_ID %in% selected_cells,
                 paste0("select_", cell_type_1),
-            ifelse(get(cluster_column) == cell_type_2 & cell_ID %in% 
+            ifelse(get(cluster_column) == cell_type_2 & cell_ID %in%
                         selected_cells, paste0("select_", cell_type_2),
-                ifelse(get(cluster_column) == cell_type_1, 
-                        paste0("other_", cell_type_1), 
+                ifelse(get(cluster_column) == cell_type_1,
+                        paste0("other_", cell_type_1),
                         paste0("other_", cell_type_2))
             )
         )
@@ -488,9 +488,9 @@ NULL
     diff <- mean_sel - mean_all
 
     resultsDT <- data.table(
-        "feats" = rownames(expr_values), 
-        "sel" = mean_sel, "other" = mean_all, 
-        "log2fc" = log2fc, "diff" = diff, 
+        "feats" = rownames(expr_values),
+        "sel" = mean_sel, "other" = mean_all,
+        "log2fc" = log2fc, "diff" = diff,
         "p.value" = unlist(results))
     resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
     resultsDT[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
@@ -516,7 +516,7 @@ NULL
 
     expr_values_subset <- cbind(
         expr_values[, select_ind], expr_values[, other_ind])
-    mygroups <- c(rep("sel", length(select_ind)), 
+    mygroups <- c(rep("sel", length(select_ind)),
                 rep("other", length(other_ind)))
     mygroups <- factor(mygroups, levels = unique(mygroups))
 
@@ -558,7 +558,7 @@ NULL
     limmaDT <- data.table::merge.data.table(limmaDT, tempDT, by = "feats")
     limmaDT <- limmaDT[
         , .(feats, sel, other, log2fc, diff, P.Value, adj.P.Val)]
-    colnames(limmaDT) <- c("feats", "sel", "other", "log2fc", "diff", 
+    colnames(limmaDT) <- c("feats", "sel", "other", "log2fc", "diff",
                             "p.value", "p.adj")
 
     setorder(limmaDT, p.adj)
@@ -600,11 +600,11 @@ NULL
     diff <- mean_sel - mean_all
 
     resultsDT <- data.table(
-        "feats" = rownames(expr_values), 
-        "sel" = mean_sel, 
-        "other" = mean_all, 
-        "log2fc" = log2fc, 
-        "diff" = diff, 
+        "feats" = rownames(expr_values),
+        "sel" = mean_sel,
+        "other" = mean_all,
+        "log2fc" = log2fc,
+        "diff" = diff,
         "p.value" = unlist(results))
     resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
     resultsDT[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
@@ -728,7 +728,7 @@ NULL
     set_seed = TRUE,
     seed_number = 1234) {
     # data.table variables
-    log2fc_diff <- log2fc <- sel <- other <- feats <- p_higher <- p_lower <- 
+    log2fc_diff <- log2fc <- sel <- other <- feats <- p_higher <- p_lower <-
         perm_sel <- NULL
     perm_other <- perm_log2fc <- perm_diff <- p.value <- p.adj <- NULL
 
@@ -757,9 +757,9 @@ NULL
 
     ##
     random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
-    random_perms[, 
+    random_perms[,
                 c("perm_sel", "perm_other", "perm_log2fc", "perm_diff") := list(
-                    mean(sel), mean(other), mean(log2fc), mean(diff)), 
+                    mean(sel), mean(other), mean(log2fc), mean(diff)),
                 by = feats]
 
     ## get p-values
@@ -770,10 +770,10 @@ NULL
 
     ## combine results permutation and original
     random_perms_res <- unique(random_perms[
-        , .(feats, perm_sel, perm_other, perm_log2fc, perm_diff, p_higher, 
+        , .(feats, perm_sel, perm_other, perm_log2fc, perm_diff, p_higher,
             p_lower)])
     results_m <- data.table::merge.data.table(
-        random_perms_res, original[, .(feats, sel, other, log2fc, diff)], 
+        random_perms_res, original[, .(feats, sel, other, log2fc, diff)],
         by = "feats")
 
     # select lowest p-value and perform p.adj
@@ -781,7 +781,7 @@ NULL
     results_m[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
 
     results_m <- results_m[
-        , .(feats, sel, other, log2fc, diff, p.value, p.adj, perm_sel, 
+        , .(feats, sel, other, log2fc, diff, p.value, p.adj, perm_sel,
             perm_other, perm_log2fc, perm_diff)]
     setorder(results_m, p.adj, -log2fc)
 
@@ -860,7 +860,7 @@ NULL
 
 #' @title Find cell proximity features per interaction
 #' @name .findCellProximityFeats_per_interaction
-#' @description Identifies features that are differentially expressed due to 
+#' @description Identifies features that are differentially expressed due to
 #' proximity to other cell types.
 #' @param expr_values Matrix object
 #' @returns data.table
@@ -882,13 +882,13 @@ NULL
     set_seed = TRUE,
     seed_number = 1234) {
     # data.table variables
-    unified_int <- to_cell_type <- from_cell_type <- cell_type <- 
+    unified_int <- to_cell_type <- from_cell_type <- cell_type <-
         int_cell_type <- NULL
     nr_select <- int_nr_select <- nr_other <- int_nr_other <- unif_int <- NULL
 
     # select test to perform
     diff_test <- match.arg(
-        arg = diff_test, 
+        arg = diff_test,
         choices = c("permutation", "limma", "t.test", "wilcox"))
 
     # select subnetwork
@@ -934,7 +934,7 @@ NULL
 
 
         ## do not continue if too few cells ##
-        if (length(sel_ind1) < minimum_unique_cells | 
+        if (length(sel_ind1) < minimum_unique_cells |
             length(all_ind1) < minimum_unique_cells |
             length(sel_ind2) < minimum_unique_int_cells) {
             result_cell_1 <- NULL
@@ -961,7 +961,7 @@ NULL
 
 
         ## do not continue if too few cells ##
-        if (length(sel_ind2) < minimum_unique_cells | 
+        if (length(sel_ind2) < minimum_unique_cells |
             length(all_ind2) < minimum_unique_cells |
             length(sel_ind1) < minimum_unique_int_cells) {
             result_cell_2 <- NULL
@@ -1016,7 +1016,7 @@ NULL
 
 
         ## do not continue if too few cells ##
-        if (length(sel_ind1) < minimum_unique_cells | 
+        if (length(sel_ind1) < minimum_unique_cells |
             length(all_ind1) < minimum_unique_cells) {
             return(NULL)
         }
@@ -1052,7 +1052,7 @@ NULL
 #' @title findInteractionChangedFeats
 #' @name findInteractionChangedFeats
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. features that are differentially expressed due to proximity to other 
+#' i.e. features that are differentially expressed due to proximity to other
 #' cell types.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1072,11 +1072,11 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @returns icfObject that contains the Interaction Changed differential feature 
-#' scores
-#' @details Function to calculate if features are differentially expressed in 
-#' cell types when they interact (approximated by physical proximity) with 
-#' other cell types. The results data.table in the icfObject contains 
+#' @returns icfObject that contains the Interaction Changed differential
+#' feature scores
+#' @details Function to calculate if features are differentially expressed in
+#' cell types when they interact (approximated by physical proximity) with
+#' other cell types. The results data.table in the icfObject contains
 #' - at least - the following columns:
 #' \itemize{
 #'  \item{features:}{ All or selected list of tested features}
@@ -1096,7 +1096,7 @@ NULL
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' findInteractionChangedFeats(g, cluster_column = "leiden_clus",
 #' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
 #' @export
@@ -1134,7 +1134,7 @@ findInteractionChangedFeats <- function(gobject,
 
     # expression values to be used
     values <- match.arg(
-        expression_values, 
+        expression_values,
         unique(c("normalized", "scaled", "custom", expression_values)))
     expr_values <- getExpression(
         gobject = gobject,
@@ -1175,7 +1175,7 @@ findInteractionChangedFeats <- function(gobject,
         spatial_network_name = spatial_network_name,
         cluster_column = cluster_column
     )
-    
+
     all_interactions <- unique(annot_spatnetwork$unified_int)
 
     if (do_parallel == TRUE) {
@@ -1271,7 +1271,7 @@ findInteractionChangedFeats <- function(gobject,
 #' @title findInteractionChangedGenes
 #' @name findInteractionChangedGenes
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interactions with other 
+#' i.e. genes that are differentially expressed due to interactions with other
 #' cell types.
 #' @param ... params to pass to \code{findInteractionChangedFeats}
 #' @seealso \code{\link{findInteractionChangedFeats}}
@@ -1288,7 +1288,7 @@ findInteractionChangedGenes <- function(...) {
 #' @title findCellProximityGenes
 #' @name findCellProximityGenes
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell 
+#' i.e. genes that are differentially expressed due to proximity to other cell
 #' types.
 #' @inheritDotParams findInteractionChangedFeats
 #' @seealso \code{\link{findInteractionChangedFeats}}
@@ -1307,7 +1307,7 @@ findCellProximityGenes <- function(...) {
 #' @title findICF
 #' @name findICF
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. features that are differentially expressed due to proximity to other 
+#' i.e. features that are differentially expressed due to proximity to other
 #' cell types.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1327,11 +1327,11 @@ findCellProximityGenes <- function(...) {
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @returns icfObject that contains the Interaction Changed differential gene 
+#' @returns `icfObject` that contains the Interaction Changed differential gene
 #' scores
-#' @details Function to calculate if genes are differentially expressed in 
-#' cell types when they interact (approximated by physical proximity) with 
-#' other cell types. The results data.table in the icfObject contains 
+#' @details Function to calculate if genes are differentially expressed in
+#' cell types when they interact (approximated by physical proximity) with
+#' other cell types. The results data.table in the `icfObject` contains
 #' - at least - the following columns:
 #' \itemize{
 #'  \item{features:}{ All or selected list of tested features}
@@ -1352,7 +1352,7 @@ findCellProximityGenes <- function(...) {
 #' @seealso \code{\link{findInteractionChangedFeats}}
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' findICF(g, cluster_column = "leiden_clus",
 #' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
 #' @export
@@ -1405,7 +1405,7 @@ findICF <- function(gobject,
 #' @title findICG
 #' @name findICG
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interaction with other 
+#' i.e. genes that are differentially expressed due to interaction with other
 #' cell types.
 #' @inheritDotParams findICF
 #' @seealso \code{\link{findICF}}
@@ -1422,7 +1422,7 @@ findICG <- function(...) {
 #' @title findCPG
 #' @name findCPG
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell 
+#' i.e. genes that are differentially expressed due to proximity to other cell
 #' types.
 #' @inheritDotParams findICF
 #' @returns cell-to-cell Interaction Changed Genes
@@ -1444,7 +1444,7 @@ findCPG <- function(...) {
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor 
+#' @param min_int_cells_expr minimum expression level for interacting neighbor
 #' cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
@@ -1466,11 +1466,11 @@ filterInteractionChangedFeats <- function(icfObject,
     zscores_column = c("cell_type", "feats"),
     direction = c("both", "up", "down")) {
     # data.table variables
-    nr_select <- int_nr_select <- zscores <- log2fc <- sel <- other <- 
+    nr_select <- int_nr_select <- zscores <- log2fc <- sel <- other <-
         p.adj <- NULL
 
     if (!"icfObject" %in% class(icfObject)) {
-        stop("icfObject needs to be the output from 
+        stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
     }
 
@@ -1485,7 +1485,7 @@ filterInteractionChangedFeats <- function(icfObject,
 
     ## sequential filter steps ##
     # 1. minimum number of source and target cells
-    selection_scores <- ICFscore[nr_select >= min_cells & 
+    selection_scores <- ICFscore[nr_select >= min_cells &
                                     int_nr_select >= min_int_cells]
 
     # 2. create z-scores for log2fc per cell type
@@ -1493,12 +1493,12 @@ filterInteractionChangedFeats <- function(icfObject,
 
     # 3. filter based on z-scores and minimum levels
     comb_DT <- rbind(
-        selection_scores[zscores >= min_zscore & 
-                            abs(diff) >= min_spat_diff & 
+        selection_scores[zscores >= min_zscore &
+                            abs(diff) >= min_spat_diff &
                             log2fc >= min_log2_fc & sel >= min_cells_expr],
-        selection_scores[zscores <= -min_zscore & 
-                            abs(diff) >= min_spat_diff & 
-                            log2fc <= -min_log2_fc & 
+        selection_scores[zscores <= -min_zscore &
+                            abs(diff) >= min_spat_diff &
+                            log2fc <= -min_log2_fc &
                             other >= min_int_cells_expr]
     )
 
@@ -1560,7 +1560,7 @@ filterCellProximityGenes <- function(...) {
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor 
+#' @param min_int_cells_expr minimum expression level for interacting neighbor
 #' cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
@@ -1571,9 +1571,9 @@ filterCellProximityGenes <- function(...) {
 #' @returns icfObject that contains the filtered differential feature scores
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
-#' 
+#'
 #' filterICF(g_icf)
 #' @export
 filterICF <- function(icfObject,
@@ -1655,15 +1655,15 @@ filterCPG <- function(...) {
     min_spat_diff = 0,
     min_log2_fc = 0.5) {
     # data.table variables
-    unif_int <- feats <- cell_type <- p.adj <- nr_select <- 
+    unif_int <- feats <- cell_type <- p.adj <- nr_select <-
         int_nr_select <- log2fc <- sel <- NULL
-    other <- p.value <- perm_sel <- perm_other <- perm_log2fc <- 
+    other <- p.value <- perm_sel <- perm_other <- perm_log2fc <-
         perm_diff <- NULL
-    int_cell_type <- nr_other <- feats_combo <- feats_1 <- feats_2 <- 
+    int_cell_type <- nr_other <- feats_combo <- feats_1 <- feats_2 <-
         type_int <- NULL
 
     if (!"icfObject" %in% class(icfObject)) {
-        stop("icfObject needs to be the output from 
+        stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
     }
 
@@ -1680,7 +1680,7 @@ filterCPG <- function(...) {
     ## first filtering ICFscores on feats
     if ((!is.null(specific_feats_1) & !is.null(specific_feats_2))) {
         if (length(specific_feats_1) != length(specific_feats_2)) {
-            stop("specific_feats_1 must have the same length as 
+            stop("specific_feats_1 must have the same length as
                 specific_feats_2")
         }
         subset <- subset[feats %in% c(specific_feats_1, specific_feats_2)]
@@ -1748,32 +1748,32 @@ filterCPG <- function(...) {
                 )]
                 data.table::setnames(subset_cell_1,
                     old = c(
-                        "feats", "sel", "other", "log2fc", "diff", "p.value", 
+                        "feats", "sel", "other", "log2fc", "diff", "p.value",
                         "p.adj",
                         "perm_sel", "perm_other", "perm_log2fc", "perm_diff",
                         "cell_type", "int_cell_type", "nr_select", "nr_other"
                     ),
                     new = c(
-                        "feats_1", "sel_1", "other_1", "log2fc_1", "diff_1", 
+                        "feats_1", "sel_1", "other_1", "log2fc_1", "diff_1",
                         "p.value_1", "p.adj_1",
-                        "perm_sel_1", "perm_other_1", "perm_log2fc_1", 
+                        "perm_sel_1", "perm_other_1", "perm_log2fc_1",
                         "perm_diff_1",
-                        "cell_type_1", "int_cell_type_1", "nr_select_1", 
+                        "cell_type_1", "int_cell_type_1", "nr_select_1",
                         "nr_other_1"
                     )
                 )
             } else {
                 # make it specific
                 subset_cell_1 <- subset_cell_1[
-                    , .(feats, sel, other, log2fc, diff, p.value, p.adj, 
-                        cell_type, int_cell_type, nr_select, nr_other, 
+                    , .(feats, sel, other, log2fc, diff, p.value, p.adj,
+                        cell_type, int_cell_type, nr_select, nr_other,
                         unif_int)]
                 data.table::setnames(subset_cell_1,
-                    old = c("feats", "sel", "other", "log2fc", "diff", 
-                            "p.value", "p.adj", "cell_type", "int_cell_type", 
+                    old = c("feats", "sel", "other", "log2fc", "diff",
+                            "p.value", "p.adj", "cell_type", "int_cell_type",
                             "nr_select", "nr_other"),
-                    new = c("feats_1", "sel_1", "other_1", "log2fc_1", 
-                            "diff_1", "p.value_1", "p.adj_1", "cell_type_1", 
+                    new = c("feats_1", "sel_1", "other_1", "log2fc_1",
+                            "diff_1", "p.value_1", "p.adj_1", "cell_type_1",
                             "int_cell_type_1", "nr_select_1", "nr_other_1")
                 )
             }
@@ -1837,38 +1837,38 @@ filterCPG <- function(...) {
                 )]
                 data.table::setnames(subset_cell_2,
                     old = c(
-                        "feats", "sel", "other", "log2fc", "diff", "p.value", 
+                        "feats", "sel", "other", "log2fc", "diff", "p.value",
                         "p.adj",
                         "perm_sel", "perm_other", "perm_log2fc", "perm_diff",
                         "cell_type", "int_cell_type", "nr_select", "nr_other"
                     ),
                     new = c(
-                        "feats_2", "sel_2", "other_2", "log2fc_2", "diff_2", 
+                        "feats_2", "sel_2", "other_2", "log2fc_2", "diff_2",
                         "p.value_2", "p.adj_2",
-                        "perm_sel_2", "perm_other_2", "perm_log2fc_2", 
+                        "perm_sel_2", "perm_other_2", "perm_log2fc_2",
                         "perm_diff_2",
-                        "cell_type_2", "int_cell_type_2", "nr_select_2", 
+                        "cell_type_2", "int_cell_type_2", "nr_select_2",
                         "nr_other_2"
                     )
                 )
             } else {
                 subset_cell_2 <- subset_cell_2[
-                    , .(feats, sel, other, log2fc, diff, p.value, p.adj, 
-                        cell_type, int_cell_type, nr_select, nr_other, 
+                    , .(feats, sel, other, log2fc, diff, p.value, p.adj,
+                        cell_type, int_cell_type, nr_select, nr_other,
                         unif_int)]
                 data.table::setnames(subset_cell_2,
-                    old = c("feats", "sel", "other", "log2fc", "diff", 
-                            "p.value", "p.adj", "cell_type", "int_cell_type", 
+                    old = c("feats", "sel", "other", "log2fc", "diff",
+                            "p.value", "p.adj", "cell_type", "int_cell_type",
                             "nr_select", "nr_other"),
-                    new = c("feats_2", "sel_2", "other_2", "log2fc_2", 
-                            "diff_2", "p.value_2", "p.adj_2", "cell_type_2", 
+                    new = c("feats_2", "sel_2", "other_2", "log2fc_2",
+                            "diff_2", "p.value_2", "p.adj_2", "cell_type_2",
                             "int_cell_type_2", "nr_select_2", "nr_other_2")
                 )
             }
         }
 
         merge_subsets <- data.table::merge.data.table(
-            subset_cell_1, subset_cell_2, by = c("unif_int"), 
+            subset_cell_1, subset_cell_2, by = c("unif_int"),
             allow.cartesian = TRUE)
     } else if (length(unique_cell_types) == 1) {
         ## CELL TYPE 1
@@ -1891,30 +1891,30 @@ filterCPG <- function(...) {
             )]
             data.table::setnames(subset_cell_1A,
                 old = c(
-                    "feats", "sel", "other", "log2fc", "diff", "p.value", 
+                    "feats", "sel", "other", "log2fc", "diff", "p.value",
                     "p.adj",
                     "perm_sel", "perm_other", "perm_log2fc", "perm_diff",
                     "cell_type", "int_cell_type", "nr_select", "nr_other"
                 ),
                 new = c(
-                    "feats_1", "sel_1", "other_1", "log2fc_1", "diff_1", 
+                    "feats_1", "sel_1", "other_1", "log2fc_1", "diff_1",
                     "p.value_1", "p.adj_1",
-                    "perm_sel_1", "perm_other_1", "perm_log2fc_1", 
+                    "perm_sel_1", "perm_other_1", "perm_log2fc_1",
                     "perm_diff_1",
-                    "cell_type_1", "int_cell_type_1", "nr_select_1", 
+                    "cell_type_1", "int_cell_type_1", "nr_select_1",
                     "nr_other_1"
                 )
             )
         } else {
             subset_cell_1A <- subset_cell_1[
-                , .(feats, sel, other, log2fc, diff, p.value, p.adj, 
+                , .(feats, sel, other, log2fc, diff, p.value, p.adj,
                     cell_type, int_cell_type, nr_select, nr_other, unif_int)]
             data.table::setnames(subset_cell_1A,
-                old = c("feats", "sel", "other", "log2fc", "diff", "p.value", 
-                        "p.adj", "cell_type", "int_cell_type", "nr_select", 
+                old = c("feats", "sel", "other", "log2fc", "diff", "p.value",
+                        "p.adj", "cell_type", "int_cell_type", "nr_select",
                         "nr_other"),
-                new = c("feats_1", "sel_1", "other_1", "log2fc_1", "diff_1", 
-                        "p.value_1", "p.adj_1", "cell_type_1", 
+                new = c("feats_1", "sel_1", "other_1", "log2fc_1", "diff_1",
+                        "p.value_1", "p.adj_1", "cell_type_1",
                         "int_cell_type_1", "nr_select_1", "nr_other_1")
             )
         }
@@ -1930,36 +1930,36 @@ filterCPG <- function(...) {
             )]
             data.table::setnames(subset_cell_1B,
                 old = c(
-                    "feats", "sel", "other", "log2fc", "diff", "p.value", 
+                    "feats", "sel", "other", "log2fc", "diff", "p.value",
                     "p.adj",
                     "perm_sel", "perm_other", "perm_log2fc", "perm_diff",
                     "cell_type", "int_cell_type", "nr_select", "nr_other"
                 ),
                 new = c(
-                    "feats_2", "sel_2", "other_2", "log2fc_2", "diff_2", 
+                    "feats_2", "sel_2", "other_2", "log2fc_2", "diff_2",
                     "p.value_2", "p.adj_2",
-                    "perm_sel_2", "perm_other_2", "perm_log2fc_2", 
+                    "perm_sel_2", "perm_other_2", "perm_log2fc_2",
                     "perm_diff_2",
-                    "cell_type_2", "int_cell_type_2", "nr_select_2", 
+                    "cell_type_2", "int_cell_type_2", "nr_select_2",
                     "nr_other_2"
                 )
             )
         } else {
             subset_cell_1B <- subset_cell_1[
-                , .(feats, sel, other, log2fc, diff, p.value, p.adj, 
+                , .(feats, sel, other, log2fc, diff, p.value, p.adj,
                     cell_type, int_cell_type, nr_select, nr_other, unif_int)]
             data.table::setnames(subset_cell_1B,
-                old = c("feats", "sel", "other", "log2fc", "diff", "p.value", 
-                        "p.adj", "cell_type", "int_cell_type", "nr_select", 
+                old = c("feats", "sel", "other", "log2fc", "diff", "p.value",
+                        "p.adj", "cell_type", "int_cell_type", "nr_select",
                         "nr_other"),
-                new = c("feats_2", "sel_2", "other_2", "log2fc_2", "diff_2", 
-                        "p.value_2", "p.adj_2", "cell_type_2", 
+                new = c("feats_2", "sel_2", "other_2", "log2fc_2", "diff_2",
+                        "p.value_2", "p.adj_2", "cell_type_2",
                         "int_cell_type_2", "nr_select_2", "nr_other_2")
             )
         }
 
         merge_subsets <- data.table::merge.data.table(
-            subset_cell_1A, subset_cell_1B, by = c("unif_int"), 
+            subset_cell_1A, subset_cell_1B, by = c("unif_int"),
             allow.cartesian = TRUE)
     }
 
@@ -1985,9 +1985,9 @@ filterCPG <- function(...) {
 #' @param icfObject ICF (interaction changed feat) score object
 #' @param selected_ints subset of selected cell-cell interactions (optional)
 #' @param selected_feats subset of selected Features (optional)
-#' @param specific_feats_1 specific Featureset combo 
+#' @param specific_feats_1 specific Featureset combo
 #' (need to position match specific_feats_2)
-#' @param specific_feats_2 specific Featureset combo 
+#' @param specific_feats_2 specific Featureset combo
 #' (need to position match specific_feats_1)
 #' @param min_cells minimum number of target cell type
 #' @param min_int_cells minimum number of interacting cell type
@@ -1999,10 +1999,10 @@ filterCPG <- function(...) {
 #' @returns combIcfObject that contains the filtered differential feature scores
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' g_icf <- findInteractionChangedFeats(g, 
-#' cluster_column = "leiden_clus", 
+#' g_icf <- findInteractionChangedFeats(g,
+#' cluster_column = "leiden_clus",
 #' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
+#'
 #' combineInteractionChangedFeats(g_icf)
 #' @export
 combineInteractionChangedFeats <- function(icfObject,
@@ -2018,12 +2018,12 @@ combineInteractionChangedFeats <- function(icfObject,
     do_parallel = TRUE,
     verbose = TRUE) {
     # data.table variables
-    unif_int <- feat1_feat2 <- feats_1 <- feats_2 <- comb_logfc <- 
+    unif_int <- feat1_feat2 <- feats_1 <- feats_2 <- comb_logfc <-
         log2fc_1 <- log2fc_2 <- direction <- NULL
 
     ## check validity
     if (!"icfObject" %in% class(icfObject)) {
-        stop("icfObject needs to be the output from 
+        stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
     }
     ICFscore <- copy(icfObject[["ICFscores"]])
@@ -2146,9 +2146,9 @@ combineCellProximityGenes <- function(...) {
 #' @param icfObject ICF (interaction changed feat) score object
 #' @param selected_ints subset of selected cell-cell interactions (optional)
 #' @param selected_feats subset of selected Feats (optional)
-#' @param specific_feats_1 specific Featset combo 
+#' @param specific_feats_1 specific Featset combo
 #' (need to position match specific_genes_2)
-#' @param specific_feats_2 specific Featset combo 
+#' @param specific_feats_2 specific Featset combo
 #' (need to position match specific_genes_1)
 #' @param min_cells minimum number of target cell type
 #' @param min_int_cells minimum number of interacting cell type
@@ -2162,7 +2162,7 @@ combineCellProximityGenes <- function(...) {
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
 #' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
+#'
 #' combineICF(g_icf)
 #' @export
 combineICF <- function(icfObject,
@@ -2270,7 +2270,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
     # keep order of colnames
     colnames_order <- sort(new_colnames)
 
-    # feat_set_1 and feat_set_2 need to have same length and all feats need 
+    # feat_set_1 and feat_set_2 need to have same length and all feats need
     # to be present in data
     if (length(feat_set_1) != length(feat_set_2)) {
         stop("length of set1 needs to be the same as that of set2")
@@ -2289,7 +2289,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
         match(feat_set_2, rownames(average_DT)), , drop = FALSE]
 
     # data.table variables
-    ligand <- LR_comb <- receptor <- LR_expr <- lig_expr <- rec_expr <- 
+    ligand <- LR_comb <- receptor <- LR_expr <- lig_expr <- rec_expr <-
         lig_cell_type <- rec_cell_type <- NULL
 
     all_ligand_cols <- colnames(ligand_match)
@@ -2337,25 +2337,25 @@ average_feat_feat_expression_in_groups <- function(gobject,
 #' @param feat_set_1 first specific feature set from feature pairs
 #' @param feat_set_2 second specific feature set from feature pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param detailed provide more detailed information 
+#' @param detailed provide more detailed information
 #' (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or feature level
 #' @param set_seed set seed for random simulations (default = TRUE)
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @returns Cell-Cell communication scores for feature pairs based on 
+#' @returns Cell-Cell communication scores for feature pairs based on
 #' expression only
-#' @details Statistical framework to identify if pairs of features 
+#' @details Statistical framework to identify if pairs of features
 #' (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null 
+#' are expressed at higher levels than expected based on a reshuffled null
 #' distribution of feature expression values,
 #' without considering the spatial position of cells.
 #' More details will follow soon.
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' exprCellCellcom(g, cluster_column = "leiden_clus", 
+#'
+#' exprCellCellcom(g, cluster_column = "leiden_clus",
 #' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 #' @export
 exprCellCellcom <- function(gobject,
@@ -2387,7 +2387,7 @@ exprCellCellcom <- function(gobject,
     )
 
     # data.table variables
-    lig_nr <- lig_cell_type <- rec_nr <- rec_cell_type <- rand_expr <- 
+    lig_nr <- lig_cell_type <- rec_nr <- rec_cell_type <- rand_expr <-
         av_diff <- log2fc <- LR_expr <- pvalue <- NULL
     LR_cell_comb <- p.adj <- LR_comb <- PI <- sd_diff <- z_score <- NULL
 
@@ -2511,10 +2511,10 @@ exprCellCellcom <- function(gobject,
     comScore[, LR_cell_comb := paste0(lig_cell_type, "--", rec_cell_type)]
 
     if (adjust_target == "feats") {
-        comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), 
+        comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method),
                 by = .(LR_cell_comb)]
     } else if (adjust_target == "cells") {
-        comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), 
+        comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method),
                 by = .(LR_comb)]
     }
 
@@ -2522,7 +2522,7 @@ exprCellCellcom <- function(gobject,
     # get minimum adjusted p.value that is not zero
     all_p.adj <- comScore[["p.adj"]]
     lowest_p.adj <- min(all_p.adj[all_p.adj != 0])
-    comScore[, PI := ifelse(p.adj == 0, log2fc * (-log10(lowest_p.adj)), 
+    comScore[, PI := ifelse(p.adj == 0, log2fc * (-log10(lowest_p.adj)),
                             log2fc * (-log10(p.adj)))]
 
     data.table::setorder(comScore, LR_comb, -LR_expr)
@@ -2538,7 +2538,7 @@ exprCellCellcom <- function(gobject,
 #' @param gobject giotto object to use
 #' @param feat_type feature type
 #' @param cluster_column cluster column with cell type information
-#' @param needed_cell_types vector of cell type names for which a random id 
+#' @param needed_cell_types vector of cell type names for which a random id
 #' will be found
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
@@ -2593,12 +2593,12 @@ exprCellCellcom <- function(gobject,
 
 #' @title specificCellCellcommunicationScores
 #' @name specificCellCellcommunicationScores
-#' @description Specific Cell-Cell communication scores based on spatial 
+#' @description Specific Cell-Cell communication scores based on spatial
 #' expression of interacting cells
 #' @param gobject giotto object to use
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
-#' @param spatial_network_name spatial network to use for identifying 
+#' @param spatial_network_name spatial network to use for identifying
 #' interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -2609,21 +2609,21 @@ exprCellCellcom <- function(gobject,
 #' @param gene_set_1 deprecated, use feat_set_1
 #' @param gene_set_2 deprecated, use feat_set_2
 #' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param min_observations minimum number of interactions needed to be 
+#' @param min_observations minimum number of interactions needed to be
 #' considered
-#' @param detailed provide more detailed information 
+#' @param detailed provide more detailed information
 #' (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or feature level
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @return Cell-Cell communication scores for feature pairs based on spatial 
+#' @return Cell-Cell communication scores for feature pairs based on spatial
 #' interaction
-#' @details Statistical framework to identify if pairs of features 
+#' @details Statistical framework to identify if pairs of features
 #' (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null 
-#' distribution of feature expression values in cells that are spatially in 
+#' are expressed at higher levels than expected based on a reshuffled null
+#' distribution of feature expression values in cells that are spatially in
 #' proximity to eachother.
 #' \itemize{
 #'  \item{LR_comb:}{Pair of ligand and receptor}
@@ -2693,9 +2693,9 @@ specificCellCellcommunicationScores <- function(gobject,
 
 
     # data.table variables
-    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <- 
+    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
         rec_nr <- rand_expr <- NULL
-    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <- 
+    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <-
         LR_comb <- PI <- NULL
     sd_diff <- z_score <- NULL
 
@@ -2760,7 +2760,7 @@ specificCellCellcommunicationScores <- function(gobject,
             feat_set_1 = feat_set_1,
             feat_set_2 = feat_set_2
         )
-        comScore <- comScore[(lig_cell_type == cell_type_1 & 
+        comScore <- comScore[(lig_cell_type == cell_type_1 &
                                 rec_cell_type == cell_type_2) |
             (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
 
@@ -2818,7 +2818,7 @@ specificCellCellcommunicationScores <- function(gobject,
                 feat_set_1 = feat_set_1,
                 feat_set_2 = feat_set_2
             )
-            randomScore <- randomScore[(lig_cell_type == cell_type_1 & 
+            randomScore <- randomScore[(lig_cell_type == cell_type_1 &
                                             rec_cell_type == cell_type_2) |
                 (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
 
@@ -2886,12 +2886,12 @@ specificCellCellcommunicationScores <- function(gobject,
 
 #' @title spatCellCellcom
 #' @name spatCellCellcom
-#' @description Spatial Cell-Cell communication scores based on spatial 
+#' @description Spatial Cell-Cell communication scores based on spatial
 #' expression of interacting cells
 #' @param gobject giotto object to use
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
-#' @param spatial_network_name spatial network to use for identifying 
+#' @param spatial_network_name spatial network to use for identifying
 #' interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -2900,9 +2900,9 @@ specificCellCellcommunicationScores <- function(gobject,
 #' @param gene_set_1 deprecated, use feat_set_1
 #' @param gene_set_2 deprecated, use feat_set_2
 #' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param min_observations minimum number of interactions needed to be 
+#' @param min_observations minimum number of interactions needed to be
 #' considered
-#' @param detailed provide more detailed information 
+#' @param detailed provide more detailed information
 #' (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or feature level
@@ -2911,40 +2911,49 @@ specificCellCellcommunicationScores <- function(gobject,
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @returns Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial
 #' interaction
-#' @details Statistical framework to identify if pairs of genes 
+#' @details Statistical framework to identify if pairs of genes
 #' (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null 
-#' distribution of feature expression values in cells that are spatially in 
+#' are expressed at higher levels than expected based on a reshuffled null
+#' distribution of feature expression values in cells that are spatially in
 #' proximity to each other.
-#' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
-#' }
+#' * **LR_comb:** Pair of ligand and receptor
+#' * **lig_cell_type:** cell type to assess expression level of ligand
+#' * **lig_expr:** average expression of ligand in lig_cell_type
+#' * **ligand:** ligand name
+#' * **rec_cell_type:** cell type to assess expression level of receptor
+#' * **rec_expr:** average expression of receptor in rec_cell_type
+#' * **receptor:** receptor name
+#' * **LR_expr:** combined average ligand and receptor expression
+#' * **lig_nr:** total number of cells from lig_cell_type that spatially
+#' interact with cells from rec_cell_type
+#' * **rec_nr:** total number of cells from rec_cell_type that spatially
+#' interact with cells from lig_cell_type
+#' * **rand_expr:** average combined ligand and receptor expression from
+#' random spatial permutations
+#' * **av_diff:** average difference between LR_expr and rand_expr over all
+#' random spatial permutations
+#' * **sd_diff:** (optional) standard deviation of the difference between
+#' LR_expr and rand_expr over all random spatial permutations
+#' * **z_score:** (optional) z-score
+#' * **log2fc:** log2 fold-change (LR_expr/rand_expr)
+#' * **pvalue:** p-value
+#' * **LR_cell_comb:** cell type pair combination
+#' * **p.adj:** adjusted p-value
+#' * **PI:** significance score: log2fc * -log10(p.adj)
+#' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
-#' random_iter = 10)
+#'
+#' spatCellCellcom(
+#'     gobject = g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik",
+#'     verbose = "a lot",
+#'     random_iter = 10
+#' )
 #' @export
 spatCellCellcom <- function(gobject,
     feat_type = NULL,
@@ -3021,7 +3030,7 @@ spatCellCellcom <- function(gobject,
     ## parallel option ##
     if (do_parallel == TRUE) {
         savelist <- lapply_flex(
-            X = 1:nrow(combn_DT), future.seed = TRUE, 
+            X = 1:nrow(combn_DT), future.seed = TRUE,
             cores = cores, fun = function(row) {
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
@@ -3055,8 +3064,8 @@ spatCellCellcom <- function(gobject,
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
-            if (verbose == "a little" | verbose == "a lot") 
-                cat("PROCESS nr ", countdown, ": ", cell_type_1, " and ", 
+            if (verbose == "a little" | verbose == "a lot")
+                cat("PROCESS nr ", countdown, ": ", cell_type_1, " and ",
                     cell_type_2)
 
             if (verbose %in% c("a little", "none")) {
@@ -3105,7 +3114,7 @@ spatCellCellcom <- function(gobject,
 
 #' @title combCCcom
 #' @name combCCcom
-#' @description Combine spatial and expression based cell-cell communication 
+#' @description Combine spatial and expression based cell-cell communication
 #' data.tables
 #' @param spatialCC spatial cell-cell communication scores
 #' @param exprCC expression cell-cell communication scores
@@ -3114,18 +3123,18 @@ spatCellCellcom <- function(gobject,
 #' @param min_padj_value minimum adjusted p-value
 #' @param min_log2fc minimum log2 fold-change
 #' @param min_av_diff minimum average expression difference
-#' @param detailed detailed option used with \code{\link{spatCellCellcom}} 
+#' @param detailed detailed option used with \code{\link{spatCellCellcom}}
 #' (default = FALSE)
 #' @returns combined data.table with spatial and expression communication data
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+#'
+#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus",
 #' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 #' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
 #' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
 #' random_iter = 10)
-#' 
+#'
 #' combCCcom(spatialCC = spatialCC, exprCC = exprCC)
 #' @export
 combCCcom <- function(spatialCC,
@@ -3140,7 +3149,7 @@ combCCcom <- function(spatialCC,
     lig_nr <- rec_nr <- p.adj <- log2fc <- av_diff <- NULL
 
     spatialCC <- spatialCC[lig_nr >= min_lig_nr & rec_nr >= min_rec_nr &
-        p.adj <= min_padj_value & abs(log2fc) >= min_log2fc & 
+        p.adj <= min_padj_value & abs(log2fc) >= min_log2fc &
             abs(av_diff) >= min_av_diff]
 
 
@@ -3157,13 +3166,13 @@ combCCcom <- function(spatialCC,
         x = spatialCC,
         old = c(
             "lig_expr", "rec_expr", "LR_expr", "lig_nr", "rec_nr",
-            "rand_expr", "av_diff", old_detailed, 
+            "rand_expr", "av_diff", old_detailed,
             "log2fc", "pvalue", "p.adj", "PI"
         ),
         new = c(
-            "lig_expr_spat", "rec_expr_spat", "LR_expr_spat", "lig_nr_spat", 
+            "lig_expr_spat", "rec_expr_spat", "LR_expr_spat", "lig_nr_spat",
             "rec_nr_spat",
-            "rand_expr_spat", "av_diff_spat", new_detailed, "log2fc_spat", 
+            "rand_expr_spat", "av_diff_spat", new_detailed, "log2fc_spat",
             "pvalue_spat", "p.adj_spat", "PI_spat"
         )
     )
@@ -3175,7 +3184,7 @@ combCCcom <- function(spatialCC,
     ))
 
     # data.table variables
-    LR_expr_rnk <- LR_expr <- LR_comb <- LR_spat_rnk <- LR_expr_spat <- 
+    LR_expr_rnk <- LR_expr <- LR_comb <- LR_spat_rnk <- LR_expr_spat <-
         exprPI_rnk <- PI <- spatPI_rnk <- PI_spat <- NULL
 
     # rank for expression levels

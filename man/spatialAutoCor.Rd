@@ -60,7 +60,7 @@ spatialAutoCorLocal(
 
 \item{method}{method of autocorrelation. See details (default = 'moran')}
 
-\item{data_to_use}{if using data from gobject, whether to test using 
+\item{data_to_use}{if using data from gobject, whether to test using
 expression ('expression') or cell metadata ('cell_meta')}
 
 \item{expression_values}{name of expression information to use}
@@ -69,21 +69,21 @@ expression ('expression') or cell metadata ('cell_meta')}
 
 \item{spatial_network_to_use}{spatial network to use}
 
-\item{wm_method}{type of weight matrix to generate from spatial network 
+\item{wm_method}{type of weight matrix to generate from spatial network
 if no weight matrix is found attached to the spatial network}
 
 \item{wm_name}{name of attached weight matrix to use}
 
-\item{node_values}{alternative method of directly supplying a set of node 
+\item{node_values}{alternative method of directly supplying a set of node
 values}
 
-\item{weight_matrix}{alternative method of directly supplying a spatial 
+\item{weight_matrix}{alternative method of directly supplying a spatial
 weight matrix}
 
 \item{test_method}{method to test values for significance (default is no
 testing)}
 
-\item{mc_nsim}{when \code{test_method = 'monte_carlo'} this is number of 
+\item{mc_nsim}{when \code{test_method = 'monte_carlo'} this is number of
 simulations to perform}
 
 \item{cor_name}{name to assign the results in global autocorrelation output}
@@ -92,20 +92,20 @@ simulations to perform}
 
 \item{verbose}{be verbose}
 
-\item{enrich_name}{name to assign local autocorrelation spatial enrichment 
+\item{enrich_name}{name to assign local autocorrelation spatial enrichment
 results}
 
 \item{output}{'spatEnrObj' or 'data.table'
 metadata in the giotto object or as a data.table}
 }
 \description{
-Find spatial autocorrelation. Note that 
-\code{spatialAutoCorGlobal} will return values as a data.table instead of 
+Find spatial autocorrelation. Note that
+\code{spatialAutoCorGlobal} will return values as a data.table instead of
 appending information to the gobject.
-\code{spatialAutoCorLocal} will append the results as a spatial enrichment 
+\code{spatialAutoCorLocal} will append the results as a spatial enrichment
 object by default. \cr
-If providing external data using either the \code{node_values} and/or 
-\code{weight_matrix} params, the order of values provided should be the 
+If providing external data using either the \code{node_values} and/or
+\code{weight_matrix} params, the order of values provided should be the
 same as the ordering of the columns and rows of the weight matrix.
 }
 \details{
@@ -127,7 +127,7 @@ same as the ordering of the columns and rows of the weight matrix.
 \itemize{
 \item \code{spatialAutoCorGlobal()}: Global autocorrelation (single value returned)
 
-\item \code{spatialAutoCorLocal()}: Local autocorrelation 
+\item \code{spatialAutoCorLocal()}: Local autocorrelation
 (values generated for each spatial ID)
 
 }}

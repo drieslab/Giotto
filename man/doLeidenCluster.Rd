@@ -31,7 +31,7 @@ doLeidenCluster(
 
 \item{name}{name for cluster, default to "leiden_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to 
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to
 "sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
@@ -42,7 +42,7 @@ doLeidenCluster(
 
 \item{weight_col}{weight column to use for edges, default to "weight"}
 
-\item{partition_type}{The type of partition to use for optimization. 
+\item{partition_type}{The type of partition to use for optimization.
 (e.g. "RBConfigurationVertexPartition", "ModularityVertexPartition")}
 
 \item{init_membership}{initial membership of cells for the partition}
@@ -51,7 +51,7 @@ doLeidenCluster(
 If the number of iterations is negative, the Leiden algorithm is run until
 an iteration in which there was no improvement.}
 
-\item{return_gobject}{Boolean: return giotto object (default = TRUE)}
+\item{return_gobject}{logical. return giotto object (default = TRUE)}
 
 \item{set_seed}{set seed}
 
@@ -61,25 +61,27 @@ an iteration in which there was no improvement.}
 giotto object with new clusters appended to cell metadata
 }
 \description{
-cluster cells using a NN-network and the Leiden community 
+cluster cells using a NN-network and the Leiden community
 detection algorithm
 }
 \details{
 This function is a wrapper for the Leiden algorithm implemented in python,
 which can detect communities in graphs of millions of nodes (cells),
-as long as they can fit in memory. See the 
-\url{https://github.com/vtraag/leidenalg}{leidenalg}
-github page or the 
-\url{https://leidenalg.readthedocs.io/en/stable/index.html}{readthedocs}
+as long as they can fit in memory. See the
+\href{https://github.com/vtraag/leidenalg}{leidenalg}
+github page or the
+\href{https://leidenalg.readthedocs.io/en/stable/index.html}{readthedocs}
 page for more information.
 
 Partition types available and information:
 \itemize{
-  \item{RBConfigurationVertexPartition: }{Implements Reichardt and Bornholdt’s Potts model
-   with a configuration null model. This quality function is well-defined only for positive edge weights.
-    This quality function uses a linear resolution parameter.}
-  \item{ModularityVertexPartition: }{Implements modularity.
-   This quality function is well-defined only for positive edge weights. It does \emph{not} use the resolution parameter}
+\item \strong{RBConfigurationVertexPartition:} Implements Reichardt and Bornholdt’s
+Potts model with a configuration null model. This quality function is
+well-defined only for positive edge weights. This quality function uses a
+linear resolution parameter.
+\item \strong{ModularityVertexPartition:} Implements modularity. This quality
+function is well-defined only for positive edge weights. It does \emph{not}
+use the resolution parameter
 }
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.

@@ -33,7 +33,7 @@ giotto object if return_gobject = TRUE, else a list with results
 Adds feature and cell statistics to the giotto object
 }
 \details{
-See \code{\link{addFeatStatistics}} and 
+See \code{\link{addFeatStatistics}} and
 \code{\link{addCellStatistics}}
 }
 \examples{

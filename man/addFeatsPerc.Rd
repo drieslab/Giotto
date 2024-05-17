@@ -30,11 +30,11 @@ addFeatsPerc(
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
-giotto object if \code{return_gobject = TRUE}, else a vector with % 
+giotto object if \code{return_gobject = TRUE}, else a vector with %
 results
 }
 \description{
-Calculates the total percentage of (normalized) counts for a 
+Calculates the total percentage of (normalized) counts for a
 subset of selected genes
 }
 \examples{

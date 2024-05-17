@@ -25,7 +25,7 @@ simulateOneGenePatternGiottoObject(
 
 \item{gene_name}{selected gene}
 
-\item{spatial_prob}{probability for a high expressing gene value to be 
+\item{spatial_prob}{probability for a high expressing gene value to be
 part of the spatial pattern}
 
 \item{gradient_direction}{direction of gradient}
@@ -37,7 +37,7 @@ part of the spatial pattern}
 \item{\dots}{additional parameters for (re-)normalizing}
 }
 \value{
-Reprocessed Giotto object for which one gene has a forced 
+Reprocessed Giotto object for which one gene has a forced
 spatial pattern
 }
 \description{

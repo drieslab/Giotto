@@ -35,7 +35,7 @@ cell-to-cell Interaction Changed Genes
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
-i.e. genes that are differentially expressed due to proximity to other cell 
+i.e. genes that are differentially expressed due to proximity to other cell
 types.
 }
 \seealso{
