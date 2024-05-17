@@ -26,6 +26,9 @@ run_spatial_sim_tests_multi(
   ...
 )
 }
+\value{
+data.table
+}
 \description{
 runs all spatial tests for multiple probabilities and
 repetitions

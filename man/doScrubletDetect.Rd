@@ -56,6 +56,11 @@ returned.
 \description{
 run \emph{scrublet} doublet detection for raw expression.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doScrubletDetect(g)
+}
 \seealso{
 This function wraps the python package scrublet
 \doi{10.1016/j.cels.2018.11.005}

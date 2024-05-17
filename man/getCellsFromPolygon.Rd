@@ -32,28 +32,23 @@ where each cell is located in.
 Get cells located within the polygons area
 }
 \examples{
-\dontrun{
 ## Plot interactive polygons
-my_spatPlot <- spatPlot2D(
-    gobject = my_giotto_object,
-    show_image = TRUE,
-    point_alpha = 0.75,
-    save_plot = FALSE
-)
-my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+g <- GiottoData::loadGiottoMini("visium")
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 
 ## Add polygon coordinates to Giotto object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-my_giotto_object <- addGiottoPolygons(
-    gobject = my_giotto_object,
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+name = "selections")
+g <- addGiottoPolygons(
+    gobject = g,
     gpolygons = list(my_giotto_polygons)
 )
 
-## Get cells located within polygons area
-getCellsFromPolygon(my_giotto_object)
+## Add polygon IDs to cell metadata
+addPolygonCells(g)
 
 ## Get only cells from polygon 1
-getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
-}
+getCellsFromPolygon(g)
 
 }

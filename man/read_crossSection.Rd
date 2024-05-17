@@ -13,6 +13,9 @@ read_crossSection(gobject, name = NULL, spatial_network_name = NULL)
 
 \item{spatial_network_name}{spatial_network_name}
 }
+\value{
+crossSectionObjects
+}
 \description{
 read a cross section object from a giotto object
 }

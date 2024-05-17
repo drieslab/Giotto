@@ -49,3 +49,8 @@ Cluster cells using a random walk approach.
 See \code{\link[igraph]{cluster_walktrap}} function from the igraph
 package in R for more information.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doRandomWalkCluster(g)
+}

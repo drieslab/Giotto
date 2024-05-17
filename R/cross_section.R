@@ -30,6 +30,7 @@
 #' @param cell_subset_projection_PCA pca of projection coordinates
 #' @param cell_subset_projection_coords 2D PCA coordinates of selected cells 
 #' in the cross section plane
+#' @returns crossSection object
 create_crossSection_object <- function(name = NULL,
     method = NULL,
     thickness_unit = NULL,
@@ -65,6 +66,7 @@ create_crossSection_object <- function(name = NULL,
 #' @param gobject gobject
 #' @param name name
 #' @param spatial_network_name spatial_network_name
+#' @returns crossSectionObjects
 #' @keywords internal
 read_crossSection <- function(gobject,
     name = NULL,
@@ -109,6 +111,7 @@ read_crossSection <- function(gobject,
 #' @param gobject gobject
 #' @param spatial_network_name spatial_network_name
 #' @param method method
+#' @returns matrix
 #' @keywords internal
 estimateCellCellDistance <- function(gobject,
     spatial_network_name = "Delaunay_network",
@@ -130,6 +133,7 @@ estimateCellCellDistance <- function(gobject,
 #' @param spatial_network_name spatial_network_name
 #' @param cell_distance_estimate_method cell_distance_estimate_method
 #' @param plane_equation plane_equation
+#' @returns numeric
 #' @keywords internal
 get_sectionThickness <- function(gobject, thickness_unit = c("cell", "natural"),
     slice_thickness = 2,
@@ -156,6 +160,7 @@ get_sectionThickness <- function(gobject, thickness_unit = c("cell", "natural"),
 #' @param point_to_project point_to_project
 #' @param plane_point plane_point
 #' @param plane_norm plane_norm
+#' @returns numeric
 #' @keywords internal
 projection_fun <- function(point_to_project, plane_point, plane_norm) {
     a <- plane_norm[1]
@@ -185,6 +190,7 @@ projection_fun <- function(point_to_project, plane_point, plane_norm) {
 #' @param sdimy sdimy
 #' @param sdimz sdimz
 #' @param mesh_obj mesh_obj
+#' @returns numeric
 #' @keywords internal
 adapt_aspect_ratio <- function(current_ratio, cell_locations,
     sdimx = NULL, sdimy = NULL, sdimz = NULL,
@@ -229,6 +235,7 @@ adapt_aspect_ratio <- function(current_ratio, cell_locations,
 #' @description extend the range of a vector by a given ratio
 #' @param x x
 #' @param extend_ratio extend_ratio
+#' @returns numeric
 #' @keywords internal
 extend_vector <- function(x, extend_ratio) {
     x_center <- (max(x) + min(x)) / 2
@@ -242,6 +249,7 @@ extend_vector <- function(x, extend_ratio) {
 #' @description get the extended ranges of x and y
 #' @param data data
 #' @param extend_ratio extend_ratio
+#' @returns list
 #' @keywords internal
 find_x_y_ranges <- function(data, extend_ratio) {
     x_extend <- extend_vector(data[, 1], extend_ratio)
@@ -268,6 +276,7 @@ find_x_y_ranges <- function(data, extend_ratio) {
 #' @param y_min y_min
 #' @param y_max y_max
 #' @param mesh_grid_n mesh_grid_n
+#' @returns 2d mesh grid line object
 #' @keywords internal
 create_2d_mesh_grid_line_obj <- function(
         x_min, x_max, y_min, y_max, mesh_grid_n) {
@@ -296,6 +305,7 @@ create_2d_mesh_grid_line_obj <- function(
 #' @name reshape_to_data_point
 #' @description reshape a mesh grid line object to data point matrix
 #' @param mesh_grid_obj mesh_grid_obj
+#' @returns matrix
 #' @keywords internal
 reshape_to_data_point <- function(mesh_grid_obj) {
     if (length(mesh_grid_obj) == 3) {
@@ -318,6 +328,7 @@ reshape_to_data_point <- function(mesh_grid_obj) {
 #' @description reshape a data point matrix to a mesh grid line object
 #' @param data_points data_points
 #' @param mesh_grid_n mesh_grid_n
+#' @returns list
 #' @keywords internal
 reshape_to_mesh_grid_obj <- function(data_points, mesh_grid_n) {
     if (dim(data_points)[2] == 2) {
@@ -374,6 +385,7 @@ transform_2d_mesh_to_3d_mesh <- function(
 #' @name get_cross_section_coordinates
 #' @description get local coordinates within cross section plane
 #' @param cell_subset_projection_locations cell_subset_projection_locations
+#' @returns data.table
 #' @keywords internal
 get_cross_section_coordinates <- function(cell_subset_projection_locations) {
     cell_subset_projection_PCA <- stats::prcomp(
@@ -391,6 +403,7 @@ get_cross_section_coordinates <- function(cell_subset_projection_locations) {
 #' @param cell_subset_projection_locations cell_subset_projection_locations
 #' @param extend_ratio extend_ratio
 #' @param mesh_grid_n mesh_grid_n
+#' @returns mesh grid lines
 #' @keywords internal
 create_mesh_grid_lines <- function(
         cell_subset_projection_locations, extend_ratio, mesh_grid_n) {
@@ -468,10 +481,14 @@ create_mesh_grid_lines <- function(
 #' @param mesh_grid_n numer of meshgrid lines to generate along both directions 
 #' for the cross section plane.
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object with updated spatial network slot
+#' @returns giotto object with updated spatial network slot
 #' @details Creates a virtual 2D cross section object for a given spatial 
 #' network object. The users need to provide the definition of the cross 
 #' section plane (see method).
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' createCrossSection(gobject = g, spatial_network_name = "spatial_network")
 #' @export
 createCrossSection <- function(gobject,
     spat_loc_name = "raw",
@@ -647,7 +664,7 @@ createCrossSection <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
 #' @param ... parameters for spatFeatPlot2D
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @md
 #' @seealso [GiottoVisuals::spatGenePlot3D] and [GiottoVisuals::spatFeatPlot2D]
@@ -703,7 +720,7 @@ crossSectionGenePlot <- function(
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
 #' @param ... parameters for spatPlot2D
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
@@ -813,7 +830,7 @@ crossSectionGenePlot3D <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
 #' @param ... parameters for spatPlot3D
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @export
 crossSectionPlot3D <- function(gobject,
@@ -870,7 +887,7 @@ crossSectionPlot3D <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
 #' @param ... parameters for spatPlot3D
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @export
 insertCrossSectionSpatPlot3D <- function(gobject,
@@ -972,7 +989,7 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, 
 #' change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
-#' @return ggplot
+#' @returns ggplot
 #' @details Description of parameters.
 #' @md
 #' @export

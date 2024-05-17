@@ -6,7 +6,7 @@
 #' @title mygini_fun
 #' @description calculate gini coefficient
 #' @keywords internal
-#' @return gini coefficient
+#' @returns gini coefficient
 mygini_fun <- function(x,
     weights = rep(1, length(x))) {
     # adapted from R package GiniWegNeg
@@ -35,7 +35,7 @@ mygini_fun <- function(x,
 #' @title extended_gini_fun
 #' @description calculate gini coefficient on a minimum length vector
 #' @keywords internal
-#' @return gini coefficient
+#' @returns gini coefficient
 extended_gini_fun <- function(x,
     weights = rep(1, length = length(x)),
     minimum_length = 16) {
@@ -55,6 +55,7 @@ extended_gini_fun <- function(x,
 #' @title .kmeans_binarize
 #' @name .kmeans_binarize
 #' @description create binarized scores from a vector using kmeans
+#' @returns numeric
 #' @keywords internal
 .kmeans_binarize <- function(x,
     nstart = 3,
@@ -87,6 +88,7 @@ extended_gini_fun <- function(x,
 #' @title .kmeans_arma_binarize
 #' @name .kmeans_arma_binarize
 #' @description create binarized scores from a vector using kmeans_arma
+#' @returns numeric
 #' @keywords internal
 .kmeans_arma_binarize <- function(x, n_iter = 5, seed = NULL) {
     if (!is.null(seed)) {
@@ -125,6 +127,7 @@ extended_gini_fun <- function(x,
 #' @name .kmeans_arma_subset_binarize
 #' @description create binarized scores from a subsetted vector using 
 #' kmeans_arma
+#' @returns numeric
 #' @keywords internal
 .kmeans_arma_subset_binarize <- function(x,
     n_iter = 5,
@@ -177,6 +180,7 @@ extended_gini_fun <- function(x,
 #' @title kmeans_binarize_wrapper
 #' @name kmeans_binarize_wrapper
 #' @description wrapper for different binarization functions
+#' @returns matrix
 #' @keywords internal
 kmeans_binarize_wrapper <- function(
         expr_values,
@@ -224,6 +228,7 @@ kmeans_binarize_wrapper <- function(
 #' @title Rank binarize
 #' @name .rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
+#' @returns data.table
 #' @keywords internal
 .rank_binarize <- function(x, max_rank = 200) {
     sel_gene_rank <- rank(-x, ties.method = "average")
@@ -240,6 +245,7 @@ kmeans_binarize_wrapper <- function(
 #' @title rank_binarize_wrapper
 #' @name rank_binarize_wrapper
 #' @description wrapper for rank binarization function
+#' @returns matrix
 #' @keywords internal
 rank_binarize_wrapper <- function(expr_values,
     subset_feats = NULL,
@@ -268,7 +274,7 @@ rank_binarize_wrapper <- function(expr_values,
 #' official gene symbols
 #' @param matrix an expression matrix with ensembl gene IDs as rownames
 #' @param species species to use for gene symbol conversion
-#' @return expression matrix with gene symbols as rownames
+#' @returns expression matrix with gene symbols as rownames
 #' @details This function requires that the biomaRt library is installed
 #' @export
 convertEnsemblToGeneSymbol <- function(matrix,
@@ -375,6 +381,7 @@ convertEnsemblToGeneSymbol <- function(matrix,
 # dotparams are passed to smoothGiottoPolygons
 #' @title Polygon creation and smoothing for parallel
 #' @name gpoly_from_dfr_smoothed_wrapped
+#' @returns giottoPolygon
 #' @keywords internal
 gpoly_from_dfr_smoothed_wrapped <- function(
         segmdfr,
@@ -428,7 +435,7 @@ gpoly_from_dfr_smoothed_wrapped <- function(
 #' @param remove_zero_rows removes rows with sum equal to zero
 #' @param split_by_type split into multiple matrices based on 3rd column of 
 #' features.tsv(.gz)
-#' @return sparse expression matrix from 10X
+#' @returns sparse expression matrix from 10X
 #' @details A typical 10X folder is named raw_feature_bc_matrix or 
 #' filtered_feature_bc_matrix and it has 3 files:
 #' \itemize{
@@ -523,7 +530,7 @@ get10Xmatrix <- function(path_to_data,
 #' @param gene_ids use gene symbols (default) or ensembl ids for the gene 
 #' expression matrix
 #' @inheritParams get10Xmatrix
-#' @return (list of) sparse expression matrix from 10X
+#' @returns (list of) sparse expression matrix from 10X
 #' @details If the .h5 10x file has multiple classes of features 
 #' (e.g. expression vs QC probes) or modalities (e.g. RNA and protein), and 
 #' \code{split_by_type} param is \code{TRUE}, multiple matrices will be returned
@@ -669,6 +676,7 @@ get10Xmatrix_h5 <- function(path_to_data,
 #' @param cores cores to use
 #' @param verbose be verbose
 #' @seealso \code{\link{smoothGiottoPolygons}}
+#' @returns data.table
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission 
 #' issues.
 #' @export
@@ -858,6 +866,7 @@ readPolygonFilesVizgenHDF5_old <- function(boundaries_path,
 #' @param verbose be verbose
 #' @param output whether to return as list of giottoPolygon or data.table
 #' @seealso \code{\link{smoothGiottoPolygons}}
+#' @returns list of giottoPolygon or data.table
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission 
 #' issues.
 #' @export
@@ -1190,6 +1199,7 @@ readPolygonFilesVizgenHDF5 <- function(boundaries_path,
 #' for
 #' @param calc_centroids calculate centroids for the polygons (default = TRUE)
 #' @param verbose be verbose
+#' @returns giottoPolygons
 #' @export
 readPolygonVizgenParquet <- function(
         file,
@@ -1300,6 +1310,7 @@ readPolygonVizgenParquet <- function(
 #' @param set_neg_to_zero set negative values to zero when smoothing
 #' @param return_gobject return giotto object
 #' @param verbose be verbose
+#' @returns giotto object or cell polygons list
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @export
 readPolygonFilesVizgen <- function(gobject,
@@ -1425,6 +1436,7 @@ readPolygonFilesVizgen <- function(gobject,
 #' @param file opened HDF5 file
 #' @param name dataset name within
 #' @param dapl HDF5 property list (H5Pcreate('H5P_DATASET_ACCESS'))
+#' @returns HDF5 contents
 #' @keywords internal
 .h5_read_bare <- function(file, name = "", dapl) {
     did <- .Call("_H5Dopen", file@ID, name, dapl@ID, PACKAGE = "rhdf5")
@@ -1450,6 +1462,7 @@ readPolygonFilesVizgen <- function(gobject,
 #' transcript with coordinates
 #' @param gef_file path to .gef file
 #' @param bin_size bin size to select from .gef file
+#' @returns transcript with coordinates
 #' @export
 getGEFtxCoords <- function(gef_file,
     bin_size = "bin100") {

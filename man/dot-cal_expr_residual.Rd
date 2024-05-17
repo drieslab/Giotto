@@ -24,6 +24,9 @@
 
 \item{ave_celltype_exp}{average expression matrix in cell types}
 }
+\value{
+matrix
+}
 \description{
 Calculate feature expression residual 
 (observed_exp - DWLS_predicted)

@@ -6,6 +6,9 @@
 \usage{
 .kmeans_arma_binarize(x, n_iter = 5, seed = NULL)
 }
+\value{
+numeric
+}
 \description{
 create binarized scores from a vector using kmeans_arma
 }

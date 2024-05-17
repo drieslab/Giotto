@@ -14,6 +14,9 @@
 
 \item{verbose}{be verbose}
 }
+\value{
+list
+}
 \description{
 read_data_params
 }

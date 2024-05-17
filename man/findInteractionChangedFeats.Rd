@@ -94,3 +94,9 @@ other cell types. The results data.table in the icfObject contains
  \item{unif_int:}{ cell-cell interaction}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+}

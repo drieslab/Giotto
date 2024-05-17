@@ -6,6 +6,9 @@
 \usage{
 .kmeans_binarize(x, nstart = 3, iter.max = 10, seed = NULL)
 }
+\value{
+numeric
+}
 \description{
 create binarized scores from a vector using kmeans
 }

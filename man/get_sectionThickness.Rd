@@ -24,6 +24,9 @@ get_sectionThickness(
 
 \item{plane_equation}{plane_equation}
 }
+\value{
+numeric
+}
 \description{
 get section thickness
 }

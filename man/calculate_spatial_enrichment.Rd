@@ -37,6 +37,9 @@
   cores = NA
 )
 }
+\value{
+spatial enrichment
+}
 \description{
 Calculate spatial enrichment. Multiple methods are provided.
 }

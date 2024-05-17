@@ -24,6 +24,9 @@ cell type}
     \item{\code{direction}}{differential expression directions to keep}
   }}
 }
+\value{
+filtered interaction changed gene scores
+}
 \description{
 Filter Interaction Changed Gene scores.
 }

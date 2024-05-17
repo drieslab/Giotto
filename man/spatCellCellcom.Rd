@@ -113,3 +113,10 @@ LR_expr and rand_expr over all random spatial permutations
 \item \strong{PI:} significance score: log2fc * -log10(p.adj)
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+random_iter = 10)
+}

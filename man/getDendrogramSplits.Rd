@@ -55,3 +55,8 @@ together with the two subdendrograms. This information can be used to
 determine in a hierarchical manner differentially expressed marker genes at
 each node.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+getDendrogramSplits(g, cluster_column = "leiden_clus")
+}

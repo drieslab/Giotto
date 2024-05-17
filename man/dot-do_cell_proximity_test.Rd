@@ -22,6 +22,9 @@
 \arguments{
 \item{expr_values}{Matrix object}
 }
+\value{
+differential test on subsets of a matrix
+}
 \description{
 Performs a selected differential test on subsets of a matrix
 }

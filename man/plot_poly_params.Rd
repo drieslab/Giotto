@@ -33,6 +33,9 @@ color scaling) or 'sequential' (scaled based on data range)}
 
 \item{polygon_line_size}{line width of the polygon's outline}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_poly_params
 }

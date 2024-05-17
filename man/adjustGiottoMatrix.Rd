@@ -46,3 +46,8 @@ This function implements the \code{\link[limma]{removeBatchEffect}}
 function to remove known batch effects and to adjust expression values
 according to provided covariates.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+adjustGiottoMatrix(g, covariate_columns = "leiden_clus")
+}

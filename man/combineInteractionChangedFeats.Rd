@@ -52,3 +52,11 @@ combIcfObject that contains the filtered differential feature scores
 \description{
 Combine ICF scores in a pairwise manner.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g_icf <- findInteractionChangedFeats(g, 
+cluster_column = "leiden_clus", 
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+combineInteractionChangedFeats(g_icf)
+}

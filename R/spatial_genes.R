@@ -315,6 +315,7 @@ NULL
 #' @title Odds ratio test
 #' @name .or_test_func
 #' @description calculate odds-ratio from a 2x2 matrix
+#' @returns list
 #' @keywords internal
 .or_test_func <- function(matrix) {
     OR <- ((matrix[1] * matrix[4]) / (matrix[2] * matrix[3]))
@@ -326,6 +327,7 @@ NULL
 #' @title Calculate spatial enrichment
 #' @name calculate_spatial_enrichment
 #' @description Calculate spatial enrichment. Multiple methods are provided.
+#' @returns spatial enrichment
 NULL
 
 
@@ -653,7 +655,7 @@ NULL
 #' @param summarize summarize the p-values or adjusted p-values
 #' @param return_gobject whether to return values attached to the gobject or
 #' separately (default)
-#' @return data.table with results (see details)
+#' @returns data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene
 #' expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -684,11 +686,26 @@ NULL
 #' By selecting a subset of likely spatial genes
 #' (e.g. soft thresholding highly variable genes) can accelerate the speed.
 #' The simple implementation is usually faster, but lacks the possibility to
-#' run in parallel and to calculate hub cells.
+#' run in parallel and to calculate hub cells.\cr
 #' The data.table implementation might be more appropriate for large datasets
 #' by setting the `group_size` (number of genes) parameter to divide the
 #' workload.
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' binSpect(g)
+#'
+#' binSpectSingle(g)
+#'
+#' g_expression <- getExpression(g, output = "matrix")
+#' g_spat_net <- getSpatialNetwork(g, output = "networkDT")
+#'
+#' binSpectSingleMatrix(
+#'     expression_matrix = g_expression,
+#'     spatial_network = g_spat_net
+#' )
+#'
 NULL
 
 
@@ -797,8 +814,6 @@ binSpect <- function(
 #' expression matrix
 #' @param expression_matrix expression matrix
 #' @param spatial_network spatial network in data.table format
-#' @param bin_matrix a binarized matrix, when provided it will skip the
-#' binarization process
 #' @export
 binSpectSingleMatrix <- function(expression_matrix,
     spatial_network = NULL,
@@ -1112,7 +1127,6 @@ binSpectSingle <- function(gobject,
         do_parallel = do_parallel,
         cores = cores,
         verbose = verbose,
-        # set.seed = set.seed,
         seed = seed
     )
 }
@@ -1374,7 +1388,7 @@ binSpectMulti <- function(gobject,
 #' @param seed sets value as seed before kmeans binarization. If NULL, no seed
 #' is set.
 #' @param summarize summarize the p-values or adjusted p-values
-#' @return data.table with results
+#' @returns data.table with results
 binSpectMultiMatrix <- function(expression_matrix,
     spatial_networks,
     bin_method = c("kmeans", "rank"),
@@ -1533,8 +1547,6 @@ binSpectMultiMatrix <- function(expression_matrix,
     return(list(
         combined = combined_result, simple = simple_result[, .(feats, p.val)]))
 }
-
-
 
 
 
@@ -2098,7 +2110,7 @@ spatialAEH <- function(gobject = NULL,
 #' @param color indicate different SV features
 #' @param sig_alpha transparency of significant genes
 #' @param unsig_alpha transparency of unsignificant genes
-#' @return ggplot object
+#' @returns ggplot object
 #' @keywords internal
 FSV_show <- function(results,
     ms_results = NULL,
@@ -2439,7 +2451,7 @@ spark <- function(gobject,
 #' @param ncp number of principal components to calculate
 #' @param show_plot show plots
 #' @param PC_zscore minimum z-score of variance explained by a PC
-#' @return spatial pattern object 'spatPatObj'
+#' @returns spatial pattern object 'spatPatObj'
 #' @details
 #' Steps to identify spatial patterns:
 #' \itemize{
@@ -3005,7 +3017,7 @@ selectPatternGenes <- function(spatPatObj,
 #' @param subset_feats subset of features to use
 #' @param spatial_network_name name of spatial network to use
 #' @param b smoothing factor beteen 0 and 1 (default: automatic)
-#' @return matrix with smoothened gene expression values based on kNN
+#' @returns matrix with smoothened gene expression values based on kNN
 #' spatial network
 #' @details This function will smoothen the gene expression values per cell
 #' according to its neighbors in the selected spatial network. \cr
@@ -3051,7 +3063,7 @@ do_spatial_knn_smoothing <- function(expression_matrix,
     spatial_network_ext <- data.table::merge.data.table(
         spatial_network, expr_values_dt_m,
         by.x = "from", by.y = "cell_ID",
-        allow.cartesian = TURE
+        allow.cartesian = TRUE
     )
 
     # calculate mean over all k-neighbours
@@ -3104,6 +3116,7 @@ do_spatial_knn_smoothing <- function(expression_matrix,
 
 #' @title Evaluate provided spatial locations
 #' @name evaluate_provided_spatial_locations
+#' @returns character
 #' @keywords internal
 evaluate_provided_spatial_locations <- function(spatial_locs) {
     if (!inherits(spatial_locs, "data.frame")) {
@@ -3126,7 +3139,7 @@ evaluate_provided_spatial_locations <- function(spatial_locs) {
 #' @title do_spatial_grid_averaging
 #' @name do_spatial_grid_averaging
 #' @description smooth gene expression over a defined spatial grid
-#' @return matrix with smoothened gene expression values based on spatial grid
+#' @returns matrix with smoothened gene expression values based on spatial grid
 #' @keywords internal
 do_spatial_grid_averaging <- function(expression_matrix,
     spatial_grid,
@@ -3198,7 +3211,7 @@ do_spatial_grid_averaging <- function(expression_matrix,
 #' (has automatic default, see details)
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @param cor_method correlation method
-#' @return returns a spatial correlation object: `spatCorObject`
+#' @returns returns a spatial correlation object: `spatCorObject`
 #' @details
 #' For `method = network`, it expects a fully connected spatial network.
 #' You can make sure to create a
@@ -3217,6 +3230,12 @@ do_spatial_grid_averaging <- function(expression_matrix,
 #' The `spatCorObject` can be further explored with `showSpatialCorGenes()`
 #' @seealso \code{\link{showSpatialCorFeats}}
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' detectSpatialCorFeatsMatrix(expression_matrix = getExpression(
+#' g, output = "matrix"), method = "network",
+#' spatial_network = getSpatialNetwork(g, output = "networkDT"))
 #' @export
 detectSpatialCorFeatsMatrix <- function(expression_matrix,
     method = c("grid", "network"),
@@ -3347,7 +3366,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @param cor_method correlation method
-#' @return returns a spatial correlation object: "spatCorObject"
+#' @returns returns a spatial correlation object: "spatCorObject"
 #' @details
 #' For method = network, it expects a fully connected spatial network. You
 #' can make sure to create a
@@ -3363,6 +3382,10 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' }
 #' The spatCorObject can be further explored with showSpatialCorFeats()
 #' @seealso \code{\link{showSpatialCorFeats}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' detectSpatialCorFeats(g, method = "network")
 #' @export
 detectSpatialCorFeats <- function(gobject,
     spat_unit = NULL,
@@ -3544,7 +3567,7 @@ detectSpatialCorFeats <- function(gobject,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @param cor_method correlation method
-#' @return returns a spatial correlation object: "spatCorObject"
+#' @returns returns a spatial correlation object: "spatCorObject"
 #' @details
 #' For method = network, it expects a fully connected spatial network. You
 #' can make sure to create a
@@ -3745,7 +3768,12 @@ showSpatialCorGenes <- function(spatCorObject,
 #' @param hclust_method method for hierarchical clustering
 #' @param k number of clusters to extract
 #' @param return_obj return spatial correlation object (spatCorObject)
-#' @return spatCorObject or cluster results
+#' @returns spatCorObject or cluster results
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' clusterSpatialCorFeats(spatCorObject = detectSpatialCorFeats(
+#' g, method = "network"))
 #' @export
 clusterSpatialCorFeats <- function(spatCorObject,
     name = "spat_clus",
@@ -3795,7 +3823,7 @@ clusterSpatialCorFeats <- function(spatCorObject,
 #' @param hclust_method method for hierarchical clustering
 #' @param k number of clusters to extract
 #' @param return_obj return spatial correlation object (spatCorObject)
-#' @return spatCorObject or cluster results
+#' @returns spatCorObject or cluster results
 #' @export
 clusterSpatialCorGenes <- function(spatCorObject,
     name = "spat_clus",
@@ -3838,7 +3866,7 @@ clusterSpatialCorGenes <- function(spatCorObject,
 #' change save_name in save_param
 #' @param \dots additional parameters to the
 #' \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
-#' @return Heatmap generated by ComplexHeatmap
+#' @returns Heatmap generated by ComplexHeatmap
 #' @export
 heatmSpatialCorFeats <- function(gobject,
     spatCorObject,
@@ -3938,6 +3966,7 @@ heatmSpatialCorFeats <- function(gobject,
 #' @name heatmSpatialCorGenes
 #' @description Create heatmap of spatially correlated genes
 #' @inheritDotParams heatmSpatialCorFeats
+#' @returns heatmap
 #' @seealso \code{\link{heatmSpatialCorFeats}}
 #' @export
 heatmSpatialCorGenes <- function(...) {
@@ -3957,16 +3986,25 @@ heatmSpatialCorGenes <- function(...) {
 #' @param gobject giotto object
 #' @param spatCorObject spatial correlation object
 #' @param use_clus_name name of clusters to visualize
-#' (from clusterSpatialCorGenes())
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
+#' (from `clusterSpatialCorFeats()`)
+#' @param show_plot logical. show plot
+#' @param return_plot logical. return ggplot object
+#' @param save_plot logical. directly save the plot
 #' @param save_param list of saving parameters, see
 #' \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
-#' @return data.table with positive (within group) and negative
+#' @returns data.table with positive (within group) and negative
 #' (outside group) scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' spatCorObject <- detectSpatialCorFeats(g, method = "network")
+#' clusters <- clusterSpatialCorFeats(spatCorObject = spatCorObject)
+#'
+#' rankSpatialCorGroups(gobject = g, spatCorObject = clusters,
+#' use_clus_name = "spat_clus")
+#' @md
 #' @export
 rankSpatialCorGroups <- function(gobject,
     spatCorObject,
@@ -4079,7 +4117,7 @@ rankSpatialCorGroups <- function(gobject,
 #' @param informed_ranking vector of ranked features
 #' @param seed seed
 #' @param verbose verbosity
-#' @return balanced vector with features for each co-expression module
+#' @returns balanced vector with features for each co-expression module
 #' @details There are 3 different ways of selecting features from the spatial
 #' co-expression modules
 #' \itemize{
@@ -4444,6 +4482,7 @@ simulateOneGenePatternGiottoObject <- function(gobject,
 #' @title run_spatial_sim_tests_one_rep
 #' @name run_spatial_sim_tests_one_rep
 #' @description runs all spatial tests for 1 probability and 1 rep
+#' @returns data.table
 #' @keywords internal
 run_spatial_sim_tests_one_rep <- function(gobject,
     pattern_name = "pattern",
@@ -4745,6 +4784,7 @@ run_spatial_sim_tests_one_rep <- function(gobject,
 #' @name run_spatial_sim_tests_multi
 #' @description runs all spatial tests for multiple probabilities and
 #' repetitions
+#' @returns data.table
 #' @keywords internal
 run_spatial_sim_tests_multi <- function(gobject,
     pattern_name = "pattern",

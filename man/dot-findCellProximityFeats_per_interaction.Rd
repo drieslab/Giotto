@@ -25,6 +25,9 @@
 \arguments{
 \item{expr_values}{Matrix object}
 }
+\value{
+data.table
+}
 \description{
 Identifies features that are differentially expressed due to
 proximity to other cell types.

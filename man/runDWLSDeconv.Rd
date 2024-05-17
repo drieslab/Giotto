@@ -48,6 +48,19 @@ giotto object or deconvolution results
 Function to perform DWLS deconvolution based on single cell
 expression data
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+x <- findMarkers_one_vs_all(g, 
+cluster_column = "leiden_clus", min_feats = 20)
+sign_gene <- x$feats
+
+sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+nrow = length(sign_gene))
+rownames(sign_matrix) <- sign_gene
+colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+
+runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
+}
 \seealso{
 \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk
 deconvolution method, and \doi{10.1186/s13059-021-02362-7} for

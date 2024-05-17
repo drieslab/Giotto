@@ -10,7 +10,7 @@
 #' external spots
 #' @param dwls_values data.table of cell type enrichment in each spot and 
 #' multiply by cell number in each spot
-#' @return List of cell proximity observed value in data.table format. Columns:
+#' @returns List of cell proximity observed value in data.table format. Columns:
 #' unified_int, type_int, V1, external, internal.
 NULL
 
@@ -193,7 +193,7 @@ NULL
 #' @param seed_number seed number to use. Default = 1234
 #' @param verbose be verbose
 #'
-#' @return List of cell Proximity scores (CPscores) in data.table format. 
+#' @returns List of cell Proximity scores (CPscores) in data.table format. 
 #' The first
 #' data.table (raw_sim_table) shows the raw observations of both the original 
 #' and simulated networks. The second data.table (enrichm_res) shows the 
@@ -204,6 +204,20 @@ NULL
 #' frequency calculated from a number of spatial network simulations. Each 
 #' individual simulation is obtained by reshuffling the cell type labels of 
 #' each node (spot) in the spatial network.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- findMarkers_one_vs_all(g, 
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' 
+#' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
+#' 
+#' cellProximityEnrichmentSpots(gobject = g)
 #' @export
 cellProximityEnrichmentSpots <- function(gobject,
     spat_unit = NULL,
@@ -426,7 +440,7 @@ cellProximityEnrichmentSpots <- function(gobject,
 #' @param feat_type feature type (e.g. 'rna')
 #' @param ave_celltype_exp data.table of feature expression in each cell type
 #'
-#' @return matrix
+#' @returns matrix
 #' @export
 featExpDWLS <- function(gobject,
     spat_unit = NULL,
@@ -486,7 +500,7 @@ featExpDWLS <- function(gobject,
 #' @param expression_values expression values to use 
 #' (e.g. 'normalized', 'scaled', 'custom')
 #' @param ave_celltype_exp average expression matrix in cell types
-#'
+#' @returns matrix
 #' @keywords internal
 .cal_expr_residual <- function(gobject,
     spat_unit = NULL,
@@ -531,8 +545,22 @@ featExpDWLS <- function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #'
-#' @return matrix that rownames are cell-cell interaction pairs and colnames 
+#' @returns matrix that rownames are cell-cell interaction pairs and colnames 
 #' are cell_IDs
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- findMarkers_one_vs_all(g, 
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' 
+#' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
+#' 
+#' cellProximityEnrichmentEachSpot(gobject = g)
 #' @export
 cellProximityEnrichmentEachSpot <- function(gobject,
     spat_unit = NULL,
@@ -655,6 +683,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
 #' @name .cal_diff_per_interaction
 #' @description calculate correlation between expression residual and
 #' cell proximity score of selected cell for spots
+#' @returns data.table
 #' @keywords internal
 .cal_diff_per_interaction <- function(sel_int,
     other_ints,
@@ -710,6 +739,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
 #' @title Spot permutation testing
 #' @name do_permuttest_spot
 #' @description Test spot interactions using permutations
+#' @returns data.table
 NULL
 
 
@@ -910,6 +940,7 @@ NULL
 #' @name .do_cell_proximity_test_spot
 #' @description Performs a selected differential test on subsets of a matrix 
 #' for spots
+#' @returns differential test on subsets of a matrix
 #' @keywords internal
 .do_cell_proximity_test_spot <- function(sel_int,
     other_ints,
@@ -954,6 +985,7 @@ NULL
 #' @name .findICF_per_interaction_spot
 #' @description Identifies features that are differentially expressed due to 
 #' proximity to other cell types for spots.
+#' @returns data.table
 #' @keywords internal
 .findICF_per_interaction_spot <- function(sel_int,
     all_ints,
@@ -1056,7 +1088,7 @@ NULL
 #' @param seed_number seed number
 #' @param verbose be verbose
 #'
-#' @return icfObject that contains the differential feat scores
+#' @returns icfObject that contains the differential feat scores
 #' @details Function to calculate if features expression residual are 
 #' differentially expressed in cell types when they interact 
 #' (approximated by physical proximity) with other cell types.
@@ -1080,6 +1112,11 @@ NULL
 #'  \item{int_nr_select:}{ number of cells for interacting cell type}
 #'  \item{unif_int:}{ cell-cell interaction}
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g_expression <- getExpression(g, output = "matrix")
+#' 
+#' findICFSpot(g, spat_unit = "cell", feat_type = "rna", ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
 #' @export
 findICFSpot <- function(gobject,
     spat_unit = NULL,
@@ -1249,7 +1286,12 @@ findICFSpot <- function(gobject,
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #'
-#' @return icfObject that contains the filtered differential feature scores
+#' @returns icfObject that contains the filtered differential feature scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+#' 
+#' filterICFSpot(icfObject = icfObject)
 #' @export
 filterICFSpot <- function(icfObject,
     min_cells = 4,
@@ -1262,7 +1304,7 @@ filterICFSpot <- function(icfObject,
     zscores_column = c("cell_type", "features"),
     direction = c("both", "up", "down")) {
     # data.table variables
-    nr_select <- int_nr_select <- zscores <- pcc_diff <- sel <- other <- 
+    nr_select <- int_nr_select <- zscores <- perm_diff <- sel <- other <- 
         p.adj <- NULL
     log2fc <- min_log2_fc <- NULL
 
@@ -1286,14 +1328,14 @@ filterICFSpot <- function(icfObject,
         nr_select >= min_cells & int_nr_select >= min_int_cells]
 
     # 2. create z-scores for log2fc per cell type
-    selection_scores[, zscores := scale(pcc_diff), by = c(zscores_column)]
+    selection_scores[, zscores := scale(perm_diff), by = c(zscores_column)]
 
     # 3. filter based on z-scores and minimum levels
     comb_DT <- rbind(
         selection_scores[zscores >= min_zscore & abs(
-            pcc_diff) >= min_pcc_diff & sel >= min_cells_expr_resi],
+            perm_diff) >= min_pcc_diff & sel >= min_cells_expr_resi],
         selection_scores[zscores <= -min_zscore & abs(
-            pcc_diff) >= min_pcc_diff & other >= min_int_cells_expr_resi]
+            perm_diff) >= min_pcc_diff & other >= min_int_cells_expr_resi]
     )
 
     # 4. filter based on adjusted p-value (fdr)
@@ -1325,7 +1367,15 @@ filterICFSpot <- function(icfObject,
 #' @param source_markers markers for the source cell type
 #' @param ICF_features named character vector of ICF features
 #' @param cell_color_code cell color code for the interacting cell types
-#' @return plot
+#' @returns plot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' 
+#' plotICFSpot(gobject = g, icfObject = icfObject,
+#' source_type = "1", source_markers = "Ccnd2", 
+#' ICF_features = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
 #' @export
 plotICFSpot <- function(gobject,
     icfObject,
@@ -1355,23 +1405,23 @@ plotICFSpot <- function(gobject,
     all_features <- c(source_markers, ICF_features)
 
     # warning if there are features selected that are not detected
-    detected_features <- unique(ICFscores[["features"]])
+    detected_features <- unique(ICFscores[["feats"]])
     not_detected_features <- all_features[!all_features %in% detected_features]
     if (length(not_detected_features) > 0) {
         cat(
             "These selected features are not in the icfObject: \n",
-            not_detected_features, "\n"
+            not_detected_features
         )
     }
 
     # data.table set column names
     features <- group <- NULL
 
-    tempDT <- ICFscores[features %in% all_features][
+    tempDT <- ICFscores[feats %in% all_features][
         cell_type == source_type][int_cell_type %in% neighbor_types]
-    tempDT[, features := factor(features, levels = all_features)]
-    tempDT[, group := names(all_features[
-        all_features == features]), by = 1:nrow(tempDT)]
+    tempDT[, features := factor(feats, levels = detected_features)]
+    tempDT[, group := names(ICF_features[
+        ICF_features == feats]), by = 1:nrow(tempDT)]
 
 
     if (is.null(cell_color_code)) {
@@ -1393,7 +1443,7 @@ plotICFSpot <- function(gobject,
     )
     pl <- pl + ggplot2::geom_bar(
         data = tempDT, 
-        ggplot2::aes(x = features, y = pcc_diff, fill = int_cell_type), 
+        ggplot2::aes(x = feats, y = perm_diff, fill = int_cell_type), 
         stat = "identity", position = ggplot2::position_dodge())
     pl <- pl + ggplot2::scale_fill_manual(values = mycolors)
     pl <- pl + ggplot2::labs(x = "", title = paste0(
@@ -1428,7 +1478,14 @@ plotICFSpot <- function(gobject,
 #' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
-#' @return plot
+#' @returns plot
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+#' 
+#' plotCellProximityFeatSpot(gobject = g, icfObject = icfObject,
+#' show_plot = TRUE, save_plot = FALSE, return_plot = FALSE, 
+#' min_pcc_diff = 0.01)
 #' @export
 plotCellProximityFeatSpot <- function(gobject,
     icfObject,
@@ -1456,13 +1513,15 @@ plotCellProximityFeatSpot <- function(gobject,
 
     # print, return and save parameters
     show_plot <- ifelse(
-        is.na(show_plot), readGiottoInstructions(gobject, param = "show_plot"),
+        is.null(show_plot), 
+        readGiottoInstructions(gobject, param = "show_plot"),
         show_plot)
     save_plot <- ifelse(
-        is.na(save_plot), readGiottoInstructions(gobject, param = "save_plot"),
+        is.null(save_plot), 
+        readGiottoInstructions(gobject, param = "save_plot"),
         save_plot)
     return_plot <- ifelse(
-        is.na(return_plot), 
+        is.null(return_plot), 
         readGiottoInstructions(gobject, param = "return_plot"), return_plot)
 
 
@@ -1478,6 +1537,8 @@ plotCellProximityFeatSpot <- function(gobject,
         zscores_column = c("cell_type", "features"),
         direction = c("both", "up", "down")
     )
+    
+    message("filter complete")
 
     complete_part <- filter_icf[["ICFscores"]]
 
@@ -1489,7 +1550,7 @@ plotCellProximityFeatSpot <- function(gobject,
 
 
     # variables
-    pcc_diff <- p.adj <- unif_int <- N <- cell_type <- int_cell_type <- NULL
+    perm_diff <- p.adj <- unif_int <- N <- cell_type <- int_cell_type <- NULL
 
     ## create data.table for visualization
     if (method == "volcano") {
@@ -1498,7 +1559,7 @@ plotCellProximityFeatSpot <- function(gobject,
         pl <- pl + ggplot2::geom_point(
             data = complete_part, 
             ggplot2::aes(
-                x = pcc_diff, 
+                x = perm_diff, 
                 y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))))
         pl <- pl + ggplot2::theme_classic()
         pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
@@ -1753,7 +1814,7 @@ plotCellProximityFeatSpot <- function(gobject,
 #' @param seed_number seed number
 #' @param verbose verbose
 #'
-#' @return Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial 
 #' interaction
 #' @details Statistical framework to identify if pairs of features 
 #' (such as ligand-receptor combinations) are expressed at higher levels than 

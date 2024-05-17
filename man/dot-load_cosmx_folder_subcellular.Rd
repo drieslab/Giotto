@@ -14,6 +14,9 @@ provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+list
+}
 \description{
 loads in the feature detections information. Note that the mask
 images are still required for a working subcellular object, and those are 

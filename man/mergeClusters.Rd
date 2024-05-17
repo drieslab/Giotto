@@ -68,3 +68,8 @@ been merged before \cr
 A giotto object is returned by default, if FALSE then the merging vector
 will be returned.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+mergeClusters(g, cluster_column = "leiden_clus")
+}

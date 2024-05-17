@@ -39,3 +39,8 @@ cluster and the group size (# of cells) for each cluster. This information
 can be used together with mergeClusters to combine very similar or small
 clusters into bigger clusters.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+getClusterSimilarity(g, cluster_column = "leiden_clus")
+}

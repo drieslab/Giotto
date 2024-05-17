@@ -75,6 +75,11 @@ Identify marker feats for all clusters in a one vs all manner.
 Wrapper for all one vs all functions to detect marker feats for
 clusters.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findMarkers_one_vs_all(g, cluster_column = "leiden_clus")
+}
 \seealso{
 \code{\link{findScranMarkers_one_vs_all}},
 \code{\link{findGiniMarkers_one_vs_all}} and

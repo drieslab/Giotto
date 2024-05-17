@@ -13,6 +13,9 @@ addHMRF_V2(gobject, HMRFoutput, name = "hmrf")
 
 \item{name}{name of HMRF models}
 }
+\value{
+giotto object
+}
 \description{
 function to add HMRF Domain Type to cell meta data
 }

@@ -80,6 +80,11 @@ Identify marker feats for selected clusters.
 Wrapper for all individual functions to detect marker feats for
 clusters.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findMarkers(g, cluster_column = "leiden_clus")
+}
 \seealso{
 \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and
 \code{\link{findMastMarkers}}

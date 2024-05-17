@@ -66,6 +66,11 @@ fully connected network by setting minimal_k > 0 in the
 }
 The spatCorObject can be further explored with showSpatialCorFeats()
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+detectSpatialCorFeats(g, method = "network")
+}
 \seealso{
 \code{\link{showSpatialCorFeats}}
 }

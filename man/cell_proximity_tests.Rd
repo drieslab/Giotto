@@ -40,6 +40,9 @@
   seed_number = 1234
 )
 }
+\value{
+cell proximity values
+}
 \description{
 Perform specified test on subsets of a matrix
 }

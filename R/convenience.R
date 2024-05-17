@@ -24,6 +24,7 @@
 #' @param verbose be verbose
 #' @param toplevel stackframes back where the user-facing function was called.
 #' default is one stackframe above `.read_data_folder`.
+#' @returns data.table
 #' @details
 #' **Steps performed:**
 #' \itemize{
@@ -542,7 +543,7 @@ createGiottoVisiumObject <- function(visium_dir = NULL,
 #' @param gobject Giotto Object created with visium data, containing spatial
 #' locations corresponding to spots
 #' @param scalefactor_path path to scalefactors_json.json Visium output
-#' @return Giotto Object with to-scale circular polygons added at each spatial
+#' @returns Giotto Object with to-scale circular polygons added at each spatial
 #' location
 #' @details
 #' Adds circular giottoPolygons to the spatial_info slot of a Giotto Object
@@ -581,7 +582,7 @@ addVisiumPolygons <- function(gobject,
 #' @title Read Visium ScaleFactors
 #' @name .visium_read_scalefactors
 #' @param json_path path to scalefactors_json.json for Visium experimental data
-#' @return scalefactors within the provided json file as a named list,
+#' @returns scalefactors within the provided json file as a named list,
 #' or NULL if not discovered
 #' @details asserts the existence of and reads in a .json file
 #' containing scalefactors for Visium data in the expected format.
@@ -663,7 +664,7 @@ addVisiumPolygons <- function(gobject,
 #' centroid locations of visium spots
 #' @param json_scalefactors list of scalefactors from 
 #' .visium_read_scalefactors()
-#' @return giottoPolygon object
+#' @returns giottoPolygon object
 #' @details
 #' Creates circular polygons for spatial representation of
 #' Visium spots.
@@ -790,6 +791,7 @@ addVisiumPolygons <- function(gobject,
 #' 'micron_to_mosaic_pixel_transform.csv'
 #' @param name character. name to assign the image. Multiple should be provided
 #' if image_file is a list.
+#' @returns giottoLargeImage
 #' @export
 createMerscopeLargeImage <- function(image_file,
     transforms_file,
@@ -847,8 +849,7 @@ createMerscopeLargeImage <- function(image_file,
 #' @param aggregate_stack whether to run \code{\link{aggregateStacks}}
 #' @param aggregate_stack_param params to pass to \code{\link{aggregateStacks}}
 #' @inheritParams GiottoClass::createGiottoObjectSubcellular
-#' @return a giotto object
-#' @export
+#' @returns a giotto object
 #' @details
 #' [\strong{Expected Directory}] This function generates a giotto object when 
 #' given a link to a MERSCOPE output directory. It expects the following items 
@@ -861,6 +862,7 @@ createMerscopeLargeImage <- function(image_file,
 #'   \item{cell_metadata\strong{fov_positions_file}.csv (file)}
 #'   \item{detected_transcripts\strong{metadata_file}.csv (file)}
 #' }
+#' @export
 createGiottoMerscopeObject <- function(merscope_dir,
     data_to_use = c("subcellular", "aggregate"),
     FOVs = NULL,
@@ -1037,6 +1039,7 @@ createGiottoMerscopeObject <- function(merscope_dir,
 #' @param sg_dir full path to the exported Spatial Genomics directory
 #' @param instructions new instructions 
 #' (e.g. result from createGiottoInstructions)
+#' @returns giotto object
 #' @description Given the path to a Spatial Genomics data directory, creates a
 #' Giotto object.
 #' @export
@@ -1091,8 +1094,7 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
 #' @param background_algo algorithm to remove background polygon
 #' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
 #' @inheritParams GiottoClass::createGiottoObjectSubcellular
-#' @return a giotto object
-#' @export
+#' @returns a giotto object
 #' @details
 #' [\strong{Expected Directory}] This function generates a giotto object when 
 #' given a link to a cosmx output directory. It expects the following items 
@@ -1131,8 +1133,7 @@ createSpatialGenomicsObject <- function(sg_dir = NULL,
 #' converted to giotto image objects, making plotting with
 #' these image objects more responsive when accessing them from a server.
 #' \code{\link{showGiottoImageNames}} can be used to see the available images.
-#'
-#'
+#' @export
 createGiottoCosMxObject <- function(cosmx_dir = NULL,
     data_to_use = c("all", "subcellular", "aggregate"),
     remove_background_polygon = TRUE,
@@ -1207,7 +1208,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 
 
 
-    vmsg("done")
+    message("done")
     return(cosmx_gobject)
 }
 
@@ -1216,6 +1217,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 #' @title Load and create a CosMx Giotto object from subcellular info
 #' @name .createGiottoCosMxObject_subcellular
 #' @inheritParams createGiottoCosMxObject
+#' @returns giotto object
 #' @keywords internal
 .createGiottoCosMxObject_subcellular <- function(
         dir_items,
@@ -1435,6 +1437,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 #' @title Load and create a CosMx Giotto object from aggregate info
 #' @name .createGiottoCosMxObject_aggregate
 #' @inheritParams createGiottoCosMxObject
+#' @returns giotto object
 #' @keywords internal
 .createGiottoCosMxObject_aggregate <- function(dir_items,
     cores,
@@ -1522,6 +1525,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 #' @name .createGiottoCosMxObject_all
 #' @param dir_items list of full directory paths from \code{.read_cosmx_folder}
 #' @inheritParams createGiottoCosMxObject
+#' @returns giotto object
 #' @details Both \emph{subcellular} 
 #' (subellular transcript detection information) and
 #' \emph{aggregate} (aggregated detection count matrices by cell polygon from 
@@ -1836,6 +1840,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' as a subcellular transcript detection (default = 20)
 #' @inheritParams get10Xmatrix
 #' @inheritParams GiottoClass::createGiottoObjectSubcellular
+#' @returns giotto object
 #' @seealso createGiottoXeniumObject .createGiottoXeniumObject_aggregate
 #' @keywords internal
 .createGiottoXeniumObject_subcellular <- function(data_list,
@@ -1928,6 +1933,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @param data_list list of data loaded by \code{.load_xenium_folder}
 #' @inheritParams get10Xmatrix
 #' @inheritParams GiottoClass::createGiottoObjectSubcellular
+#' @returns giotto object
 #' @seealso createGiottoXeniumObject .createGiottoXeniumObject_subcellular
 #' @keywords internal
 .createGiottoXeniumObject_aggregate <- function(data_list,
@@ -2054,7 +2060,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @name .read_cosmx_folder
 #' @inheritParams createGiottoCosMxObject
 #' @seealso createGiottoCosMxObject load_cosmx_folder
-#' @return path_list a list of cosmx files discovered and their filepaths. NULL
+#' @returns path_list a list of cosmx files discovered and their filepaths. NULL
 #' values denote missing items
 #' @keywords internal
 .read_cosmx_folder <- function(cosmx_dir,
@@ -2115,7 +2121,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @name .read_xenium_folder
 #' @inheritParams createGiottoXeniumObject
 #' @keywords internal
-#' @return path_list a list of xenium files discovered and their filepaths. NULL
+#' @returns path_list a list of xenium files discovered and their filepaths. NULL
 #' values denote missing items
 .read_xenium_folder <- function(xenium_dir,
     data_to_use = "subcellular",
@@ -2296,7 +2302,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @param dir_items list of full filepaths from 
 #' \code{\link{.read_merscope_folder}}
 #' @inheritParams createGiottoMerscopeObject
-#' @return list of loaded-in MERSCOPE data
+#' @returns list of loaded-in MERSCOPE data
 NULL
 
 #' @rdname load_merscope_folder
@@ -2453,6 +2459,7 @@ NULL
 #' images are still required for a working subcellular object, and those are 
 #' loaded in \code{\link{.createGiottoCosMxObject_subcellular}}
 #' @inheritParams createGiottoCosMxObject
+#' @returns list
 #' @keywords internal
 .load_cosmx_folder_subcellular <- function(dir_items,
     FOVs = NULL,
@@ -2496,6 +2503,7 @@ NULL
 #' @title Load CosMx folder aggregate info
 #' @name .load_cosmx_folder_aggregate
 #' @inheritParams createGiottoCosMxObject
+#' @returns list
 #' @keywords internal
 .load_cosmx_folder_aggregate <- function(dir_items,
     cores,
@@ -2617,7 +2625,7 @@ NULL
 #' @name load_xenium_folder
 #' @param path_list list of full filepaths from .read_xenium_folder
 #' @inheritParams createGiottoXeniumObject
-#' @return list of loaded in xenium data
+#' @returns list of loaded in xenium data
 NULL
 
 #' @rdname load_xenium_folder
@@ -2945,10 +2953,9 @@ NULL
 #' @param force Default = FALSE
 #' @param verbose Default = TRUE
 #'
-#' @return An ArchR project with GeneScoreMatrix, TileMatrix, and 
+#' @returns An ArchR project with GeneScoreMatrix, TileMatrix, and 
 #' TileMatrix-based LSI
 #' @export
-#'
 createArchRProj <- function(fragmentsPath,
     genome = c("hg19", "hg38", "mm9", "mm10"),
     createArrowFiles_params = list(
@@ -3027,10 +3034,9 @@ createArchRProj <- function(fragmentsPath,
 #' name
 #' @param ... additional arguments passed to `createGiottoObject`
 #'
-#' @return A Giotto object with at least an atac or epigenetic modality
+#' @returns A Giotto object with at least an atac or epigenetic modality
 #'
 #' @export
-#'
 createGiottoObjectfromArchR <- function(archRproj,
     expression = NULL,
     expression_feat = "atac",

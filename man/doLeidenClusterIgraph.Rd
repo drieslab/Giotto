@@ -80,3 +80,8 @@ for more information.
 Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
 Set \emph{weights = NA} if you don't want to use vertices weights
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLeidenClusterIgraph(g)
+}

@@ -74,3 +74,8 @@ threshold given an arbitrary cutoff to call a gene expressed. This function
 can be used to make an informed decision at the filtering step with
 filterGiotto.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterCombinations(g)
+}

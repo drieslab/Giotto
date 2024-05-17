@@ -84,3 +84,8 @@ the threshold value of cells,
 feat_det_in_min_cells. This behavior is explained in detail here:
 \url{https://github.com/drieslab/Giotto/issues/500#issuecomment-1396083446}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterGiotto(g)
+}

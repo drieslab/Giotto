@@ -49,6 +49,9 @@ readPolygonFilesVizgen(
 
 \item{verbose}{be verbose}
 }
+\value{
+giotto object or cell polygons list
+}
 \description{
 Read selected polygon files for the FOVs present in the Giotto
 object and add the smoothed polygons to the object

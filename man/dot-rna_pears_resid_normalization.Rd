@@ -14,6 +14,9 @@
   verbose = TRUE
 )
 }
+\value{
+giotto object
+}
 \description{
 function for RNA normalization according to Lause/Kobak et al
 paper

@@ -21,6 +21,9 @@ for}
 
 \item{verbose}{be verbose}
 }
+\value{
+giottoPolygons
+}
 \description{
 Read Vizgen exported cell boundary parquet files as giottoPolyons. The z 
 level can be selected.

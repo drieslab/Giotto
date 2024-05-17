@@ -43,3 +43,8 @@ This function will add the following statistics to cell metadata:
   cell}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addCellStatistics(g)
+}

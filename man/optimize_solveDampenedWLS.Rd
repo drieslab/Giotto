@@ -6,7 +6,10 @@
 \usage{
 optimize_solveDampenedWLS(S, B, constant_J)
 }
+\value{
+numeric
+}
 \description{
-Rui to fill in
+optimize_solveDampenedWLS
 }
 \keyword{internal}

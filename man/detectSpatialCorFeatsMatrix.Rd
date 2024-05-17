@@ -60,6 +60,13 @@ means no contribution from its own expression.
 
 The \code{spatCorObject} can be further explored with \code{showSpatialCorGenes()}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+detectSpatialCorFeatsMatrix(expression_matrix = getExpression(
+g, output = "matrix"), method = "network", 
+spatial_network = getSpatialNetwork(g, output = "networkDT"))
+}
 \seealso{
 \code{\link{showSpatialCorFeats}}
 }

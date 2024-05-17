@@ -86,3 +86,8 @@ use the resolution parameter
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLeidenCluster(g)
+}

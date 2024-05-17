@@ -16,7 +16,7 @@
 #' @param group_2_name custom name for group_2 clusters
 #' @param verbose be verbose (default = FALSE)
 #' @param ... additional parameters for the findMarkers function in scran
-#' @return data.table with marker genes
+#' @returns data.table with marker genes
 #' @details This is a minimal convenience wrapper around
 #' the \code{\link[scran]{findMarkers}} function from the scran package.
 #'
@@ -30,7 +30,10 @@
 #' When you have many different ids in a single group
 #' it is recommend to provide names for both groups to \emph{group_1_name} and
 #' \emph{group_2_name}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
 #'
+#' findScranMarkers(g, cluster_column = "leiden_clus")
 #' @export
 findScranMarkers <- function(gobject,
     spat_unit = NULL,
@@ -170,8 +173,12 @@ findScranMarkers <- function(gobject,
 #' @param min_genes deprecated, use min_feats
 #' @param verbose be verbose
 #' @param ...  additional parameters for the findMarkers function in scran
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @seealso \code{\link{findScranMarkers}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findScranMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
 findScranMarkers_one_vs_all <- function(gobject,
     spat_unit = NULL,
@@ -342,7 +349,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param rank_score rank scores for both detection and expression to include
 #' @param min_feats minimum number of top feats to return
 #' @param min_genes deprecated, use min_feats
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @details
 #' Detection of marker feats using the
 #' [gini](https://en.wikipedia.org/wiki/Gini_coefficient)
@@ -373,6 +380,10 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' it is recommend to provide names for both groups to \emph{group_1_name} and
 #' \emph{group_2_name}
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findGiniMarkers(g, cluster_column = "leiden_clus")
 #' @export
 findGiniMarkers <- function(gobject,
     feat_type = NULL,
@@ -605,8 +616,12 @@ findGiniMarkers <- function(gobject,
 #' @param min_feats minimum number of top feats to return
 #' @param min_genes deprecated, use min_feats
 #' @param verbose be verbose
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @seealso \code{\link{findGiniMarkers}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findGiniMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
 findGiniMarkers_one_vs_all <- function(gobject,
     feat_type = NULL,
@@ -749,6 +764,11 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' from the MAST package to detect differentially expressed feats. Caution:
 #' with large datasets
 #' MAST might take a long time to run and finish
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findMastMarkers(gobject = g, cluster_column = "leiden_clus", group_1 = 1,
+#' group_2 = 2)
 #' @export
 findMastMarkers <- function(gobject,
     feat_type = NULL,
@@ -879,9 +899,10 @@ findMastMarkers <- function(gobject,
     setnames(row_data, "feat_ID", "primerid")
     # mast object
     mast_data <- MAST::FromMatrix(
-        exprsArray = expr_data,
+        exprsArray = as.matrix(expr_data)[, column_data[["wellKey"]]],
         cData = column_data,
-        fData = row_data
+        fData = row_data,
+        check_sanity = FALSE
     )
 
     ## set conditions and relevel
@@ -948,8 +969,12 @@ findMastMarkers <- function(gobject,
 #' @param min_genes deprecated, use min_feats
 #' @param verbose be verbose
 #' @param ... additional parameters for the zlm function in MAST
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @seealso \code{\link{findMastMarkers}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findMastMarkers_one_vs_all(gobject = g, cluster_column = "leiden_clus")
 #' @export
 findMastMarkers_one_vs_all <- function(gobject,
     feat_type = NULL,
@@ -1099,11 +1124,15 @@ findMastMarkers_one_vs_all <- function(gobject,
 #' (e.g. detection rate)
 #' @param ... additional parameters for the findMarkers function in scran or
 #' zlm function in MAST
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @details Wrapper for all individual functions to detect marker feats for
 #' clusters.
 #' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and
 #' \code{\link{findMastMarkers}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findMarkers(g, cluster_column = "leiden_clus")
 #' @export
 findMarkers <- function(gobject,
     spat_unit = NULL,
@@ -1216,12 +1245,16 @@ findMarkers <- function(gobject,
 #' @param verbose be verbose
 #' @param ... additional parameters for the findMarkers function in scran or
 #' zlm function in MAST
-#' @return data.table with marker feats
+#' @returns data.table with marker feats
 #' @details Wrapper for all one vs all functions to detect marker feats for
 #' clusters.
 #' @seealso \code{\link{findScranMarkers_one_vs_all}},
 #' \code{\link{findGiniMarkers_one_vs_all}} and
 #' \code{\link{findMastMarkers_one_vs_all}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' findMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
 findMarkers_one_vs_all <- function(gobject,
     feat_type = NULL,

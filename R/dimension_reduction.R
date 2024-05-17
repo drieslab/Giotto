@@ -18,7 +18,7 @@
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @keywords internal
-#' @return list of eigenvalues, loadings and pca coordinates
+#' @returns list of eigenvalues, loadings and pca coordinates
 .run_pca_factominer <- function(x,
     ncp = 100,
     scale = TRUE,
@@ -127,7 +127,7 @@
 #' @param BSPARAM method to use
 #' @param BPPARAM BiocParallelParam object
 #' @keywords internal
-#' @return list of eigenvalues, loadings and pca coordinates
+#' @returns list of eigenvalues, loadings and pca coordinates
 .run_pca_biocsingular <- function(x,
     ncp = 100,
     center = TRUE,
@@ -262,7 +262,7 @@
 #' @param feats_to_use feats to use, character or vector of features
 #' @param verbose verbosity
 #' @keywords internal
-#' @return subsetted matrix based on selected features
+#' @returns subsetted matrix based on selected features
 .create_feats_to_use_matrix <- function(gobject,
     feat_type = NULL,
     spat_unit = NULL,
@@ -565,7 +565,7 @@ runPCA <- function(gobject,
 #' @param random_subset random subset to perform PCA on
 #' @param verbose verbosity level
 #' @keywords internal
-#' @return list of eigenvalues, loadings and pca coordinates
+#' @returns list of eigenvalues, loadings and pca coordinates
 .run_pca_biocsingular_irlba_projection <- function(x,
     ncp = 100,
     center = TRUE,
@@ -1498,13 +1498,11 @@ screePlot <- function(gobject,
 #' @param eigs numeric. Vector of pca eigenvalues
 #' @param ncp numeric. max number of principal components to plot
 #' @param ylim numeric. y-axis limits on scree plot
-#' @return ggplot
+#' @returns ggplot
 #' @examples
-#' \dontrun{
 #' dr <- GiottoData::loadSubObjectMini("dimObj")
 #' scree <- create_screeplot(methods::slot(dr, "misc")$eigenvalues)
 #' scree
-#' }
 #' @export
 create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     checkmate::assert_numeric(eigs)
@@ -1586,12 +1584,15 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
 #' @param iter number of interations for jackstraw
 #' @param threshold p-value threshold to call a PC significant
 #' @param verbose show progress of jackstraw method
-#' @return ggplot object for jackstraw method
+#' @returns ggplot object for jackstraw method
 #' @details
 #'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} 
 #'  function. By systematically permuting genes it identifies robust, and thus 
 #'  significant, PCs.
-#'  \cr
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' jackstrawPlot(gobject = g)
 #' @export
 jackstrawPlot <- function(gobject,
     spat_unit = NULL,
@@ -1704,7 +1705,7 @@ jackstrawPlot <- function(gobject,
 #' @param ylim y-axis limits on jackstraw plot
 #' @param threshold p.value threshold to call a PC significant
 #' @keywords internal
-#' @return ggplot
+#' @returns ggplot
 #' @export
 create_jackstrawplot <- function(jackstraw_data,
     ncp = 20,
@@ -2703,9 +2704,13 @@ runtSNE <- function(gobject,
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
 #' @param ... additional \code{\link[harmony]{HarmonyMatrix}} parameters
-#' @return giotto object with updated Harmony dimension reduction
+#' @returns giotto object with updated Harmony dimension reduction
 #' @details This is a simple wrapper for the HarmonyMatrix function in the 
 #' Harmony package \doi{10.1038/s41592-019-0619-0}.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runGiottoHarmony(g, vars_use = "leiden_clus")
 #' @export
 runGiottoHarmony <- function(gobject,
     spat_unit = NULL,

@@ -94,6 +94,9 @@
   ...
 )
 }
+\value{
+cell proximity plot
+}
 \description{
 Create the plots for `cellProximityVisPlot()`
 }

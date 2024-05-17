@@ -17,6 +17,9 @@ estimateCellCellDistance(
 
 \item{method}{method}
 }
+\value{
+matrix
+}
 \description{
 estimate average distance between neighboring cells
 }

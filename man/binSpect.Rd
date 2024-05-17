@@ -260,7 +260,7 @@ defined number of high expressing neighbors
 By selecting a subset of likely spatial genes
 (e.g. soft thresholding highly variable genes) can accelerate the speed.
 The simple implementation is usually faster, but lacks the possibility to
-run in parallel and to calculate hub cells.
+run in parallel and to calculate hub cells.\cr
 The data.table implementation might be more appropriate for large datasets
 by setting the \code{group_size} (number of genes) parameter to divide the
 workload.
@@ -275,3 +275,19 @@ expression matrix
 \item \code{binSpectMulti()}: binSpect for multiple spatial kNN networks
 
 }}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+binSpect(g)
+
+binSpectSingle(g)
+
+g_expression <- getExpression(g, output = "matrix")
+g_spat_net <- getSpatialNetwork(g, output = "networkDT")
+
+binSpectSingleMatrix(
+    expression_matrix = g_expression,
+    spatial_network = g_spat_net
+)
+
+}

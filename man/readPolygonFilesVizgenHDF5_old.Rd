@@ -45,6 +45,9 @@ names (optional)}
 
 \item{verbose}{be verbose}
 }
+\value{
+data.table
+}
 \description{
 Read and create polygons for all cells, or for only selected 
 FOVs.

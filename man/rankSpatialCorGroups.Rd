@@ -21,13 +21,13 @@ rankSpatialCorGroups(
 \item{spatCorObject}{spatial correlation object}
 
 \item{use_clus_name}{name of clusters to visualize
-(from clusterSpatialCorGenes())}
+(from \code{clusterSpatialCorFeats()})}
 
-\item{show_plot}{show plot}
+\item{show_plot}{logical. show plot}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{logical. return ggplot object}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{logical. directly save the plot}
 
 \item{save_param}{list of saving parameters, see
 \code{\link{showSaveParameters}}}
@@ -42,4 +42,13 @@ data.table with positive (within group) and negative
 \description{
 Rank spatial correlated clusters according to correlation
 structure
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spatCorObject <- detectSpatialCorFeats(g, method = "network")
+clusters <- clusterSpatialCorFeats(spatCorObject = spatCorObject)
+
+rankSpatialCorGroups(gobject = g, spatCorObject = clusters,
+use_clus_name = "spat_clus")
 }

@@ -65,6 +65,12 @@ If return_gobject is set to TRUE, and a giotto object with \emph{all} tested
 leiden cluster information
 will be returned.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doGiottoClustree(gobject = g, res_vector = c(0.5, 0.8), return_plot = FALSE,
+show_plot = FALSE, save_plot = FALSE)
+}
 \seealso{
 \code{\link{doLeidenCluster}}
 }

@@ -75,6 +75,11 @@ cluster cells using a NN-network and the Louvain algorithm.
 Louvain clustering using the community or multinet implementation
 of the louvain clustering algorithm.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLouvainCluster(g)
+}
 \seealso{
 \code{\link{.doLouvainCluster_community}} and
 \code{\link{.doLouvainCluster_multinet}}

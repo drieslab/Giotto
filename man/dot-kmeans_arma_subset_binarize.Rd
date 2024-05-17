@@ -12,6 +12,9 @@
   seed = NULL
 )
 }
+\value{
+numeric
+}
 \description{
 create binarized scores from a subsetted vector using 
 kmeans_arma

@@ -46,3 +46,8 @@ This function will add the following statistics to feature metadata:
   detectable levels of the gene}
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addFeatStatistics(g)
+}

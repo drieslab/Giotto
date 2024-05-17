@@ -13,6 +13,9 @@
 
 \item{method}{which method is used for image registration}
 }
+\value{
+spatlocs
+}
 \description{
 Performs appropriate transforms to align spatial locations 
 with registered images.
