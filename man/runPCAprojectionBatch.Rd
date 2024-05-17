@@ -92,3 +92,8 @@ sacrificing accuracy too much.
   provided features
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runPCAprojectionBatch(g)
+}

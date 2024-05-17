@@ -2618,7 +2618,7 @@ exprCellCellcom <- function(gobject,
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @return Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial 
 #' interaction
 #' @details Statistical framework to identify if pairs of features 
 #' (such as ligand-receptor combinations)
@@ -2646,6 +2646,10 @@ exprCellCellcom <- function(gobject,
 #'  \item{p.adj:}{ adjusted p-value }
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
 #' @export
 specificCellCellcommunicationScores <- function(gobject,
     feat_type = NULL,

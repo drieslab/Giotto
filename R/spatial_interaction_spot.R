@@ -2063,7 +2063,7 @@ plotCellProximityFeatSpot <- function(gobject,
 #' @param seed_number seed number
 #' @param verbose verbose (e.g. 'a little', 'a lot', 'none')
 #'
-#' @return Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial 
 #' interaction
 #' @details Statistical framework to identify if pairs of features 
 #' (such as ligand-receptor combinations) are expressed at higher levels than 

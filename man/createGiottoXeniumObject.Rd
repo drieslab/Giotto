@@ -56,6 +56,9 @@ provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+giotto object
+}
 \description{
 Given the path to a Xenium experiment output folder, creates a 
 Giotto object

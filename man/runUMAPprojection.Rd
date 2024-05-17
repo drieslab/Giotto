@@ -94,3 +94,8 @@ other parameters.
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runUMAPprojection(g)
+}

@@ -108,3 +108,8 @@ proximity to eachother.
  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
+}

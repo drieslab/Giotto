@@ -86,3 +86,8 @@ This can significantly increase speed without sacrificing accuracy too much.
   provided features
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runPCAprojection(g)
+}

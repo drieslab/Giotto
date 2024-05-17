@@ -365,6 +365,7 @@ reshape_to_mesh_grid_obj <- function(data_points, mesh_grid_n) {
 #' @param pca_out pca_out
 #' @param center_vec center_vec
 #' @param mesh_grid_n mesh_grid_n
+#' @returns 3d mesh
 #' @keywords internal
 transform_2d_mesh_to_3d_mesh <- function(
         mesh_line_obj_2d, pca_out, center_vec, mesh_grid_n) {

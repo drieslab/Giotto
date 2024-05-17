@@ -85,3 +85,8 @@ By default the number of principle components that we calculate is 100, which
 may not encompass all the variation within the dataset. Setting ncp to NULL
 will calculate all the principle components.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runPCA(g)
+}

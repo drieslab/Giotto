@@ -82,3 +82,8 @@ Screeplot works by plotting the explained variance of each
  Screeplot will use an available pca object, based on the parameter 'name', 
  or it will create it if it's not available (see \code{\link{runPCA}})
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+screePlot(g)
+}

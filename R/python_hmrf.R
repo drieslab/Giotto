@@ -392,7 +392,7 @@ loadHMRF <- function(name_used = "test",
 #' @param betas_to_view results from different betas that you want to view
 #' @param third_dim 3D data (boolean)
 #' @param \dots additional paramters (see details)
-#' @return spatial plots with HMRF domains
+#' @returns spatial plots with HMRF domains
 #' @seealso \code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 #' @export
 viewHMRFresults <- function(gobject,
@@ -473,7 +473,7 @@ viewHMRFresults <- function(gobject,
 #' @param k k to write results for
 #' @param betas_to_view results from different betas that you want to view
 #' @param print_command see the python command
-#' @return data.table with HMRF results for each b and the selected k
+#' @returns data.table with HMRF results for each b and the selected k
 #' @export
 writeHMRFresults <- function(gobject,
     HMRFoutput,
@@ -669,7 +669,7 @@ addHMRF <- function(gobject,
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
 #' @param \dots additional parameters to spatPlot2D()
-#' @return spatial plots with HMRF domains
+#' @returns spatial plots with HMRF domains
 #' @seealso \code{\link{spatPlot2D}}
 #' @export
 viewHMRFresults2D <- function(gobject,
@@ -741,7 +741,7 @@ viewHMRFresults2D <- function(gobject,
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
 #' @param \dots additional parameters to spatPlot3D()
-#' @return spatial plots with HMRF domains
+#' @returns spatial plots with HMRF domains
 #' @seealso \code{\link{spatPlot3D}}
 #' @export
 viewHMRFresults3D <- function(gobject,
@@ -816,6 +816,7 @@ viewHMRFresults3D <- function(gobject,
 #' @param sample_rate sampling rate, takes values equal or greater than 1
 #' @param target target length of gene list
 #' @param seed random seed
+#' @returns list
 #' @details
 #' This function samples a subset of spatial genes among different clusters, 
 #' with size n = target.
@@ -1863,6 +1864,7 @@ addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
 #' @param default_save_name names of figure file to save
 #' @param save_param other saving parameters
 #' @param \dots additional params to pass to plotting
+#' @returns spatial plots with HMRF domains
 #' @details
 #' This function plots spatial map of HMRF domain clusters for multiple beta 
 #' with the name (hmrf_name),

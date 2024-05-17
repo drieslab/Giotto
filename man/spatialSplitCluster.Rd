@@ -28,6 +28,9 @@ clustering}
 \item{split_clus_name}{character. Name to assign the split cluster results
 information to split}
 }
+\value{
+cluster annotations
+}
 \description{
 Split cluster annotations based on a spatial network
 }

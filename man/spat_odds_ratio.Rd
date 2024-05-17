@@ -16,6 +16,9 @@
   cores = NA
 )
 }
+\value{
+numeric
+}
 \description{
 calculate odds-ratio
 }

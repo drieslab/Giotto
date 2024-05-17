@@ -59,6 +59,9 @@ viewHMRFresults_V2(
 
 \item{\dots}{additional params to pass to plotting}
 }
+\value{
+spatial plots with HMRF domains
+}
 \description{
 function to view HMRF results with multiple betas
 }

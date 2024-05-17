@@ -95,3 +95,8 @@ or significant prinicipal components (PC's). \cr
  significant, PCs.
  \cr
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+signPCA(g)
+}

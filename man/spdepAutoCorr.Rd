@@ -42,3 +42,8 @@ A data table with computed values for each feature.
 \description{
 Compute spatial auto correlation using spdep
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spdepAutoCorr(g)
+}

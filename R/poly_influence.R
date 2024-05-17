@@ -9,7 +9,7 @@
 #' and alt_spat_unit, i.e. "kmeans"
 #' @param return_plot logical. whether to return the plot object
 #' @param verbose be verbose
-#' @return giotto object with altered cell_metadata
+#' @returns giotto object with altered cell_metadata
 #' @details
 #' Compares cell metadata from spat_unit-feat_type pairs as provided.
 #'
@@ -283,6 +283,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @returns ggplot
 #' @details Creates a pie chart showing how many cells switched clusters after 
 #' annotation resizing.
 #' The function showPolygonSizeInfluence() must have been run on the Giotto 
@@ -355,6 +356,7 @@ showCellProportionSwitchedPie <- function(gobject = NULL,
 #' @param alt_spat_unit alternative spatial unit which stores data after 
 #' resizing annotations
 #' @param feat_type feature type
+#' @returns D3 JavaScript Sankey diagram
 #' @details Creates a Sankey Diagram to illustrate cluster switching behavior.
 #' Currently only supports displaying cluster switching for kmeans clusters.
 #' @export

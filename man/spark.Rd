@@ -60,3 +60,8 @@ SPARK package:
 }
 Publication: \doi{10.1101/810903}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spark(g)
+}

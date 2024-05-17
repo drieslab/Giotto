@@ -12,9 +12,12 @@
 #' @param verbose be verbose
 #' @param return_gobject if FALSE, results are returned as data.table.
 #' If TRUE, values will be appended to feature metadata
-#' @return A data table with computed values for each feature.
+#' @returns A data table with computed values for each feature.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' spdepAutoCorr(g)
 #' @export
-
 spdepAutoCorr <- function(gobject,
     method = c("geary.test", "lee.test", "lm.morantest", "moran.test"),
     spat_unit = NULL,

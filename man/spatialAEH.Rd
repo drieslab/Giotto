@@ -51,3 +51,8 @@ Compute spatial variable genes with spatialDE method
 This function is a wrapper for the SpatialAEH method 
 implemented in the ...
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spatialAEH(g)
+}

@@ -13,7 +13,7 @@ simulateOneGenePatternGiottoObject(
   gradient_direction = NULL,
   show_pattern = TRUE,
   pattern_colors = c(`in` = "green", out = "red"),
-  ...
+  normalization_params = list()
 )
 }
 \arguments{
@@ -34,7 +34,7 @@ part of the spatial pattern}
 
 \item{pattern_colors}{2 color vector for the spatial pattern}
 
-\item{\dots}{additional parameters for (re-)normalizing}
+\item{normalization_params}{additional parameters for (re-)normalizing}
 }
 \value{
 Reprocessed Giotto object for which one gene has a forced 
@@ -42,4 +42,12 @@ spatial pattern
 }
 \description{
 Create a simulated spatial pattern for one selected gnee
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+simulateOneGenePatternGiottoObject(gobject = g, 
+pattern_cell_ids = c("AAAGGGATGTAGCAAG-1", "TCAAACAACCGCGTCG-1",
+"ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"),
+gene_name = "Gna12")
 }

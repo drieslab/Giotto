@@ -17,6 +17,9 @@ showCellProportionSwitchedPie(
 
 \item{feat_type}{feature type}
 }
+\value{
+ggplot
+}
 \description{
 showCellProportionSwitchedPie
 }

@@ -66,3 +66,8 @@ This function is a wrapper for the SpatialDE method originally
 implemented
 in python. See publication \doi{10.1038/nmeth.4636}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spatialDE(g)
+}
