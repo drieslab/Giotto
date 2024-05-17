@@ -64,8 +64,8 @@ findInteractionChangedFeats(
 \item{seed_number}{seed number}
 }
 \value{
-icfObject that contains the Interaction Changed differential feature
-scores
+icfObject that contains the Interaction Changed differential
+feature scores
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),

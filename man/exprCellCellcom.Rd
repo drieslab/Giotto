@@ -70,6 +70,6 @@ More details will follow soon.
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-exprCellCellcom(g, cluster_column = "leiden_clus", 
+exprCellCellcom(g, cluster_column = "leiden_clus",
 feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 }

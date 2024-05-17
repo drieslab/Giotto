@@ -46,9 +46,9 @@ from the cell metadata (\code{\link{pDataDT}}).
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
-sign_gene <- c("Bcl11b", "Lmo1", "F3", "Cnih3", "Ppp1r3c", "Rims2", "Gfap", 
-"Gjc3", "Chrna4", "Prkcd", "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", 
-"Hrh3", "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a", "Arpp19", "Lamp5", 
+sign_gene <- c("Bcl11b", "Lmo1", "F3", "Cnih3", "Ppp1r3c", "Rims2", "Gfap",
+"Gjc3", "Chrna4", "Prkcd", "Prr18", "Grb14", "Tprn", "Clic1", "Olig2",
+"Hrh3", "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a", "Arpp19", "Lamp5",
 "Galnt6", "Hlf", "Hs3st2", "Tbr1", "Myl4", "Cygb", "Ttc9b","Ipcef1")
 
 makeSignMatrixDWLS(gobject = g, sign_gene = sign_gene,

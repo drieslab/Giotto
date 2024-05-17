@@ -43,6 +43,6 @@ adjust_params must be set to NULL
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-processGiotto(gobject = g, 
+processGiotto(gobject = g,
 adjust_params = list(covariate_columns = "leiden_clus"))
 }

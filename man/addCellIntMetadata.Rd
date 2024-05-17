@@ -52,6 +52,6 @@ all other cell types found within the selected cell type column.
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-addCellIntMetadata(g, cluster_column = "leiden_clus", 
+addCellIntMetadata(g, cluster_column = "leiden_clus",
 cell_interaction = "custom_leiden")
 }

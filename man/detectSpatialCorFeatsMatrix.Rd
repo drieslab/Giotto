@@ -30,7 +30,7 @@ detectSpatialCorFeatsMatrix(
 \item{subset_feats}{subset of features to use}
 
 \item{network_smoothing}{smoothing factor beteen 0 and 1
-(default: automatic)}
+(has automatic default, see details)}
 
 \item{min_cells_per_grid}{minimum number of cells to consider a grid}
 
@@ -52,10 +52,11 @@ fully connected network by setting minimal_k > 0 in the
 spatial grid
 \item \strong{network-averaging:} smoothens the gene expression matrix by
 averaging the expression within one cell by using the neighbours within
-the predefined spatial network. b is a smoothening factor that defaults
-to \eqn{1 - 1/k}, where k is the median number of  k-neighbors in the
-selected spatial network. Setting b = 0 means no smoothing and b = 1
-means no contribution from its own expression.
+the predefined spatial network. \eqn{b} is a smoothening factor passed by
+\code{network_smoothing} param that defaults to \eqn{1 - 1/k}, where \eqn{k}
+is the median number of k-neighbors in the selected spatial network.
+Setting \eqn{b = 0} means no smoothing and \eqn{b = 1} means no
+contribution from its own expression.
 }
 
 The \code{spatCorObject} can be further explored with \code{showSpatialCorGenes()}
@@ -64,7 +65,7 @@ The \code{spatCorObject} can be further explored with \code{showSpatialCorGenes(
 g <- GiottoData::loadGiottoMini("visium")
 
 detectSpatialCorFeatsMatrix(expression_matrix = getExpression(
-g, output = "matrix"), method = "network", 
+g, output = "matrix"), method = "network",
 spatial_network = getSpatialNetwork(g, output = "networkDT"))
 }
 \seealso{

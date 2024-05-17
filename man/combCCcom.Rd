@@ -43,7 +43,7 @@ data.tables
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus",
 feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
 feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",

@@ -64,7 +64,7 @@ findICF(
 \item{seed_number}{seed number}
 }
 \value{
-icfObject that contains the Interaction Changed differential gene
+`icfObject` that contains the Interaction Changed differential gene
 scores
 }
 \description{
@@ -75,7 +75,7 @@ cell types.
 \details{
 Function to calculate if genes are differentially expressed in
 cell types when they interact (approximated by physical proximity) with
-other cell types. The results data.table in the icfObject contains
+other cell types. The results data.table in the `icfObject` contains
 - at least - the following columns:
 \itemize{
  \item{features:}{ All or selected list of tested features}
