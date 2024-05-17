@@ -1,6 +1,6 @@
 #' @title findScranMarkers
 #' @name findScranMarkers
-#' @description Identify marker genes for all or selected clusters based on 
+#' @description Identify marker genes for all or selected clusters based on
 #' scran's implementation of findMarkers.
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
@@ -8,10 +8,10 @@
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
-#' @param group_1 group 1 cluster IDs from cluster_column for pairwise 
+#' @param group_1 group 1 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_1_name custom name for group_1 clusters
-#' @param group_2 group 2 cluster IDs from cluster_column for pairwise 
+#' @param group_2 group 2 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_2_name custom name for group_2 clusters
 #' @param verbose be verbose (default = FALSE)
@@ -22,13 +22,13 @@
 #'
 #' To perform differential expression between custom selected groups of cells
 #' you need to specify the cell_ID column to parameter \emph{cluster_column}
-#' and provide the individual cell IDs to the parameters \emph{group_1} and 
+#' and provide the individual cell IDs to the parameters \emph{group_1} and
 #' \emph{group_2}
 #'
-#' By default group names will be created by pasting the different id names 
+#' By default group names will be created by pasting the different id names
 #' within each selected group.
 #' When you have many different ids in a single group
-#' it is recommend to provide names for both groups to \emph{group_1_name} and 
+#' it is recommend to provide names for both groups to \emph{group_1_name} and
 #' \emph{group_2_name}
 #'
 #' @export
@@ -50,11 +50,11 @@ findScranMarkers <- function(gobject,
 
     # print message with information #
     if (isTRUE(verbose)) {
-        message("Using 'Scran' to detect marker genes. If used in published 
+        message("Using 'Scran' to detect marker genes. If used in published
         research, please cite:
         Lun ATL, McCarthy DJ, Marioni JC (2016).
-        'A step-by-step workflow for low-level analysis of single-cell RNA-seq 
-        data with Bioconductor.' 
+        'A step-by-step workflow for low-level analysis of single-cell RNA-seq
+        data with Bioconductor.'
         F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2.")
     }
 
@@ -72,8 +72,8 @@ findScranMarkers <- function(gobject,
 
     # expression data
     values <- match.arg(
-        expression_values, 
-        choices = unique(c("normalized", "scaled", "custom", 
+        expression_values,
+        choices = unique(c("normalized", "scaled", "custom",
                           expression_values)))
     expr_data <- getExpression(
         gobject = gobject,
@@ -105,7 +105,7 @@ findScranMarkers <- function(gobject,
 
         # create new pairwise group
         if (!is.null(group_1_name)) {
-            if (!is.character(group_1_name)) 
+            if (!is.character(group_1_name))
                 stop("group_1_name needs to be a character")
             group_1_name <- group_1_name
         } else {
@@ -113,7 +113,7 @@ findScranMarkers <- function(gobject,
         }
 
         if (!is.null(group_2_name)) {
-            if (!is.character(group_2_name)) 
+            if (!is.character(group_2_name))
                 stop("group_2_name needs to be a character")
             group_2_name <- group_2_name
         } else {
@@ -156,7 +156,7 @@ findScranMarkers <- function(gobject,
 
 #' @title findScranMarkers_one_vs_all
 #' @name findScranMarkers_one_vs_all
-#' @description Identify marker feats for all clusters in a one vs all manner 
+#' @description Identify marker feats for all clusters in a one vs all manner
 #' based on scran's implementation of findMarkers.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -188,7 +188,7 @@ findScranMarkers_one_vs_all <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 
@@ -196,10 +196,10 @@ findScranMarkers_one_vs_all <- function(gobject,
     package_check(pkg_name = "scran", repository = "Bioc")
 
     # print message with information #
-    if (verbose) 
-      message("using 'Scran' to detect marker feats. If used in published 
+    if (verbose)
+      message("using 'Scran' to detect marker feats. If used in published
       research, please cite: Lun ATL, McCarthy DJ, Marioni JC (2016).
-      'A step-by-step workflow for low-level analysis of single-cell RNA-seq 
+      'A step-by-step workflow for low-level analysis of single-cell RNA-seq
       data with Bioconductor.'
       F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
@@ -217,8 +217,8 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     # expression data
     values <- match.arg(
-        expression_values, 
-        choices = unique(c("normalized", "scaled", "custom", 
+        expression_values,
+        choices = unique(c("normalized", "scaled", "custom",
                           expression_values)))
 
     # cluster column
@@ -322,7 +322,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
 #' @title findGiniMarkers
 #' @name findGiniMarkers
-#' @description Identify marker feats for selected clusters based on gini 
+#' @description Identify marker feats for selected clusters based on gini
 #' detection and expression scores.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -330,10 +330,10 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
-#' @param group_1 group 1 cluster IDs from cluster_column for pairwise 
+#' @param group_1 group 1 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_1_name custom name for group_1 clusters
-#' @param group_2 group 2 cluster IDs from cluster_column for pairwise 
+#' @param group_2 group 2 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_2_name custom name for group_2 clusters
 #' @param min_expr_gini_score filter on minimum gini coefficient for expression
@@ -344,36 +344,35 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param min_genes deprecated, use min_feats
 #' @return data.table with marker feats
 #' @details
-#' Detection of marker feats using the 
-#' \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+#' Detection of marker feats using the
+#' [gini](https://en.wikipedia.org/wiki/Gini_coefficient)
 #' coefficient is based on the following steps/principles per feat:
-#' \itemize{
-#'   \item{1. calculate average expression per cluster}
-#'   \item{2. calculate detection fraction per cluster}
-#'   \item{3. calculate gini-coefficient for av. expression values over all clusters}
-#'   \item{4. calculate gini-coefficient for detection fractions over all clusters}
-#'   \item{5. convert gini-scores to rank scores}
-#'   \item{6. for each feat create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
-#'   \item{7. for each feat sort on expression and detection rank and combined score}
-#' }
+#' 1. calculate average expression per cluster
+#' 2. calculate detection fraction per cluster
+#' 3. calculate gini-coefficient for av. expression values over all clusters
+#' 4. calculate gini-coefficient for detection fractions over all clusters
+#' 5. convert gini-scores to rank scores
+#' 6. for each feat create combined score = detection rank x expression rank x
+#' expr gini-coefficient x detection gini-coefficient
+#' 7. for each feat sort on expression and detection rank and combined score
 #'
-#' As a results "top gini" feats are feats that are very selectivily expressed 
+#' As a results "top gini" feats are feats that are very selectivily expressed
 #' in a specific cluster,
-#' however not always expressed in all cells of that cluster. In other words 
+#' however not always expressed in all cells of that cluster. In other words
 #' highly specific, but
 #' not necessarily sensitive at the single-cell level.
 #'
 #' To perform differential expression between custom selected groups of cells
 #' you need to specify the cell_ID column to parameter \emph{cluster_column}
-#' and provide the individual cell IDs to the parameters \emph{group_1} and 
+#' and provide the individual cell IDs to the parameters \emph{group_1} and
 #' \emph{group_2}
 #'
-#' By default group names will be created by pasting the different id names 
+#' By default group names will be created by pasting the different id names
 #' within each selected group.
 #' When you have many different ids in a single group
-#' it is recommend to provide names for both groups to \emph{group_1_name} and 
+#' it is recommend to provide names for both groups to \emph{group_1_name} and
 #' \emph{group_2_name}
-#'
+#' @md
 #' @export
 findGiniMarkers <- function(gobject,
     feat_type = NULL,
@@ -394,7 +393,7 @@ findGiniMarkers <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 
@@ -411,7 +410,7 @@ findGiniMarkers <- function(gobject,
 
     ## select expression values
     values <- match.arg(
-        expression_values, 
+        expression_values,
         unique(c("normalized", "scaled", "custom", expression_values)))
 
 
@@ -445,7 +444,7 @@ findGiniMarkers <- function(gobject,
 
         # create new pairwise group
         if (!is.null(group_1_name)) {
-            if (!is.character(group_1_name)) 
+            if (!is.character(group_1_name))
                 stop("group_1_name needs to be a character")
             group_1_name <- group_1_name
         } else {
@@ -453,7 +452,7 @@ findGiniMarkers <- function(gobject,
         }
 
         if (!is.null(group_2_name)) {
-            if (!is.character(group_2_name)) 
+            if (!is.character(group_2_name))
                 stop("group_2_name needs to be a character")
             group_2_name <- group_2_name
         } else {
@@ -537,7 +536,7 @@ findGiniMarkers <- function(gobject,
 
 
     ## combine
-    aggr_sc <- cbind(aggr_sc_clusters_DT_melt, 
+    aggr_sc <- cbind(aggr_sc_clusters_DT_melt,
                     aggr_detection_sc_clusters_DT_melt[
                     , .(detection, detection_gini)])
 
@@ -591,7 +590,7 @@ findGiniMarkers <- function(gobject,
 
 #' @title findGiniMarkers_one_vs_all
 #' @name findGiniMarkers_one_vs_all
-#' @description Identify marker feats for all clusters in a one vs all manner 
+#' @description Identify marker feats for all clusters in a one vs all manner
 #' based on gini detection and expression scores.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -625,7 +624,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 
@@ -642,7 +641,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
     ## select expression values
     values <- match.arg(
-        expression_values, 
+        expression_values,
         unique(c("normalized", "scaled", "custom", expression_values)))
 
 
@@ -728,26 +727,26 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
 #' @title findMastMarkers
 #' @name findMastMarkers
-#' @description Identify marker feats for selected clusters based on the 
+#' @description Identify marker feats for selected clusters based on the
 #' MAST package.
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
-#' @param group_1 group 1 cluster IDs from cluster_column for pairwise 
+#' @param group_1 group 1 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_1_name custom name for group_1 clusters
-#' @param group_2 group 2 cluster IDs from cluster_column for pairwise 
+#' @param group_2 group 2 cluster IDs from cluster_column for pairwise
 #' comparison
 #' @param group_2_name custom name for group_2 clusters
 #' @param adjust_columns column in pDataDT to adjust for (e.g. detection rate)
 #' @param verbose be verbose
 #' @param ... additional parameters for the zlm function in MAST
 #' @return data.table with marker feats
-#' @details This is a minimal convenience wrapper around the 
+#' @details This is a minimal convenience wrapper around the
 #' \code{\link[MAST]{zlm}}
-#' from the MAST package to detect differentially expressed feats. Caution: 
+#' from the MAST package to detect differentially expressed feats. Caution:
 #' with large datasets
 #' MAST might take a long time to run and finish
 #' @export
@@ -778,15 +777,15 @@ findMastMarkers <- function(gobject,
     package_check(pkg_name = "MAST", repository = "Bioc")
 
     # print message with information #
-    if (verbose) 
-      message("using 'MAST' to detect marker feats. If used in published 
+    if (verbose)
+      message("using 'MAST' to detect marker feats. If used in published
       research, please cite: McDavid A, Finak G, Yajima M (2020).
-      MAST: Model-based Analysis of Single Cell Transcriptomics. 
+      MAST: Model-based Analysis of Single Cell Transcriptomics.
       R package version 1.14.0, https://github.com/RGLab/MAST/.")
 
     ## select expression values to use
     values <- match.arg(
-        expression_values, 
+        expression_values,
         unique(c("normalized", "scaled", "custom", expression_values)))
 
     ## cluster column
@@ -853,8 +852,8 @@ findMastMarkers <- function(gobject,
     ## create mast object ##
     # expression data
     values <- match.arg(
-        expression_values, 
-        choices = unique(c("normalized", "scaled", "custom", 
+        expression_values,
+        choices = unique(c("normalized", "scaled", "custom",
                           expression_values)))
     expr_data <- getExpression(
         gobject = gobject,
@@ -893,7 +892,7 @@ findMastMarkers <- function(gobject,
     ## create formula and run MAST feat regressions
     if (!is.null(adjust_columns)) {
         myformula <- stats::as.formula(paste0(
-            "~ 1 + ", cluster_column, " + ", 
+            "~ 1 + ", cluster_column, " + ",
             paste(adjust_columns, collapse = " + ")))
     } else {
         myformula <- stats::as.formula(paste0("~ 1 + ", cluster_column))
@@ -903,17 +902,17 @@ findMastMarkers <- function(gobject,
     ## run LRT and return data.table with results
 
     # data.table variables
-    contrast <- component <- primerid <- `Pr(>Chisq)` <- coef <- 
+    contrast <- component <- primerid <- `Pr(>Chisq)` <- coef <-
         ci.hi <- ci.lo <- fdr <- NULL
 
     sample <- paste0(cluster_column, group_1_name)
     summaryCond <- MAST::summary(zlmCond, doLRT = sample)
     summaryDt <- summaryCond$datatable
     fcHurdle <- merge(summaryDt[
-        contrast == sample & component == "H", 
+        contrast == sample & component == "H",
         .(primerid, `Pr(>Chisq)`)], # hurdle P values
         summaryDt[
-            contrast == sample & component == "logFC", 
+            contrast == sample & component == "logFC",
             .(primerid, coef, ci.hi, ci.lo)],
         by = "primerid"
     ) # logFC coefficients
@@ -934,7 +933,7 @@ findMastMarkers <- function(gobject,
 
 #' @title findMastMarkers_one_vs_all
 #' @name findMastMarkers_one_vs_all
-#' @description Identify marker feats for all clusters in a one vs all manner 
+#' @description Identify marker feats for all clusters in a one vs all manner
 #' based on the MAST package.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -968,7 +967,7 @@ findMastMarkers_one_vs_all <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 
@@ -987,10 +986,10 @@ findMastMarkers_one_vs_all <- function(gobject,
     package_check(pkg_name = "MAST", repository = "Bioc")
 
     # print message with information #
-    if (verbose) 
-        message("using 'MAST' to detect marker feats. If used in published 
+    if (verbose)
+        message("using 'MAST' to detect marker feats. If used in published
         research, please cite: McDavid A, Finak G, Yajima M (2020).
-        MAST: Model-based Analysis of Single Cell Transcriptomics. 
+        MAST: Model-based Analysis of Single Cell Transcriptomics.
         R package version 1.14.0, https://github.com/RGLab/MAST/.")
 
 
@@ -1083,11 +1082,11 @@ findMastMarkers_one_vs_all <- function(gobject,
 #' @param cluster_column clusters to use
 #' @param method method to use to detect differentially expressed feats
 #' @param subset_clusters selection of clusters to compare
-#' @param group_1 group 1 cluster IDs from cluster_column for pairwise 
+#' @param group_1 group 1 cluster IDs from cluster_column for pairwise
 #' comparison
-#' @param group_2 group 2 cluster IDs from cluster_column for pairwise 
+#' @param group_2 group 2 cluster IDs from cluster_column for pairwise
 #' comparison
-#' @param min_expr_gini_score gini: filter on minimum gini coefficient for 
+#' @param min_expr_gini_score gini: filter on minimum gini coefficient for
 #' expression
 #' @param min_det_gini_score gini: filter minimum gini coefficient for detection
 #' @param detection_threshold gini: detection threshold for feat expression
@@ -1096,14 +1095,14 @@ findMastMarkers_one_vs_all <- function(gobject,
 #' @param min_genes deprecated, use min_feats
 #' @param group_1_name mast: custom name for group_1 clusters
 #' @param group_2_name mast: custom name for group_2 clusters
-#' @param adjust_columns mast: column in pDataDT to adjust for 
+#' @param adjust_columns mast: column in pDataDT to adjust for
 #' (e.g. detection rate)
-#' @param ... additional parameters for the findMarkers function in scran or 
+#' @param ... additional parameters for the findMarkers function in scran or
 #' zlm function in MAST
 #' @return data.table with marker feats
-#' @details Wrapper for all individual functions to detect marker feats for 
+#' @details Wrapper for all individual functions to detect marker feats for
 #' clusters.
-#' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and 
+#' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and
 #' \code{\link{findMastMarkers}}
 #' @export
 findMarkers <- function(gobject,
@@ -1128,13 +1127,13 @@ findMarkers <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 
     # input
     if (is.null(cluster_column)) {
-        stop("A valid cluster column needs to be given to cluster_column, 
+        stop("A valid cluster column needs to be given to cluster_column,
             see pDataDT()")
     }
 
@@ -1207,21 +1206,21 @@ findMarkers <- function(gobject,
 #' @param logFC scan & mast: filter on logFC
 #' @param min_feats minimum feats to keep per cluster, overrides pval and logFC
 #' @param min_genes deprecated, use min_feats
-#' @param min_expr_gini_score gini: filter on minimum gini coefficient for 
+#' @param min_expr_gini_score gini: filter on minimum gini coefficient for
 #' expression
 #' @param min_det_gini_score gini: filter minimum gini coefficient for detection
 #' @param detection_threshold gini: detection threshold for feat expression
 #' @param rank_score gini: rank scores to include
-#' @param adjust_columns mast: column in pDataDT to adjust for 
+#' @param adjust_columns mast: column in pDataDT to adjust for
 #' (e.g. detection rate)
 #' @param verbose be verbose
-#' @param ... additional parameters for the findMarkers function in scran or 
+#' @param ... additional parameters for the findMarkers function in scran or
 #' zlm function in MAST
 #' @return data.table with marker feats
-#' @details Wrapper for all one vs all functions to detect marker feats for 
+#' @details Wrapper for all one vs all functions to detect marker feats for
 #' clusters.
-#' @seealso \code{\link{findScranMarkers_one_vs_all}}, 
-#' \code{\link{findGiniMarkers_one_vs_all}} and 
+#' @seealso \code{\link{findScranMarkers_one_vs_all}},
+#' \code{\link{findGiniMarkers_one_vs_all}} and
 #' \code{\link{findMastMarkers_one_vs_all}}
 #' @export
 findMarkers_one_vs_all <- function(gobject,
@@ -1248,7 +1247,7 @@ findMarkers_one_vs_all <- function(gobject,
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
-        warning("min_genes argument is deprecated, use min_feats argument in 
+        warning("min_genes argument is deprecated, use min_feats argument in
                 the future")
     }
 

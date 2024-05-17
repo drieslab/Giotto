@@ -35,7 +35,7 @@ specificCellCellcommunicationScores(
 
 \item{spat_unit}{spatial unit}
 
-\item{spatial_network_name}{spatial network to use for identifying 
+\item{spatial_network_name}{spatial network to use for identifying
 interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
@@ -56,10 +56,10 @@ interacting cells}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
-\item{min_observations}{minimum number of interactions needed to be 
+\item{min_observations}{minimum number of interactions needed to be
 considered}
 
-\item{detailed}{provide more detailed information 
+\item{detailed}{provide more detailed information
 (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
@@ -73,18 +73,18 @@ considered}
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial 
+Cell-Cell communication scores for feature pairs based on spatial
 interaction
 }
 \description{
-Specific Cell-Cell communication scores based on spatial 
+Specific Cell-Cell communication scores based on spatial
 expression of interacting cells
 }
 \details{
-Statistical framework to identify if pairs of features 
+Statistical framework to identify if pairs of features
 (such as ligand-receptor combinations)
-are expressed at higher levels than expected based on a reshuffled null 
-distribution of feature expression values in cells that are spatially in 
+are expressed at higher levels than expected based on a reshuffled null
+distribution of feature expression values in cells that are spatially in
 proximity to eachother.
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}

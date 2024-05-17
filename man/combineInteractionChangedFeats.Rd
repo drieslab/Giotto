@@ -26,10 +26,10 @@ combineInteractionChangedFeats(
 
 \item{selected_feats}{subset of selected Features (optional)}
 
-\item{specific_feats_1}{specific Featureset combo 
+\item{specific_feats_1}{specific Featureset combo
 (need to position match specific_feats_2)}
 
-\item{specific_feats_2}{specific Featureset combo 
+\item{specific_feats_2}{specific Featureset combo
 (need to position match specific_feats_1)}
 
 \item{min_cells}{minimum number of target cell type}

@@ -26,7 +26,7 @@ heatmSpatialCorFeats(
 
 \item{spatCorObject}{spatial correlation object}
 
-\item{use_clus_name}{name of clusters to visualize 
+\item{use_clus_name}{name of clusters to visualize
 (from clusterSpatialCorFeats())}
 
 \item{show_cluster_annot}{show cluster annotation on top of heatmap}
@@ -45,13 +45,13 @@ heatmSpatialCorFeats(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see 
+\item{save_param}{list of saving parameters, see
 \code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, 
+\item{default_save_name}{default save name for saving, don't change,
 change save_name in save_param}
 
-\item{\dots}{additional parameters to the 
+\item{\dots}{additional parameters to the
 \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap}
 }
 \value{

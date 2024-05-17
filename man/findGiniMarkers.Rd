@@ -36,12 +36,12 @@ findGiniMarkers(
 
 \item{subset_clusters}{selection of clusters to compare}
 
-\item{group_1}{group 1 cluster IDs from cluster_column for pairwise 
+\item{group_1}{group 1 cluster IDs from cluster_column for pairwise
 comparison}
 
 \item{group_1_name}{custom name for group_1 clusters}
 
-\item{group_2}{group 2 cluster IDs from cluster_column for pairwise 
+\item{group_2}{group 2 cluster IDs from cluster_column for pairwise
 comparison}
 
 \item{group_2_name}{custom name for group_2 clusters}
@@ -62,37 +62,38 @@ comparison}
 data.table with marker feats
 }
 \description{
-Identify marker feats for selected clusters based on gini 
+Identify marker feats for selected clusters based on gini
 detection and expression scores.
 }
 \details{
-Detection of marker feats using the 
-\url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+Detection of marker feats using the
+\href{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
 coefficient is based on the following steps/principles per feat:
-\itemize{
-  \item{1. calculate average expression per cluster}
-  \item{2. calculate detection fraction per cluster}
-  \item{3. calculate gini-coefficient for av. expression values over all clusters}
-  \item{4. calculate gini-coefficient for detection fractions over all clusters}
-  \item{5. convert gini-scores to rank scores}
-  \item{6. for each feat create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
-  \item{7. for each feat sort on expression and detection rank and combined score}
+\enumerate{
+\item calculate average expression per cluster
+\item calculate detection fraction per cluster
+\item calculate gini-coefficient for av. expression values over all clusters
+\item calculate gini-coefficient for detection fractions over all clusters
+\item convert gini-scores to rank scores
+\item for each feat create combined score = detection rank x expression rank x
+expr gini-coefficient x detection gini-coefficient
+\item for each feat sort on expression and detection rank and combined score
 }
 
-As a results "top gini" feats are feats that are very selectivily expressed 
+As a results "top gini" feats are feats that are very selectivily expressed
 in a specific cluster,
-however not always expressed in all cells of that cluster. In other words 
+however not always expressed in all cells of that cluster. In other words
 highly specific, but
 not necessarily sensitive at the single-cell level.
 
 To perform differential expression between custom selected groups of cells
 you need to specify the cell_ID column to parameter \emph{cluster_column}
-and provide the individual cell IDs to the parameters \emph{group_1} and 
+and provide the individual cell IDs to the parameters \emph{group_1} and
 \emph{group_2}
 
-By default group names will be created by pasting the different id names 
+By default group names will be created by pasting the different id names
 within each selected group.
 When you have many different ids in a single group
-it is recommend to provide names for both groups to \emph{group_1_name} and 
+it is recommend to provide names for both groups to \emph{group_1_name} and
 \emph{group_2_name}
 }

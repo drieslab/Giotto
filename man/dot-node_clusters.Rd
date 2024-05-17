@@ -15,7 +15,7 @@
 list of splitted dendrogram nodes from high to low node height
 }
 \description{
-Merge selected clusters based on pairwise correlation scores 
+Merge selected clusters based on pairwise correlation scores
 and size of cluster.
 }
 \keyword{internal}

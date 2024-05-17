@@ -36,16 +36,16 @@ addCellIntMetadata(
 Giotto object
 }
 \description{
-Creates an additional metadata column with information about 
+Creates an additional metadata column with information about
 interacting and non-interacting cell types of the
 selected cell-cell interaction.
 }
 \details{
-This function will create an additional metadata column which 
+This function will create an additional metadata column which
 selects interacting cell types for a specific cell-cell
-interaction. For example, if you want to color interacting astrocytes and 
+interaction. For example, if you want to color interacting astrocytes and
 oligodendrocytes it will create a new metadata column with
-the values "select_astrocytes", "select_oligodendrocytes", 
-"other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is 
+the values "select_astrocytes", "select_oligodendrocytes",
+"other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is
 all other cell types found within the selected cell type column.
 }

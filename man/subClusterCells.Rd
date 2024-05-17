@@ -45,13 +45,13 @@ subClusterCells(
 
 \item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
 
-\item{hvg_mean_expr_det}{threshold for mean expression level in cells with 
+\item{hvg_mean_expr_det}{threshold for mean expression level in cells with
 detection}
 
-\item{use_all_genes_as_hvg}{forces all genes to be HVG and to be used as 
+\item{use_all_genes_as_hvg}{forces all genes to be HVG and to be used as
 input for PCA}
 
-\item{min_nr_of_hvg}{minimum number of HVG, or all genes will be used as 
+\item{min_nr_of_hvg}{minimum number of HVG, or all genes will be used as
 input for PCA}
 
 \item{pca_param}{parameters for runPCA}
@@ -96,7 +96,7 @@ The systematic steps are:
 }
 }
 \seealso{
-\code{\link{.doLouvainCluster_multinet}}, 
+\code{\link{.doLouvainCluster_multinet}},
 \code{\link{.doLouvainCluster_community}}
 and  @seealso \code{\link{doLeidenCluster}}
 }

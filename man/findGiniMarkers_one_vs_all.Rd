@@ -51,7 +51,7 @@ findGiniMarkers_one_vs_all(
 data.table with marker feats
 }
 \description{
-Identify marker feats for all clusters in a one vs all manner 
+Identify marker feats for all clusters in a one vs all manner
 based on gini detection and expression scores.
 }
 \seealso{

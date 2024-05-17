@@ -40,7 +40,7 @@ doClusterProjection(
 
 \item{reduction_name}{name of shared reduction space (default name = 'pca')}
 
-\item{dimensions_to_use}{dimensions to use in shared reduction space 
+\item{dimensions_to_use}{dimensions to use in shared reduction space
 (default = 1:10)}
 
 \item{knn_k}{number of k-neighbors to train a KNN classifier}
@@ -55,23 +55,23 @@ doClusterProjection(
 giotto object (default) or data.table with cell metadata
 }
 \description{
-Use a fast KNN classifier to predict labels from a smaller 
+Use a fast KNN classifier to predict labels from a smaller
 giotto object
 }
 \details{
-Function to train a KNN with \code{\link[FNN]{knn}}. The training 
-data is obtained from the source giotto object (source_gobject) using 
-existing annotations within the cell metadata. Cells without 
-annotation/labels from the target giotto object (target_gobject) will 
+Function to train a KNN with \code{\link[FNN]{knn}}. The training
+data is obtained from the source giotto object (source_gobject) using
+existing annotations within the cell metadata. Cells without
+annotation/labels from the target giotto object (target_gobject) will
 receive predicted labels (and optional probabilities with prob = TRUE).
 
-**IMPORTANT** This projection assumes that you're using the same dimension 
-reduction space (e.g. PCA) and number of dimensions (e.g. first 10 PCs) to 
-train the KNN classifier as you used to create the initial 
+**IMPORTANT** This projection assumes that you're using the same dimension
+reduction space (e.g. PCA) and number of dimensions (e.g. first 10 PCs) to
+train the KNN classifier as you used to create the initial
 annotations/labels in the source Giotto object.
 
-Altogether this is a convenience function that allow you to work with very 
-big data as you can predict cell labels on a smaller & subsetted Giotto 
-object and then project the cell labels to the remaining cells in the target 
+Altogether this is a convenience function that allow you to work with very
+big data as you can predict cell labels on a smaller & subsetted Giotto
+object and then project the cell labels to the remaining cells in the target
 Giotto object.
 }

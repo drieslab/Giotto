@@ -26,10 +26,10 @@ combineICF(
 
 \item{selected_feats}{subset of selected Feats (optional)}
 
-\item{specific_feats_1}{specific Featset combo 
+\item{specific_feats_1}{specific Featset combo
 (need to position match specific_genes_2)}
 
-\item{specific_feats_2}{specific Featset combo 
+\item{specific_feats_2}{specific Featset combo
 (need to position match specific_genes_1)}
 
 \item{min_cells}{minimum number of target cell type}

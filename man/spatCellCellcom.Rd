@@ -35,7 +35,7 @@ spatCellCellcom(
 
 \item{spat_unit}{spatial unit}
 
-\item{spatial_network_name}{spatial network to use for identifying 
+\item{spatial_network_name}{spatial network to use for identifying
 interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
@@ -52,10 +52,10 @@ interacting cells}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
-\item{min_observations}{minimum number of interactions needed to be 
+\item{min_observations}{minimum number of interactions needed to be
 considered}
 
-\item{detailed}{provide more detailed information 
+\item{detailed}{provide more detailed information
 (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
@@ -73,38 +73,43 @@ considered}
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial 
+Cell-Cell communication scores for feature pairs based on spatial
 interaction
 }
 \description{
-Spatial Cell-Cell communication scores based on spatial 
+Spatial Cell-Cell communication scores based on spatial
 expression of interacting cells
 }
 \details{
-Statistical framework to identify if pairs of genes 
+Statistical framework to identify if pairs of genes
 (such as ligand-receptor combinations)
-are expressed at higher levels than expected based on a reshuffled null 
-distribution of feature expression values in cells that are spatially in 
+are expressed at higher levels than expected based on a reshuffled null
+distribution of feature expression values in cells that are spatially in
 proximity to each other.
 \itemize{
- \item{LR_comb:}{Pair of ligand and receptor}
- \item{lig_cell_type:}{ cell type to assess expression level of ligand }
- \item{lig_expr:}{ average expression of ligand in lig_cell_type }
- \item{ligand:}{ ligand name }
- \item{rec_cell_type:}{ cell type to assess expression level of receptor }
- \item{rec_expr:}{ average expression of receptor in rec_cell_type}
- \item{receptor:}{ receptor name }
- \item{LR_expr:}{ combined average ligand and receptor expression }
- \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
- \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
- \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
- \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
- \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
- \item{z_score:}{ (optinal) z-score }
- \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
- \item{pvalue:}{ p-value }
- \item{LR_cell_comb:}{ cell type pair combination }
- \item{p.adj:}{ adjusted p-value }
- \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+\item \strong{LR_comb:} Pair of ligand and receptor
+\item \strong{lig_cell_type:} cell type to assess expression level of ligand
+\item \strong{lig_expr:} average expression of ligand in lig_cell_type
+\item \strong{ligand:} ligand name
+\item \strong{rec_cell_type:} cell type to assess expression level of receptor
+\item \strong{rec_expr:} average expression of receptor in rec_cell_type
+\item \strong{receptor:} receptor name
+\item \strong{LR_expr:} combined average ligand and receptor expression
+\item \strong{lig_nr:} total number of cells from lig_cell_type that spatially
+interact with cells from rec_cell_type
+\item \strong{rec_nr:} total number of cells from rec_cell_type that spatially
+interact with cells from lig_cell_type
+\item \strong{rand_expr:} average combined ligand and receptor expression from
+random spatial permutations
+\item \strong{av_diff:} average difference between LR_expr and rand_expr over all
+random spatial permutations
+\item \strong{sd_diff:} (optional) standard deviation of the difference between
+LR_expr and rand_expr over all random spatial permutations
+\item \strong{z_score:} (optional) z-score
+\item \strong{log2fc:} log2 fold-change (LR_expr/rand_expr)
+\item \strong{pvalue:} p-value
+\item \strong{LR_cell_comb:} cell type pair combination
+\item \strong{p.adj:} adjusted p-value
+\item \strong{PI:} significance score: log2fc * -log10(p.adj)
 }
 }

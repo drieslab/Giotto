@@ -48,6 +48,6 @@ silhouetteRankTest(
 data.table with spatial scores
 }
 \description{
-Multi parameter aggregator version of 
+Multi parameter aggregator version of
 \code{\link{silhouetteRank}}
 }

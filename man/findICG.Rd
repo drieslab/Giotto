@@ -32,7 +32,7 @@ findICG(...)
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
-i.e. genes that are differentially expressed due to interaction with other 
+i.e. genes that are differentially expressed due to interaction with other
 cell types.
 }
 \seealso{

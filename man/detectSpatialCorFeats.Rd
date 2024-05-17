@@ -36,7 +36,7 @@ detectSpatialCorFeats(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{network_smoothing}{smoothing factor beteen 0 and 1 
+\item{network_smoothing}{smoothing factor beteen 0 and 1
 (default: automatic)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
@@ -52,7 +52,7 @@ returns a spatial correlation object: "spatCorObject"
 Detect features that are spatially correlated
 }
 \details{
-For method = network, it expects a fully connected spatial network. You 
+For method = network, it expects a fully connected spatial network. You
 can make sure to create a
 fully connected network by setting minimal_k > 0 in the
  \code{\link{createSpatialNetwork}} function.

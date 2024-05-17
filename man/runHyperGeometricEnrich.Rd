@@ -34,7 +34,7 @@ runHyperGeometricEnrich(
 
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
 
-\item{top_percentage}{percentage of cells that will be considered to have 
+\item{top_percentage}{percentage of cells that will be considered to have
 gene expression with matrix binarization}
 
 \item{output_enrichment}{how to return enrichment output}
@@ -49,7 +49,7 @@ gene expression with matrix binarization}
 data.table with enrichment results
 }
 \description{
-Function to calculate gene signature enrichment scores per 
+Function to calculate gene signature enrichment scores per
 spatial position using a hypergeometric test.
 }
 \details{

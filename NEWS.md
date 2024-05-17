@@ -4,7 +4,8 @@
 ## Enhancements
 * New `interpolateFeature()` for kriging interpolation of values
 
-
+## Changes
+* GiottoVisuals (>= 0.2.0) and GiottoClass (>= 0.3.0) are now required.
 
 
 

@@ -35,7 +35,7 @@ doLouvainCluster(
 
 \item{name}{name for cluster, default to "louvain_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to 
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to
 "sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
@@ -46,14 +46,14 @@ doLouvainCluster(
 
 \item{weight_col}{weight column name}
 
-\item{gamma}{[multinet] Resolution parameter for modularity in the 
+\item{gamma}{[multinet] Resolution parameter for modularity in the
 generalized louvain method, default = 1}
 
-\item{omega}{[multinet] Inter-layer weight parameter in the generalized 
+\item{omega}{[multinet] Inter-layer weight parameter in the generalized
 louvain method, default = 1}
 
-\item{louv_random}{[community] Will randomize the node evaluation order and 
-the community evaluation order to get different partitions at each call 
+\item{louv_random}{[community] Will randomize the node evaluation order and
+the community evaluation order to get different partitions at each call
 (default = FALSE)}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
@@ -62,7 +62,7 @@ the community evaluation order to get different partitions at each call
 
 \item{seed_number}{number for seed}
 
-\item{...}{arguments passed to \code{\link{.doLouvainCluster_community}} or 
+\item{...}{arguments passed to \code{\link{.doLouvainCluster_community}} or
 \code{\link{.doLouvainCluster_multinet}}}
 }
 \value{
@@ -72,10 +72,10 @@ giotto object with new clusters appended to cell metadata
 cluster cells using a NN-network and the Louvain algorithm.
 }
 \details{
-Louvain clustering using the community or multinet implementation 
+Louvain clustering using the community or multinet implementation
 of the louvain clustering algorithm.
 }
 \seealso{
-\code{\link{.doLouvainCluster_community}} and 
+\code{\link{.doLouvainCluster_community}} and
 \code{\link{.doLouvainCluster_multinet}}
 }

@@ -20,7 +20,7 @@ rankSpatialCorGroups(
 
 \item{spatCorObject}{spatial correlation object}
 
-\item{use_clus_name}{name of clusters to visualize 
+\item{use_clus_name}{name of clusters to visualize
 (from clusterSpatialCorGenes())}
 
 \item{show_plot}{show plot}
@@ -29,17 +29,17 @@ rankSpatialCorGroups(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see 
+\item{save_param}{list of saving parameters, see
 \code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, 
+\item{default_save_name}{default save name for saving, don't change,
 change save_name in save_param}
 }
 \value{
-data.table with positive (within group) and negative 
+data.table with positive (within group) and negative
 (outside group) scores
 }
 \description{
-Rank spatial correlated clusters according to correlation 
+Rank spatial correlated clusters according to correlation
 structure
 }

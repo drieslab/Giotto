@@ -27,7 +27,7 @@ filterICF(
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor 
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor
 cell type}
 
 \item{min_fdr}{minimum adjusted p-value}

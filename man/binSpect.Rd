@@ -2,6 +2,9 @@
 % Please edit documentation in R/spatial_genes.R
 \name{binSpect}
 \alias{binSpect}
+\alias{binSpectSingleMatrix}
+\alias{binSpectSingle}
+\alias{binSpectMulti}
 \title{binSpect}
 \usage{
 binSpect(
@@ -11,7 +14,6 @@ binSpect(
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_feats = NULL,
-  subset_genes = NULL,
   spatial_network_name = "Delaunay_network",
   spatial_network_k = NULL,
   reduce_network = FALSE,
@@ -39,6 +41,96 @@ binSpect(
   summarize = c("p.value", "adj.p.value"),
   return_gobject = FALSE
 )
+
+binSpectSingleMatrix(
+  expression_matrix,
+  spatial_network = NULL,
+  bin_matrix = NULL,
+  bin_method = c("kmeans", "rank"),
+  subset_feats = NULL,
+  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
+  nstart = 3,
+  iter_max = 10,
+  extreme_nr = 50,
+  sample_nr = 50,
+  percentage_rank = 30,
+  do_fisher_test = TRUE,
+  adjust_method = "fdr",
+  calc_hub = FALSE,
+  hub_min_int = 3,
+  get_av_expr = TRUE,
+  get_high_expr = TRUE,
+  implementation = c("data.table", "simple", "matrix"),
+  group_size = "automatic",
+  do_parallel = TRUE,
+  cores = NA,
+  verbose = FALSE,
+  set.seed = deprecated(),
+  seed = 1234
+)
+
+binSpectSingle(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  bin_method = c("kmeans", "rank"),
+  expression_values = c("normalized", "scaled", "custom"),
+  subset_feats = NULL,
+  spatial_network_name = "Delaunay_network",
+  reduce_network = FALSE,
+  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
+  nstart = 3,
+  iter_max = 10,
+  extreme_nr = 50,
+  sample_nr = 50,
+  percentage_rank = 30,
+  do_fisher_test = TRUE,
+  adjust_method = "fdr",
+  calc_hub = FALSE,
+  hub_min_int = 3,
+  get_av_expr = TRUE,
+  get_high_expr = TRUE,
+  implementation = c("data.table", "simple", "matrix"),
+  group_size = "automatic",
+  do_parallel = TRUE,
+  cores = NA,
+  verbose = TRUE,
+  set.seed = deprecated(),
+  seed = 1234,
+  bin_matrix = NULL
+)
+
+binSpectMulti(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  bin_method = c("kmeans", "rank"),
+  expression_values = c("normalized", "scaled", "custom"),
+  subset_feats = NULL,
+  spatial_network_k = c(5, 10, 20),
+  reduce_network = FALSE,
+  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
+  nstart = 3,
+  iter_max = 10,
+  extreme_nr = 50,
+  sample_nr = 50,
+  percentage_rank = c(10, 30),
+  do_fisher_test = TRUE,
+  adjust_method = "fdr",
+  calc_hub = FALSE,
+  hub_min_int = 3,
+  get_av_expr = TRUE,
+  get_high_expr = TRUE,
+  implementation = c("data.table", "simple", "matrix"),
+  group_size = "automatic",
+  do_parallel = TRUE,
+  cores = NA,
+  verbose = TRUE,
+  knn_params = NULL,
+  set.seed = deprecated(),
+  seed = 1234,
+  summarize = c("adj.p.value", "p.value")
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -53,16 +145,14 @@ binSpect(
 
 \item{subset_feats}{only select a subset of features to test}
 
-\item{subset_genes}{deprecated, use subset_feats}
-
-\item{spatial_network_name}{name of spatial network to use 
+\item{spatial_network_name}{name of spatial network to use
 (default = 'spatial_network')}
 
 \item{spatial_network_k}{different k's for a spatial kNN to evaluate}
 
 \item{reduce_network}{default uses the full network}
 
-\item{kmeans_algo}{kmeans algorithm to use 
+\item{kmeans_algo}{kmeans algorithm to use
 (kmeans, kmeans_arma, kmeans_arma_subset)}
 
 \item{nstart}{kmeans: nstart parameter}
@@ -77,26 +167,26 @@ binSpect(
 
 \item{do_fisher_test}{perform fisher test}
 
-\item{adjust_method}{p-value adjusted method to use 
+\item{adjust_method}{p-value adjusted method to use
 (see \code{\link[stats]{p.adjust}})}
 
 \item{calc_hub}{calculate the number of hub cells}
 
 \item{hub_min_int}{minimum number of cell-cell interactions for a hub cell}
 
-\item{get_av_expr}{calculate the average expression per gene of the high 
+\item{get_av_expr}{calculate the average expression per gene of the high
 expressing cells}
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
 
 \item{implementation}{enrichment implementation (data.table, simple, matrix)}
 
-\item{group_size}{number of genes to process together with data.table 
+\item{group_size}{number of genes to process together with data.table
 implementation (default = automatic)}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
-\item{cores}{number of cores to use if do_parallel = TRUE}
+\item{cores}{number of cores to use if \code{do_parallel = TRUE}}
 
 \item{verbose}{be verbose}
 
@@ -107,49 +197,81 @@ implementation (default = automatic)}
 \item{seed}{seed for kmeans binarization. When \code{NULL}, no seed is set.
 Otherwise, accepts a numeric input that will be used as seed.}
 
-\item{bin_matrix}{a binarized matrix, when provided it will skip the 
+\item{bin_matrix}{a binarized matrix, when provided it will skip the
 binarization process}
 
 \item{summarize}{summarize the p-values or adjusted p-values}
 
 \item{return_gobject}{whether to return values attached to the gobject or
 separately (default)}
+
+\item{expression_matrix}{expression matrix}
+
+\item{spatial_network}{spatial network in data.table format}
+
+\item{subset_genes}{deprecated, use subset_feats}
 }
 \value{
 data.table with results (see details)
 }
 \description{
-Previously: binGetSpatialGenes. BinSpect 
-(Binary Spatial Extraction of genes) is a fast computational method
-that identifies genes with a spatially coherent expression pattern.
+Previously: \code{binGetSpatialGenes()}. \cr
+BinSpect (Binary Spatial Extraction of genes) is a fast computational method
+that identifies genes with a spatially coherent expression pattern. \cr
+There are several functions documented together here, mainly differing in
+how to provide expression and spatial connectivity/networks information.
+When data is in a \code{giotto} object, use \code{binSpect()} which wraps
+\code{binSpectSingle()} and \code{binSpectMulti()}.
 }
 \details{
-We provide two ways to identify spatial genes based on gene 
+We provide two ways to identify spatial genes based on gene
 expression binarization.
-Both methods are identical except for how binarization is performed.
-\itemize{
-  \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
-  \item{2. network: }{Alll cells are connected through a spatial network based on the physical coordinates}
-  \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
-  \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
+Both methods are identicial except for how binarization is performed.
+\enumerate{
+\item \strong{binarize:} Each gene is binarized (0 or 1) in each cell with
+\strong{kmeans} (k = 2) or based on \strong{rank} percentile
+\item \strong{network:} All cells are connected through a spatial network based
+on the physical coordinates
+\item \strong{contingency table:} A contingency table is calculated based on all
+edges of neighboring cells and the binarized expression
+(0-0, 0-1, 1-0 or 1-1)
+\item For each gene an odds-ratio (OR) and fisher.test (optional) is
+calculated
 }
-Three different kmeans algorithmes have been implemented:
-\itemize{
-  \item{1. kmeans: }{default, see \code{\link[stats]{kmeans}} }
-  \item{2. kmeans_arma: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}} }
-  \item{3. kmeans_arma_subst: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}},
-   but random subsetting the vector for each gene to increase speed. Change extreme_nr and sample_nr for control.  }
+
+Three different kmeans algorithms have been implemented:
+\enumerate{
+\item \strong{kmeans:} default, see \code{\link[stats]{kmeans}}
+\item \strong{kmeans_arma:} from ClusterR, see \code{\link[ClusterR]{KMeans_arma}}
+\item \strong{kmeans_arma_subst:} from ClusterR, see
+\code{\link[ClusterR]{KMeans_arma}}, but randomly subsets the vector
+for each gene to increase speed. Change extreme_nr and sample_nr for
+control.
 }
+
 Other statistics are provided (optional):
 \itemize{
-  \item{Number of cells with high expression (binary = 1)}
-  \item{Average expression of each gene within high expressing cells }
-  \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
+\item Number of cells with high expression (binary = 1)
+\item Average expression of each gene within high expressing cells
+\item Number of hub cells, these are high expressing cells that have a user
+defined number of high expressing neighbors
 }
-By selecting a subset of likely spatial genes 
+
+By selecting a subset of likely spatial genes
 (e.g. soft thresholding highly variable genes) can accelerate the speed.
-The simple implementation is usually faster, but lacks the possibility to 
+The simple implementation is usually faster, but lacks the possibility to
 run in parallel and to calculate hub cells.
-The data.table implementation might be more appropriate for large datasets 
-by setting the group_size (number of genes) parameter to divide the workload.
+The data.table implementation might be more appropriate for large datasets
+by setting the \code{group_size} (number of genes) parameter to divide the
+workload.
 }
+\section{Functions}{
+\itemize{
+\item \code{binSpectSingleMatrix()}: binSpect for a single spatial network and a provided
+expression matrix
+
+\item \code{binSpectSingle()}: binSpect for a single spatial network
+
+\item \code{binSpectMulti()}: binSpect for multiple spatial kNN networks
+
+}}

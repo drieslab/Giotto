@@ -26,7 +26,7 @@
 \item{expr_values}{Matrix object}
 }
 \description{
-Identifies features that are differentially expressed due to 
+Identifies features that are differentially expressed due to
 proximity to other cell types.
 }
 \seealso{

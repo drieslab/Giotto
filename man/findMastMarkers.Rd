@@ -30,12 +30,12 @@ findMastMarkers(
 
 \item{cluster_column}{clusters to use}
 
-\item{group_1}{group 1 cluster IDs from cluster_column for pairwise 
+\item{group_1}{group 1 cluster IDs from cluster_column for pairwise
 comparison}
 
 \item{group_1_name}{custom name for group_1 clusters}
 
-\item{group_2}{group 2 cluster IDs from cluster_column for pairwise 
+\item{group_2}{group 2 cluster IDs from cluster_column for pairwise
 comparison}
 
 \item{group_2_name}{custom name for group_2 clusters}
@@ -50,13 +50,13 @@ comparison}
 data.table with marker feats
 }
 \description{
-Identify marker feats for selected clusters based on the 
+Identify marker feats for selected clusters based on the
 MAST package.
 }
 \details{
-This is a minimal convenience wrapper around the 
+This is a minimal convenience wrapper around the
 \code{\link[MAST]{zlm}}
-from the MAST package to detect differentially expressed feats. Caution: 
+from the MAST package to detect differentially expressed feats. Caution:
 with large datasets
 MAST might take a long time to run and finish
 }
