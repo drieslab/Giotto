@@ -48,7 +48,7 @@ runSpatialDeconv(
 giotto object or deconvolution results
 }
 \description{
-Function to perform deconvolution based on single cell 
+Function to perform deconvolution based on single cell
 expression data
 }
 \examples{

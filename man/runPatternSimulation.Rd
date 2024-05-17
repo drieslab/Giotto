@@ -41,7 +41,7 @@ runPatternSimulation(
 
 \item{gene_names}{selected genes}
 
-\item{spatial_probs}{probabilities to test for a high expressing gene 
+\item{spatial_probs}{probabilities to test for a high expressing gene
 value to be part of the spatial pattern}
 
 \item{reps}{number of random simulation repetitions}
@@ -50,10 +50,10 @@ value to be part of the spatial pattern}
 
 \item{spat_methods}{vector of spatial methods to test}
 
-\item{spat_methods_params}{list of parameters list for each element in the 
+\item{spat_methods_params}{list of parameters list for each element in the
 vector of spatial methods to test}
 
-\item{spat_methods_names}{name for each element in the vector of spatial 
+\item{spat_methods_names}{name for each element in the vector of spatial
 elements to test}
 
 \item{scalefactor}{library size scaling factor when re-normalizing dataset}
@@ -80,7 +80,7 @@ elements to test}
 data.table with results
 }
 \description{
-Creates a known spatial pattern for selected genes one-by-one 
+Creates a known spatial pattern for selected genes one-by-one
 and runs the different spatial gene detection tests
 }
 \examples{

@@ -52,17 +52,17 @@ doLeidenSubCluster(
 
 \item{hvg_min_perc_cells}{deprecated, use hvf_min_perc_cells}
 
-\item{hvf_mean_expr_det}{threshold for mean expression level in cells with 
+\item{hvf_mean_expr_det}{threshold for mean expression level in cells with
 detection}
 
 \item{hvg_mean_expr_det}{deprecated, use hvf_mean_expr_det}
 
-\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as 
+\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as
 input for PCA}
 
 \item{use_all_genes_as_hvg}{deprecated, use use_all_feats_as_hvf}
 
-\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as 
+\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as
 input for PCA}
 
 \item{min_nr_of_hvg}{deprecated, use min_nr_of_hvf}
@@ -91,11 +91,11 @@ input for PCA}
 giotto object with new subclusters appended to cell metadata
 }
 \description{
-Further subcluster cells using a NN-network and the Leiden 
+Further subcluster cells using a NN-network and the Leiden
 algorithm
 }
 \details{
-This function performs subclustering using the Leiden algorithm on 
+This function performs subclustering using the Leiden algorithm on
 selected clusters.
 The systematic steps are:
 \itemize{

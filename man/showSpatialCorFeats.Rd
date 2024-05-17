@@ -29,10 +29,10 @@ showSpatialCorFeats(
 
 \item{min_expr_cor}{filter on minimum single-cell expression correlation}
 
-\item{min_cor_diff}{filter on minimum correlation difference 
+\item{min_cor_diff}{filter on minimum correlation difference
 (spatial vs expression)}
 
-\item{min_rank_diff}{filter on minimum correlation rank difference 
+\item{min_rank_diff}{filter on minimum correlation rank difference
 (spatial vs expression)}
 
 \item{show_top_feats}{show top features per gene}

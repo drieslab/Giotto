@@ -45,14 +45,14 @@ getDendrogramSplits(
 data.table object
 }
 \description{
-Split dendrogram at each node and keep the leave (label) 
+Split dendrogram at each node and keep the leave (label)
 information.
 }
 \details{
-Creates a data.table with three columns and each row represents a 
-node in the dendrogram. For each node the height of the node is given 
-together with the two subdendrograms. This information can be used to 
-determine in a hierarchical manner differentially expressed marker genes at 
+Creates a data.table with three columns and each row represents a
+node in the dendrogram. For each node the height of the node is given
+together with the two subdendrograms. This information can be used to
+determine in a hierarchical manner differentially expressed marker genes at
 each node.
 }
 \examples{

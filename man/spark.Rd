@@ -35,12 +35,12 @@ spark(
 
 \item{num_core}{number of cores to use}
 
-\item{covariates}{The covariates in experiments, i.e. confounding 
+\item{covariates}{The covariates in experiments, i.e. confounding
 factors/batch effect. Column name of giotto cell metadata.}
 
 \item{return_object}{type of result to return (data.table or spark object)}
 
-\item{\dots}{Additional parameters to the \code{\link[SPARK]{spark.vc}} 
+\item{\dots}{Additional parameters to the \code{\link[SPARK]{spark.vc}}
 function}
 }
 \value{
@@ -50,15 +50,17 @@ data.table with SPARK spatial genes results or the SPARK object
 Compute spatially expressed genes with SPARK method
 }
 \details{
-This function is a wrapper for the method implemented in the 
+This function is a wrapper for the method implemented in the
 SPARK package:
-\itemize{
- \item{1. CreateSPARKObject }{create a SPARK object from a Giotto object}
- \item{2. spark.vc }{ Fits the count-based spatial model to estimate the parameters,
- see \code{\link[SPARK]{spark.vc}} for additional parameters}
- \item{3. spark.test }{ Testing multiple kernel matrices}
+\pkg{SPARK} package:
+\enumerate{
+\item \strong{CreateSPARKObject} create a SPARK object from a giotto object
+\item \strong{spark.vc} Fits the count-based spatial model to estimate the
+parameters, see \code{\link[SPARK]{spark.vc}} for additional parameters
+\item \strong{spark.test} Testing multiple kernel matrices
 }
-Publication: \doi{10.1101/810903}
+
+Publication: \doi{doi:10.1101/810903}
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")

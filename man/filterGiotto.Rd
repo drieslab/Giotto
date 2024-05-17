@@ -39,10 +39,10 @@ other feat_types provided.}
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{feat_det_in_min_cells}{minimum # of cells that need to express a 
+\item{feat_det_in_min_cells}{minimum # of cells that need to express a
 feature}
 
-\item{min_det_feats_per_cell}{minimum # of features that need to be detected 
+\item{min_det_feats_per_cell}{minimum # of features that need to be detected
 in a cell}
 
 \item{spat_unit_fsub}{character vector. (default = ':all:') limit features
@@ -74,12 +74,12 @@ giotto object
 filter Giotto object based on expression threshold
 }
 \details{
-The function \code{\link{filterCombinations}} can be used to 
+The function \code{\link{filterCombinations}} can be used to
 explore the effect of different parameter values.
-Please note that this function filters data in a predefined order, features, 
+Please note that this function filters data in a predefined order, features,
 then cells.
-After filtering in this order, certain features may be left over in the 
-metadata with a corresponding number of cells which is less than that of 
+After filtering in this order, certain features may be left over in the
+metadata with a corresponding number of cells which is less than that of
 the threshold value of cells,
 feat_det_in_min_cells. This behavior is explained in detail here:
 \url{https://github.com/drieslab/Giotto/issues/500#issuecomment-1396083446}

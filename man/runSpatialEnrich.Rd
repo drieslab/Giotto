@@ -39,7 +39,7 @@ runSpatialEnrich(
 
 \item{expression_values}{expression values to use}
 
-\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix 
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix
 required to calculate enrichment (PAGE)}
 
 \item{reverse_log_scale}{reverse expression values from log scale}
@@ -48,7 +48,7 @@ required to calculate enrichment (PAGE)}
 
 \item{p_value}{calculate p-value (default = FALSE)}
 
-\item{n_times}{(page/rank) number of permutation iterations to calculate 
+\item{n_times}{(page/rank) number of permutation iterations to calculate
 p-value}
 
 \item{rbp_p}{(rank) fractional binarization threshold (default = 0.99)}
@@ -57,7 +57,7 @@ p-value}
 
 \item{max_block}{number of lines to process together (default = 20e6)}
 
-\item{top_percentage}{(hyper) percentage of cells that will be considered 
+\item{top_percentage}{(hyper) percentage of cells that will be considered
 to have gene expression with matrix binarization}
 
 \item{output_enrichment}{how to return enrichment output}
@@ -72,15 +72,15 @@ to have gene expression with matrix binarization}
 Giotto object or enrichment results if return_gobject = FALSE
 }
 \description{
-Function to calculate gene signature enrichment scores per 
+Function to calculate gene signature enrichment scores per
 spatial position using an enrichment test.
 }
 \details{
 For details see the individual functions:
 \itemize{
-  \item{PAGE: }{\code{\link{runPAGEEnrich}}}
-  \item{Rank: }{\code{\link{runRankEnrich}}}
-  \item{Hypergeometric: }{\code{\link{runHyperGeometricEnrich}}}
+\item \strong{PAGE:} \code{\link{runPAGEEnrich}}
+\item \strong{Rank:} \code{\link{runRankEnrich}}
+\item \strong{Hypergeometric:} \code{\link{runHyperGeometricEnrich}}
 }
 }
 \examples{

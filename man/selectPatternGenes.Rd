@@ -27,7 +27,7 @@ selectPatternGenes(
 
 \item{min_neg_cor}{Minimum negative correlation score to include a gene.}
 
-\item{return_top_selection}{only return selection based on correlation 
+\item{return_top_selection}{only return selection based on correlation
 criteria (boolean)}
 }
 \value{

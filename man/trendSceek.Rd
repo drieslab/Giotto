@@ -29,13 +29,13 @@ trendSceek(
 
 \item{subset_genes}{subset of genes to run trendsceek on}
 
-\item{nrand}{An integer specifying the number of random resamplings of the 
+\item{nrand}{An integer specifying the number of random resamplings of the
 mark distribution as to create the null-distribution.}
 
-\item{ncores}{An integer specifying the number of cores to be used by 
+\item{ncores}{An integer specifying the number of cores to be used by
 BiocParallel}
 
-\item{\dots}{Additional parameters to the 
+\item{\dots}{Additional parameters to the
 \code{\link[trendsceek]{trendsceek_test}} function}
 }
 \value{

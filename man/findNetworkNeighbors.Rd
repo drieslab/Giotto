@@ -19,7 +19,7 @@ findNetworkNeighbors(
 
 \item{spatial_network_name}{name of spatial network}
 
-\item{source_cell_ids}{cell ids for which you want to know the spatial 
+\item{source_cell_ids}{cell ids for which you want to know the spatial
 neighbors}
 
 \item{name}{name of the results}
@@ -28,7 +28,7 @@ neighbors}
 data.table
 }
 \description{
-Find the spatial neighbors for a selected group of cells within 
+Find the spatial neighbors for a selected group of cells within
 the selected spatial network.
 }
 \examples{

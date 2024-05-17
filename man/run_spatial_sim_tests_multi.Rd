@@ -30,7 +30,7 @@ run_spatial_sim_tests_multi(
 data.table
 }
 \description{
-runs all spatial tests for multiple probabilities and 
+runs all spatial tests for multiple probabilities and
 repetitions
 }
 \keyword{internal}

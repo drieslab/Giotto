@@ -143,10 +143,10 @@ g <- GiottoData::loadGiottoMini("visium")
 clusterCells(g)
 }
 \seealso{
-\code{\link{doLeidenCluster}}, 
-\code{\link{.doLouvainCluster_community}}, 
+\code{\link{doLeidenCluster}},
+\code{\link{.doLouvainCluster_community}},
 \code{\link{.doLouvainCluster_multinet}},
-\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, 
+\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}},
 \code{\link{doSNNCluster}},
 \code{\link{doKmeans}}, \code{\link{doHclust}}
 }
