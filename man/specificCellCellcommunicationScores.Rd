@@ -73,7 +73,7 @@ considered}
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial
+Cell-Cell communication scores for feature pairs based on spatial 
 interaction
 }
 \description{
@@ -85,7 +85,7 @@ Statistical framework to identify if pairs of features
 (such as ligand-receptor combinations)
 are expressed at higher levels than expected based on a reshuffled null
 distribution of feature expression values in cells that are spatially in
-proximity to eachother.
+proximity to each other.
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}
  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
@@ -107,4 +107,9 @@ proximity to eachother.
  \item{p.adj:}{ adjusted p-value }
  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
 }

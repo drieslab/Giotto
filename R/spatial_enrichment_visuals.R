@@ -98,6 +98,7 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 #' @param title Title of the generated plot.
 #'  Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`
 #' @inheritParams plot_output_params
+#' @returns plot
 #' @details
 #'
 #' This function generates a bar plot of cell types vs the frequency

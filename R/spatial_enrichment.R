@@ -391,7 +391,7 @@ makeSignMatrixRank <- function(sc_matrix,
 #' @param n_times number of permutations to calculate for p_value
 #' @param name to give to spatial enrichment results, default = PAGE
 #' @param return_gobject return giotto object
-#' @return data.table with enrichment results
+#' @returns data.table with enrichment results
 #' @details
 #' sign_matrix: a binary matrix with genes as row names and cell-types as
 #' column names.
@@ -819,7 +819,7 @@ runPAGEEnrich_OLD <- function(gobject,
 #' @param name to give to spatial enrichment results, default = PAGE
 #' @param verbose be verbose
 #' @param return_gobject return giotto object
-#' @return data.table with enrichment results
+#' @returns data.table with enrichment results
 #' @details
 #' sign_matrix: a binary matrix with genes as row names and cell-types as
 #' column names.
@@ -834,6 +834,19 @@ runPAGEEnrich_OLD <- function(gobject,
 #' value of a specific marker gene set and  m is the size of a given marker
 #' gene set.
 #' @seealso \code{\link{makeSignMatrixPAGE}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' sign_gene <- c("Bcl11b", "Lmo1", "F3", "Cnih3", "Ppp1r3c", "Rims2", "Gfap", 
+#' "Gjc3", "Chrna4", "Prkcd", "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", 
+#' "Hrh3", "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a", "Arpp19", "Lamp5", 
+#' "Galnt6", "Hlf", "Hs3st2", "Tbr1", "Myl4", "Cygb", "Ttc9b","Ipcef1")
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*3, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- c("cell_type1", "cell_type2", "cell_type3")
+#' 
+#' runPAGEEnrich(gobject = g, sign_matrix = sign_matrix)
 #' @export
 runPAGEEnrich <- function(gobject,
     spat_unit = NULL,
@@ -1015,7 +1028,7 @@ PAGEEnrich <- function(...) {
 #' @param num_agg number of top genes to aggregate (default = 100)
 #' @param name to give to spatial enrichment results, default = rank
 #' @param return_gobject return giotto object
-#' @return data.table with enrichment results
+#' @returns data.table with enrichment results
 #' @details
 #' sign_matrix: a rank-fold matrix with genes as row names and cell-types as
 #' column names.
@@ -1029,6 +1042,19 @@ PAGEEnrich <- function(...) {
 #' RBP = (1 - 0.99) * (0.99)^(R - 1)
 #' and the final enrichment score is then calculated as the sum of top 100 RBPs.
 #' @seealso \code{\link{makeSignMatrixRank}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- findMarkers_one_vs_all(g, 
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' 
+#' runRankEnrich(gobject = g, sign_matrix = sign_matrix, 
+#' expression_values = "normalized")
 #' @export
 runRankEnrich <- function(gobject,
     spat_unit = NULL,
@@ -1503,12 +1529,24 @@ hyperGeometricEnrich <- function(...) {
 #' @param name to give to spatial enrichment results, default = PAGE
 #' @param verbose be verbose
 #' @param return_gobject return giotto object
-#' @return Giotto object or enrichment results if return_gobject = FALSE
+#' @returns Giotto object or enrichment results if return_gobject = FALSE
 #' @details For details see the individual functions:
 #'   * **PAGE:** \code{\link{runPAGEEnrich}}
 #'   * **Rank:** \code{\link{runRankEnrich}}
 #'   * **Hypergeometric:** \code{\link{runHyperGeometricEnrich}}
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- findMarkers_one_vs_all(g, 
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' 
+#' runSpatialEnrich(gobject = g, sign_matrix = sign_matrix)
 #' @export
 runSpatialEnrich <- function(gobject,
     spat_unit = NULL,
@@ -1631,6 +1669,7 @@ createSpatialEnrich <- function(...) {
 #' @param test_method method to test values for significance (default is no
 #' testing)
 #' @param verbose be verbose
+#' @returns spatial autocorrelation
 #' @description Find spatial autocorrelation. Note that
 #' \code{spatialAutoCorGlobal} will return values as a data.table instead of
 #' appending information to the gobject.
@@ -2418,6 +2457,7 @@ enrich_deconvolution <- function(expr,
 
 #' @title spot_deconvolution
 #' @description Rui to fill in
+#' @returns matrix
 #' @keywords internal
 spot_deconvolution <- function(expr,
     cluster_info,
@@ -2703,6 +2743,7 @@ find_dampening_constant <- function(S,
 
 #' @title solve_OLS_internal
 #' @description basic functions for dwls
+#' @returns numeric
 #' @keywords internal
 solve_OLS_internal <- function(S,
     B) {
@@ -2768,6 +2809,7 @@ solve_OLS_internal <- function(S,
 #
 #' @title solve_dampened_WLSj
 #' @description solve WLS given a dampening constant
+#' @returns matrix
 #' @keywords internal
 solve_dampened_WLSj <- function(S,
     B,
@@ -2993,8 +3035,20 @@ runDWLSDeconv <- function(gobject,
 #' @param cutoff cut off (default = 2)
 #' @param name name to give to spatial deconvolution results
 #' @param return_gobject return giotto object
-#' @return giotto object or deconvolution results
+#' @returns giotto object or deconvolution results
 #' @seealso \code{\link{runDWLSDeconv}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- findMarkers_one_vs_all(g, 
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
+#' 
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' 
+#' runSpatialDeconv(gobject = g, sign_matrix = sign_matrix)
 #' @export
 runSpatialDeconv <- function(gobject,
     spat_unit = NULL,

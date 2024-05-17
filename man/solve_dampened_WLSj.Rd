@@ -6,6 +6,9 @@
 \usage{
 solve_dampened_WLSj(S, B, goldStandard, j)
 }
+\value{
+matrix
+}
 \description{
 solve WLS given a dampening constant
 }

@@ -3,6 +3,7 @@
 #' @title Fisher exact test
 #' @name spat_fisher_exact
 #' @description Perform fisher exact test
+#' @returns A list with class "htest"
 NULL
 
 #' @rdname spat_fisher_exact
@@ -158,6 +159,7 @@ NULL
 #' @title Spatial odds-ratio
 #' @name spat_odds_ratio
 #' @description calculate odds-ratio
+#' @returns numeric
 NULL
 
 #' @rdname spat_odds_ratio
@@ -1269,7 +1271,8 @@ binSpectMulti <- function(gobject,
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            values = values
+            values = values,
+            output = "matrix"
         )
 
 
@@ -1570,7 +1573,11 @@ binSpectMultiMatrix <- function(expression_matrix,
 #' @param rbp_p fractional binarization threshold
 #' @param examine_top top fraction to evaluate with silhouette
 #' @param python_path specify specific path to python if required
-#' @return data.table with spatial scores
+#' @returns data.table with spatial scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' silhouetteRank(g)
 #' @export
 silhouetteRank <- function(gobject,
     expression_values = c("normalized", "scaled", "custom"),
@@ -1657,7 +1664,11 @@ silhouetteRank <- function(gobject,
 #' @param output output directory
 #' @param query_sizes size of query
 #' @param verbose be verbose
-#' @return data.table with spatial scores
+#' @returns data.table with spatial scores
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' silhouetteRankTest(g)
 #' @export
 silhouetteRankTest <- function(gobject,
     expression_values = c("normalized", "scaled", "custom"),
@@ -1835,10 +1846,14 @@ silhouetteRankTest <- function(gobject,
 #' \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
-#' @return a list of data.frames with results and plot (optional)
-#' @details This function is a wrapper for the SpatialDE method originally
+#' @returns a list of data.frames with results and plot (optional)
+#' @details This function is a wrapper for the SpatialDE method originally 
 #' implemented
 #' in python. See publication \doi{10.1038/nmeth.4636}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' spatialDE(g)
 #' @export
 spatialDE <- function(gobject = NULL,
     feat_type = NULL,
@@ -2009,9 +2024,13 @@ spatialDE <- function(gobject = NULL,
 #' @param l lengthscale
 #' @param python_path specify specific path to python if required
 #' @param return_gobject show plot
-#' @return An updated giotto object
-#' @details This function is a wrapper for the SpatialAEH method
+#' @returns An updated giotto object
+#' @details This function is a wrapper for the SpatialAEH method 
 #' implemented in the ...
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' spatialAEH(g)
 #' @export
 spatialAEH <- function(gobject = NULL,
     feat_type = NULL,
@@ -2188,10 +2207,14 @@ FSV_show <- function(results,
 #' BiocParallel
 #' @param \dots Additional parameters to the
 #' \code{\link[trendsceek]{trendsceek_test}} function
-#' @return data.frame with trendsceek spatial genes results
-#' @details This function is a wrapper for the trendsceek_test method
+#' @returns data.frame with trendsceek spatial genes results
+#' @details This function is a wrapper for the trendsceek_test method 
 #' implemented in the trendsceek package
 #' Publication: \doi{10.1038/nmeth.4634}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' trendSceek(g)
 #' @export
 trendSceek <- function(gobject,
     feat_type = NULL,
@@ -2298,8 +2321,9 @@ trendSceek <- function(gobject,
 #' @param return_object type of result to return (data.table or spark object)
 #' @param \dots Additional parameters to the \code{\link[SPARK]{spark.vc}}
 #' function
-#' @return data.table with SPARK spatial genes results or the SPARK object
-#' @details This function is a wrapper for the method implemented in the
+#' @returns data.table with SPARK spatial genes results or the SPARK object
+#' @details This function is a wrapper for the method implemented in the 
+#' SPARK package:
 #' \pkg{SPARK} package:
 #'   1. **CreateSPARKObject** create a SPARK object from a giotto object
 #'   2. **spark.vc** Fits the count-based spatial model to estimate the
@@ -2308,6 +2332,10 @@ trendSceek <- function(gobject,
 #'
 #' Publication: \doi{doi:10.1101/810903}
 #' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' spark(g)
 #' @export
 spark <- function(gobject,
     spat_loc_name = "raw",
@@ -2628,7 +2656,7 @@ detectSpatialPatterns <- function(gobject,
 #' \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
-#' @return ggplot
+#' @returns ggplot
 #' @export
 showPattern2D <- function(gobject,
     spatPatObj,
@@ -2712,7 +2740,7 @@ showPattern2D <- function(gobject,
 #' @param gobject giotto object
 #' @param spatPatObj Output from detectSpatialPatterns
 #' @inheritDotParams showPattern2D -gobject -spatPatObj
-#' @return ggplot
+#' @returns ggplot
 #' @seealso \code{\link{showPattern2D}}
 #' @export
 showPattern <- function(gobject, spatPatObj, ...) {
@@ -2742,7 +2770,7 @@ showPattern <- function(gobject, spatPatObj, ...) {
 #' \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
-#' @return plotly
+#' @returns plotly
 #' @export
 showPattern3D <- function(gobject,
     spatPatObj,
@@ -2860,7 +2888,7 @@ showPattern3D <- function(gobject,
 #' \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
-#' @return ggplot
+#' @returns ggplot
 #' @export
 showPatternGenes <- function(gobject,
     spatPatObj,
@@ -2939,7 +2967,7 @@ showPatternGenes <- function(gobject,
 #' @param min_neg_cor Minimum negative correlation score to include a gene.
 #' @param return_top_selection only return selection based on correlation
 #' criteria (boolean)
-#' @return Data.table with genes associated with selected dimension (PC).
+#' @returns Data.table with genes associated with selected dimension (PC).
 #' @details Description.
 #' @export
 selectPatternGenes <- function(spatPatObj,
@@ -3640,7 +3668,7 @@ detectSpatialCorGenes <- function(gobject,
 #' @param min_rank_diff filter on minimum correlation rank difference
 #' (spatial vs expression)
 #' @param show_top_feats show top features per gene
-#' @return data.table with filtered information
+#' @returns data.table with filtered information
 #' @export
 showSpatialCorFeats <- function(spatCorObject,
     use_clus_name = NULL,
@@ -3728,7 +3756,7 @@ showSpatialCorFeats <- function(spatCorObject,
 #' @param min_rank_diff filter on minimum correlation rank difference
 #' (spatial vs expression)
 #' @param show_top_genes show top genes per gene
-#' @return data.table with filtered information
+#' @returns data.table with filtered information
 #' @export
 showSpatialCorGenes <- function(spatCorObject,
     use_clus_name = NULL,
@@ -4316,9 +4344,16 @@ getBalancedSpatCoexpressionFeats <- function(spatCorObject,
 #' @param gradient_direction direction of gradient
 #' @param show_pattern show the discrete spatial pattern
 #' @param pattern_colors 2 color vector for the spatial pattern
-#' @param \dots additional parameters for (re-)normalizing
-#' @return Reprocessed Giotto object for which one gene has a forced
+#' @param normalization_params additional parameters for (re-)normalizing
+#' @returns Reprocessed Giotto object for which one gene has a forced 
 #' spatial pattern
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' simulateOneGenePatternGiottoObject(gobject = g, 
+#' pattern_cell_ids = c("AAAGGGATGTAGCAAG-1", "TCAAACAACCGCGTCG-1",
+#' "ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"),
+#' gene_name = "Gna12")
 #' @export
 simulateOneGenePatternGiottoObject <- function(gobject,
     pattern_name = "pattern",
@@ -4328,7 +4363,7 @@ simulateOneGenePatternGiottoObject <- function(gobject,
     gradient_direction = NULL,
     show_pattern = TRUE,
     pattern_colors = c("in" = "green", "out" = "red"),
-    ...) {
+    normalization_params = list()) {
     # data.table variables
     cell_ID <- sdimx_y <- sdimx <- sdimy <- NULL
 
@@ -4375,11 +4410,17 @@ simulateOneGenePatternGiottoObject <- function(gobject,
 
 
     ## normalized expression
-    expr_data <- newgobject@norm_expr
+    #expr_data <- newgobject@norm_expr
+    expr_data <- getExpression(gobject = newgobject, 
+                                values = "normalized",
+                                output = "matrix")
     result_list <- list()
 
     ## raw expression
-    raw_expr_data <- newgobject@raw_exprs
+    #raw_expr_data <- newgobject@raw_exprs
+    raw_expr_data <- getExpression(gobject = newgobject, 
+                                   values = "raw",
+                                   output = "matrix")
     raw_result_list <- list()
 
 
@@ -4465,10 +4506,19 @@ simulateOneGenePatternGiottoObject <- function(gobject,
 
     # change the original matrices
     raw_expr_data[rownames(raw_expr_data) == gene_name, ] <- new_sim_raw_values
-    newgobject@raw_exprs <- raw_expr_data
+    #newgobject@raw_exprs <- raw_expr_data
+    newgobject <- setExpression(gobject = newgobject,
+                                x = createExprObj(
+                                    expression_data = raw_expr_data,
+                                    name = "raw"),
+                                name = "raw",
+                                provenance = prov(getCellMetadata(newgobject)))
 
     # recalculate normalized values
-    newgobject <- normalizeGiotto(gobject = newgobject, ...)
+    newgobject <- do.call(
+        "normalizeGiotto", 
+        args = c(gobject = newgobject, normalization_params))
+    
     newgobject <- addStatistics(gobject = newgobject)
 
     return(newgobject)
@@ -4532,7 +4582,7 @@ run_spatial_sim_tests_one_rep <- function(gobject,
     # save plot
     if (save_plot == TRUE) {
         spatFeatPlot2D(simulate_patch,
-            expression_values = "norm",
+            expression_values = "normalized", 
             feats = gene_name,
             point_shape = "border",
             point_border_stroke = 0.1,
@@ -4553,7 +4603,8 @@ run_spatial_sim_tests_one_rep <- function(gobject,
         if (!file.exists(folder_path)) dir.create(folder_path, recursive = TRUE)
 
         write.table(
-            x = as.matrix(simulate_patch@raw_exprs),
+            x = as.matrix(getExpression(
+                gobject = simulate_patch, values = "raw", output = "matrix")),
             file = paste0(
                 save_dir, "/", pattern_name, "/", save_name, "_raw_data.txt"),
             sep = "\t"
@@ -4566,7 +4617,10 @@ run_spatial_sim_tests_one_rep <- function(gobject,
         if (!file.exists(folder_path)) dir.create(folder_path, recursive = TRUE)
 
         write.table(
-            x = as.matrix(simulate_patch@norm_expr),
+            x = as.matrix(getExpression(
+                gobject = simulate_patch, 
+                values = "normalized", 
+                output = "matrix")),
             file = paste0(
                 save_dir, "/", pattern_name, "/", save_name, "_norm_data.txt"),
             sep = "\t"
@@ -4657,16 +4711,16 @@ run_spatial_sim_tests_one_rep <- function(gobject,
                     selected_params
                 ))
 
-                spatial_gene_results <- spatial_gene_results[genes == gene_name]
+                spatial_gene_results <- spatial_gene_results[feats == gene_name]
                 total_time <- proc.time() - start
 
                 spatial_gene_results[, prob := spatial_prob]
                 spatial_gene_results[, time := total_time[["elapsed"]]]
 
                 spatial_gene_results <- spatial_gene_results[
-                    , .(genes, adj.p.value, prob, time)]
+                    , .(feats, adj.p.value, prob, time)]
                 colnames(spatial_gene_results) <- c(
-                    "genes", "adj.p.value", "prob", "time")
+                    "feats", "adj.p.value", "prob", "time")
 
                 spatial_gene_results[, method := selected_name]
             } else if (selected_method == "binSpect_multi") {
@@ -4677,21 +4731,23 @@ run_spatial_sim_tests_one_rep <- function(gobject,
                 ))
 
                 spatial_gene_results <- spatial_gene_results$simple
-                spatial_gene_results <- spatial_gene_results[genes == gene_name]
+                spatial_gene_results <- spatial_gene_results[feats == gene_name]
                 total_time <- proc.time() - start
 
                 spatial_gene_results[, prob := spatial_prob]
                 spatial_gene_results[, time := total_time[["elapsed"]]]
 
                 spatial_gene_results <- spatial_gene_results[
-                    , .(genes, p.val, prob, time)]
+                    , .(feats, p.val, prob, time)]
                 colnames(spatial_gene_results) <- c(
-                    "genes", "adj.p.value", "prob", "time")
+                    "feats", "adj.p.value", "prob", "time")
 
                 spatial_gene_results[, method := selected_name]
             } else if (selected_method == "spatialDE") {
                 start <- proc.time()
-                new_raw_sim_matrix <- simulate_patch@raw_exprs
+                new_raw_sim_matrix <- getExpression(simulate_patch,
+                                                    values = "raw",
+                                                    output = "matrix")
                 sd_cells <- apply(new_raw_sim_matrix, 2, sd)
                 sd_non_zero_cells <- names(sd_cells[sd_cells != 0])
                 simulate_patch_fix <- subsetGiotto(
@@ -4720,7 +4776,7 @@ run_spatial_sim_tests_one_rep <- function(gobject,
                 spatial_gene_results <- spatialDE_result[
                     , .(g, qval, prob, time)]
                 colnames(spatial_gene_results) <- c(
-                    "genes", "adj.p.value", "prob", "time")
+                    "feats", "adj.p.value", "prob", "time")
                 spatial_gene_results[, method := "spatialDE"]
             } else if (selected_method == "spark") {
                 ## spark
@@ -4809,11 +4865,11 @@ run_spatial_sim_tests_multi <- function(gobject,
     for (prob_ind in seq_along(spatial_probs)) {
         prob_i <- spatial_probs[prob_ind]
 
-        if (verbose) cat("start with ", prob_i)
+        if (verbose) message("start with ", prob_i)
 
         rep_list <- list()
         for (rep_i in 1:reps) {
-            if (verbose) cat("repetitiion = ", rep_i)
+            if (verbose) message("repetition = ", rep_i)
 
 
             plot_name <- paste0("plot_", gene_name, "_prob",
@@ -4887,7 +4943,13 @@ run_spatial_sim_tests_multi <- function(gobject,
 #' @param width width of final plots
 #' @param run_simulations run simulations (default = TRUE)
 #' @param \dots additional parameters for renormalization
-#' @return data.table with results
+#' @returns data.table with results
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runPatternSimulation(gobject = g, pattern_cell_ids = c("AAAGGGATGTAGCAAG-1",
+#' "TCAAACAACCGCGTCG-1", "ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"),
+#' spatial_network_name = "spatial_network", gene_names = c("Gna12", "Ccnd2"))
 #' @export
 runPatternSimulation <- function(gobject,
     pattern_name = "pattern",
@@ -4920,10 +4982,10 @@ runPatternSimulation <- function(gobject,
     example_patch <- simulateOneGenePatternGiottoObject(gobject,
         pattern_name = pattern_name,
         pattern_cell_ids = pattern_cell_ids,
-        gene_name = gene_names[[1]],
+        gene_name = gene_names[1],
         spatial_prob = 1,
-        scalefactor = scalefactor,
-        verbose = TRUE
+        normalization_params = list(scalefactor = scalefactor,
+                                    verbose = TRUE)
     )
 
     spatPlot2D(example_patch,
@@ -4946,7 +5008,7 @@ runPatternSimulation <- function(gobject,
         # plot original expression
         GiottoVisuals::spatFeatPlot2D(
             gobject = gobject,
-            expression_values = "norm",
+            expression_values = "normalized",
             feats = gene,
             point_shape = "border",
             point_border_stroke = 0.1,

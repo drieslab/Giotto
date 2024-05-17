@@ -2605,7 +2605,7 @@ doLouvainSubCluster <- function(gobject,
 #' @param network_name name of NN network to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param verbose verbose
-#' @return giotto object with new subclusters appended to cell metadata
+#' @returns giotto object with new subclusters appended to cell metadata
 #' @details This function performs subclustering on selected clusters.
 #' The systematic steps are:
 #' \itemize{
@@ -2618,6 +2618,10 @@ doLouvainSubCluster <- function(gobject,
 #' @seealso \code{\link{.doLouvainCluster_multinet}},
 #' \code{\link{.doLouvainCluster_community}}
 #' and  @seealso \code{\link{doLeidenCluster}}
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' subClusterCells(g, cluster_column = "leiden_clus")
 #' @export
 subClusterCells <- function(gobject,
     name = "sub_clus",

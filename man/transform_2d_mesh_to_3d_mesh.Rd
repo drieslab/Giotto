@@ -20,6 +20,9 @@ transform_2d_mesh_to_3d_mesh(
 
 \item{mesh_grid_n}{mesh_grid_n}
 }
+\value{
+3d mesh
+}
 \description{
 transform 2d mesh to 3d mesh by reversing PCA
 }

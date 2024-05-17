@@ -15,6 +15,9 @@ sampling_sp_genes(clust, sample_rate = 2, target = 500, seed = 10)
 
 \item{seed}{random seed}
 }
+\value{
+list
+}
 \description{
 function to select a set of spatial genes
 }

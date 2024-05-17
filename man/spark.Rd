@@ -51,6 +51,7 @@ Compute spatially expressed genes with SPARK method
 }
 \details{
 This function is a wrapper for the method implemented in the
+SPARK package:
 \pkg{SPARK} package:
 \enumerate{
 \item \strong{CreateSPARKObject} create a SPARK object from a giotto object
@@ -60,4 +61,9 @@ parameters, see \code{\link[SPARK]{spark.vc}} for additional parameters
 }
 
 Publication: \doi{doi:10.1101/810903}
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spark(g)
 }

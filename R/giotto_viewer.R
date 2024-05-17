@@ -4,7 +4,7 @@
 #' @param annotation annotation from the data.table from giotto object
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
-#' @return write a .txt and .annot file for the selection annotation
+#' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
 write_giotto_viewer_annotation <- function(annotation,
     annot_name = "test",
@@ -35,13 +35,13 @@ write_giotto_viewer_annotation <- function(annotation,
     annot_inf_name <- paste0(annot_name, "_annot_information", ".txt")
     write.table(annot_information,
         file = paste0(output_directory, "/", annot_inf_name),
-        quote = F, row.names = F, col.names = F, sep = " "
+        quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " "
     )
 
     annot_inf_map <- paste0(annot_name, "_annot_information", ".annot")
     write.table(annot_map,
         file = paste0(output_directory, "/", annot_inf_map),
-        quote = F, row.names = F, col.names = F, sep = "\t"
+        quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t"
     )
 }
 
@@ -52,7 +52,7 @@ write_giotto_viewer_annotation <- function(annotation,
 #' @param annotation annotation from the data.table from giotto object
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
-#' @return write a .txt and .annot file for the selection annotation
+#' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
 write_giotto_viewer_numeric_annotation <- function(annotation,
     annot_name = "test",
@@ -61,7 +61,7 @@ write_giotto_viewer_numeric_annotation <- function(annotation,
     annot_inf_map <- paste0(annot_name, "_num_annot_information", ".txt")
     write.table(annotation,
         file = paste0(output_directory, "/", annot_inf_map),
-        quote = F, row.names = F, col.names = F, sep = "\t"
+        quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t"
     )
 }
 
@@ -77,7 +77,7 @@ write_giotto_viewer_numeric_annotation <- function(annotation,
 #' @param dim_red_rounding numerical indicating how to round the coordinates
 #' @param dim_red_rescale numericals to rescale the coordinates
 #' @param output_directory directory where to save the files
-#' @return write a .txt and .annot file for the selection annotation
+#' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
 write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
     dim_red = NULL,
@@ -97,13 +97,14 @@ write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
 
         # rescale dimension reduction coordinates
         if (!is.null(dim_red_rescale) & length(dim_red_rescale) == 2) {
-            dim_red_coord <- scales::rescale(x = dim_red_coord, to = dim_red_rescale)
+            dim_red_coord <- scales::rescale(
+                x = dim_red_coord, to = dim_red_rescale)
         }
 
         dim_red_name <- paste0(dim_red, "_", dim_red_name, "_dim_coord.txt")
         write.table(dim_red_coord,
             file = paste0(output_directory, "/", dim_red_name),
-            quote = F, row.names = F, col.names = F, sep = " "
+            quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " "
         )
     }
 }
@@ -150,20 +151,23 @@ exportGiottoViewer <- function(gobject,
     dim_red_rescale = c(-20, 20),
     expression_rounding = 2,
     overwrite_dir = TRUE,
-    verbose = T) {
+    verbose = TRUE) {
     ## output directory ##
     if (file.exists(output_directory)) {
         if (overwrite_dir == TRUE) {
-            cat("\n output directory already exists, files will be overwritten \n")
+            message("output directory already exists, files will be 
+                    overwritten")
         } else {
-            stop("\n output directory already exists, change overwrite_dir = TRUE to overwrite files \n")
+            stop("output directory already exists, change overwrite_dir = TRUE 
+                to overwrite files \n")
         }
     } else if (is.null(output_directory)) {
-        cat("\n no output directory is provided, defaults to current directory: ", getwd(), "\n")
+        message("no output directory is provided, defaults to current 
+                directory: ", getwd(), "\n")
         output_directory <- getwd()
     } else {
-        cat("output directory is created \n")
-        dir.create(output_directory, recursive = T)
+        message("output directory is created")
+        dir.create(output_directory, recursive = TRUE)
     }
 
 

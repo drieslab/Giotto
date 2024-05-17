@@ -45,7 +45,12 @@ data.frame with trendsceek spatial genes results
 Compute spatial variable genes with trendsceek method
 }
 \details{
-This function is a wrapper for the trendsceek_test method
+This function is a wrapper for the trendsceek_test method 
 implemented in the trendsceek package
 Publication: \doi{10.1038/nmeth.4634}
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+trendSceek(g)
 }

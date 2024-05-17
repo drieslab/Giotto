@@ -16,6 +16,9 @@
   cores = NA
 )
 }
+\value{
+A list with class "htest"
+}
 \description{
 Perform fisher exact test
 }

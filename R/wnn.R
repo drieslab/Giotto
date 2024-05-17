@@ -13,7 +13,7 @@
 #' @param w_name_modality_2 name for modality 2 weights
 #' @param verbose be verbose
 #'
-#' @return A Giotto object with integrated UMAP (integrated.umap) within the 
+#' @returns A Giotto object with integrated UMAP (integrated.umap) within the 
 #' dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the 
 #' cellular metadata.
 #' @export
@@ -509,7 +509,7 @@ runWNN <- function(gobject,
 #' @param force force calculation of integrated kNN. Default = FALSE
 #' @param ... additional UMAP parameters
 #'
-#' @return A Giotto object with integrated UMAP
+#' @returns A Giotto object with integrated UMAP
 #' @export
 runIntegratedUMAP <- function(gobject,
     spat_unit = "cell",

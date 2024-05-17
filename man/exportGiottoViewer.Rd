@@ -20,7 +20,7 @@ exportGiottoViewer(
   dim_red_rescale = c(-20, 20),
   expression_rounding = 2,
   overwrite_dir = TRUE,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{

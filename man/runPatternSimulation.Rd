@@ -83,3 +83,10 @@ data.table with results
 Creates a known spatial pattern for selected genes one-by-one
 and runs the different spatial gene detection tests
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runPatternSimulation(gobject = g, pattern_cell_ids = c("AAAGGGATGTAGCAAG-1",
+"TCAAACAACCGCGTCG-1", "ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"),
+spatial_network_name = "spatial_network", gene_names = c("Gna12", "Ccnd2"))
+}

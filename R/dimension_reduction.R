@@ -339,7 +339,7 @@
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
-#' @return giotto object with updated PCA dimension recuction
+#' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
 #' \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' With the feats_to_use param, you can control which features are used to
@@ -355,6 +355,10 @@
 #' By default the number of principle components that we calculate is 100, which
 #' may not encompass all the variation within the dataset. Setting ncp to NULL
 #' will calculate all the principle components.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runPCA(g)
 #' @export
 runPCA <- function(gobject,
     spat_unit = NULL,
@@ -738,7 +742,7 @@ runPCA <- function(gobject,
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
-#' @return giotto object with updated PCA dimension recuction
+#' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and 
 #' \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' This PCA implementation is similar to  \code{\link{runPCA}}, except that it
@@ -751,6 +755,10 @@ runPCA <- function(gobject,
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually 
 #'   provided features
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runPCAprojection(g)
 #' @export
 runPCAprojection <- function(gobject,
     spat_unit = NULL,
@@ -960,7 +968,7 @@ runPCAprojection <- function(gobject,
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
-#' @return giotto object with updated PCA dimension reduction
+#' @returns giotto object with updated PCA dimension reduction
 #' @details See \code{\link[BiocSingular]{runPCA}} and 
 #' \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' This PCA implementation is similar to  \code{\link{runPCA}} and  
@@ -976,6 +984,10 @@ runPCAprojection <- function(gobject,
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually 
 #'   provided features
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runPCAprojectionBatch(g)
 #' @export
 runPCAprojectionBatch <- function(gobject,
     spat_unit = NULL,
@@ -1327,13 +1339,17 @@ runPCAprojectionBatch <- function(gobject,
 #' @param scale_unit scale features before PCA
 #' @param verbose be verbose
 #' @param ... additional arguments to pca function, see \code{\link{runPCA}}
-#' @return ggplot object for scree method
+#' @returns ggplot object for scree method
 #' @details
 #'  Screeplot works by plotting the explained variance of each
 #'  individual PC in a barplot allowing you to identify which PC provides a 
 #'  significant contribution (a.k.a 'elbow method'). \cr
 #'  Screeplot will use an available pca object, based on the parameter 'name', 
 #'  or it will create it if it's not available (see \code{\link{runPCA}})
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' screePlot(g)
 #' @export
 screePlot <- function(gobject,
     spat_unit = NULL,
@@ -1768,7 +1784,7 @@ create_jackstrawplot <- function(jackstraw_data,
 #' @param jack_threshold p-value threshold to call a PC significant
 #' @param jack_ylim y-axis limits on jackstraw plot
 #' @param verbose be verbose
-#' @return ggplot object for scree method and maxtrix of p-values for jackstraw
+#' @returns ggplot object for scree method and maxtrix of p-values for jackstraw
 #' @details Two different methods can be used to assess the number of relevant 
 #' or significant prinicipal components (PC's). \cr
 #'  1. Screeplot works by plotting the explained variance of each
@@ -1779,6 +1795,10 @@ create_jackstrawplot <- function(jackstraw_data,
 #'  function. By systematically permuting genes it identifies robust, and thus 
 #'  significant, PCs.
 #'  \cr
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' signPCA(g)
 #' @export
 signPCA <- function(gobject,
     feat_type = NULL,
@@ -1967,7 +1987,7 @@ signPCA <- function(gobject,
 #' @param toplevel_params parameters to extract
 #' @inheritDotParams uwot::umap -X -n_neighbors -n_components -n_epochs 
 #' -min_dist -n_threads -spread -seed -scale -pca -pca_center -pca_method
-#' @return giotto object with updated UMAP dimension reduction
+#' @returns giotto object with updated UMAP dimension reduction
 #' @details See \code{\link[uwot]{umap}} for more information about these and
 #' other parameters.
 #' \itemize{
@@ -1980,6 +2000,10 @@ signPCA <- function(gobject,
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of
 #'   the analysis
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runUMAP(g)
 #' @export
 runUMAP <- function(gobject,
     feat_type = NULL,
@@ -2227,7 +2251,7 @@ runUMAP <- function(gobject,
 #' @param verbose verbosity of function
 #' @param toplevel_params parameters to extract
 #' @param ... additional UMAP parameters
-#' @return giotto object with updated UMAP dimension reduction
+#' @returns giotto object with updated UMAP dimension reduction
 #' @details See \code{\link[uwot]{umap}} for more information about these and 
 #' other parameters.
 #' \itemize{
@@ -2237,6 +2261,10 @@ runUMAP <- function(gobject,
 #'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runUMAPprojection(g)
 #' @export
 runUMAPprojection <- function(gobject,
     feat_type = NULL,
@@ -2485,7 +2513,7 @@ runUMAPprojection <- function(gobject,
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional tSNE parameters
-#' @return giotto object with updated tSNE dimension recuction
+#' @returns giotto object with updated tSNE dimension recuction
 #' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and 
 #' other parameters. \cr
 #' \itemize{
@@ -2495,6 +2523,10 @@ runUMAPprojection <- function(gobject,
 #'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 #' }
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' 
+#' runtSNE(g)
 #' @export
 runtSNE <- function(gobject,
     spat_unit = NULL,

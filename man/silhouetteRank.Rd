@@ -43,3 +43,8 @@ function to represent the local physical distance between two cells.
 New multi aggregator implementation can be found at
 \code{\link{silhouetteRankTest}}
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+silhouetteRank(g)
+}

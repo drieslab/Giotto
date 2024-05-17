@@ -22,6 +22,9 @@ resizing annotations}
 
 \item{feat_type}{feature type}
 }
+\value{
+D3 JavaScript Sankey diagram
+}
 \description{
 showCellProportionSwitchedSanKey
 }

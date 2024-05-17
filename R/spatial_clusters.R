@@ -63,6 +63,7 @@
 #' clustering
 #' @param split_clus_name character. Name to assign the split cluster results
 #' information to split
+#' @returns cluster annotations
 #' @examples
 #' library(Giotto)
 #' g <- GiottoData::loadGiottoMini("vizgen")

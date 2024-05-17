@@ -62,7 +62,12 @@ a list of data.frames with results and plot (optional)
 Compute spatial variable genes with spatialDE method
 }
 \details{
-This function is a wrapper for the SpatialDE method originally
+This function is a wrapper for the SpatialDE method originally 
 implemented
 in python. See publication \doi{10.1038/nmeth.4636}
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+spatialDE(g)
 }

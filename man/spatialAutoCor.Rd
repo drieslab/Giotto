@@ -98,6 +98,9 @@ results}
 \item{output}{'spatEnrObj' or 'data.table'
 metadata in the giotto object or as a data.table}
 }
+\value{
+spatial autocorrelation
+}
 \description{
 Find spatial autocorrelation. Note that
 \code{spatialAutoCorGlobal} will return values as a data.table instead of

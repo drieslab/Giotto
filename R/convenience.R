@@ -642,7 +642,7 @@ addVisiumPolygons <- function(gobject,
 #' @name visium_micron_scalefactor
 #' @param json_scalefactors list of scalefactors from 
 #' .visium_read_scalefactors()
-#' @return scale factor for converting pixel to micron
+#' @returns scale factor for converting pixel to micron
 #' @details
 #' Calculates pixel to micron scalefactor.
 #' Visium xy coordinates are based on the fullres image
@@ -1679,6 +1679,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 #' subcellular feature detections by feature type. See details
 #' @inheritParams get10Xmatrix
 #' @inheritParams GiottoClass::createGiottoObjectSubcellular
+#' @returns giotto object
 #' @details
 #'
 #' [\strong{QC feature types}]

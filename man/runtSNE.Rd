@@ -82,3 +82,8 @@ other parameters. \cr
   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runtSNE(g)
+}
