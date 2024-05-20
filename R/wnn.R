@@ -549,7 +549,7 @@ runIntegratedUMAP <- function(gobject,
             shared <- NULL
         nn_network_dt <- data.table::data.table(
             from = rep(
-                1:nrow(nn_network$id),
+                seq_len(nrow(nn_network$id)),
                 k
             ),
             to = as.vector(nn_network$id),

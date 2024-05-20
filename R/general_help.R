@@ -137,7 +137,7 @@ extended_gini_fun <- function(x,
     length_x <- length(x)
 
     vector_x <- sort(x)
-    first_set <- vector_x[1:extreme_nr]
+    first_set <- vector_x[seq_len(extreme_nr)]
     last_set <- vector_x[(length_x - (extreme_nr - 1)):length_x]
     random_set <- sample(
         vector_x[(extreme_nr + 1):(length_x - extreme_nr)], size = sample_nr)
@@ -309,7 +309,8 @@ convertEnsemblToGeneSymbol <- function(matrix,
             mgi_symbol == "", ensembl_gene_id, gene_symbol)]
         gene_names_DT[, gene_symbol := ifelse(
             gene_symbol == "temporary", 
-            paste0(mgi_symbol, "--", 1:.N), gene_symbol), by = mgi_symbol]
+            paste0(mgi_symbol, "--", seq_len(.N)), gene_symbol), 
+            by = mgi_symbol]
 
         # filter
         matrix <- matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
@@ -348,7 +349,8 @@ convertEnsemblToGeneSymbol <- function(matrix,
             hgnc_symbol == "", ensembl_gene_id, gene_symbol)]
         gene_names_DT[, gene_symbol := ifelse(
             gene_symbol == "temporary", 
-            paste0(hgnc_symbol, "--", 1:.N), gene_symbol), by = hgnc_symbol]
+            paste0(hgnc_symbol, "--", seq_len(.N)), gene_symbol), 
+            by = hgnc_symbol]
 
         # filter
         matrix <- matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
@@ -464,7 +466,7 @@ get10Xmatrix <- function(path_to_data,
     barcodesDT <- data.table::fread(
         input = paste0(path_to_data, "/", barcodes_file), header = FALSE)
     barcodes_vec <- barcodesDT$V1
-    names(barcodes_vec) <- 1:nrow(barcodesDT)
+    names(barcodes_vec) <- seq_len(nrow(barcodesDT))
 
     # get features and create vector
     features_file <- grep(files_10X, pattern = "features|genes", value = TRUE)
@@ -477,10 +479,10 @@ get10Xmatrix <- function(path_to_data,
 
     featuresDT[, total := .N, by = get(g_name)]
     featuresDT[, gene_symbol := ifelse(
-        total > 1, paste0(get(g_name), "--", 1:.N), 
+        total > 1, paste0(get(g_name), "--", seq_len(.N)), 
         get(g_name)), by = get(g_name)]
     features_vec <- featuresDT$gene_symbol
-    names(features_vec) <- 1:nrow(featuresDT)
+    names(features_vec) <- seq_len(nrow(featuresDT))
 
     # get matrix
     matrix_file <- grep(files_10X, pattern = "matrix", value = TRUE)
@@ -593,7 +595,7 @@ get10Xmatrix_h5 <- function(path_to_data,
     # data.table variables
     nr_name <- name <- uniq_name <- NULL
 
-    features_dt[, nr_name := 1:.N, by = name]
+    features_dt[, nr_name := seq_len(.N), by = name]
     features_dt[, uniq_name := ifelse(
         nr_name == 1, name, paste0(name, "_", (nr_name - 1)))]
 
