@@ -520,7 +520,7 @@ createCrossSection <- function(gobject,
 
     spatial_locations <- as.matrix(spatial_locations)
     rownames(spatial_locations) <- cell_IDs
-    cell_ID_vec <- c(1:nrow(spatial_locations))
+    cell_ID_vec <- seq_len(nrow(spatial_locations))
     names(cell_ID_vec) <- rownames(spatial_locations)
 
     # generate section plane equation
@@ -542,7 +542,7 @@ createCrossSection <- function(gobject,
             message("either point or norm vector was not provided.")
         } else {
             plane_equation <- c()
-            plane_equation[1:3] <- normVector
+            plane_equation[seq_len(3)] <- normVector
             plane_equation[4] <- -point1 %*% normVector
         }
     } else if (method == "point and two plane vectors") {
@@ -551,7 +551,7 @@ createCrossSection <- function(gobject,
                     provided.")
         } else {
             normVector <- crossprod(planeVector1, planeVector2)
-            plane_equation[1:3] <- normVector
+            plane_equation[seq_len(3)] <- normVector
             plane_equation[4] <- -point1 %*% normVector
         }
     } else if (method == "3 points") {
@@ -561,7 +561,7 @@ createCrossSection <- function(gobject,
             planeVector1 <- point2 - point1
             planeVector2 <- point3 - point1
             normVector <- crossprod(planeVector1, planeVector2)
-            plane_equation[1:3] <- normVector
+            plane_equation[seq_len(3)] <- normVector
             plane_equation[4] <- -point1 %*% normVector
         }
     }
@@ -584,7 +584,7 @@ createCrossSection <- function(gobject,
         spatial_locations, as.matrix(rep(1, dim(spatial_locations)[1])))
     norm_vec <- function(x) sqrt(sum(x^2))
     distance_to_plane_vector <- abs(spatial_locations_mat %*% as.matrix(
-        plane_equation) / norm_vec(plane_equation[1:3]))
+        plane_equation) / norm_vec(plane_equation[seq_len(3)]))
 
     # select cells within section ###
     cell_subset <- distance_to_plane_vector <= max_distance_to_section_plane
@@ -604,7 +604,7 @@ createCrossSection <- function(gobject,
     cell_subset_projection_locations <- t(apply(
         cell_subset_spatial_locations, 1, 
         function(x) projection_fun(x, plane_point = plane_point, 
-                                plane_norm = plane_equation[1:3])))
+                                plane_norm = plane_equation[seq_len(3)])))
 
     # get the local coordinates of selected cells on the section plane
     cell_subset_projection_PCA <- stats::prcomp(

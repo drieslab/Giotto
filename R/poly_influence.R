@@ -179,12 +179,12 @@ showPolygonSizeInfluence <- function(gobject = NULL,
     k_clusters <- sort(unique(cell_meta[[clus_name]]))
     num_clusters <- k_clusters[length(k_clusters)]
 
-    k_match_clusters <- 1:num_clusters
+    k_match_clusters <- seq_len(num_clusters)
     switch_strs <- c()
-    for (i in 1:num_clusters) {
+    for (i in seq_len(num_clusters)) {
         thresh <- 0
         clus_match <- NULL
-        for (j in 1:num_clusters) {
+        for (j in seq_len(num_clusters)) {
             c_df <- cell_meta[cell_meta[[clus_name]] == i]$cell_ID
             nc_df <- cell_meta_new[cell_meta_new[[clus_name]] == j]$cell_ID
 
@@ -198,7 +198,7 @@ showPolygonSizeInfluence <- function(gobject = NULL,
         k_match_clusters[i] <- clus_match
     }
 
-    for (idx in 1:num_clusters) {
+    for (idx in seq_len(num_clusters)) {
         p1 <- k_clusters[[idx]]
         p2 <- k_match_clusters[[idx]]
         switch_strs <- c(switch_strs, paste0(p1, "-", p2))
@@ -436,7 +436,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
     idx1 <- 1
     idx2 <- 1
 
-    for (i in 1:flen) {
+    for (i in seq_len(flen)) {
         c_k1[i] <- k1[idx1] - 1 # java zero-index
         c_k2[i] <- k2[idx2] - 1 # java zero-index
 
@@ -447,7 +447,7 @@ showCellProportionSwitchedSanKey <- function(gobject = NULL,
 
     num_occ <- c()
 
-    for (i in 1:flen) {
+    for (i in seq_len(flen)) {
         num_occ[i] <- dim(na.omit(merged_cmeta[kmeans == (c_k1[i] + 1)][
             merged_cmeta[kmeans_small == (c_k2[i] + 1)]]))[[1]]
     }

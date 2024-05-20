@@ -341,7 +341,7 @@ makeSignMatrixRank <- function(sc_matrix,
     sign_matrix <- sig_gene[interGene, available_ct]
 
     ct_gene_counts <- NULL
-    for (i in 1:dim(sign_matrix)[2]) {
+    for (i in seq_len(dim(sign_matrix)[2])) {
         a <- length(which(sign_matrix[, i] == 1))
         ct_gene_counts <- c(ct_gene_counts, a)
     }
@@ -352,7 +352,7 @@ makeSignMatrixRank <- function(sc_matrix,
         gene_num <- uniq_ct_gene_counts[i]
         all_sample_names <- NULL
         all_sample_list <- NULL
-        for (j in 1:ntimes) {
+        for (j in seq_len(ntimes)) {
             set.seed(j)
             random_gene <- sample(rownames(
                 gobject@expression$rna$normalized), gene_num, replace = FALSE)
@@ -466,7 +466,7 @@ runPAGEEnrich_OLD <- function(gobject,
     # get enrichment scores
     enrichment <- matrix(
         data = NA, nrow = dim(filterSig)[2], ncol = length(cellColMean))
-    for (i in (1:dim(filterSig)[2])) {
+    for (i in seq_len(dim(filterSig)[2])) {
         signames <- rownames(filterSig)[which(filterSig[, i] == 1)]
         sigColMean <- apply(geneFold[signames, ], 2, mean)
         m <- length(signames)
@@ -527,7 +527,7 @@ runPAGEEnrich_OLD <- function(gobject,
             ntimes = n_times
         )
 
-        for (i in 1:dim(filter_sign_matrix)[2]) {
+        for (i in seq_len(dim(filter_sign_matrix)[2])) {
             length_gene <- length(which(filter_sign_matrix[, i] == 1))
             join_gene_with_length <- paste("gene_num_", length_gene, sep = "")
             mean_i <- as.numeric(as.character(
@@ -613,7 +613,7 @@ runPAGEEnrich_OLD <- function(gobject,
 
     lost_cell_types_DT <- detected_DT[V1 <= min_overlap_genes]
     if (nrow(lost_cell_types_DT) > 0) {
-        for (row in 1:nrow(lost_cell_types_DT)) {
+        for (row in seq_len(nrow(lost_cell_types_DT))) {
             output <- paste0(
               "Warning, ", lost_cell_types_DT[row][["Var2"]], " only has ",
               lost_cell_types_DT[row][["V1"]],
@@ -684,13 +684,13 @@ runPAGEEnrich_OLD <- function(gobject,
         ## 2. first create the random samples all together ##
         cell_type_list <- list()
         perm_type_list <- list()
-        for (row in 1:nrow(sample_intrs)) {
+        for (row in seq_len(nrow(sample_intrs))) {
             cell_type <- sample_intrs[row][["cell_type"]]
             nr_genes <- as.numeric(sample_intrs[row][["nr_markers"]])
 
             gene_list <- list()
             perm_list <- list()
-            for (i in 1:n_times) {
+            for (i in seq_len(n_times)) {
                 sampled_genes <- sample(rownames(expr_values), size = nr_genes)
                 gene_list[[i]] <- sampled_genes
                 perm_list[[i]] <- rep(paste0("p_", i), nr_genes)
@@ -728,7 +728,7 @@ runPAGEEnrich_OLD <- function(gobject,
         all_perms <- unique(perm_round)
         all_perms_num <- seq_along(all_perms)
         names(all_perms_num) <- all_perms
-        group_labels <- paste0("group_", 1:nr_groups)
+        group_labels <- paste0("group_", seq_len(nr_groups))
         groups_vec <- cut(
             all_perms_num, breaks = nr_groups, labels = group_labels)
         names(all_perms) <- groups_vec
@@ -999,7 +999,7 @@ PAGEEnrich <- function(...) {
 #' @keywords internal
 .do_rank_permutation <- function(sc_gene, n) {
     random_df <- data.frame(matrix(ncol = n, nrow = length(sc_gene)))
-    for (i in 1:n) {
+    for (i in seq_len(n)) {
         set.seed(i)
         random_rank <- sample(
             seq_along(sc_gene), length(sc_gene), replace = FALSE)
@@ -1145,7 +1145,7 @@ runRankEnrich <- function(gobject,
     rownames(rankFold) <- rownames(expr_values[])
     colnames(rankFold) <- colnames(expr_values[])
 
-    for (i in (1:dim(sign_matrix)[2])) {
+    for (i in seq_len(dim(sign_matrix)[2])) {
         signames <- rownames(sign_matrix)[which(sign_matrix[, i] > 0)]
         interGene <- intersect(signames, rownames(rankFold))
         filterSig <- sign_matrix[interGene, ]
@@ -1156,9 +1156,9 @@ runRankEnrich <- function(gobject,
 
         vectorX <- rep(NA, dim(filterRankFold)[2])
 
-        for (j in (1:dim(filterRankFold)[2])) {
+        for (j in seq_len(dim(filterRankFold)[2])) {
             toprpb <- sort(rpb[, j], decreasing = TRUE)
-            zscore <- sum(toprpb[1:num_agg])
+            zscore <- sum(toprpb[seq_len(num_agg)])
             vectorX[j] <- zscore
         }
         enrichment[i, ] <- vectorX
@@ -1387,12 +1387,12 @@ runHyperGeometricEnrich <- function(gobject,
         ncol = dim(expbinaryOverlap)[2]
     )
 
-    for (i in (1:dim(inter_sign_matrix)[2])) {
+    for (i in seq_len(dim(inter_sign_matrix)[2])) {
         signames <- rownames(inter_sign_matrix)[
             which(inter_sign_matrix[, i] == 1)]
         vectorX <- NULL
 
-        for (j in (1:dim(expbinaryOverlap)[2])) {
+        for (j in seq_len(dim(expbinaryOverlap)[2])) {
             cellsiggene <- names(expbinaryOverlap[
                 which(expbinaryOverlap[, j] == 1), j])
             x <- length(intersect(cellsiggene, signames))
@@ -2505,7 +2505,7 @@ spot_deconvolution <- function(expr,
             constant_J <- find_dampening_constant(
                 select_sig_exp, all_exp, solution_all_exp)
             ###### deconvolution for each spot
-            for (k in 1:(dim(cluster_cell_exp)[2])) {
+            for (k in seq_len(dim(cluster_cell_exp)[2])) {
                 B <- Matrix::as.matrix(cluster_cell_exp[, k])
                 ct_spot_k <- rownames(cluster_i_matrix)[
                     which(cluster_i_matrix[, k] == 1)]
@@ -2598,7 +2598,7 @@ enrich_analysis <- function(expr_values,
     # get enrichment scores
     enrichment <- matrix(
         data = NA, nrow = dim(filterSig)[2], ncol = length(cellColMean))
-    for (i in (1:dim(filterSig)[2])) {
+    for (i in seq_len(dim(filterSig)[2])) {
         signames <- rownames(filterSig)[which(filterSig[, i] == 1)]
         sigColMean <- apply(geneFold[signames, ], 2, mean)
         m <- length(signames)
@@ -2637,7 +2637,7 @@ optimize_deconvolute_dwls <- function(exp,
     solution_all_exp <- solve_OLS_internal(S, all_exp[Genes])
 
     constant_J <- find_dampening_constant(S, all_exp[Genes], solution_all_exp)
-    for (j in 1:(dim(subBulk)[2])) {
+    for (j in seq_len(dim(subBulk)[2])) {
         B <- subBulk[, j]
         if (sum(B) > 0) {
             solDWLS <- optimize_solveDampenedWLS(S, B, constant_J)
@@ -2715,13 +2715,13 @@ find_dampening_constant <- function(S,
     # try multiple values of the dampening constant (multiplier)
     # for each, calculate the variance of the dampened weighted solution for
     # a subset of genes
-    for (j in 1:ceiling(log2(max(wsScaledMinusInf)))) {
+    for (j in seq_len(ceiling(log2(max(wsScaledMinusInf))))) {
         multiplier <- 1 * 2^(j - 1)
         wsDampened <- wsScaled
         wsDampened[which(wsScaled > multiplier)] <- multiplier
         solutions <- NULL
-        seeds <- c(1:100)
-        for (i in 1:100) {
+        seeds <- seq_len(100)
+        for (i in seq_len(100)) {
             set.seed(seeds[i]) # make nondeterministic
             subset <- sample(length(ws), size = length(ws) * 0.5)
             # randomly select half of gene set

@@ -113,7 +113,7 @@ doLeidenCluster <- function(gobject,
     if (isTRUE(set_seed)) {
         seed_number <- as.integer(seed_number)
     } else {
-        seed_number <- as.integer(sample(x = 1:10000, size = 1))
+        seed_number <- as.integer(sample(x = seq_len(10000), size = 1))
     }
 
     ## extract NN network
@@ -551,7 +551,7 @@ doGiottoClustree <- function(gobject,
     if (isTRUE(set_seed)) {
         seed_number <- as.integer(seed_number)
     } else {
-        seed_number <- as.integer(sample(x = 1:10000, size = 1))
+        seed_number <- as.integer(sample(x = seq_len(10000), size = 1))
     }
 
     network_edge_dt <- data.table::as.data.table(igraph::as_data_frame(
@@ -1102,9 +1102,9 @@ doSNNCluster <- function(gobject,
     cell_id_numeric <- unique(x = c(igraph_DT$from, igraph_DT$to))
     names(cell_id_numeric) <- seq_along(cell_id_numeric)
     igraph_DT[, from_T := as.numeric(names(cell_id_numeric[
-        cell_id_numeric == from])), by = 1:nrow(igraph_DT)]
+        cell_id_numeric == from])), by = seq_len(nrow(igraph_DT))]
     igraph_DT[, to_T := as.numeric(names(cell_id_numeric[
-        cell_id_numeric == to])), by = 1:nrow(igraph_DT)]
+        cell_id_numeric == to])), by = seq_len(nrow(igraph_DT))]
     temp_igraph_DT <- igraph_DT[, .(from_T, to_T, weight, distance)]
     data.table::setnames(
         temp_igraph_DT, old = c("from_T", "to_T"), new = c("from", "to"))
@@ -1116,7 +1116,7 @@ doSNNCluster <- function(gobject,
     )
 
     ident_clusters_DT <- data.table::data.table(
-        "cell_ID" = cell_id_numeric[1:nrow(kNN_object$dist)],
+        "cell_ID" = cell_id_numeric[seq_len(nrow(kNN_object$dist))],
         "name" = sNN_clusters$cluster)
     data.table::setnames(ident_clusters_DT, "name", name)
 
@@ -1247,7 +1247,7 @@ doKmeans <- function(gobject,
         )
 
         dimensions_to_use <- dimensions_to_use[
-            dimensions_to_use %in% 1:ncol(dim_coord[])]
+            dimensions_to_use %in% seq_len(ncol(dim_coord[]))]
         matrix_to_use <- dim_coord[][, dimensions_to_use]
     } else {
         values <- match.arg(
@@ -1470,7 +1470,7 @@ doHclust <- function(gobject,
         )
 
         dimensions_to_use <- dimensions_to_use[
-            dimensions_to_use %in% 1:ncol(dim_coord)]
+            dimensions_to_use %in% seq_len(ncol(dim_coord))]
         matrix_to_use <- dim_coord[, dimensions_to_use]
     } else {
         ## using original matrix ##
@@ -2813,7 +2813,8 @@ getClusterSimilarity <- function(gobject,
     cor_table[, c("group1", "group2") := list(
         as.character(group1), as.character(group2))]
     cor_table[, unified_group := paste(
-        sort(c(group1, group2)), collapse = "--"), by = 1:nrow(cor_table)]
+        sort(c(group1, group2)), collapse = "--"), 
+        by = seq_len(nrow(cor_table))]
     cor_table <- cor_table[!duplicated(cor_table[, .(value, unified_group)])]
 
     cor_table <- merge(
@@ -2933,7 +2934,7 @@ mergeClusters <- function(gobject,
     ## get list of correlated groups
     finallist <- list()
     start_i <- 1
-    for (row in 1:nrow(filter_set)) {
+    for (row in seq_len(nrow(filter_set))) {
         first_clus <- filter_set[row][["group1"]]
         second_clus <- filter_set[row][["group2"]]
 
@@ -2971,7 +2972,7 @@ mergeClusters <- function(gobject,
         as.character(get(cluster_column)) %in% finalvec,
         names(finalvec[finalvec == as.character(get(cluster_column))]),
         as.character(get(cluster_column))
-    ), by = 1:nrow(metadata)]
+    ), by = seq_len(nrow(metadata))]
 
 
 
@@ -3205,7 +3206,7 @@ getDendrogramSplits <- function(gobject,
     splitDT <- data.table::as.data.table(t_flex(
         data.table::as.data.table(splitList[[2]])))
     colnames(splitDT) <- c("node_h", "tree_1", "tree_2")
-    splitDT[, nodeID := paste0("node_", 1:.N)]
+    splitDT[, nodeID := paste0("node_", seq_len(.N))]
 
     return(splitDT)
 }
@@ -3317,7 +3318,7 @@ doClusterProjection <- function(target_gobject,
 
     dim_coord <- dim_obj[]
     dimensions_to_use <- dimensions_to_use[
-        dimensions_to_use %in% 1:ncol(dim_coord)]
+        dimensions_to_use %in% seq_len(ncol(dim_coord))]
     matrix_to_use <- dim_coord[, dimensions_to_use]
 
     ## create the training and testset from the matrix

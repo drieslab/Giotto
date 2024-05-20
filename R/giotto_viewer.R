@@ -85,7 +85,8 @@ write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
     dim_red_rounding = NULL,
     dim_red_rescale = c(-20, 20),
     output_directory = getwd()) {
-    dim_red_coord <- dim_reduction_cell[[dim_red]][[dim_red_name]]$coordinates[, 1:2]
+    dim_red_coord <- dim_reduction_cell[[dim_red]][[
+        dim_red_name]]$coordinates[, seq_len(2)]
 
     if (is.null(dim_red_coord)) {
         cat("\n combination of ", dim_red, " and ", dim_red_name, " does not exist \n")
@@ -356,7 +357,7 @@ exportGiottoViewer <- function(gobject,
         expr_values <- as.matrix(expr_values)
 
         # swap cell_IDs for numerical values
-        colnames(expr_values) <- 1:ncol(expr_values)
+        colnames(expr_values) <- seq_len(ncol(expr_values))
         # round values
         if (!is.null(expression_rounding)) {
             expr_values <- round(x = expr_values, digits = expression_rounding)

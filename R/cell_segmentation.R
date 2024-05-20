@@ -51,10 +51,10 @@ doCellSegmentation <- function(raster_img,
     # sliding window
     start_x <- 0
     end_x <- start_x + tile_dim
-    for (i in 1:nxwindow) {
+    for (i in seq_len(nxwindow)) {
         start_y <- 0
         end_y <- start_y + tile_dim
-        for (j in 1:nywindow) {
+        for (j in seq_len(nywindow)) {
             ext_crop <- terra::ext(c(start_x, end_x, start_y, end_y))
             img_crop <- terra::crop(raster_img, ext_crop, snap = "in")
             img_crop_rescaled <- terra::aggregate(img_crop, reduce_resolution)

@@ -164,9 +164,9 @@ NULL
     proximity_dt[, V1 := internal + external]
 
     proximity_dt[, s1 := strsplit(as.character(
-        unified_int), split = "--")[[1]][1], by = 1:nrow(proximity_dt)]
+        unified_int), split = "--")[[1]][1], by = seq_len(nrow(proximity_dt))]
     proximity_dt[, s2 := strsplit(as.character(
-        unified_int), split = "--")[[1]][2], by = 1:nrow(proximity_dt)]
+        unified_int), split = "--")[[1]][2], by = seq_len(nrow(proximity_dt))]
     proximity_dt[, type_int := ifelse(s1 == s2, "homo", "hetero")]
     proximity_dt <- proximity_dt[
         , c("unified_int", "type_int", "V1", "external", "internal")]
@@ -300,7 +300,7 @@ cellProximityEnrichmentSpots <- function(gobject,
     # method for get simulation cell-type/cell-type interaction for each round
     data.table::setnames(sample_dt, old = c("s1", "s2"), new = c("from", "to"))
     table_sim_results <- NULL
-    for (sim in 1:number_of_simulations) {
+    for (sim in seq_len(number_of_simulations)) {
         r <- paste0("sim", sim)
         sim_pairs <- sample_dt[round == r, c("from", "to")]
 
@@ -417,7 +417,7 @@ cellProximityEnrichmentSpots <- function(gobject,
 
     # order
     table_mean_results_dc <- table_mean_results_dc[order(-PI_value)]
-    table_mean_results_dc[, int_ranking := 1:.N]
+    table_mean_results_dc[, int_ranking := seq_len(.N)]
 
     return(list(
         raw_sim_table = table_results, enrichm_res = table_mean_results_dc))
@@ -472,7 +472,7 @@ featExpDWLS <- function(gobject,
     )
 
     average_exp <- as.matrix(ave_celltype_exp)
-    for (spot_i in 1:nrow(dwls_values)) {
+    for (spot_i in seq_len(nrow(dwls_values))) {
         spot <- dwls_values[spot_i, 1]
         spot_dwls <- dwls_values[spot_i, -1]
         data.table::setDF(spot_dwls)
@@ -602,7 +602,8 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     cts <- colnames(dwls_values)
     ct_pairs <- data.table::data.table(
         V1 = rep(cts, each = length(cts)), V2 = rep(cts, length(cts)))
-    ct_pairs[, unified_int := paste0(V1, "--", V2), by = 1:nrow(ct_pairs)]
+    ct_pairs[, unified_int := paste0(V1, "--", V2), 
+            by = seq_len(nrow(ct_pairs))]
     unified_int <- ct_pairs$unified_int
 
 
@@ -835,7 +836,7 @@ NULL
         seed_number_list <- seed_number:(seed_number + (n - 1))
     }
 
-    result <- lapply_flex(X = 1:n, cores = cores, fun = function(x) {
+    result <- lapply_flex(X = seq_len(n), cores = cores, fun = function(x) {
         seed_number <- seed_number_list[x]
 
         perm_rand <- .do_permuttest_random_spot(
@@ -1169,9 +1170,9 @@ findICFSpot <- function(gobject,
     # compute correlation between features and cell-types to find ICFs
     all_ints <- data.table::data.table(unified_int = rownames(proximityMat))
     all_ints[, cell_type := strsplit(
-        as.character(unified_int), "--")[[1]][1], by = 1:nrow(all_ints)]
+        as.character(unified_int), "--")[[1]][1], by = seq_len(nrow(all_ints))]
     all_ints[, int_cell_type := strsplit(
-        as.character(unified_int), "--")[[1]][2], by = 1:nrow(all_ints)]
+        as.character(unified_int), "--")[[1]][2], by = seq_len(nrow(all_ints))]
 
     # exact spatial_enrichment matrix
     dwls_values <- getSpatialEnrichment(
@@ -1421,7 +1422,7 @@ plotICFSpot <- function(gobject,
         cell_type == source_type][int_cell_type %in% neighbor_types]
     tempDT[, features := factor(feats, levels = detected_features)]
     tempDT[, group := names(ICF_features[
-        ICF_features == feats]), by = 1:nrow(tempDT)]
+        ICF_features == feats]), by = seq_len(nrow(tempDT))]
 
 
     if (is.null(cell_color_code)) {
@@ -1943,7 +1944,7 @@ plotCellProximityFeatSpot <- function(gobject,
         all_cell_ids <- colnames(expr_residual)
 
         ## simulations ##
-        for (sim in 1:random_iter) {
+        for (sim in seq_len(random_iter)) {
             if (verbose == TRUE) cat("simulation ", sim, "\n")
 
             # get random ids and subset
@@ -2192,14 +2193,14 @@ spatCellCellcomSpots <- function(gobject,
     ## get all combinations between cell types
     combn_DT <- data.table::data.table(LR_cell_comb = rownames(proximityMat))
     combn_DT[, V1 := strsplit(
-        LR_cell_comb, "--")[[1]][1], by = 1:nrow(combn_DT)]
+        LR_cell_comb, "--")[[1]][1], by = seq_len(nrow(combn_DT))]
     combn_DT[, V2 := strsplit(
-        LR_cell_comb, "--")[[1]][2], by = 1:nrow(combn_DT)]
+        LR_cell_comb, "--")[[1]][2], by = seq_len(nrow(combn_DT))]
 
     ## parallel option ##
     if (do_parallel == TRUE) {
         savelist <- lapply_flex(
-            X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
+            X = seq_len(nrow(combn_DT)), cores = cores, fun = function(row) {
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
@@ -2229,7 +2230,7 @@ spatCellCellcomSpots <- function(gobject,
         savelist <- list()
         countdown <- nrow(combn_DT)
 
-        for (row in 1:nrow(combn_DT)) {
+        for (row in seq_len(nrow(combn_DT))) {
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 

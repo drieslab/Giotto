@@ -346,7 +346,7 @@ NULL
 
     spatial_network_min <- spatial_network[, .(from, to)]
 
-    all_colindex <- 1:ncol(bin_matrix)
+    all_colindex <- seq_len(ncol(bin_matrix))
     names(all_colindex) <- colnames(bin_matrix)
 
     # code for possible combinations
@@ -358,7 +358,7 @@ NULL
         data = NA, nrow = nrow(bin_matrix), ncol = nrow(spatial_network_min))
 
     ## 1. summarize results for each edge in the network
-    for (row_i in 1:nrow(spatial_network_min)) {
+    for (row_i in seq_len(nrow(spatial_network_min))) {
         from_id <- spatial_network_min[row_i][["from"]]
         to_id <- spatial_network_min[row_i][["to"]]
 
@@ -378,7 +378,7 @@ NULL
 
     ## 2. calculate the frequencies of possible combinations ##
     # '0-0' = 1, '0-1' = 2, '1-0' = 3 and '1-1' = 4
-    for (row_i in 1:nrow(matrix_res)) {
+    for (row_i in seq_len(nrow(matrix_res))) {
         x <- matrix_res[row_i, ]
         x <- factor(x, levels = c(1, 2, 3, 4))
         tabres <- as.vector(table(x))
@@ -387,7 +387,7 @@ NULL
     }
 
     rownames(table_res) <- rownames(matrix_res)
-    colnames(table_res) <- 1:4
+    colnames(table_res) <- seq_len(4)
 
     rable_resDT <- data.table::as.data.table(table_res)
     rable_resDT[, feats := rownames(table_res)]
@@ -542,13 +542,14 @@ NULL
     }
 
     groups <- ceiling(nrow(bin_matrix) / group_size)
-    cut_groups <- cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
+    cut_groups <- cut(seq_len(nrow(bin_matrix)), breaks = groups, 
+                    labels = seq_len(groups))
     if (any(table(cut_groups) == 1)) {
         stop("With group size = ", group_size,
             " you have a single gene in a group. Manually pick another group
             size")
     }
-    indexes <- 1:nrow(bin_matrix)
+    indexes <- seq_len(nrow(bin_matrix))
     names(indexes) <- cut_groups
 
 
@@ -2400,7 +2401,7 @@ spark <- function(gobject,
     ## create SPARK object for analysis and filter out lowly expressed genes
     sobject <- SPARK::CreateSPARKObject(
         counts = expr,
-        location = locs[, 1:2],
+        location = locs[, seq_len(2)],
         percentage = percentage,
         min_total_counts = min_count
     )
@@ -2924,7 +2925,7 @@ showPatternGenes <- function(gobject,
         !is.na(get(selected_PC))][order(get(selected_PC))]
 
     subset <- gene_cor_DT[
-        c(1:top_neg_genes, (nrow(
+        c(seq_len(top_neg_genes), (nrow(
             gene_cor_DT) - top_pos_genes):nrow(gene_cor_DT))]
     subset[, gene_ID := factor(gene_ID, gene_ID)]
 
@@ -3000,7 +3001,8 @@ selectPatternGenes <- function(spatPatObj,
     gene_cor_DT_m[, top_pos_rank := rank(value), by = "variable"]
     gene_cor_DT_m[, top_neg_rank := rank(-value), by = "variable"]
     selection <- gene_cor_DT_m[
-        top_pos_rank %in% 1:top_pos_genes | top_neg_rank %in% 1:top_neg_genes]
+        top_pos_rank %in% seq_len(top_pos_genes) | 
+            top_neg_rank %in% seq_len(top_neg_genes)]
 
     # filter on min correlation
     selection <- selection[value > min_pos_cor | value < min_neg_cor]
@@ -4254,7 +4256,7 @@ getBalancedSpatCoexpressionFeats <- function(spatCorObject,
                 maximum_to_use <- maximum
             }
 
-            selected_feats <- rnkcombined[1:maximum_to_use][["feat_id"]]
+            selected_feats <- rnkcombined[seq_len(maximum_to_use)][["feat_id"]]
 
             clus_id <- rep(clus, length(selected_feats))
             names(clus_id) <- selected_feats
@@ -4309,7 +4311,7 @@ getBalancedSpatCoexpressionFeats <- function(spatCorObject,
                 maximum_to_use <- maximum
             }
 
-            selected_feats <- names(informed_subset[1:maximum_to_use])
+            selected_feats <- names(informed_subset[seq_len(maximum_to_use)])
 
             clus_id <- rep(clus, length(selected_feats))
             names(clus_id) <- selected_feats
@@ -4868,7 +4870,7 @@ run_spatial_sim_tests_multi <- function(gobject,
         if (verbose) message("start with ", prob_i)
 
         rep_list <- list()
-        for (rep_i in 1:reps) {
+        for (rep_i in seq_len(reps)) {
             if (verbose) message("repetition = ", rep_i)
 
 

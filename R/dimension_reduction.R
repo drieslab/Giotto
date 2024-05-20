@@ -60,13 +60,13 @@
         # PC loading
         loadings <- pca_res$ind$coord
         rownames(loadings) <- rownames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
 
         # coordinates
         coords <- sweep(pca_res$var$coord, 
-                        2, sqrt(eigenvalues[1:ncp]), FUN = "/")
+                        2, sqrt(eigenvalues[seq_len(ncp)]), FUN = "/")
         rownames(coords) <- colnames(x)
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
@@ -94,14 +94,14 @@
 
         # PC loading
         loadings <- sweep(
-            pca_res$var$coord, 2, sqrt(eigenvalues[1:ncp]), FUN = "/")
+            pca_res$var$coord, 2, sqrt(eigenvalues[seq_len(ncp)]), FUN = "/")
         rownames(loadings) <- colnames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
 
         # coordinates
         coords <- pca_res$ind$coord
         rownames(coords) <- rownames(x)
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
@@ -189,11 +189,11 @@
         # PC loading
         loadings <- pca_res$x
         rownames(loadings) <- rownames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
         # coordinates
         coords <- pca_res$rotation
         rownames(coords) <- colnames(x)
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
     } else {
@@ -228,11 +228,11 @@
         # PC loading
         loadings <- pca_res$rotation
         rownames(loadings) <- colnames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
         # coordinates
         coords <- pca_res$x
         rownames(coords) <- rownames(x)
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
     }
@@ -607,7 +607,7 @@ runPCA <- function(gobject,
         cell_ID_order <- rownames(x)
 
         # create random selection
-        random_selection <- sort(sample(1:nrow(x), random_subset))
+        random_selection <- sort(sample(seq_len(nrow(x)), random_subset))
         subsample_matrix <- x[random_selection, ]
 
 
@@ -647,12 +647,12 @@ runPCA <- function(gobject,
         # PC loading
         loadings <- coords
         rownames(loadings) <- rownames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
 
         # coordinates
         coords <- pca_res$rotation
         rownames(coords) <- colnames(x)
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
@@ -661,7 +661,7 @@ runPCA <- function(gobject,
         cell_ID_order <- rownames(x)
 
         # create random selection
-        random_selection <- sort(sample(1:nrow(x), random_subset))
+        random_selection <- sort(sample(seq_len(nrow(x)), random_subset))
         subsample_matrix <- x[random_selection, ]
 
         if (verbose) message("pca random subset: start")
@@ -699,10 +699,10 @@ runPCA <- function(gobject,
         # PC loading
         loadings <- pca_res$rotation
         rownames(loadings) <- colnames(x)
-        colnames(loadings) <- paste0("Dim.", 1:ncol(loadings))
+        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
 
         # coordinates
-        colnames(coords) <- paste0("Dim.", 1:ncol(coords))
+        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
             eigenvalues = eigenvalues, loadings = loadings, coords = coords)
@@ -1094,7 +1094,7 @@ runPCAprojectionBatch <- function(gobject,
     if (reduction == "cells") {
         pca_batch_results <- list()
 
-        for (batch in 1:batch_number) {
+        for (batch in seq_len(batch_number)) {
             if (verbose) wrap_msg("start batch ", batch)
 
             if (isTRUE(set_seed)) {
@@ -1124,10 +1124,10 @@ runPCAprojectionBatch <- function(gobject,
             if (batch == 1) {
                 pca_batch_results[[batch]] <- pca_object
             } else {
-                for (dimension in 1:ncol(pca_object[["coords"]])) {
+                for (dimension in seq_len(ncol(pca_object[["coords"]]))) {
                     sum_evaluation <- sum(sign(pca_batch_results[[1]][[
-                        "coords"]][1:20, dimension]) *
-                        sign(pca_object[["coords"]][1:20, dimension]))
+                        "coords"]][seq_len(20), dimension]) *
+                        sign(pca_object[["coords"]][seq_len(20), dimension]))
                     if (sum_evaluation < 0) {
                         pca_object$coords[, dimension] <- -1 * pca_object$coords[, dimension]
                         pca_object$loadings[, dimension] <- -1 * pca_object$loadings[, dimension]
@@ -1155,7 +1155,7 @@ runPCAprojectionBatch <- function(gobject,
         coords_array <- array(
             data = coords_vector, 
             dim = c(ncol(expr_values), ncp, length(pca_batch_results)))
-        coords_all <- apply(coords_array, MARGIN = c(1:2), function(arr) {
+        coords_all <- apply(coords_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
         rownames(coords_all) <- rownames(pca_batch_results[[1]][["coords"]])
@@ -1167,7 +1167,8 @@ runPCAprojectionBatch <- function(gobject,
         loadings_array <- array(
             data = loadings_vector, 
             dim = c(nrow(expr_values), ncp, length(pca_batch_results)))
-        loadings_all <- apply(loadings_array, MARGIN = c(1:2), function(arr) {
+        loadings_all <- apply(
+            loadings_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
         rownames(loadings_all) <- rownames(pca_batch_results[[1]][["loadings"]])
@@ -1180,7 +1181,7 @@ runPCAprojectionBatch <- function(gobject,
     } else {
         pca_batch_results <- list()
 
-        for (batch in 1:batch_number) {
+        for (batch in seq_len(batch_number)) {
             if (verbose) wrap_msg("start batch ", batch)
 
             if (isTRUE(set_seed)) {
@@ -1211,10 +1212,10 @@ runPCAprojectionBatch <- function(gobject,
             if (batch == 1) {
                 pca_batch_results[[batch]] <- pca_object
             } else {
-                for (dimension in 1:ncol(pca_object[["coords"]])) {
+                for (dimension in seq_len(ncol(pca_object[["coords"]]))) {
                     sum_evaluation <- sum(sign(pca_batch_results[[1]][[
-                        "coords"]][1:20, dimension]) *
-                        sign(pca_object[["coords"]][1:20, dimension]))
+                        "coords"]][seq_len(20), dimension]) *
+                        sign(pca_object[["coords"]][seq_len(20), dimension]))
                     if (sum_evaluation < 0) {
                         pca_object$coords[, dimension] <- -1 * pca_object$coords[, dimension]
                         pca_object$loadings[, dimension] <- -1 * pca_object$loadings[, dimension]
@@ -1242,7 +1243,7 @@ runPCAprojectionBatch <- function(gobject,
         coords_array <- array(
             data = coords_vector, 
             dim = c(ncol(expr_values), ncp, length(pca_batch_results)))
-        coords_all <- apply(coords_array, MARGIN = c(1:2), function(arr) {
+        coords_all <- apply(coords_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
         rownames(coords_all) <- rownames(pca_batch_results[[1]][["coords"]])
@@ -1254,7 +1255,8 @@ runPCAprojectionBatch <- function(gobject,
         loadings_array <- array(
             data = loadings_vector, 
             dim = c(nrow(expr_values), ncp, length(pca_batch_results)))
-        loadings_all <- apply(loadings_array, MARGIN = c(1:2), function(arr) {
+        loadings_all <- apply(
+            loadings_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
         rownames(loadings_all) <- rownames(pca_batch_results[[1]][["loadings"]])
@@ -1548,7 +1550,7 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_bw()
     pl <- pl + ggplot2::geom_bar(
-        data = screeDT[1:ncp], 
+        data = screeDT[seq_len(ncp)], 
         ggplot2::aes(x = PC, y = var_expl), stat = "identity")
     pl <- pl + ggplot2::coord_cartesian(ylim = ylim)
     pl <- pl + ggplot2::theme(
@@ -1558,7 +1560,7 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     cpl <- ggplot2::ggplot()
     cpl <- cpl + ggplot2::theme_bw()
     cpl <- cpl + ggplot2::geom_bar(
-        data = screeDT[1:ncp], 
+        data = screeDT[seq_len(ncp)], 
         ggplot2::aes(x = PC, y = var_expl_cum), stat = "identity")
     cpl <- cpl + ggplot2::theme(axis.text.x = ggplot2::element_text(
         angle = 45, hjust = 1, vjust = 1))
@@ -1744,7 +1746,7 @@ create_jackstrawplot <- function(jackstraw_data,
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_bw()
     pl <- pl + ggplot2::geom_point(
-        data = testDT[1:ncp], 
+        data = testDT[seq_len(ncp)], 
         ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21)
     pl <- pl + ggplot2::scale_fill_manual(
         values = c("n.s." = "lightgrey", "sign" = "darkorange"))
@@ -2397,7 +2399,8 @@ runUMAPprojection <- function(gobject,
         cell_ID_order <- rownames(matrix_to_use)
 
         # create random selection
-        random_selection <- sort(sample(1:nrow(matrix_to_use), random_subset))
+        random_selection <- sort(sample(
+            seq_len(nrow(matrix_to_use)), random_subset))
         subsample_matrix <- matrix_to_use[random_selection, ]
 
         uwot_clus_subset <- uwot::umap(
@@ -2889,7 +2892,7 @@ runGiottoHarmony <- function(gobject,
     )
 
 
-    colnames(harmony_results) <- paste0("Dim.", 1:ncol(harmony_results))
+    colnames(harmony_results) <- paste0("Dim.", seq_len(ncol(harmony_results)))
     rownames(harmony_results) <- rownames(matrix_to_use)
 
     harmdimObject <- create_dim_obj(

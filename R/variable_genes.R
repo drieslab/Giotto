@@ -24,7 +24,7 @@
     expr_groups <- cut(
         x = feat_in_cells_detected$mean_expr,
         breaks = expr_group_breaks,
-        labels = paste0("group_", 1:nr_expression_groups),
+        labels = paste0("group_", seq_len(nr_expression_groups)),
         include.lowest = TRUE
     )
     feat_in_cells_detected[, expr_groups := expr_groups]
@@ -65,7 +65,7 @@
     feat_in_cells_detected$pred_cov_feats <- stats::predict(
         loess_model_sample, newdata = feat_in_cells_detected)
     feat_in_cells_detected[, cov_diff := get(var_col) - pred_cov_feats, 
-                            by = 1:nrow(feat_in_cells_detected)]
+                            by = seq_len(nrow(feat_in_cells_detected))]
     data.table::setorder(feat_in_cells_detected, -cov_diff)
     feat_in_cells_detected[, selected := ifelse(
         cov_diff > difference_in_cov, "yes", "no")]
@@ -106,7 +106,7 @@
     dt_res <- data.table::data.table(feats = names(test), var = test)
 
     if (!is.null(var_number) & is.numeric(var_number)) {
-        dt_res[, selected := 1:.N]
+        dt_res[, selected := seq_len(.N)]
         dt_res[, selected := ifelse(selected <= var_number, "yes", "no")]
     } else {
         dt_res[, selected := ifelse(var >= var_threshold, "yes", "no")]
@@ -116,7 +116,7 @@
     if (isTRUE(show_plot) ||
         isTRUE(return_plot) ||
         isTRUE(save_plot)) {
-        dt_res[, rank := 1:.N]
+        dt_res[, rank := seq_len(.N)]
         pl <- .create_calc_var_hvf_plot(dt_res)
 
 
@@ -336,7 +336,8 @@ calculateHVF <- function(gobject,
     if (!is.null(random_subset)) {
         if (isTRUE(set_seed)) set.seed(seed = seed_number)
 
-        random_selection <- sort(sample(1:ncol(expr_values), random_subset))
+        random_selection <- sort(sample(
+            seq_len(ncol(expr_values)), random_subset))
         expr_values <- expr_values[, random_selection]
 
         if (isTRUE(set_seed)) GiottoUtils::random_seed()

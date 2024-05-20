@@ -116,10 +116,10 @@ cellProximityHeatmap <- function(gobject,
 
     enrich_res[, first_type := strsplit(
         x = as.character(unified_int), split = "--")[[1]][1], 
-        by = 1:nrow(enrich_res)]
+        by = seq_len(nrow(enrich_res))]
     enrich_res[, second_type := strsplit(
         x = as.character(unified_int), split = "--")[[1]][2], 
-        by = 1:nrow(enrich_res)]
+        by = seq_len(nrow(enrich_res))]
 
     # create matrix
     enrich_mat <- data.table::dcast.data.table(
@@ -255,9 +255,11 @@ cellProximityNetwork <- function(gobject,
 
     CPscores <- CPscore[["enrichm_res"]]
     CPscores[, cell_1 := strsplit(
-        as.character(unified_int), split = "--")[[1]][1], by = 1:nrow(CPscores)]
+        as.character(unified_int), split = "--")[[1]][1], 
+        by = seq_len(nrow(CPscores))]
     CPscores[, cell_2 := strsplit(
-        as.character(unified_int), split = "--")[[1]][2], by = 1:nrow(CPscores)]
+        as.character(unified_int), split = "--")[[1]][2], 
+        by = seq_len(nrow(CPscores))]
 
     # create igraph with enrichm as weight edges
     igd <- igraph::graph_from_data_frame(
@@ -1763,7 +1765,8 @@ plotInteractionChangedFeats <- function(gobject,
     tempDT <- ICFscores[feats %in% all_feats][cell_type == source_type][
         int_cell_type %in% neighbor_types]
     tempDT[, feats := factor(feats, levels = detected_feats)]
-    tempDT[, group := names(ICF_feats[ICF_feats == feats]), by = 1:nrow(tempDT)]
+    tempDT[, group := names(ICF_feats[ICF_feats == feats]), 
+            by = seq_len(nrow(tempDT))]
 
 
     if (is.null(cell_color_code)) {
@@ -2742,16 +2745,16 @@ plotRankSpatvsExpr <- function(gobject,
 
     rnk_list <- list()
     spt_list <- list()
-    for (rnk in 1:total_rnks) {
+    for (rnk in seq_len(total_rnks)) {
         mytab <- table(cut(sort(combCC[get(expr_rnk_column) == rnk][[
             spat_rnk_column]]), breaks = seq(0, total_rnks, 1), 
-            labels = c(1:total_rnks)))
+            labels = seq_len(total_rnks)))
         rnk_list[[rnk]] <- mytab
         spt_list[[rnk]] <- names(mytab)
     }
 
     rnk_res <- data.table::as.data.table(do.call("rbind", rnk_list))
-    rnk_res[, spt_rank := 1:total_rnks]
+    rnk_res[, spt_rank := seq_len(total_rnks)]
 
     rnk_res_m <- data.table::melt.data.table(rnk_res, id.vars = "spt_rank")
     rnk_res_m[, spt_rank := as.numeric(spt_rank)]
@@ -2827,7 +2830,7 @@ plotRankSpatvsExpr <- function(gobject,
     mergeDT_filt <- combCC[get(first_col) == 1]
 
     mymat <- matrix(data = NA, nrow = max(combCC[[second_col]]), ncol = 2)
-    for (i in 1:max(combCC[[second_col]])) {
+    for (i in seq_len(max(combCC[[second_col]]))) {
         mergeDT_filt[, concord := ifelse(get(second_col) <= i, "yes", "no")]
         mytable <- table(mergeDT_filt$concord)
 
@@ -2843,7 +2846,7 @@ plotRankSpatvsExpr <- function(gobject,
     mymatDT <- data.table::as.data.table(mymat)
     colnames(mymatDT) <- c("concord", "not_concord")
     mymatDT[, perc := 100 * (concord / (concord + not_concord))]
-    mymatDT[, secondrank := 1:nrow(mymatDT)]
+    mymatDT[, secondrank := seq_len(nrow(mymatDT))]
     mymatDT[, secondrank_perc := (secondrank / max(secondrank)) * 100]
 
     # percentage explained

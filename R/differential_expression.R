@@ -577,7 +577,7 @@ findGiniMarkers <- function(gobject,
     aggr_sc[, comb_score := (expression_gini * expression_rank) * (
         detection_gini * detection_rank)]
     setorder(aggr_sc, cluster, -comb_score)
-    aggr_sc[, comb_rank := 1:.N, by = cluster]
+    aggr_sc[, comb_rank := seq_len(.N), by = cluster]
 
     top_feats_scores <- aggr_sc[comb_rank <= min_feats | (
         expression_rank <= rank_score & detection_rank <= rank_score)]
