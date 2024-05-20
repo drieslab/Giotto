@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.6
+Version: 4.0.7
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
@@ -27,11 +27,11 @@ URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
 RoxygenNote: 7.3.1
 Depends:
-    base (>= 3.5.0),
-    utils (>= 3.5.0),
-    R (>= 3.5.0),
+    base (>= 4.1.0),
+    utils (>= 4.1.0),
+    R (>= 4.1.0),
     methods,
-    GiottoClass (>= 0.3.0)
+    GiottoClass (>= 0.3.1)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -46,7 +46,7 @@ Imports:
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
-    Matrix (>= 1.6.2),
+    Matrix (>= 1.6-2),
     MatrixGenerics,
     plotly,
     progressr,
