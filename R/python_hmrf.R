@@ -1425,7 +1425,8 @@ initHMRF_V2 <-
             if (use_pca == TRUE) {
                 expr_values <- expr_values[spatial_genes, ]
                 pc.expr <- prcomp(expr_values)[[2]]
-                use_pca_dim <- use_pca_dim[use_pca_dim %in% 1:ncol(pc.expr)]
+                use_pca_dim <- use_pca_dim[
+                    use_pca_dim %in% seq_len(ncol(pc.expr))]
                 y0 <- (pc.expr[, use_pca_dim])
             } else {
                 message("Computing spatial coexpression modules...")
@@ -1503,7 +1504,7 @@ initHMRF_V2 <-
                         return_gobject = FALSE
                     )
 
-                    expr_values <- t(meta.genes@enrichDT[, 1:k.sp])
+                    expr_values <- t(meta.genes@enrichDT[, seq_len(k.sp)])
                     colnames(expr_values) <- unlist(
                         meta.genes@enrichDT[, "cell_ID"])
                     rownames(expr_values) <- paste0(
@@ -1538,7 +1539,7 @@ initHMRF_V2 <-
         ncol.nei <- max(table(c(spatial_network$to, spatial_network$from)))
         nei <- matrix(-1, ncol = ncol.nei, nrow = numcell)
         rownames(nei) <- rownames(y)
-        for (i in 1:numcell) {
+        for (i in seq_len(numcell)) {
             nei.i <- c(spatial_network$from[spatial_network$to ==
                 rownames(nei)[i]], spatial_network$to[spatial_network$from ==
                 rownames(nei)[i]])
@@ -1549,12 +1550,12 @@ initHMRF_V2 <-
         numnei <- as.integer(rowSums(nei != (-1)))
         nn <- nei
         numedge <- 0
-        for (i in 1:numcell) {
+        for (i in seq_len(numcell)) {
             numedge <- numedge + length(nn[i, nn[i, ] != -1])
         }
         edgelist <- matrix(0, nrow = numedge, ncol = 2)
         edge_ind <- 1
-        for (i in 1:numcell) {
+        for (i in seq_len(numcell)) {
             neighbors <- nn[i, nn[i, ] != -1]
             for (j in seq_along(neighbors)) {
                 edgelist[edge_ind, ] <- c(i, neighbors[j])
@@ -1585,7 +1586,7 @@ initHMRF_V2 <-
                 nstart = nstart
             )
             mu <- t(kk$centers)
-            lclust <- lapply(1:k, function(x) which(kk$cluster == x))
+            lclust <- lapply(seq_len(k), function(x) which(kk$cluster == x))
         } else {
             ##### need to double check leiden and louvain cluster functions
             gobject@dimension_reduction$cells$spatial <- NULL
@@ -1642,7 +1643,7 @@ initHMRF_V2 <-
 
         damp <- array(0, c(k))
         sigma <- array(0, c(m, m, k))
-        for (i in 1:k) {
+        for (i in seq_len(k)) {
             sigma[, , i] <- cov(y[lclust[[i]], ])
             di <- smfishHmrf::findDampFactor(
                 sigma[, , i],
@@ -1749,14 +1750,14 @@ doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
     if (is.null(betas)) {
         beta_seq <- max(ceiling(ncol(y) / 10), 2)
         cat(paste0("Default value beta = ", beta_seq, " is used..."))
-    } else if (length(betas) != 3 || (sum(betas[1:3] < 0) > 0)) {
+    } else if (length(betas) != 3 || (sum(betas[seq_len(3)] < 0) > 0)) {
         stop("please provide betas as a vector of 3 non-negative numbers 
             (initial value, nicrement, total iteration number)")
     } else {
         beta_init <- betas[1]
         beta_increment <- betas[2]
         beta_num_iter <- betas[3]
-        beta_seq <- (1:beta_num_iter - 1) * beta_increment + beta_init
+        beta_seq <- (seq_len(beta_num_iter) - 1) * beta_increment + beta_init
         beta_seq <- sort(unique(c(0, beta_seq)))
     }
 

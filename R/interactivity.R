@@ -191,7 +191,7 @@ getCellsFromPolygon <- function(gobject,
     )
 
     ## convert cell spatial locations to spatVector
-    cells_spatVector <- terra::vect(as.matrix(spatial_locs[, 1:2]),
+    cells_spatVector <- terra::vect(as.matrix(spatial_locs[, seq_len(2)]),
         type = "points",
         atts = spatial_locs
     )

@@ -51,7 +51,7 @@ make_simulated_network <- function(gobject,
                         spatial_network_annot$to_cell_type)
     middle_point <- length(all_cell_type) / 2
 
-    for (sim in 1:number_of_simulations) {
+    for (sim in seq_len(number_of_simulations)) {
         if (set_seed == TRUE) {
             seed_number <- seed_number + sim
             set.seed(seed = seed_number)
@@ -60,7 +60,7 @@ make_simulated_network <- function(gobject,
         reshuffled_all_cell_type <- sample(
             x = all_cell_type, size = length(all_cell_type), replace = FALSE)
 
-        new_from_cell_type <- reshuffled_all_cell_type[1:middle_point]
+        new_from_cell_type <- reshuffled_all_cell_type[seq_len(middle_point)]
         s1_list[[sim]] <- new_from_cell_type
 
         new_to_cell_type <- reshuffled_all_cell_type[
@@ -70,7 +70,7 @@ make_simulated_network <- function(gobject,
 
     s1_vector <- do.call("c", s1_list)
     s2_vector <- do.call("c", s2_list)
-    round_vector <- rep(x = 1:number_of_simulations, each = length_ints)
+    round_vector <- rep(x = seq_len(number_of_simulations), each = length_ints)
     round_vector <- paste0("sim", round_vector)
 
     # data.table variables
@@ -80,7 +80,7 @@ make_simulated_network <- function(gobject,
         s1 = s1_vector, s2 = s2_vector, round = round_vector)
     uniq_sim_comb <- unique(sample_dt[, .(s1, s2)])
     uniq_sim_comb[, unified_int := paste(
-        sort(c(s1, s2)), collapse = "--"), by = 1:nrow(uniq_sim_comb)]
+        sort(c(s1, s2)), collapse = "--"), by = seq_len(nrow(uniq_sim_comb))]
     sample_dt[uniq_sim_comb, unified_int := unified_int, on = c(
         s1 = "s1", s2 = "s2")]
     sample_dt[, type_int := ifelse(s1 == s2, "homo", "hetero")]
@@ -190,7 +190,8 @@ cellProximityEnrichment <- function(gobject,
     minimum_simulations <- unique_ints[rep(
         seq_len(nrow(unique_ints)), number_of_simulations), ]
     minimum_simulations[, round := rep(
-        paste0("sim", 1:number_of_simulations), each = nrow(unique_ints))]
+        paste0("sim", seq_len(number_of_simulations)), 
+        each = nrow(unique_ints))]
     minimum_simulations[, N := 0]
 
     table_sim_minimum_results <- rbind(table_sim_results, minimum_simulations)
@@ -312,7 +313,7 @@ cellProximityEnrichment <- function(gobject,
 
     # order
     table_mean_results_dc <- table_mean_results_dc[order(-PI_value)]
-    table_mean_results_dc[, int_ranking := 1:.N]
+    table_mean_results_dc[, int_ranking := seq_len(.N)]
 
     return(list(raw_sim_table = table_results,
                 enrichm_res = table_mean_results_dc))
@@ -698,7 +699,7 @@ NULL
         seed_number_list <- seed_number:(seed_number + (n - 1))
     }
 
-    result <- lapply(X = 1:n, FUN = function(x) {
+    result <- lapply(X = seq_len(n), FUN = function(x) {
         seed_number <- seed_number_list[x]
 
         perm_rand <- .do_permuttest_random(
@@ -2296,7 +2297,8 @@ average_feat_feat_expression_in_groups <- function(gobject,
     lig_test <- data.table::as.data.table(
         reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
     lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
-    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1], by = 1:nrow(lig_test)]
+    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1], 
+            by = seq_len(nrow(lig_test))]
     lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
     setnames(lig_test, "value", "lig_expr")
     setnames(lig_test, "variable", "lig_cell_type")
@@ -2306,7 +2308,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
         receptor_match, measure.vars = all_receptor_cols))
     rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
     rec_test[, receptor := strsplit(
-        receptor, "\\.")[[1]][1], by = 1:nrow(rec_test)]
+        receptor, "\\.")[[1]][1], by = seq_len(nrow(rec_test))]
     rec_test[, LR_comb := rep(LR_pairs, ncol(receptor_match))]
     setnames(rec_test, "value", "rec_expr")
     setnames(rec_test, "variable", "rec_cell_type")
@@ -2436,7 +2438,7 @@ exprCellCellcom <- function(gobject,
     # not yet available
 
 
-    for (sim in 1:random_iter) {
+    for (sim in seq_len(random_iter)) {
         if (verbose == TRUE) cat("simulation ", sim)
 
 
@@ -2582,7 +2584,7 @@ exprCellCellcom <- function(gobject,
             set.seed(seed = seed_number)
         }
         sub_sample_ids <- possible_metadata[get(cluster_column) == uniq_type][
-            sample(x = 1:.N, size = length_random)][["cell_ID"]]
+            sample(x = seq_len(.N), size = length_random)][["cell_ID"]]
         sample_ids[[i]] <- sub_sample_ids
     }
     return(unlist(sample_ids))
@@ -2789,7 +2791,7 @@ specificCellCellcommunicationScores <- function(gobject,
 
 
         ## simulations ##
-        for (sim in 1:random_iter) {
+        for (sim in seq_len(random_iter)) {
             if (verbose == TRUE) cat("simulation ", sim)
 
             # get random ids and subset
@@ -3034,7 +3036,7 @@ spatCellCellcom <- function(gobject,
     ## parallel option ##
     if (do_parallel == TRUE) {
         savelist <- lapply_flex(
-            X = 1:nrow(combn_DT), future.seed = TRUE,
+            X = seq_len(nrow(combn_DT)), future.seed = TRUE,
             cores = cores, fun = function(row) {
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
@@ -3064,7 +3066,7 @@ spatCellCellcom <- function(gobject,
         savelist <- list()
         countdown <- nrow(combn_DT)
 
-        for (row in 1:nrow(combn_DT)) {
+        for (row in seq_len(nrow(combn_DT))) {
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
