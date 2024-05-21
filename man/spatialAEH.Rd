@@ -48,7 +48,7 @@ An updated giotto object
 Compute spatial variable genes with spatialDE method
 }
 \details{
-This function is a wrapper for the SpatialAEH method 
+This function is a wrapper for the SpatialAEH method
 implemented in the ...
 }
 \examples{
