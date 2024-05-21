@@ -106,7 +106,16 @@ network object. The users need to provide the definition of the cross
 section plane (see method).
 }
 \examples{
-g <- GiottoData::loadGiottoMini("visium")
+g <- GiottoData::loadGiottoMini("starmap")
 
-createCrossSection(gobject = g, spatial_network_name = "spatial_network")
+g <- createCrossSection(
+    gobject = g,
+    method = "equation",
+    equation=c(0,1,0,600),
+    extend_ratio = 0.6,
+    name = "new_cs",
+    return_gobject = TRUE
+)
+
+crossSectionPlot(g, name = "new_cs")
 }

@@ -555,11 +555,28 @@ writeHMRFresults <- function(gobject,
 #' g <- GiottoData::loadGiottoMini("visium")
 #' spat_genes <- binSpect(g)
 #'
-#' output_folder <- tempdir()
-#' doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats,
-#' output_folder = output_folder)
+#' output_folder <- file.path(tempdir(), 'HMRF')
+#' if(!file.exists(output_folder)) dir.create(output_folder, recursive = TRUE)
 #'
-#' addHMRF(gobject = g, HMRFoutput = doHMRF)
+#' out <- doHMRF(
+#'     g, spatial_genes = spat_genes[seq_len(20)]$feats,
+#'     expression_values = "scaled",
+#'     spatial_network_name = "Delaunay_network",
+#'     k = 6, betas = c(0, 10, 5),
+#'     output_folder = output_folder
+#' )
+#'
+#' g <- addHMRF(
+#'     gobject = g,
+#'     HMRFoutput = out,
+#'     k = 6,
+#'     betas_to_add = 20,
+#'     hmrf_name = "HMRF"
+#' )
+#'
+#' spatPlot(
+#'     gobject = g, cell_color = 'HMRF_k6_b.20',
+#' )
 #' @export
 addHMRF <- function(gobject,
     spat_unit = NULL,
