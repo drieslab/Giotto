@@ -39,3 +39,10 @@ Returns a list of results for betas, spat_unit and feat_type. Result for
 each beta is a list with probability(normalized or non-normalized), class, 
 and model log-likelihood value.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- binSpect(g, return_gobject = TRUE)
+HMRF_init_obj <- initHMRF_V2(gobject = g, cl.method = "km")
+
+doHMRF_V2(HMRF_init_obj = HMRF_init_obj, betas = c(0, 5, 2))
+}

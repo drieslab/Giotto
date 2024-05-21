@@ -118,7 +118,7 @@ best initialization}
 initialized HMRF
 }
 \description{
-Run initialzation for HMRF model
+Run initialization for HMRF model
 }
 \details{
 This function is the initialization step of HMRF domain clustering. First, 
@@ -138,10 +138,10 @@ clustering, listed with selection priority:
 Third, once spatial genes are finalized, we are using clustering method to 
 initialize HMRF.
 Instead of select spatial genes for domain clustering, HMRF method could 
-also applied on unit neighbohood composition of any group
+also applied on unit neighborhood composition of any group
 membership(such as cell types), specified by parameter: 
 use_neighborhood_composition,  spatial_network_name_for_neighborhood and
-metadata_to_use. Also HMRF provides the oppertunity for user to do 
+metadata_to_use. Also HMRF provides the opportunity for user to do 
 clustering by any customized spatial enrichment matrix
 (existing_spatial_enrichm_to_use).
 There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine 
@@ -151,4 +151,10 @@ nei (neighborhood structure), numnei (number of neighbors),
 blocks (graph colors), damp (dampened factor), mu (mean), 
 sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
 spat_unit, feat_type. This information is needed for the second step, doHMRF.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- binSpect(g, return_gobject = TRUE)
+
+initHMRF_V2(gobject = g, cl.method = "km")
 }

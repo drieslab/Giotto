@@ -551,6 +551,15 @@ writeHMRFresults <- function(gobject,
 #' @param betas_to_add results from different betas that you want to add
 #' @param hmrf_name specify a custom name
 #' @returns giotto object
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' spat_genes <- binSpect(g)
+#' 
+#' output_folder <- tempdir()
+#' doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats, 
+#' output_folder = output_folder)
+#' 
+#' addHMRF(gobject = g, HMRFoutput = doHMRF)
 #' @export
 addHMRF <- function(gobject,
     spat_unit = NULL,
@@ -1088,7 +1097,7 @@ checkAndFixSpatialGenes <- function(gobject,
 
 #' @title initHMRF_V2
 #' @name initHMRF_V2
-#' @description Run initialzation for HMRF model
+#' @description Run initialization for HMRF model
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -1152,10 +1161,10 @@ checkAndFixSpatialGenes <- function(gobject,
 #' Third, once spatial genes are finalized, we are using clustering method to 
 #' initialize HMRF.
 #' Instead of select spatial genes for domain clustering, HMRF method could 
-#' also applied on unit neighbohood composition of any group
+#' also applied on unit neighborhood composition of any group
 #' membership(such as cell types), specified by parameter: 
 #' use_neighborhood_composition,  spatial_network_name_for_neighborhood and
-#' metadata_to_use. Also HMRF provides the oppertunity for user to do 
+#' metadata_to_use. Also HMRF provides the opportunity for user to do 
 #' clustering by any customized spatial enrichment matrix
 #' (existing_spatial_enrichm_to_use).
 #' There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine 
@@ -1165,6 +1174,11 @@ checkAndFixSpatialGenes <- function(gobject,
 #' blocks (graph colors), damp (dampened factor), mu (mean), 
 #' sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
 #' spat_unit, feat_type. This information is needed for the second step, doHMRF.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g <- binSpect(g, return_gobject = TRUE)
+#' 
+#' initHMRF_V2(gobject = g, cl.method = "km")
 #' @export
 initHMRF_V2 <-
     function(gobject,
@@ -1692,6 +1706,12 @@ initHMRF_V2 <-
 #' Returns a list of results for betas, spat_unit and feat_type. Result for 
 #' each beta is a list with probability(normalized or non-normalized), class, 
 #' and model log-likelihood value.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g <- binSpect(g, return_gobject = TRUE)
+#' HMRF_init_obj <- initHMRF_V2(gobject = g, cl.method = "km")
+#' 
+#' doHMRF_V2(HMRF_init_obj = HMRF_init_obj, betas = c(0, 5, 2))
 #' @export
 doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
     message(
@@ -1752,7 +1772,7 @@ doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
         cat(paste0("Default value beta = ", beta_seq, " is used..."))
     } else if (length(betas) != 3 || (sum(betas[seq_len(3)] < 0) > 0)) {
         stop("please provide betas as a vector of 3 non-negative numbers 
-            (initial value, nicrement, total iteration number)")
+            (initial value, increment, total iteration number)")
     } else {
         beta_init <- betas[1]
         beta_increment <- betas[2]
@@ -1782,7 +1802,7 @@ doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
         tc.hmrfem$mu <- NULL
         rownames(tc.hmrfem$prob) <- rownames(y)
         rownames(tc.hmrfem$unnormprob) <- rownames(y)
-        names(tc.hmrfem$class) <- rownames(y)
+        #names(tc.hmrfem$class) <- rownames(y)
         res[[t_key]] <- tc.hmrfem
     }
     result.hmrf <- res
@@ -1805,6 +1825,13 @@ doHMRF_V2 <- function(HMRF_init_obj, betas = NULL) {
 #' for all the beta values, with the given HMRF model names. For example, if 
 #' name = ‘hmrf1’ and name of result in HMRFoutput is ‘k=8 b=0.00’, the 
 #' appended cell meta data column will be named with ‘hmrf1 k=8 b=0.00’
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' g <- binSpect(g, return_gobject = TRUE)
+#' HMRF_init_obj <- initHMRF_V2(gobject = g, cl.method = "km")
+#' HMRFoutput <- doHMRF_V2(HMRF_init_obj = HMRF_init_obj, betas = c(0, 5, 2))
+#' 
+#' addHMRF_V2(gobject = g, HMRFoutput = HMRFoutput)
 #' @export
 addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
     if (!"HMRFoutput" %in% class(HMRFoutput)) {
@@ -1834,10 +1861,11 @@ addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
             spat_unit = spat_unit,
             feat_type = feat_type,
             column_cell_ID = "cell_ID",
-            new_metadata = HMRFoutput[[i]]$class[match(
-                ordered_cell_IDs, names(HMRFoutput[[i]]$class))],
-            vector_name = paste(name, names(HMRFoutput)[i]),
-            by_column = TRUE
+            # new_metadata = HMRFoutput[[i]]$class[match(
+            #     ordered_cell_IDs, names(HMRFoutput[[i]]$class))],
+            new_metadata = HMRFoutput[[i]]$prob[ordered_cell_IDs,],
+            vector_name = paste(name, names(HMRFoutput)[i])
+            #by_column = TRUE
         )
     }
     return(gobject)

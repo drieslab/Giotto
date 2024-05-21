@@ -4557,7 +4557,7 @@ run_spatial_sim_tests_one_rep <- function(gobject,
     ...) {
     # data.table variables
     genes <- prob <- time <- adj.p.value <- method <- p.val <- sd <-
-        qval <- pval <- g <- adjusted_pvalue <- NULL
+        qval <- pval <- g <- adjusted_pvalue <- feats <- NULL
 
     ## test if spat_methods, params and names have the same length
     if (length(spat_methods) != length(spat_methods_params)) {

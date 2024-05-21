@@ -56,6 +56,8 @@ setMethod(
     overwrite = FALSE,
     verbose = NULL,
     ...) {
+        sl <- NULL
+        
         # This method prepares the data from the giotto object to pass
         # downstream where the actual interpolation happens
 
