@@ -113,7 +113,7 @@ doLeidenCluster <- function(gobject,
     if (isTRUE(set_seed)) {
         seed_number <- as.integer(seed_number)
     } else {
-        seed_number <- as.integer(sample(x = seq_len(10000), size = 1))
+        seed_number <- as.integer(sample(x = seq(10000), size = 1))
     }
 
     ## extract NN network
@@ -551,7 +551,7 @@ doGiottoClustree <- function(gobject,
     if (isTRUE(set_seed)) {
         seed_number <- as.integer(seed_number)
     } else {
-        seed_number <- as.integer(sample(x = seq_len(10000), size = 1))
+        seed_number <- as.integer(sample(x = seq(10000), size = 1))
     }
 
     network_edge_dt <- data.table::as.data.table(igraph::as_data_frame(
@@ -1102,9 +1102,9 @@ doSNNCluster <- function(gobject,
     cell_id_numeric <- unique(x = c(igraph_DT$from, igraph_DT$to))
     names(cell_id_numeric) <- seq_along(cell_id_numeric)
     igraph_DT[, from_T := as.numeric(names(cell_id_numeric[
-        cell_id_numeric == from])), by = seq_len(nrow(igraph_DT))]
+        cell_id_numeric == from])), by = 1:nrow(igraph_DT)]
     igraph_DT[, to_T := as.numeric(names(cell_id_numeric[
-        cell_id_numeric == to])), by = seq_len(nrow(igraph_DT))]
+        cell_id_numeric == to])), by = 1:nrow(igraph_DT)]
     temp_igraph_DT <- igraph_DT[, .(from_T, to_T, weight, distance)]
     data.table::setnames(
         temp_igraph_DT, old = c("from_T", "to_T"), new = c("from", "to"))
@@ -2814,7 +2814,7 @@ getClusterSimilarity <- function(gobject,
         as.character(group1), as.character(group2))]
     cor_table[, unified_group := paste(
         sort(c(group1, group2)), collapse = "--"), 
-        by = seq_len(nrow(cor_table))]
+        by = 1:nrow(cor_table)]
     cor_table <- cor_table[!duplicated(cor_table[, .(value, unified_group)])]
 
     cor_table <- merge(
@@ -2972,7 +2972,7 @@ mergeClusters <- function(gobject,
         as.character(get(cluster_column)) %in% finalvec,
         names(finalvec[finalvec == as.character(get(cluster_column))]),
         as.character(get(cluster_column))
-    ), by = seq_len(nrow(metadata))]
+    ), by = 1:nrow(metadata)]
 
 
 
