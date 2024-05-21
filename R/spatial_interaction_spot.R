@@ -1390,7 +1390,7 @@ plotICFSpot <- function(gobject,
     save_param = list(),
     default_save_name = "plotICFSpot") {
     # data.table variables
-    cell_type <- int_cell_type <- pcc_diff <- NULL
+    cell_type <- int_cell_type <- pcc_diff <- feats <- perm_diff <- NULL
 
 
     if (!"icfObject" %in% class(icfObject)) {
