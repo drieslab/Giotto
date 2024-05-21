@@ -2,7 +2,7 @@
 
 #' Select image regions by plotting interactive polygons
 #'
-#' @description Plot interactive polygons on an image and retrieve the polygons 
+#' @description Plot interactive polygons on an image and retrieve the polygons
 #' coordinates.
 #' @param x A `ggplot` or `rast` plot object to draw polygons on
 #' @param width,height An integer, defining the width/height in pixels.
@@ -29,7 +29,7 @@ plotInteractivePolygons <- function(x,
             miniUI::gadgetTitleBar("Plot Interactive Polygons"),
             miniUI::miniContentPanel(
                 shiny::textInput(
-                    "polygon_name", label = "Polygon name", 
+                    "polygon_name", label = "Polygon name",
                     value = "polygon 1"),
                 shiny::sliderInput("xrange",
                     label = "x coordinates",
@@ -57,7 +57,7 @@ plotInteractivePolygons <- function(x,
             miniUI::gadgetTitleBar("Plot Interactive Polygons"),
             miniUI::miniContentPanel(
                 shiny::textInput(
-                    "polygon_name", label = "Polygon name", 
+                    "polygon_name", label = "Polygon name",
                     value = "polygon 1"),
                 shiny::sliderInput("xrange",
                     label = "x coordinates",
@@ -89,7 +89,7 @@ plotInteractivePolygons <- function(x,
                     x$coordinates$default <- TRUE
                     x +
                         geom_polygon(
-                            data = clicklist(), 
+                            data = clicklist(),
                             aes(x, y, color = name, fill = name),
                             alpha = 0, ...
                         ) +
@@ -100,7 +100,7 @@ plotInteractivePolygons <- function(x,
                         theme(legend.position = "none")
                 } else {
                     terra::plot(x)
-                    lapply(split(clicklist(), by = "name"), 
+                    lapply(split(clicklist(), by = "name"),
                         function(x) graphics::polygon(x$x, x$y, ...))
                 }
             },
@@ -139,19 +139,19 @@ plotInteractivePolygons <- function(x,
 #' @param polygon_name name of polygon selections
 #' @param spat_unit spatial unit, default = 'cell'
 #' @param spat_loc_name name of spatial locations to use, default = 'raw'
-#' @param polygons character. A vector with polygon names to extract cells 
+#' @param polygons character. A vector with polygon names to extract cells
 #' from. If NULL, cells from all polygons are retrieved
 #'
-#' @returns A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID 
+#' @returns A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID
 #' where each cell is located in.
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
 #' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 #'
 #' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
 #' name = "selections")
 #' g <- addGiottoPolygons(
 #'     gobject = g,
@@ -175,23 +175,24 @@ getCellsFromPolygon <- function(gobject,
     }
 
     ## get polygons spatial info
-    polygon_spatVector <- get_polygon_info(
+    polygon_spatVector <- getPolygonInfo(
         gobject = gobject,
         polygon_name = polygon_name,
         return_giottoPolygon = FALSE
     )
 
     ## get cell spatial locations
-    spatial_locs <- get_spatial_locations(
+    spatial_locs <- getSpatialLocations(
         gobject = gobject,
         spat_unit = spat_unit,
-        spat_loc_name = spat_loc_name,
+        name = spat_loc_name,
         output = "data.table",
         copy_obj = TRUE
     )
 
     ## convert cell spatial locations to spatVector
-    cells_spatVector <- terra::vect(as.matrix(spatial_locs[, seq_len(2)]),
+    cells_spatVector <- terra::vect(
+        as.matrix(spatial_locs[, c("sdimx", "sdimy")]),
         type = "points",
         atts = spatial_locs
     )
@@ -214,30 +215,37 @@ getCellsFromPolygon <- function(gobject,
 #' @param feat_type feature name where metadata will be added
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to use
-#' @param polygons polygon names to plot (e.g. 'polygon_1'). If NULL, plots 
+#' @param polygons polygon names to plot (e.g. 'polygon_1'). If NULL, plots
 #' all available polygons
-#' @param na.label polygon label for cells located outside of polygons area. 
+#' @param na.label polygon label for cells located outside of polygons area.
 #' Default = "no_polygon"
 #'
 #' @returns A Giotto object with a modified cell_metadata slot that includes the
-#' polygon name where each cell is located or no_polygon label if the cell is 
+#' polygon name where each cell is located or no_polygon label if the cell is
 #' not located within a polygon area
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
-#' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+#' my_polygon_coords <- data.frame(
+#'     poly_ID = rep("polygon1", 3),
+#'     sdimx = c(5477, 5959, 4720),
+#'     sdimy = c(-4125, -2808, -5202)
+#' )
 #'
 #' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
-#' name = "selections")
+#' my_giotto_polygons <- createGiottoPolygon(
+#'     my_polygon_coords,
+#'     name = "selections"
+#' )
+#'
 #' g <- addGiottoPolygons(
 #'     gobject = g,
 #'     gpolygons = list(my_giotto_polygons)
 #' )
 #'
 #' ## Add polygon IDs to cell metadata
-#' addPolygonCells(g)
+#' g <- addPolygonCells(g)
+#' pDataDT(g)
 #' @export
 addPolygonCells <- function(gobject,
     polygon_name = "selections",
@@ -252,13 +260,14 @@ addPolygonCells <- function(gobject,
     }
 
     ## get cells within each polygon
-    polygon_cells <- data.table::as.data.table(getCellsFromPolygon(
+    polygon_cells <- getCellsFromPolygon(
         gobject = gobject,
         polygon_name = polygon_name,
         spat_unit = spat_unit,
         spat_loc_name = spat_loc_name,
         polygons = polygons
-    ))
+    )
+    polygon_cells <- data.table::as.data.table(polygon_cells)
     data.table::setnames(polygon_cells, old = "poly_ID", new = polygon_name)
 
     ## get original cell metadata
@@ -309,9 +318,9 @@ addPolygonCells <- function(gobject,
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param selected_feats vector of selected features to plot
-#' @param expression_values gene expression values to use 
+#' @param expression_values gene expression values to use
 #' ("normalized", "scaled", "custom")
-#' @param method method to use to detect differentially expressed feats 
+#' @param method method to use to detect differentially expressed feats
 #' ("scran", "gini", "mast")
 #' @param \dots Arguments passed to \link[ComplexHeatmap]{Heatmap}
 #'
@@ -319,11 +328,11 @@ addPolygonCells <- function(gobject,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
 #' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 #'
 #' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
 #' name = "selections")
 #' g <- addGiottoPolygons(
 #'     gobject = g,
@@ -332,7 +341,7 @@ addPolygonCells <- function(gobject,
 #'
 #' ## Add polygon cells
 #' g <- addPolygonCells(g)
-#' 
+#'
 #' comparePolygonExpression(g)
 #' @export
 comparePolygonExpression <- function(gobject,
@@ -394,7 +403,7 @@ comparePolygonExpression <- function(gobject,
         sd_expression_gene <- stats::sd(my_expression[gene, ])
         for (cell in colnames(my_expression)) {
             my_zscores[gene, cell] <- (
-                my_expression[gene, cell] - mean_expression_gene) / 
+                my_expression[gene, cell] - mean_expression_gene) /
                 sd_expression_gene
         }
     }
@@ -437,11 +446,11 @@ comparePolygonExpression <- function(gobject,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
 #' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 #'
 #' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
 #' name = "selections")
 #' g <- addGiottoPolygons(
 #'     gobject = g,
@@ -450,7 +459,7 @@ comparePolygonExpression <- function(gobject,
 #'
 #' ## Add polygon cells
 #' g <- addPolygonCells(g)
-#' 
+#'
 #' compareCellAbundance(g)
 #' @export
 compareCellAbundance <- function(gobject,
@@ -503,20 +512,20 @@ compareCellAbundance <- function(gobject,
 #' @param polygon_name name of polygon selections
 #' @param x A ggplot2, spatPlot or terra::rast object
 #' @param spat_unit spatial unit
-#' @param polygons character. Vector of polygon names to plot. If NULL, all 
+#' @param polygons character. Vector of polygon names to plot. If NULL, all
 #' polygons are plotted
-#' @param ... Additional parameters passed to ggplot2::geom_polygon() or 
+#' @param ... Additional parameters passed to ggplot2::geom_polygon() or
 #' graphics::polygon
 #'
 #' @returns A ggplot2 image
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
 #' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 #'
 #' ## Add polygon coordinates to Giotto object
-#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
 #' name = "selections")
 #' g <- addGiottoPolygons(
 #'     gobject = g,
@@ -525,10 +534,10 @@ compareCellAbundance <- function(gobject,
 #'
 #' ## Add polygon cells
 #' g <- addPolygonCells(g)
-#' 
+#'
 #' ## Create spatplot
 #' x <- spatPlot2D(g, return_plot = TRUE)
-#' 
+#'
 #' plotPolygons(g, x = x)
 #' @export
 plotPolygons <- function(gobject,
@@ -594,15 +603,15 @@ plotPolygons <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
-#' @param cell_color character. What to color cells by 
+#' @param cell_color character. What to color cells by
 #' (e.g. metadata col or spatial enrichment col)
-#' @param cell_color_code character. discrete colors to use. Palette to use or 
+#' @param cell_color_code character. discrete colors to use. Palette to use or
 #' named vector of colors
 #' @param point_size size of point (cell)
 #' @param width plot width
 #' @param height plot height
 #'
-#' @returns data.table with selected cell_IDs, spatial coordinates, and 
+#' @returns data.table with selected cell_IDs, spatial coordinates, and
 #' cluster_ID.
 #' @export
 plotInteractive3D <- function(gobject, spat_unit = "cell", feat_type = "rna",
