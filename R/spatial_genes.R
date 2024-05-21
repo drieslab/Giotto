@@ -780,13 +780,13 @@ binSpect <- function(
             gobject = gobject,
             spatial_network_k = spatial_network_k,
             knn_params = knn_params,
-            summarize = summarize,
+            summarize = summarize
         ))
     } else {
         output <- do.call(binSpectSingle, args = c(a,
             gobject = gobject,
             spatial_network_name = spatial_network_name,
-            bin_matrix = bin_matrix,
+            bin_matrix = bin_matrix
         ))
     }
 
