@@ -22,10 +22,10 @@ plotInteractive3D(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{cell_color}{character. What to color cells by 
+\item{cell_color}{character. What to color cells by
 (e.g. metadata col or spatial enrichment col)}
 
-\item{cell_color_code}{character. discrete colors to use. Palette to use or 
+\item{cell_color_code}{character. discrete colors to use. Palette to use or
 named vector of colors}
 
 \item{point_size}{size of point (cell)}
@@ -35,7 +35,7 @@ named vector of colors}
 \item{height}{plot height}
 }
 \value{
-data.table with selected cell_IDs, spatial coordinates, and 
+data.table with selected cell_IDs, spatial coordinates, and
 cluster_ID.
 }
 \description{

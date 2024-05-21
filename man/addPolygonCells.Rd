@@ -25,15 +25,15 @@ addPolygonCells(
 
 \item{feat_type}{feature name where metadata will be added}
 
-\item{polygons}{polygon names to plot (e.g. 'polygon_1'). If NULL, plots 
+\item{polygons}{polygon names to plot (e.g. 'polygon_1'). If NULL, plots
 all available polygons}
 
-\item{na.label}{polygon label for cells located outside of polygons area. 
+\item{na.label}{polygon label for cells located outside of polygons area.
 Default = "no_polygon"}
 }
 \value{
 A Giotto object with a modified cell_metadata slot that includes the
-polygon name where each cell is located or no_polygon label if the cell is 
+polygon name where each cell is located or no_polygon label if the cell is
 not located within a polygon area
 }
 \description{
@@ -42,17 +42,24 @@ Add corresponding polygon IDs to cell metadata
 \examples{
 ## Plot interactive polygons
 g <- GiottoData::loadGiottoMini("visium")
-my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
-sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+my_polygon_coords <- data.frame(
+    poly_ID = rep("polygon1", 3),
+    sdimx = c(5477, 5959, 4720),
+    sdimy = c(-4125, -2808, -5202)
+)
 
 ## Add polygon coordinates to Giotto object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
-name = "selections")
+my_giotto_polygons <- createGiottoPolygon(
+    my_polygon_coords,
+    name = "selections"
+)
+
 g <- addGiottoPolygons(
     gobject = g,
     gpolygons = list(my_giotto_polygons)
 )
 
 ## Add polygon IDs to cell metadata
-addPolygonCells(g)
+g <- addPolygonCells(g)
+pDataDT(g)
 }

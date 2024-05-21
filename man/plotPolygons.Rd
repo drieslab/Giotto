@@ -22,10 +22,10 @@ plotPolygons(
 
 \item{spat_unit}{spatial unit}
 
-\item{polygons}{character. Vector of polygon names to plot. If NULL, all 
+\item{polygons}{character. Vector of polygon names to plot. If NULL, all
 polygons are plotted}
 
-\item{...}{Additional parameters passed to ggplot2::geom_polygon() or 
+\item{...}{Additional parameters passed to ggplot2::geom_polygon() or
 graphics::polygon}
 }
 \value{
@@ -37,11 +37,11 @@ Plot stored polygons
 \examples{
 ## Plot interactive polygons
 g <- GiottoData::loadGiottoMini("visium")
-my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3), 
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
 sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 
 ## Add polygon coordinates to Giotto object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords, 
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
 name = "selections")
 g <- addGiottoPolygons(
     gobject = g,
