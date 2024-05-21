@@ -23,7 +23,7 @@
 differential test on subsets of a matrix
 }
 \description{
-Performs a selected differential test on subsets of a matrix 
+Performs a selected differential test on subsets of a matrix
 for spots
 }
 \keyword{internal}

@@ -22,11 +22,11 @@ list
 function to select a set of spatial genes
 }
 \details{
-This function samples a subset of spatial genes among different clusters, 
+This function samples a subset of spatial genes among different clusters,
 with size n = target.
-Number of samples from each cluster denpends on the relative proportion of 
+Number of samples from each cluster denpends on the relative proportion of
 each cluster.
-Changing from equal size by setting sample_rate = 1 to with exact proportion 
+Changing from equal size by setting sample_rate = 1 to with exact proportion
 of each cluster by setting sample_rate = +Inf
 }
 \keyword{internal}

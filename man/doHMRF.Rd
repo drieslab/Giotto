@@ -43,7 +43,7 @@ doHMRF(
 
 \item{spatial_genes}{spatial genes to use for HMRF}
 
-\item{spatial_dimensions}{select spatial dimensions to use, default is all 
+\item{spatial_dimensions}{select spatial dimensions to use, default is all
 possible dimensions}
 
 \item{dim_reduction_to_use}{use another dimension reduction set as input}
@@ -52,14 +52,14 @@ possible dimensions}
 
 \item{dimensions_to_use}{number of dimensions to use as input}
 
-\item{seed}{seed to fix random number generator 
+\item{seed}{seed to fix random number generator
 (for creating initialization of HMRF) (-1 if no fixing)}
 
 \item{name}{name of HMRF run}
 
 \item{k}{number of HMRF domains}
 
-\item{betas}{betas to test for. three numbers: start_beta, beta_increment, 
+\item{betas}{betas to test for. three numbers: start_beta, beta_increment,
 num_betas e.g. c(0, 2.0, 50)}
 
 \item{tolerance}{tolerance}
@@ -75,7 +75,7 @@ num_betas e.g. c(0, 2.0, 50)}
 \item{overwrite_output}{overwrite output folder}
 }
 \value{
-Creates a directory with results that can be viewed with 
+Creates a directory with results that can be viewed with
 viewHMRFresults
 }
 \description{
@@ -88,6 +88,6 @@ Description of HMRF parameters ...
 g <- GiottoData::loadGiottoMini("visium")
 spat_genes <- binSpect(g)
 
-doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats, 
+doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats,
 output_folder = tempdir())
 }

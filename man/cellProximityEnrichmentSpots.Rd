@@ -32,10 +32,10 @@ cellProximityEnrichmentSpots(
 
 \item{cells_in_spot}{cell number in each spot}
 
-\item{number_of_simulations}{number of simulations to create expected 
+\item{number_of_simulations}{number of simulations to create expected
 observations}
 
-\item{adjust_method}{method to adjust p.values 
+\item{adjust_method}{method to adjust p.values
 (e.g. "none", "fdr", "bonferroni","BH","holm", "hochberg", "hommel","BY")}
 
 \item{set_seed}{use of seed. Default = TRUE}
@@ -45,31 +45,31 @@ observations}
 \item{verbose}{be verbose}
 }
 \value{
-List of cell Proximity scores (CPscores) in data.table format. 
+List of cell Proximity scores (CPscores) in data.table format.
 The first
-data.table (raw_sim_table) shows the raw observations of both the original 
-and simulated networks. The second data.table (enrichm_res) shows the 
+data.table (raw_sim_table) shows the raw observations of both the original
+and simulated networks. The second data.table (enrichm_res) shows the
 enrichment results.
 }
 \description{
-Compute cell-cell interaction enrichment for spots 
+Compute cell-cell interaction enrichment for spots
 (observed vs expected)
 }
 \details{
-Spatial proximity enrichment or depletion between pairs of cell 
+Spatial proximity enrichment or depletion between pairs of cell
 types is calculated by calculating the observed over the expected frequency
-of cell-cell proximity interactions. The expected frequency is the average 
-frequency calculated from a number of spatial network simulations. Each 
-individual simulation is obtained by reshuffling the cell type labels of 
+of cell-cell proximity interactions. The expected frequency is the average
+frequency calculated from a number of spatial network simulations. Each
+individual simulation is obtained by reshuffling the cell type labels of
 each node (spot) in the spatial network.
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
-x <- findMarkers_one_vs_all(g, 
+x <- findMarkers_one_vs_all(g,
 cluster_column = "leiden_clus", min_feats = 20)
 sign_gene <- x$feats
 
-sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10), 
+sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10),
 nrow = length(sign_gene))
 rownames(sign_matrix) <- sign_gene
 colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))

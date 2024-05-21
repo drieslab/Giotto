@@ -6,6 +6,7 @@
 \usage{
 get_sectionThickness(
   gobject,
+  spat_unit = NULL,
   thickness_unit = c("cell", "natural"),
   slice_thickness = 2,
   spatial_network_name = "Delaunay_network",
@@ -15,6 +16,8 @@ get_sectionThickness(
 }
 \arguments{
 \item{gobject}{gobject}
+
+\item{spat_unit}{spatial unit}
 
 \item{thickness_unit}{thickness_unit}
 

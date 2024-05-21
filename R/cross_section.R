@@ -8,27 +8,27 @@
 #' @description create a crossSection object
 #' @param name name of cross section object. (default = cross_section)
 #' @param method method to define the cross section plane.
-#' @param thickness_unit unit of the virtual section thickness. If "cell", 
-#' average size of the observed cells is used as length unit. If "natural", 
+#' @param thickness_unit unit of the virtual section thickness. If "cell",
+#' average size of the observed cells is used as length unit. If "natural",
 #' the unit of cell location coordinates is used.(default = cell)
 #' @param slice_thickness thickness of slice
-#' @param cell_distance_estimate_method method to estimate average distance 
+#' @param cell_distance_estimate_method method to estimate average distance
 #' between neighboring cells. (default = mean)
-#' @param extend_ratio deciding the span of the cross section meshgrid, as a 
-#' ratio of extension compared to the borders of the virtual tissue section. 
+#' @param extend_ratio deciding the span of the cross section meshgrid, as a
+#' ratio of extension compared to the borders of the virtual tissue section.
 #' (default = 0.2)
-#' @param plane_equation a numerical vector of length 4, in the form of 
+#' @param plane_equation a numerical vector of length 4, in the form of
 #' c(A,B,C,D), which defines plane Ax+By+Cz=D.
-#' @param mesh_grid_n number of meshgrid lines to generate along both 
+#' @param mesh_grid_n number of meshgrid lines to generate along both
 #' directions for the cross section plane.
 #' @param mesh_obj object that stores the cross section meshgrid information.
 #' @param cell_subset cells selected by the cross section
-#' @param cell_subset_spatial_locations locations of cells selected by the 
+#' @param cell_subset_spatial_locations locations of cells selected by the
 #' cross section
-#' @param cell_subset_projection_locations 3D projection coordinates of 
+#' @param cell_subset_projection_locations 3D projection coordinates of
 #' selected cells onto the cross section plane
 #' @param cell_subset_projection_PCA pca of projection coordinates
-#' @param cell_subset_projection_coords 2D PCA coordinates of selected cells 
+#' @param cell_subset_projection_coords 2D PCA coordinates of selected cells
 #' in the cross section plane
 #' @returns crossSection object
 create_crossSection_object <- function(name = NULL,
@@ -64,42 +64,56 @@ create_crossSection_object <- function(name = NULL,
 #' @name read_crossSection
 #' @description read a cross section object from a giotto object
 #' @param gobject gobject
+#' @param spat_unit spatial unit
 #' @param name name
 #' @param spatial_network_name spatial_network_name
 #' @returns crossSectionObjects
 #' @keywords internal
 read_crossSection <- function(gobject,
+    spat_unit = NULL,
     name = NULL,
     spatial_network_name = NULL) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+
     if (is.null(spatial_network_name)) {
         stop("spatial_network_name is not specified.")
-    } else if (!is.element(
-        spatial_network_name, names(slot(gobject, "spatial_network")))) {
-        stop(paste0(spatial_network_name, " has not been created."))
-    } else {
-        sp_network_obj <- get_spatialNetwork(gobject,
-            name = spatial_network_name,
-            output = "spatialNetworkObj"
-        )
-        if (length(slot(sp_network_obj, "crossSectionObjects")) == 0) {
-            stop("No cross section object has been created.")
-        } else if (is.null(name)) {
-            sprintf(
-                "cross section object is not specified, reading the last one %s 
-                from the existing list",
-                names(slot(sp_network_obj, "crossSectionObjects"))[
-                    length(slot(sp_network_obj, "crossSectionObjects"))]
-            )
-            crossSection_obj <- slot(sp_network_obj, "crossSectionObjects")[[
-                length(slot(sp_network_obj, "crossSectionObjects"))]]
-        } else if (!is.element(name, names(slot(
-            sp_network_obj, "crossSectionObjects")))) {
-            stop(paste0(name, " has not been created."))
-        } else {
-            crossSection_obj <- slot(
-                sp_network_obj, "crossSectionObjects")[[name]]
-        }
     }
+
+    sn <- getSpatialNetwork(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        name = spatial_network_name,
+        set_defaults = FALSE,
+        copy_obj = FALSE,
+        verbose = FALSE,
+        output = "spatialNetworkObj"
+    )
+
+    cs_list <- slot(sn, "crossSectionObjects")
+
+    if (length(cs_list) == 0L) {
+        stop("No cross section object has been created.")
+    }
+
+    if (is.null(name)) {
+        name <- names(cs_list)[length(cs_list)]
+
+        default_name_msg <- sprintf(
+            "cross section object is not specified, \n%s \n'%s'",
+            "reading the last one from the existing list:", name
+        )
+    }
+
+    if (!name %in% names(cs_list)) {
+        stop(sprintf("crossSectionObject '%s' has not been created.",
+                     name))
+    }
+
+    crossSection_obj <- cs_list[[name]]
+
     return(crossSection_obj)
 }
 
@@ -109,49 +123,68 @@ read_crossSection <- function(gobject,
 #' @name estimateCellCellDistance
 #' @description estimate average distance between neighboring cells
 #' @param gobject gobject
+#' @param spat_unit spatial unit
 #' @param spatial_network_name spatial_network_name
 #' @param method method
 #' @returns matrix
 #' @keywords internal
 estimateCellCellDistance <- function(gobject,
+    spat_unit = NULL,
     spatial_network_name = "Delaunay_network",
     method = c("mean", "median")) {
-    delaunay_network_DT <- gobject@spatial_network[["thickness_unit"]][[
-        spatial_network_name]]@networkDT
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+
+    net <- getSpatialNetwork(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        name = spatial_network_name,
+        output = "networkDT"
+    )
 
     CellCellDistance <- get_distance(
-        networkDT = delaunay_network_DT,
+        networkDT = net,
         method = method
     )
+
     return(CellCellDistance)
 }
 #' @title get_sectionThickness
 #' @name get_sectionThickness
 #' @description get section thickness
 #' @param gobject gobject
+#' @param spat_unit spatial unit
 #' @param thickness_unit thickness_unit
 #' @param spatial_network_name spatial_network_name
 #' @param cell_distance_estimate_method cell_distance_estimate_method
 #' @param plane_equation plane_equation
 #' @returns numeric
 #' @keywords internal
-get_sectionThickness <- function(gobject, thickness_unit = c("cell", "natural"),
+get_sectionThickness <- function(gobject,
+    spat_unit = NULL,
+    thickness_unit = c("cell", "natural"),
     slice_thickness = 2,
     spatial_network_name = "Delaunay_network",
     cell_distance_estimate_method = c("mean", "median"),
     plane_equation = NULL) {
     thickness_unit <- match.arg(thickness_unit, c("cell", "natural"))
 
-    if (thickness_unit == "cell") {
-        CellCellDistance <- estimateCellCellDistance(gobject,
-            method = cell_distance_estimate_method,
-            spatial_network_name = spatial_network_name
-        )
-        sectionThickness <- CellCellDistance * slice_thickness
-    } else if (thickness_unit == "natural") {
-        sectionThickness <- slice_thickness
-    }
-    return(sectionThickness)
+    section_thickness = switch(thickness_unit,
+        "cell" = {
+            CellCellDistance <- estimateCellCellDistance(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                method = cell_distance_estimate_method,
+                spatial_network_name = spatial_network_name
+            )
+            CellCellDistance * slice_thickness
+        },
+        "natural" = slice_thickness
+    )
+
+    return(section_thickness)
 }
 
 #' @title projection_fun
@@ -182,7 +215,7 @@ projection_fun <- function(point_to_project, plane_point, plane_norm) {
 
 #' @title adapt_aspect_ratio
 #' @name adapt_aspect_ratio
-#' @description adapt the aspact ratio after inserting cross section mesh grid 
+#' @description adapt the aspact ratio after inserting cross section mesh grid
 #' lines
 #' @param current_ratio current_ratio
 #' @param cell_locations cell_locations
@@ -371,10 +404,10 @@ transform_2d_mesh_to_3d_mesh <- function(
         mesh_line_obj_2d, pca_out, center_vec, mesh_grid_n) {
     data_point_2d <- reshape_to_data_point(mesh_line_obj_2d)
     center_mat <- matrix(
-        rep(center_vec, dim(data_point_2d)[1]), 
+        rep(center_vec, dim(data_point_2d)[1]),
         nrow = dim(data_point_2d)[1], byrow = TRUE)
     data_point_3d <- cbind(
-        data_point_2d, 
+        data_point_2d,
         rep(0, dim(data_point_2d)[1])) %*% t((pca_out$rotation)) + center_mat
     mesh_grid_line_obj_3d <- reshape_to_mesh_grid_obj(
         data_point_3d, mesh_grid_n)
@@ -440,58 +473,61 @@ create_mesh_grid_lines <- function(
 #' @title createCrossSection
 #' @description Create a virtual 2D cross section.
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
 #' @param name name of cress section object. (default = cross_sectino)
-#' @param spatial_network_name name of spatial network object. 
+#' @param spatial_network_name name of spatial network object.
 #' (default = Delaunay_network)
-#' @param thickness_unit unit of the virtual section thickness. If "cell", 
-#' average size of the observed cells is used as length unit. If "natural", 
-#' the unit of cell location coordinates is used.(default = cell)
+#' @param thickness_unit unit of the virtual section thickness. If "cell",
+#' average size of the observed cells is used as length unit. If "natural",
+#' the unit of cell location coordinates is used. (default = cell)
 #' @param slice_thickness thickness of slice. default = 2
-#' @param cell_distance_estimate_method method to estimate average distance 
+#' @param cell_distance_estimate_method method to estimate average distance
 #' between neighobring cells. (default = mean)
-#' @param extend_ratio deciding the span of the cross section meshgrid, as a 
-#' ratio of extension compared to the borders of the vitural tissue section. 
+#' @param extend_ratio deciding the span of the cross section meshgrid, as a
+#' ratio of extension compared to the borders of the vitural tissue section.
 #' (default = 0.2)
 #' @param method method to define the cross section plane.
-#' If equation, the plane is defined by a four element numerical vector 
-#' (equation) in the form of c(A,B,C,D), corresponding to a plane with 
+#' If equation, the plane is defined by a four element numerical vector
+#' (equation) in the form of c(A,B,C,D), corresponding to a plane with
 #' equation Ax+By+Cz=D.
-#' If 3 points, the plane is define by the coordinates of 3 points, as given by 
+#' If 3 points, the plane is define by the coordinates of 3 points, as given by
 #' point1, point2, and point3.
-#' If point and norm vector, the plane is defined by the coordinates of one 
-#' point (point1) in the plane and the coordinates of one norm vector 
+#' If point and norm vector, the plane is defined by the coordinates of one
+#' point (point1) in the plane and the coordinates of one norm vector
 #' (normVector) to the plane.
-#' If point and two plane vector, the plane is defined by the coordinates of 
-#' one point (point1) in the plane and the coordinates of two vectors 
+#' If point and two plane vector, the plane is defined by the coordinates of
+#' one point (point1) in the plane and the coordinates of two vectors
 #' (planeVector1, planeVector2) in the plane.
 #' (default = equation)
-#' @param equation equation required by method "equation".equations needs to be 
-#' a numerical vector of length 4, in the form of c(A,B,C,D), which defines 
+#' @param equation equation required by method "equation".equations needs to be
+#' a numerical vector of length 4, in the form of c(A,B,C,D), which defines
 #' plane Ax+By+Cz=D.
-#' @param point1 coordinates of the first point required by method 
+#' @param point1 coordinates of the first point required by method
 #' "3 points","point and norm vector", and "point and two plane vectors".
 #' @param point2 coordinates of the second point required by method "3 points"
 #' @param point3 coordinates of the third point required by method "3 points"
-#' @param normVector coordinates of the norm vector required by method 
+#' @param normVector coordinates of the norm vector required by method
 #' "point and norm vector"
-#' @param planeVector1 coordinates of the first plane vector required by 
+#' @param planeVector1 coordinates of the first plane vector required by
 #' method "point and two plane vectors"
-#' @param planeVector2 coordinates of the second plane vector required by 
+#' @param planeVector2 coordinates of the second plane vector required by
 #' method "point and two plane vectors"
-#' @param mesh_grid_n numer of meshgrid lines to generate along both directions 
+#' @param mesh_grid_n numer of meshgrid lines to generate along both directions
 #' for the cross section plane.
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param verbose be verbose
 #' @returns giotto object with updated spatial network slot
-#' @details Creates a virtual 2D cross section object for a given spatial 
-#' network object. The users need to provide the definition of the cross 
+#' @details Creates a virtual 2D cross section object for a given spatial
+#' network object. The users need to provide the definition of the cross
 #' section plane (see method).
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' createCrossSection(gobject = g, spatial_network_name = "spatial_network")
 #' @export
 createCrossSection <- function(gobject,
+    spat_unit = NULL,
     spat_loc_name = "raw",
     name = "cross_section",
     spatial_network_name = "Delaunay_network",
@@ -499,77 +535,86 @@ createCrossSection <- function(gobject,
     slice_thickness = 2,
     cell_distance_estimate_method = "mean",
     extend_ratio = 0.2,
-    method = c("equation", "3 points", "point and norm vector", 
+    method = c("equation", "3 points", "point and norm vector",
                 "point and two plane vectors"),
     equation = NULL,
     point1 = NULL, point2 = NULL, point3 = NULL,
     normVector = NULL,
     planeVector1 = NULL, planeVector2 = NULL,
     mesh_grid_n = 20,
-    return_gobject = TRUE) {
+    return_gobject = TRUE,
+    verbose = NULL) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+
     # read spatial locations
-    spatial_locations <- getSpatialLocations(gobject, 
-                                            name = spat_loc_name)
-    cell_IDs <- spatial_locations[, "cell_ID"]
-    cell_IDs <- cell_IDs$cell_ID
+    spatial_locations <- getSpatialLocations(
+        gobject = gobject, spat_unit = spat_unit, name = spat_loc_name,
+        set_defaults = FALSE, verbose = FALSE, output = "spatLocsObj"
+    )
 
-    colnames_to_extract <- c("sdimx", "sdimy", "sdimz")
-    spatial_locations <- spatial_locations[, colnames_to_extract]
-
-    spatial_locations <- spatial_locations@coordinates
-
-    spatial_locations <- as.matrix(spatial_locations)
-    rownames(spatial_locations) <- cell_IDs
+    spatial_locations <- as.matrix(spatial_locations, id_rownames = TRUE)
     cell_ID_vec <- seq_len(nrow(spatial_locations))
     names(cell_ID_vec) <- rownames(spatial_locations)
 
     # generate section plane equation
 
     method <- match.arg(
-        method, 
-        c("equation", "3 points", "point and norm vector", 
+        method,
+        c("equation", "3 points", "point and norm vector",
         "point and two plane vectors"))
 
-    if (method == "equation") {
-        if (is.null(equation)) {
-            message("equation was not provided.")
-        } else {
-            plane_equation <- equation
-            plane_equation[4] <- -equation[4]
-        }
-    } else if (method == "point and norm vector") {
-        if (is.null(point1) | is.null(normVector)) {
-            message("either point or norm vector was not provided.")
-        } else {
-            plane_equation <- c()
-            plane_equation[1:3] <- normVector
-            plane_equation[4] <- -point1 %*% normVector
-        }
-    } else if (method == "point and two plane vectors") {
-        if (is.null(point1) | is.null(planeVector1) | is.null(planeVector2)) {
-            message("either point or any of the two plane vectors was not 
+    switch(method,
+        "equation" = {
+            if (is.null(equation)) {
+                message("equation was not provided.")
+            } else {
+                plane_equation <- equation
+                plane_equation[4] <- -equation[4]
+            }
+        },
+        "point and norm vector" = {
+            if (is.null(point1) || is.null(normVector)) {
+                message("either point or norm vector was not provided.")
+            } else {
+                plane_equation <- c()
+                plane_equation[seq_len(3)] <- normVector
+                plane_equation[4] <- -point1 %*% normVector
+            }
+        },
+        "point and two plane vectors" = {
+            if (is.null(point1) ||
+                is.null(planeVector1) ||
+                is.null(planeVector2)) {
+                message("either point or any of the two plane vectors was not
                     provided.")
-        } else {
-            normVector <- crossprod(planeVector1, planeVector2)
-            plane_equation[1:3] <- normVector
-            plane_equation[4] <- -point1 %*% normVector
+            } else {
+                normVector <- crossprod(planeVector1, planeVector2)
+                plane_equation[seq_len(3)] <- normVector
+                plane_equation[4] <- -point1 %*% normVector
+            }
+        },
+        "3 points" = {
+            if (is.null(point1) || is.null(point2) || is.null(point3)) {
+                message("not all three points were provided.")
+            } else {
+                planeVector1 <- point2 - point1
+                planeVector2 <- point3 - point1
+                normVector <- crossprod(planeVector1, planeVector2)
+                plane_equation[seq_len(3)] <- normVector
+                plane_equation[4] <- -point1 %*% normVector
+            }
         }
-    } else if (method == "3 points") {
-        if (is.null(point1) | is.null(point2) | is.null(point3)) {
-            message("not all three points were provided.")
-        } else {
-            planeVector1 <- point2 - point1
-            planeVector2 <- point3 - point1
-            normVector <- crossprod(planeVector1, planeVector2)
-            plane_equation[1:3] <- normVector
-            plane_equation[4] <- -point1 %*% normVector
-        }
-    }
+    )
+
     names(plane_equation) <- c("A", "B", "C", "D")
 
     # determine section thickness
     thickness_unit <- match.arg(thickness_unit, c("cell", "natural"))
     sectionThickness <- get_sectionThickness(gobject,
+        spat_unit = spat_unit,
         thickness_unit = thickness_unit,
         slice_thickness = slice_thickness,
         spatial_network_name = spatial_network_name,
@@ -602,8 +647,8 @@ createCrossSection <- function(gobject,
     }
     ## find the projection Xp,Yp,Zp coordinates ##
     cell_subset_projection_locations <- t(apply(
-        cell_subset_spatial_locations, 1, 
-        function(x) projection_fun(x, plane_point = plane_point, 
+        cell_subset_spatial_locations, 1,
+        function(x) projection_fun(x, plane_point = plane_point,
                                 plane_norm = plane_equation[1:3])))
 
     # get the local coordinates of selected cells on the section plane
@@ -634,14 +679,31 @@ createCrossSection <- function(gobject,
     )
 
 
-    if (return_gobject == TRUE) {
-        cs_names <- names(gobject@spatial_network[[
-            spatial_network_name]]$crossSectionObjects)
+    if (return_gobject) {
+
+        sn <- getSpatialNetwork(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            name = spatial_network_name,
+            copy_obj = FALSE,
+            set_defaults = FALSE,
+            verbose = FALSE,
+            output = "spatialNetworkObj"
+        )
+
+        cs_names <- names(sn@crossSectionObjects)
         if (name %in% cs_names) {
-            cat(name, " has already been used, will be overwritten")
+            vmsg(.v = verbose, sprintf(
+                "name '%s' has already been used, will be overwritten",
+                name)
+            )
         }
-        gobject@spatial_network[[spatial_network_name]]$crossSectionObjects[[
-            name]] <- crossSection_obj
+
+        sn@crossSectionObjects[[name]] <- crossSection_obj
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject <- setGiotto(gobject, sn, verbose = FALSE)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         return(gobject)
     } else {
@@ -653,16 +715,18 @@ createCrossSection <- function(gobject,
 # cross section visual functions ####
 
 ####
-#' @title crossSectionGenePlot
-#' @name crossSectionGenePlot
-#' @description Visualize cells and gene expression in a virtual cross section 
-#' according to spatial coordinates
+#' @title crossSectionFeatPlot
+#' @name crossSectionFeatPlot
+#' @description Visualize cells and feature expression in a virtual cross
+#' section according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations
 #' @param crossSection_obj crossSection object
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
-#' @param default_save_name default save name for saving, don't change, 
+#' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
 #' @param ... parameters for spatFeatPlot2D
 #' @returns ggplot
@@ -670,36 +734,68 @@ createCrossSection <- function(gobject,
 #' @md
 #' @seealso [GiottoVisuals::spatGenePlot3D] and [GiottoVisuals::spatFeatPlot2D]
 #' @export
-crossSectionGenePlot <- function(
+crossSectionFeatPlot <- function(
         gobject = NULL,
+        spat_unit = NULL,
+        feat_type = NULL,
         spat_loc_name = "raw",
         crossSection_obj = NULL,
         name = NULL,
         spatial_network_name = "Delaunay_network",
         default_save_name = "crossSectionGenePlot",
         ...) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
+
     # load cross section object
-    if (!is.null(crossSection_obj)) {
-        crossSection_obj <- crossSection_obj
-    } else {
+    if (is.null(crossSection_obj)) {
         crossSection_obj <- read_crossSection(
             gobject,
+            spat_unit = spat_unit,
             name = name,
             spatial_network_name = spatial_network_name
         )
     }
 
     cell_subset <- crossSection_obj$cell_subset
-    cell_subset_projection_coords <- crossSection_obj$cell_subset_projection_coords
+    cell_subset <- rownames(cell_subset)[which(cell_subset)]
+    cell_subset_projection_coords <-
+        crossSection_obj$cell_subset_projection_coords
+
     # modify gobject based on crossSection object
-    subset_cell_IDs <- gobject@cell_metadata$cell_ID[cell_subset]
-    temp_gobject <- subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimx <- cell_subset_projection_coords[, 1]
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimy <- cell_subset_projection_coords[, 2]
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimz <- rep(0, dim(cell_subset_projection_coords)[1])
+    gobj_sids <- spatIDs(gobject, spat_unit = spat_unit)
+    subset_cell_ids <- gobj_sids[gobj_sids %in% cell_subset]
+    temp_gobject <- subsetGiotto(gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        cell_ids = subset_cell_ids
+    )
+
+    sl <- getSpatialLocations(
+        gobject = temp_gobject,
+        spat_unit = spat_unit,
+        name = spat_loc_name,
+        output = "spatLocsObj",
+        copy_obj = TRUE,
+        verbose = FALSE
+    )
+
+    sl[]$sdimx <- cell_subset_projection_coords[, 1]
+    sl[]$sdimy <- cell_subset_projection_coords[, 2]
+    sl[]$sdimz <- rep(0, dim(cell_subset_projection_coords)[1])
+
+    temp_gobject <- setGiotto(temp_gobject, sl, verbose = FALSE)
+
     # call spatFeatPlot2D to generate the plots
     GiottoVisuals::spatFeatPlot2D(
         gobject = temp_gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
         spatial_network_name = spatial_network_name,
         default_save_name = default_save_name,
         ...
@@ -709,16 +805,17 @@ crossSectionGenePlot <- function(
 
 #' @title crossSectionPlot
 #' @name crossSectionPlot
-#' @description Visualize cells in a virtual cross section according to 
+#' @description Visualize cells in a virtual cross section according to
 #' spatial coordinates
 #' @param gobject giotto object
-#' @param spat_loc_name name of spatial locations
+#' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @param crossSection_obj cross section object as alternative input. 
+#' @param spat_loc_name name of spatial locations
+#' @param crossSection_obj cross section object as alternative input.
 #' default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
-#' @param default_save_name default save name for saving, don't change, 
+#' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
 #' @param ... parameters for spatPlot2D
 #' @returns ggplot
@@ -726,45 +823,65 @@ crossSectionGenePlot <- function(
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
 crossSectionPlot <- function(gobject,
-    spat_loc_name = "raw",
+    spat_unit = NULL,
     feat_type = NULL,
+    spat_loc_name = "raw",
     crossSection_obj = NULL,
     name = NULL,
     spatial_network_name = "Delaunay_network",
     default_save_name = "crossSectionPlot",
     ...) {
-    # specify feat_type
-    if (is.null(feat_type)) {
-        feat_type <- gobject@expression_feat[[1]]
-    }
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
 
     # load cross section object
-    if (!is.null(crossSection_obj)) {
-        crossSection_obj <- crossSection_obj
-    } else {
-        crossSection_obj <- read_crossSection(gobject,
+    if (is.null(crossSection_obj)) {
+        crossSection_obj <- read_crossSection(
+            gobject = gobject,
+            spat_unit = spat_unit,
             name = name,
             spatial_network_name = spatial_network_name
         )
     }
 
-
     cell_subset <- crossSection_obj$cell_subset
-    cell_subset_projection_coords <- crossSection_obj$cell_subset_projection_coords
+    cell_subset <- rownames(cell_subset)[which(cell_subset)]
+    cell_subset_projection_coords <-
+        crossSection_obj$cell_subset_projection_coords
 
     # modify gobject based on crossSection object
-    subset_cell_IDs <- gobject@cell_metadata[[feat_type]]$cell_ID[cell_subset]
+    gobj_sids <- spatIDs(gobject, spat_unit = spat_unit)
+    subset_cell_ids <- gobj_sids[gobj_sids %in% cell_subset]
     temp_gobject <- subsetGiotto(gobject,
+        spat_unit = spat_unit,
         feat_type = feat_type,
-        cell_ids = subset_cell_IDs
+        cell_ids = subset_cell_ids
     )
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimx <- cell_subset_projection_coords[, 1]
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimy <- cell_subset_projection_coords[, 2]
-    temp_gobject@spatial_locs[[spat_loc_name]]$sdimz <- rep(0, dim(cell_subset_projection_coords)[1])
+
+    sl <- getSpatialLocations(
+        gobject = temp_gobject,
+        spat_unit = spat_unit,
+        name = spat_loc_name,
+        output = "spatLocsObj",
+        copy_obj = TRUE,
+        verbose = FALSE
+    )
+
+    sl[]$sdimx <- cell_subset_projection_coords[, 1]
+    sl[]$sdimy <- cell_subset_projection_coords[, 2]
+    sl[]$sdimz <- rep(0, dim(cell_subset_projection_coords)[1])
+
+    temp_gobject <- setGiotto(temp_gobject, sl, verbose = FALSE)
 
     # call spatFeatPlot2D to generate the plots
     spatPlot2D(
         gobject = temp_gobject,
+        spat_unit = spat_unit,
         feat_type = feat_type,
         spatial_network_name = spatial_network_name,
         default_save_name = default_save_name,
@@ -773,94 +890,141 @@ crossSectionPlot <- function(gobject,
 }
 
 ####
-#' @title crossSectionGenePlot3D
-#' @name crossSectionGenePlot3D
-#' @description Visualize cells and gene expression in a virtual cross section 
-#' according to spatial coordinates
+#' @title crossSectionFeatPlot3D
+#' @name crossSectionFeatPlot3D
+#' @description Visualize cells and feature expression in a virtual cross
+#' section according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
-#' @param other_cell_color color of cells outside the cross section. 
+#' @param other_cell_color color of cells outside the cross section.
 #' default = transparent.
-#' @param default_save_name default save name for saving, don't change, change 
+#' @param default_save_name default save name for saving, don't change, change
 #' save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-crossSectionGenePlot3D <- function(gobject,
+crossSectionFeatPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
     crossSection_obj = NULL,
     name = NULL,
     spatial_network_name = "Delaunay_network",
+    show_other_cells = TRUE,
     other_cell_color = alpha("lightgrey", 0),
-    default_save_name = "crossSectionGenePlot3D", ...) {
+    default_save_name = "crossSectionGenePlot3D",
+    ...
+) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
+
     # load cross section object
-    if (!is.null(crossSection_obj)) {
-        crossSection_obj <- crossSection_obj
-    } else {
+    if (is.null(crossSection_obj)) {
         crossSection_obj <- read_crossSection(
-            gobject, name = name, spatial_network_name = spatial_network_name)
+            gobject = gobject,
+            spat_unit = spat_unit,
+            name = name,
+            spatial_network_name = spatial_network_name)
     }
 
-
     cell_subset <- crossSection_obj$cell_subset
-    cell_subset_projection_coords <- crossSection_obj$cell_subset_projection_coords
+    cell_subset <- rownames(cell_subset)[which(cell_subset)]
+    cell_subset_projection_coords <-
+        crossSection_obj$cell_subset_projection_coords
+
     # modify gobject based on crossSection object
-    subset_cell_IDs <- gobject@cell_metadata$cell_ID[cell_subset]
+    gobj_sids <- spatIDs(gobject, spat_unit = spat_unit)
+    subset_cell_ids <- gobj_sids[gobj_sids %in% cell_subset]
+
     # call spatGenePlot3D to generate the plots
-    spatGenePlot3D(gobject,
-        select_cells = subset_cell_IDs,
+    spatFeatPlot3D(gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        select_cells = subset_cell_ids,
+        show_other_cells = show_other_cells,
         other_cell_color = other_cell_color,
-        default_save_name = default_save_name, ...
+        default_save_name = default_save_name,
+        ...
     )
 }
 ####
 #' @title crossSectionPlot3D
 #' @name crossSectionPlot3D
-#' @description Visualize cells in a virtual cross section according to spatial 
+#' @description Visualize cells in a virtual cross section according to spatial
 #' coordinates
 #' @param gobject giotto object
-#' @param crossSection_obj cross section object as alternative input. 
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param crossSection_obj cross section object as alternative input.
 #' default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param show_other_cells display not selected cells
-#' @param other_cell_color color of cells outside the cross section. 
+#' @param other_cell_color color of cells outside the cross section.
 #' default = transparent.
-#' @param default_save_name default save name for saving, don't change, 
+#' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
 #' @param ... parameters for spatPlot3D
 #' @returns ggplot
 #' @details Description of parameters.
 #' @export
 crossSectionPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
     crossSection_obj = NULL,
     name = NULL,
     spatial_network_name = "Delaunay_network",
     show_other_cells = TRUE,
     other_cell_color = alpha("lightgrey", 0),
-    default_save_name = "crossSection3D", ...) {
+    default_save_name = "crossSection3D",
+    ...
+) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
+
     # load cross section object
-    if (!is.null(crossSection_obj)) {
-        crossSection_obj <- crossSection_obj
-    } else {
+    if (is.null(crossSection_obj)) {
         crossSection_obj <- read_crossSection(
-            gobject, name = name, spatial_network_name = spatial_network_name)
+            gobject,
+            spat_unit = spat_unit,
+            name = name,
+            spatial_network_name = spatial_network_name
+        )
     }
 
     cell_subset <- crossSection_obj$cell_subset
-    cell_subset_projection_coords <- crossSection_obj$cell_subset_projection_coords
+    cell_subset <- rownames(cell_subset)[which(cell_subset)]
+    cell_subset_projection_coords <-
+        crossSection_obj$cell_subset_projection_coords
+
     # modify gobject based on crossSection object
-    subset_cell_IDs <- gobject@cell_metadata$cell_ID[cell_subset]
-    
+    gobj_sids <- spatIDs(gobject, spat_unit = spat_unit)
+    subset_cell_ids <- gobj_sids[gobj_sids %in% cell_subset]
+
     # call spatPlot3D to generate the plots
     spatPlot3D(
         gobject = gobject,
-        select_cells = subset_cell_IDs,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        select_cells = subset_cell_ids,
         show_other_cells = show_other_cells,
         other_cell_color = other_cell_color,
-        default_save_name = default_save_name, ...
+        default_save_name = default_save_name,
+        ...
     )
 }
 
@@ -868,11 +1032,13 @@ crossSectionPlot3D <- function(gobject,
 ####
 #' @title insertCrossSectionSpatPlot3D
 #' @name insertCrossSectionSpatPlot3D
-#' @description Visualize the meshgrid lines of cross section together with 
+#' @description Visualize the meshgrid lines of cross section together with
 #' cells
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations
-#' @param crossSection_obj cross section object as alternative input. 
+#' @param crossSection_obj cross section object as alternative input.
 #' default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -885,13 +1051,15 @@ crossSectionPlot3D <- function(gobject,
 #' @param show_other_cells display not selected cells
 #' @param axis_scale axis_scale
 #' @param custom_ratio custom_ratio
-#' @param default_save_name default save name for saving, don't change, 
+#' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
 #' @param ... parameters for spatPlot3D
 #' @returns ggplot
 #' @details Description of parameters.
 #' @export
 insertCrossSectionSpatPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
     spat_loc_name = "raw",
     crossSection_obj = NULL,
     name = NULL,
@@ -903,18 +1071,33 @@ insertCrossSectionSpatPlot3D <- function(gobject,
     show_other_cells = FALSE,
     axis_scale = c("cube", "real", "custom"),
     custom_ratio = NULL,
-    default_save_name = "spat3D_with_cross_section", ...) {
+    default_save_name = "spat3D_with_cross_section",
+    ...
+) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
+
     # load cross section object
     if (!is.null(crossSection_obj)) {
         crossSection_obj <- crossSection_obj
     } else {
         crossSection_obj <- read_crossSection(
-            gobject, name = name, spatial_network_name = spatial_network_name)
+            gobject,
+            spat_unit = spat_unit,
+            name = name,
+            spatial_network_name = spatial_network_name
+        )
     }
 
 
-
     pl <- spatPlot3D(gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
         sdimx = sdimx,
         sdimy = sdimy,
         sdimz = sdimz,
@@ -922,7 +1105,8 @@ insertCrossSectionSpatPlot3D <- function(gobject,
         show_plot = FALSE,
         return_plot = TRUE,
         save_plot = FALSE,
-        default_save_name = default_save_name, ...
+        default_save_name = default_save_name,
+        ...
     )
 
     for (i in seq_len(dim(
@@ -932,18 +1116,25 @@ insertCrossSectionSpatPlot3D <- function(gobject,
             y = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_Y[, i],
             z = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_Z[, i],
             mode = "lines", type = "scatter3d",
-            line = list(color = mesh_grid_color, 
+            line = list(color = mesh_grid_color,
                         width = mesh_grid_width, dash = mesh_grid_style)
         )
     }
 
-    current_ratio <- plotly_axis_scale_3D(gobject@spatial_locs[[spat_loc_name]],
+    sl <- getSpatialLocations(
+        gobject = gobject, spat_unit = spat_unit, name = spat_loc_name,
+        output = "data.table", copy_obj = TRUE, verbose = FALSE,
+        set_defaults = TRUE
+    )
+
+    current_ratio <- plotly_axis_scale_3D(cell_locations = sl,
         sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
         mode = axis_scale, custom_ratio = custom_ratio
     )
 
     new_ratio <- adapt_aspect_ratio(
-        current_ratio, gobject@spatial_locs[[spat_loc_name]],
+        current_ratio =  current_ratio,
+        cell_locations = sl,
         sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
         mesh_obj = crossSection_obj$mesh_obj
     )
@@ -963,13 +1154,15 @@ insertCrossSectionSpatPlot3D <- function(gobject,
     return(pl)
 }
 ####
-#' @title insertCrossSectionGenePlot3D
-#' @name insertCrossSectionGenePlot3D
-#' @description Visualize cells and gene expression in a virtual cross section 
+#' @title insertCrossSectionFeatPlot3D
+#' @name insertCrossSectionFeatPlot3D
+#' @description Visualize cells and gene expression in a virtual cross section
 #' according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations
-#' @param crossSection_obj cross section object as alternative input. 
+#' @param crossSection_obj cross section object as alternative input.
 #' default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -985,17 +1178,19 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot logical. directly save the plot
-#' @param save_param list of saving parameters from 
+#' @param save_param list of saving parameters from
 #' [GiottoVisuals::all_plots_save_function]
-#' @param default_save_name default save name for saving, don't change, 
+#' @param default_save_name default save name for saving, don't change,
 #' change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @returns ggplot
 #' @details Description of parameters.
 #' @md
 #' @export
-insertCrossSectionGenePlot3D <- function(
+insertCrossSectionFeatPlot3D <- function(
         gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
         spat_loc_name = "raw",
         crossSection_obj = NULL,
         name = NULL,
@@ -1011,23 +1206,37 @@ insertCrossSectionGenePlot3D <- function(
         save_param = list(),
         default_save_name = "spatGenePlot3D_with_cross_section",
         ...) {
+
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject, spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
+
     # load cross section object
-    if (!is.null(crossSection_obj)) {
-        crossSection_obj <- crossSection_obj
-    } else {
+    if (is.null(crossSection_obj)) {
         crossSection_obj <- read_crossSection(
-            gobject, name = name, spatial_network_name = spatial_network_name)
+            gobject,
+            spat_unit = spat_unit,
+            name = name,
+            spatial_network_name = spatial_network_name
+        )
     }
 
-    pl <- spatGenePlot3D(gobject,
+    pl <- spatFeatPlot3D(gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
         show_other_cells = FALSE,
         axis_scale = axis_scale,
         custom_ratio = custom_ratio,
         show_plot = FALSE,
         return_plot = TRUE,
         save_plot = FALSE,
-        default_save_name = default_save_name, ...
+        default_save_name = default_save_name,
+        ...
     )
+
     for (i in seq_len(dim(
         crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2])) {
         pl <- pl %>% plotly::add_trace(
@@ -1036,23 +1245,27 @@ insertCrossSectionGenePlot3D <- function(
             z = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_Z[, i],
             mode = "lines+markers", type = "scatter3d", color = mesh_grid_color,
             marker = list(color = alpha(mesh_grid_color, 0)),
-            line = list(color = mesh_grid_color, 
+            line = list(color = mesh_grid_color,
                         width = mesh_grid_width, dash = mesh_grid_style)
         )
     }
 
-    current_ratio <- plotly_axis_scale_3D(gobject@spatial_locs[[spat_loc_name]],
-        sdimx = sdimx,
-        sdimy = sdimy,
-        sdimz = sdimz,
+    sl <- getSpatialLocations(
+        gobject = gobject, spat_unit = spat_unit, name = spat_loc_name,
+        output = "data.table", copy_obj = TRUE, verbose = FALSE,
+        set_defaults = TRUE
+    )
+
+
+    current_ratio <- plotly_axis_scale_3D(cell_locations = sl,
+        sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
         mode = axis_scale, custom_ratio = custom_ratio
     )
 
     new_ratio <- adapt_aspect_ratio(
-        current_ratio, gobject@spatial_locs[[spat_loc_name]],
-        sdimx = sdimx,
-        sdimy = sdimy,
-        sdimz = sdimz,
+        current_ratio = current_ratio,
+        cell_locations = sl,
+        sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
         mesh_obj = crossSection_obj$mesh_obj
     )
 

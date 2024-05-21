@@ -49,10 +49,10 @@
 
 \item{feature_set_2}{second specific feature set from feature pairs}
 
-\item{min_observations}{minimum number of interactions needed to be 
+\item{min_observations}{minimum number of interactions needed to be
 considered}
 
-\item{detailed}{provide more detailed information 
+\item{detailed}{provide more detailed information
 (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
@@ -66,17 +66,17 @@ considered}
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial 
+Cell-Cell communication scores for feature pairs based on spatial
 interaction
 }
 \description{
-Specific Cell-Cell communication scores based on spatial 
+Specific Cell-Cell communication scores based on spatial
 expression of interacting cells at spots resolution
 }
 \details{
-Statistical framework to identify if pairs of features 
-(such as ligand-receptor combinations) are expressed at higher levels than 
-expected based on a reshuffled null distribution of feature expression 
+Statistical framework to identify if pairs of features
+(such as ligand-receptor combinations) are expressed at higher levels than
+expected based on a reshuffled null distribution of feature expression
 values in cells that are spatially in proximity to each other.
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}

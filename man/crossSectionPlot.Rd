@@ -6,8 +6,9 @@
 \usage{
 crossSectionPlot(
   gobject,
-  spat_loc_name = "raw",
+  spat_unit = NULL,
   feat_type = NULL,
+  spat_loc_name = "raw",
   crossSection_obj = NULL,
   name = NULL,
   spatial_network_name = "Delaunay_network",
@@ -18,18 +19,20 @@ crossSectionPlot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_loc_name}{name of spatial locations}
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
 
-\item{crossSection_obj}{cross section object as alternative input. 
+\item{spat_loc_name}{name of spatial locations}
+
+\item{crossSection_obj}{cross section object as alternative input.
 default = NULL.}
 
 \item{name}{name of virtual cross section to use}
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{default_save_name}{default save name for saving, don't change, 
+\item{default_save_name}{default save name for saving, don't change,
 change save_name in save_param}
 
 \item{...}{parameters for spatPlot2D}
@@ -38,7 +41,7 @@ change save_name in save_param}
 ggplot
 }
 \description{
-Visualize cells in a virtual cross section according to 
+Visualize cells in a virtual cross section according to
 spatial coordinates
 }
 \details{

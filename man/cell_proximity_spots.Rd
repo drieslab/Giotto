@@ -16,7 +16,7 @@
 \arguments{
 \item{cell_IDs}{cell_IDs}
 
-\item{dwls_values}{data.table of cell type enrichment in each spot and 
+\item{dwls_values}{data.table of cell type enrichment in each spot and
 multiply by cell number in each spot}
 
 \item{pairs}{data.table of paired spots. Format: cell_ID1, cell_ID2, N}
@@ -34,10 +34,10 @@ external spots
 }
 \section{Functions}{
 \itemize{
-\item \code{.cell_proximity_spots_internal()}: Compute cell-cell interactions observed 
+\item \code{.cell_proximity_spots_internal()}: Compute cell-cell interactions observed
 value inner each spot
 
-\item \code{.cell_proximity_spots_external()}: Compute cell-cell interactions observed 
+\item \code{.cell_proximity_spots_external()}: Compute cell-cell interactions observed
 value for interacted spots
 
 \item \code{.cell_proximity_spots()}: Wrapper function

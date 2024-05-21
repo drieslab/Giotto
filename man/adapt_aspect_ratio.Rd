@@ -30,7 +30,7 @@ adapt_aspect_ratio(
 numeric
 }
 \description{
-adapt the aspact ratio after inserting cross section mesh grid 
+adapt the aspact ratio after inserting cross section mesh grid
 lines
 }
 \keyword{internal}

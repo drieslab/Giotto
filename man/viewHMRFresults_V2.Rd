@@ -66,8 +66,8 @@ spatial plots with HMRF domains
 function to view HMRF results with multiple betas
 }
 \details{
-This function plots spatial map of HMRF domain clusters for multiple beta 
+This function plots spatial map of HMRF domain clusters for multiple beta
 with the name (hmrf_name),
-matching the first part of the cell meta column names with HMRF clusters 
+matching the first part of the cell meta column names with HMRF clusters
 (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 }

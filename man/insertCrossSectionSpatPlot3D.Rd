@@ -6,6 +6,8 @@
 \usage{
 insertCrossSectionSpatPlot3D(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = "raw",
   crossSection_obj = NULL,
   name = NULL,
@@ -26,9 +28,13 @@ insertCrossSectionSpatPlot3D(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
+
 \item{spat_loc_name}{name of spatial locations}
 
-\item{crossSection_obj}{cross section object as alternative input. 
+\item{crossSection_obj}{cross section object as alternative input.
 default = NULL.}
 
 \item{name}{name of virtual cross section to use}
@@ -53,7 +59,7 @@ default = NULL.}
 
 \item{custom_ratio}{custom_ratio}
 
-\item{default_save_name}{default save name for saving, don't change, 
+\item{default_save_name}{default save name for saving, don't change,
 change save_name in save_param}
 
 \item{...}{parameters for spatPlot3D}
@@ -62,7 +68,7 @@ change save_name in save_param}
 ggplot
 }
 \description{
-Visualize the meshgrid lines of cross section together with 
+Visualize the meshgrid lines of cross section together with
 cells
 }
 \details{

@@ -40,7 +40,7 @@ g <- GiottoData::loadGiottoMini("visium")
 spat_genes <- binSpect(g)
 
 output_folder <- tempdir()
-doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats, 
+doHMRF(g, spatial_genes = spat_genes[seq_len(10)]$feats,
 output_folder = output_folder)
 
 addHMRF(gobject = g, HMRFoutput = doHMRF)

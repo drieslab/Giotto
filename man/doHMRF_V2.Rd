@@ -7,12 +7,12 @@
 doHMRF_V2(HMRF_init_obj, betas = NULL)
 }
 \arguments{
-\item{HMRF_init_obj}{initialization object list returned from initHMRF() 
+\item{HMRF_init_obj}{initialization object list returned from initHMRF()
 function}
 
-\item{betas}{beta value of the HMRF model, controlling the smoothness of 
-clustering. NULL value of beta will provide default values based on feature 
-numbers, otherwise, a vector of three values: initial beta, beta increment, 
+\item{betas}{beta value of the HMRF model, controlling the smoothness of
+clustering. NULL value of beta will provide default values based on feature
+numbers, otherwise, a vector of three values: initial beta, beta increment,
 and number of betas}
 }
 \value{
@@ -22,21 +22,21 @@ HMRF model
 function to run HMRF model
 }
 \details{
-This function will run a HMRF model after initialization of HMRF. Of note 
+This function will run a HMRF model after initialization of HMRF. Of note
 is the beta parameter, the smoothing parameter.
-If the users are interested in selecting results from different smoothness, 
+If the users are interested in selecting results from different smoothness,
 we recommend running a range of betas,
-hence betas specify what this range is. For example, betas=c(0,10,5) will 
+hence betas specify what this range is. For example, betas=c(0,10,5) will
 run for the following betas: 0, 10, 20, 30, 40.
-betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the 
+betas=c(0,5,2) will run for betas: 0, 5, 10. Setting the beta can use the
 following guideline:
 If number of features N is 10<N<50, set betas=c(0, 1, 20)
 For 50<N<100, set betas=c(0, 2, 25)
 For 100<N<500, set betas=c(0, 5, 20)
-If user didn't specify the number or sequence of beta, the function will 
+If user didn't specify the number or sequence of beta, the function will
 provide a default value based on the number of features.
-Returns a list of results for betas, spat_unit and feat_type. Result for 
-each beta is a list with probability(normalized or non-normalized), class, 
+Returns a list of results for betas, spat_unit and feat_type. Result for
+each beta is a list with probability(normalized or non-normalized), class,
 and model log-likelihood value.
 }
 \examples{

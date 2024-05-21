@@ -35,7 +35,7 @@ x <- tempdir()
 doHMRF(g, spatial_genes = c("Gna12", "Ccnd2"), output_folder = x,
 betas = c(0, 2, 50))
 
-loadHMRF(output_folder_used = x, betas_used = c(0, 2, 50), 
+loadHMRF(output_folder_used = x, betas_used = c(0, 2, 50),
 python_path_used = NULL)
 
 }

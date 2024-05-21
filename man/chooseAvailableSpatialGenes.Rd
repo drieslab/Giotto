@@ -17,14 +17,14 @@ chooseAvailableSpatialGenes(gobject, spat_unit = NULL, feat_type = NULL)
 character
 }
 \description{
-function to find the test name for existing spatial gene sets 
+function to find the test name for existing spatial gene sets
 in Giotto
 }
 \details{
-This function outputs the available test name for existing spatial gene sets 
+This function outputs the available test name for existing spatial gene sets
 in Giotto,
 which could be used in parameter ‘name’ in `filterSpatialGenes`.
-Priorities for showing the spatial gene test names are ‘binSpect’ > 
+Priorities for showing the spatial gene test names are ‘binSpect’ >
 ‘silhouetteRankTest’ > ‘silhouetteRank’.
 }
 \keyword{internal}

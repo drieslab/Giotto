@@ -4,10 +4,22 @@
 \alias{viewHMRFresults2D}
 \title{viewHMRFresults2D}
 \usage{
-viewHMRFresults2D(gobject, HMRFoutput, k = NULL, betas_to_view = NULL, ...)
+viewHMRFresults2D(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  HMRFoutput,
+  k = NULL,
+  betas_to_view = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{HMRFoutput}{HMRF output from doHMRF}
 

@@ -36,7 +36,7 @@ spatCellCellcomSpots(
 
 \item{ave_celltype_exp}{Matrix with average expression per cell type}
 
-\item{spatial_network_name}{spatial network to use for identifying 
+\item{spatial_network_name}{spatial network to use for identifying
 interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
@@ -47,17 +47,17 @@ interacting cells}
 
 \item{feature_set_2}{second specific feature set from feature pairs}
 
-\item{min_observations}{minimum number of interactions needed to be 
+\item{min_observations}{minimum number of interactions needed to be
 considered}
 
 \item{expression_values}{(e.g. 'normalized', 'scaled', 'custom')}
 
-\item{detailed}{provide more detailed information 
+\item{detailed}{provide more detailed information
 (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
 
-\item{adjust_target}{adjust multiple hypotheses at the cell or feature 
+\item{adjust_target}{adjust multiple hypotheses at the cell or feature
 level}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
@@ -71,17 +71,17 @@ level}
 \item{verbose}{verbose (e.g. 'a little', 'a lot', 'none')}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial 
+Cell-Cell communication scores for feature pairs based on spatial
 interaction
 }
 \description{
-Spatial Cell-Cell communication scores based on spatial 
+Spatial Cell-Cell communication scores based on spatial
 expression of interacting cells at spots resolution
 }
 \details{
-Statistical framework to identify if pairs of features 
-(such as ligand-receptor combinations) are expressed at higher levels than 
-expected based on a reshuffled null distribution of feature expression 
+Statistical framework to identify if pairs of features
+(such as ligand-receptor combinations) are expressed at higher levels than
+expected based on a reshuffled null distribution of feature expression
 values in cells that are spatially in proximity to each other.
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}

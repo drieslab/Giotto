@@ -69,18 +69,18 @@ findICFSpot(
 icfObject that contains the differential feat scores
 }
 \description{
-Identifies cell-to-cell Interaction Changed Features (ICF) for 
-spots, i.e. features expression residual that are different due to proximity 
+Identifies cell-to-cell Interaction Changed Features (ICF) for
+spots, i.e. features expression residual that are different due to proximity
 to other cell types.
 }
 \details{
-Function to calculate if features expression residual are 
-differentially expressed in cell types when they interact 
+Function to calculate if features expression residual are
+differentially expressed in cell types when they interact
 (approximated by physical proximity) with other cell types.
 Feature expression residual calculated as:
-(observed expression in spot - cell_type_proportion * 
+(observed expression in spot - cell_type_proportion *
 average_expressed_in_cell_type)
-The results data.table in the icfObject contains - at least - 
+The results data.table in the icfObject contains - at least -
 the following columns:
 \itemize{
  \item{features:}{ All or selected list of tested features}

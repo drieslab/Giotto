@@ -51,26 +51,26 @@ initHMRF_V2(
 
 \item{use_spatial_genes}{which of Giotto's spatial genes to use}
 
-\item{use_score}{use score as gene selection criterion 
+\item{use_score}{use score as gene selection criterion
 (applies when use_spatial_genes=silhouetteRank)}
 
 \item{gene_list_from_top}{total spatial genes before sampling}
 
-\item{filter_method}{filter genes by top or by elbow method, prior to 
+\item{filter_method}{filter genes by top or by elbow method, prior to
 sampling}
 
 \item{user_gene_list}{user-specified genes (optional)}
 
-\item{use_pca}{if PCA is used on the spatial gene expression value for 
+\item{use_pca}{if PCA is used on the spatial gene expression value for
 clustering}
 
 \item{use_pca_dim}{dimensions of the PCs of the selected expression}
 
 \item{gene_samples}{number of spatial gene subset to use for HMRF}
 
-\item{gene_sampling_rate}{parameter (1-50) controlling proportion of gene 
-samples from different module when sampling, 1 corresponding to equal gene 
-samples between different modules; 50 corresponding to gene samples 
+\item{gene_sampling_rate}{parameter (1-50) controlling proportion of gene
+samples from different module when sampling, 1 corresponding to equal gene
+samples between different modules; 50 corresponding to gene samples
 proportional to module size.}
 
 \item{gene_sampling_seed}{random number seed to sample spatial genes}
@@ -79,24 +79,24 @@ proportional to module size.}
 
 \item{cluster_metagene}{number of metagenes to use}
 
-\item{top_metagene}{= number of genes in each cluster for the metagene 
+\item{top_metagene}{= number of genes in each cluster for the metagene
 calculation}
 
-\item{existing_spatial_enrichm_to_use}{name of existing spatial enrichment 
+\item{existing_spatial_enrichm_to_use}{name of existing spatial enrichment
 result to use}
 
-\item{use_neighborhood_composition}{if neighborhood composition is used for 
+\item{use_neighborhood_composition}{if neighborhood composition is used for
 hmrf}
 
-\item{spatial_network_name_for_neighborhood}{spatial network used to 
+\item{spatial_network_name_for_neighborhood}{spatial network used to
 calculate neighborhood composition}
 
 \item{metadata_to_use}{metadata used to calculate neighborhood composition}
 
-\item{hmrf_seed}{random number seed to generate initial mean vector of HMRF 
+\item{hmrf_seed}{random number seed to generate initial mean vector of HMRF
 model}
 
-\item{cl.method}{clustering method to calculate the initial mean vector, 
+\item{cl.method}{clustering method to calculate the initial mean vector,
 selecting from 'km', 'leiden', or 'louvain'}
 
 \item{resolution.cl}{resolution of Leiden or Louvain clustering}
@@ -107,7 +107,7 @@ selecting from 'km', 'leiden', or 'louvain'}
 
 \item{zscore}{type of zscore to use}
 
-\item{nstart}{number of Kmeans initializations from which to select the 
+\item{nstart}{number of Kmeans initializations from which to select the
 best initialization}
 
 \item{factor_step}{dampened factor step}
@@ -121,34 +121,34 @@ initialized HMRF
 Run initialization for HMRF model
 }
 \details{
-This function is the initialization step of HMRF domain clustering. First, 
+This function is the initialization step of HMRF domain clustering. First,
 user specify which of Giotto's spatial genes to run,
-through use_spatial_genes. Spatial genes have been stored in the gene 
+through use_spatial_genes. Spatial genes have been stored in the gene
 metadata table. A first pass of genes will filter genes that
-are not significantly spatial, as determined by filter_method. If 
+are not significantly spatial, as determined by filter_method. If
 filter_method is none, then top 2500 (gene_list_from_top) genes
-ranked by pvalue are considered spatial. If filter_method is elbow, then the 
+ranked by pvalue are considered spatial. If filter_method is elbow, then the
 exact cutoff is determined by the elbow in
-the -log10 P-value vs. gene rank plot. Second, users have a few options to 
+the -log10 P-value vs. gene rank plot. Second, users have a few options to
 decrease the dimension of the spatial genes for
 clustering, listed with selection priority:
    1. use PCA of the spatial gene expressions (selected by use_pca)
    2. use metagene expressions (selected by use_metagene)
    3. sampling to select 500 spatial genes (controlled by gene_samples).
-Third, once spatial genes are finalized, we are using clustering method to 
+Third, once spatial genes are finalized, we are using clustering method to
 initialize HMRF.
-Instead of select spatial genes for domain clustering, HMRF method could 
+Instead of select spatial genes for domain clustering, HMRF method could
 also applied on unit neighborhood composition of any group
-membership(such as cell types), specified by parameter: 
+membership(such as cell types), specified by parameter:
 use_neighborhood_composition,  spatial_network_name_for_neighborhood and
-metadata_to_use. Also HMRF provides the opportunity for user to do 
+metadata_to_use. Also HMRF provides the opportunity for user to do
 clustering by any customized spatial enrichment matrix
 (existing_spatial_enrichm_to_use).
-There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine 
+There are 3 clustering algorithm: K-means, Leiden, and Louvain to determine
 initial centroids of HMRF. The initialization is
-then finished. This function returns a list containing y (expression), 
+then finished. This function returns a list containing y (expression),
 nei (neighborhood structure), numnei (number of neighbors),
-blocks (graph colors), damp (dampened factor), mu (mean), 
+blocks (graph colors), damp (dampened factor), mu (mean),
 sigma (covariance), k, genes, edgelist, init.cl (initial clusters),
 spat_unit, feat_type. This information is needed for the second step, doHMRF.
 }
