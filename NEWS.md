@@ -1,4 +1,10 @@
 
+# Giotto 4.0.9
+
+## Breaking changes
+* Deprecated `detectSpatialCorGenes()` removed. Use `detectSpatialCorFeats()` instead
+
+
 # Giotto 4.0.8 (2024/05/22)
 
 ## Breaking changes

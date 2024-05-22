@@ -542,7 +542,7 @@ NULL
     }
 
     groups <- ceiling(nrow(bin_matrix) / group_size)
-    cut_groups <- cut(seq_len(nrow(bin_matrix)), breaks = groups, 
+    cut_groups <- cut(seq_len(nrow(bin_matrix)), breaks = groups,
                     labels = seq_len(groups))
     if (any(table(cut_groups) == 1)) {
         stop("With group size = ", group_size,
@@ -3001,7 +3001,7 @@ selectPatternGenes <- function(spatPatObj,
     gene_cor_DT_m[, top_pos_rank := rank(value), by = "variable"]
     gene_cor_DT_m[, top_neg_rank := rank(-value), by = "variable"]
     selection <- gene_cor_DT_m[
-        top_pos_rank %in% seq_len(top_pos_genes) | 
+        top_pos_rank %in% seq_len(top_pos_genes) |
             top_neg_rank %in% seq_len(top_neg_genes)]
 
     # filter on min correlation
@@ -3577,79 +3577,6 @@ detectSpatialCorFeats <- function(gobject,
     class(spatCorObject) <- append("spatCorObject", class(spatCorObject))
 
     return(spatCorObject)
-}
-
-
-
-#' @title detectSpatialCorGenes
-#' @name detectSpatialCorGenes
-#' @description Detect genes that are spatially correlated
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param method method to use for spatial averaging
-#' @param expression_values gene expression values to use
-#' @param subset_feats subset of feats to use
-#' @param subset_genes deprecated, use \code{subset_feats}
-#' @param spatial_network_name name of spatial network to use
-#' @param network_smoothing  smoothing factor beteen 0 and 1
-#' (default: automatic)
-#' @param spatial_grid_name name of spatial grid to use
-#' @param min_cells_per_grid minimum number of cells to consider a grid
-#' @param cor_method correlation method
-#' @returns returns a spatial correlation object: "spatCorObject"
-#' @details
-#' For method = network, it expects a fully connected spatial network. You
-#' can make sure to create a
-#' fully connected network by setting minimal_k > 0 in the
-#' \code{\link{createSpatialNetwork}} function.
-#' \itemize{
-#'  \item{1. grid-averaging: }{average gene expression values within a
-#'  predefined spatial grid}
-#'  \item{2. network-averaging: }{smoothens the gene expression matrix by
-#'  averaging the expression within one cell
-#'  by using the neighbours within the predefined spatial network. b is a
-#'  smoothening factor that defaults to 1 - 1/k, where k is the median
-#'  number of  k-neighbors in the selected spatial network. Setting b = 0
-#'  means no smoothing and b = 1 means no contribution
-#'  from its own expression.}
-#' }
-#' The spatCorObject can be further explored with showSpatialCorGenes()
-#' @seealso \code{\link{showSpatialCorGenes}}
-#' @export
-detectSpatialCorGenes <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    method = c("grid", "network"),
-    expression_values = c("normalized", "scaled", "custom"),
-    subset_feats = NULL,
-    subset_genes = NULL,
-    spatial_network_name = "Delaunay_network",
-    network_smoothing = NULL,
-    spatial_grid_name = "spatial_grid",
-    min_cells_per_grid = 4,
-    cor_method = c("pearson", "kendall", "spearman")) {
-    ## deprecated arguments
-    if (!is.null(subset_genes)) {
-        subset_feats <- subset_genes
-        warning("subset_genes is deprecated, use subset_feats in the future")
-    }
-
-    warning("Deprecated and replaced by detectSpatialCorFeats")
-
-    detectSpatialCorFeats(
-        gobject = gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit,
-        method = method,
-        expression_values = expression_values,
-        subset_feats = subset_feats,
-        spatial_network_name = spatial_network_name,
-        network_smoothing = network_smoothing,
-        spatial_grid_name = spatial_grid_name,
-        min_cells_per_grid = min_cells_per_grid,
-        cor_method = cor_method
-    )
 }
 
 
