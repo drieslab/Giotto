@@ -26,6 +26,9 @@ run_spatial_sim_tests_one_rep(
   ...
 )
 }
+\value{
+data.table
+}
 \description{
 runs all spatial tests for 1 probability and 1 rep
 }

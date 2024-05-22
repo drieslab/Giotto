@@ -29,11 +29,20 @@ filterSpatialGenes(
 
 \item{method}{method of spatial gene selection}
 }
+\value{
+list
+}
 \description{
 function to filter gene list with existing spatial gene sets
 }
 \details{
-This function filters given gene list with the gene sets of selected spatial gene test in Giotto,
+This function filters given gene list with the gene sets of selected
+spatial gene test in Giotto,
 also controls the total size of the gene set with given max number.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterSpatialGenes(g, spatial_genes = "Gm19935")
 }
 \keyword{external}

@@ -48,5 +48,11 @@ silhouetteRankTest(
 data.table with spatial scores
 }
 \description{
-Multi parameter aggregator version of \code{\link{silhouetteRank}}
+Multi parameter aggregator version of
+\code{\link{silhouetteRank}}
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+silhouetteRankTest(g)
 }

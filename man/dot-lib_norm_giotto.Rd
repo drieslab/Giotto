@@ -11,6 +11,9 @@
 
 \item{scalefactor}{scalefactor}
 }
+\value{
+matrix
+}
 \description{
 Normalize expression matrix for library size
 }

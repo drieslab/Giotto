@@ -35,8 +35,16 @@ adds cells statistics to the giotto object
 \details{
 This function will add the following statistics to cell metadata:
 \itemize{
-  \item{nr_feats: }{Denotes in how many features are detected per cell}
-  \item{perc_feats: }{Denotes what percentage of features is detected per cell}
-  \item{total_expr: }{Shows the total sum of feature expression per cell}
+  \item{\strong{nr_feats:} Denotes in how many features are detected per
+  cell}
+  \item{\strong{perc_feats:} Denotes what percentage of features is
+  detected per cell}
+  \item{\strong{total_expr:} Shows the total sum of feature expression per
+  cell}
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addCellStatistics(g)
 }

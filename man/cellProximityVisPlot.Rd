@@ -13,17 +13,17 @@ cellProximityVisPlot(
   sdimz = NULL,
   cell_color = NULL,
   cell_color_code = NULL,
-  color_as_factor = T,
-  show_other_cells = F,
-  show_network = F,
-  show_other_network = F,
+  color_as_factor = TRUE,
+  show_other_cells = FALSE,
+  show_network = FALSE,
+  show_other_network = FALSE,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
-  show_grid = F,
+  show_grid = FALSE,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 1,
-  show_legend = T,
+  show_legend = TRUE,
   point_size_select = 2,
   point_select_border_col = "black",
   point_select_border_stroke = 0.05,
@@ -111,8 +111,17 @@ cellProximityVisPlot(
 ggplot or plotly
 }
 \description{
-Visualize cell-cell interactions according to spatial coordinates
+Visualize cell-cell interactions according to spatial 
+coordinates
 }
 \details{
 Description of parameters.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximityVisPlot(gobject = g, interaction_name = x,
+cluster_column = "leiden_clus", sdimx = "sdimx", sdimy = "sdimy")
 }

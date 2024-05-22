@@ -8,7 +8,8 @@
 .visium_micron_scale(json_scalefactors)
 }
 \arguments{
-\item{json_scalefactors}{list of scalefactors from .visium_read_scalefactors()}
+\item{json_scalefactors}{list of scalefactors from 
+.visium_read_scalefactors()}
 }
 \value{
 scale factor for converting pixel to micron

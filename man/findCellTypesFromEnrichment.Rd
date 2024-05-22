@@ -17,13 +17,17 @@ findCellTypesFromEnrichment(
 
 \item{spat_unit}{spatial unit in which the enrichment information is stored}
 
-\item{feat_type}{feature type for which the enrichment information was calculated}
+\item{feat_type}{feature type for which the enrichment information was 
+calculated}
 
 \item{enrichment_name}{name of the spatial enrichment
 i.e. output from GiottoClass::list_spatial_enrichment_names()
 Default value is "PAGE_Z_score"}
 
 \item{return_frequency_table}{see details. Default FALSE}
+}
+\value{
+table
 }
 \description{
 findCellTypesFromEnrichment

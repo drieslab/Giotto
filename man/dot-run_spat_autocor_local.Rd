@@ -13,6 +13,9 @@
   IDs
 )
 }
+\value{
+data.table
+}
 \description{
 .run_spat_autocor_local
 }

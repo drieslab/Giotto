@@ -6,6 +6,7 @@
 \usage{
 get_sectionThickness(
   gobject,
+  spat_unit = NULL,
   thickness_unit = c("cell", "natural"),
   slice_thickness = 2,
   spatial_network_name = "Delaunay_network",
@@ -16,6 +17,8 @@ get_sectionThickness(
 \arguments{
 \item{gobject}{gobject}
 
+\item{spat_unit}{spatial unit}
+
 \item{thickness_unit}{thickness_unit}
 
 \item{spatial_network_name}{spatial_network_name}
@@ -23,6 +26,9 @@ get_sectionThickness(
 \item{cell_distance_estimate_method}{cell_distance_estimate_method}
 
 \item{plane_equation}{plane_equation}
+}
+\value{
+numeric
 }
 \description{
 get section thickness

@@ -13,6 +13,7 @@
 list of two dendrograms and height of node
 }
 \description{
-Merge selected clusters based on pairwise correlation scores and size of cluster.
+Merge selected clusters based on pairwise correlation scores
+and size of cluster.
 }
 \keyword{internal}

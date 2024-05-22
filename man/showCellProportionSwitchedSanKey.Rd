@@ -12,13 +12,18 @@ showCellProportionSwitchedSanKey(
 )
 }
 \arguments{
-\item{gobject}{giotto object which contains metadata for both spat_unit and alt_spat_unit}
+\item{gobject}{giotto object which contains metadata for both spat_unit and 
+alt_spat_unit}
 
 \item{spat_unit}{spatial unit}
 
-\item{alt_spat_unit}{alternative spatial unit which stores data after resizing annotations}
+\item{alt_spat_unit}{alternative spatial unit which stores data after 
+resizing annotations}
 
 \item{feat_type}{feature type}
+}
+\value{
+D3 JavaScript Sankey diagram
 }
 \description{
 showCellProportionSwitchedSanKey

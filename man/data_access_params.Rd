@@ -22,6 +22,9 @@ expression and spat_info are not expected to exist.}
 \item{initialize}{(default = FALSE) whether to initialize the gobject before
 returning}
 }
+\value{
+list
+}
 \description{
 data_access_params
 }

@@ -20,7 +20,7 @@ exportGiottoViewer(
   dim_red_rescale = c(-20, 20),
   expression_rounding = 2,
   overwrite_dir = TRUE,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{
@@ -67,14 +67,4 @@ Giotto Viewer expects the results from Giotto Analyzer in a specific format,
 which is provided by this function. To include enrichment results from {\code{\link{createSpatialEnrich}}}
 include the provided spatial enrichment name (default PAGE or rank)
 and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
-}
-\examples{
-
-\dontrun{
-
-data(mini_giotto_single_cell)
-exportGiottoViewer(mini_giotto_single_cell)
-
-}
-
 }

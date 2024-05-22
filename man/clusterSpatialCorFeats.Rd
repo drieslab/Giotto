@@ -29,3 +29,9 @@ spatCorObject or cluster results
 \description{
 Cluster based on spatially correlated features
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+clusterSpatialCorFeats(spatCorObject = detectSpatialCorFeats(
+g, method = "network"))
+}

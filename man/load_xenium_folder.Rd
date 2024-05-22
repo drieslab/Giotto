@@ -47,13 +47,14 @@
 \item{data_to_use}{which type(s) of expression data to build the gobject with
 (e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')}
 
-\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 file.
-Default is \code{TRUE}}
+\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 
+file. Default is \code{TRUE}}
 
 \item{h5_gene_ids}{use gene symbols (default) or ensembl ids for the .h5 gene
 expression matrix}
 
-\item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
+\item{gene_column_index}{which column from the features or genes .tsv file 
+to use for row ids}
 
 \item{cores}{how many cores or threads to use to read data if paths are
 provided}

@@ -25,7 +25,7 @@ runUMAPprojection(
   spread = 5,
   set_seed = TRUE,
   seed_number = 1234,
-  verbose = T,
+  verbose = TRUE,
   toplevel_params = 2,
   ...
 )
@@ -84,7 +84,8 @@ giotto object with updated UMAP dimension reduction
 run UMAP on subset and project on the rest
 }
 \details{
-See \code{\link[uwot]{umap}} for more information about these and other parameters.
+See \code{\link[uwot]{umap}} for more information about these and 
+other parameters.
 \itemize{
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
@@ -92,4 +93,9 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runUMAPprojection(g)
 }

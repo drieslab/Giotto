@@ -11,6 +11,9 @@ extend_vector(x, extend_ratio)
 
 \item{extend_ratio}{extend_ratio}
 }
+\value{
+numeric
+}
 \description{
 extend the range of a vector by a given ratio
 }

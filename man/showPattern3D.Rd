@@ -11,7 +11,7 @@ showPattern3D(
   trim = c(0.02, 0.98),
   background_color = "white",
   grid_border_color = "grey",
-  show_legend = T,
+  show_legend = TRUE,
   point_size = 1,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
@@ -58,9 +58,11 @@ showPattern3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
+\item{save_param}{list of saving parameters, see
+\code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change,
+change save_name in save_param}
 }
 \value{
 plotly

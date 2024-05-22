@@ -67,6 +67,11 @@ cluster cells using hierarchical clustering algorithm
 \details{
 Description on how to use Kmeans clustering method.
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doHclust(g)
+}
 \seealso{
 \code{\link[stats]{hclust}}
 }

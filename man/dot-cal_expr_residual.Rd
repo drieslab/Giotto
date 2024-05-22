@@ -19,11 +19,16 @@
 
 \item{feat_type}{feature type (e.g. 'rna')}
 
-\item{expression_values}{expression values to use (e.g. 'normalized', 'scaled', 'custom')}
+\item{expression_values}{expression values to use
+(e.g. 'normalized', 'scaled', 'custom')}
 
 \item{ave_celltype_exp}{average expression matrix in cell types}
 }
+\value{
+matrix
+}
 \description{
-Calculate feature expression residual (observed_exp - DWLS_predicted)
+Calculate feature expression residual
+(observed_exp - DWLS_predicted)
 }
 \keyword{internal}

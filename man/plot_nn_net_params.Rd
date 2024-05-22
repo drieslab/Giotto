@@ -16,6 +16,9 @@
 
 \item{nn_network_alpha}{column to use for alpha of the edges}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_nn_net_params
 }

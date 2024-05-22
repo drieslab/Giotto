@@ -11,10 +11,13 @@
 .spat_or_func_dt(
   bin_matrix_DTm,
   spat_netw_min,
-  calc_hub = F,
+  calc_hub = FALSE,
   hub_min_int = 3,
   cores = NA
 )
+}
+\value{
+numeric
 }
 \description{
 calculate odds-ratio

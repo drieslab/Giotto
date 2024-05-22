@@ -12,6 +12,9 @@
 
 \item{cow_align}{cowplot param: how to align}
 }
+\value{
+cowplot
+}
 \description{
 Params documentation template: plot_cow_params
 }

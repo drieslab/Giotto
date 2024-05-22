@@ -1,9 +1,11 @@
-
 # GiottoUtils ####
+#' @returns pipe operator
 #' @export
 GiottoUtils::`%>%`
+#' @returns vector of colors
 #' @export
 GiottoUtils::getRainbowColors
+#' @returns vector of colors
 #' @export
 GiottoUtils::getDistinctColors
 
@@ -586,14 +588,3 @@ GiottoVisuals::spatNetwDistributionsKneighbors
 GiottoVisuals::subsetSankeySet
 #' @export
 GiottoVisuals::violinPlot
-
-
-
-
-
-
-
-
-
-
-

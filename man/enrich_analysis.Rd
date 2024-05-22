@@ -6,6 +6,9 @@
 \usage{
 enrich_analysis(expr_values, sign_matrix)
 }
+\value{
+enrichment matrix
+}
 \description{
 Rui to fill in
 }

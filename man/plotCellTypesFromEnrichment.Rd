@@ -22,7 +22,8 @@ plotCellTypesFromEnrichment(
 
 \item{spat_unit}{spatial unit in which the enrichment information is stored}
 
-\item{feat_type}{feature type for which the enrichment information was calculated}
+\item{feat_type}{feature type for which the enrichment information was 
+calculated}
 
 \item{enrichment_name}{name of the spatial enrichment
 i.e. output from GiottoClass::list_spatial_enrichment_names()
@@ -41,12 +42,16 @@ Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`}
 
 \item{return_plot}{logical. return ggplot object}
 }
+\value{
+plot
+}
 \description{
 plotCellTypesFromEnrichment
 }
 \details{
 This function generates a bar plot of cell types vs the frequency
-of that cell type in the data. These cell type resutls are
+of that cell type in the data. These cell type results are
 based on the provided `enrichment_name`, and will be determined
-by the maximum value of the z-score or p-value for a given cell or annotation.
+by the maximum value of the z-score or p-value for a given cell or 
+annotation.
 }

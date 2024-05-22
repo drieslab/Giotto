@@ -22,6 +22,9 @@ provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+giotto object
+}
 \description{
 Aggregate workflow for createGiottoXeniumObject
 }

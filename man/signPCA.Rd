@@ -84,12 +84,19 @@ ggplot object for scree method and maxtrix of p-values for jackstraw
 identify significant prinicipal components (PCs)
 }
 \details{
-Two different methods can be used to assess the number of relevant or significant
- prinicipal components (PC's). \cr
+Two different methods can be used to assess the number of relevant 
+or significant prinicipal components (PC's). \cr
  1. Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC provides a significant
+ individual PC in a barplot allowing you to identify which PC provides a 
+ significant
  contribution  (a.k.a. 'elbow method'). \cr
- 2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
- systematically permuting genes it identifies robust, and thus significant, PCs.
+ 2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} 
+ function. By systematically permuting genes it identifies robust, and thus 
+ significant, PCs.
  \cr
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+signPCA(g)
 }

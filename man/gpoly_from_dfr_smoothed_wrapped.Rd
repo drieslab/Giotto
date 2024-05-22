@@ -17,6 +17,9 @@ gpoly_from_dfr_smoothed_wrapped(
   verbose = TRUE
 )
 }
+\value{
+giottoPolygon
+}
 \description{
 Polygon creation and smoothing for parallel
 }

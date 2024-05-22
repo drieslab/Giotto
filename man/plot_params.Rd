@@ -72,6 +72,9 @@ use or vector of colors to use (minimum of 2).}
 
 \item{axis_title}{size of axis title}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_params
 }

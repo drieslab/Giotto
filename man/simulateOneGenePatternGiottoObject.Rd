@@ -13,7 +13,7 @@ simulateOneGenePatternGiottoObject(
   gradient_direction = NULL,
   show_pattern = TRUE,
   pattern_colors = c(`in` = "green", out = "red"),
-  ...
+  normalization_params = list()
 )
 }
 \arguments{
@@ -25,7 +25,8 @@ simulateOneGenePatternGiottoObject(
 
 \item{gene_name}{selected gene}
 
-\item{spatial_prob}{probability for a high expressing gene value to be part of the spatial pattern}
+\item{spatial_prob}{probability for a high expressing gene value to be
+part of the spatial pattern}
 
 \item{gradient_direction}{direction of gradient}
 
@@ -33,11 +34,20 @@ simulateOneGenePatternGiottoObject(
 
 \item{pattern_colors}{2 color vector for the spatial pattern}
 
-\item{\dots}{additional parameters for (re-)normalizing}
+\item{normalization_params}{additional parameters for (re-)normalizing}
 }
 \value{
-Reprocessed Giotto object for which one gene has a forced spatial pattern
+Reprocessed Giotto object for which one gene has a forced
+spatial pattern
 }
 \description{
 Create a simulated spatial pattern for one selected gnee
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+simulateOneGenePatternGiottoObject(gobject = g,
+pattern_cell_ids = c("AAAGGGATGTAGCAAG-1", "TCAAACAACCGCGTCG-1",
+"ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"),
+gene_name = "Gna12")
 }

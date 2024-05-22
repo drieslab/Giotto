@@ -1,9 +1,9 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.6
+Version: 4.0.7
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
-		 role = c("aut", "cre")),
+		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
 	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
 		 role = c("aut")),
 	person("Joselyn C.", "Chávez-Fuentes", email = "joselynchavezf@gmail.com",
@@ -19,20 +19,19 @@ Authors@R: c(
 	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
 		 role = c("aut"))
 	)
-Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
-License: GPL (>= 3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
 RoxygenNote: 7.3.1
 Depends:
-    base (>= 3.5.0),
-    utils (>= 3.5.0),
-    R (>= 3.5.0),
+    base (>= 4.1.0),
+    utils (>= 4.1.0),
+    R (>= 4.1.0),
     methods,
-    GiottoClass (>= 0.3.0)
+    GiottoClass (>= 0.3.1)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -42,12 +41,12 @@ Imports:
     dbscan (>= 1.1-3),
     ggplot2 (>= 3.1.1),
     ggrepel,
-    GiottoUtils (>= 0.1.6),
-    GiottoVisuals (>= 0.2.0),
+    GiottoUtils (>= 0.1.7),
+    GiottoVisuals (>= 0.2.1),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
-    Matrix (>= 1.6.2),
+    Matrix (>= 1.6-2),
     MatrixGenerics,
     plotly,
     progressr,
@@ -127,10 +126,6 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     qs
-Remotes:
-    drieslab/GiottoUtils,
-    drieslab/GiottoClass,
-    drieslab/GiottoVisuals
 Collate:
     'auxiliary_giotto.R'
     'cell_segmentation.R'
@@ -164,6 +159,6 @@ Collate:
     'variable_genes.R'
     'wnn.R'
     'zzz.R'
-biocViews:
+biocViews: Software, Technology, Spatial, SingleCell, Transcriptomics
 VignetteBuilder: knitr
 Config/testthat/edition: 3

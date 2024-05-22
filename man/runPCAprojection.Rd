@@ -69,10 +69,12 @@ runPCAprojection(
 giotto object with updated PCA dimension recuction
 }
 \description{
-runs a Principal Component Analysis on a random subet + projection
+runs a Principal Component Analysis on a random 
+subset + projection
 }
 \details{
-See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+See \code{\link[BiocSingular]{runPCA}} and 
+\code{\link[FactoMineR]{PCA}} for more information about other parameters.
 This PCA implementation is similar to  \code{\link{runPCA}}, except that it
 performs PCA on a subset of the cells or features, and predict on the others.
 This can significantly increase speed without sacrificing accuracy too much.
@@ -80,6 +82,12 @@ This can significantly increase speed without sacrificing accuracy too much.
   \item feats_to_use = NULL: will use all features from the selected matrix
   \item feats_to_use = <hvg name>: can be used to select a column name of
   highly variable features, created by (see \code{\link{calculateHVF}})
-  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
+  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually 
+  provided features
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runPCAprojection(g)
 }

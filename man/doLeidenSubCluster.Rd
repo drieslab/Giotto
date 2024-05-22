@@ -52,15 +52,18 @@ doLeidenSubCluster(
 
 \item{hvg_min_perc_cells}{deprecated, use hvf_min_perc_cells}
 
-\item{hvf_mean_expr_det}{threshold for mean expression level in cells with detection}
+\item{hvf_mean_expr_det}{threshold for mean expression level in cells with
+detection}
 
 \item{hvg_mean_expr_det}{deprecated, use hvf_mean_expr_det}
 
-\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as input for PCA}
+\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as
+input for PCA}
 
 \item{use_all_genes_as_hvg}{deprecated, use use_all_feats_as_hvf}
 
-\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as input for PCA}
+\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as
+input for PCA}
 
 \item{min_nr_of_hvg}{deprecated, use min_nr_of_hvf}
 
@@ -88,10 +91,12 @@ doLeidenSubCluster(
 giotto object with new subclusters appended to cell metadata
 }
 \description{
-Further subcluster cells using a NN-network and the Leiden algorithm
+Further subcluster cells using a NN-network and the Leiden
+algorithm
 }
 \details{
-This function performs subclustering using the Leiden algorithm on selected clusters.
+This function performs subclustering using the Leiden algorithm on
+selected clusters.
 The systematic steps are:
 \itemize{
   \item{1. subset Giotto object}
@@ -100,6 +105,11 @@ The systematic steps are:
   \item{4. create nearest neighbouring network}
   \item{5. do Leiden clustering}
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+doLeidenSubCluster(g, cluster_column = "leiden_clus")
 }
 \seealso{
 \code{\link{doLeidenCluster}}
