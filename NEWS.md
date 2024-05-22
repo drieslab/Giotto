@@ -1,5 +1,5 @@
 
-# Giotto 4.0.7 (2024/05/21)
+# Giotto 4.0.8 (2024/05/22)
 
 ## Breaking changes
 * `crossSectionGenePlot()` removed. Use `crossSectionFeatPlot()` instead
@@ -12,7 +12,7 @@
 * updated `createCrossSections()`, `insertCrossSectionSpatPlot3D()`, `crossSectionPlot()`, `crossSectionFeatPlot3D()`, `insertCrossSectionFeatPlot3D()`, `crossSectionPlot3D()`, `crossSectionFeatPlot()`
 
 ## Changes
-* GiottoVisuals (>= 0.2.1) and GiottoClass (>= 0.3.1) are now required.
+* GiottoVisuals (>= 0.2.2), GiottoClass (>= 0.3.1), GiottoUtils (>= 0.1.8) are now required.
 
 # Giotto 4.0.6 (2024/05/13)
 
