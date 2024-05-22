@@ -27,13 +27,16 @@
 
 \item{name}{name for cluster, default to "louvain_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to
+"sNN"}
 
 \item{network_name}{name of NN network to use, default to "sNN.pca"}
 
-\item{gamma}{Resolution parameter for modularity in the generalized louvain method. default  = 1}
+\item{gamma}{Resolution parameter for modularity in the generalized louvain
+method. default  = 1}
 
-\item{omega}{Inter-layer weight parameter in the generalized louvain method. default = 1}
+\item{omega}{Inter-layer weight parameter in the generalized louvain method.
+default = 1}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -45,10 +48,11 @@
 giotto object with new clusters appended to cell metadata
 }
 \description{
-cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
+cluster cells using a NN-network and the Louvain algorithm from
+the multinet package in R.
 }
 \details{
-See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
-more information.
+See \code{\link[multinet]{glouvain_ml}} from the multinet package
+in R for more information.
 }
 \keyword{internal}

@@ -36,7 +36,8 @@ detectSpatialCorFeats(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{network_smoothing}{smoothing factor beteen 0 and 1 (default: automatic)}
+\item{network_smoothing}{smoothing factor beteen 0 and 1
+(default: automatic)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
@@ -51,8 +52,10 @@ returns a spatial correlation object: "spatCorObject"
 Detect features that are spatially correlated
 }
 \details{
-For method = network, it expects a fully connected spatial network. You can make sure to create a
-fully connected network by setting minimal_k > 0 in the \code{\link{createSpatialNetwork}} function.
+For method = network, it expects a fully connected spatial network. You
+can make sure to create a
+fully connected network by setting minimal_k > 0 in the
+ \code{\link{createSpatialNetwork}} function.
 \itemize{
  \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
  \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell
@@ -62,6 +65,11 @@ fully connected network by setting minimal_k > 0 in the \code{\link{createSpatia
  from its own expression.}
 }
 The spatCorObject can be further explored with showSpatialCorFeats()
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+detectSpatialCorFeats(g, method = "network")
 }
 \seealso{
 \code{\link{showSpatialCorFeats}}

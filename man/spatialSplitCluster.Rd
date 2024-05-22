@@ -28,18 +28,22 @@ clustering}
 \item{split_clus_name}{character. Name to assign the split cluster results
 information to split}
 }
+\value{
+cluster annotations
+}
 \description{
 Split cluster annotations based on a spatial network
 }
 \examples{
 library(Giotto)
-g = GiottoData::loadGiottoMini('vizgen')
-activeSpatUnit(g) = 'aggregate'
-spatPlot2D(g, cell_color = 'leiden_clus')
+g <- GiottoData::loadGiottoMini("vizgen")
+activeSpatUnit(g) <- "aggregate"
+spatPlot2D(g, cell_color = "leiden_clus")
 
-g = spatialSplitCluster(g,
-                        cluster_col = 'leiden_clus',
-                        split_clus_name = 'new')
+g <- spatialSplitCluster(g,
+    cluster_col = "leiden_clus",
+    split_clus_name = "new"
+)
 # don't show legend since there are too many categories generated
-spatPlot2D(g, cell_color = 'new', show_legend = FALSE)
+spatPlot2D(g, cell_color = "new", show_legend = FALSE)
 }

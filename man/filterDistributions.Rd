@@ -50,7 +50,8 @@ filterDistributions(
 
 \item{scale_axis}{ggplot transformation for axis (e.g. log2)}
 
-\item{axis_offset}{offset to be used together with the scaling transformation}
+\item{axis_offset}{offset to be used together with the scaling
+transformation}
 
 \item{show_plot}{logical. show plot}
 
@@ -58,21 +59,30 @@ filterDistributions(
 
 \item{save_plot}{logical. directly save the plot}
 
-\item{save_param}{list of saving parameters from \link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function}}
+\item{save_param}{list of saving parameters from
+\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change,
+change save_name in save_param}
 }
 \value{
 ggplot object
 }
 \description{
-show gene or cell distribution after filtering on expression threshold
+show gene or cell distribution after filtering on expression
+threshold
 }
 \details{
-There are 3 ways to create a distribution profile and summarize it for either the features or the cells (spatial units) \cr
+There are 3 ways to create a distribution profile and summarize it for
+either the features or the cells (spatial units) \cr
 \itemize{
 \item{1. threshold: calculate features that cross a thresold (default)}
 \item{2. sum: summarize the features, i.e. total of a feature}
 \item{3. mean: calculate mean of the features, i.e. average expression}
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterDistributions(g)
 }

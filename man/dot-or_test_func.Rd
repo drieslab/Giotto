@@ -6,6 +6,9 @@
 \usage{
 .or_test_func(matrix)
 }
+\value{
+list
+}
 \description{
 calculate odds-ratio from a 2x2 matrix
 }

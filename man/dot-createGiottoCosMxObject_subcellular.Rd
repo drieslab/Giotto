@@ -18,7 +18,8 @@
 \arguments{
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 
-\item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
+\item{remove_background_polygon}{try to remove background polygon 
+(default: FALSE)}
 
 \item{background_algo}{algorithm to remove background polygon}
 
@@ -31,6 +32,9 @@ provided}
 
 \item{instructions}{list of instructions or output result
 from \code{\link[GiottoClass]{createGiottoInstructions}}}
+}
+\value{
+giotto object
 }
 \description{
 Load and create a CosMx Giotto object from subcellular info

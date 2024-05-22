@@ -543,3 +543,8 @@ other parameters.
   the analysis
 }
 }
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+runUMAP(g)
+}

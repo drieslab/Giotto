@@ -39,7 +39,8 @@ exprCellCellcom(
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
-\item{detailed}{provide more detailed information (random variance and z-score)}
+\item{detailed}{provide more detailed information
+(random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
 
@@ -52,14 +53,23 @@ exprCellCellcom(
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on expression only
+Cell-Cell communication scores for feature pairs based on
+expression only
 }
 \description{
 Cell-Cell communication scores based on expression only
 }
 \details{
-Statistical framework to identify if pairs of features (such as ligand-receptor combinations)
-are expressed at higher levels than expected based on a reshuffled null distribution of feature expression values,
+Statistical framework to identify if pairs of features
+(such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null
+distribution of feature expression values,
 without considering the spatial position of cells.
 More details will follow soon.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+exprCellCellcom(g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
 }

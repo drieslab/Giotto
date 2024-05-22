@@ -30,9 +30,13 @@ findCellProximityGenes(...)
     \item{\code{seed_number}}{seed number}
   }}
 }
+\value{
+cell-cell interaction changed genes
+}
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
-i.e. genes that are differentially expressed due to proximity to other cell types.
+i.e. genes that are differentially expressed due to proximity to other cell
+types.
 }
 \seealso{
 \code{\link{findInteractionChangedFeats}}

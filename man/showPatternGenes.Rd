@@ -32,7 +32,8 @@ showPatternGenes(
 
 \item{point_size}{size of points}
 
-\item{return_DT}{if TRUE, it will return the data.table used to generate the plots}
+\item{return_DT}{if TRUE, it will return the data.table used to generate
+the plots}
 
 \item{show_plot}{show plot}
 
@@ -40,9 +41,11 @@ showPatternGenes(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
+\item{save_param}{list of saving parameters, see
+\code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change,
+change save_name in save_param}
 }
 \value{
 ggplot

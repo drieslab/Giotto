@@ -16,6 +16,9 @@ named vector of colors}
 \item{cell_color_gradient}{character. continuous colors to use. palette to
 use or vector of colors to use (minimum of 2).}
 }
+\value{
+plot
+}
 \description{
 Params documentation template: plot_cell_params
 }

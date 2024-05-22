@@ -10,8 +10,8 @@ readPolygonFilesVizgen(
   boundaries_path,
   fovs = NULL,
   polygon_feat_types = 0:6,
-  flip_x_axis = F,
-  flip_y_axis = F,
+  flip_x_axis = FALSE,
+  flip_y_axis = FALSE,
   smooth_polygons = TRUE,
   smooth_vertices = 60,
   set_neg_to_zero = FALSE,
@@ -49,14 +49,17 @@ readPolygonFilesVizgen(
 
 \item{verbose}{be verbose}
 }
+\value{
+giotto object or cell polygons list
+}
 \description{
 Read selected polygon files for the FOVs present in the Giotto
 object and add the smoothed polygons to the object
 }
 \section{Functions}{
 \itemize{
-\item \code{.h5_read_vizgen()}: (internal) Optimized .hdf5 reading for vizgen
-merscope output. Returns a data.table of xyz coords and cell_id
+\item \code{.h5_read_vizgen()}: (internal) Optimized .hdf5 reading for 
+vizgen merscope output. Returns a data.table of xyz coords and cell_id
 
 }}
 \seealso{

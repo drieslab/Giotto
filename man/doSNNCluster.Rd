@@ -23,17 +23,22 @@ doSNNCluster(
 
 \item{name}{name for cluster, default to "sNN_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (only works on kNN), default to "kNN"}
+\item{nn_network_to_use}{type of NN network to use (only works on kNN),
+default to "kNN"}
 
 \item{network_name}{name of kNN network to use, default to "kNN.pca"}
 
-\item{k}{Neighborhood size for nearest neighbor sparsification to create the shared NN graph, default = 20}
+\item{k}{Neighborhood size for nearest neighbor sparsification to create
+the shared NN graph, default = 20}
 
-\item{eps}{Two objects are only reachable from each other if they share at least eps nearest neighbors, default = 4}
+\item{eps}{Two objects are only reachable from each other if they share at
+least eps nearest neighbors, default = 4}
 
-\item{minPts}{minimum number of points that share at least eps nearest neighbors for a point to be considered a core points, default = 16}
+\item{minPts}{minimum number of points that share at least eps nearest
+neighbors for a point to be considered a core points, default = 16}
 
-\item{borderPoints}{should borderPoints be assigned to clusters like in DBSCAN? (default = TRUE)}
+\item{borderPoints}{should borderPoints be assigned to clusters like in
+DBSCAN? (default = TRUE)}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -49,4 +54,10 @@ Cluster cells using a SNN cluster approach.
 }
 \details{
 See \code{\link[dbscan]{sNNclust}} from dbscan package
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g <- createNearestNetwork(g, type = "kNN")
+
+doSNNCluster(g)
 }

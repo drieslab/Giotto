@@ -16,7 +16,7 @@ combineICF(
   min_spat_diff = 0,
   min_log2_fc = 0.5,
   do_parallel = TRUE,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{
@@ -26,9 +26,11 @@ combineICF(
 
 \item{selected_feats}{subset of selected Feats (optional)}
 
-\item{specific_feats_1}{specific Featset combo (need to position match specific_genes_2)}
+\item{specific_feats_1}{specific Featset combo
+(need to position match specific_genes_2)}
 
-\item{specific_feats_2}{specific Featset combo (need to position match specific_genes_1)}
+\item{specific_feats_2}{specific Featset combo
+(need to position match specific_genes_1)}
 
 \item{min_cells}{minimum number of target cell type}
 
@@ -49,4 +51,11 @@ icfObject that contains the filtered differential feats scores
 }
 \description{
 Combine ICF scores in a pairwise manner.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+combineICF(g_icf)
 }

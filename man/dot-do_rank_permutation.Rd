@@ -6,6 +6,9 @@
 \usage{
 .do_rank_permutation(sc_gene, n)
 }
+\value{
+data.frame
+}
 \description{
 creates permutation for the rankEnrich test
 }

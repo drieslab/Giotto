@@ -21,34 +21,34 @@ getCellsFromPolygon(
 
 \item{spat_loc_name}{name of spatial locations to use, default = 'raw'}
 
-\item{polygons}{character. A vector with polygon names to extract cells from. If NULL, cells from all polygons are retrieved}
+\item{polygons}{character. A vector with polygon names to extract cells
+from. If NULL, cells from all polygons are retrieved}
 }
 \value{
-A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID where each cell is located in.
+A terra 'SpatVector' with cell ID, x y coordinates, and polygon ID
+where each cell is located in.
 }
 \description{
 Get cells located within the polygons area
 }
 \examples{
-
-\dontrun{
 ## Plot interactive polygons
-my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
-                          show_image = TRUE,
-                          point_alpha = 0.75,
-                          save_plot = FALSE)
-my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+g <- GiottoData::loadGiottoMini("visium")
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
+sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
 
 ## Add polygon coordinates to Giotto object
-my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
-my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
-                                      gpolygons = list(my_giotto_polygons))
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
+name = "selections")
+g <- addGiottoPolygons(
+    gobject = g,
+    gpolygons = list(my_giotto_polygons)
+)
 
-## Get cells located within polygons area
-getCellsFromPolygon(my_giotto_object)
+## Add polygon IDs to cell metadata
+addPolygonCells(g)
 
 ## Get only cells from polygon 1
-getCellsFromPolygon(my_giotto_object, polygons = "polygon 1")
-}
+getCellsFromPolygon(g)
 
 }

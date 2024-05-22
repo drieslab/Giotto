@@ -48,7 +48,8 @@ findMarkers_one_vs_all(
 
 \item{min_genes}{deprecated, use min_feats}
 
-\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for expression}
+\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for
+expression}
 
 \item{min_det_gini_score}{gini: filter minimum gini coefficient for detection}
 
@@ -56,11 +57,13 @@ findMarkers_one_vs_all(
 
 \item{rank_score}{gini: rank scores to include}
 
-\item{adjust_columns}{mast: column in pDataDT to adjust for (e.g. detection rate)}
+\item{adjust_columns}{mast: column in pDataDT to adjust for
+(e.g. detection rate)}
 
 \item{verbose}{be verbose}
 
-\item{...}{additional parameters for the findMarkers function in scran or zlm function in MAST}
+\item{...}{additional parameters for the findMarkers function in scran or
+zlm function in MAST}
 }
 \value{
 data.table with marker feats
@@ -69,8 +72,16 @@ data.table with marker feats
 Identify marker feats for all clusters in a one vs all manner.
 }
 \details{
-Wrapper for all one vs all functions to detect marker feats for clusters.
+Wrapper for all one vs all functions to detect marker feats for
+clusters.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 }
 \seealso{
-\code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
+\code{\link{findScranMarkers_one_vs_all}},
+\code{\link{findGiniMarkers_one_vs_all}} and
+\code{\link{findMastMarkers_one_vs_all}}
 }

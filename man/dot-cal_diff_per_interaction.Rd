@@ -13,6 +13,9 @@
   expr_residual
 )
 }
+\value{
+data.table
+}
 \description{
 calculate correlation between expression residual and
 cell proximity score of selected cell for spots

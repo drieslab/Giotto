@@ -13,6 +13,9 @@ projection_fun(point_to_project, plane_point, plane_norm)
 
 \item{plane_norm}{plane_norm}
 }
+\value{
+numeric
+}
 \description{
 project a point onto a plane
 }

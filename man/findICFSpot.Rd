@@ -69,15 +69,19 @@ findICFSpot(
 icfObject that contains the differential feat scores
 }
 \description{
-Identifies cell-to-cell Interaction Changed Features (ICF) for spots,
-i.e. features expression residual that are different due to proximity to other cell types.
+Identifies cell-to-cell Interaction Changed Features (ICF) for
+spots, i.e. features expression residual that are different due to proximity
+to other cell types.
 }
 \details{
-Function to calculate if features expression residual are differentially expressed in cell types
- when they interact (approximated by physical proximity) with other cell types.
- Feature expression residual calculated as:
- (observed expression in spot - cell_type_proportion * average_expressed_in_cell_type)
- The results data.table in the icfObject contains - at least - the following columns:
+Function to calculate if features expression residual are
+differentially expressed in cell types when they interact
+(approximated by physical proximity) with other cell types.
+Feature expression residual calculated as:
+(observed expression in spot - cell_type_proportion *
+average_expressed_in_cell_type)
+The results data.table in the icfObject contains - at least -
+the following columns:
 \itemize{
  \item{features:}{ All or selected list of tested features}
  \item{sel:}{ average feature expression residual in the interacting cells from the target cell type }
@@ -93,4 +97,10 @@ Function to calculate if features expression residual are differentially express
  \item{int_nr_select:}{ number of cells for interacting cell type}
  \item{unif_int:}{ cell-cell interaction}
 }
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+g_expression <- getExpression(g, output = "matrix")
+
+findICFSpot(g, spat_unit = "cell", feat_type = "rna", ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
 }

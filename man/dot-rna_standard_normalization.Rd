@@ -20,6 +20,9 @@
   verbose = TRUE
 )
 }
+\value{
+giotto object
+}
 \description{
 standard function for RNA normalization
 }

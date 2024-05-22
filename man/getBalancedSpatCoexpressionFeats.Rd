@@ -16,7 +16,8 @@ getBalancedSpatCoexpressionFeats(
 \arguments{
 \item{spatCorObject}{spatial correlation object}
 
-\item{maximum}{maximum number of genes to get from each spatial co-expression module}
+\item{maximum}{maximum number of genes to get from each spatial
+co-expression module}
 
 \item{rank}{ranking method (see details)}
 
@@ -30,7 +31,8 @@ getBalancedSpatCoexpressionFeats(
 balanced vector with features for each co-expression module
 }
 \description{
-Extract features from spatial co-expression modules in a balanced manner
+Extract features from spatial co-expression modules in a
+balanced manner
 }
 \details{
 There are 3 different ways of selecting features from the spatial

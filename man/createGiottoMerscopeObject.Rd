@@ -37,10 +37,11 @@ createGiottoMerscopeObject(
 \arguments{
 \item{merscope_dir}{full path to the exported merscope directory}
 
-\item{data_to_use}{which of either the 'subcellular' or 'aggregate' information
-to use for object creation}
+\item{data_to_use}{which of either the 'subcellular' or 'aggregate' 
+information to use for object creation}
 
-\item{FOVs}{which FOVs to use when building the subcellular object. (default is NULL)
+\item{FOVs}{which FOVs to use when building the subcellular object. 
+(default is NULL)
 NULL loads all FOVs (very slow)}
 
 \item{calculate_overlap}{whether to run \code{\link{calculateOverlapRaster}}}
@@ -65,13 +66,14 @@ provided}
 a giotto object
 }
 \description{
-Given the path to a MERSCOPE experiment directory, creates a Giotto
-object.
+Given the path to a MERSCOPE experiment directory, creates a 
+Giotto object.
 }
 \details{
-[\strong{Expected Directory}] This function generates a giotto object when given a
-link to a MERSCOPE output directory. It expects the following items within the directory
-where the \strong{bolded} portions are what this function matches against:
+[\strong{Expected Directory}] This function generates a giotto object when 
+given a link to a MERSCOPE output directory. It expects the following items 
+within the directory where the \strong{bolded} portions are what this 
+function matches against:
 \itemize{
   \item{\strong{cell_boundaries} (folder .hdf5 files)}
   \item{\strong{images} (folder of .tif images and a scalefactor/transfrom table)}
@@ -82,9 +84,11 @@ where the \strong{bolded} portions are what this function matches against:
 }
 \section{Functions}{
 \itemize{
-\item \code{.createGiottoMerscopeObject_subcellular()}: Create giotto object with 'subcellular' workflow
+\item \code{.createGiottoMerscopeObject_subcellular()}: Create giotto object with 
+'subcellular' workflow
 
-\item \code{.createGiottoMerscopeObject_aggregate()}: Create giotto object with 'aggregate' workflow
+\item \code{.createGiottoMerscopeObject_aggregate()}: Create giotto object with 'aggregate' 
+workflow
 
 }}
 \keyword{internal}

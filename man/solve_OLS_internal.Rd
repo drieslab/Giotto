@@ -6,6 +6,9 @@
 \usage{
 solve_OLS_internal(S, B)
 }
+\value{
+numeric
+}
 \description{
 basic functions for dwls
 }

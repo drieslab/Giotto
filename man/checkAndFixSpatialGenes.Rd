@@ -23,11 +23,17 @@ checkAndFixSpatialGenes(
 
 \item{use_score}{logical variable to select silhouetteRank score}
 }
+\value{
+character
+}
 \description{
-function to check the selected test name for spatial gene set in Giotto object
+function to check the selected test name for spatial gene set
+in Giotto object
 }
 \details{
-This function checks the user specified test name of spatial gene set in Giotto object.
-SilhouetteRank works only with score, and SilhouetteRankTest works only with pval. Use parameter use_score to specify.
+This function checks the user specified test name of spatial gene set in
+Giotto object.
+SilhouetteRank works only with score, and SilhouetteRankTest works only
+with pval. Use parameter use_score to specify.
 }
 \keyword{internal}

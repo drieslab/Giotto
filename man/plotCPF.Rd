@@ -39,7 +39,8 @@ plotCPF(
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor 
+cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
 
@@ -71,4 +72,12 @@ plot
 }
 \description{
 Create visualization for cell proximity feature scores
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+plotCPF(gobject = g, icfObject = icfObject, show_plot = TRUE,
+save_plot = FALSE, return_plot = FALSE)
 }

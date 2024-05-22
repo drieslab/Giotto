@@ -11,6 +11,9 @@
 
 \item{detection_threshold}{detection threshold. Defaults to 1 count.}
 }
+\value{
+numeric
+}
 \description{
 Mean expression detected test
 }

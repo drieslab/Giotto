@@ -285,6 +285,13 @@
 \alias{subsetSankeySet}
 \alias{violinPlot}
 \title{Objects exported from other packages}
+\value{
+pipe operator
+
+vector of colors
+
+vector of colors
+}
 \keyword{internal}
 \description{
 These objects are imported from other packages. Follow the links

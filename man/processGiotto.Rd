@@ -22,7 +22,8 @@ processGiotto(
 
 \item{stat_params}{additional parameters to addStatistics}
 
-\item{adjust_params}{additional parameters to adjustGiottoMatrix; set to NULL if not required}
+\item{adjust_params}{additional parameters to adjustGiottoMatrix; set to
+NULL if not required}
 
 \item{verbose}{be verbose (default is TRUE)}
 }
@@ -35,6 +36,13 @@ Wrapper for the different Giotto object processing functions
 \details{
 See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
 \code{\link{addStatistics}}, and \code{\link{adjustGiottoMatrix}}. For more
-information about the different parameters in each step. If you do not provide
-them it will use the default values. If no adjustment is required, adjust_params must be set to NULL
+information about the different parameters in each step. If you do not
+provide them it will use the default values. If no adjustment is required,
+adjust_params must be set to NULL
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+processGiotto(gobject = g,
+adjust_params = list(covariate_columns = "leiden_clus"))
 }
