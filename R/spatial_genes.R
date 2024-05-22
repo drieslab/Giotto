@@ -3228,16 +3228,25 @@ do_spatial_grid_averaging <- function(expression_matrix,
 
 
 
-#' @title detectSpatialCorFeatsMatrix
-#' @name detectSpatialCorFeatsMatrix
-#' @description Detect genes that are spatially correlated
+#' @title Detect spatially correlated features
+#' @name detectSpatialCorFeats
+#' @description Detect features that are spatially correlated. Functions for
+#' starting from either a gobject (`detectSpatialCorFeats()`) or individual
+#' pieces of data (`detectSpatialCorFeatsMatrix()`) are provided.
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param expression_values gene expression values to use
 #' @param expression_matrix provided expression matrix
-#' @param method method to use for spatial averaging
-#' @param spatial_network provided spatial network
-#' @param spatial_grid provided spatial grid
+#' @param spat_loc_name name for spatial locations
 #' @param spatial_locs provided spatial locations
+#' @param spatial_network_name name of spatial network to use
+#' @param spatial_network provided spatial network
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_grid provided spatial grid
+#' @param method method to use for spatial averaging
 #' @param subset_feats subset of features to use
-#' @param network_smoothing smoothing factor beteen 0 and 1
+#' @param network_smoothing smoothing factor between 0 and 1
 #' (has automatic default, see details)
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @param cor_method correlation method
@@ -3257,15 +3266,196 @@ do_spatial_grid_averaging <- function(expression_matrix,
 #'   Setting \eqn{b = 0} means no smoothing and \eqn{b = 1} means no
 #'   contribution from its own expression.
 #'
-#' The `spatCorObject` can be further explored with `showSpatialCorGenes()`
+#' The `spatCorObject` can be further explored with `showSpatialCorFeats()`
 #' @seealso \code{\link{showSpatialCorFeats}}
 #' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' detectSpatialCorFeatsMatrix(expression_matrix = getExpression(
-#' g, output = "matrix"), method = "network",
-#' spatial_network = getSpatialNetwork(g, output = "networkDT"))
+#' # Perform with data in a gobject
+#' detectSpatialCorFeats(g, method = "network")
+#'
+#' # This analysis can also be performed with data outside of the gobject
+#' detectSpatialCorFeatsMatrix(
+#'     expression_matrix = getExpression(
+#'     g, output = "matrix"),
+#'     method = "network",
+#'     spatial_network = getSpatialNetwork(g, output = "networkDT")
+#' )
+#'
+NULL
+
+
+
+#' @rdname detectSpatialCorFeats
+#' @export
+detectSpatialCorFeats <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spat_loc_name = "raw",
+        method = c("grid", "network"),
+        expression_values = c("normalized", "scaled", "custom"),
+        subset_feats = NULL,
+        spatial_network_name = "Delaunay_network",
+        network_smoothing = NULL,
+        spatial_grid_name = "spatial_grid",
+        min_cells_per_grid = 4,
+        cor_method = c("pearson", "kendall", "spearman")
+) {
+    # set default spat_unit and feat_type
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject,
+        spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type
+    )
+
+    ## correlation method to be used
+    cor_method <- match.arg(
+        cor_method, choices = c("pearson", "kendall", "spearman"))
+
+    ## method to be used
+    method <- match.arg(method, choices = c("grid", "network"))
+
+    # get expression matrix
+    values <- match.arg(
+        expression_values,
+        unique(c("normalized", "scaled", "custom", expression_values)))
+    expr_values <- getExpression(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        values = values,
+        output = "matrix"
+    )
+
+    if (!is.null(subset_feats)) {
+        expr_values <- expr_values[rownames(expr_values) %in% subset_feats, ]
+    }
+
+
+
+    # get spatial locations
+    spatial_locs <- getSpatialLocations(
+        gobject,
+        spat_unit = spat_unit,
+        name = spat_loc_name,
+        output = "data.table",
+        copy_obj = TRUE
+    )
+
+    ## spatial averaging or smoothing
+    if (method == "grid") {
+        # get spatial grid
+        spatial_grid <- getSpatialGrid(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            name = spatial_grid_name,
+            return_grid_Obj = FALSE
+        )
+
+        loc_av_expr_matrix <- do_spatial_grid_averaging(
+            expression_matrix = as.matrix(expr_values),
+            spatial_grid = spatial_grid,
+            spatial_locs = spatial_locs,
+            subset_feats = subset_feats,
+            min_cells_per_grid = min_cells_per_grid
+        )
+
+        # data.table variables
+        feat_ID <- variable <- NULL
+
+        cor_spat_matrix <- cor_flex(t_flex(as.matrix(
+            loc_av_expr_matrix)), method = cor_method)
+        cor_spat_matrixDT <- data.table::as.data.table(cor_spat_matrix)
+        cor_spat_matrixDT[, feat_ID := rownames(cor_spat_matrix)]
+        cor_spat_DT <- data.table::melt.data.table(
+            data = cor_spat_matrixDT,
+            id.vars = "feat_ID", value.name = "spat_cor"
+        )
+    }
+
+    if (method == "network") {
+        # get spatial network
+        spatial_network <- getSpatialNetwork(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            name = spatial_network_name,
+            output = "networkDT"
+        )
+
+        knn_av_expr_matrix <- do_spatial_knn_smoothing(
+            expression_matrix = as.matrix(expr_values),
+            spatial_network = spatial_network,
+            subset_feats = subset_feats,
+            b = network_smoothing
+        )
+
+
+
+
+        cor_spat_matrix <- cor_flex(t_flex(as.matrix(
+            knn_av_expr_matrix)), method = cor_method)
+        cor_spat_matrixDT <- data.table::as.data.table(cor_spat_matrix)
+        cor_spat_matrixDT[, feat_ID := rownames(cor_spat_matrix)]
+        cor_spat_DT <- data.table::melt.data.table(
+            data = cor_spat_matrixDT,
+            id.vars = "feat_ID", value.name = "spat_cor"
+        )
+    }
+
+
+
+    # data.table variables
+    cordiff <- spat_cor <- expr_cor <- spatrank <- exprrank <- rankdiff <- NULL
+
+    ## 2. perform expression correlation at single-cell level without
+    ## spatial information
+    cor_matrix <- cor_flex(t_flex(expr_values), method = cor_method)
+    cor_matrixDT <- data.table::as.data.table(cor_matrix)
+    cor_matrixDT[, feat_ID := rownames(cor_matrix)]
+    cor_DT <- data.table::melt.data.table(
+        data = cor_matrixDT,
+        id.vars = "feat_ID", value.name = "expr_cor"
+    )
+
+    ## 3. merge spatial and expression correlation
+    data.table::setorder(cor_spat_DT, feat_ID, variable)
+    data.table::setorder(cor_DT, feat_ID, variable)
+    doubleDT <- cbind(cor_spat_DT, expr_cor = cor_DT[["expr_cor"]])
+
+    # difference in correlation scores
+    doubleDT[, cordiff := spat_cor - expr_cor]
+
+    # difference in rank scores
+    doubleDT[, spatrank := frank(
+        -spat_cor, ties.method = "first"), by = feat_ID]
+    doubleDT[, exprrank := frank(
+        -expr_cor, ties.method = "first"), by = feat_ID]
+    doubleDT[, rankdiff := spatrank - exprrank]
+
+    # sort data
+    data.table::setorder(doubleDT, feat_ID, -spat_cor)
+
+    spatCorObject <- list(
+        cor_DT = doubleDT,
+        feat_order = rownames(cor_spat_matrix),
+        cor_hclust = list(),
+        cor_clusters = list()
+    )
+
+    class(spatCorObject) <- append("spatCorObject", class(spatCorObject))
+
+    return(spatCorObject)
+}
+
+
+#' @rdname detectSpatialCorFeats
 #' @export
 detectSpatialCorFeatsMatrix <- function(expression_matrix,
     method = c("grid", "network"),
@@ -3378,206 +3568,6 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
     return(spatCorObject)
 }
 
-
-
-#' @title detectSpatialCorFeats
-#' @name detectSpatialCorFeats
-#' @description Detect features that are spatially correlated
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param spat_loc_name name for spatial locations
-#' @param method method to use for spatial averaging
-#' @param expression_values gene expression values to use
-#' @param subset_feats subset of feats to use
-#' @param spatial_network_name name of spatial network to use
-#' @param network_smoothing  smoothing factor beteen 0 and 1
-#' (default: automatic)
-#' @param spatial_grid_name name of spatial grid to use
-#' @param min_cells_per_grid minimum number of cells to consider a grid
-#' @param cor_method correlation method
-#' @returns returns a spatial correlation object: "spatCorObject"
-#' @details
-#' For method = network, it expects a fully connected spatial network. You
-#' can make sure to create a
-#' fully connected network by setting minimal_k > 0 in the
-#'  \code{\link{createSpatialNetwork}} function.
-#' \itemize{
-#'  \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
-#'  \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell
-#'  by using the neighbours within the predefined spatial network. b is a smoothening factor
-#'  that defaults to 1 - 1/k, where k is the median number of  k-neighbors in the
-#'  selected spatial network. Setting b = 0 means no smoothing and b = 1 means no contribution
-#'  from its own expression.}
-#' }
-#' The spatCorObject can be further explored with showSpatialCorFeats()
-#' @seealso \code{\link{showSpatialCorFeats}}
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' detectSpatialCorFeats(g, method = "network")
-#' @export
-detectSpatialCorFeats <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spat_loc_name = "raw",
-    method = c("grid", "network"),
-    expression_values = c("normalized", "scaled", "custom"),
-    subset_feats = NULL,
-    spatial_network_name = "Delaunay_network",
-    network_smoothing = NULL,
-    spatial_grid_name = "spatial_grid",
-    min_cells_per_grid = 4,
-    cor_method = c("pearson", "kendall", "spearman")) {
-    # set default spat_unit and feat_type
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
-    ## correlation method to be used
-    cor_method <- match.arg(
-        cor_method, choices = c("pearson", "kendall", "spearman"))
-
-    ## method to be used
-    method <- match.arg(method, choices = c("grid", "network"))
-
-    # get expression matrix
-    values <- match.arg(
-        expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
-    expr_values <- getExpression(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        values = values,
-        output = "matrix"
-    )
-
-    if (!is.null(subset_feats)) {
-        expr_values <- expr_values[rownames(expr_values) %in% subset_feats, ]
-    }
-
-
-
-    # get spatial locations
-    spatial_locs <- getSpatialLocations(gobject,
-        spat_unit = spat_unit,
-        name = spat_loc_name,
-        output = "data.table",
-        copy_obj = TRUE
-    )
-
-    ## spatial averaging or smoothing
-    if (method == "grid") {
-        # get spatial grid
-        spatial_grid <- getSpatialGrid(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            name = spatial_grid_name,
-            return_grid_Obj = FALSE
-        )
-
-        loc_av_expr_matrix <- do_spatial_grid_averaging(
-            expression_matrix = as.matrix(expr_values),
-            spatial_grid = spatial_grid,
-            spatial_locs = spatial_locs,
-            subset_feats = subset_feats,
-            min_cells_per_grid = min_cells_per_grid
-        )
-
-        # data.table variables
-        feat_ID <- variable <- NULL
-
-        cor_spat_matrix <- cor_flex(t_flex(as.matrix(
-            loc_av_expr_matrix)), method = cor_method)
-        cor_spat_matrixDT <- data.table::as.data.table(cor_spat_matrix)
-        cor_spat_matrixDT[, feat_ID := rownames(cor_spat_matrix)]
-        cor_spat_DT <- data.table::melt.data.table(
-            data = cor_spat_matrixDT,
-            id.vars = "feat_ID", value.name = "spat_cor"
-        )
-    }
-
-    if (method == "network") {
-        # get spatial network
-        spatial_network <- getSpatialNetwork(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            name = spatial_network_name,
-            output = "networkDT"
-        )
-
-        knn_av_expr_matrix <- do_spatial_knn_smoothing(
-            expression_matrix = as.matrix(expr_values),
-            spatial_network = spatial_network,
-            subset_feats = subset_feats,
-            b = network_smoothing
-        )
-
-
-
-
-        cor_spat_matrix <- cor_flex(t_flex(as.matrix(
-            knn_av_expr_matrix)), method = cor_method)
-        cor_spat_matrixDT <- data.table::as.data.table(cor_spat_matrix)
-        cor_spat_matrixDT[, feat_ID := rownames(cor_spat_matrix)]
-        cor_spat_DT <- data.table::melt.data.table(
-            data = cor_spat_matrixDT,
-            id.vars = "feat_ID", value.name = "spat_cor"
-        )
-    }
-
-
-
-    # data.table variables
-    cordiff <- spat_cor <- expr_cor <- spatrank <- exprrank <- rankdiff <- NULL
-
-    ## 2. perform expression correlation at single-cell level without
-    ## spatial information
-    cor_matrix <- cor_flex(t_flex(expr_values), method = cor_method)
-    cor_matrixDT <- data.table::as.data.table(cor_matrix)
-    cor_matrixDT[, feat_ID := rownames(cor_matrix)]
-    cor_DT <- data.table::melt.data.table(
-        data = cor_matrixDT,
-        id.vars = "feat_ID", value.name = "expr_cor"
-    )
-
-    ## 3. merge spatial and expression correlation
-    data.table::setorder(cor_spat_DT, feat_ID, variable)
-    data.table::setorder(cor_DT, feat_ID, variable)
-    doubleDT <- cbind(cor_spat_DT, expr_cor = cor_DT[["expr_cor"]])
-
-    # difference in correlation scores
-    doubleDT[, cordiff := spat_cor - expr_cor]
-
-    # difference in rank scores
-    doubleDT[, spatrank := frank(
-        -spat_cor, ties.method = "first"), by = feat_ID]
-    doubleDT[, exprrank := frank(
-        -expr_cor, ties.method = "first"), by = feat_ID]
-    doubleDT[, rankdiff := spatrank - exprrank]
-
-    # sort data
-    data.table::setorder(doubleDT, feat_ID, -spat_cor)
-
-    spatCorObject <- list(
-        cor_DT = doubleDT,
-        feat_order = rownames(cor_spat_matrix),
-        cor_hclust = list(),
-        cor_clusters = list()
-    )
-
-    class(spatCorObject) <- append("spatCorObject", class(spatCorObject))
-
-    return(spatCorObject)
-}
 
 
 
