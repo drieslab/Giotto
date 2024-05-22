@@ -1,5 +1,5 @@
 
-# Giotto 4.0.7
+# Giotto 4.0.7 (2024/05/21)
 
 ## Breaking changes
 * `crossSectionGenePlot()` removed. Use `crossSectionFeatPlot()` instead
