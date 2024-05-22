@@ -3,6 +3,11 @@
 
 ## Breaking changes
 * Deprecated `detectSpatialCorGenes()` removed. Use `detectSpatialCorFeats()` instead
+* Deprecated `findInteractionChangedGenes()` removed. Use `findInteractionChangedFeats()` instead
+* Deprecated `findCellProximityGenes()` removed. Use `findInteractionChangedFeats()` instead
+
+## Bug fixes
+* Add catch in `runPCAprojectionBatch()` for when ncp requested exceeds number of feats used
 
 
 # Giotto 4.0.8 (2024/05/22)
