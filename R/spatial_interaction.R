@@ -190,7 +190,7 @@ cellProximityEnrichment <- function(gobject,
     minimum_simulations <- unique_ints[rep(
         seq_len(nrow(unique_ints)), number_of_simulations), ]
     minimum_simulations[, round := rep(
-        paste0("sim", seq_len(number_of_simulations)), 
+        paste0("sim", seq_len(number_of_simulations)),
         each = nrow(unique_ints))]
     minimum_simulations[, N := 0]
 
@@ -2297,7 +2297,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
     lig_test <- data.table::as.data.table(
         reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
     lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
-    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1], 
+    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1],
             by = seq_len(nrow(lig_test))]
     lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
     setnames(lig_test, "value", "lig_expr")
@@ -2620,7 +2620,7 @@ exprCellCellcom <- function(gobject,
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @param verbose verbose
-#' @returns Cell-Cell communication scores for feature pairs based on spatial 
+#' @returns Cell-Cell communication scores for feature pairs based on spatial
 #' interaction
 #' @details Statistical framework to identify if pairs of features
 #' (such as ligand-receptor combinations)
@@ -2650,7 +2650,7 @@ exprCellCellcom <- function(gobject,
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
 #' @export
 specificCellCellcommunicationScores <- function(gobject,
@@ -2788,11 +2788,13 @@ specificCellCellcommunicationScores <- function(gobject,
         subset_metadata <- cell_metadata[cell_ID %in% subset_ids]
         needed_cell_types <- subset_metadata[[cluster_column]]
 
-
+        if (verbose) cat("simulations:")
 
         ## simulations ##
         for (sim in seq_len(random_iter)) {
-            if (verbose == TRUE) cat("simulation ", sim)
+            if (verbose) {
+                cat(sprintf(" %s ", sim))
+            }
 
             # get random ids and subset
             if (set_seed == TRUE) {
@@ -2849,6 +2851,7 @@ specificCellCellcommunicationScores <- function(gobject,
             difference[difference < 0] <- -1
             total_bool <- total_bool + difference
         }
+        if (verbose) cat("\n")
 
         comScore[, rand_expr := total_av / random_iter]
 
@@ -3034,7 +3037,7 @@ spatCellCellcom <- function(gobject,
     combn_DT <- rbind(same_DT, combn_DT)
 
     ## parallel option ##
-    if (do_parallel == TRUE) {
+    if (isTRUE(do_parallel)) {
         savelist <- lapply_flex(
             X = seq_len(nrow(combn_DT)), future.seed = TRUE,
             cores = cores, fun = function(row) {
@@ -3058,7 +3061,8 @@ spatCellCellcom <- function(gobject,
                 adjust_method = adjust_method,
                 adjust_target = adjust_target,
                 set_seed = set_seed,
-                seed_number = seed_number
+                seed_number = seed_number,
+                verbose = verbose %in% c("a lot")
             )
         })
     } else {
@@ -3070,9 +3074,9 @@ spatCellCellcom <- function(gobject,
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
-            if (verbose == "a little" | verbose == "a lot")
-                cat("PROCESS nr ", countdown, ": ", cell_type_1, " and ",
-                    cell_type_2)
+            if (verbose == "a little" || verbose == "a lot")
+                cat(sprintf("[PROCESS nr  %d :  %d  and  %d]  ",
+                            countdown, cell_type_1, cell_type_2))
 
             if (verbose %in% c("a little", "none")) {
                 specific_verbose <- FALSE
