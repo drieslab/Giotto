@@ -73,7 +73,7 @@ considered}
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for feature pairs based on spatial 
+Cell-Cell communication scores for feature pairs based on spatial
 interaction
 }
 \description{
