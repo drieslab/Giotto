@@ -2884,6 +2884,7 @@ specificCellCellcommunicationScores <- function(gobject,
 
         # get minimum adjusted p.value that is not zero
         all_p.adj <- comScore[["p.adj"]]
+        # TODO catch when len = 0
         lowest_p.adj <- min(all_p.adj[all_p.adj != 0])
         comScore[, PI := ifelse(p.adj == 0, log2fc * (
             -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
