@@ -2851,7 +2851,6 @@ specificCellCellcommunicationScores <- function(gobject,
             difference[difference < 0] <- -1
             total_bool <- total_bool + difference
         }
-        if (verbose) cat("\n")
 
         comScore[, rand_expr := total_av / random_iter]
 
@@ -2884,10 +2883,22 @@ specificCellCellcommunicationScores <- function(gobject,
 
         # get minimum adjusted p.value that is not zero
         all_p.adj <- comScore[["p.adj"]]
-        # TODO catch when len = 0
-        lowest_p.adj <- min(all_p.adj[all_p.adj != 0])
+        nonzero_p.adj <- all_p.adj[all_p.adj != 0]
+        if (length(nonzero_p.adj) == 0L) {
+            warning(
+                call. = FALSE,
+                "no adjusted p.values that are not zero; returning Inf"
+            )
+            if (verbose) cat("<- Inf returned")
+            lowest_p.adj <- Inf
+        } else {
+            lowest_p.adj <- min(nonzero_p.adj)
+        }
+
         comScore[, PI := ifelse(p.adj == 0, log2fc * (
             -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
+
+        if (verbose) cat("\n")
 
         return(comScore)
     }
