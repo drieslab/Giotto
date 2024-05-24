@@ -28,10 +28,13 @@
 #' @md
 #' @examples
 #' # Should only be done with single cell data, but this is just a
-#' # convenient dataset
+#' # convenient example.
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' doScrubletDetect(g)
+#' g <- doScrubletDetect(g)
+#'
+#' pDataDT(g) # doublet_scores and doublet cols are added
+#' dimPlot2D(g, cell_color = "doublet_scores", color_as_factor = FALSE)
 #' @export
 doScrubletDetect <- function(gobject,
     feat_type = NULL,
