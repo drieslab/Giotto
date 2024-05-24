@@ -957,7 +957,8 @@ doLouvainCluster <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' doRandomWalkCluster(g)
+#' g <- doRandomWalkCluster(g)
+#' pDataDT(g)
 #' @export
 doRandomWalkCluster <- function(gobject,
     name = "random_walk_clus",
@@ -976,7 +977,8 @@ doRandomWalkCluster <- function(gobject,
     igraph_object <- getNearestNetwork(
         gobject,
         nn_type = nn_network_to_use,
-        name = network_name
+        name = network_name,
+        output = "igraph"
     )
 
 
@@ -1000,17 +1002,8 @@ doRandomWalkCluster <- function(gobject,
         set.seed(Sys.time())
     }
 
-
     ## return
     if (return_gobject == TRUE) {
-        cluster_names <- names(gobject@cell_metadata)
-        if (name %in% cluster_names) {
-            cat(name, " has already been used, will be overwritten")
-            cell_metadata <- gobject@cell_metadata
-            cell_metadata[, eval(name) := NULL]
-            gobject@cell_metadata <- cell_metadata
-        }
-
         gobject <- addCellMetadata(
             gobject = gobject,
             new_metadata = ident_clusters_DT[, c("cell_ID", name),

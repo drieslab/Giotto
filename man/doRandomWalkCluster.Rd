@@ -52,5 +52,6 @@ package in R for more information.
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-doRandomWalkCluster(g)
+g <- doRandomWalkCluster(g)
+pDataDT(g)
 }
