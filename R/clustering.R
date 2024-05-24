@@ -976,7 +976,8 @@ doRandomWalkCluster <- function(gobject,
     igraph_object <- getNearestNetwork(
         gobject,
         nn_type = nn_network_to_use,
-        name = network_name
+        name = network_name,
+        output = "igraph"
     )
 
 
@@ -2065,7 +2066,7 @@ doLeidenSubCluster <- function(gobject,
 #' @param name name for new clustering result
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
+#' @param hvf_param parameters for calculateHVF
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with
 #' detection
@@ -2099,7 +2100,7 @@ doLeidenSubCluster <- function(gobject,
     name = "sub_louvain_comm_clus",
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
+    hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
                     expression_values = "normalized"),
     hvg_min_perc_cells = 5,
     hvg_mean_expr_det = 1,
@@ -2151,7 +2152,7 @@ doLeidenSubCluster <- function(gobject,
 
             ## calculate variable genes
             temp_giotto <- do.call(
-                "calculateHVG", c(gobject = temp_giotto, hvg_param))
+                "calculateHVF", c(gobject = temp_giotto, hvf_param))
 
             ## get hvg
             gene_metadata <- fDataDT(temp_giotto)
@@ -2264,7 +2265,7 @@ doLeidenSubCluster <- function(gobject,
 #' @param name name for new clustering result
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
+#' @param hvf_param parameters for calculateHVF
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with
 #' detection
@@ -2298,7 +2299,7 @@ doLeidenSubCluster <- function(gobject,
     name = "sub_louvain_mult_clus",
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
+    hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
                     expression_values = "normalized"),
     hvg_min_perc_cells = 5,
     hvg_mean_expr_det = 1,
@@ -2364,7 +2365,7 @@ doLeidenSubCluster <- function(gobject,
 
             ## calculate variable genes
             temp_giotto <- do.call(
-                "calculateHVG", c(gobject = temp_giotto, hvg_param))
+                "calculateHVF", c(gobject = temp_giotto, hvf_param))
 
             ## get hvg
             gene_metadata <- fDataDT(temp_giotto)
@@ -2468,7 +2469,7 @@ doLeidenSubCluster <- function(gobject,
 #' @param version version of Louvain algorithm to use
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
+#' @param hvf_param parameters for calculateHVF
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with
 #' detection
@@ -2510,7 +2511,7 @@ doLouvainSubCluster <- function(gobject,
     version = c("community", "multinet"),
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
+    hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
                     expression_values = "normalized"),
     hvg_min_perc_cells = 5,
     hvg_mean_expr_det = 1,
@@ -2537,7 +2538,7 @@ doLouvainSubCluster <- function(gobject,
             gobject = gobject,
             cluster_column = cluster_column,
             selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
+            hvf_param = hvf_param,
             hvg_mean_expr_det = hvg_mean_expr_det,
             pca_param = pca_param,
             nn_param = nn_param,
@@ -2555,7 +2556,7 @@ doLouvainSubCluster <- function(gobject,
             gobject = gobject,
             cluster_column = cluster_column,
             selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
+            hvf_param = hvf_param,
             hvg_mean_expr_det = hvg_mean_expr_det,
             pca_param = pca_param,
             nn_param = nn_param,
@@ -2585,7 +2586,7 @@ doLouvainSubCluster <- function(gobject,
 #' @param cluster_method clustering method to use
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
+#' @param hvf_param parameters for calculateHVF
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with
 #' detection
@@ -2632,7 +2633,7 @@ subClusterCells <- function(gobject,
     ),
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
+    hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
                     expression_values = "normalized"),
     hvg_min_perc_cells = 5,
     hvg_mean_expr_det = 1,
@@ -2663,7 +2664,7 @@ subClusterCells <- function(gobject,
             gobject = gobject,
             cluster_column = cluster_column,
             selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
+            hvf_param = hvf_param,
             hvg_min_perc_cells = hvg_min_perc_cells,
             hvg_mean_expr_det = hvg_mean_expr_det,
             use_all_genes_as_hvg = use_all_genes_as_hvg,
@@ -2685,7 +2686,7 @@ subClusterCells <- function(gobject,
             gobject = gobject,
             cluster_column = cluster_column,
             selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
+            hvf_param = hvf_param,
             hvg_min_perc_cells = hvg_min_perc_cells,
             hvg_mean_expr_det = hvg_mean_expr_det,
             use_all_genes_as_hvg = use_all_genes_as_hvg,
@@ -2706,7 +2707,7 @@ subClusterCells <- function(gobject,
             gobject = gobject,
             cluster_column = cluster_column,
             selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
+            hvf_param = hvf_param,
             hvg_min_perc_cells = hvg_min_perc_cells,
             hvg_mean_expr_det = hvg_mean_expr_det,
             use_all_genes_as_hvg = use_all_genes_as_hvg,
