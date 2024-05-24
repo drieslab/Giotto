@@ -731,8 +731,8 @@ doGiottoClustree <- function(gobject,
 
     # create mlnetworkobject
     mln_object <- multinet::ml_empty()
-    multinet::add_vertices_ml(
-        n = mln_object, vertices = igraph::V(igraph_object))
+    # multinet::add_vertices_ml(
+    #     n = mln_object, vertices = igraph::V(igraph_object))
     multinet::add_igraph_layer_ml(
         n = mln_object, g = igraph_object, name = name)
 
