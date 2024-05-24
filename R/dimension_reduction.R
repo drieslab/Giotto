@@ -497,17 +497,6 @@ runPCA <- function(gobject,
 
 
     if (isTRUE(return_gobject)) {
-        pca_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "pca"
-        )
-
-        if (name %in% pca_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
 
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
@@ -531,7 +520,9 @@ runPCA <- function(gobject,
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- set_dimReduction(
+            gobject = gobject, dimObject = dimObject, verbose = verbose
+        )
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
