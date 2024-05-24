@@ -1,6 +1,7 @@
 #' @title doScrubletDetect
 #' @name doScrubletDetect
-#' @description run *scrublet* doublet detection for raw expression.
+#' @description Run *scrublet* doublet detection for raw expression. Intended
+#' for single cell data
 #' @param gobject giotto object containing expression data
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
@@ -21,13 +22,15 @@
 #' @seealso This function wraps the python package scrublet
 #' \doi{10.1016/j.cels.2018.11.005}
 #' @returns if `return_gobject = FALSE`, a `data.table` cell_ID, doublet scores,
-#' and classifications are returned. If `TRUE`, that information is appended 
-#' into the input `giotto` object's metadata and the `giotto` object is 
+#' and classifications are returned. If `TRUE`, that information is appended
+#' into the input `giotto` object's metadata and the `giotto` object is
 #' returned.
 #' @md
 #' @examples
+#' # Should only be done with single cell data, but this is just a
+#' # convenient dataset
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' doScrubletDetect(g)
 #' @export
 doScrubletDetect <- function(gobject,
@@ -48,10 +51,10 @@ doScrubletDetect <- function(gobject,
     )
 
     # print message with information #
-    message("using 'scrublet' to detect doublets. If used in published 
+    message("using 'scrublet' to detect doublets. If used in published
     research, please cite: \n
     Wolock, S. L., Lopez, R. & Klein, A. M.
-    Scrublet: Computational Identification of Cell Doublets in Single-Cell 
+    Scrublet: Computational Identification of Cell Doublets in Single-Cell
     Transcriptomic Data. Cell Syst. 8, 281-291.e9 (2019).
     https://doi.org/10.1016/j.cels.2018.11.005")
 
