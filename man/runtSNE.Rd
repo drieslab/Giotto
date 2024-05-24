@@ -72,7 +72,7 @@ giotto object with updated tSNE dimension recuction
 run tSNE
 }
 \details{
-See \code{\link[Rtsne]{Rtsne}} for more information about these and 
+See \code{\link[Rtsne]{Rtsne}} for more information about these and
 other parameters. \cr
 \itemize{
   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')

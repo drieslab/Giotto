@@ -2,7 +2,9 @@
 % Please edit documentation in R/clustering.R
 \name{subClusterCells}
 \alias{subClusterCells}
-\title{subClusterCells}
+\alias{doLeidenSubCluster}
+\alias{doLouvainSubCluster}
+\title{Cell subclustering}
 \usage{
 subClusterCells(
   gobject,
@@ -10,12 +12,17 @@ subClusterCells(
   cluster_method = c("leiden", "louvain_community", "louvain_multinet"),
   cluster_column = NULL,
   selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
+  hvg_param = deprecated(),
+  hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
     "normalized"),
-  hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1,
-  use_all_genes_as_hvg = FALSE,
-  min_nr_of_hvg = 5,
+  hvg_min_perc_cells = deprecated(),
+  hvf_min_perc_cells = 5,
+  hvg_mean_expr_det = deprecated(),
+  hvf_mean_expr_det = 1,
+  use_all_genes_as_hvg = deprecated(),
+  use_all_feats_as_hvf = FALSE,
+  min_nr_of_hvg = deprecated(),
+  min_nr_of_hvf = 5,
   pca_param = list(expression_values = "normalized", scale_unit = TRUE),
   nn_param = list(dimensions_to_use = 1:20),
   k_neighbors = 10,
@@ -29,40 +36,111 @@ subClusterCells(
   return_gobject = TRUE,
   verbose = TRUE
 )
+
+doLeidenSubCluster(
+  gobject,
+  feat_type = NULL,
+  name = "sub_leiden_clus",
+  cluster_column = NULL,
+  selected_clusters = NULL,
+  hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
+    "normalized"),
+  hvg_param = deprecated(),
+  hvf_min_perc_cells = 5,
+  hvg_min_perc_cells = deprecated(),
+  hvf_mean_expr_det = 1,
+  hvg_mean_expr_det = deprecated(),
+  use_all_feats_as_hvf = FALSE,
+  use_all_genes_as_hvg = deprecated(),
+  min_nr_of_hvf = 5,
+  min_nr_of_hvg = deprecated(),
+  pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+  nn_param = list(dimensions_to_use = 1:20),
+  k_neighbors = 10,
+  resolution = 0.5,
+  n_iterations = 500,
+  python_path = NULL,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  return_gobject = TRUE,
+  toplevel = 2,
+  verbose = TRUE
+)
+
+doLouvainSubCluster(
+  gobject,
+  name = "sub_louvain_clus",
+  version = c("community", "multinet"),
+  cluster_column = NULL,
+  selected_clusters = NULL,
+  hvg_param = deprecated(),
+  hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
+    "normalized"),
+  hvg_min_perc_cells = deprecated(),
+  hvf_min_perc_cells = 5,
+  hvg_mean_expr_det = deprecated(),
+  hvf_mean_expr_det = 1,
+  use_all_genes_as_hvg = deprecated(),
+  use_all_feats_as_hvf = FALSE,
+  min_nr_of_hvg = deprecated(),
+  min_nr_of_hvf = 5,
+  pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+  nn_param = list(dimensions_to_use = 1:20),
+  k_neighbors = 10,
+  resolution = 0.5,
+  gamma = 1,
+  omega = 1,
+  python_path = NULL,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  return_gobject = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{gobject}{giotto object}
+\item{gobject}{\code{giotto} object}
 
 \item{name}{name for new clustering result}
 
-\item{cluster_method}{clustering method to use}
+\item{cluster_method}{clustering method to use. Currently one of "leiden"
+(default), "louvain_community", "louvain_multinet"}
 
 \item{cluster_column}{cluster column to subcluster}
 
 \item{selected_clusters}{only do subclustering on these clusters}
 
-\item{hvg_param}{parameters for calculateHVG}
+\item{hvg_param}{deprecated}
 
-\item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
+\item{hvf_param}{list of parameters for \code{\link[=calculateHVF]{calculateHVF()}}}
 
-\item{hvg_mean_expr_det}{threshold for mean expression level in cells with
+\item{hvg_min_perc_cells}{deprecated}
+
+\item{hvf_min_perc_cells}{threshold for detection in min percentage of cells}
+
+\item{hvg_mean_expr_det}{deprecated}
+
+\item{hvf_mean_expr_det}{threshold for mean expression level in cells with
 detection}
 
-\item{use_all_genes_as_hvg}{forces all genes to be HVG and to be used as
+\item{use_all_genes_as_hvg}{deprecated}
+
+\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as
 input for PCA}
 
-\item{min_nr_of_hvg}{minimum number of HVG, or all genes will be used as
+\item{min_nr_of_hvg}{deprecated}
+
+\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as
 input for PCA}
 
-\item{pca_param}{parameters for runPCA}
+\item{pca_param}{list of parameters for \code{\link[=runPCA]{runPCA()}}}
 
-\item{nn_param}{parameters for parameters for createNearestNetwork}
+\item{nn_param}{list of parameters for \code{\link[=createNearestNetwork]{createNearestNetwork()}}}
 
-\item{k_neighbors}{number of k for createNearestNetwork}
+\item{k_neighbors}{number of k for \code{\link[=createNearestNetwork]{createNearestNetwork()}}}
 
-\item{resolution}{resolution}
+\item{resolution}{resolution for community algorithm}
 
-\item{n_iterations}{number of interations to run the Leiden algorithm.}
+\item{n_iterations}{number of iterations to run the Leiden algorithm.}
 
 \item{gamma}{gamma}
 
@@ -74,34 +152,60 @@ input for PCA}
 
 \item{network_name}{name of NN network to use}
 
-\item{return_gobject}{boolean: return giotto object (default = TRUE)}
+\item{return_gobject}{logical. return \code{giotto} object (default = TRUE)}
 
 \item{verbose}{verbose}
+
+\item{toplevel}{do not use}
+
+\item{version}{version of Louvain algorithm to use. One of "community" or
+"multinet", with the default being "community"}
 }
 \value{
-giotto object with new subclusters appended to cell metadata
+\code{giotto} object with new subclusters appended to cell metadata
 }
 \description{
-subcluster cells
+Perform cell subclustering by taking an annotated group of
+cells and performing another round of clustering on just that subset.
+Several methods are implemented. \code{subClusterCells()} is the main wrapper
+function. \code{doLeidenSubCluster()} and \code{doLouvainSubCluster()} are more
+specific implementations.
 }
 \details{
 This function performs subclustering on selected clusters.
 The systematic steps are:
+\enumerate{
+\item subset Giotto object
+\item identify highly variable genes
+\item run PCA
+\item create nearest neighbouring network
+\item do clustering
+}
+}
+\section{Functions}{
 \itemize{
-  \item{1. subset Giotto object}
-  \item{2. identify highly variable genes}
-  \item{3. run PCA}
-  \item{4. create nearest neighbouring network}
-  \item{5. do clustering}
-}
-}
+\item \code{doLeidenSubCluster()}: Further subcluster cells using a NN-network and
+the Leiden algorithm
+
+\item \code{doLouvainSubCluster()}: subcluster cells using a NN-network and the
+Louvain algorithm
+
+}}
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
+# Run some subclusterings based on "leiden_clus" annotations that already
+# exist in the visium mini object
+
+# default method is leiden subclustering
 subClusterCells(g, cluster_column = "leiden_clus")
-}
-\seealso{
-\code{\link{.doLouvainCluster_multinet}},
-\code{\link{.doLouvainCluster_community}}
-and  @seealso \code{\link{doLeidenCluster}}
+
+# use louvain instead
+subClusterCells(g, cluster_column = "leiden_clus",
+                cluster_method = "louvain_community")
+
+# directly call the more specific functions
+doLeidenSubCluster(g, cluster_column = "leiden_clus")
+
+doLouvainSubCluster(g, cluster_column = "leiden_clus")
 }

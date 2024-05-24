@@ -27,7 +27,8 @@ calculateHVF(
   save_plot = NULL,
   save_param = list(),
   default_save_name = "HVFplot",
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -84,6 +85,8 @@ Passing \code{NULL} runs HVF on all cells.}
 save_name in save_param}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object highly variable features appended to feature metadata
