@@ -64,7 +64,7 @@
         loess_formula, data = feat_in_cells_detected)
     feat_in_cells_detected$pred_cov_feats <- stats::predict(
         loess_model_sample, newdata = feat_in_cells_detected)
-    feat_in_cells_detected[, cov_diff := get(var_col) - pred_cov_feats, 
+    feat_in_cells_detected[, cov_diff := get(var_col) - pred_cov_feats,
                             by = seq_len(nrow(feat_in_cells_detected))]
     data.table::setorder(feat_in_cells_detected, -cov_diff)
     feat_in_cells_detected[, selected := ifelse(
@@ -96,7 +96,7 @@
         test <- apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
     } else {
         test <- future.apply::future_apply(
-            X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x), 
+            X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x),
             future.seed = TRUE
         )
     }
@@ -219,53 +219,54 @@
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param method method to calculate highly variable features
-#' @param reverse_log_scale reverse log-scale of expression values 
+#' @param reverse_log_scale reverse log-scale of expression values
 #' (default = FALSE)
 #' @param logbase if `reverse_log_scale` is TRUE, which log base was used?
 #' @param expression_threshold expression threshold to consider a gene detected
-#' @param nr_expression_groups (cov_groups) number of expression groups for 
+#' @param nr_expression_groups (cov_groups) number of expression groups for
 #' cov_groups
 #' @param zscore_threshold (cov_groups) zscore to select hvg for cov_groups
 #' @param HVFname name for highly variable features in cell metadata
-#' @param difference_in_cov (cov_loess) minimum difference in coefficient of 
+#' @param difference_in_cov (cov_loess) minimum difference in coefficient of
 #' variance required
-#' @param var_threshold (var_p_resid) variance threshold for features for 
+#' @param var_threshold (var_p_resid) variance threshold for features for
 #' var_p_resid method
-#' @param var_number (var_p_resid) number of top variance features for 
+#' @param var_number (var_p_resid) number of top variance features for
 #' var_p_resid method
-#' @param random_subset random subset to perform HVF detection on. 
+#' @param random_subset random subset to perform HVF detection on.
 #' Passing `NULL` runs HVF on all cells.
 #' @param set_seed logical. whether to set a seed when random_subset is used
 #' @param seed_number seed number to use when random_subset is used
 #' @param show_plot show plot
 #' @param return_plot return ggplot object (overridden by `return_gobject`)
 #' @param save_plot logical. directly save the plot
-#' @param save_param list of saving parameters from 
+#' @param save_param list of saving parameters from
 #' [GiottoVisuals::all_plots_save_function()]
-#' @param default_save_name default save name for saving, don't change, change 
+#' @param default_save_name default save name for saving, don't change, change
 #' save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @returns giotto object highly variable features appended to feature metadata 
+#' @param verbose be verbose
+#' @returns giotto object highly variable features appended to feature metadata
 #' (`fDataDT()`)
 #' @details
 #' Currently we provide 2 ways to calculate highly variable genes:
 #'
 #' \strong{1. high coeff of variance (COV) within groups: } \cr
-#' First genes are binned (\emph{nr_expression_groups}) into average expression 
-#' groups and the COV for each feature is converted into a z-score within each 
-#' bin. Features with a z-score higher than the threshold 
+#' First genes are binned (\emph{nr_expression_groups}) into average expression
+#' groups and the COV for each feature is converted into a z-score within each
+#' bin. Features with a z-score higher than the threshold
 #' (\emph{zscore_threshold}) are considered highly variable.  \cr
 #'
 #' \strong{2. high COV based on loess regression prediction: } \cr
-#' A predicted COV is calculated for each feature using loess regression 
+#' A predicted COV is calculated for each feature using loess regression
 #' (COV~log(mean expression))
-#' Features that show a higher than predicted COV (\emph{difference_in_cov}) 
+#' Features that show a higher than predicted COV (\emph{difference_in_cov})
 #' are considered highly variable. \cr
 #'
 #' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' calculateHVF(g)
 #' @export
 calculateHVF <- function(gobject,
@@ -290,7 +291,8 @@ calculateHVF <- function(gobject,
     save_plot = NULL,
     save_param = list(),
     default_save_name = "HVFplot",
-    return_gobject = TRUE) {
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # NSE vars
     selected <- feats <- var <- NULL
 
@@ -317,7 +319,7 @@ calculateHVF <- function(gobject,
 
     # expression values to be used
     values <- match.arg(
-        expression_values, 
+        expression_values,
         unique(c("normalized", "scaled", "custom", expression_values)))
     expr_values <- getExpression(
         gobject = gobject,
@@ -346,14 +348,14 @@ calculateHVF <- function(gobject,
 
 
     # print, return and save parameters
-    show_plot <- ifelse(is.na(show_plot), 
-                        readGiottoInstructions(gobject, param = "show_plot"), 
+    show_plot <- ifelse(is.na(show_plot),
+                        readGiottoInstructions(gobject, param = "show_plot"),
                         show_plot)
-    save_plot <- ifelse(is.na(save_plot), 
-                        readGiottoInstructions(gobject, param = "save_plot"), 
+    save_plot <- ifelse(is.na(save_plot),
+                        readGiottoInstructions(gobject, param = "save_plot"),
                         save_plot)
-    return_plot <- ifelse(is.na(return_plot), 
-                        readGiottoInstructions(gobject, param = "return_plot"), 
+    return_plot <- ifelse(is.na(return_plot),
+                        readGiottoInstructions(gobject, param = "return_plot"),
                         return_plot)
 
 
@@ -415,8 +417,8 @@ calculateHVF <- function(gobject,
     ## save plot
     if (isTRUE(save_plot)) {
         do.call(
-            GiottoVisuals::all_plots_save_function, 
-            c(list(gobject = gobject, plot_object = pl, 
+            GiottoVisuals::all_plots_save_function,
+            c(list(gobject = gobject, plot_object = pl,
                     default_save_name = default_save_name), save_param))
     }
 
@@ -424,7 +426,7 @@ calculateHVF <- function(gobject,
     if (isTRUE(return_plot)) {
         if (isTRUE(return_gobject)) {
             message("return_plot = TRUE and return_gobject = TRUE \n
-                    plot will not be returned to object, but can still be 
+                    plot will not be returned to object, but can still be
                     saved with save_plot = TRUE or manually")
         } else {
             return(pl)
@@ -444,7 +446,8 @@ calculateHVF <- function(gobject,
         column_names_feat_metadata <- colnames(feat_metadata[])
 
         if (HVFname %in% column_names_feat_metadata) {
-            cat(HVFname, " has already been used, will be overwritten")
+            vmsg(.v = verbose, HVFname,
+                 " has already been used, will be overwritten")
             feat_metadata[][, eval(HVFname) := NULL]
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -500,7 +503,7 @@ calculateHVF <- function(gobject,
             axis.text = ggplot2::element_text(size = 12)
         )
     pl <- pl + ggplot2::geom_point(
-        data = feat_in_cells_detected, 
+        data = feat_in_cells_detected,
         ggplot2::aes_string(x = "mean_expr", y = "cov", color = "selected"))
     pl <- pl + ggplot2::scale_color_manual(
         values = c(no = "lightgrey", yes = "orange"),
@@ -529,16 +532,16 @@ calculateHVF <- function(gobject,
             axis.text = ggplot2::element_text(size = 12)
         )
     pl <- pl + ggplot2::geom_point(
-        data = feat_in_cells_detected, 
-        ggplot2::aes_string(x = "log(mean_expr)", y = var_col, 
+        data = feat_in_cells_detected,
+        ggplot2::aes_string(x = "log(mean_expr)", y = var_col,
                             color = "selected"))
     pl <- pl + ggplot2::geom_line(
-        data = feat_in_cells_detected, 
-        ggplot2::aes_string(x = "log(mean_expr)", y = "pred_cov_feats"), 
+        data = feat_in_cells_detected,
+        ggplot2::aes_string(x = "log(mean_expr)", y = "pred_cov_feats"),
         color = "blue")
     hvg_line <- paste0("pred_cov_feats+", difference_in_cov)
     pl <- pl + ggplot2::geom_line(
-        data = feat_in_cells_detected, 
+        data = feat_in_cells_detected,
         ggplot2::aes_string(x = "log(mean_expr)", y = hvg_line), linetype = 2)
     pl <- pl + ggplot2::labs(x = "log(mean expression)", y = var_col)
     pl <- pl + ggplot2::scale_color_manual(

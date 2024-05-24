@@ -1387,6 +1387,7 @@ processGiotto <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param verbose be verbose
 #' @returns giotto object if return_gobject = TRUE
 #' @details
 #' This function will add the following statistics to feature metadata:
@@ -1411,7 +1412,8 @@ addFeatStatistics <- function(gobject,
     spat_unit = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     detection_threshold = 0,
-    return_gobject = TRUE) {
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1475,8 +1477,8 @@ addFeatStatistics <- function(gobject,
         metadata_names <- colnames(feat_metadata[])
 
         if ("nr_cells" %in% metadata_names) {
-            message("feat statistics has already been applied once, will be
-                    overwritten")
+            vmsg(.v = verbose, "feat statistics has already been applied",
+                 "once; overwriting")
             feat_metadata[][, c(
                 "nr_cells", "perc_cells", "total_expr", "mean_expr",
                 "mean_expr_det") := NULL]
@@ -1553,6 +1555,7 @@ addFeatStatistics <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param verbose be verbose
 #' @returns giotto object if return_gobject = TRUE
 #' @details
 #' This function will add the following statistics to cell metadata:
@@ -1574,7 +1577,8 @@ addCellStatistics <- function(gobject,
     spat_unit = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     detection_threshold = 0,
-    return_gobject = TRUE) {
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1628,8 +1632,8 @@ addCellStatistics <- function(gobject,
 
         metadata_names <- colnames(cell_metadata[])
         if ("nr_feats" %in% metadata_names) {
-            message("cells statistics has already been applied once, will be
-                    overwritten")
+            vmsg(.v = verbose, "cells statistics has already been applied",
+                 "once; overwriting")
             cell_metadata[][, c("nr_feats", "perc_feats", "total_expr") := NULL]
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
             gobject <- set_cell_metadata(gobject,
@@ -1703,6 +1707,7 @@ addCellStatistics <- function(gobject,
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a feature detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param verbose be verbose
 #' @returns giotto object if return_gobject = TRUE, else a list with results
 #' @details See \code{\link{addFeatStatistics}} and
 #' \code{\link{addCellStatistics}}
@@ -1716,7 +1721,8 @@ addStatistics <- function(gobject,
     spat_unit = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     detection_threshold = 0,
-    return_gobject = TRUE) {
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1735,7 +1741,8 @@ addStatistics <- function(gobject,
         spat_unit = spat_unit,
         expression_values = expression_values,
         detection_threshold = detection_threshold,
-        return_gobject = return_gobject
+        return_gobject = return_gobject,
+        verbose = verbose
     )
 
     if (return_gobject == TRUE) {
@@ -1749,7 +1756,8 @@ addStatistics <- function(gobject,
         spat_unit = spat_unit,
         expression_values = expression_values,
         detection_threshold = detection_threshold,
-        return_gobject = return_gobject
+        return_gobject = return_gobject,
+        verbose = verbose
     )
 
     if (return_gobject == TRUE) {
