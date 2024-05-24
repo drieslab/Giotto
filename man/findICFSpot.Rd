@@ -116,10 +116,15 @@ rownames(sign_matrix) <- sign_gene
 colnames(sign_matrix) <- paste0("celltype_", unique(x$cluster))
 
 g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
-g_expression <- getExpression(g, output = "matrix")
+ave_celltype_exp <- calculateMetaTable(g, metadata_cols = "leiden_clus")
+ave_celltype_exp <- reshape2::dcast(ave_celltype_exp, variable~leiden_clus)
+rownames(ave_celltype_exp) <- ave_celltype_exp$variable
+ave_celltype_exp <- ave_celltype_exp[,-1]
+colnames(ave_celltype_exp) <- colnames(sign_matrix)
 
 findICFSpot(g,
     spat_unit = "cell", feat_type = "rna",
-    ave_celltype_exp = g_expression, spatial_network_name = "spatial_network"
+    ave_celltype_exp = ave_celltype_exp, 
+    spatial_network_name = "spatial_network"
 )
 }
