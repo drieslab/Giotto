@@ -85,30 +85,30 @@ expected based on a reshuffled null distribution of feature expression
 values in cells that are spatially in proximity to each other.
 \itemize{
  * LR_comb:Pair of ligand and receptor
- * lig_cell_type: cell type to assess expression level of ligand 
- * lig_expr: average expression residual(observed - DWLS_predicted) of 
- ligand in lig_cell_type 
- * ligand: ligand name 
- * rec_cell_type: cell type to assess expression level of receptor 
- * rec_expr: average expression residual(observed - DWLS_predicted) of 
+ * lig_cell_type: cell type to assess expression level of ligand
+ * lig_expr: average expression residual(observed - DWLS_predicted) of
+ ligand in lig_cell_type
+ * ligand: ligand name
+ * rec_cell_type: cell type to assess expression level of receptor
+ * rec_expr: average expression residual(observed - DWLS_predicted) of
  receptor in rec_cell_type
- * receptor: receptor name 
+ * receptor: receptor name
  * LR_expr: combined average ligand and receptor expression residual
- * lig_nr: total number of cells from lig_cell_type that spatially interact 
- with cells from rec_cell_type 
- * rec_nr: total number of cells from rec_cell_type that spatially interact 
- with cells from lig_cell_type 
- * rand_expr: average combined ligand and receptor expression residual from 
- random spatial permutations 
- * av_diff: average difference between LR_expr and rand_expr over all random 
- spatial permutations 
- * sd_diff: (optional) standard deviation of the difference between LR_expr 
- and rand_expr over all random spatial permutations 
- * z_score: (optional) z-score 
- * log2fc: LR_expr - rand_expr 
- * pvalue: p-value 
- * LR_cell_comb: cell type pair combination 
- * p.adj: adjusted p-value 
- * PI: significanc score: log2fc \* -log10(p.adj) 
+ * lig_nr: total number of cells from lig_cell_type that spatially interact
+ with cells from rec_cell_type
+ * rec_nr: total number of cells from rec_cell_type that spatially interact
+ with cells from lig_cell_type
+ * rand_expr: average combined ligand and receptor expression residual from
+ random spatial permutations
+ * av_diff: average difference between LR_expr and rand_expr over all random
+ spatial permutations
+ * sd_diff: (optional) standard deviation of the difference between LR_expr
+ and rand_expr over all random spatial permutations
+ * z_score: (optional) z-score
+ * log2fc: LR_expr - rand_expr
+ * pvalue: p-value
+ * LR_cell_comb: cell type pair combination
+ * p.adj: adjusted p-value
+ * PI: significanc score: log2fc \* -log10(p.adj)
 }
 }

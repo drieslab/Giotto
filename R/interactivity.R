@@ -11,10 +11,11 @@
 #' @returns A `data.table` containing x,y coordinates from the plotted polygons.
 #'
 #' @export
-plotInteractivePolygons <- function(x,
-    width = "auto",
-    height = "auto",
-    ...) {
+plotInteractivePolygons <- function(
+        x,
+        width = "auto",
+        height = "auto",
+        ...) {
     package_check(pkg_name = "miniUI", repository = "CRAN")
     package_check(pkg_name = "shiny", repository = "CRAN")
 
@@ -29,8 +30,10 @@ plotInteractivePolygons <- function(x,
             miniUI::gadgetTitleBar("Plot Interactive Polygons"),
             miniUI::miniContentPanel(
                 shiny::textInput(
-                    "polygon_name", label = "Polygon name",
-                    value = "polygon 1"),
+                    "polygon_name",
+                    label = "Polygon name",
+                    value = "polygon 1"
+                ),
                 shiny::sliderInput("xrange",
                     label = "x coordinates",
                     min = min(terra::ext(x))[1],
@@ -57,8 +60,10 @@ plotInteractivePolygons <- function(x,
             miniUI::gadgetTitleBar("Plot Interactive Polygons"),
             miniUI::miniContentPanel(
                 shiny::textInput(
-                    "polygon_name", label = "Polygon name",
-                    value = "polygon 1"),
+                    "polygon_name",
+                    label = "Polygon name",
+                    value = "polygon 1"
+                ),
                 shiny::sliderInput("xrange",
                     label = "x coordinates",
                     min = min(x[["layers"]][[1]]$data$sdimx),
@@ -100,8 +105,10 @@ plotInteractivePolygons <- function(x,
                         theme(legend.position = "none")
                 } else {
                     terra::plot(x)
-                    lapply(split(clicklist(), by = "name"),
-                        function(x) graphics::polygon(x$x, x$y, ...))
+                    lapply(
+                        split(clicklist(), by = "name"),
+                        function(x) graphics::polygon(x$x, x$y, ...)
+                    )
                 }
             },
             res = 96,
@@ -110,14 +117,16 @@ plotInteractivePolygons <- function(x,
         )
 
         clicklist <- shiny::reactiveVal(data.table::data.table(
-            x = numeric(), y = numeric(), name = character())) # empty table
+            x = numeric(), y = numeric(), name = character()
+        )) # empty table
         shiny::observeEvent(input$plot_click, {
             click_x <- input$plot_click$x
             click_y <- input$plot_click$y
             polygon_name <- input$polygon_name
             temp <- clicklist() # get the table of past clicks
             temp <- rbind(temp, data.table::data.table(
-                x = click_x, y = click_y, name = polygon_name))
+                x = click_x, y = click_y, name = polygon_name
+            ))
             clicklist(temp)
         })
 
@@ -147,12 +156,15 @@ plotInteractivePolygons <- function(x,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
-#' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+#' my_polygon_coords <- data.frame(
+#'     poly_ID = rep("polygon1", 3),
+#'     sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202)
+#' )
 #'
 #' ## Add polygon coordinates to Giotto object
 #' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
-#' name = "selections")
+#'     name = "selections"
+#' )
 #' g <- addGiottoPolygons(
 #'     gobject = g,
 #'     gpolygons = list(my_giotto_polygons)
@@ -165,11 +177,12 @@ plotInteractivePolygons <- function(x,
 #' getCellsFromPolygon(g)
 #'
 #' @export
-getCellsFromPolygon <- function(gobject,
-    polygon_name = "selections",
-    spat_unit = "cell",
-    spat_loc_name = "raw",
-    polygons = NULL) {
+getCellsFromPolygon <- function(
+        gobject,
+        polygon_name = "selections",
+        spat_unit = "cell",
+        spat_loc_name = "raw",
+        polygons = NULL) {
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
     }
@@ -201,7 +214,8 @@ getCellsFromPolygon <- function(gobject,
 
     if (!is.null(polygons)) {
         polygonCells <- terra::subset(
-            polygonCells, polygonCells$poly_ID %in% polygons)
+            polygonCells, polygonCells$poly_ID %in% polygons
+        )
     }
 
     return(polygonCells)
@@ -247,13 +261,14 @@ getCellsFromPolygon <- function(gobject,
 #' g <- addPolygonCells(g)
 #' pDataDT(g)
 #' @export
-addPolygonCells <- function(gobject,
-    polygon_name = "selections",
-    spat_unit = "cell",
-    spat_loc_name = "raw",
-    feat_type = "rna",
-    polygons = NULL,
-    na.label = "no_polygon") {
+addPolygonCells <- function(
+        gobject,
+        polygon_name = "selections",
+        spat_unit = "cell",
+        spat_loc_name = "raw",
+        feat_type = "rna",
+        polygons = NULL,
+        na.label = "no_polygon") {
     ## verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -291,7 +306,8 @@ addPolygonCells <- function(gobject,
     ## assign a default ID to cells outside of polygons
     selection_values <- new_cell_metadata[[polygon_name]]
     selection_values <- ifelse(
-        is.na(selection_values), na.label, selection_values)
+        is.na(selection_values), na.label, selection_values
+    )
     new_cell_metadata[, c(polygon_name) := selection_values]
 
     ## keep original order of cells
@@ -328,12 +344,15 @@ addPolygonCells <- function(gobject,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
-#' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+#' my_polygon_coords <- data.frame(
+#'     poly_ID = rep("polygon1", 3),
+#'     sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202)
+#' )
 #'
 #' ## Add polygon coordinates to Giotto object
 #' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
-#' name = "selections")
+#'     name = "selections"
+#' )
 #' g <- addGiottoPolygons(
 #'     gobject = g,
 #'     gpolygons = list(my_giotto_polygons)
@@ -344,14 +363,15 @@ addPolygonCells <- function(gobject,
 #'
 #' comparePolygonExpression(g)
 #' @export
-comparePolygonExpression <- function(gobject,
-    polygon_name = "selections",
-    spat_unit = "cell",
-    feat_type = "rna",
-    selected_feats = "top_genes",
-    expression_values = "normalized",
-    method = "scran",
-    ...) {
+comparePolygonExpression <- function(
+        gobject,
+        polygon_name = "selections",
+        spat_unit = "cell",
+        feat_type = "rna",
+        selected_feats = "top_genes",
+        expression_values = "normalized",
+        method = "scran",
+        ...) {
     # verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -446,12 +466,15 @@ comparePolygonExpression <- function(gobject,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
-#' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+#' my_polygon_coords <- data.frame(
+#'     poly_ID = rep("polygon1", 3),
+#'     sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202)
+#' )
 #'
 #' ## Add polygon coordinates to Giotto object
 #' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
-#' name = "selections")
+#'     name = "selections"
+#' )
 #' g <- addGiottoPolygons(
 #'     gobject = g,
 #'     gpolygons = list(my_giotto_polygons)
@@ -462,12 +485,13 @@ comparePolygonExpression <- function(gobject,
 #'
 #' compareCellAbundance(g)
 #' @export
-compareCellAbundance <- function(gobject,
-    polygon_name = "selections",
-    spat_unit = "cell",
-    feat_type = "rna",
-    cell_type_column = "leiden_clus",
-    ...) {
+compareCellAbundance <- function(
+        gobject,
+        polygon_name = "selections",
+        spat_unit = "cell",
+        feat_type = "rna",
+        cell_type_column = "leiden_clus",
+        ...) {
     # verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -521,12 +545,15 @@ compareCellAbundance <- function(gobject,
 #' @examples
 #' ## Plot interactive polygons
 #' g <- GiottoData::loadGiottoMini("visium")
-#' my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
-#' sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+#' my_polygon_coords <- data.frame(
+#'     poly_ID = rep("polygon1", 3),
+#'     sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202)
+#' )
 #'
 #' ## Add polygon coordinates to Giotto object
 #' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
-#' name = "selections")
+#'     name = "selections"
+#' )
 #' g <- addGiottoPolygons(
 #'     gobject = g,
 #'     gpolygons = list(my_giotto_polygons)
@@ -540,12 +567,13 @@ compareCellAbundance <- function(gobject,
 #'
 #' plotPolygons(g, x = x)
 #' @export
-plotPolygons <- function(gobject,
-    polygon_name = "selections",
-    x,
-    spat_unit = "cell",
-    polygons = NULL,
-    ...) {
+plotPolygons <- function(
+        gobject,
+        polygon_name = "selections",
+        x,
+        spat_unit = "cell",
+        polygons = NULL,
+        ...) {
     ## verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject must be a Giotto object")
@@ -614,10 +642,11 @@ plotPolygons <- function(gobject,
 #' @returns data.table with selected cell_IDs, spatial coordinates, and
 #' cluster_ID.
 #' @export
-plotInteractive3D <- function(gobject, spat_unit = "cell", feat_type = "rna",
-    cell_color = "leiden_clus",
-    cell_color_code = NULL, point_size = 0.5,
-    width = "100%", height = "400px") {
+plotInteractive3D <- function(
+        gobject, spat_unit = "cell", feat_type = "rna",
+        cell_color = "leiden_clus",
+        cell_color_code = NULL, point_size = 0.5,
+        width = "100%", height = "400px") {
     # NSE vars
     sdimx <- sdimy <- sdimz <- cell_ID <- NULL
 
@@ -684,8 +713,9 @@ plotInteractive3D <- function(gobject, spat_unit = "cell", feat_type = "rna",
             data[data[[cell_color]] %in% input$clusters, ] %>%
                 plotly::filter(
                     sdimx >= input$xrange[1] & sdimx <= input$xrange[2] &
-                    sdimy >= input$yrange[1] & sdimy <= input$yrange[2] &
-                    sdimz >= input$zrange[1] & sdimz <= input$zrange[2]) %>%
+                        sdimy >= input$yrange[1] & sdimy <= input$yrange[2] &
+                        sdimz >= input$zrange[1] & sdimz <= input$zrange[2]
+                ) %>%
                 plotly::select(cell_ID, sdimx, sdimy, sdimz, cell_color)
         })
 

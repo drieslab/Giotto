@@ -34,6 +34,8 @@ the selected spatial network.
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-findNetworkNeighbors(gobject = g, spatial_network_name = "spatial_network",
-source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1"))
+findNetworkNeighbors(
+    gobject = g, spatial_network_name = "spatial_network",
+    source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1")
+)
 }

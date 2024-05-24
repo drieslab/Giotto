@@ -30,7 +30,7 @@ plotCombineCCcom(
 
 \item{selected_LR}{selected ligand-receptor pair}
 
-\item{selected_cell_LR}{selected cell-cell interaction pair for 
+\item{selected_cell_LR}{selected cell-cell interaction pair for
 ligand-receptor pair}
 
 \item{detail_plot}{show detailed info in both interacting cell types}
@@ -61,23 +61,31 @@ ligand-receptor pair}
 ggplot
 }
 \description{
-Create visualization for combined (pairwise) cell proximity 
+Create visualization for combined (pairwise) cell proximity
 gene scores
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
-feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+comScores <- exprCellCellcom(g,
+    cluster_column = "leiden_clus",
+    feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"),
+    feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17")
+)
 
-exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
+exprCC <- exprCellCellcom(g,
+    cluster_column = "leiden_clus",
+    feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+)
+spatialCC <- spatCellCellcom(
+    gobject = g, cluster_column = "leiden_clus",
+    feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot"
+)
 
 combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
 
-plotCombineCCcom(gobject = g, combCCcom = combCCcom,
-selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
+plotCombineCCcom(
+    gobject = g, combCCcom = combCCcom,
+    selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1")
+)
 }

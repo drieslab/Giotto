@@ -38,7 +38,7 @@ balanced manner
 There are 3 different ways of selecting features from the spatial
 co-expression modules
 \itemize{
-  * 1. weighted: Features are ranked based on summarized pairwise 
+  * 1. weighted: Features are ranked based on summarized pairwise
   co-expression scores
   * 2. random: A random selection of features, set seed for reproducibility
   * 3. informed: Features are selected based on prior information/ranking

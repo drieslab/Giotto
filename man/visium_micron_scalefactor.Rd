@@ -8,7 +8,7 @@
 .visium_micron_scale(json_scalefactors)
 }
 \arguments{
-\item{json_scalefactors}{list of scalefactors from 
+\item{json_scalefactors}{list of scalefactors from
 .visium_read_scalefactors()}
 }
 \value{

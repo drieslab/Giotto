@@ -18,7 +18,7 @@ switch_str, a vector of corresponding cluster numbers in strings
 Determine switch string unequal
 }
 \details{
-determines how to create a string in the format 
+determines how to create a string in the format
 c("x_1-y_1", "x_2-y_2"..."x_n, y_m")
 Where:
    x_n is a cluster number from the original spatial unit

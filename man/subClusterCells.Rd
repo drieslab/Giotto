@@ -201,8 +201,10 @@ g <- GiottoData::loadGiottoMini("visium")
 subClusterCells(g, cluster_column = "leiden_clus")
 
 # use louvain instead
-subClusterCells(g, cluster_column = "leiden_clus",
-                cluster_method = "louvain_community")
+subClusterCells(g,
+    cluster_column = "leiden_clus",
+    cluster_method = "louvain_community"
+)
 
 # directly call the more specific functions
 doLeidenSubCluster(g, cluster_column = "leiden_clus")

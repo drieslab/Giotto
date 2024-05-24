@@ -33,5 +33,7 @@ Cluster based on spatially correlated features
 g <- GiottoData::loadGiottoMini("visium")
 
 clusterSpatialCorFeats(spatCorObject = detectSpatialCorFeats(
-g, method = "network"))
+    g,
+    method = "network"
+))
 }

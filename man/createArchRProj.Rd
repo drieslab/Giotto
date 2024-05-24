@@ -25,19 +25,19 @@ These files can be in one of the following formats: (i) scATAC tabix files,
 
 \item{genome}{A string indicating the default genome to be used for all ArchR
 functions. Currently supported values include "hg19","hg38","mm9", and "mm10".
-This value is stored as a global environment variable, not part of the 
+This value is stored as a global environment variable, not part of the
 ArchRProject.
 This can be overwritten on a per-function basis using the given function's
 geneAnnotationand genomeAnnotation parameter. For something other than one of
-the currently supported, see createGeneAnnnotation() and 
+the currently supported, see createGeneAnnnotation() and
 createGenomeAnnnotation()}
 
-\item{createArrowFiles_params}{list of parameters passed to 
+\item{createArrowFiles_params}{list of parameters passed to
 `ArchR::createArrowFiles`}
 
 \item{ArchRProject_params}{list of parameters passed to `ArchR::ArchRProject`}
 
-\item{addIterativeLSI_params}{list of parameters passed to 
+\item{addIterativeLSI_params}{list of parameters passed to
 `ArchR::addIterativeLSI`}
 
 \item{threads}{number of threads to use. Default = `ArchR::getArchRThreads()`}
@@ -47,7 +47,7 @@ createGenomeAnnnotation()}
 \item{verbose}{Default = TRUE}
 }
 \value{
-An ArchR project with GeneScoreMatrix, TileMatrix, and 
+An ArchR project with GeneScoreMatrix, TileMatrix, and
 TileMatrix-based LSI
 }
 \description{

@@ -33,10 +33,10 @@
 )
 }
 \arguments{
-\item{dir_items}{list of full filepaths from 
+\item{dir_items}{list of full filepaths from
 \code{\link{.read_merscope_folder}}}
 
-\item{data_to_use}{which of either the 'subcellular' or 'aggregate' 
+\item{data_to_use}{which of either the 'subcellular' or 'aggregate'
 information to use for object creation}
 
 \item{cores}{how many cores or threads to use to read data if paths are

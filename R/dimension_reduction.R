@@ -19,13 +19,14 @@
 #' @param seed_number seed number to use
 #' @keywords internal
 #' @returns list of eigenvalues, loadings and pca coordinates
-.run_pca_factominer <- function(x,
-    ncp = 100,
-    scale = TRUE,
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    ...) {
+.run_pca_factominer <- function(
+        x,
+        ncp = 100,
+        scale = TRUE,
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        ...) {
     # verify if optional package is installed
     package_check(pkg_name = "FactoMineR", repository = "CRAN")
 
@@ -47,7 +48,8 @@
         }
 
         pca_res <- FactoMineR::PCA(
-            X = x, ncp = ncp, scale.unit = scale, graph = FALSE, ...)
+            X = x, ncp = ncp, scale.unit = scale, graph = FALSE, ...
+        )
 
         # exit seed
         if (isTRUE(set_seed)) {
@@ -64,12 +66,15 @@
 
         # coordinates
         coords <- sweep(pca_res$var$coord,
-                        2, sqrt(eigenvalues[seq_len(ncp)]), FUN = "/")
+            2, sqrt(eigenvalues[seq_len(ncp)]),
+            FUN = "/"
+        )
         rownames(coords) <- colnames(x)
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     } else {
         if (ncp > ncol(x)) {
             warning("ncp > ncol(x), will be set to ncol(x)")
@@ -82,7 +87,8 @@
         }
 
         pca_res <- FactoMineR::PCA(
-            X = x, ncp = ncp, scale.unit = scale, graph = FALSE, ...)
+            X = x, ncp = ncp, scale.unit = scale, graph = FALSE, ...
+        )
 
         # exit seed
         if (isTRUE(set_seed)) {
@@ -94,7 +100,9 @@
 
         # PC loading
         loadings <- sweep(
-            pca_res$var$coord, 2, sqrt(eigenvalues[seq_len(ncp)]), FUN = "/")
+            pca_res$var$coord, 2, sqrt(eigenvalues[seq_len(ncp)]),
+            FUN = "/"
+        )
         rownames(loadings) <- colnames(x)
         colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
 
@@ -104,11 +112,14 @@
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     }
 
-    vmsg(.is_debug = TRUE,
-        "finished .run_pca_factominer, method == factominer")
+    vmsg(
+        .is_debug = TRUE,
+        "finished .run_pca_factominer, method == factominer"
+    )
 
     return(result)
 }
@@ -128,16 +139,17 @@
 #' @param BPPARAM BiocParallelParam object
 #' @keywords internal
 #' @returns list of eigenvalues, loadings and pca coordinates
-.run_pca_biocsingular <- function(x,
-    ncp = 100,
-    center = TRUE,
-    scale = TRUE,
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    BSPARAM = c("irlba", "exact", "random"),
-    BPPARAM = BiocParallel::SerialParam(),
-    ...) {
+.run_pca_biocsingular <- function(
+        x,
+        ncp = 100,
+        center = TRUE,
+        scale = TRUE,
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        BSPARAM = c("irlba", "exact", "random"),
+        BPPARAM = BiocParallel::SerialParam(),
+        ...) {
     BSPARAM <- match.arg(BSPARAM, choices = c("irlba", "exact", "random"))
 
     min_ncp <- min(dim(x))
@@ -195,7 +207,8 @@
         rownames(coords) <- colnames(x)
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     } else {
         if (BSPARAM == "irlba") {
             pca_res <- BiocSingular::runPCA(
@@ -234,7 +247,8 @@
         rownames(coords) <- rownames(x)
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     }
 
     # exit seed
@@ -263,12 +277,13 @@
 #' @param verbose verbosity
 #' @keywords internal
 #' @returns subsetted matrix based on selected features
-.create_feats_to_use_matrix <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    sel_matrix,
-    feats_to_use,
-    verbose = FALSE) {
+.create_feats_to_use_matrix <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        sel_matrix,
+        feats_to_use,
+        verbose = FALSE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -295,7 +310,8 @@
                 used to select highly variable features"
             )
             feats_to_use <- feat_metadata[
-                get(feats_to_use) == "yes"][["feat_ID"]]
+                get(feats_to_use) == "yes"
+            ][["feat_ID"]]
             sel_matrix <- sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
         } else {
             vmsg(
@@ -305,13 +321,17 @@
             )
         }
     } else {
-        vmsg(.v = verbose,
-            "a custom vector of genes will be used to subset the matrix")
+        vmsg(
+            .v = verbose,
+            "a custom vector of genes will be used to subset the matrix"
+        )
         sel_matrix <- sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
     }
 
-    vmsg(.v = verbose, .is_debug = TRUE,
-        "class of selected matrix: ", class(sel_matrix))
+    vmsg(
+        .v = verbose, .is_debug = TRUE,
+        "class of selected matrix: ", class(sel_matrix)
+    )
 
     return(sel_matrix)
 }
@@ -360,24 +380,25 @@
 #'
 #' runPCA(g)
 #' @export
-runPCA <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    name = NULL,
-    feats_to_use = "hvf",
-    return_gobject = TRUE,
-    center = TRUE,
-    scale_unit = TRUE,
-    ncp = 100,
-    method = c("irlba", "exact", "random", "factominer"),
-    method_params = BiocParallel::SerialParam(),
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = TRUE,
-    ...) {
+runPCA <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        name = NULL,
+        feats_to_use = "hvf",
+        return_gobject = TRUE,
+        center = TRUE,
+        scale_unit = TRUE,
+        ncp = 100,
+        method = c("irlba", "exact", "random", "factominer"),
+        method_params = BiocParallel::SerialParam(),
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -401,7 +422,8 @@ runPCA <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         feat_type = feat_type,
@@ -497,7 +519,6 @@ runPCA <- function(gobject,
 
 
     if (isTRUE(return_gobject)) {
-
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
         } else {
@@ -561,17 +582,18 @@ runPCA <- function(gobject,
 #' @param verbose verbosity level
 #' @keywords internal
 #' @returns list of eigenvalues, loadings and pca coordinates
-.run_pca_biocsingular_irlba_projection <- function(x,
-    ncp = 100,
-    center = TRUE,
-    scale = TRUE,
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    BPPARAM = BiocParallel::SerialParam(),
-    random_subset = 500,
-    verbose = TRUE,
-    ...) {
+.run_pca_biocsingular_irlba_projection <- function(
+        x,
+        ncp = 100,
+        center = TRUE,
+        scale = TRUE,
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        BPPARAM = BiocParallel::SerialParam(),
+        random_subset = 500,
+        verbose = TRUE,
+        ...) {
     x <- scale(x, center = center, scale = scale)
 
     min_ncp <- min(dim(x))
@@ -646,7 +668,8 @@ runPCA <- function(gobject,
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     } else {
         # store cell ID order information
         cell_ID_order <- rownames(x)
@@ -696,7 +719,8 @@ runPCA <- function(gobject,
         colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
         result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+            eigenvalues = eigenvalues, loadings = loadings, coords = coords
+        )
     }
 
     return(result)
@@ -751,25 +775,26 @@ runPCA <- function(gobject,
 #'
 #' runPCAprojection(g)
 #' @export
-runPCAprojection <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    random_subset = 500,
-    name = "pca.projection",
-    feats_to_use = "hvf",
-    return_gobject = TRUE,
-    center = TRUE,
-    scale_unit = TRUE,
-    ncp = 100,
-    method = c("irlba"),
-    method_params = BiocParallel::SerialParam(),
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = TRUE,
-    ...) {
+runPCAprojection <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        random_subset = 500,
+        name = "pca.projection",
+        feats_to_use = "hvf",
+        return_gobject = TRUE,
+        center = TRUE,
+        scale_unit = TRUE,
+        ncp = 100,
+        method = c("irlba"),
+        method_params = BiocParallel::SerialParam(),
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -793,7 +818,8 @@ runPCAprojection <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         feat_type = feat_type,
@@ -983,27 +1009,26 @@ runPCAprojection <- function(gobject,
 #' runPCAprojectionBatch(g, feats_to_use = NULL)
 #' @export
 runPCAprojectionBatch <- function(
-    gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    random_subset = 500,
-    batch_number = 5,
-    name = "pca.projection.batch",
-    feats_to_use = "hvf",
-    return_gobject = TRUE,
-    center = TRUE,
-    scale_unit = TRUE,
-    ncp = 100,
-    method = c("irlba"),
-    method_params = BiocParallel::SerialParam(),
-    rev = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = TRUE,
-    ...
-) {
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        random_subset = 500,
+        batch_number = 5,
+        name = "pca.projection.batch",
+        feats_to_use = "hvf",
+        return_gobject = TRUE,
+        center = TRUE,
+        scale_unit = TRUE,
+        ncp = 100,
+        method = c("irlba"),
+        method_params = BiocParallel::SerialParam(),
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1027,7 +1052,8 @@ runPCAprojectionBatch <- function(
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         feat_type = feat_type,
@@ -1129,7 +1155,8 @@ runPCAprojectionBatch <- function(
             } else {
                 for (dimension in seq_len(ncol(pca_object[["coords"]]))) {
                     sum_evaluation <- sum(sign(pca_batch_results[[1]][[
-                        "coords"]][seq_len(20), dimension]) *
+                        "coords"
+                    ]][seq_len(20), dimension]) *
                         sign(pca_object[["coords"]][seq_len(20), dimension]))
                     if (sum_evaluation < 0) {
                         pca_object$coords[, dimension] <- -1 * pca_object$coords[, dimension]
@@ -1148,7 +1175,9 @@ runPCAprojectionBatch <- function(
 
         # eigenvalues
         eigenvalues_list <- lapply(
-            pca_batch_results, FUN = function(x) x$eigenvalues)
+            pca_batch_results,
+            FUN = function(x) x$eigenvalues
+        )
         eigenvalues_matrix <- do.call("cbind", eigenvalues_list)
         eigenvalues_mean <- rowMeans_flex(eigenvalues_matrix)
 
@@ -1157,7 +1186,8 @@ runPCAprojectionBatch <- function(
         coords_vector <- do.call("c", coords_list)
         coords_array <- array(
             data = coords_vector,
-            dim = c(ncol(expr_values), ncp, length(pca_batch_results)))
+            dim = c(ncol(expr_values), ncp, length(pca_batch_results))
+        )
         coords_all <- apply(coords_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
@@ -1169,18 +1199,22 @@ runPCAprojectionBatch <- function(
         loadings_vector <- do.call("c", loadings_list)
         loadings_array <- array(
             data = loadings_vector,
-            dim = c(nrow(expr_values), ncp, length(pca_batch_results)))
+            dim = c(nrow(expr_values), ncp, length(pca_batch_results))
+        )
         loadings_all <- apply(
-            loadings_array, MARGIN = seq_len(2), function(arr) {
-            mean(arr, na.rm = TRUE)
-        })
+            loadings_array,
+            MARGIN = seq_len(2), function(arr) {
+                mean(arr, na.rm = TRUE)
+            }
+        )
         rownames(loadings_all) <- rownames(pca_batch_results[[1]][["loadings"]])
         colnames(loadings_all) <- colnames(pca_batch_results[[1]][["loadings"]])
 
 
         pca_object <- list(
             eigenvalues = eigenvalues_mean,
-            loadings = loadings_all, coords = coords_all)
+            loadings = loadings_all, coords = coords_all
+        )
     } else {
         pca_batch_results <- list()
 
@@ -1217,7 +1251,8 @@ runPCAprojectionBatch <- function(
             } else {
                 for (dimension in seq_len(ncol(pca_object[["coords"]]))) {
                     sum_evaluation <- sum(sign(pca_batch_results[[1]][[
-                        "coords"]][seq_len(20), dimension]) *
+                        "coords"
+                    ]][seq_len(20), dimension]) *
                         sign(pca_object[["coords"]][seq_len(20), dimension]))
                     if (sum_evaluation < 0) {
                         pca_object$coords[, dimension] <- -1 * pca_object$coords[, dimension]
@@ -1236,7 +1271,9 @@ runPCAprojectionBatch <- function(
 
         # eigenvalues
         eigenvalues_list <- lapply(
-            pca_batch_results, FUN = function(x) x$eigenvalues)
+            pca_batch_results,
+            FUN = function(x) x$eigenvalues
+        )
         eigenvalues_matrix <- do.call("cbind", eigenvalues_list)
         eigenvalues_mean <- rowMeans_flex(eigenvalues_matrix)
 
@@ -1245,7 +1282,8 @@ runPCAprojectionBatch <- function(
         coords_vector <- do.call("c", coords_list)
         coords_array <- array(
             data = coords_vector,
-            dim = c(ncol(expr_values), ncp, length(pca_batch_results)))
+            dim = c(ncol(expr_values), ncp, length(pca_batch_results))
+        )
         coords_all <- apply(coords_array, MARGIN = seq_len(2), function(arr) {
             mean(arr, na.rm = TRUE)
         })
@@ -1257,18 +1295,22 @@ runPCAprojectionBatch <- function(
         loadings_vector <- do.call("c", loadings_list)
         loadings_array <- array(
             data = loadings_vector,
-            dim = c(nrow(expr_values), ncp, length(pca_batch_results)))
+            dim = c(nrow(expr_values), ncp, length(pca_batch_results))
+        )
         loadings_all <- apply(
-            loadings_array, MARGIN = seq_len(2), function(arr) {
-            mean(arr, na.rm = TRUE)
-        })
+            loadings_array,
+            MARGIN = seq_len(2), function(arr) {
+                mean(arr, na.rm = TRUE)
+            }
+        )
         rownames(loadings_all) <- rownames(pca_batch_results[[1]][["loadings"]])
         colnames(loadings_all) <- colnames(pca_batch_results[[1]][["loadings"]])
 
 
         pca_object <- list(
             eigenvalues = eigenvalues_mean,
-            loadings = loadings_all, coords = coords_all)
+            loadings = loadings_all, coords = coords_all
+        )
     }
 
 
@@ -1356,26 +1398,27 @@ runPCAprojectionBatch <- function(
 #'
 #' screePlot(g)
 #' @export
-screePlot <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    name = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    method = c("irlba", "exact", "random", "factominer"),
-    rev = FALSE,
-    feats_to_use = NULL,
-    center = FALSE,
-    scale_unit = FALSE,
-    ncp = 100,
-    ylim = c(0, 20),
-    verbose = TRUE,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "screePlot",
-    ...) {
+screePlot <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        name = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        method = c("irlba", "exact", "random", "factominer"),
+        rev = FALSE,
+        feats_to_use = NULL,
+        center = FALSE,
+        scale_unit = FALSE,
+        ncp = 100,
+        ylim = c(0, 20),
+        verbose = TRUE,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "screePlot",
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1410,22 +1453,30 @@ screePlot <- function(gobject,
 
     # if pca already exists plot
     if (!is.null(pca_obj)) {
-        if (isTRUE(verbose))
-            wrap_msg("PCA with name: ", name,
-                    " already exists and will be used for the screeplot")
+        if (isTRUE(verbose)) {
+            wrap_msg(
+                "PCA with name: ", name,
+                " already exists and will be used for the screeplot"
+            )
+        }
 
         screeplot <- create_screeplot(
-            eigs = slot(pca_obj, "misc")$eigenvalues, ncp = ncp, ylim = ylim)
+            eigs = slot(pca_obj, "misc")$eigenvalues, ncp = ncp, ylim = ylim
+        )
     } else {
         # if pca doesn't exists, then create pca and then plot
-        if (isTRUE(verbose))
-            wrap_msg("PCA with name: ", name,
-                    " does NOT exist, PCA will be done first")
+        if (isTRUE(verbose)) {
+            wrap_msg(
+                "PCA with name: ", name,
+                " does NOT exist, PCA will be done first"
+            )
+        }
 
         # expression values to be used
         values <- match.arg(
             expression_values,
-            unique(c("normalized", "scaled", "custom", expression_values)))
+            unique(c("normalized", "scaled", "custom", expression_values))
+        )
         expr_values <- getExpression(
             gobject = gobject,
             spat_unit = spat_unit,
@@ -1470,7 +1521,8 @@ screePlot <- function(gobject,
             } else if (method == "factominer") {
                 pca_object <- .run_pca_factominer(
                     x = t_flex(expr_values),
-                    scale = scale_unit, ncp = ncp, rev = rev, ...)
+                    scale = scale_unit, ncp = ncp, rev = rev, ...
+                )
             } else {
                 stop("only PCA methods from the irlba and factominer package
                     have been implemented")
@@ -1493,7 +1545,8 @@ screePlot <- function(gobject,
 
             screeplot <- create_screeplot(
                 eigs = slot(dimObject, "misc")$eigenvalues,
-                ncp = ncp, ylim = ylim)
+                ncp = ncp, ylim = ylim
+            )
         }
     }
 
@@ -1554,19 +1607,23 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     pl <- pl + ggplot2::theme_bw()
     pl <- pl + ggplot2::geom_bar(
         data = screeDT[seq_len(ncp)],
-        ggplot2::aes(x = PC, y = var_expl), stat = "identity")
+        ggplot2::aes(x = PC, y = var_expl), stat = "identity"
+    )
     pl <- pl + ggplot2::coord_cartesian(ylim = ylim)
     pl <- pl + ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+    )
     pl <- pl + ggplot2::labs(x = "", y = "% of variance explained per PC")
 
     cpl <- ggplot2::ggplot()
     cpl <- cpl + ggplot2::theme_bw()
     cpl <- cpl + ggplot2::geom_bar(
         data = screeDT[seq_len(ncp)],
-        ggplot2::aes(x = PC, y = var_expl_cum), stat = "identity")
+        ggplot2::aes(x = PC, y = var_expl_cum), stat = "identity"
+    )
     cpl <- cpl + ggplot2::theme(axis.text.x = ggplot2::element_text(
-        angle = 45, hjust = 1, vjust = 1))
+        angle = 45, hjust = 1, vjust = 1
+    ))
     cpl <- cpl + ggplot2::labs(x = "", y = "cumulative % of variance explained")
 
     savelist <- list(pl, cpl)
@@ -1615,24 +1672,25 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
 #'
 #' jackstrawPlot(gobject = g)
 #' @export
-jackstrawPlot <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    feats_to_use = NULL,
-    center = FALSE,
-    scale_unit = FALSE,
-    ncp = 20,
-    ylim = c(0, 1),
-    iter = 10,
-    threshold = 0.01,
-    verbose = TRUE,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "jackstrawPlot") {
+jackstrawPlot <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        feats_to_use = NULL,
+        center = FALSE,
+        scale_unit = FALSE,
+        ncp = 20,
+        ylim = c(0, 1),
+        iter = 10,
+        threshold = 0.01,
+        verbose = TRUE,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "jackstrawPlot") {
     package_check(pkg_name = "jackstraw", repository = "CRAN")
 
     # Set feat_type and spat_unit
@@ -1647,12 +1705,13 @@ jackstrawPlot <- function(gobject,
     )
 
     # print message with information #
-    if (verbose)
+    if (verbose) {
         message("using 'jackstraw' to identify significant PCs If used in
         published research, please cite:
         Neo Christopher Chung and John D. Storey (2014).
         'Statistical significance of variables driving systematic variation in
         high-dimensional data. Bioinformatics")
+    }
 
     # select direction of reduction
     reduction <- match.arg(reduction, c("cells", "feats"))
@@ -1660,7 +1719,8 @@ jackstrawPlot <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -1686,22 +1746,29 @@ jackstrawPlot <- function(gobject,
     if (reduction == "cells") {
         if (scale_unit == TRUE | center == TRUE) {
             expr_values <- t_flex(scale(
-                t_flex(expr_values), center = center, scale = scale_unit))
+                t_flex(expr_values),
+                center = center, scale = scale_unit
+            ))
         }
 
         jtest <- jackstraw::permutationPA(
             dat = as.matrix(expr_values),
-            B = iter, threshold = threshold, verbose = verbose)
+            B = iter, threshold = threshold, verbose = verbose
+        )
 
         ## results ##
         nr_sign_components <- jtest$r
-        if (verbose)
-            cat("number of estimated significant components: ",
-                nr_sign_components)
+        if (verbose) {
+            cat(
+                "number of estimated significant components: ",
+                nr_sign_components
+            )
+        }
         final_results <- jtest$p
         jackplot <- create_jackstrawplot(
             jackstraw_data = final_results,
-            ncp = ncp, ylim = ylim, threshold = threshold)
+            ncp = ncp, ylim = ylim, threshold = threshold
+        )
     }
 
     return(plot_output_handler(
@@ -1728,10 +1795,11 @@ jackstrawPlot <- function(gobject,
 #' @keywords internal
 #' @returns ggplot
 #' @export
-create_jackstrawplot <- function(jackstraw_data,
-    ncp = 20,
-    ylim = c(0, 1),
-    threshold = 0.01) {
+create_jackstrawplot <- function(
+        jackstraw_data,
+        ncp = 20,
+        ylim = c(0, 1),
+        threshold = 0.01) {
     checkmate::assert_numeric(ncp, len = 1L)
     checkmate::assert_numeric(ylim, len = 2L)
     checkmate::assert_numeric(threshold, len = 1L)
@@ -1750,11 +1818,14 @@ create_jackstrawplot <- function(jackstraw_data,
     pl <- pl + ggplot2::theme_bw()
     pl <- pl + ggplot2::geom_point(
         data = testDT[seq_len(ncp)],
-        ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21)
+        ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21
+    )
     pl <- pl + ggplot2::scale_fill_manual(
-        values = c("n.s." = "lightgrey", "sign" = "darkorange"))
+        values = c("n.s." = "lightgrey", "sign" = "darkorange")
+    )
     pl <- pl + ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+    )
     pl <- pl + ggplot2::coord_cartesian(ylim = ylim)
     pl <- pl + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
     pl <- pl + ggplot2::labs(x = "", y = "p-value per PC")
@@ -1805,29 +1876,30 @@ create_jackstrawplot <- function(jackstraw_data,
 #'
 #' signPCA(g)
 #' @export
-signPCA <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    name = NULL,
-    method = c("screeplot", "jackstraw"),
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    pca_method = c("irlba", "factominer"),
-    rev = FALSE,
-    feats_to_use = NULL,
-    center = TRUE,
-    scale_unit = TRUE,
-    ncp = 50,
-    scree_ylim = c(0, 10),
-    jack_iter = 10,
-    jack_threshold = 0.01,
-    jack_ylim = c(0, 1),
-    verbose = TRUE,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "signPCA") {
+signPCA <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        name = NULL,
+        method = c("screeplot", "jackstraw"),
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        pca_method = c("irlba", "factominer"),
+        rev = FALSE,
+        feats_to_use = NULL,
+        center = TRUE,
+        scale_unit = TRUE,
+        ncp = 50,
+        scree_ylim = c(0, 10),
+        jack_iter = 10,
+        jack_threshold = 0.01,
+        jack_ylim = c(0, 1),
+        verbose = TRUE,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "signPCA") {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -2010,28 +2082,29 @@ signPCA <- function(gobject,
 #'
 #' runUMAP(g)
 #' @export
-runUMAP <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    dim_reduction_to_use = "pca",
-    dim_reduction_name = NULL,
-    dimensions_to_use = 1:10,
-    name = NULL,
-    feats_to_use = NULL,
-    return_gobject = TRUE,
-    n_neighbors = 40,
-    n_components = 2,
-    n_epochs = 400,
-    min_dist = 0.01,
-    n_threads = NA,
-    spread = 5,
-    set_seed = TRUE,
-    seed_number = 1234L,
-    verbose = TRUE,
-    toplevel_params = 2L,
-    ...) {
+runUMAP <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        dim_reduction_to_use = "pca",
+        dim_reduction_name = NULL,
+        dimensions_to_use = 1:10,
+        name = NULL,
+        feats_to_use = NULL,
+        return_gobject = TRUE,
+        n_neighbors = 40,
+        n_components = 2,
+        n_epochs = 400,
+        min_dist = 0.01,
+        n_threads = NA,
+        spread = 5,
+        set_seed = TRUE,
+        seed_number = 1234L,
+        verbose = TRUE,
+        toplevel_params = 2L,
+        ...) {
     # NSE vars
     cell_ID <- NULL
 
@@ -2102,7 +2175,8 @@ runUMAP <- function(gobject,
                     "Ignoring dimensions_to_use that are outside the range."
                 ))
                 dimensions_to_use <- dimensions_to_use[
-                    dimensions_to_use %in% seq(ncol(matrix_to_use))]
+                    dimensions_to_use %in% seq(ncol(matrix_to_use))
+                ]
             }
 
             matrix_to_use <- matrix_to_use[, dimensions_to_use]
@@ -2111,7 +2185,8 @@ runUMAP <- function(gobject,
             # expression values to be used
             values <- match.arg(
                 expression_values,
-                unique(c("normalized", "scaled", "custom", expression_values)))
+                unique(c("normalized", "scaled", "custom", expression_values))
+            )
 
             expr_values <- getExpression(
                 gobject = gobject,
@@ -2203,8 +2278,10 @@ runUMAP <- function(gobject,
 
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(gobject = gobject,
-                                        dimObject = dimObject)
+            gobject <- set_dimReduction(
+                gobject = gobject,
+                dimObject = dimObject
+            )
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -2271,29 +2348,30 @@ runUMAP <- function(gobject,
 #'
 #' runUMAPprojection(g)
 #' @export
-runUMAPprojection <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    dim_reduction_to_use = "pca",
-    dim_reduction_name = NULL,
-    dimensions_to_use = 1:10,
-    random_subset = 500,
-    name = NULL,
-    feats_to_use = NULL,
-    return_gobject = TRUE,
-    n_neighbors = 40,
-    n_components = 2,
-    n_epochs = 400,
-    min_dist = 0.01,
-    n_threads = NA,
-    spread = 5,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = TRUE,
-    toplevel_params = 2,
-    ...) {
+runUMAPprojection <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        dim_reduction_to_use = "pca",
+        dim_reduction_name = NULL,
+        dimensions_to_use = 1:10,
+        random_subset = 500,
+        name = NULL,
+        feats_to_use = NULL,
+        return_gobject = TRUE,
+        n_neighbors = 40,
+        n_components = 2,
+        n_epochs = 400,
+        min_dist = 0.01,
+        n_threads = NA,
+        spread = 5,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        toplevel_params = 2,
+        ...) {
     # NSE vars
     cell_ID <- NULL
 
@@ -2403,7 +2481,8 @@ runUMAPprojection <- function(gobject,
 
         # create random selection
         random_selection <- sort(sample(
-            seq_len(nrow(matrix_to_use)), random_subset))
+            seq_len(nrow(matrix_to_use)), random_subset
+        ))
         subsample_matrix <- matrix_to_use[random_selection, ]
 
         uwot_clus_subset <- uwot::umap(
@@ -2429,7 +2508,8 @@ runUMAPprojection <- function(gobject,
         # combine subset and prediction
         coords_umap <- rbind(uwot_clus_subset$embedding, uwot_clus_pred)
         coords_umap <- coords_umap[
-            match(cell_ID_order, rownames(coords_umap)), ]
+            match(cell_ID_order, rownames(coords_umap)),
+        ]
 
         coords_umap_DT <- data.table::as.data.table(coords_umap)
         coords_umap_DT[, cell_ID := rownames(coords_umap)]
@@ -2534,25 +2614,26 @@ runUMAPprojection <- function(gobject,
 #'
 #' runtSNE(g)
 #' @export
-runtSNE <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = c("cells", "feats"),
-    dim_reduction_to_use = "pca",
-    dim_reduction_name = NULL,
-    dimensions_to_use = 1:10,
-    name = NULL,
-    feats_to_use = NULL,
-    return_gobject = TRUE,
-    dims = 2,
-    perplexity = 30,
-    theta = 0.5,
-    do_PCA_first = FALSE,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = TRUE,
-    ...) {
+runtSNE <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        dim_reduction_to_use = "pca",
+        dim_reduction_name = NULL,
+        dimensions_to_use = 1:10,
+        name = NULL,
+        feats_to_use = NULL,
+        return_gobject = TRUE,
+        dims = 2,
+        perplexity = 30,
+        theta = 0.5,
+        do_PCA_first = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -2616,7 +2697,8 @@ runtSNE <- function(gobject,
             # expression values to be used
             values <- match.arg(
                 expression_values,
-                unique(c("normalized", "scaled", "custom", expression_values)))
+                unique(c("normalized", "scaled", "custom", expression_values))
+            )
             expr_values <- getExpression(
                 gobject = gobject,
                 spat_unit = spat_unit,
@@ -2696,8 +2778,10 @@ runtSNE <- function(gobject,
             )
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(gobject = gobject,
-                                        dimObject = dimObject)
+            gobject <- set_dimReduction(
+                gobject = gobject,
+                dimObject = dimObject
+            )
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             ## update parameters used ##
@@ -2750,24 +2834,25 @@ runtSNE <- function(gobject,
 #'
 #' runGiottoHarmony(g, vars_use = "leiden_clus")
 #' @export
-runGiottoHarmony <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    vars_use = "list_ID",
-    do_pca = FALSE,
-    expression_values = c("normalized", "scaled", "custom"),
-    reduction = "cells",
-    dim_reduction_to_use = "pca",
-    dim_reduction_name = NULL,
-    dimensions_to_use = 1:10,
-    name = NULL,
-    feats_to_use = NULL,
-    set_seed = TRUE,
-    seed_number = 1234,
-    toplevel_params = 2,
-    return_gobject = TRUE,
-    verbose = NULL,
-    ...) {
+runGiottoHarmony <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        vars_use = "list_ID",
+        do_pca = FALSE,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = "cells",
+        dim_reduction_to_use = "pca",
+        dim_reduction_name = NULL,
+        dimensions_to_use = 1:10,
+        name = NULL,
+        feats_to_use = NULL,
+        set_seed = TRUE,
+        seed_number = 1234,
+        toplevel_params = 2,
+        return_gobject = TRUE,
+        verbose = NULL,
+        ...) {
     # verify if optional package is installed
     package_check(pkg_name = "harmony", repository = "CRAN")
 
@@ -2848,7 +2933,8 @@ runGiottoHarmony <- function(gobject,
         # expression values to be used
         values <- match.arg(
             expression_values,
-            unique(c("normalized", "scaled", "custom", expression_values)))
+            unique(c("normalized", "scaled", "custom", expression_values))
+        )
         expr_values <- getExpression(
             gobject = gobject,
             spat_unit = spat_unit,
@@ -2911,7 +2997,6 @@ runGiottoHarmony <- function(gobject,
 
     # return giotto object or harmony results
     if (isTRUE(return_gobject)) {
-
         harmony_names <- list_dim_reductions_names(
             gobject = gobject,
             data_type = reduction,
@@ -2921,13 +3006,17 @@ runGiottoHarmony <- function(gobject,
         )
 
         if (name %in% harmony_names) {
-            cat(name,
-                " has already been used with harmony, will be overwritten")
+            cat(
+                name,
+                " has already been used with harmony, will be overwritten"
+            )
         }
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject,
-                                    dimObject = harmdimObject)
+        gobject <- set_dimReduction(
+            gobject = gobject,
+            dimObject = harmdimObject
+        )
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 

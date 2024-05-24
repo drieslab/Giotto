@@ -102,7 +102,9 @@ detectSpatialCorFeats(g, method = "network")
 # This analysis can also be performed with data outside of the gobject
 detectSpatialCorFeatsMatrix(
     expression_matrix = getExpression(
-    g, output = "matrix"),
+        g,
+        output = "matrix"
+    ),
     method = "network",
     spatial_network = getSpatialNetwork(g, output = "networkDT")
 )

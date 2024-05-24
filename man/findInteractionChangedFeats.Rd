@@ -79,10 +79,10 @@ other cell types. The results data.table in the icfObject contains
 - at least - the following columns:
 \itemize{
  * features: All or selected list of tested features
- * sel: average feature expression in the interacting cells from the target 
- cell type 
- * other: average feature expression in the NOT-interacting cells from the 
- target cell type 
+ * sel: average feature expression in the interacting cells from the target
+ cell type
+ * other: average feature expression in the NOT-interacting cells from the
+ target cell type
  * log2fc: log2 fold-change between sel and other
  * diff: spatial expression difference between sel and other
  * p.value: associated p-value
@@ -99,6 +99,8 @@ other cell types. The results data.table in the icfObject contains
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+findInteractionChangedFeats(g,
+    cluster_column = "leiden_clus",
+    selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+)
 }

@@ -63,6 +63,8 @@ MAST might take a long time to run and finish
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-findMastMarkers(gobject = g, cluster_column = "leiden_clus", group_1 = 1,
-group_2 = 2)
+findMastMarkers(
+    gobject = g, cluster_column = "leiden_clus", group_1 = 1,
+    group_2 = 2
+)
 }

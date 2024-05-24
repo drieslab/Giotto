@@ -49,6 +49,8 @@ g <- GiottoData::loadGiottoMini("visium")
 spatCorObject <- detectSpatialCorFeats(g, method = "network")
 clusters <- clusterSpatialCorFeats(spatCorObject = spatCorObject)
 
-rankSpatialCorGroups(gobject = g, spatCorObject = clusters,
-use_clus_name = "spat_clus")
+rankSpatialCorGroups(
+    gobject = g, spatCorObject = clusters,
+    use_clus_name = "spat_clus"
+)
 }

@@ -50,10 +50,14 @@ Create barplot to visualize interaction changed features
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
-icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+icfObject <- findInteractionChangedFeats(g,
+    cluster_column = "leiden_clus",
+    selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+)
 
-plotInteractionChangedFeats(gobject = g, icfObject = icfObject,
-source_type = "1", source_markers = "Ccnd2", 
-ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
+plotInteractionChangedFeats(
+    gobject = g, icfObject = icfObject,
+    source_type = "1", source_markers = "Ccnd2",
+    ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17")
+)
 }

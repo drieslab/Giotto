@@ -2,7 +2,7 @@
 % Please edit documentation in R/convenience.R
 \name{.createGiottoCosMxObject_all}
 \alias{.createGiottoCosMxObject_all}
-\title{Load and create a CosMx Giotto object from subcellular and aggregate 
+\title{Load and create a CosMx Giotto object from subcellular and aggregate
 info}
 \usage{
 .createGiottoCosMxObject_all(
@@ -22,7 +22,7 @@ info}
 
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 
-\item{remove_background_polygon}{try to remove background polygon 
+\item{remove_background_polygon}{try to remove background polygon
 (default: FALSE)}
 
 \item{background_algo}{algorithm to remove background polygon}
@@ -41,13 +41,13 @@ from \code{\link[GiottoClass]{createGiottoInstructions}}}
 giotto object
 }
 \description{
-Load and create a CosMx Giotto object from subcellular and aggregate 
+Load and create a CosMx Giotto object from subcellular and aggregate
 info
 }
 \details{
-Both \emph{subcellular} 
+Both \emph{subcellular}
 (subellular transcript detection information) and
-\emph{aggregate} (aggregated detection count matrices by cell polygon from 
+\emph{aggregate} (aggregated detection count matrices by cell polygon from
 NanoString)
 data will be loaded in. The two will be separated into 'cell' and 'cell_agg'
 spatial units in order to denote the difference in origin of the two.

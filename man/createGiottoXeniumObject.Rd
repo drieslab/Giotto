@@ -28,24 +28,24 @@ createGiottoXeniumObject(
 \item{load_format}{files formats from which to load the data. Either `csv` or
 `parquet` currently supported.}
 
-\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 
+\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5
 file. Default is \code{TRUE}}
 
 \item{h5_gene_ids}{use gene symbols (default) or ensembl ids for the .h5 gene
 expression matrix}
 
-\item{gene_column_index}{which column from the features or genes .tsv file 
+\item{gene_column_index}{which column from the features or genes .tsv file
 to use for row ids}
 
-\item{bounds_to_load}{vector of boundary information to load 
+\item{bounds_to_load}{vector of boundary information to load
 (e.g. \code{'cell'}
 or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
 at the same time.)}
 
-\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included 
+\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included
 as a subcellular transcript detection (default = 20)}
 
-\item{key_list}{(advanced) list of grep-based keywords to split the 
+\item{key_list}{(advanced) list of grep-based keywords to split the
 subcellular feature detections by feature type. See details}
 
 \item{instructions}{list of instructions or output result
@@ -60,7 +60,7 @@ provided}
 giotto object
 }
 \description{
-Given the path to a Xenium experiment output folder, creates a 
+Given the path to a Xenium experiment output folder, creates a
 Giotto object
 }
 \details{
@@ -68,20 +68,20 @@ Giotto object
 Xenium provides info on feature detections that include more than only the
 Gene Expression specific probes. Additional probes for QC are included:
 \emph{blank codeword}, \emph{negative control codeword}, and
-\emph{negative control probe}. These additional QC probes each occupy and 
-are treated as their own feature types so that they can largely remain 
+\emph{negative control probe}. These additional QC probes each occupy and
+are treated as their own feature types so that they can largely remain
 independent of the gene expression information.
 
 [\strong{key_list}]
 Related to \code{data_to_use = 'subcellular'} workflow only:
-Additional QC probe information is in the subcellular feature detections 
-information and must be separated from the gene expression information 
+Additional QC probe information is in the subcellular feature detections
+information and must be separated from the gene expression information
 during processing.
-The QC probes have prefixes that allow them to be selected from the rest of 
+The QC probes have prefixes that allow them to be selected from the rest of
 the feature IDs.
-Giotto uses a named list of keywords (\code{key_list}) to select these QC 
-probes, with the list names being the names that will be assigned as the 
-feature type of these feature detections. The default list is used when 
+Giotto uses a named list of keywords (\code{key_list}) to select these QC
+probes, with the list names being the names that will be assigned as the
+feature type of these feature detections. The default list is used when
 \code{key_list} = NULL.
 
 Default list:
