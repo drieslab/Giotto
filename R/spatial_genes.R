@@ -2484,9 +2484,10 @@ spark <- function(gobject,
 #' @details
 #' Steps to identify spatial patterns:
 #' \itemize{
-#'   \item{1. average gene expression for cells within a grid, see createSpatialGrid}
-#'   \item{2. perform PCA on the average grid expression profiles}
-#'   \item{3. convert variance of principlal components (PCs) to z-scores and select PCs based on a z-score threshold}
+#'   * 1. average gene expression for cells within a grid, see createSpatialGrid
+#'   * 2. perform PCA on the average grid expression profiles
+#'   * 3. convert variance of principal components (PCs) to z-scores and 
+#'   select PCs based on a z-score threshold
 #' }
 #' @export
 detectSpatialPatterns <- function(gobject,
@@ -4068,9 +4069,10 @@ rankSpatialCorGroups <- function(gobject,
 #' @details There are 3 different ways of selecting features from the spatial
 #' co-expression modules
 #' \itemize{
-#'   \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
-#'   \item{2. random: }{A random selection of features, set seed for reproducibility}
-#'   \item{3. informed: }{Features are selected based on prior information/ranking}
+#'   * 1. weighted: Features are ranked based on summarized pairwise 
+#'   co-expression scores
+#'   * 2. random: A random selection of features, set seed for reproducibility
+#'   * 3. informed: Features are selected based on prior information/ranking
 #' }
 #' @export
 getBalancedSpatCoexpressionFeats <- function(spatCorObject,

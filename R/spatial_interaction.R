@@ -1080,20 +1080,22 @@ NULL
 #' other cell types. The results data.table in the icfObject contains
 #' - at least - the following columns:
 #' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
+#'  * features: All or selected list of tested features
+#'  * sel: average feature expression in the interacting cells from the target 
+#'  cell type 
+#'  * other: average feature expression in the NOT-interacting cells from the 
+#'  target cell type 
+#'  * log2fc: log2 fold-change between sel and other
+#'  * diff: spatial expression difference between sel and other
+#'  * p.value: associated p-value
+#'  * p.adj: adjusted p-value
+#'  * cell_type: target cell type
+#'  * int_cell_type: interacting cell type
+#'  * nr_select: number of cells for selected target cell type
+#'  * int_nr_select: number of cells for interacting cell type
+#'  * nr_other: number of other cells of selected target cell type
+#'  * int_nr_other: number of other cells for interacting cell type
+#'  * unif_int: cell-cell interaction
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
@@ -1335,20 +1337,22 @@ findCellProximityGenes <- function(...) {
 #' other cell types. The results data.table in the `icfObject` contains
 #' - at least - the following columns:
 #' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
+#'  * features: All or selected list of tested features
+#'  * sel: average feature expression in the interacting cells from the target 
+#'  cell type 
+#'  * other: average feature expression in the NOT-interacting cells from the 
+#'  target cell type 
+#'  * log2fc: log2 fold-change between sel and other
+#'  * diff: spatial expression difference between sel and other
+#'  * p.value: associated p-value
+#'  * p.adj: adjusted p-value
+#'  * cell_type: target cell type
+#'  * int_cell_type: interacting cell type
+#'  * nr_select: number of cells for selected target cell type
+#'  * int_nr_select: number of cells for interacting cell type
+#'  * nr_other: number of other cells of selected target cell type
+#'  * int_nr_other: number of other cells for interacting cell type
+#'  * unif_int: cell-cell interaction
 #' }
 #' @seealso \code{\link{findInteractionChangedFeats}}
 #' @examples
@@ -2628,25 +2632,30 @@ exprCellCellcom <- function(gobject,
 #' distribution of feature expression values in cells that are spatially in
 #' proximity to each other.
 #' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#'  * LR_comb: Pair of ligand and receptor
+#'  * lig_cell_type: cell type to assess expression level of ligand 
+#'  * lig_expr: average expression of ligand in lig_cell_type 
+#'  * ligand: ligand name 
+#'  * rec_cell_type: cell type to assess expression level of receptor 
+#'  * rec_expr: average expression of receptor in rec_cell_type
+#'  * receptor: receptor name 
+#'  * LR_expr: combined average ligand and receptor expression 
+#'  * lig_nr: total number of cells from lig_cell_type that spatially interact 
+#'  with cells from rec_cell_type 
+#'  * rec_nr: total number of cells from rec_cell_type that spatially interact 
+#'  with cells from lig_cell_type 
+#'  * rand_expr: average combined ligand and receptor expression from random 
+#'  spatial permutations 
+#'  * av_diff: average difference between LR_expr and rand_expr over all 
+#'  random spatial permutations 
+#'  * sd_diff: (optional) standard deviation of the difference between LR_expr 
+#'  and rand_expr over all random spatial permutations 
+#'  * z_score: (optional) z-score 
+#'  * log2fc: log2 fold-change (LR_expr/rand_expr) 
+#'  * pvalue: p-value 
+#'  * LR_cell_comb: cell type pair combination 
+#'  * p.adj: adjusted p-value 
+#'  * PI: significanec score: log2fc \* -log10(p.adj) 
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")

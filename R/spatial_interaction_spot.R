@@ -1100,25 +1100,40 @@ NULL
 #' The results data.table in the icfObject contains - at least -
 #' the following columns:
 #' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression residual in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression residual in the NOT-interacting cells from the target cell type }
-#'  \item{pcc_sel:}{ correlation between cell proximity score and expression residual in the interacting cells from the target cell type}
-#'  \item{pcc_other:}{ correlation between cell proximity score and expression residual in the NOT-interacting cells from the target cell type }
-#'  \item{pcc_diff:}{ correlation difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
+#'  * features: All or selected list of tested features
+#'  * sel: average feature expression residual in the interacting cells from 
+#'  the target cell type 
+#'  * other: average feature expression residual in the NOT-interacting cells 
+#'  from the target cell type 
+#'  * pcc_sel: correlation between cell proximity score and expression residual 
+#'  in the interacting cells from the target cell type
+#'  * pcc_other: correlation between cell proximity score and expression 
+#'  residual in the NOT-interacting cells from the target cell type 
+#'  * pcc_diff: correlation difference between sel and other
+#'  * p.value: associated p-value
+#'  * p.adj: adjusted p-value
+#'  * cell_type: target cell type
+#'  * int_cell_type: interacting cell type
+#'  * nr_select: number of cells for selected target cell type
+#'  * int_nr_select: number of cells for interacting cell type
+#'  * unif_int: cell-cell interaction
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' g_expression <- getExpression(g, output = "matrix")
+#' x <- findMarkers_one_vs_all(g,
+#' cluster_column = "leiden_clus", min_feats = 20)
+#' sign_gene <- x$feats
 #'
-#' findICFSpot(g, spat_unit = "cell", feat_type = "rna", ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
+#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10),
+#' nrow = length(sign_gene))
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#'
+#' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
+#' g_expression <- getExpression(g, output = "matrix")
+#' 
+#' findICFSpot(g, spat_unit = "cell", feat_type = "rna", 
+#' ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
 #' @export
 findICFSpot <- function(gobject,
     spat_unit = NULL,
@@ -1823,25 +1838,32 @@ plotCellProximityFeatSpot <- function(gobject,
 #' expected based on a reshuffled null distribution of feature expression
 #' values in cells that are spatially in proximity to each other.
 #' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expressionresidual(observed - DWLS_predicted) of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression residual(observed - DWLS_predicted) of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression residual from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ LR_expr - rand_expr }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#'  * LR_comb: Pair of ligand and receptor
+#'  * lig_cell_type: cell type to assess expression level of ligand 
+#'  * lig_expr: average expression residual (observed - DWLS_predicted) of 
+#'  ligand in lig_cell_type 
+#'  * ligand: ligand name 
+#'  * rec_cell_type: cell type to assess expression level of receptor 
+#'  * rec_expr: average expression residual(observed - DWLS_predicted) of 
+#'  receptor in rec_cell_type
+#'  * receptor: receptor name 
+#'  * LR_expr: combined average ligand and receptor expression 
+#'  * lig_nr: total number of cells from lig_cell_type that spatially interact 
+#'  with cells from rec_cell_type 
+#'  * rec_nr: total number of cells from rec_cell_type that spatially interact 
+#'  with cells from lig_cell_type 
+#'  * rand_expr: average combined ligand and receptor expression residual from 
+#'  random spatial permutations 
+#'  * av_diff: average difference between LR_expr and rand_expr over all random 
+#'  spatial permutations 
+#'  * sd_diff: (optional) standard deviation of the difference between LR_expr 
+#'  and rand_expr over all random spatial permutations 
+#'  * z_score: (optinal) z-score 
+#'  * log2fc: LR_expr - rand_expr 
+#'  * pvalue: p-value 
+#'  * LR_cell_comb: cell type pair combination 
+#'  * p.adj: adjusted p-value 
+#'  * PI: significance score: log2fc \* -log10(p.adj) 
 #' }
 #' @keywords internal
 .specific_CCCScores_spots <- function(gobject,
@@ -2072,25 +2094,32 @@ plotCellProximityFeatSpot <- function(gobject,
 #' expected based on a reshuffled null distribution of feature expression
 #' values in cells that are spatially in proximity to each other.
 #' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression residual(observed - DWLS_predicted) of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression residual(observed - DWLS_predicted) of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression residual}
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression residual from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ LR_expr - rand_expr }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#'  * LR_comb:Pair of ligand and receptor
+#'  * lig_cell_type: cell type to assess expression level of ligand 
+#'  * lig_expr: average expression residual(observed - DWLS_predicted) of 
+#'  ligand in lig_cell_type 
+#'  * ligand: ligand name 
+#'  * rec_cell_type: cell type to assess expression level of receptor 
+#'  * rec_expr: average expression residual(observed - DWLS_predicted) of 
+#'  receptor in rec_cell_type
+#'  * receptor: receptor name 
+#'  * LR_expr: combined average ligand and receptor expression residual
+#'  * lig_nr: total number of cells from lig_cell_type that spatially interact 
+#'  with cells from rec_cell_type 
+#'  * rec_nr: total number of cells from rec_cell_type that spatially interact 
+#'  with cells from lig_cell_type 
+#'  * rand_expr: average combined ligand and receptor expression residual from 
+#'  random spatial permutations 
+#'  * av_diff: average difference between LR_expr and rand_expr over all random 
+#'  spatial permutations 
+#'  * sd_diff: (optional) standard deviation of the difference between LR_expr 
+#'  and rand_expr over all random spatial permutations 
+#'  * z_score: (optional) z-score 
+#'  * log2fc: LR_expr - rand_expr 
+#'  * pvalue: p-value 
+#'  * LR_cell_comb: cell type pair combination 
+#'  * p.adj: adjusted p-value 
+#'  * PI: significanc score: log2fc \* -log10(p.adj) 
 #' }
 #' @export
 spatCellCellcomSpots <- function(gobject,
