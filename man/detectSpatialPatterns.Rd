@@ -43,8 +43,9 @@ in a spatial grid.
 \details{
 Steps to identify spatial patterns:
 \itemize{
-  \item{1. average gene expression for cells within a grid, see createSpatialGrid}
-  \item{2. perform PCA on the average grid expression profiles}
-  \item{3. convert variance of principlal components (PCs) to z-scores and select PCs based on a z-score threshold}
+  * 1. average gene expression for cells within a grid, see createSpatialGrid
+  * 2. perform PCA on the average grid expression profiles
+  * 3. convert variance of principal components (PCs) to z-scores and 
+  select PCs based on a z-score threshold
 }
 }

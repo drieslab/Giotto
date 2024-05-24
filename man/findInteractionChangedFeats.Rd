@@ -78,20 +78,22 @@ cell types when they interact (approximated by physical proximity) with
 other cell types. The results data.table in the icfObject contains
 - at least - the following columns:
 \itemize{
- \item{features:}{ All or selected list of tested features}
- \item{sel:}{ average feature expression in the interacting cells from the target cell type }
- \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
- \item{log2fc:}{ log2 fold-change between sel and other}
- \item{diff:}{ spatial expression difference between sel and other}
- \item{p.value:}{ associated p-value}
- \item{p.adj:}{ adjusted p-value}
- \item{cell_type:}{ target cell type}
- \item{int_cell_type:}{ interacting cell type}
- \item{nr_select:}{ number of cells for selected target cell type}
- \item{int_nr_select:}{ number of cells for interacting cell type}
- \item{nr_other:}{ number of other cells of selected target cell type}
- \item{int_nr_other:}{ number of other cells for interacting cell type}
- \item{unif_int:}{ cell-cell interaction}
+ * features: All or selected list of tested features
+ * sel: average feature expression in the interacting cells from the target 
+ cell type 
+ * other: average feature expression in the NOT-interacting cells from the 
+ target cell type 
+ * log2fc: log2 fold-change between sel and other
+ * diff: spatial expression difference between sel and other
+ * p.value: associated p-value
+ * p.adj: adjusted p-value
+ * cell_type: target cell type
+ * int_cell_type: interacting cell type
+ * nr_select: number of cells for selected target cell type
+ * int_nr_select: number of cells for interacting cell type
+ * nr_other: number of other cells of selected target cell type
+ * int_nr_other: number of other cells for interacting cell type
+ * unif_int: cell-cell interaction
 }
 }
 \examples{

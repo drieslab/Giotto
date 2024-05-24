@@ -10,7 +10,7 @@ doLouvainSubCluster(
   version = c("community", "multinet"),
   cluster_column = NULL,
   selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
+  hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1, expression_values =
     "normalized"),
   hvg_min_perc_cells = 5,
   hvg_mean_expr_det = 1,
@@ -40,7 +40,7 @@ doLouvainSubCluster(
 
 \item{selected_clusters}{only do subclustering on these clusters}
 
-\item{hvg_param}{parameters for calculateHVG}
+\item{hvf_param}{parameters for calculateHVF}
 
 \item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
 

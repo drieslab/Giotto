@@ -83,19 +83,23 @@ average_expressed_in_cell_type)
 The results data.table in the icfObject contains - at least -
 the following columns:
 \itemize{
- \item{features:}{ All or selected list of tested features}
- \item{sel:}{ average feature expression residual in the interacting cells from the target cell type }
- \item{other:}{ average feature expression residual in the NOT-interacting cells from the target cell type }
- \item{pcc_sel:}{ correlation between cell proximity score and expression residual in the interacting cells from the target cell type}
- \item{pcc_other:}{ correlation between cell proximity score and expression residual in the NOT-interacting cells from the target cell type }
- \item{pcc_diff:}{ correlation difference between sel and other}
- \item{p.value:}{ associated p-value}
- \item{p.adj:}{ adjusted p-value}
- \item{cell_type:}{ target cell type}
- \item{int_cell_type:}{ interacting cell type}
- \item{nr_select:}{ number of cells for selected target cell type}
- \item{int_nr_select:}{ number of cells for interacting cell type}
- \item{unif_int:}{ cell-cell interaction}
+ * features: All or selected list of tested features
+ * sel: average feature expression residual in the interacting cells from 
+ the target cell type 
+ * other: average feature expression residual in the NOT-interacting cells 
+ from the target cell type 
+ * pcc_sel: correlation between cell proximity score and expression residual 
+ in the interacting cells from the target cell type
+ * pcc_other: correlation between cell proximity score and expression 
+ residual in the NOT-interacting cells from the target cell type 
+ * pcc_diff: correlation difference between sel and other
+ * p.value: associated p-value
+ * p.adj: adjusted p-value
+ * cell_type: target cell type
+ * int_cell_type: interacting cell type
+ * nr_select: number of cells for selected target cell type
+ * int_nr_select: number of cells for interacting cell type
+ * unif_int: cell-cell interaction
 }
 }
 \examples{
