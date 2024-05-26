@@ -1268,6 +1268,26 @@ findInteractionChangedFeats <- function(gobject,
 }
 
 
+#' @name print.icfObject
+#' @title icfObject print method
+#' @param x object to print
+#' @param \dots additional params to pass (none implemented)
+#' @keywords internal
+#' @export
+print.icfObject <- function(x, ...) {
+    cat("An object of class", class(x), "\n")
+    info <- list(
+        dimensions = sprintf("%d, %d (interactions, attributes)",
+                             nrow(x$ICFscores), ncol(x$ICFscores))
+    )
+    print_list(info, pre = " -")
+    cat("<giotto info>\n")
+    print_list(x$Giotto_info, pre = " -")
+    cat("<test info>\n")
+    print_list(x$test_info, pre = " -")
+}
+
+
 
 #' @title findInteractionChangedGenes
 #' @name findInteractionChangedGenes
