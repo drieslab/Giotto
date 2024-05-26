@@ -1052,6 +1052,7 @@ NULL
 
 #' @title findInteractionChangedFeats
 #' @name findInteractionChangedFeats
+#' @aliases findICF
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. features that are differentially expressed due to proximity to other
 #' cell types.
@@ -1073,33 +1074,48 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @returns icfObject that contains the Interaction Changed differential
+#' @returns `icfObject` that contains the Interaction Changed differential
 #' feature scores
 #' @details Function to calculate if features are differentially expressed in
 #' cell types when they interact (approximated by physical proximity) with
-#' other cell types. The results data.table in the icfObject contains
+#' other cell types. The results data.table in the `icfObject` contains
 #' - at least - the following columns:
-#' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
-#' }
+#'   * **features:** All or selected list of tested features
+#'   * **sel:** average feature expression in the interacting cells from the
+#'   target cell type
+#'   * **other:** average feature expression in the NOT-interacting cells from
+#'   the target cell type
+#'   * **log2fc:** log2 fold-change between sel and other
+#'   * **diff:** spatial expression difference between sel and other
+#'   * **p.value:** associated p-value
+#'   * **p.adj:** adjusted p-value
+#'   * **cell_type:** target cell type
+#'   * **int_cell_type:** interacting cell type
+#'   * **nr_select:** number of cells for selected target cell type
+#'   * **int_nr_select:** number of cells for interacting cell type
+#'   * **nr_other:** number of other cells of selected target cell type
+#'   * **int_nr_other:** number of other cells for interacting cell type
+#'   * **unif_int:** cell-cell interaction
+#'
+#' @seealso [filterInteractionChangedFeats()]
+#' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' icf1 <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#' )
+#' force(icf1)
+#' force(icf1$ICFscores)
+#'
+#' # this is just an alias with a shorter name
+#' icf2 <- findICF(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#'  )
 #' @export
 findInteractionChangedFeats <- function(gobject,
     feat_type = NULL,
@@ -1165,8 +1181,9 @@ findInteractionChangedFeats <- function(gobject,
     mean_method <- match.arg(mean_method, choices = c("arithmic", "geometric"))
 
     ## metadata
-    cell_metadata <- pDataDT(gobject, feat_type = feat_type)
-
+    cell_metadata <- pDataDT(
+        gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
 
 
     ## annotated spatial network
@@ -1179,94 +1196,78 @@ findInteractionChangedFeats <- function(gobject,
 
     all_interactions <- unique(annot_spatnetwork$unified_int)
 
-    if (do_parallel == TRUE) {
-        fin_result <- lapply_flex(
-            X = all_interactions, future.seed = TRUE, FUN = function(x) {
+    ## prepare function
+    fcp_feats_per_i <- function(x) {
+        .findCellProximityFeats_per_interaction(
+            expr_values = expr_values,
+            cell_metadata = cell_metadata,
+            annot_spatnetwork = annot_spatnetwork,
+            minimum_unique_cells = minimum_unique_cells,
+            minimum_unique_int_cells = minimum_unique_int_cells,
+            sel_int = x,
+            cluster_column = cluster_column,
+            exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+            diff_test = diff_test,
+            mean_method = mean_method,
+            offset = offset,
+            adjust_method = adjust_method,
+            nr_permutations = nr_permutations,
+            set_seed = set_seed,
+            seed_number = seed_number
+        )
+    }
 
-            tempres <- .findCellProximityFeats_per_interaction(
-                expr_values = expr_values,
-                cell_metadata = cell_metadata,
-                annot_spatnetwork = annot_spatnetwork,
-                minimum_unique_cells = minimum_unique_cells,
-                minimum_unique_int_cells = minimum_unique_int_cells,
-                sel_int = x,
-                cluster_column = cluster_column,
-                exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                diff_test = diff_test,
-                mean_method = mean_method,
-                offset = offset,
-                adjust_method = adjust_method,
-                nr_permutations = nr_permutations,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-        })
-    } else {
+    if (isTRUE(do_parallel)) { # parallel
+        fin_result <- lapply_flex(
+            X = all_interactions, future.seed = TRUE, FUN = fcp_feats_per_i
+        )
+    } else { # sequential
         fin_result <- list()
 
         for (i in seq_along(all_interactions)) {
             x <- all_interactions[i]
-
-
-            tempres <- .findCellProximityFeats_per_interaction(
-                expr_values = expr_values,
-                cell_metadata = cell_metadata,
-                annot_spatnetwork = annot_spatnetwork,
-                minimum_unique_cells = minimum_unique_cells,
-                minimum_unique_int_cells = minimum_unique_int_cells,
-                sel_int = x,
-                cluster_column = cluster_column,
-                exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                diff_test = diff_test,
-                mean_method = mean_method,
-                offset = offset,
-                adjust_method = adjust_method,
-                nr_permutations = nr_permutations,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-
+            tempres <- fcp_feats_per_i(x)
             fin_result[[i]] <- tempres
         }
     }
 
     final_result <- do.call("rbind", fin_result)
 
-
-
-    # data.table variables
+    # NSE variables
     spec_int <- cell_type <- int_cell_type <- type_int <- NULL
 
     final_result[, spec_int := paste0(cell_type, "--", int_cell_type)]
     final_result[, type_int := ifelse(
         cell_type == int_cell_type, "homo", "hetero")]
 
-
-    # return(final_result)
-
     permutation_test <- ifelse(
         diff_test == "permutation", nr_permutations, "no permutations")
 
-    icfObject <- list(
-        ICFscores = final_result,
-        Giotto_info = list(
-            "values" = values,
-            "cluster" = cluster_column,
-            "spatial network" = spatial_network_name
+    icfObject <- structure(
+        .Data = list(
+            ICFscores = final_result,
+            Giotto_info = list(
+                "values" = values,
+                "cluster" = cluster_column,
+                "spatial network" = spatial_network_name
+            ),
+            test_info = list(
+                "test" = diff_test,
+                "p.adj" = adjust_method,
+                "min cells" = minimum_unique_cells,
+                "min interacting cells" = minimum_unique_int_cells,
+                "exclude selected cells" = exclude_selected_cells_from_test,
+                "perm" = permutation_test
+            )
         ),
-        test_info = list(
-            "test" = diff_test,
-            "p.adj" = adjust_method,
-            "min cells" = minimum_unique_cells,
-            "min interacting cells" = minimum_unique_int_cells,
-            "exclude selected cells" = exclude_selected_cells_from_test,
-            "perm" = permutation_test
-        )
+        class = "icfObject"
     )
-    class(icfObject) <- append("icfObject", class(icfObject))
     return(icfObject)
 }
 
+#' @rdname findInteractionChangedFeats
+#' @export
+findICF <- findInteractionChangedFeats
 
 #' @name print.icfObject
 #' @title icfObject print method
@@ -1277,7 +1278,7 @@ findInteractionChangedFeats <- function(gobject,
 print.icfObject <- function(x, ...) {
     cat("An object of class", class(x), "\n")
     info <- list(
-        dimensions = sprintf("%d, %d (interactions, attributes)",
+        dimensions = sprintf("%d, %d (icfs, attributes)",
                              nrow(x$ICFscores), ncol(x$ICFscores))
     )
     print_list(info, pre = " -")
@@ -1289,177 +1290,14 @@ print.icfObject <- function(x, ...) {
 
 
 
-#' @title findInteractionChangedGenes
-#' @name findInteractionChangedGenes
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interactions with other
-#' cell types.
-#' @param ... params to pass to \code{findInteractionChangedFeats}
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @returns interaction changed genes
-#' @export
-findInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "findInteractionChangedFeats")
 
-    findInteractionChangedFeats(...)
-}
-
-
-
-#' @title findCellProximityGenes
-#' @name findCellProximityGenes
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell
-#' types.
-#' @inheritDotParams findInteractionChangedFeats
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @returns cell-cell interaction changed genes
-#' @export
-findCellProximityGenes <- function(...) {
-    .Deprecated(new = "findInteractionChangedFeats")
-
-    findInteractionChangedFeats(...)
-}
-
-
-
-
-
-#' @title findICF
-#' @name findICF
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. features that are differentially expressed due to proximity to other
-#' cell types.
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param expression_values expression values to use
-#' @param selected_feats subset of selected features (optional)
-#' @param cluster_column name of column to use for cell types
-#' @param spatial_network_name name of spatial network to use
-#' @param minimum_unique_cells minimum number of target cells required
-#' @param minimum_unique_int_cells minimum number of interacting cells required
-#' @param diff_test which differential expression test
-#' @param mean_method method to use to calculate the mean
-#' @param offset offset value to use when calculating log2 ratio
-#' @param adjust_method which method to adjust p-values
-#' @param nr_permutations number of permutations if diff_test = permutation
-#' @param exclude_selected_cells_from_test exclude interacting cells other cells
-#' @param do_parallel run calculations in parallel with mclapply
-#' @param set_seed set a seed for reproducibility
-#' @param seed_number seed number
-#' @returns `icfObject` that contains the Interaction Changed differential gene
-#' scores
-#' @details Function to calculate if genes are differentially expressed in
-#' cell types when they interact (approximated by physical proximity) with
-#' other cell types. The results data.table in the `icfObject` contains
-#' - at least - the following columns:
-#' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
-#' }
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' findICF(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' @export
-findICF <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = "normalized",
-    selected_feats = NULL,
-    cluster_column,
-    spatial_network_name = "Delaunay_network",
-    minimum_unique_cells = 1,
-    minimum_unique_int_cells = 1,
-    diff_test = c("permutation", "limma", "t.test", "wilcox"),
-    mean_method = c("arithmic", "geometric"),
-    offset = 0.1,
-    adjust_method = c(
-        "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "fdr", "none"
-    ),
-    nr_permutations = 100,
-    exclude_selected_cells_from_test = TRUE,
-    do_parallel = TRUE,
-    set_seed = TRUE,
-    seed_number = 1234) {
-    findInteractionChangedFeats(
-        gobject = gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit,
-        expression_values = expression_values,
-        selected_feats = selected_feats,
-        cluster_column = cluster_column,
-        spatial_network_name = spatial_network_name,
-        minimum_unique_cells = minimum_unique_cells,
-        minimum_unique_int_cells = minimum_unique_int_cells,
-        diff_test = diff_test,
-        mean_method = mean_method,
-        offset = offset,
-        adjust_method = adjust_method,
-        nr_permutations = nr_permutations,
-        exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-        do_parallel = do_parallel,
-        set_seed = set_seed,
-        seed_number = seed_number
-    )
-}
-
-
-
-
-#' @title findICG
-#' @name findICG
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interaction with other
-#' cell types.
-#' @inheritDotParams findICF
-#' @seealso \code{\link{findICF}}
-#' @returns cell-cell interaction changed features
-#' @export
-findICG <- function(...) {
-    .Deprecated(new = "findICF")
-
-    findICF(...)
-}
-
-
-
-#' @title findCPG
-#' @name findCPG
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell
-#' types.
-#' @inheritDotParams findICF
-#' @returns cell-to-cell Interaction Changed Genes
-#' @seealso \code{\link{findICF}}
-#' @export
-findCPG <- function(...) {
-    .Deprecated(new = "findICF")
-
-    findICF(...)
-}
 
 
 
 
 #' @title filterInteractionChangedFeats
 #' @name filterInteractionChangedFeats
+#' @aliases filterICF
 #' @description Filter Interaction Changed Feature scores.
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param min_cells minimum number of source cell type
@@ -1473,7 +1311,27 @@ findCPG <- function(...) {
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
-#' @returns icfObject that contains the filtered differential feature scores
+#' @returns `icfObject` that contains the filtered differential feature scores
+#' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' icf <- findInteractionChangedFeats(g,
+#'      cluster_column = "leiden_clus",
+#'      selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'      nr_permutations = 10
+#' )
+#' force(icf)
+#' force(icf$ICFscores)
+#'
+#' icf_filter1 <- filterInteractionChangedFeats(icf, min_cells = 4)
+#' force(icf_filter1)
+#' force(icf_filter1$ICFscores)
+#'
+#' # filterICF is a simple alias with a shortened name
+#' icf_filter2 <- filterICF(icf, min_cells = 4)
+#' force(icf_filter2)
+#'
 #' @export
 filterInteractionChangedFeats <- function(icfObject,
     min_cells = 4,
@@ -1486,7 +1344,7 @@ filterInteractionChangedFeats <- function(icfObject,
     min_zscore = 2,
     zscores_column = c("cell_type", "feats"),
     direction = c("both", "up", "down")) {
-    # data.table variables
+    # NSE vars
     nr_select <- int_nr_select <- zscores <- log2fc <- sel <- other <-
         p.adj <- NULL
 
@@ -1542,117 +1400,13 @@ filterInteractionChangedFeats <- function(icfObject,
     return(newobj)
 }
 
-
-#' @title filterInteractionChangedGenes
-#' @name filterInteractionChangedGenes
-#' @description Filter Interaction Changed Feature scores.
-#' @inheritDotParams filterInteractionChangedFeats
-#' @seealso \code{\link{filterInteractionChangedFeats}}
-#' @returns filtered interaction changed feature scores
+#' @rdname filterInteractionChangedFeats
 #' @export
-filterInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "filterInteractionChangedFeats")
-
-    filterInteractionChangedFeats(...)
-}
-
-
-#' @title filterCellProximityGenes
-#' @name filterCellProximityGenes
-#' @description Filter Interaction Changed Feature scores.
-#' @inheritDotParams filterInteractionChangedFeats
-#' @seealso \code{\link{filterInteractionChangedFeats}}
-#' @returns proximity genes
-#' @export
-filterCellProximityGenes <- function(...) {
-    .Deprecated(new = "filterInteractionChangedFeats")
-
-    filterInteractionChangedFeats(...)
-}
+filterICF <- filterInteractionChangedFeats
 
 
 
 
-
-#' @title filterICF
-#' @name filterICF
-#' @description Filter Interaction Changed Feature scores.
-#' @param icfObject ICF (interaction changed feature) score object
-#' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type
-#' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor
-#' cell type
-#' @param min_fdr minimum adjusted p-value
-#' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum log2 fold-change
-#' @param min_zscore minimum z-score change
-#' @param zscores_column calculate z-scores over cell types or features
-#' @param direction differential expression directions to keep
-#' @returns icfObject that contains the filtered differential feature scores
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
-#'
-#' filterICF(g_icf)
-#' @export
-filterICF <- function(icfObject,
-    min_cells = 4,
-    min_cells_expr = 1,
-    min_int_cells = 4,
-    min_int_cells_expr = 1,
-    min_fdr = 0.1,
-    min_spat_diff = 0.2,
-    min_log2_fc = 0.2,
-    min_zscore = 2,
-    zscores_column = c("cell_type", "feats"),
-    direction = c("both", "up", "down")) {
-    filterInteractionChangedFeats(
-        icfObject = icfObject,
-        min_cells = min_cells,
-        min_cells_expr = min_cells_expr,
-        min_int_cells = min_int_cells,
-        min_int_cells_expr = min_int_cells_expr,
-        min_fdr = min_fdr,
-        min_spat_diff = min_spat_diff,
-        min_log2_fc = min_log2_fc,
-        min_zscore = min_zscore,
-        zscores_column = zscores_column,
-        direction = direction
-    )
-}
-
-
-
-
-#' @title filterICG
-#' @name filterICG
-#' @description Filter Interaction Changed Gene scores.
-#' @inheritDotParams filterICF
-#' @seealso \code{\link{filterICF}}
-#' @returns filtered interaction changed gene scores
-#' @export
-filterICG <- function(...) {
-    .Deprecated(new = "filterICF")
-
-    filterICF(...)
-}
-
-
-
-#' @title filterCPG
-#' @name filterCPG
-#' @description Filter Interaction Changed Gene scores.
-#' @inheritDotParams filterICF
-#' @seealso \code{\link{filterICF}}
-#' @returns filtered interaction changed gene scores
-#' @export
-filterCPG <- function(...) {
-    .Deprecated(new = "filterICF")
-
-    filterICF(...)
-}
 
 
 
@@ -2002,6 +1756,7 @@ filterCPG <- function(...) {
 
 #' @title combineInteractionChangedFeats
 #' @name combineInteractionChangedFeats
+#' @aliases combineICF
 #' @description Combine ICF scores in a pairwise manner.
 #' @param icfObject ICF (interaction changed feat) score object
 #' @param selected_ints subset of selected cell-cell interactions (optional)
@@ -2017,14 +1772,19 @@ filterCPG <- function(...) {
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param verbose verbose
-#' @returns combIcfObject that contains the filtered differential feature scores
+#' @returns `combIcfObject` that contains the filtered differential feature
+#' scores
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g_icf <- findInteractionChangedFeats(g,
-#' cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#' )
 #'
-#' combineInteractionChangedFeats(g_icf)
+#' cicf <- combineInteractionChangedFeats(g_icf)
+#' force(cicf)
+#' combineICF(g_icf) # this is a shortened alias
 #' @export
 combineInteractionChangedFeats <- function(icfObject,
     selected_ints = NULL,
@@ -2038,7 +1798,7 @@ combineInteractionChangedFeats <- function(icfObject,
     min_log2_fc = 0.5,
     do_parallel = TRUE,
     verbose = TRUE) {
-    # data.table variables
+    # NSE vars
     unif_int <- feat1_feat2 <- feats_1 <- feats_2 <- comb_logfc <-
         log2fc_1 <- log2fc_2 <- direction <- NULL
 
@@ -2111,136 +1871,53 @@ combineInteractionChangedFeats <- function(icfObject,
         ifelse(log2fc_1 < 0 & log2fc_2 < 0, "both_down", "mixed")
     )]
 
-    combIcfObject <- list(
-        combICFscores = final_results,
-        Giotto_info = list(
-            "values" = icfObject[["Giotto_info"]][["values"]],
-            "cluster" = icfObject[["Giotto_info"]][["cluster"]],
-            "spatial network" = icfObject[["Giotto_info"]][["spatial network"]]
+    combIcfObject <- structure(
+        .Data = list(
+            combICFscores = final_results,
+            Giotto_info = list(
+                "values" = icfObject[["Giotto_info"]][["values"]],
+                "cluster" = icfObject[["Giotto_info"]][["cluster"]],
+                "spatial network" =
+                    icfObject[["Giotto_info"]][["spatial network"]]
+            ),
+            test_info = list(
+                "test" = icfObject[["test_info"]][["test"]],
+                "p.adj" = icfObject[["test_info"]][["p.adj"]],
+                "min cells" = icfObject[["test_info"]][["min cells"]],
+                "min interacting cells" = icfObject[["test_info"]][[
+                    "min interacting cells"]],
+                "exclude selected cells" = icfObject[["test_info"]][[
+                    "exclude selected cells"]],
+                "perm" = icfObject[["test_info"]][["perm"]]
+            )
         ),
-        test_info = list(
-            "test" = icfObject[["test_info"]][["test"]],
-            "p.adj" = icfObject[["test_info"]][["p.adj"]],
-            "min cells" = icfObject[["test_info"]][["min cells"]],
-            "min interacting cells" = icfObject[["test_info"]][[
-                "min interacting cells"]],
-            "exclude selected cells" = icfObject[["test_info"]][[
-                "exclude selected cells"]],
-            "perm" = icfObject[["test_info"]][["perm"]]
-        )
+        class = "combIcfObject"
     )
-    class(combIcfObject) <- append(class(combIcfObject), "combIcfObject")
     return(combIcfObject)
 }
 
-
-#' @title combineInteractionChangedGenes
-#' @name combineInteractionChangedGenes
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineInteractionChangedFeats
-#' @returns ICF scores
-#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @rdname combineInteractionChangedFeats
 #' @export
-combineInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "combineInteractionChangedFeats")
+combineICF <- combineInteractionChangedFeats
 
-    combineInteractionChangedFeats(...)
-}
-
-
-#' @title combineCellProximityGenes
-#' @name combineCellProximityGenes
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineInteractionChangedFeats
-#' @returns ICF scores
-#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @name print.combIcfObject
+#' @title combIcfObject print method
+#' @param x object to print
+#' @param \dots additional params to pass (none implemented)
+#' @keywords internal
 #' @export
-combineCellProximityGenes <- function(...) {
-    .Deprecated(new = "combineInteractionChangedFeats")
-
-    combineInteractionChangedFeats(...)
-}
-
-#' @title combineICF
-#' @name combineICF
-#' @description Combine ICF scores in a pairwise manner.
-#' @param icfObject ICF (interaction changed feat) score object
-#' @param selected_ints subset of selected cell-cell interactions (optional)
-#' @param selected_feats subset of selected Feats (optional)
-#' @param specific_feats_1 specific Featset combo
-#' (need to position match specific_genes_2)
-#' @param specific_feats_2 specific Featset combo
-#' (need to position match specific_genes_1)
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
-#' @param min_fdr minimum adjusted p-value
-#' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change
-#' @param do_parallel run calculations in parallel with mclapply
-#' @param verbose verbose
-#' @returns icfObject that contains the filtered differential feats scores
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#'
-#' combineICF(g_icf)
-#' @export
-combineICF <- function(icfObject,
-    selected_ints = NULL,
-    selected_feats = NULL,
-    specific_feats_1 = NULL,
-    specific_feats_2 = NULL,
-    min_cells = 5,
-    min_int_cells = 3,
-    min_fdr = 0.05,
-    min_spat_diff = 0,
-    min_log2_fc = 0.5,
-    do_parallel = TRUE,
-    verbose = TRUE) {
-    combineInteractionChangedFeats(
-        icfObject = icfObject,
-        selected_ints = selected_ints,
-        selected_feats = selected_feats,
-        specific_feats_1 = specific_feats_1,
-        specific_feats_2 = specific_feats_2,
-        min_cells = min_cells,
-        min_int_cells = min_int_cells,
-        min_fdr = min_fdr,
-        min_spat_diff = min_spat_diff,
-        min_log2_fc = min_log2_fc,
-        do_parallel = do_parallel,
-        verbose = verbose
+print.combIcfObject <- function(x, ...) {
+    cat("An object of class", class(x), "\n")
+    info <- list(
+        dimensions = sprintf("%d, %d (icf pairs, attributes)",
+                             nrow(x$combICFscores), ncol(x$combICFscores))
     )
+    print_list(info, pre = " -")
+    cat("<giotto info>\n")
+    print_list(x$Giotto_info, pre = " -")
+    cat("<test info>\n")
+    print_list(x$test_info, pre = " -")
 }
-
-
-#' @title combineICG
-#' @name combineICG
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineICF
-#' @returns ICF scores
-#' @seealso \code{\link{combineICF}}
-#' @export
-combineICG <- function(...) {
-    .Deprecated(new = "combineICF")
-
-    combineICF(...)
-}
-
-#' @title combineCPG
-#' @name combineCPG
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineICF
-#' @returns ICF scores
-#' @seealso \code{\link{combineICF}}
-#' @export
-combineCPG <- function(...) {
-    .Deprecated(new = "combineICF")
-
-    combineICF(...)
-}
-
 
 
 
@@ -3238,4 +2915,188 @@ combCCcom <- function(spatialCC,
     merge_DT[, spatPI_rnk := rank(-PI_spat), by = LR_comb]
 
     return(merge_DT)
+}
+
+
+
+
+# DEPRECATED ####
+
+#' @title deprecated
+#' @name findInteractionChangedGenes
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to interactions with other
+#' cell types.
+#' @param ... params to pass to \code{findInteractionChangedFeats}
+#' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns interaction changed genes
+#' @export
+findInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "findInteractionChangedFeats")
+
+    findInteractionChangedFeats(...)
+}
+
+
+
+#' @title deprecated
+#' @name findCellProximityGenes
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to proximity to other cell
+#' types.
+#' @inheritDotParams findInteractionChangedFeats
+#' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns cell-cell interaction changed genes
+#' @export
+findCellProximityGenes <- function(...) {
+    .Deprecated(new = "findInteractionChangedFeats")
+
+    findInteractionChangedFeats(...)
+}
+
+
+
+#' @title deprecated
+#' @name findICG
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to interaction with other
+#' cell types.
+#' @inheritDotParams findICF
+#' @seealso \code{\link{findICF}}
+#' @returns cell-cell interaction changed features
+#' @export
+findICG <- function(...) {
+    .Deprecated(new = "findICF")
+
+    findICF(...)
+}
+
+
+
+#' @title deprecated
+#' @name findCPG
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to proximity to other cell
+#' types.
+#' @inheritDotParams findICF
+#' @returns cell-to-cell Interaction Changed Genes
+#' @seealso \code{\link{findICF}}
+#' @export
+findCPG <- function(...) {
+    .Deprecated(new = "findICF")
+
+    findICF(...)
+}
+
+#' @title deprecated
+#' @name filterInteractionChangedGenes
+#' @description Filter Interaction Changed Feature scores.
+#' @inheritDotParams filterInteractionChangedFeats
+#' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns filtered interaction changed feature scores
+#' @export
+filterInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "filterInteractionChangedFeats")
+
+    filterInteractionChangedFeats(...)
+}
+
+
+#' @title deprecated
+#' @name filterCellProximityGenes
+#' @description Filter Interaction Changed Feature scores.
+#' @inheritDotParams filterInteractionChangedFeats
+#' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns proximity genes
+#' @export
+filterCellProximityGenes <- function(...) {
+    .Deprecated(new = "filterInteractionChangedFeats")
+
+    filterInteractionChangedFeats(...)
+}
+
+
+
+
+
+#' @title deprecated
+#' @name filterICG
+#' @description Filter Interaction Changed Gene scores.
+#' @inheritDotParams filterICF
+#' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
+#' @export
+filterICG <- function(...) {
+    .Deprecated(new = "filterICF")
+
+    filterICF(...)
+}
+
+
+
+#' @title deprecated
+#' @name filterCPG
+#' @description Filter Interaction Changed Gene scores.
+#' @inheritDotParams filterICF
+#' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
+#' @export
+filterCPG <- function(...) {
+    .Deprecated(new = "filterICF")
+
+    filterICF(...)
+}
+
+
+#' @title deprecated
+#' @name combineInteractionChangedGenes
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
+#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @export
+combineInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "combineInteractionChangedFeats")
+
+    combineInteractionChangedFeats(...)
+}
+
+
+#' @title deprecated
+#' @name combineCellProximityGenes
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
+#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @export
+combineCellProximityGenes <- function(...) {
+    .Deprecated(new = "combineInteractionChangedFeats")
+
+    combineInteractionChangedFeats(...)
+}
+
+#' @title deprecated
+#' @name combineICG
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineICF
+#' @returns ICF scores
+#' @seealso \code{\link{combineICF}}
+#' @export
+combineICG <- function(...) {
+    .Deprecated(new = "combineICF")
+
+    combineICF(...)
+}
+
+#' @title deprecated
+#' @name combineCPG
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineICF
+#' @returns ICF scores
+#' @seealso \code{\link{combineICF}}
+#' @export
+combineCPG <- function(...) {
+    .Deprecated(new = "combineICF")
+
+    combineICF(...)
 }

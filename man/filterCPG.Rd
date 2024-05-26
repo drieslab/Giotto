@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{filterCPG}
 \alias{filterCPG}
-\title{filterCPG}
+\title{deprecated}
 \usage{
 filterCPG(...)
 }
@@ -20,7 +20,7 @@ cell type}
     \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
     \item{\code{min_log2_fc}}{minimum log2 fold-change}
     \item{\code{min_zscore}}{minimum z-score change}
-    \item{\code{zscores_column}}{calculate z-scores over cell types or features}
+    \item{\code{zscores_column}}{calculate z-scores over cell types or genes}
     \item{\code{direction}}{differential expression directions to keep}
   }}
 }
