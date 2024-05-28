@@ -1926,7 +1926,7 @@ print.combIcfObject <- function(x, ...) {
 
 
 #' @title average_feat_feat_expression_in_groups
-#' @name average_feat_feat_expression_in_groups
+#' @name .average_feat_feat_expression_in_groups
 #' @description calculate average expression per cluster
 #' @param gobject giotto object to use
 #' @param spat_unit spatial unit
@@ -1936,7 +1936,7 @@ print.combIcfObject <- function(x, ...) {
 #' @param feat_set_2 second specific feat set from feat pairs
 #' @returns data.table with average expression scores for each cluster
 #' @keywords internal
-average_feat_feat_expression_in_groups <- function(gobject,
+.average_feat_feat_expression_in_groups <- function(gobject,
     spat_unit = NULL,
     feat_type = NULL,
     cluster_column = "cell_types",
@@ -2054,8 +2054,13 @@ average_feat_feat_expression_in_groups <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' exprCellCellcom(g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' res <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
+#'
+#' force(res)
 #' @export
 exprCellCellcom <- function(gobject,
     feat_type = NULL,
@@ -2107,7 +2112,7 @@ exprCellCellcom <- function(gobject,
     names(nr_cells) <- nr_cell_types$cluster_column
 
 
-    comScore <- average_feat_feat_expression_in_groups(
+    comScore <- .average_feat_feat_expression_in_groups(
         gobject = gobject,
         feat_type = feat_type,
         spat_unit = spat_unit,
@@ -2135,60 +2140,67 @@ exprCellCellcom <- function(gobject,
     # not yet available
 
 
-    for (sim in seq_len(random_iter)) {
-        if (verbose == TRUE) cat("simulation ", sim)
+    progressr::with_progress({
+        pb <- progressr::progressor(steps = random_iter)
 
+        for (sim in seq_len(random_iter)) {
 
-        # create temporary giotto
-        tempGiotto <- subsetGiotto(
-            gobject = gobject,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
+            # create temporary giotto
+            tempGiotto <- subsetGiotto(
+                gobject = gobject,
+                feat_type = feat_type,
+                spat_unit = spat_unit
+            )
 
-        # randomize annoation
-        cell_types <- cell_metadata[[cluster_column]]
-        if (set_seed == TRUE) {
-            seed_number <- seed_number + sim
-            set.seed(seed = seed_number)
+            # randomize annoation
+            cell_types <- cell_metadata[[cluster_column]]
+            if (set_seed == TRUE) {
+                seed_number <- seed_number + sim
+                set.seed(seed = seed_number)
+            }
+            random_cell_types <- sample(
+                x = cell_types, size = length(cell_types)
+            )
+            tempGiotto <- addCellMetadata(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                new_metadata = random_cell_types,
+                by_column = FALSE # on purpose since values are random
+            )
+
+            # get random communication scores
+            randomScore <- .average_feat_feat_expression_in_groups(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = "random_cell_types",
+                feat_set_1 = feat_set_1,
+                feat_set_2 = feat_set_2
+            )
+
+            # average random score
+            total_av <- total_av + randomScore[["LR_expr"]]
+
+            # difference between observed and random
+            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
+
+            # calculate total difference
+            if (detailed == FALSE) {
+                total_sum <- total_sum + difference
+            } else {
+                total_sum[, sim] <- difference
+            }
+
+            # calculate p-values
+            difference[difference > 0] <- 1
+            difference[difference < 0] <- -1
+            total_bool <- total_bool + difference
+
+            pb(sprintf("simulation %d", sim))
         }
-        random_cell_types <- sample(x = cell_types, size = length(cell_types))
-        tempGiotto <- addCellMetadata(
-            gobject = tempGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            new_metadata = random_cell_types,
-            by_column = FALSE # on purpose since values are random
-        )
+    })
 
-        # get random communication scores
-        randomScore <- average_feat_feat_expression_in_groups(
-            gobject = tempGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            cluster_column = "random_cell_types",
-            feat_set_1 = feat_set_1,
-            feat_set_2 = feat_set_2
-        )
-
-        # average random score
-        total_av <- total_av + randomScore[["LR_expr"]]
-
-        # difference between observed and random
-        difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
-
-        # calculate total difference
-        if (detailed == FALSE) {
-            total_sum <- total_sum + difference
-        } else {
-            total_sum[, sim] <- difference
-        }
-
-        # calculate p-values
-        difference[difference > 0] <- 1
-        difference[difference < 0] <- -1
-        total_bool <- total_bool + difference
-    }
 
     comScore[, rand_expr := total_av / random_iter]
 
@@ -2290,319 +2302,7 @@ exprCellCellcom <- function(gobject,
 
 
 
-#' @title specificCellCellcommunicationScores
-#' @name specificCellCellcommunicationScores
-#' @description Specific Cell-Cell communication scores based on spatial
-#' expression of interacting cells
-#' @param gobject giotto object to use
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param spatial_network_name spatial network to use for identifying
-#' interacting cells
-#' @param cluster_column cluster column with cell type information
-#' @param random_iter number of iterations
-#' @param cell_type_1 first cell type
-#' @param cell_type_2 second cell type
-#' @param feat_set_1 first specific gene set from gene pairs
-#' @param feat_set_2 second specific gene set from gene pairs
-#' @param gene_set_1 deprecated, use feat_set_1
-#' @param gene_set_2 deprecated, use feat_set_2
-#' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param min_observations minimum number of interactions needed to be
-#' considered
-#' @param detailed provide more detailed information
-#' (random variance and z-score)
-#' @param adjust_method which method to adjust p-values
-#' @param adjust_target adjust multiple hypotheses at the cell or feature level
-#' @param set_seed set a seed for reproducibility
-#' @param seed_number seed number
-#' @param verbose verbose
-#' @returns Cell-Cell communication scores for feature pairs based on spatial
-#' interaction
-#' @details Statistical framework to identify if pairs of features
-#' (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null
-#' distribution of feature expression values in cells that are spatially in
-#' proximity to each other.
-#' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
-#' }
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
-#' @export
-specificCellCellcommunicationScores <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    spatial_network_name = "Delaunay_network",
-    cluster_column = "cell_types",
-    random_iter = 100,
-    cell_type_1 = "astrocyte",
-    cell_type_2 = "endothelial",
-    feat_set_1,
-    feat_set_2,
-    gene_set_1 = NULL,
-    gene_set_2 = NULL,
-    log2FC_addendum = 0.1,
-    min_observations = 2,
-    detailed = FALSE,
-    adjust_method = c(
-        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ),
-    adjust_target = c("feats", "cells"),
-    set_seed = FALSE,
-    seed_number = 1234,
-    verbose = TRUE) {
-    # Set feat_type and spat_unit
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
-    ## deprecated arguments
-    if (!is.null(gene_set_1)) {
-        feat_set_1 <- gene_set_1
-        warning("gene_set_1 is deprecated, use feat_set_1 in the future")
-    }
-    if (!is.null(gene_set_2)) {
-        feat_set_2 <- gene_set_2
-        warning("gene_set_2 is deprecated, use feat_set_2 in the future")
-    }
-
-
-    # data.table variables
-    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
-        rec_nr <- rand_expr <- NULL
-    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <-
-        LR_comb <- PI <- NULL
-    sd_diff <- z_score <- NULL
-
-    # get parameters
-    adjust_method <- match.arg(adjust_method, choices = c(
-        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ))
-    adjust_target <- match.arg(adjust_target, choices = c("feats", "cells"))
-
-    # metadata
-    cell_metadata <- pDataDT(
-        gobject = gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit
-    )
-
-    # get annotated spatial network
-    annot_network <- annotateSpatialNetwork(gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit,
-        spatial_network_name = spatial_network_name,
-        cluster_column = cluster_column
-    )
-
-    cell_direction_1 <- paste0(cell_type_1, "-", cell_type_2)
-    cell_direction_2 <- paste0(cell_type_2, "-", cell_type_1)
-
-    subset_annot_network <- annot_network[from_to %in% c(
-        cell_direction_1, cell_direction_2)]
-
-    # make sure that there are sufficient observations
-    if (nrow(subset_annot_network) <= min_observations) {
-        return(NULL)
-    } else {
-        # subset giotto object to only interacting cells
-        subset_ids <- unique(c(
-            subset_annot_network$to, subset_annot_network$from))
-        subsetGiotto <- subsetGiotto(
-            gobject = gobject,
-            cell_ids = subset_ids,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
-
-        # get information about number of cells
-        temp_meta <- pDataDT(subsetGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
-        nr_cell_types <- temp_meta[cell_ID %in% subset_ids][
-            , .N, by = c(cluster_column)]
-        nr_cells <- nr_cell_types$N
-        names(nr_cells) <- nr_cell_types$cell_types
-
-        # get average communication scores
-        comScore <- average_feat_feat_expression_in_groups(
-            gobject = subsetGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            cluster_column = cluster_column,
-            feat_set_1 = feat_set_1,
-            feat_set_2 = feat_set_2
-        )
-        comScore <- comScore[(lig_cell_type == cell_type_1 &
-                                rec_cell_type == cell_type_2) |
-            (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
-
-        comScore[, lig_nr := nr_cells[lig_cell_type]]
-        comScore[, rec_nr := nr_cells[rec_cell_type]]
-
-        # prepare for randomized scores
-        total_av <- rep(0, nrow(comScore))
-
-        if (detailed == FALSE) {
-            total_sum <- rep(0, nrow(comScore))
-        } else {
-            total_sum <- matrix(nrow = nrow(comScore), ncol = random_iter)
-        }
-
-        total_bool <- rep(0, nrow(comScore))
-
-        # identify which cell types you need
-        subset_metadata <- cell_metadata[cell_ID %in% subset_ids]
-        needed_cell_types <- subset_metadata[[cluster_column]]
-
-        if (verbose) cat("simulations:")
-
-        ## simulations ##
-        for (sim in seq_len(random_iter)) {
-            if (verbose) {
-                cat(sprintf(" %s ", sim))
-            }
-
-            # get random ids and subset
-            if (set_seed == TRUE) {
-                seed_number <- seed_number + sim
-                set.seed(seed = seed_number)
-            }
-            random_ids <- .create_cell_type_random_cell_IDs(
-                gobject = gobject,
-                feat_type = feat_type,
-                spat_unit = spat_unit,
-                cluster_column = cluster_column,
-                needed_cell_types = needed_cell_types,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-            tempGiotto <- subsetGiotto(
-                gobject = gobject,
-                cell_ids = random_ids,
-                feat_type = feat_type,
-                spat_unit = spat_unit
-            )
-
-            # get random communication scores
-            randomScore <- average_feat_feat_expression_in_groups(
-                gobject = tempGiotto,
-                feat_type = feat_type,
-                spat_unit = spat_unit,
-                cluster_column = cluster_column,
-                feat_set_1 = feat_set_1,
-                feat_set_2 = feat_set_2
-            )
-            randomScore <- randomScore[(lig_cell_type == cell_type_1 &
-                                            rec_cell_type == cell_type_2) |
-                (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
-
-
-
-
-            # average random score
-            total_av <- total_av + randomScore[["LR_expr"]]
-
-            # difference between observed and random
-            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
-
-            # calculate total difference
-            if (detailed == FALSE) {
-                total_sum <- total_sum + difference
-            } else {
-                total_sum[, sim] <- difference
-            }
-
-            # calculate p-values
-            difference[difference > 0] <- 1
-            difference[difference < 0] <- -1
-            total_bool <- total_bool + difference
-        }
-
-        comScore[, rand_expr := total_av / random_iter]
-
-        if (detailed == TRUE) {
-            av_difference_scores <- rowMeans_flex(total_sum)
-            sd_difference_scores <- apply(
-                total_sum, MARGIN = 1, FUN = stats::sd)
-
-            comScore[, av_diff := av_difference_scores]
-            comScore[, sd_diff := sd_difference_scores]
-            comScore[, z_score := (LR_expr - rand_expr) / sd_diff]
-        } else {
-            comScore[, av_diff := total_sum / random_iter]
-        }
-
-
-        comScore[, log2fc := log2((LR_expr + log2FC_addendum) / (
-            rand_expr + log2FC_addendum))]
-        comScore[, pvalue := total_bool / random_iter]
-        comScore[, pvalue := ifelse(pvalue > 0, 1 - pvalue, 1 + pvalue)]
-        comScore[, LR_cell_comb := paste0(lig_cell_type, "--", rec_cell_type)]
-
-        if (adjust_target == "feats") {
-            comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_cell_comb)]
-        } else if (adjust_target == "cells") {
-            comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_comb)]
-        }
-
-        # get minimum adjusted p.value that is not zero
-        all_p.adj <- comScore[["p.adj"]]
-        nonzero_p.adj <- all_p.adj[all_p.adj != 0]
-        if (length(nonzero_p.adj) == 0L) {
-            warning(
-                call. = FALSE,
-                "no adjusted p.values that are not zero; returning Inf"
-            )
-            if (verbose) cat("<- Inf returned")
-            lowest_p.adj <- Inf
-        } else {
-            lowest_p.adj <- min(nonzero_p.adj)
-        }
-
-        comScore[, PI := ifelse(p.adj == 0, log2fc * (
-            -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
-
-        if (verbose) cat("\n")
-
-        return(comScore)
-    }
-}
-
-
-#' @title spatCellCellcom
+#' @title Spatial cell cell communication scoring
 #' @name spatCellCellcom
 #' @description Spatial Cell-Cell communication scores based on spatial
 #' expression of interacting cells
@@ -2659,12 +2359,13 @@ specificCellCellcommunicationScores <- function(gobject,
 #' * **pvalue:** p-value
 #' * **LR_cell_comb:** cell type pair combination
 #' * **p.adj:** adjusted p-value
-#' * **PI:** significance score: log2fc * -log10(p.adj)
+#' * **PI:** significance score: \eqn{log2fc * -log10(p.adj)}
+#'
 #' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' spatCellCellcom(
+#' res1 <- spatCellCellcom(
 #'     gobject = g,
 #'     cluster_column = "leiden_clus",
 #'     feat_set_1 = "Gm19935",
@@ -2672,12 +2373,23 @@ specificCellCellcommunicationScores <- function(gobject,
 #'     verbose = "a lot",
 #'     random_iter = 10
 #' )
+#' force(res1)
+#'
+#' res2 <- specificCellCellcommunicationScores(g,
+#'     cluster_column = "leiden_clus",
+#'     cell_type_1 = 1,
+#'     cell_type_2 = 2,
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
+#'
+#' force(res2)
 #' @export
 spatCellCellcom <- function(gobject,
     feat_type = NULL,
     spat_unit = NULL,
     spatial_network_name = "Delaunay_network",
-    cluster_column = "cell_types",
+    cluster_column = NULL,
     random_iter = 1000,
     feat_set_1,
     feat_set_2,
@@ -2730,6 +2442,10 @@ spatCellCellcom <- function(gobject,
     if (!is.null(gene_set_2)) {
         feat_set_2 <- gene_set_2
         warning("gene_set_2 is deprecated, use feat_set_2 in the future")
+    }
+
+    if (is.null(cluster_column)) {
+        stop("Name of column in cell metadata with cell type info is needed")
     }
 
 
@@ -2831,7 +2547,280 @@ spatCellCellcom <- function(gobject,
 
 
 
-#' @title combCCcom
+
+#' @rdname spatCellCellcom
+#' @param cell_type_1 character. First cell type
+#' @param cell_type_2 character. Second cell type
+#' @export
+specificCellCellcommunicationScores <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        spatial_network_name = "Delaunay_network",
+        cluster_column = NULL,
+        random_iter = 100,
+        cell_type_1 = NULL,
+        cell_type_2 = NULL,
+        feat_set_1,
+        feat_set_2,
+        gene_set_1 = NULL,
+        gene_set_2 = NULL,
+        log2FC_addendum = 0.1,
+        min_observations = 2,
+        detailed = FALSE,
+        adjust_method = c(
+            "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+            "BY", "none"
+        ),
+        adjust_target = c("feats", "cells"),
+        set_seed = FALSE,
+        seed_number = 1234,
+        verbose = TRUE
+) {
+
+    # Set feat_type and spat_unit
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject,
+        spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type
+    )
+
+    ## deprecated arguments
+    if (!is.null(gene_set_1)) {
+        feat_set_1 <- gene_set_1
+        warning("gene_set_1 is deprecated, use feat_set_1 in the future")
+    }
+    if (!is.null(gene_set_2)) {
+        feat_set_2 <- gene_set_2
+        warning("gene_set_2 is deprecated, use feat_set_2 in the future")
+    }
+
+    if (is.null(cluster_column)) {
+        stop("Name of column in cell metadata with cell type info is needed")
+    }
+
+    if (is.null(cell_type_1) || is.null(cell_type_2)) {
+        stop(sprintf(
+            "`%s` and `%s` in `%s` must be given",
+            "cell_type_1", "cell_type_2", "cluster_column")
+        )
+    }
+
+
+    # data.table variables
+    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
+        rec_nr <- rand_expr <- NULL
+    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <-
+        LR_comb <- PI <- NULL
+    sd_diff <- z_score <- NULL
+
+    # get parameters
+    adjust_method <- match.arg(adjust_method, choices = c(
+        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+        "BY", "none"
+    ))
+    adjust_target <- match.arg(adjust_target, choices = c("feats", "cells"))
+
+    # metadata
+    cell_metadata <- pDataDT(
+        gobject = gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit
+    )
+
+    # get annotated spatial network
+    annot_network <- annotateSpatialNetwork(gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit,
+        spatial_network_name = spatial_network_name,
+        cluster_column = cluster_column
+    )
+
+    cell_direction_1 <- paste0(cell_type_1, "-", cell_type_2)
+    cell_direction_2 <- paste0(cell_type_2, "-", cell_type_1)
+
+    subset_annot_network <- annot_network[from_to %in% c(
+        cell_direction_1, cell_direction_2)]
+
+    # make sure that there are sufficient observations
+    if (nrow(subset_annot_network) <= min_observations) {
+        return(NULL)
+    } else {
+        # subset giotto object to only interacting cells
+        subset_ids <- unique(c(
+            subset_annot_network$to, subset_annot_network$from))
+        subsetGiotto <- subsetGiotto(
+            gobject = gobject,
+            cell_ids = subset_ids,
+            feat_type = feat_type,
+            spat_unit = spat_unit
+        )
+
+        # get information about number of cells
+        temp_meta <- pDataDT(subsetGiotto,
+                             feat_type = feat_type,
+                             spat_unit = spat_unit
+        )
+        nr_cell_types <- temp_meta[cell_ID %in% subset_ids][
+            , .N, by = c(cluster_column)]
+        nr_cells <- nr_cell_types$N
+        names(nr_cells) <- nr_cell_types$cell_types
+
+        # get average communication scores
+        comScore <- .average_feat_feat_expression_in_groups(
+            gobject = subsetGiotto,
+            feat_type = feat_type,
+            spat_unit = spat_unit,
+            cluster_column = cluster_column,
+            feat_set_1 = feat_set_1,
+            feat_set_2 = feat_set_2
+        )
+        comScore <- comScore[(lig_cell_type == cell_type_1 &
+                                  rec_cell_type == cell_type_2) |
+                                 (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+        comScore[, lig_nr := nr_cells[lig_cell_type]]
+        comScore[, rec_nr := nr_cells[rec_cell_type]]
+
+        # prepare for randomized scores
+        total_av <- rep(0, nrow(comScore))
+
+        if (detailed == FALSE) {
+            total_sum <- rep(0, nrow(comScore))
+        } else {
+            total_sum <- matrix(nrow = nrow(comScore), ncol = random_iter)
+        }
+
+        total_bool <- rep(0, nrow(comScore))
+
+        # identify which cell types you need
+        subset_metadata <- cell_metadata[cell_ID %in% subset_ids]
+        needed_cell_types <- subset_metadata[[cluster_column]]
+
+        if (verbose) cat("simulations:")
+
+        ## simulations ##
+        for (sim in seq_len(random_iter)) {
+            if (verbose) {
+                cat(sprintf(" %s ", sim))
+            }
+
+            # get random ids and subset
+            if (set_seed == TRUE) {
+                seed_number <- seed_number + sim
+                set.seed(seed = seed_number)
+            }
+            random_ids <- .create_cell_type_random_cell_IDs(
+                gobject = gobject,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = cluster_column,
+                needed_cell_types = needed_cell_types,
+                set_seed = set_seed,
+                seed_number = seed_number
+            )
+            tempGiotto <- subsetGiotto(
+                gobject = gobject,
+                cell_ids = random_ids,
+                feat_type = feat_type,
+                spat_unit = spat_unit
+            )
+
+            # get random communication scores
+            randomScore <- .average_feat_feat_expression_in_groups(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = cluster_column,
+                feat_set_1 = feat_set_1,
+                feat_set_2 = feat_set_2
+            )
+            randomScore <- randomScore[(lig_cell_type == cell_type_1 &
+                                            rec_cell_type == cell_type_2) |
+                                           (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+
+
+
+            # average random score
+            total_av <- total_av + randomScore[["LR_expr"]]
+
+            # difference between observed and random
+            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
+
+            # calculate total difference
+            if (detailed == FALSE) {
+                total_sum <- total_sum + difference
+            } else {
+                total_sum[, sim] <- difference
+            }
+
+            # calculate p-values
+            difference[difference > 0] <- 1
+            difference[difference < 0] <- -1
+            total_bool <- total_bool + difference
+        }
+
+        comScore[, rand_expr := total_av / random_iter]
+
+        if (detailed == TRUE) {
+            av_difference_scores <- rowMeans_flex(total_sum)
+            sd_difference_scores <- apply(
+                total_sum, MARGIN = 1, FUN = stats::sd)
+
+            comScore[, av_diff := av_difference_scores]
+            comScore[, sd_diff := sd_difference_scores]
+            comScore[, z_score := (LR_expr - rand_expr) / sd_diff]
+        } else {
+            comScore[, av_diff := total_sum / random_iter]
+        }
+
+
+        comScore[, log2fc := log2((LR_expr + log2FC_addendum) / (
+            rand_expr + log2FC_addendum))]
+        comScore[, pvalue := total_bool / random_iter]
+        comScore[, pvalue := ifelse(pvalue > 0, 1 - pvalue, 1 + pvalue)]
+        comScore[, LR_cell_comb := paste0(lig_cell_type, "--", rec_cell_type)]
+
+        if (adjust_target == "feats") {
+            comScore[, p.adj := stats::p.adjust(
+                pvalue, method = adjust_method), by = .(LR_cell_comb)]
+        } else if (adjust_target == "cells") {
+            comScore[, p.adj := stats::p.adjust(
+                pvalue, method = adjust_method), by = .(LR_comb)]
+        }
+
+        # get minimum adjusted p.value that is not zero
+        all_p.adj <- comScore[["p.adj"]]
+        nonzero_p.adj <- all_p.adj[all_p.adj != 0]
+        if (length(nonzero_p.adj) == 0L) {
+            warning(
+                call. = FALSE,
+                "no adjusted p.values that are not zero; returning Inf"
+            )
+            if (verbose) cat("<- Inf returned")
+            lowest_p.adj <- Inf
+        } else {
+            lowest_p.adj <- min(nonzero_p.adj)
+        }
+
+        comScore[, PI := ifelse(p.adj == 0, log2fc * (
+            -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
+
+        if (verbose) cat("\n")
+
+        return(comScore)
+    }
+}
+
+
+
+
+#' @title Combine cell cell communication tables
 #' @name combCCcom
 #' @description Combine spatial and expression based cell-cell communication
 #' data.tables
@@ -2848,13 +2837,22 @@ spatCellCellcom <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
-#' random_iter = 10)
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
 #'
-#' combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' spatialCC <- spatCellCellcom(gobject = g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik",
+#'     verbose = "a lot",
+#'     random_iter = 10
+#' )
+#'
+#' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' force(combCC)
 #' @export
 combCCcom <- function(spatialCC,
     exprCC,
@@ -2916,6 +2914,9 @@ combCCcom <- function(spatialCC,
 
     return(merge_DT)
 }
+
+
+
 
 
 

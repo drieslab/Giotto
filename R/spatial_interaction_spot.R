@@ -1118,7 +1118,12 @@ NULL
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g_expression <- getExpression(g, output = "matrix")
 #'
-#' findICFSpot(g, spat_unit = "cell", feat_type = "rna", ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
+#' findICFSpot(g,
+#'     spat_unit = "cell",
+#'     feat_type = "rna",
+#'     ave_celltype_exp = g_expression,
+#'     spatial_network_name = "spatial_network"
+#' )
 #' @export
 findICFSpot <- function(gobject,
     spat_unit = NULL,

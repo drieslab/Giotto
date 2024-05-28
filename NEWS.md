@@ -10,6 +10,9 @@
 * Add catch in `runPCAprojectionBatch()` for when ncp requested exceeds number of feats used
 * Make `spatCellCellcom()` respect `verbose` flag [#949](https://github.com/drieslab/Giotto/issues/949) by rbutleriii
 
+## Enhancements
+* `print()` methods for `icfObject` and `combIcfObject`
+
 ## Changes
 * require GiottoUtils (>= 0.1.9)
 
