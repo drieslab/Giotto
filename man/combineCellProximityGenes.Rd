@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{combineCellProximityGenes}
 \alias{combineCellProximityGenes}
-\title{combineCellProximityGenes}
+\title{deprecated}
 \usage{
 combineCellProximityGenes(...)
 }

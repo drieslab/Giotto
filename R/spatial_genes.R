@@ -4254,7 +4254,7 @@ rankSpatialCorGroups <- function(
 
 
 
-#' @title getBalancedSpatCoexpressionFeats
+#' @title Get balanced spatial coexpression features
 #' @name getBalancedSpatCoexpressionFeats
 #' @description Extract features from spatial co-expression modules in a
 #' balanced manner
@@ -4268,12 +4268,13 @@ rankSpatialCorGroups <- function(
 #' @returns balanced vector with features for each co-expression module
 #' @details There are 3 different ways of selecting features from the spatial
 #' co-expression modules
-#' \itemize{
-#'   * 1. weighted: Features are ranked based on summarized pairwise
+#'   1. **weighted:** Features are ranked based on summarized pairwise
 #'   co-expression scores
-#'   * 2. random: A random selection of features, set seed for reproducibility
-#'   * 3. informed: Features are selected based on prior information/ranking
-#' }
+#'   2. **random:** A random selection of features, set seed for
+#'   reproducibility
+#'   3. **informed:** Features are selected based on prior information/ranking
+#'
+#' @md
 #' @export
 getBalancedSpatCoexpressionFeats <- function(
         spatCorObject,

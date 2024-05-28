@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{combCCcom}
 \alias{combCCcom}
-\title{combCCcom}
+\title{Combine cell cell communication tables}
 \usage{
 combCCcom(
   spatialCC,
@@ -45,13 +45,18 @@ g <- GiottoData::loadGiottoMini("visium")
 
 exprCC <- exprCellCellcom(g,
     cluster_column = "leiden_clus",
-    feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+    feat_set_1 = "Gm19935",
+    feat_set_2 = "9630013A20Rik"
 )
-spatialCC <- spatCellCellcom(
-    gobject = g, cluster_column = "leiden_clus",
-    feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+
+spatialCC <- spatCellCellcom(gobject = g,
+    cluster_column = "leiden_clus",
+    feat_set_1 = "Gm19935",
+    feat_set_2 = "9630013A20Rik",
+    verbose = "a lot",
     random_iter = 10
 )
 
-combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+force(combCC)
 }

@@ -2,9 +2,32 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{findInteractionChangedFeats}
 \alias{findInteractionChangedFeats}
+\alias{findICF}
 \title{findInteractionChangedFeats}
 \usage{
 findInteractionChangedFeats(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  expression_values = "normalized",
+  selected_feats = NULL,
+  cluster_column,
+  spatial_network_name = "Delaunay_network",
+  minimum_unique_cells = 1,
+  minimum_unique_int_cells = 1,
+  diff_test = c("permutation", "limma", "t.test", "wilcox"),
+  mean_method = c("arithmic", "geometric"),
+  offset = 0.1,
+  adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
+    "none"),
+  nr_permutations = 1000,
+  exclude_selected_cells_from_test = TRUE,
+  do_parallel = TRUE,
+  set_seed = TRUE,
+  seed_number = 1234
+)
+
+findICF(
   gobject,
   feat_type = NULL,
   spat_unit = NULL,
@@ -64,7 +87,7 @@ findInteractionChangedFeats(
 \item{seed_number}{seed number}
 }
 \value{
-icfObject that contains the Interaction Changed differential
+\code{icfObject} that contains the Interaction Changed differential
 feature scores
 }
 \description{
@@ -75,32 +98,47 @@ cell types.
 \details{
 Function to calculate if features are differentially expressed in
 cell types when they interact (approximated by physical proximity) with
-other cell types. The results data.table in the icfObject contains
-- at least - the following columns:
+other cell types. The results data.table in the \code{icfObject} contains
 \itemize{
- * features: All or selected list of tested features
- * sel: average feature expression in the interacting cells from the target
- cell type
- * other: average feature expression in the NOT-interacting cells from the
- target cell type
- * log2fc: log2 fold-change between sel and other
- * diff: spatial expression difference between sel and other
- * p.value: associated p-value
- * p.adj: adjusted p-value
- * cell_type: target cell type
- * int_cell_type: interacting cell type
- * nr_select: number of cells for selected target cell type
- * int_nr_select: number of cells for interacting cell type
- * nr_other: number of other cells of selected target cell type
- * int_nr_other: number of other cells for interacting cell type
- * unif_int: cell-cell interaction
+\item at least - the following columns:
+\itemize{
+\item \strong{features:} All or selected list of tested features
+\item \strong{sel:} average feature expression in the interacting cells from the
+target cell type
+\item \strong{other:} average feature expression in the NOT-interacting cells from
+the target cell type
+\item \strong{log2fc:} log2 fold-change between sel and other
+\item \strong{diff:} spatial expression difference between sel and other
+\item \strong{p.value:} associated p-value
+\item \strong{p.adj:} adjusted p-value
+\item \strong{cell_type:} target cell type
+\item \strong{int_cell_type:} interacting cell type
+\item \strong{nr_select:} number of cells for selected target cell type
+\item \strong{int_nr_select:} number of cells for interacting cell type
+\item \strong{nr_other:} number of other cells of selected target cell type
+\item \strong{int_nr_other:} number of other cells for interacting cell type
+\item \strong{unif_int:} cell-cell interaction
+}
 }
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-findInteractionChangedFeats(g,
+icf1 <- findInteractionChangedFeats(g,
     cluster_column = "leiden_clus",
-    selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+    selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+    nr_permutations = 10
 )
+force(icf1)
+force(icf1$ICFscores)
+
+# this is just an alias with a shorter name
+icf2 <- findICF(g,
+    cluster_column = "leiden_clus",
+    selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+    nr_permutations = 10
+ )
+}
+\seealso{
+\code{\link[=filterInteractionChangedFeats]{filterInteractionChangedFeats()}}
 }

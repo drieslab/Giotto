@@ -1210,8 +1210,9 @@ NULL
 #' colnames(ave_celltype_exp) <- colnames(sign_matrix)
 #' 
 #' findICFSpot(g,
-#'     spat_unit = "cell", feat_type = "rna",
-#'     ave_celltype_exp = ave_celltype_exp, 
+#'     spat_unit = "cell",
+#'     feat_type = "rna",
+#'     ave_celltype_exp = g_expression,
 #'     spatial_network_name = "spatial_network"
 #' )
 #' @export
