@@ -214,9 +214,9 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 # warn - whether to warn when a pattern does not find any files
 # first - whether to only return the first match
 .detect_in_dir <- function(
-        path, pattern, platform, warn = TRUE, first = TRUE
+        path, pattern, recursive = FALSE, platform, warn = TRUE, first = TRUE
 ) {
-    f <- list.files(path, pattern = pattern, full.names = TRUE)
+    f <- list.files(path, pattern = pattern, recursive = recursive, full.names = TRUE)
     lenf <- length(f)
     if (lenf == 1L) return(f) # one match
     else if (lenf == 0L) { # no matches
