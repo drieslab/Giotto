@@ -12,15 +12,13 @@ do_spatial_knn_smoothing(
 )
 }
 \arguments{
+\item{expression_matrix}{gene expression values to use}
+
+\item{spatial_network}{spatial network to use}
+
 \item{subset_feats}{subset of features to use}
 
 \item{b}{smoothing factor beteen 0 and 1 (default: automatic)}
-
-\item{gobject}{giotto object}
-
-\item{expression_values}{gene expression values to use}
-
-\item{spatial_network_name}{name of spatial network to use}
 }
 \value{
 matrix with smoothened gene expression values based on kNN

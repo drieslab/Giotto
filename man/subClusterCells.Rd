@@ -156,6 +156,8 @@ input for PCA}
 
 \item{verbose}{verbose}
 
+\item{feat_type}{feature type}
+
 \item{toplevel}{do not use}
 
 \item{version}{version of Louvain algorithm to use. One of "community" or
@@ -201,8 +203,10 @@ g <- GiottoData::loadGiottoMini("visium")
 subClusterCells(g, cluster_column = "leiden_clus")
 
 # use louvain instead
-subClusterCells(g, cluster_column = "leiden_clus",
-                cluster_method = "louvain_community")
+subClusterCells(g,
+    cluster_column = "leiden_clus",
+    cluster_method = "louvain_community"
+)
 
 # directly call the more specific functions
 doLeidenSubCluster(g, cluster_column = "leiden_clus")
