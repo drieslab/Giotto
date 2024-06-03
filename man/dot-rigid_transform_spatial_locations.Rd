@@ -17,7 +17,7 @@
 spatlocs
 }
 \description{
-Performs appropriate transforms to align spatial locations 
+Performs appropriate transforms to align spatial locations
 with registered images.
 }
 \keyword{internal}

@@ -34,7 +34,7 @@ file. Default is \code{TRUE}}
 \item{h5_gene_ids}{use gene symbols (default) or ensembl ids for the .h5 gene
 expression matrix}
 
-\item{gene_column_index}{which column from the features or genes .tsv file 
+\item{gene_column_index}{which column from the features or genes .tsv file
 to use for row ids}
 
 \item{bounds_to_load}{vector of boundary information to load

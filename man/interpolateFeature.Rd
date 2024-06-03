@@ -76,11 +76,6 @@ the same `filename` is provided.}
 
 \item{rastersize}{numeric. Length of major axis in px of interpolation
 raster to create.}
-
-\item{name}{name of interpolation `giottoLargeImage` to generate}
-
-\item{filename}{character. Output filename. Default is \[`name`\].tif within
-the working directory.}
 }
 \value{
 `giotto` method returns a `giotto` object with newly made appended

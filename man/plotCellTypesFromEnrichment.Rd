@@ -22,7 +22,7 @@ plotCellTypesFromEnrichment(
 
 \item{spat_unit}{spatial unit in which the enrichment information is stored}
 
-\item{feat_type}{feature type for which the enrichment information was 
+\item{feat_type}{feature type for which the enrichment information was
 calculated}
 
 \item{enrichment_name}{name of the spatial enrichment
@@ -52,6 +52,6 @@ plotCellTypesFromEnrichment
 This function generates a bar plot of cell types vs the frequency
 of that cell type in the data. These cell type results are
 based on the provided `enrichment_name`, and will be determined
-by the maximum value of the z-score or p-value for a given cell or 
+by the maximum value of the z-score or p-value for a given cell or
 annotation.
 }

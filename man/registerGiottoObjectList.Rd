@@ -26,41 +26,41 @@ registerGiottoObjectList(
 
 \item{spat_unit}{spatial unit}
 
-\item{method}{Method used to align gobjects. Current options are either 
+\item{method}{Method used to align gobjects. Current options are either
 using FIJI register_virtual_stack_slices output or rvision}
 
 \item{image_unreg}{Gobject image slot to use. Defaults to 'image' (optional)}
 
-\item{image_reg_name}{Arbitrary image slot name for registered images to 
+\item{image_reg_name}{Arbitrary image slot name for registered images to
 occupy. Defaults to replacement of 'image' slot (optional)}
 
 \item{image_list}{RVISION - under construction}
 
 \item{save_dir}{RVISION - under construction}
 
-\item{spatloc_unreg}{Unregistered spatial locations to align. Defaults to 
+\item{spatloc_unreg}{Unregistered spatial locations to align. Defaults to
 'raw' slot (optional)}
 
-\item{spatloc_reg_name}{Arbitrary name for registered spatial locations. 
+\item{spatloc_reg_name}{Arbitrary name for registered spatial locations.
 Defaults to replacement of 'raw' slot (optional)}
 
 \item{fiji_xml_files}{Filepaths to FIJI registration XML outputs}
 
-\item{fiji_registered_images}{Registered images output by FIJI 
+\item{fiji_registered_images}{Registered images output by FIJI
 register_virtual_stack_slices}
 
 \item{scale_factor}{Scaling to be applied to spatial coordinates}
 
-\item{allow_rvision_autoscale}{Whether or not to allow rvision to 
+\item{allow_rvision_autoscale}{Whether or not to allow rvision to
 automatically scale the images when performing image registration}
 
 \item{verbose}{Be verbose}
 }
 \value{
-List of registered giotto objects where the registered images and 
+List of registered giotto objects where the registered images and
 spatial locations
 }
 \description{
-Wrapper function for registerGiottoObjectListFiji and 
+Wrapper function for registerGiottoObjectListFiji and
 registerGiottoObjectListRvision
 }

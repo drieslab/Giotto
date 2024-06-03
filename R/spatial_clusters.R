@@ -77,12 +77,13 @@
 #' # don't show legend since there are too many categories generated
 #' spatPlot2D(g, cell_color = "new", show_legend = FALSE)
 #' @export
-spatialSplitCluster <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spatial_network_name = "Delaunay_network",
-    cluster_col,
-    split_clus_name = paste0(cluster_col, "_split")) {
+spatialSplitCluster <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spatial_network_name = "Delaunay_network",
+        cluster_col,
+        split_clus_name = paste0(cluster_col, "_split")) {
     # NSE vars
     cell_ID <- NULL
 
@@ -113,14 +114,15 @@ spatialSplitCluster <- function(gobject,
         verbose = FALSE,
     )
 
-    clus_info <- cell_meta[, c("cell_ID", cluster_col), with = FALSE] 
+    clus_info <- cell_meta[, c("cell_ID", cluster_col), with = FALSE]
     # subset to needed cols
-    g <- GiottoClass::spat_net_to_igraph(sn) 
+    g <- GiottoClass::spat_net_to_igraph(sn)
     # convert spatialNetworkObject to igraph
 
     # assign cluster info to igraph nodes
     clus_values <- clus_info[
-        match(igraph::V(g)$name, cell_ID), get(cluster_col)]
+        match(igraph::V(g)$name, cell_ID), get(cluster_col)
+    ]
     igraph::V(g)$cluster <- clus_values
 
     # split cluster by spatial igraph

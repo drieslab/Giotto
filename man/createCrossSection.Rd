@@ -111,7 +111,7 @@ g <- GiottoData::loadGiottoMini("starmap")
 g <- createCrossSection(
     gobject = g,
     method = "equation",
-    equation=c(0,1,0,600),
+    equation = c(0, 1, 0, 600),
     extend_ratio = 0.6,
     name = "new_cs",
     return_gobject = TRUE

@@ -102,13 +102,13 @@ Create the plots for `cellProximityVisPlot()`
 }
 \section{Functions}{
 \itemize{
-\item \code{.cellProximityVisPlot_2D_ggplot()}: Visualize 2D cell-cell 
+\item \code{.cellProximityVisPlot_2D_ggplot()}: Visualize 2D cell-cell
 interactions according to spatial coordinates in ggplot mode
 
-\item \code{.cellProximityVisPlot_2D_plotly()}: Visualize 2D cell-cell 
+\item \code{.cellProximityVisPlot_2D_plotly()}: Visualize 2D cell-cell
 interactions according to spatial coordinates in plotly mode
 
-\item \code{.cellProximityVisPlot_3D_plotly()}: Visualize 3D cell-cell 
+\item \code{.cellProximityVisPlot_3D_plotly()}: Visualize 3D cell-cell
 interactions according to spatial coordinates in plotly mode
 
 }}
