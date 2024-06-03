@@ -93,7 +93,10 @@ feature scores
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF),
 i.e. features that are differentially expressed due to proximity to other
-cell types.
+cell types. This function is appropriate for single-cell level data. For
+data from spot-based spatial assays or spatially binned data, see
+\code{\link[=findICFSpot]{findICFSpot()}}, which runs on top of DWLS results or similar spot-level
+cell-type enrichment outputs
 }
 \details{
 Function to calculate if features are differentially expressed in
@@ -140,5 +143,5 @@ icf2 <- findICF(g,
  )
 }
 \seealso{
-\code{\link[=filterInteractionChangedFeats]{filterInteractionChangedFeats()}}
+\code{\link[=filterInteractionChangedFeats]{filterInteractionChangedFeats()}} \code{\link[=findICFSpot]{findICFSpot()}}
 }
