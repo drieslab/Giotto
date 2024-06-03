@@ -1,3 +1,7 @@
+# Giotto 4.0.10 TBD
+
+## Bug fixes
+* Fix error in `plotInteractivePolygons()` when providing a spatial plot with a continuous scale
 
 # Giotto 4.0.9
 
