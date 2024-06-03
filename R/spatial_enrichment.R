@@ -2911,7 +2911,7 @@ find_dampening_constant <- function(
 
             # solve dampened weighted least squares for subset
             fit <- stats::lm(
-                B[subset] ~ -1 + S[subset, ],
+                B[subset] ~ -1 + S[subset, , drop = FALSE],
                 weights = wsDampened[subset]
             )
             sol <- fit$coef * sum(goldStandard) / sum(fit$coef)
