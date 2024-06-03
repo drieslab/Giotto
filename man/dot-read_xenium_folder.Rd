@@ -19,7 +19,7 @@
 \item{data_to_use}{which type(s) of expression data to build the gobject with
 (e.g. default: \strong{'subcellular'}, 'aggregate', or 'all')}
 
-\item{bounds_to_load}{vector of boundary information to load 
+\item{bounds_to_load}{vector of boundary information to load
 (e.g. \code{'cell'}
 or \code{'nucleus'} by themselves or \code{c('cell', 'nucleus')} to load both
 at the same time.)}
@@ -27,7 +27,7 @@ at the same time.)}
 \item{load_format}{files formats from which to load the data. Either `csv` or
 `parquet` currently supported.}
 
-\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5 
+\item{h5_expression}{(boolean) whether to load cell_feature_matrix from .h5
 file. Default is \code{TRUE}}
 
 \item{verbose}{be verbose when building Giotto object}

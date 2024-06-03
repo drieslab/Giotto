@@ -113,24 +113,25 @@
 #'
 #' filterDistributions(g)
 #' @export
-filterDistributions <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("raw", "normalized", "scaled", "custom"),
-    method = c("threshold", "sum", "mean"),
-    expression_threshold = 1,
-    detection = c("feats", "cells"),
-    plot_type = c("histogram", "violin"),
-    scale_y = NULL,
-    nr_bins = 30,
-    fill_color = "lightblue",
-    scale_axis = "identity",
-    axis_offset = 0,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "filterDistributions") {
+filterDistributions <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("raw", "normalized", "scaled", "custom"),
+        method = c("threshold", "sum", "mean"),
+        expression_threshold = 1,
+        detection = c("feats", "cells"),
+        plot_type = c("histogram", "violin"),
+        scale_y = NULL,
+        nr_bins = 30,
+        fill_color = "lightblue",
+        scale_axis = "identity",
+        axis_offset = 0,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "filterDistributions") {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -145,7 +146,8 @@ filterDistributions <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("raw", "normalized", "scaled", "custom", expression_values)))
+        unique(c("raw", "normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -170,15 +172,18 @@ filterDistributions <- function(gobject,
     if (detection == "feats") {
         if (method == "threshold") {
             feat_detection_levels <- data.table::as.data.table(
-                rowSums_flex(expr_values >= expression_threshold))
+                rowSums_flex(expr_values >= expression_threshold)
+            )
             mytitle <- "feat detected in # of cells"
         } else if (method == "sum") {
             feat_detection_levels <- data.table::as.data.table(
-                rowSums_flex(expr_values))
+                rowSums_flex(expr_values)
+            )
             mytitle <- "total sum of feature detected in all cells"
         } else if (method == "mean") {
             feat_detection_levels <- data.table::as.data.table(
-                rowMeans_flex(expr_values))
+                rowMeans_flex(expr_values)
+            )
             mytitle <- "average of feature detected in all cells"
         }
 
@@ -216,15 +221,18 @@ filterDistributions <- function(gobject,
     } else if (detection == "cells") {
         if (method == "threshold") {
             cell_detection_levels <- data.table::as.data.table(
-                colSums_flex(expr_values >= expression_threshold))
+                colSums_flex(expr_values >= expression_threshold)
+            )
             mytitle <- "feats detected per cell"
         } else if (method == "sum") {
             cell_detection_levels <- data.table::as.data.table(
-                colSums_flex(expr_values))
+                colSums_flex(expr_values)
+            )
             mytitle <- "total features per cell"
         } else if (method == "mean") {
             cell_detection_levels <- data.table::as.data.table(
-                colMeans_flex(expr_values))
+                colMeans_flex(expr_values)
+            )
             mytitle <- "average number of features per cell"
         }
 
@@ -302,22 +310,23 @@ filterDistributions <- function(gobject,
 #'
 #' filterCombinations(g)
 #' @export
-filterCombinations <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("raw", "normalized", "scaled", "custom"),
-    expression_thresholds = c(1, 2),
-    feat_det_in_min_cells = c(5, 50),
-    min_det_feats_per_cell = c(200, 400),
-    scale_x_axis = "identity",
-    x_axis_offset = 0,
-    scale_y_axis = "identity",
-    y_axis_offset = 0,
-    show_plot = TRUE,
-    return_plot = FALSE,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "filterCombinations") {
+filterCombinations <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("raw", "normalized", "scaled", "custom"),
+        expression_thresholds = c(1, 2),
+        feat_det_in_min_cells = c(5, 50),
+        min_det_feats_per_cell = c(200, 400),
+        scale_x_axis = "identity",
+        x_axis_offset = 0,
+        scale_y_axis = "identity",
+        y_axis_offset = 0,
+        show_plot = TRUE,
+        return_plot = FALSE,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "filterCombinations") {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -333,7 +342,8 @@ filterCombinations <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("raw", "normalized", "scaled", "custom", expression_values)))
+        unique(c("raw", "normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -361,16 +371,20 @@ filterCombinations <- function(gobject,
 
             # first remove feats
             filter_index_feats <- rowSums_flex(
-                expr_values >= threshold) >= min_cells_for_feat
+                expr_values >= threshold
+            ) >= min_cells_for_feat
             removed_feats <- length(filter_index_feats[
-                filter_index_feats == FALSE])
+                filter_index_feats == FALSE
+            ])
             det_cells_res[[combn_i]] <- removed_feats
 
             # then remove cells
             filter_index_cells <- colSums_flex(expr_values[
-                filter_index_feats, ] >= threshold) >= min_feats_per_cell
+                filter_index_feats,
+            ] >= threshold) >= min_feats_per_cell
             removed_cells <- length(filter_index_cells[
-                filter_index_cells == FALSE])
+                filter_index_cells == FALSE
+            ])
             det_feats_res[[combn_i]] <- removed_cells
         }
 
@@ -393,7 +407,8 @@ filterCombinations <- function(gobject,
     result_DT[["min_detected_feats_per_cell"]] <- min_det_feats_per_cell
     result_DT[["combination"]] <- paste0(
         result_DT$feat_detected_in_min_cells, "-",
-        result_DT$min_detected_feats_per_cell)
+        result_DT$min_detected_feats_per_cell
+    )
 
     result_DT <- result_DT[, .(
         threshold,
@@ -420,18 +435,22 @@ filterCombinations <- function(gobject,
         color = as.factor(threshold)
     ))
     pl <- pl + scale_color_discrete(
-        guide = guide_legend(title = "threshold(s)"))
+        guide = guide_legend(title = "threshold(s)")
+    )
     pl <- pl + ggrepel::geom_text_repel(data = result_DT, aes(
         x = removed_cells + x_axis_offset,
         y = removed_feats + y_axis_offset,
         label = combination
     ))
     pl <- pl + ggplot2::scale_x_continuous(
-        trans = scale_x_axis, limits = c(0, maximum_x_value))
+        trans = scale_x_axis, limits = c(0, maximum_x_value)
+    )
     pl <- pl + ggplot2::scale_y_continuous(
-        trans = scale_y_axis, limits = c(0, maximum_y_value))
+        trans = scale_y_axis, limits = c(0, maximum_y_value)
+    )
     pl <- pl + ggplot2::labs(
-        x = "number of removed cells", y = "number of removed feats")
+        x = "number of removed cells", y = "number of removed feats"
+    )
 
 
     return(plot_output_handler(
@@ -491,23 +510,24 @@ filterCombinations <- function(gobject,
 #'
 #' filterGiotto(g)
 #' @export
-filterGiotto <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("raw", "normalized", "scaled", "custom"),
-    expression_threshold = 1,
-    feat_det_in_min_cells = 100,
-    min_det_feats_per_cell = 100,
-    spat_unit_fsub = ":all:",
-    feat_type_ssub = ":all:",
-    all_spat_units = NULL,
-    all_feat_types = NULL,
-    poly_info = NULL,
-    tag_cells = FALSE,
-    tag_cell_name = "tag",
-    tag_feats = FALSE,
-    tag_feats_name = "tag",
-    verbose = TRUE) {
+filterGiotto <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("raw", "normalized", "scaled", "custom"),
+        expression_threshold = 1,
+        feat_det_in_min_cells = 100,
+        min_det_feats_per_cell = 100,
+        spat_unit_fsub = ":all:",
+        feat_type_ssub = ":all:",
+        all_spat_units = NULL,
+        all_feat_types = NULL,
+        poly_info = NULL,
+        tag_cells = FALSE,
+        tag_cell_name = "tag",
+        tag_feats = FALSE,
+        tag_feats_name = "tag",
+        verbose = TRUE) {
     # data.table vars
     cell_ID <- feat_ID <- NULL
 
@@ -574,7 +594,8 @@ filterGiotto <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("raw", "normalized", "scaled", "custom", expression_values)))
+        unique(c("raw", "normalized", "scaled", "custom", expression_values))
+    )
 
     # get expression values to perform filtering on
     # Only the first spat_unit and feat_type provided are filtered.
@@ -596,14 +617,16 @@ filterGiotto <- function(gobject,
 
     ## filter features
     filter_index_feats <- rowSums_flex(
-        expr_values >= expression_threshold) >= feat_det_in_min_cells
+        expr_values >= expression_threshold
+    ) >= feat_det_in_min_cells
     selected_feat_ids <- names(filter_index_feats[filter_index_feats == TRUE])
 
 
 
     ## filter cells
     filter_index_cells <- colSums_flex(expr_values[
-        filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
+        filter_index_feats,
+    ] >= expression_threshold) >= min_det_feats_per_cell
     selected_cell_ids <- names(filter_index_cells[filter_index_cells == TRUE])
 
 
@@ -612,7 +635,8 @@ filterGiotto <- function(gobject,
     if (isTRUE(tag_cells)) {
         cell_meta <- getCellMetadata(gobject = gobject, copy_obj = TRUE)
         cell_meta[][, c(tag_cell_name) := ifelse(
-            cell_ID %in% selected_cell_ids, 0, 1)]
+            cell_ID %in% selected_cell_ids, 0, 1
+        )]
         gobject <- setCellMetadata(
             gobject = gobject, x = cell_meta, initialize = FALSE
         )
@@ -624,7 +648,8 @@ filterGiotto <- function(gobject,
     if (isTRUE(tag_feats)) {
         feat_meta <- getFeatureMetadata(gobject = gobject, copy_obj = TRUE)
         feat_meta[][, c(tag_feats_name) := ifelse(
-            feat_ID %in% selected_feat_ids, 0, 1)]
+            feat_ID %in% selected_feat_ids, 0, 1
+        )]
         gobject <- setFeatureMetadata(
             gobject = gobject, x = feat_meta, initialize = FALSE
         )
@@ -660,19 +685,27 @@ filterGiotto <- function(gobject,
         cat("Feature type: ", feat_type, "\n")
 
         if (isTRUE(tag_cells)) {
-            cat("Number of cells tagged: ", removed_cells, " out of ",
-                total_cells, "\n")
+            cat(
+                "Number of cells tagged: ", removed_cells, " out of ",
+                total_cells, "\n"
+            )
         } else {
-            cat("Number of cells removed: ", removed_cells, " out of ",
-                total_cells, "\n")
+            cat(
+                "Number of cells removed: ", removed_cells, " out of ",
+                total_cells, "\n"
+            )
         }
 
         if (isTRUE(tag_feats)) {
-            cat("Number of feats tagged: ", removed_feats, " out of ",
-                total_feats, "\n")
+            cat(
+                "Number of feats tagged: ", removed_feats, " out of ",
+                total_feats, "\n"
+            )
         } else {
-            cat("Number of feats removed: ", removed_feats, " out of ",
-                total_feats, "\n")
+            cat(
+                "Number of feats removed: ", removed_feats, " out of ",
+                total_feats, "\n"
+            )
         }
     }
 
@@ -695,7 +728,9 @@ filterGiotto <- function(gobject,
 
     # If this function call is not downstream of processGiotto, update normally
     newGiottoObject <- update_giotto_params(
-        newGiottoObject, description = "_filter")
+        newGiottoObject,
+        description = "_filter"
+    )
 
     return(newGiottoObject)
 }
@@ -711,19 +746,20 @@ filterGiotto <- function(gobject,
 #' @description standard function for RNA normalization
 #' @returns giotto object
 #' @keywords internal
-.rna_standard_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    verbose = TRUE) {
+.rna_standard_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: Standard normalization was developed for RNA data \n")
@@ -765,37 +801,42 @@ filterGiotto <- function(gobject,
     ## 3. scale
     if (scale_feats == TRUE & scale_cells == TRUE) {
         scale_order <- match.arg(
-            arg = scale_order, choices = c("first_feats", "first_cells"))
+            arg = scale_order, choices = c("first_feats", "first_cells")
+        )
 
         if (scale_order == "first_feats") {
-            if (isTRUE(verbose))
+            if (isTRUE(verbose)) {
                 wrap_msg("\n first scale feats and then cells \n")
+            }
 
             norm_scaled_expr <- t_flex(standardise_flex(
-                x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+                x = t_flex(norm_expr), center = TRUE, scale = TRUE
+            ))
             norm_scaled_expr <- standardise_flex(
-                x = norm_scaled_expr, center = TRUE, scale = TRUE)
-
+                x = norm_scaled_expr, center = TRUE, scale = TRUE
+            )
         } else if (scale_order == "first_cells") {
-            if (isTRUE(verbose))
+            if (isTRUE(verbose)) {
                 wrap_msg("\n first scale cells and then feats \n")
+            }
 
             norm_scaled_expr <- standardise_flex(
-                x = norm_expr, center = TRUE, scale = TRUE)
+                x = norm_expr, center = TRUE, scale = TRUE
+            )
             norm_scaled_expr <- t_flex(standardise_flex(
-                x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
-
+                x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE
+            ))
         } else {
             stop("\n scale order must be given \n")
         }
     } else if (scale_feats == TRUE) {
         norm_scaled_expr <- t_flex(standardise_flex(
-            x = t_flex(norm_expr), center = TRUE, scale = TRUE))
-
+            x = t_flex(norm_expr), center = TRUE, scale = TRUE
+        ))
     } else if (scale_cells == TRUE) {
         norm_scaled_expr <- standardise_flex(
-            x = norm_expr, center = TRUE, scale = TRUE)
-
+            x = norm_expr, center = TRUE, scale = TRUE
+        )
     } else {
         norm_scaled_expr <- NULL
     }
@@ -853,12 +894,13 @@ filterGiotto <- function(gobject,
 #' @description function for RNA normalization according to osmFISH paper
 #' @returns giotto object
 #' @keywords internal
-.rna_osmfish_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    name = "custom",
-    verbose = TRUE) {
+.rna_osmfish_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "custom",
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: osmFISH normalization was developed for RNA in situ
@@ -869,12 +911,15 @@ filterGiotto <- function(gobject,
     norm_feats <- (raw_expr[] / rowSums_flex(raw_expr[])) * nrow(raw_expr[])
     # 2. normalize per cells with scale-factor equal to number of cells
     norm_feats_cells <- t_flex((t_flex(norm_feats) /
-                                  colSums_flex(norm_feats)) * ncol(raw_expr[]))
+        colSums_flex(norm_feats)) * ncol(raw_expr[]))
 
     # return results to Giotto object
-    if (verbose == TRUE)
-        message("\n osmFISH-like normalized data will be returned to the",
-                name, "Giotto slot \n")
+    if (verbose == TRUE) {
+        message(
+            "\n osmFISH-like normalized data will be returned to the",
+            name, "Giotto slot \n"
+        )
+    }
 
     norm_feats_cells <- create_expr_obj(
         name = name,
@@ -903,20 +948,22 @@ filterGiotto <- function(gobject,
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 #' @returns giotto object
 #' @keywords internal
-.rna_pears_resid_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    theta = 100,
-    name = "scaled",
-    verbose = TRUE) {
+.rna_pears_resid_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        theta = 100,
+        name = "scaled",
+        verbose = TRUE) {
     # print message with information #
-    if (verbose)
-      message("using 'Lause/Kobak' method to normalize count matrix If used in
+    if (verbose) {
+        message("using 'Lause/Kobak' method to normalize count matrix If used in
       published research, please cite:
       Jan Lause, Philipp Berens, Dmitry Kobak (2020).
       'Analytic Pearson residuals for normalization of single-cell RNA-seq UMI
       data' ")
+    }
 
 
     # check feature type compatibility
@@ -927,9 +974,13 @@ filterGiotto <- function(gobject,
 
     if (methods::is(raw_expr[], "HDF5Matrix")) {
         counts_sum0 <- methods::as(matrix(
-            MatrixGenerics::colSums2(raw_expr[]), nrow = 1), "HDF5Matrix")
+            MatrixGenerics::colSums2(raw_expr[]),
+            nrow = 1
+        ), "HDF5Matrix")
         counts_sum1 <- methods::as(matrix(
-            MatrixGenerics::rowSums2(raw_expr[]), ncol = 1), "HDF5Matrix")
+            MatrixGenerics::rowSums2(raw_expr[]),
+            ncol = 1
+        ), "HDF5Matrix")
         counts_sum <- sum(raw_expr[])
 
         # get residuals
@@ -942,9 +993,11 @@ filterGiotto <- function(gobject,
         z[z < -sqrt(n)] <- -sqrt(n)
     } else {
         counts_sum0 <- methods::as(matrix(Matrix::colSums(
-            raw_expr[]), nrow = 1), "dgCMatrix")
+            raw_expr[]
+        ), nrow = 1), "dgCMatrix")
         counts_sum1 <- methods::as(matrix(Matrix::rowSums(
-            raw_expr[]), ncol = 1), "dgCMatrix")
+            raw_expr[]
+        ), ncol = 1), "dgCMatrix")
         counts_sum <- sum(raw_expr[])
 
         # get residuals
@@ -958,9 +1011,12 @@ filterGiotto <- function(gobject,
     }
 
     # return results to Giotto object
-    if (verbose == TRUE)
-        message("\n Pearson residual normalized data will be returned to the ",
-                name, " Giotto slot \n")
+    if (verbose == TRUE) {
+        message(
+            "\n Pearson residual normalized data will be returned to the ",
+            name, " Giotto slot \n"
+        )
+    }
 
     z <- create_expr_obj(
         name = name,
@@ -1033,23 +1089,24 @@ filterGiotto <- function(gobject,
 #'
 #' normalizeGiotto(g)
 #' @export
-normalizeGiotto <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = "raw",
-    norm_methods = c("standard", "pearson_resid", "osmFISH"),
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_genes = NULL,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    theta = 100,
-    update_slot = "scaled",
-    verbose = TRUE) {
+normalizeGiotto <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = "raw",
+        norm_methods = c("standard", "pearson_resid", "osmFISH"),
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_genes = NULL,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        theta = 100,
+        update_slot = "scaled",
+        verbose = TRUE) {
     ## deprecated arguments
     if (!is.null(scale_genes)) {
         scale_feats <- scale_genes
@@ -1078,7 +1135,8 @@ normalizeGiotto <- function(gobject,
     )
 
     norm_methods <- match.arg(
-        arg = norm_methods, choices = c("standard", "pearson_resid", "osmFISH"))
+        arg = norm_methods, choices = c("standard", "pearson_resid", "osmFISH")
+    )
 
     # normalization according to standard methods
     if (norm_methods == "standard") {
@@ -1163,14 +1221,15 @@ normalizeGiotto <- function(gobject,
 #'
 #' adjustGiottoMatrix(g, covariate_columns = "leiden_clus")
 #' @export
-adjustGiottoMatrix <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    batch_columns = NULL,
-    covariate_columns = NULL,
-    return_gobject = TRUE,
-    update_slot = c("custom")) {
+adjustGiottoMatrix <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        batch_columns = NULL,
+        covariate_columns = NULL,
+        return_gobject = TRUE,
+        update_slot = c("custom")) {
     # Catch for both batch and covariate being null
     if (is.null(batch_columns) & is.null(covariate_columns)) {
         stop("Metadata for either different batches or covariates must be
@@ -1210,12 +1269,14 @@ adjustGiottoMatrix <- function(gobject,
     }
 
     update_slot <- match.arg(
-        update_slot, c("normalized", "scaled", "custom", update_slot))
+        update_slot, c("normalized", "scaled", "custom", update_slot)
+    )
 
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -1241,7 +1302,8 @@ adjustGiottoMatrix <- function(gobject,
     # covariate columns
     if (!is.null(covariate_columns)) {
         covariates <- as.matrix(
-            cell_metadata[, covariate_columns, with = FALSE])
+            cell_metadata[, covariate_columns, with = FALSE]
+        )
     } else {
         covariates <- NULL
     }
@@ -1318,43 +1380,51 @@ adjustGiottoMatrix <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' processGiotto(gobject = g,
-#' adjust_params = list(covariate_columns = "leiden_clus"))
+#' processGiotto(
+#'     gobject = g,
+#'     adjust_params = list(covariate_columns = "leiden_clus")
+#' )
 #' @export
-processGiotto <- function(gobject,
-    filter_params = list(),
-    norm_params = list(),
-    stat_params = list(),
-    adjust_params = list(),
-    verbose = TRUE) {
+processGiotto <- function(
+        gobject,
+        filter_params = list(),
+        norm_params = list(),
+        stat_params = list(),
+        adjust_params = list(),
+        verbose = TRUE) {
     # filter Giotto
     if (verbose == TRUE) message("1. start filter step")
-    if (!inherits(filter_params, "list"))
+    if (!inherits(filter_params, "list")) {
         stop("filter_params need to be a list of parameters for filterGiotto")
+    }
     gobject <- do.call("filterGiotto", c(gobject = gobject, filter_params))
 
     # normalize Giotto
     if (verbose == TRUE) message("2. start normalization step")
-    if (!inherits(norm_params, "list"))
+    if (!inherits(norm_params, "list")) {
         stop("norm_params need to be a list of parameters for normalizeGiotto")
+    }
     gobject <- do.call("normalizeGiotto", c(gobject = gobject, norm_params))
 
     # add Statistics
     if (verbose == TRUE) message("3. start cell and gene statistics step")
-    if (!inherits(stat_params, "list"))
+    if (!inherits(stat_params, "list")) {
         stop("stat_params need to be a list of parameters for addStatistics ")
+    }
     stat_params[["return_gobject"]] <- TRUE # force this to be true
     gobject <- do.call("addStatistics", c(gobject = gobject, stat_params))
 
     # adjust Giotto, if applicable
     if (!is.null(adjust_params)) {
         if (verbose == TRUE) message("4. start adjusted matrix step")
-        if (!inherits(adjust_params, "list"))
+        if (!inherits(adjust_params, "list")) {
             stop("adjust_params need to be a list of parameters for
                 adjustGiottoMatrix")
+        }
         adjust_params[["return_gobject"]] <- TRUE # force this to be true
         gobject <- do.call(
-            "adjustGiottoMatrix", c(gobject = gobject, adjust_params))
+            "adjustGiottoMatrix", c(gobject = gobject, adjust_params)
+        )
     }
 
     gobject <- update_giotto_params(gobject, description = "_process")
@@ -1407,13 +1477,14 @@ processGiotto <- function(gobject,
 #'
 #' addFeatStatistics(g)
 #' @export
-addFeatStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addFeatStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1428,7 +1499,8 @@ addFeatStatistics <- function(gobject,
     # expression values to be used
     expression_values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -1443,7 +1515,7 @@ addFeatStatistics <- function(gobject,
         feats = rownames(expr_data[]),
         nr_cells = rowSums_flex(expr_data[] > detection_threshold),
         perc_cells = (rowSums_flex(expr_data[] > detection_threshold) /
-                        ncol(expr_data[])) * 100,
+            ncol(expr_data[])) * 100,
         total_expr = rowSums_flex(expr_data[]),
         mean_expr = rowMeans_flex(expr_data[])
     )
@@ -1452,7 +1524,9 @@ addFeatStatistics <- function(gobject,
     mean_expr_det <- NULL
 
     mean_expr_detected <- .mean_expr_det_test(
-        expr_data[], detection_threshold = detection_threshold)
+        expr_data[],
+        detection_threshold = detection_threshold
+    )
     feat_stats[, mean_expr_det := mean_expr_detected]
 
 
@@ -1477,11 +1551,14 @@ addFeatStatistics <- function(gobject,
         metadata_names <- colnames(feat_metadata[])
 
         if ("nr_cells" %in% metadata_names) {
-            vmsg(.v = verbose, "feat statistics has already been applied",
-                 "once; overwriting")
+            vmsg(
+                .v = verbose, "feat statistics has already been applied",
+                "once; overwriting"
+            )
             feat_metadata[][, c(
                 "nr_cells", "perc_cells", "total_expr", "mean_expr",
-                "mean_expr_det") := NULL]
+                "mean_expr_det"
+            ) := NULL]
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
             gobject <- set_feature_metadata(gobject,
                 metadata = feat_metadata,
@@ -1522,16 +1599,19 @@ addFeatStatistics <- function(gobject,
         # normally
         if (is.null(cl)) {
             gobject <- update_giotto_params(gobject,
-                                            description = "_feat_stats")
+                description = "_feat_stats"
+            )
         } else {
             fname <- as.character(cl[[1]])
             if (fname == "addStatistics") {
                 gobject <- update_giotto_params(gobject,
-                                                description = "_feat_stats",
-                                                toplevel = 3)
+                    description = "_feat_stats",
+                    toplevel = 3
+                )
             } else {
                 gobject <- update_giotto_params(gobject,
-                                                description = "_feat_stats")
+                    description = "_feat_stats"
+                )
             }
         }
 
@@ -1572,13 +1652,14 @@ addFeatStatistics <- function(gobject,
 #'
 #' addCellStatistics(g)
 #' @export
-addCellStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addCellStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1593,7 +1674,8 @@ addCellStatistics <- function(gobject,
     # expression values to be used
     expression_values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -1609,7 +1691,7 @@ addCellStatistics <- function(gobject,
         cells = colnames(expr_data[]),
         nr_feats = colSums_flex(expr_data[] > detection_threshold),
         perc_feats = (colSums_flex(expr_data[] > detection_threshold) /
-                        nrow(expr_data[])) * 100,
+            nrow(expr_data[])) * 100,
         total_expr = colSums_flex(expr_data[])
     )
 
@@ -1632,8 +1714,10 @@ addCellStatistics <- function(gobject,
 
         metadata_names <- colnames(cell_metadata[])
         if ("nr_feats" %in% metadata_names) {
-            vmsg(.v = verbose, "cells statistics has already been applied",
-                 "once; overwriting")
+            vmsg(
+                .v = verbose, "cells statistics has already been applied",
+                "once; overwriting"
+            )
             cell_metadata[][, c("nr_feats", "perc_feats", "total_expr") := NULL]
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
             gobject <- set_cell_metadata(gobject,
@@ -1677,16 +1761,19 @@ addCellStatistics <- function(gobject,
         # normally
         if (is.null(cl)) {
             gobject <- update_giotto_params(gobject,
-                                            description = "_cell_stats")
+                description = "_cell_stats"
+            )
         } else {
             fname <- as.character(cl[[1]])
             if (fname == "addStatistics") {
                 gobject <- update_giotto_params(gobject,
-                                                description = "_cell_stats",
-                                                toplevel = 3)
+                    description = "_cell_stats",
+                    toplevel = 3
+                )
             } else {
                 gobject <- update_giotto_params(gobject,
-                                                description = "_cell_stats")
+                    description = "_cell_stats"
+                )
             }
         }
 
@@ -1716,13 +1803,14 @@ addCellStatistics <- function(gobject,
 #'
 #' addStatistics(g)
 #' @export
-addStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1789,13 +1877,14 @@ addStatistics <- function(gobject,
 #'
 #' addFeatsPerc(g, feats = c("Gm19935", "9630013A20Rik", "2900040C04Rik"))
 #' @export
-addFeatsPerc <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    feats = NULL,
-    vector_name = "feat_perc",
-    return_gobject = TRUE) {
+addFeatsPerc <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        feats = NULL,
+        vector_name = "feat_perc",
+        return_gobject = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1820,7 +1909,8 @@ addFeatsPerc <- function(gobject,
     # expression values to be used
     expression_values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -1846,7 +1936,8 @@ addFeatsPerc <- function(gobject,
 
         ## update parameters used ##
         temp_gobj <- update_giotto_params(temp_gobj,
-                                          description = "_feats_perc")
+            description = "_feats_perc"
+        )
 
         return(temp_gobj)
     } else {
@@ -1878,14 +1969,17 @@ addFeatsPerc <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' findNetworkNeighbors(gobject = g, spatial_network_name = "spatial_network",
-#' source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1"))
+#' findNetworkNeighbors(
+#'     gobject = g, spatial_network_name = "spatial_network",
+#'     source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1")
+#' )
 #' @export
-findNetworkNeighbors <- function(gobject,
-    spat_unit = NULL,
-    spatial_network_name = NULL,
-    source_cell_ids = NULL,
-    name = "nb_cells") {
+findNetworkNeighbors <- function(
+        gobject,
+        spat_unit = NULL,
+        spatial_network_name = NULL,
+        source_cell_ids = NULL,
+        name = "nb_cells") {
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
         spat_unit = spat_unit
@@ -1913,11 +2007,14 @@ findNetworkNeighbors <- function(gobject,
 
     full_network_DT <- convert_to_full_spatial_network(spatial_network)
     potential_target_cells <- full_network_DT[
-        source %in% source_cells][["target"]]
+        source %in% source_cells
+    ][["target"]]
     source_and_target_cells <- potential_target_cells[
-        potential_target_cells %in% source_cells]
+        potential_target_cells %in% source_cells
+    ]
     target_cells <- potential_target_cells[
-        !potential_target_cells %in% source_and_target_cells]
+        !potential_target_cells %in% source_and_target_cells
+    ]
 
     cell_meta <- pDataDT(gobject)
 

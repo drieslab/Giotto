@@ -13,7 +13,7 @@
 rigid registration transformation values
 }
 \description{
-Extract rigid registration transformation values from FIJI 
+Extract rigid registration transformation values from FIJI
 TrakEM2 xml file. Generated through register_virtual_stack_slices.
 }
 \keyword{internal}

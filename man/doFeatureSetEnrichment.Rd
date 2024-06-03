@@ -28,39 +28,39 @@ doFeatureSetEnrichment(
 \item{path_to_GSEA}{path to GSEA command line executable, e.g. gsea-XXX.jar.
 See details (1.) for more information.}
 
-\item{GSEA_dataset}{path to a Human/Mouse collection from GSEA, e.g. 
+\item{GSEA_dataset}{path to a Human/Mouse collection from GSEA, e.g.
 Hallmarks C1. See details (2.) for more information.}
 
-\item{GSEA_ranked_file}{path to .rnk file for GSEA. See details (3.) for 
+\item{GSEA_ranked_file}{path to .rnk file for GSEA. See details (3.) for
 more information}
 
-\item{output_folder}{path to which the GSEA results will be saved. Default 
+\item{output_folder}{path to which the GSEA results will be saved. Default
 is current working directory.}
 
-\item{name_analysis_folder}{default output subdirectory prefix to which 
+\item{name_analysis_folder}{default output subdirectory prefix to which
 results are saved.
-                            Will live within output_folder; equivalent of 
+                            Will live within output_folder; equivalent of
                             "Analysis Name" in GSEA Application.}
 
-\item{collapse}{only 'false' is supported. This will use your dataset as-is, 
+\item{collapse}{only 'false' is supported. This will use your dataset as-is,
 in the original format.}
 
-\item{mode}{option selected in Advanced Field "Collapsing Mode for 
+\item{mode}{option selected in Advanced Field "Collapsing Mode for
 Probe Sets => 1 gene"}
 
 \item{norm}{normalization mode; only meandiv is supported.}
 
 \item{nperm}{number of permutations, default 1000}
 
-\item{scoring_scheme}{Default "weighted", equivalent of 
+\item{scoring_scheme}{Default "weighted", equivalent of
 "enrichment statistic" in GSEA Application}
 
 \item{plot_top_x}{Default 20, number of enrichment plots to produce.}
 
-\item{set_max}{default 500, equivalent to "max size; exclude larger sets" 
+\item{set_max}{default 500, equivalent to "max size; exclude larger sets"
 in Basic Fields in GSEA Application}
 
-\item{set_min}{default 15, equivalent to "min size; exclude smaller sets" 
+\item{set_min}{default 15, equivalent to "min size; exclude smaller sets"
 in Basic Fields in GSEA Application}
 }
 \value{
@@ -74,11 +74,11 @@ NECESSARY PREREQUISITES
 1. download and install the COMMAND line (all platforms) gsea-XXX.jar
 https://www.gsea-msigdb.org/gsea/downloads.jsp
 1.1. download zip file
-1.2. unzip and move to known location 
+1.2. unzip and move to known location
 (e.g. in path/to/your/applications/gsea/GSEA_4.3.2)
 
 2. download the Human and Mouse collections
-https://www.gsea-msigdb.org/gsea/msigdb/index.jsp or zipped folder 
+https://www.gsea-msigdb.org/gsea/msigdb/index.jsp or zipped folder
 https://www.gsea-msigdb.org/gsea/downloads.jsp (all downloaded)
 
 3. create ranked gene lists

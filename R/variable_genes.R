@@ -1,9 +1,10 @@
-.calc_cov_group_hvf <- function(feat_in_cells_detected,
-    nr_expression_groups = 20,
-    zscore_threshold = 1,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL) {
+.calc_cov_group_hvf <- function(
+        feat_in_cells_detected,
+        nr_expression_groups = 20,
+        zscore_threshold = 1,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL) {
     # NSE vars
     cov_group_zscore <- cov <- selected <- mean_expr <- NULL
 
@@ -11,13 +12,17 @@
     prob_sequence <- seq(0, 1, steps)
     prob_sequence[length(prob_sequence)] <- 1
     expr_group_breaks <- stats::quantile(
-        feat_in_cells_detected$mean_expr, probs = prob_sequence)
+        feat_in_cells_detected$mean_expr,
+        probs = prob_sequence
+    )
 
     ## remove zero's from cuts if there are too many and make first group zero
     if (any(duplicated(expr_group_breaks))) {
         m_expr_vector <- feat_in_cells_detected$mean_expr
         expr_group_breaks <- stats::quantile(
-            m_expr_vector[m_expr_vector > 0], probs = prob_sequence)
+            m_expr_vector[m_expr_vector > 0],
+            probs = prob_sequence
+        )
         expr_group_breaks[[1]] <- 0
     }
 
@@ -30,11 +35,13 @@
     feat_in_cells_detected[, expr_groups := expr_groups]
     feat_in_cells_detected[, cov_group_zscore := scale(cov), by = expr_groups]
     feat_in_cells_detected[, selected := ifelse(
-        cov_group_zscore > zscore_threshold, "yes", "no")]
+        cov_group_zscore > zscore_threshold, "yes", "no"
+    )]
 
     if (any(isTRUE(show_plot), isTRUE(return_plot), isTRUE(save_plot))) {
         pl <- .create_cov_group_hvf_plot(
-            feat_in_cells_detected, nr_expression_groups)
+            feat_in_cells_detected, nr_expression_groups
+        )
 
         return(list(dt = feat_in_cells_detected, pl = pl))
     } else {
@@ -48,11 +55,12 @@
 
 
 
-.calc_cov_loess_hvf <- function(feat_in_cells_detected,
-    difference_in_cov = 0.1,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL) {
+.calc_cov_loess_hvf <- function(
+        feat_in_cells_detected,
+        difference_in_cov = 0.1,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL) {
     # NSE vars
     cov_diff <- pred_cov_feats <- selected <- NULL
 
@@ -61,18 +69,25 @@
     var_col <- "cov"
 
     loess_model_sample <- stats::loess(
-        loess_formula, data = feat_in_cells_detected)
+        loess_formula,
+        data = feat_in_cells_detected
+    )
     feat_in_cells_detected$pred_cov_feats <- stats::predict(
-        loess_model_sample, newdata = feat_in_cells_detected)
+        loess_model_sample,
+        newdata = feat_in_cells_detected
+    )
     feat_in_cells_detected[, cov_diff := get(var_col) - pred_cov_feats,
-                            by = seq_len(nrow(feat_in_cells_detected))]
+        by = seq_len(nrow(feat_in_cells_detected))
+    ]
     data.table::setorder(feat_in_cells_detected, -cov_diff)
     feat_in_cells_detected[, selected := ifelse(
-        cov_diff > difference_in_cov, "yes", "no")]
+        cov_diff > difference_in_cov, "yes", "no"
+    )]
 
     if (any(isTRUE(show_plot), isTRUE(return_plot), isTRUE(save_plot))) {
         pl <- .create_cov_loess_hvf_plot(
-            feat_in_cells_detected, difference_in_cov, var_col)
+            feat_in_cells_detected, difference_in_cov, var_col
+        )
 
         return(list(dt = feat_in_cells_detected, pl = pl))
     } else {
@@ -82,13 +97,14 @@
 
 
 
-.calc_var_hvf <- function(scaled_matrix,
-    var_threshold = 1.5,
-    var_number = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    use_parallel = FALSE) {
+.calc_var_hvf <- function(
+        scaled_matrix,
+        var_threshold = 1.5,
+        var_number = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        use_parallel = FALSE) {
     # NSE vars
     var <- selected <- NULL
 
@@ -167,10 +183,9 @@
 }
 
 
-.calc_expr_cov_stats_parallel <- function(
-        expr_values,
-        expression_threshold,
-        cores = GiottoUtils::determine_cores()) {
+.calc_expr_cov_stats_parallel <- function(expr_values,
+    expression_threshold,
+    cores = GiottoUtils::determine_cores()) {
     # NSE vars
     cov <- sd <- mean_expr <- NULL
 
@@ -269,30 +284,31 @@
 #'
 #' calculateHVF(g)
 #' @export
-calculateHVF <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    method = c("cov_groups", "cov_loess", "var_p_resid"),
-    reverse_log_scale = FALSE,
-    logbase = 2,
-    expression_threshold = 0,
-    nr_expression_groups = 20,
-    zscore_threshold = 1.5,
-    HVFname = "hvf",
-    difference_in_cov = 0.1,
-    var_threshold = 1.5,
-    var_number = NULL,
-    random_subset = NULL,
-    set_seed = TRUE,
-    seed_number = 1234,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "HVFplot",
-    return_gobject = TRUE,
-    verbose = TRUE) {
+calculateHVF <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        method = c("cov_groups", "cov_loess", "var_p_resid"),
+        reverse_log_scale = FALSE,
+        logbase = 2,
+        expression_threshold = 0,
+        nr_expression_groups = 20,
+        zscore_threshold = 1.5,
+        HVFname = "hvf",
+        difference_in_cov = 0.1,
+        var_threshold = 1.5,
+        var_number = NULL,
+        random_subset = NULL,
+        set_seed = TRUE,
+        seed_number = 1234,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "HVFplot",
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # NSE vars
     selected <- feats <- var <- NULL
 
@@ -320,7 +336,8 @@ calculateHVF <- function(gobject,
     # expression values to be used
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
     expr_values <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -339,7 +356,8 @@ calculateHVF <- function(gobject,
         if (isTRUE(set_seed)) set.seed(seed = seed_number)
 
         random_selection <- sort(sample(
-            seq_len(ncol(expr_values)), random_subset))
+            seq_len(ncol(expr_values)), random_subset
+        ))
         expr_values <- expr_values[, random_selection]
 
         if (isTRUE(set_seed)) GiottoUtils::random_seed()
@@ -349,19 +367,24 @@ calculateHVF <- function(gobject,
 
     # print, return and save parameters
     show_plot <- ifelse(is.na(show_plot),
-                        readGiottoInstructions(gobject, param = "show_plot"),
-                        show_plot)
+        readGiottoInstructions(gobject, param = "show_plot"),
+        show_plot
+    )
     save_plot <- ifelse(is.na(save_plot),
-                        readGiottoInstructions(gobject, param = "save_plot"),
-                        save_plot)
+        readGiottoInstructions(gobject, param = "save_plot"),
+        save_plot
+    )
     return_plot <- ifelse(is.na(return_plot),
-                        readGiottoInstructions(gobject, param = "return_plot"),
-                        return_plot)
+        readGiottoInstructions(gobject, param = "return_plot"),
+        return_plot
+    )
 
 
     # method to use
     method <- match.arg(
-        method, choices = c("cov_groups", "cov_loess", "var_p_resid"))
+        method,
+        choices = c("cov_groups", "cov_loess", "var_p_resid")
+    )
     # select function to use based on whether future parallelization is planned
     calc_cov_fun <- ifelse(
         use_parallel,
@@ -418,8 +441,11 @@ calculateHVF <- function(gobject,
     if (isTRUE(save_plot)) {
         do.call(
             GiottoVisuals::all_plots_save_function,
-            c(list(gobject = gobject, plot_object = pl,
-                    default_save_name = default_save_name), save_param))
+            c(list(
+                gobject = gobject, plot_object = pl,
+                default_save_name = default_save_name
+            ), save_param)
+        )
     }
 
     ## return plot
@@ -446,8 +472,10 @@ calculateHVF <- function(gobject,
         column_names_feat_metadata <- colnames(feat_metadata[])
 
         if (HVFname %in% column_names_feat_metadata) {
-            vmsg(.v = verbose, HVFname,
-                 " has already been used, will be overwritten")
+            vmsg(
+                .v = verbose, HVFname,
+                " has already been used, will be overwritten"
+            )
             feat_metadata[][, eval(HVFname) := NULL]
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -494,8 +522,7 @@ calculateHVF <- function(gobject,
 
 
 # plot generation ####
-.create_cov_group_hvf_plot <- function(
-        feat_in_cells_detected, nr_expression_groups) {
+.create_cov_group_hvf_plot <- function(feat_in_cells_detected, nr_expression_groups) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() +
         ggplot2::theme(
@@ -504,7 +531,8 @@ calculateHVF <- function(gobject,
         )
     pl <- pl + ggplot2::geom_point(
         data = feat_in_cells_detected,
-        ggplot2::aes_string(x = "mean_expr", y = "cov", color = "selected"))
+        ggplot2::aes_string(x = "mean_expr", y = "cov", color = "selected")
+    )
     pl <- pl + ggplot2::scale_color_manual(
         values = c(no = "lightgrey", yes = "orange"),
         guide = ggplot2::guide_legend(
@@ -513,7 +541,9 @@ calculateHVF <- function(gobject,
         )
     )
     pl <- pl + ggplot2::facet_wrap(
-        ~expr_groups, ncol = nr_expression_groups, scales = "free_x")
+        ~expr_groups,
+        ncol = nr_expression_groups, scales = "free_x"
+    )
     pl <- pl + ggplot2::theme(
         axis.text.x = ggplot2::element_blank(),
         strip.text = ggplot2::element_text(size = 4)
@@ -523,8 +553,7 @@ calculateHVF <- function(gobject,
 }
 
 
-.create_cov_loess_hvf_plot <- function(
-        feat_in_cells_detected, difference_in_cov, var_col) {
+.create_cov_loess_hvf_plot <- function(feat_in_cells_detected, difference_in_cov, var_col) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() +
         ggplot2::theme(
@@ -533,16 +562,21 @@ calculateHVF <- function(gobject,
         )
     pl <- pl + ggplot2::geom_point(
         data = feat_in_cells_detected,
-        ggplot2::aes_string(x = "log(mean_expr)", y = var_col,
-                            color = "selected"))
+        ggplot2::aes_string(
+            x = "log(mean_expr)", y = var_col,
+            color = "selected"
+        )
+    )
     pl <- pl + ggplot2::geom_line(
         data = feat_in_cells_detected,
         ggplot2::aes_string(x = "log(mean_expr)", y = "pred_cov_feats"),
-        color = "blue")
+        color = "blue"
+    )
     hvg_line <- paste0("pred_cov_feats+", difference_in_cov)
     pl <- pl + ggplot2::geom_line(
         data = feat_in_cells_detected,
-        ggplot2::aes_string(x = "log(mean_expr)", y = hvg_line), linetype = 2)
+        ggplot2::aes_string(x = "log(mean_expr)", y = hvg_line), linetype = 2
+    )
     pl <- pl + ggplot2::labs(x = "log(mean expression)", y = var_col)
     pl <- pl + ggplot2::scale_color_manual(
         values = c(no = "lightgrey", yes = "orange"),
@@ -558,7 +592,8 @@ calculateHVF <- function(gobject,
 .create_calc_var_hvf_plot <- function(dt_res) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::geom_point(
-        data = dt_res, aes_string(x = "rank", y = "var", color = "selected"))
+        data = dt_res, aes_string(x = "rank", y = "var", color = "selected")
+    )
     pl <- pl + ggplot2::scale_x_reverse()
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
         axis.title = ggplot2::element_text(size = 14),

@@ -20,10 +20,10 @@ createGiottoObjectfromArchR(
 
 \item{expression_feat}{Giotto object available features (e.g. atac, rna, ...)}
 
-\item{spatial_locs}{data.table or data.frame with coordinates for cell 
+\item{spatial_locs}{data.table or data.frame with coordinates for cell
 centroids}
 
-\item{sampleNames}{A character vector containing the ArchR project sample 
+\item{sampleNames}{A character vector containing the ArchR project sample
 name}
 
 \item{...}{additional arguments passed to `createGiottoObject`}

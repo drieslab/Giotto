@@ -78,7 +78,9 @@ Giotto object.
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 x <- pDataDT(g)
-g_small <- subsetGiotto(g, cell_ids = sample(x$cell_ID,300))
-doClusterProjection(target_gobject = g, source_gobject = g_small,
-source_cluster_labels = "leiden_clus")
+g_small <- subsetGiotto(g, cell_ids = sample(x$cell_ID, 300))
+doClusterProjection(
+    target_gobject = g, source_gobject = g_small,
+    source_cluster_labels = "leiden_clus"
+)
 }

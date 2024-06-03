@@ -26,7 +26,7 @@ readPolygonFilesVizgenHDF5_old(
 
 \item{polygon_feat_types}{a vector containing the polygon feature types}
 
-\item{custom_polygon_names}{a character vector to provide custom polygon 
+\item{custom_polygon_names}{a character vector to provide custom polygon
 names (optional)}
 
 \item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
@@ -49,11 +49,11 @@ names (optional)}
 data.table
 }
 \description{
-Read and create polygons for all cells, or for only selected 
+Read and create polygons for all cells, or for only selected
 FOVs.
 }
 \details{
-Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission 
+Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission
 issues.
 }
 \seealso{

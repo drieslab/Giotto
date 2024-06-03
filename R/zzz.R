@@ -42,5 +42,4 @@
     # GiottoUtils #
     # ----------- #
     init_option("giotto.verbose", TRUE)
-
 }
