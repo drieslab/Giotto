@@ -95,8 +95,10 @@ plotInteractivePolygons <- function(
                     x +
                         geom_polygon(
                             data = clicklist(),
-                            aes(x, y, color = name, fill = name),
-                            alpha = 0, ...
+                            aes(x, y, color = name),
+                            alpha = 0, 
+                            show.legend = FALSE,
+                            ...
                         ) +
                         coord_fixed(
                             xlim = c(input$xrange[1], input$xrange[2]),
