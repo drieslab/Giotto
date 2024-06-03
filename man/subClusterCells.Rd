@@ -156,6 +156,8 @@ input for PCA}
 
 \item{verbose}{verbose}
 
+\item{feat_type}{feature type}
+
 \item{toplevel}{do not use}
 
 \item{version}{version of Louvain algorithm to use. One of "community" or

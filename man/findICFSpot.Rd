@@ -125,7 +125,7 @@ colnames(ave_celltype_exp) <- colnames(sign_matrix)
 findICFSpot(g,
     spat_unit = "cell",
     feat_type = "rna",
-    ave_celltype_exp = g_expression,
+    ave_celltype_exp = ave_celltype_exp,
     spatial_network_name = "spatial_network"
 )
 }

@@ -30,6 +30,8 @@ crossSectionFeatPlot3D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{show_other_cells}{logical. Default = TRUE}
+
 \item{other_cell_color}{color of cells outside the cross section.
 default = transparent.}
 
