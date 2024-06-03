@@ -133,9 +133,6 @@ setMethod(
 #' @rdname interpolateFeature
 #' @param rastersize numeric. Length of major axis in px of interpolation
 #' raster to create.
-#' @param name name of interpolation `giottoLargeImage` to generate
-#' @param filename character. Output filename. Default is \[`name`\].tif within
-#' the working directory.
 #' @param overwrite logical. Whether raster outputs should be overwritten if
 #' the same `filename` is provided.
 #' @details
