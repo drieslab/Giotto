@@ -2066,6 +2066,7 @@ subClusterCells <- function(gobject,
 #' @describeIn subClusterCells Further subcluster cells using a NN-network and
 #' the Leiden algorithm
 #' @param toplevel do not use
+#' @param feat_type feature type
 #' @export
 doLeidenSubCluster <- function(
         gobject,
