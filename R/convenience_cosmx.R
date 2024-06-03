@@ -1191,15 +1191,17 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 #' these image objects more responsive when accessing them from a server.
 #' \code{\link{showGiottoImageNames}} can be used to see the available images.
 #' @export
-createGiottoCosMxObject <- function(cosmx_dir = NULL,
-                                    data_to_use = c("all", "subcellular", "aggregate"),
-                                    remove_background_polygon = TRUE,
-                                    background_algo = c("range"),
-                                    remove_unvalid_polygons = TRUE,
-                                    FOVs = NULL,
-                                    instructions = NULL,
-                                    cores = determine_cores(),
-                                    verbose = TRUE) {
+createGiottoCosMxObject <- function(
+        cosmx_dir = NULL,
+        data_to_use = c("all", "subcellular", "aggregate"),
+        remove_background_polygon = TRUE,
+        background_algo = c("range"),
+        remove_unvalid_polygons = TRUE,
+        FOVs = NULL,
+        instructions = NULL,
+        cores = determine_cores(),
+        verbose = TRUE
+) {
     # 0. setup
     cosmx_dir <- path.expand(cosmx_dir)
 
@@ -1226,32 +1228,32 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 
     # 2. load and create giotto object
     cosmx_gobject <- switch(data_to_use,
-                            "subcellular" = .createGiottoCosMxObject_subcellular(
-                                dir_items,
-                                FOVs = FOVs,
-                                remove_background_polygon = remove_background_polygon,
-                                background_algo = background_algo,
-                                remove_unvalid_polygons = remove_unvalid_polygons,
-                                cores = cores,
-                                verbose = verbose,
-                                instructions = instructions
-                            ),
-                            "aggregate" = .createGiottoCosMxObject_aggregate(
-                                dir_items,
-                                cores = cores,
-                                verbose = verbose,
-                                instructions = instructions
-                            ),
-                            "all" = .createGiottoCosMxObject_all(
-                                dir_items,
-                                FOVs = FOVs,
-                                remove_background_polygon = remove_background_polygon,
-                                background_algo = background_algo,
-                                remove_unvalid_polygons = remove_unvalid_polygons,
-                                cores = cores,
-                                verbose = verbose,
-                                instructions = instructions
-                            )
+        "subcellular" = .createGiottoCosMxObject_subcellular(
+            dir_items,
+            FOVs = FOVs,
+            remove_background_polygon = remove_background_polygon,
+            background_algo = background_algo,
+            remove_unvalid_polygons = remove_unvalid_polygons,
+            cores = cores,
+            verbose = verbose,
+            instructions = instructions
+        ),
+        "aggregate" = .createGiottoCosMxObject_aggregate(
+            dir_items,
+            cores = cores,
+            verbose = verbose,
+            instructions = instructions
+        ),
+        "all" = .createGiottoCosMxObject_all(
+            dir_items,
+            FOVs = FOVs,
+            remove_background_polygon = remove_background_polygon,
+            background_algo = background_algo,
+            remove_unvalid_polygons = remove_unvalid_polygons,
+            cores = cores,
+            verbose = verbose,
+            instructions = instructions
+        )
     )
 
 
@@ -1263,9 +1265,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 
     }
 
-
-
-    message("done")
+    vmsg(.v = verbose, "done")
     return(cosmx_gobject)
 }
 

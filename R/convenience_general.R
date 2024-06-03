@@ -279,7 +279,7 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 #' @param h5_file optional path to create an on-disk h5 file
 #' @param verbose be verbose
 #'
-#' @return giotto object
+#' @returns giotto object
 #' @details
 #' If starting from a Visium 10X directory:
 #' \itemize{
