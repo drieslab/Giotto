@@ -12,6 +12,7 @@ findICFSpot(
   ave_celltype_exp,
   selected_features = NULL,
   spatial_network_name = "Delaunay_network",
+  deconv_name = "DWLS",
   minimum_unique_cells = 5,
   minimum_unique_int_cells = 5,
   CCI_cell_score = 0.1,
@@ -41,6 +42,8 @@ findICFSpot(
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{deconv_name}{name of deconvolution/spatial enrichment values to use}
+
 \item{minimum_unique_cells}{minimum number of target cells required}
 
 \item{minimum_unique_int_cells}{minimum number of interacting cells required}
@@ -66,12 +69,13 @@ findICFSpot(
 \item{verbose}{be verbose}
 }
 \value{
-icfObject that contains the differential feat scores
+\code{icfObject} that contains the differential feat scores
 }
 \description{
 Identifies cell-to-cell Interaction Changed Features (ICF) for
 spots, i.e. features expression residual that are different due to proximity
-to other cell types.
+to other cell types. Works using results from celltype deconvolution methods
+such as those from \code{\link[=runDWLSDeconv]{runDWLSDeconv()}}.
 }
 \details{
 Function to calculate if features expression residual are
@@ -80,26 +84,26 @@ differentially expressed in cell types when they interact
 Feature expression residual calculated as:
 (observed expression in spot - cell_type_proportion *
 average_expressed_in_cell_type)
-The results data.table in the icfObject contains - at least -
+The results data.table in the \code{icfObject} contains - at least -
 the following columns:
 \itemize{
- * features: All or selected list of tested features
- * sel: average feature expression residual in the interacting cells from
- the target cell type
- * other: average feature expression residual in the NOT-interacting cells
- from the target cell type
- * pcc_sel: correlation between cell proximity score and expression residual
- in the interacting cells from the target cell type
- * pcc_other: correlation between cell proximity score and expression
- residual in the NOT-interacting cells from the target cell type
- * pcc_diff: correlation difference between sel and other
- * p.value: associated p-value
- * p.adj: adjusted p-value
- * cell_type: target cell type
- * int_cell_type: interacting cell type
- * nr_select: number of cells for selected target cell type
- * int_nr_select: number of cells for interacting cell type
- * unif_int: cell-cell interaction
+\item \strong{features:} All or selected list of tested features
+\item \strong{sel:} average feature expression residual in the interacting cells
+from the target cell type
+\item \strong{other:} average feature expression residual in the NOT-interacting
+cells from the target cell type
+\item \strong{pcc_sel:} correlation between cell proximity score and expression
+residual in the interacting cells from the target cell type
+\item \strong{pcc_other:} correlation between cell proximity score and expression
+residual in the NOT-interacting cells from the target cell type
+\item \strong{pcc_diff:} correlation difference between sel and other
+\item \strong{p.value:} associated p-value
+\item \strong{p.adj:} adjusted p-value
+\item \strong{cell_type:} target cell type
+\item \strong{int_cell_type:} interacting cell type
+\item \strong{nr_select:} number of cells for selected target cell type
+\item \strong{int_nr_select:} number of cells for interacting cell type
+\item \strong{unif_int:} cell-cell interaction
 }
 }
 \examples{
@@ -128,4 +132,7 @@ findICFSpot(g,
     ave_celltype_exp = ave_celltype_exp,
     spatial_network_name = "spatial_network"
 )
+}
+\seealso{
+\code{\link[=findInteractionChangedFeats]{findInteractionChangedFeats()}}
 }

@@ -37,37 +37,29 @@
 #'     output_folder = tempdir()
 #' )
 #' @export
-doHMRF <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        spatial_network_name = "Delaunay_network",
-        spat_loc_name = "raw",
-        spatial_genes = NULL,
-        spatial_dimensions = c("sdimx", "sdimy", "sdimz"),
-        dim_reduction_to_use = NULL,
-        dim_reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        seed = 100,
-        name = "test",
-        k = 10,
-        betas = c(0, 2, 50),
-        tolerance = 1e-10,
-        zscore = c("none", "rowcol", "colrow"),
-        numinit = 100,
-        python_path = NULL,
-        output_folder = NULL,
-        overwrite_output = TRUE) {
-    if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
-        stop("package ", "smfishHmrf", " is not yet installed \n",
-            "To install: \n",
-            "remotes::install_bitbucket(repo = 'qzhudfci/smfishhmrf-r', ref='master')",
-            "see http://spatial.rc.fas.harvard.edu/install.html for more information",
-            call. = FALSE
-        )
-    }
-
+doHMRF <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    spatial_network_name = "Delaunay_network",
+    spat_loc_name = "raw",
+    spatial_genes = NULL,
+    spatial_dimensions = c("sdimx", "sdimy", "sdimz"),
+    dim_reduction_to_use = NULL,
+    dim_reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    seed = 100,
+    name = "test",
+    k = 10,
+    betas = c(0, 2, 50),
+    tolerance = 1e-10,
+    zscore = c("none", "rowcol", "colrow"),
+    numinit = 100,
+    python_path = NULL,
+    output_folder = NULL,
+    overwrite_output = TRUE) {
+    
+    package_check("smfishhmrf", repository = "pip")
 
     # data.table set global variable
     to <- from <- NULL

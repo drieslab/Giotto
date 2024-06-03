@@ -1139,7 +1139,8 @@ NULL
 #' @name findICFSpot
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF) for
 #' spots, i.e. features expression residual that are different due to proximity
-#' to other cell types.
+#' to other cell types. Works using results from celltype deconvolution methods
+#' such as those from [runDWLSDeconv()].
 #'
 #' @param gobject A giotto object
 #' @param spat_unit spatial unit (e.g. 'cell')
@@ -1148,6 +1149,7 @@ NULL
 #' @param ave_celltype_exp average feature expression in each cell type
 #' @param selected_features subset of selected features (optional)
 #' @param spatial_network_name name of spatial network to use
+#' @param deconv_name name of deconvolution/spatial enrichment values to use
 #' @param minimum_unique_cells minimum number of target cells required
 #' @param minimum_unique_int_cells minimum number of interacting cells required
 #' @param CCI_cell_score cell proximity score to filter no interacted cell
@@ -1161,34 +1163,33 @@ NULL
 #' @param seed_number seed number
 #' @param verbose be verbose
 #'
-#' @returns icfObject that contains the differential feat scores
+#' @returns `icfObject` that contains the differential feat scores
 #' @details Function to calculate if features expression residual are
 #' differentially expressed in cell types when they interact
 #' (approximated by physical proximity) with other cell types.
 #' Feature expression residual calculated as:
 #' (observed expression in spot - cell_type_proportion *
 #' average_expressed_in_cell_type)
-#' The results data.table in the icfObject contains - at least -
+#' The results data.table in the `icfObject` contains - at least -
 #' the following columns:
-#' \itemize{
-#'  * features: All or selected list of tested features
-#'  * sel: average feature expression residual in the interacting cells from
-#'  the target cell type
-#'  * other: average feature expression residual in the NOT-interacting cells
+#'  * **features:** All or selected list of tested features
+#'  * **sel:** average feature expression residual in the interacting cells
 #'  from the target cell type
-#'  * pcc_sel: correlation between cell proximity score and expression residual
-#'  in the interacting cells from the target cell type
-#'  * pcc_other: correlation between cell proximity score and expression
+#'  * **other:** average feature expression residual in the NOT-interacting
+#'  cells from the target cell type
+#'  * **pcc_sel:** correlation between cell proximity score and expression
+#'  residual in the interacting cells from the target cell type
+#'  * **pcc_other:** correlation between cell proximity score and expression
 #'  residual in the NOT-interacting cells from the target cell type
-#'  * pcc_diff: correlation difference between sel and other
-#'  * p.value: associated p-value
-#'  * p.adj: adjusted p-value
-#'  * cell_type: target cell type
-#'  * int_cell_type: interacting cell type
-#'  * nr_select: number of cells for selected target cell type
-#'  * int_nr_select: number of cells for interacting cell type
-#'  * unif_int: cell-cell interaction
-#' }
+#'  * **pcc_diff:** correlation difference between sel and other
+#'  * **p.value:** associated p-value
+#'  * **p.adj:** adjusted p-value
+#'  * **cell_type:** target cell type
+#'  * **int_cell_type:** interacting cell type
+#'  * **nr_select:** number of cells for selected target cell type
+#'  * **int_nr_select:** number of cells for interacting cell type
+#'  * **unif_int:** cell-cell interaction
+#'
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #' x <- findMarkers_one_vs_all(g,
@@ -1215,27 +1216,29 @@ NULL
 #'     ave_celltype_exp = ave_celltype_exp,
 #'     spatial_network_name = "spatial_network"
 #' )
+#' @seealso [findInteractionChangedFeats()]
+#' @md
 #' @export
-findICFSpot <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        ave_celltype_exp,
-        selected_features = NULL,
-        spatial_network_name = "Delaunay_network",
-        minimum_unique_cells = 5,
-        minimum_unique_int_cells = 5,
-        CCI_cell_score = 0.1,
-        dwls_cutoff = 0.001,
-        diff_test = "permutation",
-        nr_permutations = 100,
-        adjust_method = "fdr",
-        do_parallel = TRUE,
-        cores = NA,
-        set_seed = TRUE,
-        seed_number = 1234,
-        verbose = FALSE) {
+findICFSpot <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    ave_celltype_exp,
+    selected_features = NULL,
+    spatial_network_name = "Delaunay_network",
+    deconv_name = "DWLS",
+    minimum_unique_cells = 5,
+    minimum_unique_int_cells = 5,
+    CCI_cell_score = 0.1,
+    dwls_cutoff = 0.001,
+    diff_test = "permutation",
+    nr_permutations = 100,
+    adjust_method = "fdr",
+    do_parallel = TRUE,
+    cores = NA,
+    set_seed = TRUE,
+    seed_number = 1234,
+    verbose = FALSE) {
     # data.table variables
     unified_int <- NULL
 
@@ -1283,7 +1286,7 @@ findICFSpot <- function(
         gobject = gobject,
         spat_unit = spat_unit,
         feat_type = feat_type,
-        name = "DWLS",
+        name = deconv_name,
         output = "data.table"
     )
     data.table::setDF(dwls_values)
@@ -1357,22 +1360,24 @@ findICFSpot <- function(
         diff_test == "permutation", nr_permutations, "no permutations"
     )
 
-    icfObject <- list(
-        ICFscores = final_result,
-        Giotto_info = list(
-            "values" = values,
-            "cluster" = "cell_ID",
-            "spatial network" = spatial_network_name
+    icfObject <- structure(
+        .Data = list(
+            ICFscores = final_result,
+            Giotto_info = list(
+                "values" = values,
+                "cluster" = "cell_ID",
+                "spatial network" = spatial_network_name
+            ),
+            test_info = list(
+                "test" = diff_test,
+                "p.adj" = adjust_method,
+                "min cells" = minimum_unique_cells,
+                "min interacting cells" = minimum_unique_int_cells,
+                "perm" = permutation_test
+            )
         ),
-        test_info = list(
-            "test" = diff_test,
-            "p.adj" = adjust_method,
-            "min cells" = minimum_unique_cells,
-            "min interacting cells" = minimum_unique_int_cells,
-            "perm" = permutation_test
-        )
+        class = "icfObject"
     )
-    class(icfObject) <- append(class(icfObject), "icfObject")
     return(icfObject)
 }
 

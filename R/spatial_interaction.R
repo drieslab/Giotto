@@ -1055,7 +1055,10 @@ NULL
 #' @aliases findICF
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. features that are differentially expressed due to proximity to other
-#' cell types.
+#' cell types. This function is appropriate for single-cell level data. For
+#' data from spot-based spatial assays or spatially binned data, see
+#' [findICFSpot()], which runs on top of DWLS results or similar spot-level
+#' cell-type enrichment outputs
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
@@ -1097,7 +1100,7 @@ NULL
 #'   * **int_nr_other:** number of other cells for interacting cell type
 #'   * **unif_int:** cell-cell interaction
 #'
-#' @seealso [filterInteractionChangedFeats()]
+#' @seealso [filterInteractionChangedFeats()] [findICFSpot()]
 #' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
