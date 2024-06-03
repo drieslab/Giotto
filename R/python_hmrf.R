@@ -58,8 +58,8 @@ doHMRF <- function(gobject,
     python_path = NULL,
     output_folder = NULL,
     overwrite_output = TRUE) {
-    
-    package_check("smfishhmrf", repository = "pip")
+
+    package_check("smfishHmrf", repository = "pip")
 
     # data.table set global variable
     to <- from <- NULL
