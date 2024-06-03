@@ -945,6 +945,7 @@ crossSectionPlot <- function(
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
+#' @param show_other_cells logical. Default = TRUE
 #' @param other_cell_color color of cells outside the cross section.
 #' default = transparent.
 #' @param default_save_name default save name for saving, don't change, change
