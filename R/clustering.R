@@ -731,8 +731,8 @@ doGiottoClustree <- function(gobject,
 
     # create mlnetworkobject
     mln_object <- multinet::ml_empty()
-    multinet::add_vertices_ml(
-        n = mln_object, vertices = igraph::V(igraph_object))
+    # multinet::add_vertices_ml(
+    #     n = mln_object, vertices = igraph::V(igraph_object))
     multinet::add_igraph_layer_ml(
         n = mln_object, g = igraph_object, name = name)
 
@@ -957,7 +957,8 @@ doLouvainCluster <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' doRandomWalkCluster(g)
+#' g <- doRandomWalkCluster(g)
+#' pDataDT(g)
 #' @export
 doRandomWalkCluster <- function(gobject,
     name = "random_walk_clus",
@@ -976,7 +977,8 @@ doRandomWalkCluster <- function(gobject,
     igraph_object <- getNearestNetwork(
         gobject,
         nn_type = nn_network_to_use,
-        name = network_name
+        name = network_name,
+        output = "igraph"
     )
 
 
@@ -1000,17 +1002,8 @@ doRandomWalkCluster <- function(gobject,
         set.seed(Sys.time())
     }
 
-
     ## return
     if (return_gobject == TRUE) {
-        cluster_names <- names(gobject@cell_metadata)
-        if (name %in% cluster_names) {
-            cat(name, " has already been used, will be overwritten")
-            cell_metadata <- gobject@cell_metadata
-            cell_metadata[, eval(name) := NULL]
-            gobject@cell_metadata <- cell_metadata
-        }
-
         gobject <- addCellMetadata(
             gobject = gobject,
             new_metadata = ident_clusters_DT[, c("cell_ID", name),
@@ -1816,73 +1809,210 @@ clusterCells <- function(gobject,
 
 
 
+# subclustering ####
 
 
-#' @title doLeidenSubCluster
-#' @name doLeidenSubCluster
-#' @description Further subcluster cells using a NN-network and the Leiden
-#' algorithm
-#' @param gobject giotto object
-#' @param feat_type feature type
+#' @title Cell subclustering
+#' @name subClusterCells
+#' @description Perform cell subclustering by taking an annotated group of
+#' cells and performing another round of clustering on just that subset.
+#' Several methods are implemented. `subClusterCells()` is the main wrapper
+#' function. `doLeidenSubCluster()` and `doLouvainSubCluster()` are more
+#' specific implementations.
+#' @param gobject `giotto` object
 #' @param name name for new clustering result
+#' @param cluster_method clustering method to use. Currently one of "leiden"
+#' (default), "louvain_community", "louvain_multinet"
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvf_param parameters for calculateHVf
-#' @param hvg_param deprecatd, use hvf_param
+#' @param hvf_param list of parameters for [calculateHVF()]
+#' @param hvg_param deprecated
 #' @param hvf_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_min_perc_cells deprecated, use hvf_min_perc_cells
+#' @param hvg_min_perc_cells deprecated
 #' @param hvf_mean_expr_det threshold for mean expression level in cells with
 #' detection
-#' @param hvg_mean_expr_det deprecated, use hvf_mean_expr_det
+#' @param hvg_mean_expr_det deprecated
 #' @param use_all_feats_as_hvf forces all features to be HVF and to be used as
 #' input for PCA
-#' @param use_all_genes_as_hvg deprecated, use use_all_feats_as_hvf
+#' @param use_all_genes_as_hvg deprecated
 #' @param min_nr_of_hvf minimum number of HVF, or all features will be used as
 #' input for PCA
-#' @param min_nr_of_hvg deprecated, use min_nr_of_hvf
-#' @param pca_param parameters for runPCA
-#' @param nn_param parameters for parameters for createNearestNetwork
-#' @param k_neighbors number of k for createNearestNetwork
-#' @param resolution resolution of Leiden clustering
-#' @param n_iterations number of interations to run the Leiden algorithm.
+#' @param min_nr_of_hvg deprecated
+#' @param pca_param list of parameters for [runPCA()]
+#' @param nn_param list of parameters for [createNearestNetwork()]
+#' @param k_neighbors number of k for [createNearestNetwork()]
+#' @param resolution resolution for community algorithm
+#' @param n_iterations number of iterations to run the Leiden algorithm.
+#' @param gamma gamma
+#' @param omega omega
 #' @param python_path specify specific path to python if required
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use
-#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param return_gobject logical. return `giotto` object (default = TRUE)
 #' @param verbose verbose
-#' @returns giotto object with new subclusters appended to cell metadata
-#' @details This function performs subclustering using the Leiden algorithm on
-#' selected clusters.
+#' @returns `giotto` object with new subclusters appended to cell metadata
+#' @details This function performs subclustering on selected clusters.
 #' The systematic steps are:
-#' \itemize{
-#'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable fetures}
-#'   \item{3. run PCA}
-#'   \item{4. create nearest neighbouring network}
-#'   \item{5. do Leiden clustering}
-#' }
-#' @seealso \code{\link{doLeidenCluster}}
+#'   1. subset Giotto object
+#'   2. identify highly variable genes
+#'   3. run PCA
+#'   4. create nearest neighbouring network
+#'   5. do clustering
+#'
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
+#' # Run some subclusterings based on "leiden_clus" annotations that already
+#' # exist in the visium mini object
+#'
+#' # default method is leiden subclustering
+#' subClusterCells(g, cluster_column = "leiden_clus")
+#'
+#' # use louvain instead
+#' subClusterCells(g, cluster_column = "leiden_clus",
+#'                 cluster_method = "louvain_community")
+#'
+#' # directly call the more specific functions
 #' doLeidenSubCluster(g, cluster_column = "leiden_clus")
+#'
+#' doLouvainSubCluster(g, cluster_column = "leiden_clus")
+#' @md
+NULL
+
+
+
+
+#' @rdname subClusterCells
+#' @export
+subClusterCells <- function(
+        gobject,
+        name = "sub_clus",
+        cluster_method = c(
+            "leiden",
+            "louvain_community",
+            "louvain_multinet"
+        ),
+        cluster_column = NULL,
+        selected_clusters = NULL,
+        hvg_param = deprecated(),
+        hvf_param = list(
+            reverse_log_scale = TRUE, difference_in_cov = 1,
+            expression_values = "normalized"
+        ),
+        hvg_min_perc_cells = deprecated(),
+        hvf_min_perc_cells = 5,
+        hvg_mean_expr_det = deprecated(),
+        hvf_mean_expr_det = 1,
+        use_all_genes_as_hvg = deprecated(),
+        use_all_feats_as_hvf = FALSE,
+        min_nr_of_hvg = deprecated(),
+        min_nr_of_hvf = 5,
+        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+        nn_param = list(dimensions_to_use = 1:20),
+        k_neighbors = 10,
+        resolution = 1,
+        n_iterations = 1000,
+        gamma = 1,
+        omega = 1,
+        python_path = NULL,
+        nn_network_to_use = "sNN",
+        network_name = "sNN.pca",
+        return_gobject = TRUE,
+        verbose = TRUE
+) {
+    ## select cluster method
+    cluster_method <- match.arg(arg = cluster_method, choices = c(
+        "leiden",
+        "louvain_community",
+        "louvain_multinet"
+    ))
+
+    # deprecations
+    .dep_param <- function(...) {
+        GiottoUtils::deprecate_param(
+            ..., fun = "subClusterCells", when = "4.0.9"
+        )
+    }
+
+    hvf_param <- .dep_param(hvg_param, hvf_param)
+    hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
+    hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
+
+    # gather common args
+    common_args <- get_args_list(keep = c(
+        "gobject",
+        "cluster_column",
+        "selected_clusters",
+        "hvf_param",
+        "hvf_min_perc_cells",
+        "hvf_mean_expr_det",
+        "use_all_feats_as_hvf",
+        "min_nr_of_hvf",
+        "pca_param",
+        "nn_param",
+        "k_neighbors",
+        "nn_network_to_use",
+        "network_name",
+        "name",
+        "return_gobject",
+        "verbose"
+    ))
+
+    result <- switch(cluster_method,
+         "leiden" = {
+             do.call(doLeidenSubCluster, args = c(
+                 common_args,
+                 list(resolution = resolution,
+                      n_iterations = n_iterations,
+                      python_path = python_path,
+                      toplevel = 4)
+             ))
+         },
+         "louvain_community" = {
+             do.call(.doLouvainSubCluster_community, args = c(
+                 common_args,
+                 list(resolution = resolution,
+                      python_path = python_path)
+             ))
+         },
+         "louvain_multinet" = {
+             do.call(.doLouvainSubCluster_multinet, args = c(
+                 common_args,
+                 list(gamma = gamma,
+                      omega = omega)
+             ))
+         }
+    )
+
+    return(result)
+}
+
+
+
+
+
+#' @describeIn subClusterCells Further subcluster cells using a NN-network and
+#' the Leiden algorithm
+#' @param toplevel do not use
 #' @export
 doLeidenSubCluster <- function(gobject,
     feat_type = NULL,
-    name = "sub_pleiden_clus",
+    name = "sub_leiden_clus",
     cluster_column = NULL,
     selected_clusters = NULL,
     hvf_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
                     expression_values = "normalized"),
-    hvg_param = NULL,
+    hvg_param = deprecated(),
     hvf_min_perc_cells = 5,
-    hvg_min_perc_cells = NULL,
+    hvg_min_perc_cells = deprecated(),
     hvf_mean_expr_det = 1,
-    hvg_mean_expr_det = NULL,
+    hvg_mean_expr_det = deprecated(),
     use_all_feats_as_hvf = FALSE,
-    use_all_genes_as_hvg = NULL,
+    use_all_genes_as_hvg = deprecated(),
     min_nr_of_hvf = 5,
-    min_nr_of_hvg = NULL,
+    min_nr_of_hvg = deprecated(),
     pca_param = list(expression_values = "normalized", scale_unit = TRUE),
     nn_param = list(dimensions_to_use = 1:20),
     k_neighbors = 10,
@@ -1892,37 +2022,25 @@ doLeidenSubCluster <- function(gobject,
     nn_network_to_use = "sNN",
     network_name = "sNN.pca",
     return_gobject = TRUE,
+    toplevel = 2,
     verbose = TRUE) {
     # specify feat_type
     if (is.null(feat_type)) {
         feat_type <- gobject@expression_feat[[1]]
     }
 
-    ## deprecated arguments
-    if (!is.null(hvg_param)) {
-        hvf_param <- hvg_param
-        warning("hvg_param is deprecated, use hvf_param in the future")
-    }
-    if (!is.null(hvg_min_perc_cells)) {
-        hvf_min_perc_cells <- hvg_min_perc_cells
-        warning("hvg_min_perc_cells is deprecated, use hvf_min_perc_cells in
-                the future")
-    }
-    if (!is.null(hvg_mean_expr_det)) {
-        hvf_mean_expr_det <- hvg_mean_expr_det
-        warning("hvg_mean_expr_det is deprecated, use hvf_mean_expr_det in the
-                future")
-    }
-    if (!is.null(use_all_genes_as_hvg)) {
-        use_all_feats_as_hvf <- use_all_genes_as_hvg
-        warning("use_all_genes_as_hvg is deprecated, use use_all_feats_as_hvf
-                in the future")
-    }
-    if (!is.null(min_nr_of_hvg)) {
-        min_nr_of_hvf <- min_nr_of_hvg
-        warning("min_nr_of_hvg is deprecated, use min_nr_of_hvf in the future")
+    # deprecated arguments
+    .dep_param <- function(x, y) {
+        GiottoUtils::deprecate_param(
+            x, y, fun = "doLeidenSubCluster", when = "4.0.9"
+        )
     }
 
+    hvf_param <- .dep_param(hvg_param, hvf_param)
+    hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
+    hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
 
     iter_list <- list()
@@ -1943,7 +2061,7 @@ doLeidenSubCluster <- function(gobject,
 
 
     for (cluster in unique_clusters) {
-        if (verbose == TRUE) cat("start with cluster: ", cluster)
+        vmsg(.v = verbose, "start with cluster: ", cluster, "\n")
 
         ## get subset
         subset_cell_IDs <- cell_metadata[
@@ -1968,10 +2086,12 @@ doLeidenSubCluster <- function(gobject,
             ## calculate stats
             temp_giotto <- addStatistics(
                 gobject = temp_giotto,
-                feat_type = feat_type
+                feat_type = feat_type,
+                verbose = FALSE
             )
 
             ## calculate variable feats
+            hvf_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "calculateHVF", c(gobject = temp_giotto, hvf_param))
 
@@ -1979,31 +2099,33 @@ doLeidenSubCluster <- function(gobject,
             feat_metadata <- fDataDT(temp_giotto,
                 feat_type = feat_type
             )
-            featfeats <- feat_metadata[
+            usefeats <- feat_metadata[
                 hvf == "yes" & perc_cells >= hvf_min_perc_cells &
                     mean_expr_det >= hvf_mean_expr_det]$feat_ID
 
             ## catch too low number of hvg
             if (use_all_feats_as_hvf == TRUE) {
-                featfeats == feat_metadata$feat_ID
+                usefeats == feat_metadata$feat_ID
             } else {
                 if (verbose == TRUE)
-                    cat(length(featfeats),
-                        "highly variable feats have been selected")
-                if (length(featfeats) <= min_nr_of_hvf) {
+                    cat(length(usefeats),
+                        "highly variable feats have been selected\n")
+                if (length(usefeats) <= min_nr_of_hvf) {
                     message("too few feats, will continue with all feats
                             instead")
-                    featfeats <- feat_metadata$feat_ID
+                    usefeats <- feat_metadata$feat_ID
                 }
             }
 
             ## run PCA
+            pca_param$verbose = FALSE
             temp_giotto <- do.call(
                 "runPCA",
-                c(gobject = temp_giotto, feats_to_use = list(featfeats),
+                c(gobject = temp_giotto, feats_to_use = list(usefeats),
                 pca_param))
 
             ## nearest neighbor and clustering
+            nn_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "createNearestNetwork",
                 c(gobject = temp_giotto, k = k_neighbors, nn_param))
@@ -2049,7 +2171,9 @@ doLeidenSubCluster <- function(gobject,
         )
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_sub_cluster")
+        gobject <- update_giotto_params(
+            gobject, description = "_sub_cluster", toplevel = toplevel
+        )
         return(gobject)
     } else {
         return(together)
@@ -2057,54 +2181,21 @@ doLeidenSubCluster <- function(gobject,
 }
 
 
-#' @title doLouvainSubCluster community
-#' @name .doLouvainSubCluster_community
-#' @description subcluster cells using a NN-network and the Louvain community
-#' detection algorithm
-#' @param gobject giotto object
-#' @param name name for new clustering result
-#' @param cluster_column cluster column to subcluster
-#' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
-#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_mean_expr_det threshold for mean expression level in cells with
-#' detection
-#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as
-#' input for PCA
-#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as
-#' input for PCA
-#' @param pca_param parameters for runPCA
-#' @param nn_param parameters for parameters for createNearestNetwork
-#' @param k_neighbors number of k for createNearestNetwork
-#' @param resolution resolution
-#' @param python_path specify specific path to python if required
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param return_gobject Boolean: return giotto object (default = TRUE)
-#' @param verbose verbose
-#' @returns giotto object with new subclusters appended to cell metadata
-#' @details This function performs subclustering using the Louvain community
-#' algorithm on selected clusters.
-#' The systematic steps are:
-#' \itemize{
-#'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable genes}
-#'   \item{3. run PCA}
-#'   \item{4. create nearest neighbouring network}
-#'   \item{5. do Louvain community clustering}
-#' }
-#' @seealso \code{\link{.doLouvainCluster_community}}
-#' @keywords internal
+# subcluster cells using a NN-network and the Louvain community
+# detection algorithm
 .doLouvainSubCluster_community <- function(gobject,
     name = "sub_louvain_comm_clus",
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
-                    expression_values = "normalized"),
-    hvg_min_perc_cells = 5,
-    hvg_mean_expr_det = 1,
-    use_all_genes_as_hvg = FALSE,
-    min_nr_of_hvg = 5,
+    hvf_param = list(
+        reverse_log_scale = TRUE,
+        difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvf_min_perc_cells = 5,
+    hvf_mean_expr_det = 1,
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvf = 5,
     pca_param = list(expression_values = "normalized", scale_unit = TRUE),
     nn_param = list(dimensions_to_use = 1:20),
     k_neighbors = 10,
@@ -2127,7 +2218,7 @@ doLeidenSubCluster <- function(gobject,
     index_offset <- ifelse(0 %in% unique_clusters, 1, 0)
 
     for (cluster in unique_clusters) {
-        if (verbose == TRUE) cat("start with cluster: ", cluster)
+        if (verbose == TRUE) cat("start with cluster: ", cluster, "\n")
 
         ## get subset
         subset_cell_IDs <- cell_metadata[
@@ -2147,48 +2238,53 @@ doLeidenSubCluster <- function(gobject,
             # selection
 
             ## calculate stats
-            temp_giotto <- addStatistics(gobject = temp_giotto)
+            temp_giotto <- addStatistics(
+                gobject = temp_giotto, verbose = FALSE
+            )
 
             ## calculate variable genes
+            hvf_param$verbose <- FALSE
             temp_giotto <- do.call(
-                "calculateHVG", c(gobject = temp_giotto, hvg_param))
+                "calculateHVF", c(gobject = temp_giotto, hvf_param))
 
-            ## get hvg
-            gene_metadata <- fDataDT(temp_giotto)
+            ## get hvf
+            feat_metadata <- fDataDT(temp_giotto)
 
-            # data.table variables
-            hvg <- perc_cells <- mean_expr_det <- NULL
+            # NSE variables
+            hvf <- perc_cells <- mean_expr_det <- NULL
 
-            featgenes <- gene_metadata[
-                hvg == "yes" & perc_cells >= hvg_min_perc_cells &
-                    mean_expr_det >= hvg_mean_expr_det]$gene_ID
+            usefeats <- feat_metadata[
+                hvf == "yes" &
+                    perc_cells >= hvf_min_perc_cells &
+                    mean_expr_det >= hvf_mean_expr_det]$feat_ID
 
-            ## catch too low number of hvg
-            if (use_all_genes_as_hvg == TRUE) {
-                featgenes == gene_metadata$gene_ID
+            ## catch too low number of hvf
+            if (isTRUE(use_all_feats_as_hvf)) {
+                usefeats == feat_metadata$feat_ID
             } else {
-                if (verbose == TRUE)
-                    cat(length(featgenes),
-                        "highly variable genes have been selected")
-                if (length(featgenes) <= min_nr_of_hvg) {
-                    message("too few genes, will continue with all genes
-                            instead")
-                    featgenes <- gene_metadata$gene_ID
+                if (isTRUE(verbose))
+                    cat(length(usefeats),
+                        "highly variable features have been selected\n")
+                if (length(usefeats) <= min_nr_of_hvf) {
+                    wrap_msg("too few features
+                            will continue with all features instead")
+                    usefeats <- feat_metadata$feat_ID
                 }
             }
 
             ## run PCA
+            pca_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "runPCA",
-                c(gobject = temp_giotto, genes_to_use = list(featgenes),
+                c(gobject = temp_giotto, feats_to_use = list(usefeats),
                 pca_param))
 
             ## nearest neighbor and clustering
+            nn_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "createNearestNetwork",
                 c(gobject = temp_giotto, k = k_neighbors, nn_param))
 
-            ## Leiden Cluster
             ## TO DO: expand to all clustering options
             temp_cluster <- .doLouvainCluster_community(
                 gobject = temp_giotto,
@@ -2256,54 +2352,20 @@ doLeidenSubCluster <- function(gobject,
 
 
 
-#' @title doLouvainSubCluster multinet
-#' @name .doLouvainSubCluster_multinet
-#' @description subcluster cells using a NN-network and the Louvain multinet
-#' detection algorithm
-#' @param gobject giotto object
-#' @param name name for new clustering result
-#' @param cluster_column cluster column to subcluster
-#' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
-#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_mean_expr_det threshold for mean expression level in cells with
-#' detection
-#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as
-#' input for PCA
-#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as
-#' input for PCA
-#' @param pca_param parameters for runPCA
-#' @param nn_param parameters for parameters for createNearestNetwork
-#' @param k_neighbors number of k for createNearestNetwork
-#' @param gamma gamma
-#' @param omega omega
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param verbose verbose
-#' @returns giotto object with new subclusters appended to cell metadata
-#' @details This function performs subclustering using the Louvain multinet
-#' algorithm on selected clusters.
-#' The systematic steps are:
-#' \itemize{
-#'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable genes}
-#'   \item{3. run PCA}
-#'   \item{4. create nearest neighbouring network}
-#'   \item{5. do Louvain multinet clustering}
-#' }
-#' @seealso \code{\link{.doLouvainCluster_multinet}}
-#' @keywords internal
+# subcluster cells using a NN-network and the Louvain multinet
+# detection algorithm
 .doLouvainSubCluster_multinet <- function(gobject,
     name = "sub_louvain_mult_clus",
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
-                    expression_values = "normalized"),
-    hvg_min_perc_cells = 5,
-    hvg_mean_expr_det = 1,
-    use_all_genes_as_hvg = FALSE,
-    min_nr_of_hvg = 5,
+    hvf_param = list(
+        reverse_log_scale = TRUE, difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvf_min_perc_cells = 5,
+    hvf_mean_expr_det = 1,
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvf = 5,
     pca_param = list(expression_values = "normalized", scale_unit = TRUE),
     nn_param = list(dimensions_to_use = 1:20),
     k_neighbors = 10,
@@ -2335,12 +2397,12 @@ doLeidenSubCluster <- function(gobject,
 
 
     # data.table variables
-    hvg <- perc_cells <- mean_expr_det <- parent_cluster <- cell_ID <-
+    hvf <- perc_cells <- mean_expr_det <- parent_cluster <- cell_ID <-
         comb <- tempclus <- NULL
 
 
     for (cluster in unique_clusters) {
-        if (verbose == TRUE) cat("start with cluster: ", cluster)
+        if (verbose == TRUE) cat("start with cluster: ", cluster, "\n")
 
         ## get subset
         subset_cell_IDs <- cell_metadata[
@@ -2360,44 +2422,48 @@ doLeidenSubCluster <- function(gobject,
             # selection
 
             ## calculate stats
-            temp_giotto <- addStatistics(gobject = temp_giotto)
+            temp_giotto <- addStatistics(
+                gobject = temp_giotto, verbose = FALSE
+            )
 
             ## calculate variable genes
+            hvf_param$verbose <- FALSE
             temp_giotto <- do.call(
-                "calculateHVG", c(gobject = temp_giotto, hvg_param))
+                "calculateHVF", c(gobject = temp_giotto, hvf_param))
 
-            ## get hvg
-            gene_metadata <- fDataDT(temp_giotto)
-            featgenes <- gene_metadata[
-                hvg == "yes" & perc_cells >= hvg_min_perc_cells &
-                    mean_expr_det >= hvg_mean_expr_det]$gene_ID
+            ## get hvf
+            feat_metadata <- fDataDT(temp_giotto)
+            usefeats <- feat_metadata[
+                hvf == "yes" & perc_cells >= hvf_min_perc_cells &
+                    mean_expr_det >= hvf_mean_expr_det]$feat_ID
 
-            ## catch too low number of hvg
-            if (use_all_genes_as_hvg == TRUE) {
-                featgenes == gene_metadata$gene_ID
+            ## catch too low number of hvf
+            if (use_all_feats_as_hvf == TRUE) {
+                usefeats == feat_metadata$feat_ID
             } else {
                 if (verbose == TRUE)
-                    cat(length(featgenes),
-                        "highly variable genes have been selecteds")
-                if (length(featgenes) <= min_nr_of_hvg) {
-                    message("too few genes, will continue with all genes
+                    cat(length(usefeats),
+                        "highly variable features have been selected\n")
+                if (length(usefeats) <= min_nr_of_hvf) {
+                    message("too few features, will continue with all features
                             instead")
-                    featgenes <- gene_metadata$gene_ID
+                    usefeats <- feat_metadata$feat_ID
                 }
             }
 
             ## run PCA
+            pca_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "runPCA",
-                c(gobject = temp_giotto, genes_to_use = list(featgenes),
+                c(gobject = temp_giotto, feats_to_use = list(usefeats),
                 pca_param))
 
             ## nearest neighbor and clustering
+            nn_param$verbose <- FALSE
             temp_giotto <- do.call(
                 "createNearestNetwork",
                 c(gobject = temp_giotto, k = k_neighbors, nn_param))
 
-            ## Leiden Cluster
             ## TO DO: expand to all clustering options
             temp_cluster <- .doLouvainCluster_multinet(
                 gobject = temp_giotto,
@@ -2460,62 +2526,30 @@ doLeidenSubCluster <- function(gobject,
 
 
 
-#' @title doLouvainSubCluster
-#' @name doLouvainSubCluster
-#' @description subcluster cells using a NN-network and the Louvain algorithm
-#' @param gobject giotto object
-#' @param name name for new clustering result
-#' @param version version of Louvain algorithm to use
-#' @param cluster_column cluster column to subcluster
-#' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
-#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_mean_expr_det threshold for mean expression level in cells with
-#' detection
-#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as
-#' input for PCA
-#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as
-#' input for PCA
-#' @param pca_param parameters for runPCA
-#' @param nn_param parameters for parameters for createNearestNetwork
-#' @param k_neighbors number of k for createNearestNetwork
-#' @param resolution resolution for community algorithm
-#' @param gamma gamma
-#' @param omega omega
-#' @param python_path specify specific path to python if required
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param verbose verbose
-#' @returns giotto object with new subclusters appended to cell metadata
-#' @details This function performs subclustering using the Louvain algorithm on
-#' selected clusters.
-#' The systematic steps are:
-#' \itemize{
-#'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable genes}
-#'   \item{3. run PCA}
-#'   \item{4. create nearest neighbouring network}
-#'   \item{5. do Louvain clustering}
-#' }
-#' @seealso \code{\link{.doLouvainCluster_multinet}} and
-#' \code{\link{.doLouvainCluster_community}}
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' doLouvainSubCluster(g, cluster_column = "leiden_clus")
+
+#' @describeIn subClusterCells subcluster cells using a NN-network and the
+#' Louvain algorithm
+#' @param version version of Louvain algorithm to use. One of "community" or
+#' "multinet", with the default being "community"
 #' @export
 doLouvainSubCluster <- function(gobject,
     name = "sub_louvain_clus",
     version = c("community", "multinet"),
     cluster_column = NULL,
     selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
-                    expression_values = "normalized"),
-    hvg_min_perc_cells = 5,
-    hvg_mean_expr_det = 1,
-    use_all_genes_as_hvg = FALSE,
-    min_nr_of_hvg = 5,
+    hvg_param = deprecated(),
+    hvf_param = list(
+        reverse_log_scale = TRUE, difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvg_min_perc_cells = deprecated(),
+    hvf_min_perc_cells = 5,
+    hvg_mean_expr_det = deprecated(),
+    hvf_mean_expr_det = 1,
+    use_all_genes_as_hvg = deprecated(),
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvg = deprecated(),
+    min_nr_of_hvf = 5,
     pca_param = list(expression_values = "normalized", scale_unit = TRUE),
     nn_param = list(dimensions_to_use = 1:20),
     k_neighbors = 10,
@@ -2530,199 +2564,59 @@ doLouvainSubCluster <- function(gobject,
     ## louvain clustering version to use
     version <- match.arg(version, c("community", "multinet"))
 
-
-    # python community implementation
-    if (version == "community") {
-        result <- .doLouvainSubCluster_community(
-            gobject = gobject,
-            cluster_column = cluster_column,
-            selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
-            hvg_mean_expr_det = hvg_mean_expr_det,
-            pca_param = pca_param,
-            nn_param = nn_param,
-            k_neighbors = k_neighbors,
-            resolution = resolution,
-            python_path = python_path,
-            nn_network_to_use = nn_network_to_use,
-            network_name = network_name,
-            name = name,
-            return_gobject = return_gobject,
-            verbose = verbose
-        )
-    } else if (version == "multinet") {
-        result <- .doLouvainSubCluster_multinet(
-            gobject = gobject,
-            cluster_column = cluster_column,
-            selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
-            hvg_mean_expr_det = hvg_mean_expr_det,
-            pca_param = pca_param,
-            nn_param = nn_param,
-            k_neighbors = k_neighbors,
-            gamma = gamma,
-            omega = omega,
-            nn_network_to_use = nn_network_to_use,
-            network_name = network_name,
-            name = name,
-            return_gobject = return_gobject,
-            verbose = verbose
+    # deprecations
+    .dep_param <- function(x, y) {
+        GiottoUtils::deprecate_param(
+            x, y, fun = "doLouvainSubCluster", when = "4.0.9"
         )
     }
 
-    return(result)
-}
+    hvf_param <- .dep_param(hvg_param, hvf_param)
+    hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
+    hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
-
-
-
-
-#' @title subClusterCells
-#' @name subClusterCells
-#' @description subcluster cells
-#' @param gobject giotto object
-#' @param name name for new clustering result
-#' @param cluster_method clustering method to use
-#' @param cluster_column cluster column to subcluster
-#' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
-#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_mean_expr_det threshold for mean expression level in cells with
-#' detection
-#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as
-#' input for PCA
-#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as
-#' input for PCA
-#' @param pca_param parameters for runPCA
-#' @param nn_param parameters for parameters for createNearestNetwork
-#' @param k_neighbors number of k for createNearestNetwork
-#' @param resolution resolution
-#' @param n_iterations number of interations to run the Leiden algorithm.
-#' @param gamma gamma
-#' @param omega omega
-#' @param python_path specify specific path to python if required
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param verbose verbose
-#' @returns giotto object with new subclusters appended to cell metadata
-#' @details This function performs subclustering on selected clusters.
-#' The systematic steps are:
-#' \itemize{
-#'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable genes}
-#'   \item{3. run PCA}
-#'   \item{4. create nearest neighbouring network}
-#'   \item{5. do clustering}
-#' }
-#' @seealso \code{\link{.doLouvainCluster_multinet}},
-#' \code{\link{.doLouvainCluster_community}}
-#' and  @seealso \code{\link{doLeidenCluster}}
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' subClusterCells(g, cluster_column = "leiden_clus")
-#' @export
-subClusterCells <- function(gobject,
-    name = "sub_clus",
-    cluster_method = c(
-        "leiden",
-        "louvain_community",
-        "louvain_multinet"
-    ),
-    cluster_column = NULL,
-    selected_clusters = NULL,
-    hvg_param = list(reverse_log_scale = TRUE, difference_in_cov = 1,
-                    expression_values = "normalized"),
-    hvg_min_perc_cells = 5,
-    hvg_mean_expr_det = 1,
-    use_all_genes_as_hvg = FALSE,
-    min_nr_of_hvg = 5,
-    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-    nn_param = list(dimensions_to_use = 1:20),
-    k_neighbors = 10,
-    resolution = 1,
-    n_iterations = 1000,
-    gamma = 1,
-    omega = 1,
-    python_path = NULL,
-    nn_network_to_use = "sNN",
-    network_name = "sNN.pca",
-    return_gobject = TRUE,
-    verbose = TRUE) {
-    ## select cluster method
-    cluster_method <- match.arg(arg = cluster_method, choices = c(
-        "leiden",
-        "louvain_community",
-        "louvain_multinet"
+    # get common args
+    common_args <- get_args_list(keep = c(
+        "gobject",
+        "cluster_column",
+        "selected_clusters",
+        "hvf_param",
+        "hvf_min_perc_cells",
+        "hvf_mean_expr_det",
+        "use_all_feats_as_hvf",
+        "min_nr_of_hvf",
+        "pca_param",
+        "nn_param",
+        "k_neighbors",
+        "nn_network_to_use",
+        "network_name",
+        "name",
+        "return_gobject",
+        "verbose"
     ))
 
-
-    if (cluster_method == "leiden") {
-        result <- doLeidenSubCluster(
-            gobject = gobject,
-            cluster_column = cluster_column,
-            selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
-            hvg_min_perc_cells = hvg_min_perc_cells,
-            hvg_mean_expr_det = hvg_mean_expr_det,
-            use_all_genes_as_hvg = use_all_genes_as_hvg,
-            min_nr_of_hvg = min_nr_of_hvg,
-            pca_param = pca_param,
-            nn_param = nn_param,
-            k_neighbors = k_neighbors,
-            resolution = resolution,
-            n_iterations = n_iterations,
-            python_path = python_path,
-            nn_network_to_use = nn_network_to_use,
-            network_name = network_name,
-            name = name,
-            return_gobject = return_gobject,
-            verbose = verbose
-        )
-    } else if (cluster_method == "louvain_community") {
-        result <- .doLouvainSubCluster_community(
-            gobject = gobject,
-            cluster_column = cluster_column,
-            selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
-            hvg_min_perc_cells = hvg_min_perc_cells,
-            hvg_mean_expr_det = hvg_mean_expr_det,
-            use_all_genes_as_hvg = use_all_genes_as_hvg,
-            min_nr_of_hvg = min_nr_of_hvg,
-            pca_param = pca_param,
-            nn_param = nn_param,
-            k_neighbors = k_neighbors,
-            resolution = resolution,
-            python_path = python_path,
-            nn_network_to_use = nn_network_to_use,
-            network_name = network_name,
-            name = name,
-            return_gobject = return_gobject,
-            verbose = verbose
-        )
-    } else if (cluster_method == "louvain_multinet") {
-        result <- .doLouvainSubCluster_multinet(
-            gobject = gobject,
-            cluster_column = cluster_column,
-            selected_clusters = selected_clusters,
-            hvg_param = hvg_param,
-            hvg_min_perc_cells = hvg_min_perc_cells,
-            hvg_mean_expr_det = hvg_mean_expr_det,
-            use_all_genes_as_hvg = use_all_genes_as_hvg,
-            min_nr_of_hvg = min_nr_of_hvg,
-            pca_param = pca_param,
-            nn_param = nn_param,
-            k_neighbors = k_neighbors,
-            gamma = gamma,
-            omega = omega,
-            nn_network_to_use = nn_network_to_use,
-            network_name = network_name,
-            name = name,
-            return_gobject = return_gobject,
-            verbose = verbose
-        )
-    }
+    result <- switch(version,
+        "community" = {
+            do.call(.doLouvainSubCluster_community, args = c(
+                common_args,
+                list(
+                    resolution = resolution,
+                    python_path = python_path
+                )
+            ))
+        },
+        "multinet" = {
+            do.call(.doLouvainSubCluster_multinet, args = c(
+                common_args,
+                list(
+                    gamma = gamma,
+                    omega = omega
+                )
+            ))
+        }
+    )
 
     return(result)
 }
@@ -2732,6 +2626,9 @@ subClusterCells <- function(gobject,
 
 
 
+
+
+# cluster manipulation ####
 
 
 #' @title getClusterSimilarity
@@ -2813,7 +2710,7 @@ getClusterSimilarity <- function(gobject,
     cor_table[, c("group1", "group2") := list(
         as.character(group1), as.character(group2))]
     cor_table[, unified_group := paste(
-        sort(c(group1, group2)), collapse = "--"), 
+        sort(c(group1, group2)), collapse = "--"),
         by = 1:nrow(cor_table)]
     cor_table <- cor_table[!duplicated(cor_table[, .(value, unified_group)])]
 

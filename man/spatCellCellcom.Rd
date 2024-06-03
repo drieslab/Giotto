@@ -2,14 +2,15 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{spatCellCellcom}
 \alias{spatCellCellcom}
-\title{spatCellCellcom}
+\alias{specificCellCellcommunicationScores}
+\title{Spatial cell cell communication scoring}
 \usage{
 spatCellCellcom(
   gobject,
   feat_type = NULL,
   spat_unit = NULL,
   spatial_network_name = "Delaunay_network",
-  cluster_column = "cell_types",
+  cluster_column = NULL,
   random_iter = 1000,
   feat_set_1,
   feat_set_2,
@@ -26,6 +27,30 @@ spatCellCellcom(
   set_seed = TRUE,
   seed_number = 1234,
   verbose = c("a little", "a lot", "none")
+)
+
+specificCellCellcommunicationScores(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  spatial_network_name = "Delaunay_network",
+  cluster_column = NULL,
+  random_iter = 100,
+  cell_type_1 = NULL,
+  cell_type_2 = NULL,
+  feat_set_1,
+  feat_set_2,
+  gene_set_1 = NULL,
+  gene_set_2 = NULL,
+  log2FC_addendum = 0.1,
+  min_observations = 2,
+  detailed = FALSE,
+  adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
+    "none"),
+  adjust_target = c("feats", "cells"),
+  set_seed = FALSE,
+  seed_number = 1234,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -71,6 +96,10 @@ considered}
 \item{seed_number}{seed number}
 
 \item{verbose}{verbose}
+
+\item{cell_type_1}{character. First cell type}
+
+\item{cell_type_2}{character. Second cell type}
 }
 \value{
 Cell-Cell communication scores for feature pairs based on spatial
@@ -110,13 +139,13 @@ LR_expr and rand_expr over all random spatial permutations
 \item \strong{pvalue:} p-value
 \item \strong{LR_cell_comb:} cell type pair combination
 \item \strong{p.adj:} adjusted p-value
-\item \strong{PI:} significance score: log2fc * -log10(p.adj)
+\item \strong{PI:} significance score: \eqn{log2fc * -log10(p.adj)}
 }
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-spatCellCellcom(
+res1 <- spatCellCellcom(
     gobject = g,
     cluster_column = "leiden_clus",
     feat_set_1 = "Gm19935",
@@ -124,4 +153,15 @@ spatCellCellcom(
     verbose = "a lot",
     random_iter = 10
 )
+force(res1)
+
+res2 <- specificCellCellcommunicationScores(g,
+    cluster_column = "leiden_clus",
+    cell_type_1 = 1,
+    cell_type_2 = 2,
+    feat_set_1 = "Gm19935",
+    feat_set_2 = "9630013A20Rik"
+)
+
+force(res2)
 }

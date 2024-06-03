@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{findCellProximityGenes}
 \alias{findCellProximityGenes}
-\title{findCellProximityGenes}
+\title{deprecated}
 \usage{
 findCellProximityGenes(...)
 }

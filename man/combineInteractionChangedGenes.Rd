@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{combineInteractionChangedGenes}
 \alias{combineInteractionChangedGenes}
-\title{combineInteractionChangedGenes}
+\title{deprecated}
 \usage{
 combineInteractionChangedGenes(...)
 }

@@ -72,28 +72,30 @@ runPCAprojectionBatch(
 giotto object with updated PCA dimension reduction
 }
 \description{
-runs a Principal Component Analysis on multiple random 
+runs a Principal Component Analysis on multiple random
 batches + projection
 }
 \details{
-See \code{\link[BiocSingular]{runPCA}} and 
+See \code{\link[BiocSingular]{runPCA}} and
 \code{\link[FactoMineR]{PCA}} for more information about other parameters.
-This PCA implementation is similar to  \code{\link{runPCA}} and  
+This PCA implementation is similar to  \code{\link{runPCA}} and
 \code{\link{runPCAprojection}},
-except that it performs PCA on multiple subsets (batches) of the cells or 
+except that it performs PCA on multiple subsets (batches) of the cells or
 features,
-and predict on the others. This can significantly increase speed without 
+and predict on the others. This can significantly increase speed without
 sacrificing accuracy too much.
 \itemize{
   \item feats_to_use = NULL: will use all features from the selected matrix
   \item feats_to_use = <hvg name>: can be used to select a column name of
   highly variable features, created by (see \code{\link{calculateHVF}})
-  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually 
+  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually
   provided features
 }
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
-runPCAprojectionBatch(g)
+# set feats_to_use to NULL since there are not many hvfs
+# (only 48 in this mini dataset)
+runPCAprojectionBatch(g, feats_to_use = NULL)
 }

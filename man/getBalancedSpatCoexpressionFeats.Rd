@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_genes.R
 \name{getBalancedSpatCoexpressionFeats}
 \alias{getBalancedSpatCoexpressionFeats}
-\title{getBalancedSpatCoexpressionFeats}
+\title{Get balanced spatial coexpression features}
 \usage{
 getBalancedSpatCoexpressionFeats(
   spatCorObject,
@@ -37,9 +37,11 @@ balanced manner
 \details{
 There are 3 different ways of selecting features from the spatial
 co-expression modules
-\itemize{
-  \item{1. weighted: }{Features are ranked based on summarized pairwise co-expression scores}
-  \item{2. random: }{A random selection of features, set seed for reproducibility}
-  \item{3. informed: }{Features are selected based on prior information/ranking}
+\enumerate{
+\item \strong{weighted:} Features are ranked based on summarized pairwise
+co-expression scores
+\item \strong{random:} A random selection of features, set seed for
+reproducibility
+\item \strong{informed:} Features are selected based on prior information/ranking
 }
 }
