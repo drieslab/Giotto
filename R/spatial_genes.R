@@ -670,7 +670,6 @@ NULL
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
-#' @param subset_genes deprecated, use subset_feats
 #' @param spatial_network_name name of spatial network to use
 #' (default = 'spatial_network')
 #' @param spatial_network_k different k's for a spatial kNN to evaluate
@@ -3193,10 +3192,9 @@ selectPatternGenes <- function(
 #' @title do_spatial_knn_smoothing
 #' @name do_spatial_knn_smoothing
 #' @description smooth gene expression over a kNN spatial network
-#' @param gobject giotto object
-#' @param expression_values gene expression values to use
+#' @param expression_matrix gene expression values to use
 #' @param subset_feats subset of features to use
-#' @param spatial_network_name name of spatial network to use
+#' @param spatial_network spatial network to use
 #' @param b smoothing factor beteen 0 and 1 (default: automatic)
 #' @returns matrix with smoothened gene expression values based on kNN
 #' spatial network
