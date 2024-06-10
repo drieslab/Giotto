@@ -1021,31 +1021,7 @@ registerImagesFIJI <- function(
 
 
 
-#' @name parse_affine
-#' @title Read affine matrix for linear transforms
-#' @description Affine transforms are linear transformations that cover scaling,
-#' rotation, shearing, and translations. They can be represented as matrices of
-#' 2x3 or 3x3 values. This function reads the matrix and extracts the values
-#' needed to perform them.
-#' @param x object coercible to matrix with a 2x3 or 3x3 affine matrix
-#' @returns a list of transforms information.
-#' @keywords internal
-parse_affine <- function(x) {
-    x <- as.matrix(x)
-    scale_x <- x[[1, 1]]
-    shear_x <- x[[1, 2]]
-    translate_x <- x[[1, 3]]
-    scale_y <- x[[2, 2]]
-    shear_y <- x[[2, 1]]
-    translate_y <- x[[2, 3]]
 
-    list(
-        scale = c(x = scale_x, y = scale_y),
-        rotate = atan(shear_x / scale_x) + atan(shear_y / scale_y),
-        shear = c(x = shear_x, y = shear_y),
-        translate = c(x = translate_x, y = translate_y)
-    )
-}
 
 
 # TODO - merge jython function into normal register FIJI
