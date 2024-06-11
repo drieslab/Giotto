@@ -444,7 +444,7 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     e <- file_extension(path) %>% head(1L) %>% tolower()
     vmsg(.v = verbose, .is_debug = TRUE, "[TX_READ] FMT =", e)
 
-    # read in
+    # read in as data.table
     a <- list(
         path = path,
         dropcols = dropcols,
@@ -453,10 +453,10 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     )
     vmsg("Loading transcript level info...", .v = verbose)
     tx <- switch(e,
-                 "csv" = do.call(.xenium_transcript_csv,
-                                 args = c(a, list(cores = cores))),
-                 "parquet" = do.call(.xenium_transcript_parquet, args = a),
-                 "zarr" = stop('zarr not yet supported')
+        "csv" = do.call(.xenium_transcript_csv,
+                        args = c(a, list(cores = cores))),
+        "parquet" = do.call(.xenium_transcript_parquet, args = a),
+        "zarr" = stop('zarr not yet supported')
     )
 
     # create gpoints
@@ -518,11 +518,15 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
         qv_threshold = 20,
         verbose = NULL
 ) {
-    package_check(
-        pkg_name = c("arrow", "dplyr"),
-        repository = c("CRAN:arrow", "CRAN:dplyr")
-    )
+    package_check("dplyr")
+    package_check("arrow", custom_msg = sprintf(
+        "package 'arrow' is not yet installed\n\n To install:\n%s\n%s%s",
+        "Sys.setenv(ARROW_WITH_ZSTD = \"ON\") ",
+        "install.packages(\"arrow\", ",
+        "repos = c(\"https://apache.r-universe.dev\"))"
+    ))
 
+    # setup tx parquet query
     tx_arrow <- arrow::read_parquet(file = path, as_data_frame = FALSE) %>%
         dplyr::mutate(transcript_id = cast(transcript_id, arrow::string())) %>%
         dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
@@ -538,18 +542,13 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
         tx_arrow <- dplyr::filter(tx_arrow, qv > qv_threshold)
         n_after <- .nr(tx_arrow)
 
-        vmsg(
-            .v = verbose,
-            sprintf(
-                "QV cutoff: %d\n Feature points removed: %d, out of %d",
-                qv_threshold,
-                n_before - n_after,
-                n_before
-            )
-        )
+        vmsg(.v = verbose, sprintf(
+            "QV cutoff: %f\n Feature points removed: %d, out of %d",
+            qv_threshold, n_before - n_after, n_before
+        ))
     }
 
-    # convert to data.table
+    # pull into memory as data.table
     tx_dt <- as.data.frame(tx_arrow) %>% data.table::setDT()
     data.table::setnames(
         x = tx_dt,
@@ -574,9 +573,9 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     a <- list(path = path)
     vmsg("Loading boundary info...", .v = verbose)
     polys <- switch(e,
-                    "csv" = do.call(.xenium_poly_csv, args = c(a, list(cores = cores))),
-                    "parquet" = do.call(.xenium_poly_parquet, args = a),
-                    "zarr" = stop("zarr not yet supported")
+        "csv" = do.call(.xenium_poly_csv, args = c(a, list(cores = cores))),
+        "parquet" = do.call(.xenium_poly_parquet, args = a),
+        "zarr" = stop("zarr not yet supported")
     )
 
     # create gpolys
@@ -727,8 +726,8 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
     ex <- switch(e,
-                 "mtx" = do.call(.xenium_cellmeta_csv, args = a),
-                 "h5" = do.call(.xenium_cellmeta_parquet, args = a)
+        "mtx" = do.call(.xenium_cellmeta_csv, args = a),
+        "h5" = do.call(.xenium_cellmeta_parquet, args = a)
     )
 
     eo <- createExprObj(
@@ -814,34 +813,36 @@ NULL
 
 #' @rdname load_xenium_folder
 #' @keywords internal
-.load_xenium_folder <- function(path_list,
-                                load_format = "csv",
-                                data_to_use = "subcellular",
-                                h5_expression = "FALSE",
-                                h5_gene_ids = "symbols",
-                                gene_column_index = 1,
-                                cores,
-                                verbose = TRUE) {
+.load_xenium_folder <- function(
+        path_list,
+        load_format = "csv",
+        data_to_use = "subcellular",
+        h5_expression = "FALSE",
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        cores,
+        verbose = TRUE
+) {
     data_list <- switch(load_format,
-                        "csv" = .load_xenium_folder_csv(
-                            path_list = path_list,
-                            data_to_use = data_to_use,
-                            h5_expression = h5_expression,
-                            h5_gene_ids = h5_gene_ids,
-                            gene_column_index = gene_column_index,
-                            cores = cores,
-                            verbose = verbose
-                        ),
-                        "parquet" = .load_xenium_folder_parquet(
-                            path_list = path_list,
-                            data_to_use = data_to_use,
-                            h5_expression = h5_expression,
-                            h5_gene_ids = h5_gene_ids,
-                            gene_column_index = gene_column_index,
-                            cores = cores,
-                            verbose = verbose
-                        ),
-                        "zarr" = stop("load_format zarr:\n Not yet implemented", call. = FALSE)
+        "csv" = .load_xenium_folder_csv(
+            path_list = path_list,
+            data_to_use = data_to_use,
+            h5_expression = h5_expression,
+            h5_gene_ids = h5_gene_ids,
+            gene_column_index = gene_column_index,
+            cores = cores,
+            verbose = verbose
+        ),
+        "parquet" = .load_xenium_folder_parquet(
+            path_list = path_list,
+            data_to_use = data_to_use,
+            h5_expression = h5_expression,
+            h5_gene_ids = h5_gene_ids,
+            gene_column_index = gene_column_index,
+            cores = cores,
+            verbose = verbose
+        ),
+        "zarr" = stop("load_format zarr:\n Not yet implemented", call. = FALSE)
     )
 
     return(data_list)
@@ -850,13 +851,15 @@ NULL
 
 #' @describeIn load_xenium_folder Load from csv files
 #' @keywords internal
-.load_xenium_folder_csv <- function(path_list,
-                                    cores,
-                                    data_to_use = "subcellular",
-                                    h5_expression = FALSE,
-                                    h5_gene_ids = "symbols",
-                                    gene_column_index = 1,
-                                    verbose = TRUE) {
+.load_xenium_folder_csv <- function(
+        path_list,
+        cores,
+        data_to_use = "subcellular",
+        h5_expression = FALSE,
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        verbose = TRUE
+) {
     # initialize return vars
     feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
 
@@ -955,13 +958,15 @@ NULL
 
 #' @describeIn load_xenium_folder Load from parquet files
 #' @keywords internal
-.load_xenium_folder_parquet <- function(path_list,
-                                        cores,
-                                        data_to_use = "subcellular",
-                                        h5_expression = FALSE,
-                                        h5_gene_ids = "symbols",
-                                        gene_column_index = 1,
-                                        verbose = TRUE) {
+.load_xenium_folder_parquet <- function(
+        path_list,
+        cores,
+        data_to_use = "subcellular",
+        h5_expression = FALSE,
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        verbose = TRUE
+) {
     # initialize return vars
     feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
     # dplyr variable
@@ -1173,18 +1178,20 @@ NULL
 #' map to any of the keys.
 #'
 #' @export
-createGiottoXeniumObject <- function(xenium_dir,
-                                     data_to_use = c("subcellular", "aggregate"),
-                                     load_format = "csv",
-                                     h5_expression = TRUE,
-                                     h5_gene_ids = c("symbols", "ensembl"),
-                                     gene_column_index = 1,
-                                     bounds_to_load = c("cell"),
-                                     qv_threshold = 20,
-                                     key_list = NULL,
-                                     instructions = NULL,
-                                     cores = NA,
-                                     verbose = TRUE) {
+createGiottoXeniumObject <- function(
+        xenium_dir,
+        data_to_use = c("subcellular", "aggregate"),
+        load_format = "csv",
+        h5_expression = TRUE,
+        h5_gene_ids = c("symbols", "ensembl"),
+        gene_column_index = 1,
+        bounds_to_load = c("cell"),
+        qv_threshold = 20,
+        key_list = NULL,
+        instructions = NULL,
+        cores = NA,
+        verbose = TRUE
+) {
     # 0. setup
     xenium_dir <- path.expand(xenium_dir)
 
@@ -1304,12 +1311,14 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @returns giotto object
 #' @seealso createGiottoXeniumObject .createGiottoXeniumObject_aggregate
 #' @keywords internal
-.createGiottoXeniumObject_subcellular <- function(data_list,
-                                                  key_list = NULL,
-                                                  qv_threshold = 20,
-                                                  instructions = NULL,
-                                                  cores = NA,
-                                                  verbose = TRUE) {
+.createGiottoXeniumObject_subcellular <- function(
+        data_list,
+        key_list = NULL,
+        qv_threshold = 20,
+        instructions = NULL,
+        cores = NA,
+        verbose = TRUE
+) {
     # data.table vars
     qv <- NULL
 
@@ -1397,11 +1406,13 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @returns giotto object
 #' @seealso createGiottoXeniumObject .createGiottoXeniumObject_subcellular
 #' @keywords internal
-.createGiottoXeniumObject_aggregate <- function(data_list,
-                                                # include_analysis = FALSE,
-                                                instructions = NULL,
-                                                cores = NA,
-                                                verbose = TRUE) {
+.createGiottoXeniumObject_aggregate <- function(
+        data_list,
+        # include_analysis = FALSE,
+        instructions = NULL,
+        cores = NA,
+        verbose = TRUE
+) {
     # Unpack data_list info
     feat_meta <- data_list$feat_meta
     cell_meta <- data_list$cell_meta
@@ -1460,12 +1471,14 @@ createGiottoXeniumObject <- function(xenium_dir,
 #' @keywords internal
 #' @returns path_list a list of xenium files discovered and their filepaths. NULL
 #' values denote missing items
-.read_xenium_folder <- function(xenium_dir,
-                                data_to_use = "subcellular",
-                                bounds_to_load = c("cell"),
-                                load_format = "csv",
-                                h5_expression = FALSE,
-                                verbose = TRUE) {
+.read_xenium_folder <- function(
+        xenium_dir,
+        data_to_use = "subcellular",
+        bounds_to_load = c("cell"),
+        load_format = "csv",
+        h5_expression = FALSE,
+        verbose = TRUE
+) {
     # Check needed packages
     if (load_format == "parquet") {
         package_check(pkg_name = "arrow", repository = "CRAN")
