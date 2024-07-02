@@ -1,85 +1,59 @@
 #' @title doCellSegmentation
 #' @name doCellSegmentation
 #' @description segment cells in Dapi image
-#' @param raster_img raster image; Dapi image of cells
-#' @param folder_path character; where to save the file
-#' @param reduce_resolution numeric; the original Dapi image from Vizgen works
-#' better in the Mesmer algorithm if its resolution is reduced 4 times.
-#' @param overlapping_pixels numeric; the number of pixels to overlap when
-#' calculating the rolling window
-#' @param python_path specify specific path to python if required
-#' @returns segmentation results
+#' @param image_files #name of image files - can be a single image or multiple images
+#' @param img_channel cytoplasm, nucleus
+#' @param image_diameter diameter chosen by user
+#' @param model_type cytoplasm ("cyto") or nuclear ("nuclei")
+#' @param python_path specify specific path to python where the cellpose package has been downloaded
 #' @details
-#' This function is a wrapper for the Mesmer algorithm implemented in python.
-#' It segments the cells in tissue by applying a rolling window on the complete
-#' image. It saves all the files in the specified folder with the coordinates
-#' of the tile: sx (start x), ex (end x), sy, and ey.
+#' This function is based on the cellpose algorithm implemented in python.
+#' It segments the cells and nuclei in tissue on the complete
+#' image. It saves all the files in the specified folder.
 #'
 #' @export
-doCellSegmentation <- function(raster_img,
-    folder_path,
-    reduce_resolution = 4,
-    overlapping_pixels = 50,
-    python_path = NULL) {
-    package_check("deepcell", repository = "pip")
-    package_check("PIL", repository = "pip")
-    
-    # prepare python path and segmentation script
-    reticulate::use_python(required = TRUE, python = python_path)
-    python_segmentation_function <- system.file("python",
-        "python_segmentation.py",
-        package = "Giotto"
-    )
-    reticulate::source_python(file = python_segmentation_function)
 
-    # create mesmer app
-    mesmer_app <- python_create_mesmer_app()
+doCellSegmentation <- function(image_files,
+                               img_channels,
+                               image_diameter,
+                               model_type,
+                               python_path){
 
-    # get params for rolling window
-    img_dim <- dim(raster_img)
-    xdim <- img_dim[2]
-    ydim <- img_dim[1]
+  # prepare python path and segmentation script
+  reticulate::use_python(required = T, python = python_path)
+  python_segmentation_function = system.file("python",
+                                             "cellsegmentation.py",
+                                             package = 'Giotto')
+  reticulate::source_python(file = cellsegmentation_cellpose)
 
-    mesmer_tile_dim <- 512
-    tile_dim <- mesmer_tile_dim * reduce_resolution
-    margin <- overlapping_pixels
-    window_size <- tile_dim - margin
+  # Running the cellpose model on user input image data
+  results <- cellsegmentation_cellpose(image_files, img_channels, image_diameter)
 
-    nxwindow <- xdim %/% window_size
-    nywindow <- ydim %/% window_size
+  cellmasks <- results[[2]] # Matrix with polyIDs for each segmented cell (including boundaries and interior)
+  cellmasks_outlines <- results[[1]] # Matrix with the segmented boundaries (1) and background (0)
 
-    # sliding window
-    start_x <- 0
-    end_x <- start_x + tile_dim
-    for (i in seq_len(nxwindow)) {
-        start_y <- 0
-        end_y <- start_y + tile_dim
-        for (j in seq_len(nywindow)) {
-            ext_crop <- terra::ext(c(start_x, end_x, start_y, end_y))
-            img_crop <- terra::crop(raster_img, ext_crop, snap = "in")
-            img_crop_rescaled <- terra::aggregate(img_crop, reduce_resolution)
-            img_coordinates <- as.character(paste("sx", start_x,
-                "ex", end_x,
-                "sy", start_y,
-                "ey", end_y,
-                sep = "_"
-            ))
-            file_name <- file.path(folder_path, paste0(img_coordinates, ".png"))
-            segmentation_result <- python_segment_image(
-                mesmer_app,
-                Matrix::as.matrix(img_crop_rescaled,
-                    wide = TRUE
-                ),
-                file_name
-            )
+  number <- max(cellmasks) # Determining the total number of segmented cells
 
-            start_y <- end_y - margin
-            end_y <- start_y + tile_dim
-        }
-        start_x <- end_x - margin
-        end_x <- start_x + tile_dim
-    }
+  outline_matrix <- which(cellmasks_outlines == 1, arr.ind = TRUE) # Identifying polygon boundary coordinates
 
+  # Identifying coordinates of the boundaries and polygon interior for each polygon ID
+  cell_positions <- NULL
+  for (i in 1:number) {
+    cell_locations <- which(cellmasks == i, arr.ind = TRUE)
+    positions <- as.matrix(cell_locations)
+    positions <- cbind(positions, rep(i, nrow(positions)))
+    cell_positions <- rbind(cell_positions, positions)
+  }
 
-    print(segmentation_result)
+  # Matching the segmented boundaries to their respective poly IDs
+  outline_matrix_df <- data.frame(outline_matrix)
+  colnames(outline_matrix_df) <- c("x", "y")
+  cell_positions_df <- data.frame(cell_positions)
+  colnames(cell_positions_df) <- c("x", "y", "poly ID")
+
+  # Final result gives a dataframe with the x and y coordinates of the polygon boundaries and their respective poly IDs
+  segmentationresults <- merge(outline_matrix_df, cell_positions_df[, c("x", "y", "poly ID")], how = "left", on = c("x", "y"))
+
+  print(segmentationresults)
+
 }
