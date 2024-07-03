@@ -288,11 +288,11 @@ rank_binarize_wrapper <- function(
 #' @details This function does not run any LLM service. It simply creates the .txt 
 #' file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
 #' @export
-writeChatGPTquery = function(DEG_output, 
-                             top_n_genes = 10, 
-                             tissue_type = 'human breast cancer', 
-                             folder_name = getwd(), 
-                             file_name = 'chatgpt_query.txt') {
+writeChatGPTqueryDEG = function(DEG_output, 
+                                top_n_genes = 10, 
+                                tissue_type = 'human breast cancer', 
+                                folder_name = getwd(), 
+                                file_name = 'chatgpt_query.txt') {
   
   chatgpt_query = paste0("Identify cell types of ", tissue_type, " tissue using the following markers. Identify one cell type for each row. Only provide the cell type name and the marker genes used for cell type identification.")
   
