@@ -437,7 +437,7 @@ filterCombinations <- function(
     pl <- pl + scale_color_discrete(
         guide = guide_legend(title = "threshold(s)")
     )
-    pl <- pl + ggrepel::geom_text_repel(data = result_DT, aes(
+    pl <- pl + geom_text_repel(data = result_DT, aes(
         x = removed_cells + x_axis_offset,
         y = removed_feats + y_axis_offset,
         label = combination
