@@ -22,9 +22,9 @@ doCellSegmentation <- function(image_files,
   # prepare python path and segmentation script
   reticulate::use_python(required = T, python = python_path)
   python_segmentation_function = system.file("python",
-                                             "cellsegmentation.py",
+                                             "python_segmentation.py",
                                              package = 'Giotto')
-  reticulate::source_python(file = cellsegmentation_cellpose)
+  reticulate::source_python(file = python_segmentation_function)
 
   # Running the cellpose model on user input image data
   results <- cellsegmentation_cellpose(image_files, img_channels, image_diameter)
