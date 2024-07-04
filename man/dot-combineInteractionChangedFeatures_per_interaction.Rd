@@ -17,6 +17,9 @@
   min_log2_fc = 0.5
 )
 }
+\value{
+data.table
+}
 \description{
 Combine ICF scores per interaction
 }

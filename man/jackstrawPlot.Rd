@@ -18,9 +18,9 @@ jackstrawPlot(
   iter = 10,
   threshold = 0.01,
   verbose = TRUE,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "jackstrawPlot"
 )
@@ -69,7 +69,12 @@ ggplot object for jackstraw method
 identify significant prinicipal components (PCs)
 }
 \details{
-The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
- systematically permuting genes it identifies robust, and thus significant, PCs.
- \cr
+The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} 
+ function. By systematically permuting genes it identifies robust, and thus 
+ significant, PCs.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+jackstrawPlot(gobject = g)
 }

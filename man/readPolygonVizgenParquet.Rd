@@ -14,13 +14,17 @@ readPolygonVizgenParquet(
 \arguments{
 \item{file}{parquet file to load}
 
-\item{z_index}{either 'all' or a numeric vector of z_indices to get polygons for}
+\item{z_index}{either 'all' or a numeric vector of z_indices to get polygons 
+for}
 
 \item{calc_centroids}{calculate centroids for the polygons (default = TRUE)}
 
 \item{verbose}{be verbose}
 }
+\value{
+giottoPolygons
+}
 \description{
-Read Vizgen exported cell boundary parquet files as giottoPolyons. The z level
-can be selected.
+Read Vizgen exported cell boundary parquet files as giottoPolyons. The z 
+level can be selected.
 }

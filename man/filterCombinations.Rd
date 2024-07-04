@@ -18,7 +18,7 @@ filterCombinations(
   y_axis_offset = 0,
   show_plot = TRUE,
   return_plot = FALSE,
-  save_plot = NA,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "filterCombinations"
 )
@@ -34,17 +34,21 @@ filterCombinations(
 
 \item{expression_thresholds}{all thresholds to consider a gene expressed}
 
-\item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
+\item{feat_det_in_min_cells}{minimum # of cells that need to express a
+feature}
 
-\item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
+\item{min_det_feats_per_cell}{minimum # of features that need to be
+detected in a cell}
 
 \item{scale_x_axis}{ggplot transformation for x-axis (e.g. log2)}
 
-\item{x_axis_offset}{x-axis offset to be used together with the scaling transformation}
+\item{x_axis_offset}{x-axis offset to be used together with the scaling
+transformation}
 
 \item{scale_y_axis}{ggplot transformation for y-axis (e.g. log2)}
 
-\item{y_axis_offset}{y-axis offset to be used together with the scaling transformation}
+\item{y_axis_offset}{y-axis offset to be used together with the scaling
+transformation}
 
 \item{show_plot}{logical. show plot}
 
@@ -60,11 +64,18 @@ filterCombinations(
 list of data.table and ggplot object
 }
 \description{
-Shows how many genes and cells are lost with combinations of thresholds.
+Shows how many genes and cells are lost with combinations of
+thresholds.
 }
 \details{
-Creates a scatterplot that visualizes the number of genes and cells that are
-lost with a specific combination of a gene and cell threshold given an arbitrary cutoff
-to call a gene expressed. This function can be used to make an informed decision at the
-filtering step with filterGiotto.
+Creates a scatterplot that visualizes the number of genes and
+cells that are lost with a specific combination of a gene and cell
+threshold given an arbitrary cutoff to call a gene expressed. This function
+can be used to make an informed decision at the filtering step with
+filterGiotto.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+filterCombinations(g)
 }

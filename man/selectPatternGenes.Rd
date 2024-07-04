@@ -27,7 +27,8 @@ selectPatternGenes(
 
 \item{min_neg_cor}{Minimum negative correlation score to include a gene.}
 
-\item{return_top_selection}{only return selection based on correlation criteria (boolean)}
+\item{return_top_selection}{only return selection based on correlation
+criteria (boolean)}
 }
 \value{
 Data.table with genes associated with selected dimension (PC).

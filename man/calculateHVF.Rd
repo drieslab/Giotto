@@ -22,9 +22,9 @@ calculateHVF(
   random_subset = NULL,
   set_seed = TRUE,
   seed_number = 1234,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "HVFplot",
   return_gobject = TRUE
@@ -41,26 +41,31 @@ calculateHVF(
 
 \item{method}{method to calculate highly variable features}
 
-\item{reverse_log_scale}{reverse log-scale of expression values (default = FALSE)}
+\item{reverse_log_scale}{reverse log-scale of expression values
+(default = FALSE)}
 
 \item{logbase}{if \code{reverse_log_scale} is TRUE, which log base was used?}
 
 \item{expression_threshold}{expression threshold to consider a gene detected}
 
-\item{nr_expression_groups}{(cov_groups) number of expression groups for cov_groups}
+\item{nr_expression_groups}{(cov_groups) number of expression groups for
+cov_groups}
 
 \item{zscore_threshold}{(cov_groups) zscore to select hvg for cov_groups}
 
 \item{HVFname}{name for highly variable features in cell metadata}
 
-\item{difference_in_cov}{(cov_loess) minimum difference in coefficient of variance required}
+\item{difference_in_cov}{(cov_loess) minimum difference in coefficient of
+variance required}
 
-\item{var_threshold}{(var_p_resid) variance threshold for features for var_p_resid method}
+\item{var_threshold}{(var_p_resid) variance threshold for features for
+var_p_resid method}
 
-\item{var_number}{(var_p_resid) number of top variance features for var_p_resid method}
+\item{var_number}{(var_p_resid) number of top variance features for
+var_p_resid method}
 
-\item{random_subset}{random subset to perform HVF detection on. Passing \code{NULL}
-runs HVF on all cells.}
+\item{random_subset}{random subset to perform HVF detection on.
+Passing \code{NULL} runs HVF on all cells.}
 
 \item{set_seed}{logical. whether to set a seed when random_subset is used}
 
@@ -72,14 +77,17 @@ runs HVF on all cells.}
 
 \item{save_plot}{logical. directly save the plot}
 
-\item{save_param}{list of saving parameters from \code{\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function()}}}
+\item{save_param}{list of saving parameters from
+\code{\link[GiottoVisuals:plot_save]{GiottoVisuals::all_plots_save_function()}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change, change
+save_name in save_param}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
-giotto object highly variable features appended to feature metadata (\code{fDataDT()})
+giotto object highly variable features appended to feature metadata
+(\code{fDataDT()})
 }
 \description{
 compute highly variable features
@@ -88,11 +96,19 @@ compute highly variable features
 Currently we provide 2 ways to calculate highly variable genes:
 
 \strong{1. high coeff of variance (COV) within groups: } \cr
-First genes are binned (\emph{nr_expression_groups}) into average expression groups and
-the COV for each feature is converted into a z-score within each bin. Features with a z-score
-higher than the threshold (\emph{zscore_threshold}) are considered highly variable.  \cr
+First genes are binned (\emph{nr_expression_groups}) into average expression
+groups and the COV for each feature is converted into a z-score within each
+bin. Features with a z-score higher than the threshold
+(\emph{zscore_threshold}) are considered highly variable.  \cr
 
 \strong{2. high COV based on loess regression prediction: } \cr
-A predicted COV is calculated for each feature using loess regression (COV~log(mean expression))
-Features that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
+A predicted COV is calculated for each feature using loess regression
+(COV~log(mean expression))
+Features that show a higher than predicted COV (\emph{difference_in_cov})
+are considered highly variable. \cr
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+calculateHVF(g)
 }

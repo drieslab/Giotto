@@ -30,11 +30,24 @@ combCCcom(
 
 \item{min_av_diff}{minimum average expression difference}
 
-\item{detailed}{detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)}
+\item{detailed}{detailed option used with \code{\link{spatCellCellcom}}
+(default = FALSE)}
 }
 \value{
 combined data.table with spatial and expression communication data
 }
 \description{
-Combine spatial and expression based cell-cell communication data.tables
+Combine spatial and expression based cell-cell communication
+data.tables
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+random_iter = 10)
+
+combCCcom(spatialCC = spatialCC, exprCC = exprCC)
 }

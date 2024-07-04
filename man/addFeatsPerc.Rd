@@ -30,8 +30,15 @@ addFeatsPerc(
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
-giotto object if \code{return_gobject = TRUE}, else a vector with % results
+giotto object if \code{return_gobject = TRUE}, else a vector with %
+results
 }
 \description{
-Calculates the total percentage of (normalized) counts for a subset of selected genes
+Calculates the total percentage of (normalized) counts for a
+subset of selected genes
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+addFeatsPerc(g, feats = c("Gm19935", "9630013A20Rik", "2900040C04Rik"))
 }

@@ -9,16 +9,16 @@ plotCombineInteractionChangedFeats(
   combIcfObject,
   selected_interactions = NULL,
   selected_feat_to_feat = NULL,
-  detail_plot = T,
-  simple_plot = F,
+  detail_plot = TRUE,
+  simple_plot = FALSE,
   simple_plot_facet = c("interaction", "feats"),
   facet_scales = "fixed",
   facet_ncol = length(selected_feat_to_feat),
   facet_nrow = length(selected_interactions),
   colors = c("#9932CC", "#FF8C00"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotCombineICF"
 )
@@ -61,4 +61,18 @@ ggplot
 }
 \description{
 Create visualization for combined (pairwise) ICF scores
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+g_icf <- findInteractionChangedFeats(g, 
+cluster_column = "leiden_clus", 
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+combIcfObject <- combineInteractionChangedFeats(g_icf)
+
+plotCombineInteractionChangedFeats(gobject = g, 
+combIcfObject = combIcfObject, 
+selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
+selected_interactions = "1--8")
 }

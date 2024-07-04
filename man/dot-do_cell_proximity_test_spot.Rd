@@ -19,7 +19,11 @@
   seed_number = 1234
 )
 }
+\value{
+differential test on subsets of a matrix
+}
 \description{
-Performs a selected differential test on subsets of a matrix for spots
+Performs a selected differential test on subsets of a matrix
+for spots
 }
 \keyword{internal}

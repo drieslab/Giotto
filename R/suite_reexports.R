@@ -1,9 +1,11 @@
-
 # GiottoUtils ####
+#' @returns pipe operator
 #' @export
 GiottoUtils::`%>%`
+#' @returns vector of colors
 #' @export
 GiottoUtils::getRainbowColors
+#' @returns vector of colors
 #' @export
 GiottoUtils::getDistinctColors
 
@@ -473,7 +475,9 @@ GiottoVisuals::dimCellPlot2D
 #' @export
 GiottoVisuals::dimFeatPlot2D
 #' @export
-GiottoVisuals::dimGenePlot3D
+GiottoVisuals::dimGenePlot3D # TODO remove in next version
+#' @export
+GiottoVisuals::dimFeatPlot3D
 #' @export
 GiottoVisuals::dimPlot
 #' @export
@@ -545,7 +549,9 @@ GiottoVisuals::spatDimCellPlot2D
 #' @export
 GiottoVisuals::spatDimFeatPlot2D
 #' @export
-GiottoVisuals::spatDimGenePlot3D
+GiottoVisuals::spatDimGenePlot3D # TODO remove in next version
+#' @export
+GiottoVisuals::spatDimFeatPlot3D
 #' @export
 GiottoVisuals::spatDimPlot
 #' @export
@@ -557,7 +563,9 @@ GiottoVisuals::spatFeatPlot2D
 #' @export
 GiottoVisuals::spatFeatPlot2D_single
 #' @export
-GiottoVisuals::spatGenePlot3D
+GiottoVisuals::spatGenePlot3D # TODO remove in next version
+#' @export
+GiottoVisuals::spatFeatPlot3D
 #' @export
 GiottoVisuals::spatPlot
 #' @export
@@ -580,14 +588,3 @@ GiottoVisuals::spatNetwDistributionsKneighbors
 GiottoVisuals::subsetSankeySet
 #' @export
 GiottoVisuals::violinPlot
-
-
-
-
-
-
-
-
-
-
-

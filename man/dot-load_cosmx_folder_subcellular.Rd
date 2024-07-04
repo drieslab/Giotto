@@ -9,13 +9,17 @@
 \arguments{
 \item{FOVs}{field of views to load (only affects subcellular data and images)}
 
-\item{cores}{how many cores or threads to use to read data if paths are provided}
+\item{cores}{how many cores or threads to use to read data if paths are
+provided}
 
 \item{verbose}{be verbose when building Giotto object}
 }
+\value{
+list
+}
 \description{
 loads in the feature detections information. Note that the mask
-images are still required for a working subcellular object, and those are loaded
-in \code{\link{.createGiottoCosMxObject_subcellular}}
+images are still required for a working subcellular object, and those are 
+loaded in \code{\link{.createGiottoCosMxObject_subcellular}}
 }
 \keyword{internal}

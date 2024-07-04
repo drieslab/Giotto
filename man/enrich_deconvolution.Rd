@@ -6,6 +6,9 @@
 \usage{
 enrich_deconvolution(expr, log_expr, cluster_info, ct_exp, cutoff)
 }
+\value{
+matrix
+}
 \description{
 Rui to fill in
 }

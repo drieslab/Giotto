@@ -17,9 +17,9 @@ plotRankSpatvsExpr(
   xlims = NULL,
   ylims = NULL,
   selected_ranks = c(1, 10, 20),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotRankSpatvsExpr"
 )
@@ -49,7 +49,8 @@ or 'sequential' (scaled based on data range)}
 
 \item{ylims}{y-limits, numerical vector of 2}
 
-\item{selected_ranks}{numerical vector, will be used to print out the percentage of top spatial ranks are recovered}
+\item{selected_ranks}{numerical vector, will be used to print out the 
+percentage of top spatial ranks are recovered}
 
 \item{show_plot}{logical. show plot}
 
@@ -65,5 +66,19 @@ or 'sequential' (scaled based on data range)}
 ggplot
 }
 \description{
-Plots dotplot to compare ligand-receptor rankings from spatial and expression information
+Plots dotplot to compare ligand-receptor rankings from 
+spatial and expression information
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+random_iter = 10)
+
+combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+
+plotRankSpatvsExpr(gobject = g, combCC = combCC)
 }

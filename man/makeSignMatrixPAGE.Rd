@@ -15,10 +15,25 @@ makeSignMatrixPAGE(sign_names, sign_list)
 matrix
 }
 \description{
-Function to convert a list of signature genes (e.g. for cell types or processes) into
-a binary matrix format that can be used with the PAGE enrichment option. Each cell type or process should
-have a vector of cell-type or process specific genes. These vectors need to be combined into a list (sign_list).
-The names of the cell types or processes that are provided in the list need to be given (sign_names).
+Function to convert a list of signature genes
+(e.g. for cell types or processes) into
+a binary matrix format that can be used with the PAGE enrichment option.
+Each cell type or process should
+have a vector of cell-type or process specific genes. These vectors need to
+be combined into a list (sign_list).
+The names of the cell types or processes that are provided in the list need
+to be given (sign_names).
+}
+\examples{
+sign_list <- list(cell_type1 = c("Bcl11b", "Lmo1", "F3", "Cnih3", "Ppp1r3c",
+"Rims2", "Gfap", "Gjc3", "Chrna4", "Prkcd"),
+cell_type2 = c("Prr18", "Grb14", "Tprn", "Clic1", "Olig2", "Hrh3", "Tmbim1",
+"Carhsp1", "Tmem88b", "Ugt8a"),
+cell_type2 = c("Arpp19", "Lamp5", "Galnt6", "Hlf", "Hs3st2", "Tbr1", "Myl4",
+"Cygb", "Ttc9b","Ipcef1"))
+
+makeSignMatrixPAGE(sign_names = c("cell_type1", "cell_type2", "cell_type3"),
+sign_list = sign_list)
 }
 \seealso{
 \code{\link{PAGEEnrich}}

@@ -27,7 +27,8 @@ filterICF(
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor
+cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
 
@@ -46,4 +47,11 @@ icfObject that contains the filtered differential feature scores
 }
 \description{
 Filter Interaction Changed Feature scores.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+
+filterICF(g_icf)
 }

@@ -34,7 +34,8 @@ runPAGEEnrich(
 
 \item{expression_values}{expression values to use}
 
-\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix required to calculate enrichment}
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix
+required to calculate enrichment}
 
 \item{reverse_log_scale}{reverse expression values from log scale}
 
@@ -60,18 +61,36 @@ runPAGEEnrich(
 data.table with enrichment results
 }
 \description{
-Function to calculate gene signature enrichment scores per spatial position using PAGE.
+Function to calculate gene signature enrichment scores per
+spatial position using PAGE.
 }
 \details{
-sign_matrix: a binary matrix with genes as row names and cell-types as column names.
-Alternatively a list of signature genes can be provided to makeSignMatrixPAGE, which will create
-the matrix for you. \cr
+sign_matrix: a binary matrix with genes as row names and cell-types as
+column names.
+Alternatively a list of signature genes can be provided to
+makeSignMatrixPAGE, which will create the matrix for you. \cr
 
 The enrichment Z score is calculated by using method (PAGE) from
-Kim SY et al., BMC bioinformatics, 2005 as \eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
-For each gene in each spot, mu is the fold change values versus the mean expression
-and delta is the standard deviation. Sm is the mean fold change value of a specific marker gene set
-and  m is the size of a given marker gene set.
+Kim SY et al., BMC bioinformatics, 2005 as
+\eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
+For each gene in each spot, mu is the fold change values versus the mean
+expression and delta is the standard deviation. Sm is the mean fold change
+value of a specific marker gene set and  m is the size of a given marker
+gene set.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+sign_gene <- c("Bcl11b", "Lmo1", "F3", "Cnih3", "Ppp1r3c", "Rims2", "Gfap", 
+"Gjc3", "Chrna4", "Prkcd", "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", 
+"Hrh3", "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a", "Arpp19", "Lamp5", 
+"Galnt6", "Hlf", "Hs3st2", "Tbr1", "Myl4", "Cygb", "Ttc9b","Ipcef1")
+
+sign_matrix <- matrix(rnorm(length(sign_gene)*3, mean  = 10), 
+nrow = length(sign_gene))
+rownames(sign_matrix) <- sign_gene
+colnames(sign_matrix) <- c("cell_type1", "cell_type2", "cell_type3")
+
+runPAGEEnrich(gobject = g, sign_matrix = sign_matrix)
 }
 \seealso{
 \code{\link{makeSignMatrixPAGE}}

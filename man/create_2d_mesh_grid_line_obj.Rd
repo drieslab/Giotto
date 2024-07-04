@@ -17,6 +17,9 @@ create_2d_mesh_grid_line_obj(x_min, x_max, y_min, y_max, mesh_grid_n)
 
 \item{mesh_grid_n}{mesh_grid_n}
 }
+\value{
+2d mesh grid line object
+}
 \description{
 create 2d mesh grid line object
 }

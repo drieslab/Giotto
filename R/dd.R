@@ -1,5 +1,3 @@
-
-
 # ------------------------------------------------------------------------- #
 # This script contains reusable dummy documentation / templates for
 # commonly used params.
@@ -37,6 +35,7 @@
 #' @param copy_obj whether to deep copy/duplicate when getting the object (default = TRUE)
 #' @param initialize (default = FALSE) whether to initialize the gobject before
 #' returning
+#' @returns list
 #' @keywords internal
 NULL
 
@@ -52,6 +51,7 @@ NULL
 #' @param default_feat_type (optional) default feat_type to use
 #' @param provenance (optional) provenance information
 #' @param verbose be verbose
+#' @returns list
 #' @keywords internal
 NULL
 
@@ -72,6 +72,7 @@ NULL
 #' named vector of colors
 #' @param cell_color_gradient character. continuous colors to use. palette to
 #' use or vector of colors to use (minimum of 2).
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -79,6 +80,7 @@ NULL
 #' @name plot_feat_params
 #' @param feats_color_code code to color the provided features
 #' @param feat_shape_code code to shape the provided feature types
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -100,6 +102,7 @@ NULL
 #' @param polygon_fill_code code to color the fill column
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_line_size line width of the polygon's outline
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -115,6 +118,7 @@ NULL
 #' @param dim_point_alpha transparancy of point in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -126,6 +130,7 @@ NULL
 #' @param nn_network_name character. name of NN network to use, if show_NN_network = TRUE
 #' @param network_color color of NN network
 #' @param nn_network_alpha column to use for alpha of the edges
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -137,12 +142,14 @@ NULL
 #' @param spat_network_color color of spatial network
 #' @param spatial_network_color color of spatial network
 #' @param spat_network_alpha alpha of spatial network
+#' @returns plot
 #' @keywords internal
 NULL
 
 #' Params documentation template: plot_spatenr_params
 #' @name plot_spatenr_params
 #' @param spat_enr_names character. names of spatial enrichment results to include
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -152,6 +159,7 @@ NULL
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image or multiple images with group_by
 #' @param largeImage_name name of a giottoLargeImage or multiple images with group_by
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -203,6 +211,7 @@ NULL
 #' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
+#' @returns plot
 #' @keywords internal
 NULL
 
@@ -213,6 +222,7 @@ NULL
 #' @param cow_rel_h cowplot param: relative heights of rows (e.g. c(1,2))
 #' @param cow_rel_w cowplot param: relative widths of columns (e.g. c(1,2))
 #' @param cow_align cowplot param: how to align
+#' @returns cowplot
 #' @keywords internal
 NULL
 
@@ -223,15 +233,6 @@ NULL
 #' @param save_plot logical. save the plot
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @returns plot
 #' @keywords internal
 NULL
-
-
-
-
-
-
-
-
-
-

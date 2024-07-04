@@ -45,7 +45,9 @@ runWNN(
 \item{verbose}{be verbose}
 }
 \value{
-A Giotto object with integrated UMAP (integrated.umap) within the dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the cellular metadata.
+A Giotto object with integrated UMAP (integrated.umap) within the 
+dimension_reduction slot and Leiden clusters (integrated_leiden_clus) in the 
+cellular metadata.
 }
 \description{
 Multi omics integration with WNN

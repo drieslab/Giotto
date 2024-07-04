@@ -9,6 +9,9 @@ fiji(fijiPath = NULL)
 \arguments{
 \item{fijiPath}{manually set filepath to Fiji executable}
 }
+\value{
+character
+}
 \description{
 \code{fiji} returns path to preferred Fiji executable. \cr
   This function is modified from jimpipeline by jefferislab

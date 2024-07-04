@@ -11,11 +11,11 @@ showPattern2D(
   trim = c(0.02, 0.98),
   background_color = "white",
   grid_border_color = "grey",
-  show_legend = T,
+  show_legend = TRUE,
   point_size = 1,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "showPattern2D"
 )
@@ -43,9 +43,11 @@ showPattern2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
+\item{save_param}{list of saving parameters, see
+\code{\link{showSaveParameters}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name for saving, don't change,
+change save_name in save_param}
 }
 \value{
 ggplot

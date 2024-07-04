@@ -9,16 +9,16 @@ plotCombineCellCellCommunication(
   combCCcom,
   selected_LR = NULL,
   selected_cell_LR = NULL,
-  detail_plot = T,
-  simple_plot = F,
+  detail_plot = TRUE,
+  simple_plot = FALSE,
   simple_plot_facet = c("interaction", "genes"),
   facet_scales = "fixed",
   facet_ncol = length(selected_LR),
   facet_nrow = length(selected_cell_LR),
   colors = c("#9932CC", "#FF8C00"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotCombineCellCellCommunication"
 )
@@ -30,7 +30,8 @@ plotCombineCellCellCommunication(
 
 \item{selected_LR}{selected ligand-receptor pair}
 
-\item{selected_cell_LR}{selected cell-cell interaction pair for ligand-receptor pair}
+\item{selected_cell_LR}{selected cell-cell interaction pair for 
+ligand-receptor pair}
 
 \item{detail_plot}{show detailed info in both interacting cell types}
 
@@ -60,5 +61,23 @@ plotCombineCellCellCommunication(
 ggplot
 }
 \description{
-Create visualization for combined (pairwise) cell proximity gene scores
+Create visualization for combined (pairwise) cell proximity 
+gene scores
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
+feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
+
+exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
+
+combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+
+plotCombineCellCellCommunication(gobject = g, combCCcom = combCCcom,
+selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
 }

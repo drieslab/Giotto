@@ -59,10 +59,15 @@ viewHMRFresults_V2(
 
 \item{\dots}{additional params to pass to plotting}
 }
+\value{
+spatial plots with HMRF domains
+}
 \description{
 function to view HMRF results with multiple betas
 }
 \details{
-This function plots spatial map of HMRF domain clusters for multiple beta with the name (hmrf_name),
-matching the first part of the cell meta column names with HMRF clusters (for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
+This function plots spatial map of HMRF domain clusters for multiple beta
+with the name (hmrf_name),
+matching the first part of the cell meta column names with HMRF clusters
+(for example name of ‘hmrf1 k=8 b=0.00’ is ‘hmrf1’)
 }

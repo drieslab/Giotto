@@ -19,9 +19,9 @@ screePlot(
   ncp = 100,
   ylim = c(0, 20),
   verbose = TRUE,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "screePlot",
   ...
@@ -72,12 +72,18 @@ screePlot(
 ggplot object for scree method
 }
 \description{
-identify significant principal components (PCs) using an screeplot (a.k.a. elbowplot)
+identify significant principal components (PCs) using an 
+screeplot (a.k.a. elbowplot)
 }
 \details{
 Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC provides a significant
- contribution (a.k.a 'elbow method'). \cr
- Screeplot will use an available pca object, based on the parameter 'name', or it will
- create it if it's not available (see \code{\link{runPCA}})
+ individual PC in a barplot allowing you to identify which PC provides a 
+ significant contribution (a.k.a 'elbow method'). \cr
+ Screeplot will use an available pca object, based on the parameter 'name', 
+ or it will create it if it's not available (see \code{\link{runPCA}})
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+screePlot(g)
 }

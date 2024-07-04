@@ -24,9 +24,11 @@ adjustGiottoMatrix(
 
 \item{expression_values}{expression values to use}
 
-\item{batch_columns}{metadata columns that represent different batch (max = 2)}
+\item{batch_columns}{metadata columns that represent different
+batch (max = 2)}
 
-\item{covariate_columns}{metadata columns that represent covariates to regress out}
+\item{covariate_columns}{metadata columns that represent covariates to
+regress out}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -36,9 +38,16 @@ adjustGiottoMatrix(
 giotto object or exprObj
 }
 \description{
-Adjust expression values to account for known batch effects or technological covariates.
+Adjust expression values to account for known batch effects or
+technological covariates.
 }
 \details{
-This function implements the \code{\link[limma]{removeBatchEffect}} function to
-remove known batch effects and to adjust expression values according to provided covariates.
+This function implements the \code{\link[limma]{removeBatchEffect}}
+function to remove known batch effects and to adjust expression values
+according to provided covariates.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+adjustGiottoMatrix(g, covariate_columns = "leiden_clus")
 }

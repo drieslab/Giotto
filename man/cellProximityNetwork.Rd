@@ -15,14 +15,14 @@ cellProximityNetwork(
   edge_weight_range_depletion = c(0.1, 1),
   edge_weight_range_enrichment = c(1, 5),
   layout = c("Fruchterman", "DrL", "Kamada-Kawai"),
-  only_show_enrichment_edges = F,
+  only_show_enrichment_edges = FALSE,
   edge_width_range = c(0.1, 2),
   node_size = 4,
   node_color_code = NULL,
   node_text_size = 6,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "cellProximityNetwork"
 )
@@ -42,9 +42,11 @@ cellProximityNetwork(
 
 \item{rescale_edge_weights}{rescale edge weights (boolean)}
 
-\item{edge_weight_range_depletion}{numerical vector of length 2 to rescale depleted edge weights}
+\item{edge_weight_range_depletion}{numerical vector of length 2 to rescale 
+depleted edge weights}
 
-\item{edge_weight_range_enrichment}{numerical vector of length 2 to rescale enriched edge weights}
+\item{edge_weight_range_enrichment}{numerical vector of length 2 to rescale 
+enriched edge weights}
 
 \item{layout}{layout algorithm to use to draw nodes and edges}
 
@@ -77,4 +79,11 @@ Create network from cell-cell proximity scores
 \details{
 This function creates a network that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
+
+cellProximityNetwork(gobject = g, CPscore = x)
 }

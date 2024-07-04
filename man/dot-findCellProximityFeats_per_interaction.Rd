@@ -12,7 +12,7 @@
   cluster_column = NULL,
   minimum_unique_cells = 1,
   minimum_unique_int_cells = 1,
-  exclude_selected_cells_from_test = T,
+  exclude_selected_cells_from_test = TRUE,
   diff_test = c("permutation", "limma", "t.test", "wilcox"),
   mean_method = c("arithmic", "geometric"),
   offset = 0.1,
@@ -25,8 +25,12 @@
 \arguments{
 \item{expr_values}{Matrix object}
 }
+\value{
+data.table
+}
 \description{
-Identifies features that are differentially expressed due to proximity to other cell types.
+Identifies features that are differentially expressed due to
+proximity to other cell types.
 }
 \seealso{
 [.do_cell_proximity_test()] for specific tests

@@ -13,8 +13,10 @@ combineCellProximityGenes(...)
     \item{\code{icfObject}}{ICF (interaction changed feat) score object}
     \item{\code{selected_ints}}{subset of selected cell-cell interactions (optional)}
     \item{\code{selected_feats}}{subset of selected Features (optional)}
-    \item{\code{specific_feats_1}}{specific Featureset combo (need to position match specific_feats_2)}
-    \item{\code{specific_feats_2}}{specific Featureset combo (need to position match specific_feats_1)}
+    \item{\code{specific_feats_1}}{specific Featureset combo
+(need to position match specific_feats_2)}
+    \item{\code{specific_feats_2}}{specific Featureset combo
+(need to position match specific_feats_1)}
     \item{\code{min_cells}}{minimum number of target cell type}
     \item{\code{min_int_cells}}{minimum number of interacting cell type}
     \item{\code{min_fdr}}{minimum adjusted p-value}
@@ -23,6 +25,9 @@ combineCellProximityGenes(...)
     \item{\code{do_parallel}}{run calculations in parallel with mclapply}
     \item{\code{verbose}}{verbose}
   }}
+}
+\value{
+ICF scores
 }
 \description{
 Combine ICF scores in a pairwise manner.

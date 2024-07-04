@@ -6,6 +6,9 @@
 \usage{
 .log_norm_giotto(mymatrix, base, offset)
 }
+\value{
+matrix
+}
 \description{
 Log normalize expression matrix
 }

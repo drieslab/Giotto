@@ -51,7 +51,13 @@ findMastMarkers_one_vs_all(
 data.table with marker feats
 }
 \description{
-Identify marker feats for all clusters in a one vs all manner based on the MAST package.
+Identify marker feats for all clusters in a one vs all manner
+based on the MAST package.
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findMastMarkers_one_vs_all(gobject = g, cluster_column = "leiden_clus")
 }
 \seealso{
 \code{\link{findMastMarkers}}

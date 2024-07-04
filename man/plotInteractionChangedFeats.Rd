@@ -11,9 +11,9 @@ plotInteractionChangedFeats(
   source_markers,
   ICF_feats,
   cell_color_code = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotInteractionChangedFeats"
 )
@@ -47,4 +47,13 @@ plot
 }
 \description{
 Create barplot to visualize interaction changed features
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
+selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+
+plotInteractionChangedFeats(gobject = g, icfObject = icfObject,
+source_type = "1", source_markers = "Ccnd2", 
+ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
 }

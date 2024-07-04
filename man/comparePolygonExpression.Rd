@@ -26,9 +26,11 @@ comparePolygonExpression(
 
 \item{selected_feats}{vector of selected features to plot}
 
-\item{expression_values}{gene expression values to use ("normalized", "scaled", "custom")}
+\item{expression_values}{gene expression values to use
+("normalized", "scaled", "custom")}
 
-\item{method}{method to use to detect differentially expressed feats ("scran", "gini", "mast")}
+\item{method}{method to use to detect differentially expressed feats
+("scran", "gini", "mast")}
 
 \item{\dots}{Arguments passed to \link[ComplexHeatmap]{Heatmap}}
 }
@@ -37,4 +39,23 @@ A ComplexHeatmap::Heatmap object
 }
 \description{
 Compare gene expression between polygon areas
+}
+\examples{
+## Plot interactive polygons
+g <- GiottoData::loadGiottoMini("visium")
+my_polygon_coords <- data.frame(poly_ID = rep("polygon1", 3),
+sdimx = c(5477, 5959, 4720), sdimy = c(-4125, -2808, -5202))
+
+## Add polygon coordinates to Giotto object
+my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords,
+name = "selections")
+g <- addGiottoPolygons(
+    gobject = g,
+    gpolygons = list(my_giotto_polygons)
+)
+
+## Add polygon cells
+g <- addPolygonCells(g)
+
+comparePolygonExpression(g)
 }

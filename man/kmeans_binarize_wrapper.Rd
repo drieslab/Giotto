@@ -15,6 +15,9 @@ kmeans_binarize_wrapper(
   seed = NULL
 )
 }
+\value{
+matrix
+}
 \description{
 wrapper for different binarization functions
 }

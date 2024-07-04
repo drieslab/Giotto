@@ -19,9 +19,9 @@ plotCellProximityFeats(
   zscores_column = c("cell_type", "feats"),
   direction = c("both", "up", "down"),
   cell_color_code = NULL,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotCellProximityFeats"
 )
@@ -39,7 +39,8 @@ plotCellProximityFeats(
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor 
+cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
 
@@ -67,8 +68,15 @@ named vector of colors}
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
-plot
+volcano, cell_barplot, cell-cell, cell_sankey, heatmap, or dotplot
 }
 \description{
 Create visualization for cell proximity feature scores
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
+
+plotCellProximityFeats(gobject = g, icfObject = icfObject,
+show_plot = TRUE, save_plot = FALSE, return_plot = FALSE)
 }

@@ -4,14 +4,24 @@
 \alias{read_crossSection}
 \title{read_crossSection}
 \usage{
-read_crossSection(gobject, name = NULL, spatial_network_name = NULL)
+read_crossSection(
+  gobject,
+  spat_unit = NULL,
+  name = NULL,
+  spatial_network_name = NULL
+)
 }
 \arguments{
 \item{gobject}{gobject}
 
+\item{spat_unit}{spatial unit}
+
 \item{name}{name}
 
 \item{spatial_network_name}{spatial_network_name}
+}
+\value{
+crossSectionObjects
 }
 \description{
 read a cross section object from a giotto object

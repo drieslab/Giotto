@@ -10,9 +10,9 @@ cellProximityBarplot(
   min_orig_ints = 5,
   min_sim_ints = 5,
   p_val = 0.05,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "cellProximityBarplot"
 )
@@ -47,4 +47,9 @@ Create barplot from cell-cell proximity scores
 \details{
 This function creates a barplot that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
+ @examples
+ g <- GiottoData::loadGiottoMini("visium")
+ 
+ cellProximityBarplot(gobject = g, 
+ CPscore = cellProximityEnrichment(g, cluster_column = "leiden_clus"))
 }

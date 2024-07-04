@@ -6,6 +6,7 @@
 \usage{
 estimateCellCellDistance(
   gobject,
+  spat_unit = NULL,
   spatial_network_name = "Delaunay_network",
   method = c("mean", "median")
 )
@@ -13,9 +14,14 @@ estimateCellCellDistance(
 \arguments{
 \item{gobject}{gobject}
 
+\item{spat_unit}{spatial unit}
+
 \item{spatial_network_name}{spatial_network_name}
 
 \item{method}{method}
+}
+\value{
+matrix
 }
 \description{
 estimate average distance between neighboring cells

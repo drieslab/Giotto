@@ -9,7 +9,7 @@ writeHMRFresults(
   HMRFoutput,
   k = NULL,
   betas_to_view = NULL,
-  print_command = F
+  print_command = FALSE
 )
 }
 \arguments{

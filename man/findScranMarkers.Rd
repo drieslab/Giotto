@@ -32,11 +32,13 @@ findScranMarkers(
 
 \item{subset_clusters}{selection of clusters to compare}
 
-\item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
+\item{group_1}{group 1 cluster IDs from cluster_column for pairwise
+comparison}
 
 \item{group_1_name}{custom name for group_1 clusters}
 
-\item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
+\item{group_2}{group 2 cluster IDs from cluster_column for pairwise
+comparison}
 
 \item{group_2_name}{custom name for group_2 clusters}
 
@@ -48,7 +50,8 @@ findScranMarkers(
 data.table with marker genes
 }
 \description{
-Identify marker genes for all or selected clusters based on scran's implementation of findMarkers.
+Identify marker genes for all or selected clusters based on
+scran's implementation of findMarkers.
 }
 \details{
 This is a minimal convenience wrapper around
@@ -56,9 +59,17 @@ the \code{\link[scran]{findMarkers}} function from the scran package.
 
 To perform differential expression between custom selected groups of cells
 you need to specify the cell_ID column to parameter \emph{cluster_column}
-and provide the individual cell IDs to the parameters \emph{group_1} and \emph{group_2}
+and provide the individual cell IDs to the parameters \emph{group_1} and
+\emph{group_2}
 
-By default group names will be created by pasting the different id names within each selected group.
+By default group names will be created by pasting the different id names
+within each selected group.
 When you have many different ids in a single group
-it is recommend to provide names for both groups to \emph{group_1_name} and \emph{group_2_name}
+it is recommend to provide names for both groups to \emph{group_1_name} and
+\emph{group_2_name}
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+findScranMarkers(g, cluster_column = "leiden_clus")
 }

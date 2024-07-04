@@ -10,9 +10,9 @@ plotRecovery(
   expr_rnk_column = "exprPI_rnk",
   spat_rnk_column = "spatPI_rnk",
   ground_truth = c("spatial", "expression"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
   save_param = list(),
   default_save_name = "plotRecovery"
 )
@@ -42,5 +42,19 @@ plotRecovery(
 ggplot
 }
 \description{
-Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+Plots recovery plot to compare ligand-receptor rankings from 
+spatial and expression information
+}
+\examples{
+g <- GiottoData::loadGiottoMini("visium")
+
+exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
+feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+random_iter = 10)
+
+combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+
+plotRecovery(gobject = g, combCC = combCC)
 }

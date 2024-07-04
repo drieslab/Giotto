@@ -1,3 +1,29 @@
+
+# Giotto 4.0.8 (2024/05/22)
+
+## Breaking changes
+* `crossSectionGenePlot()` removed. Use `crossSectionFeatPlot()` instead
+* `crossSectionGenePlot3D()` removed. Use `crossSectionFeatPlot3D()` instead
+* `insertCrossSectionGenePlot3D()` removed Use `insertCrossSectionFeatPlot3D()` instead
+
+## Bug fixes
+* `binSpect()` param passing error introduced in _v4.0.6_
+* updated `viewHMRFresults3D()` and `viewHMRFresults2D()`
+* updated `createCrossSections()`, `insertCrossSectionSpatPlot3D()`, `crossSectionPlot()`, `crossSectionFeatPlot3D()`, `insertCrossSectionFeatPlot3D()`, `crossSectionPlot3D()`, `crossSectionFeatPlot()`
+
+## Changes
+* GiottoVisuals (>= 0.2.2), GiottoClass (>= 0.3.1), GiottoUtils (>= 0.1.8) are now required.
+
+# Giotto 4.0.6 (2024/05/13)
+
+## Enhancements
+* New `interpolateFeature()` for kriging interpolation of values
+
+## Changes
+* GiottoVisuals (>= 0.2.0) and GiottoClass (>= 0.3.0) are now required.
+
+
+
 # Giotto 4.0.5 (2024/03/12)
 
 ## Bug fixes

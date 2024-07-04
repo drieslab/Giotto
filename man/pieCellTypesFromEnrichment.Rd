@@ -12,9 +12,9 @@ pieCellTypesFromEnrichment(
   title = NULL,
   save_param = list(),
   default_save_name = "cell_types_from_enrichment_pie",
-  save_plot = NA,
-  show_plot = NA,
-  return_plot = NA
+  save_plot = NULL,
+  show_plot = NULL,
+  return_plot = NULL
 )
 }
 \arguments{
@@ -22,7 +22,8 @@ pieCellTypesFromEnrichment(
 
 \item{spat_unit}{spatial unit in which the enrichment information is stored}
 
-\item{feat_type}{feature type for which the enrichment information was calculated}
+\item{feat_type}{feature type for which the enrichment information was 
+calculated}
 
 \item{enrichment_name}{name of the spatial enrichment
 i.e. output from GiottoClass::list_spatial_enrichment_names()
@@ -40,6 +41,9 @@ Default `paste0(spat_unit,"cell types (maximum", enrichment_name, ")")`}
 \item{show_plot}{logical. show plot}
 
 \item{return_plot}{logical. return ggplot object}
+}
+\value{
+pie plot
 }
 \description{
 pieCellTypesFromEnrichment
