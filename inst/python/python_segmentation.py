@@ -83,5 +83,3 @@ def cellsegmentation_cellpose(files, img_channels, diameter):
     # io.save_to_png(img, masks, flows, files)
 
     return outline, masks 
-
-print("done")
