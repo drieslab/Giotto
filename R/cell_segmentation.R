@@ -54,6 +54,7 @@ doCellSegmentation <- function(image_files,
   # Final result gives a dataframe with the x and y coordinates of the polygon boundaries and their respective poly IDs
   segmentationresults <- merge(outline_matrix_df, cell_positions_df[, c("x", "y", "poly ID")], how = "left", on = c("x", "y"))
 
+  library(dplyr)
   segmentationresults <- arrange(segmentationresults, segmentationresults[,3])
   return(segmentationresults)
 
