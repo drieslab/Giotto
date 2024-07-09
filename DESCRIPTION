@@ -31,7 +31,7 @@ Depends:
     utils (>= 4.1.0),
     R (>= 4.1.0),
     methods,
-    GiottoClass (>= 0.3.1)
+    GiottoClass (>= 0.3.2)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -42,7 +42,7 @@ Imports:
     ggplot2 (>= 3.1.1),
     ggrepel,
     GiottoUtils (>= 0.1.9),
-    GiottoVisuals (>= 0.2.2),
+    GiottoVisuals (>= 0.2.4),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
