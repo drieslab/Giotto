@@ -1,6 +1,7 @@
 #' @title doScrubletDetect
 #' @name doScrubletDetect
-#' @description run *scrublet* doublet detection for raw expression.
+#' @description Run *scrublet* doublet detection for raw expression. Intended
+#' for single cell data
 #' @param gobject giotto object containing expression data
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
@@ -21,26 +22,32 @@
 #' @seealso This function wraps the python package scrublet
 #' \doi{10.1016/j.cels.2018.11.005}
 #' @returns if `return_gobject = FALSE`, a `data.table` cell_ID, doublet scores,
-#' and classifications are returned. If `TRUE`, that information is appended 
-#' into the input `giotto` object's metadata and the `giotto` object is 
+#' and classifications are returned. If `TRUE`, that information is appended
+#' into the input `giotto` object's metadata and the `giotto` object is
 #' returned.
 #' @md
 #' @examples
+#' # Should only be done with single cell data, but this is just a
+#' # convenient example.
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' doScrubletDetect(g)
+#'
+#' g <- doScrubletDetect(g)
+#'
+#' pDataDT(g) # doublet_scores and doublet cols are added
+#' dimPlot2D(g, cell_color = "doublet_scores", color_as_factor = FALSE)
 #' @export
-doScrubletDetect <- function(gobject,
-    feat_type = NULL,
-    spat_unit = "cell",
-    expression_values = "raw",
-    expected_doublet_rate = 0.06,
-    min_counts = 1,
-    min_cells = 1,
-    min_gene_variability_pctl = 85,
-    n_prin_comps = 30,
-    return_gobject = TRUE,
-    seed = 1234) {
+doScrubletDetect <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = "cell",
+        expression_values = "raw",
+        expected_doublet_rate = 0.06,
+        min_counts = 1,
+        min_cells = 1,
+        min_gene_variability_pctl = 85,
+        n_prin_comps = 30,
+        return_gobject = TRUE,
+        seed = 1234) {
     # verify if optional package is installed
     package_check(
         pkg_name = "scrublet",
@@ -48,10 +55,10 @@ doScrubletDetect <- function(gobject,
     )
 
     # print message with information #
-    message("using 'scrublet' to detect doublets. If used in published 
+    message("using 'scrublet' to detect doublets. If used in published
     research, please cite: \n
     Wolock, S. L., Lopez, R. & Klein, A. M.
-    Scrublet: Computational Identification of Cell Doublets in Single-Cell 
+    Scrublet: Computational Identification of Cell Doublets in Single-Cell
     Transcriptomic Data. Cell Syst. 8, 281-291.e9 (2019).
     https://doi.org/10.1016/j.cels.2018.11.005")
 
@@ -59,7 +66,9 @@ doScrubletDetect <- function(gobject,
     python_path <- readGiottoInstructions(gobject, param = "python_path")
     reticulate::use_python(required = TRUE, python = python_path)
     python_scrublet_function <- system.file(
-        "python", "python_scrublet.py", package = "Giotto")
+        "python", "python_scrublet.py",
+        package = "Giotto"
+    )
     reticulate::source_python(file = python_scrublet_function, convert = TRUE)
 
     # set seed

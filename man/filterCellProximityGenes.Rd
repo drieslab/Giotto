@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{filterCellProximityGenes}
 \alias{filterCellProximityGenes}
-\title{filterCellProximityGenes}
+\title{deprecated}
 \usage{
 filterCellProximityGenes(...)
 }

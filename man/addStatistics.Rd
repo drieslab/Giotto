@@ -10,7 +10,8 @@ addStatistics(
   spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   detection_threshold = 0,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ addStatistics(
 \item{detection_threshold}{detection threshold to consider a feature detected}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object if return_gobject = TRUE, else a list with results

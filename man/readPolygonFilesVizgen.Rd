@@ -58,7 +58,7 @@ object and add the smoothed polygons to the object
 }
 \section{Functions}{
 \itemize{
-\item \code{.h5_read_vizgen()}: (internal) Optimized .hdf5 reading for 
+\item \code{.h5_read_vizgen()}: (internal) Optimized .hdf5 reading for
 vizgen merscope output. Returns a data.table of xyz coords and cell_id
 
 }}

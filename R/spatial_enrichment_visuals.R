@@ -2,7 +2,7 @@
 #' @name findCellTypesFromEnrichment
 #' @param gobject Giotto Object
 #' @param spat_unit spatial unit in which the enrichment information is stored
-#' @param feat_type feature type for which the enrichment information was 
+#' @param feat_type feature type for which the enrichment information was
 #' calculated
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
@@ -24,15 +24,17 @@
 #' the associated cell types from the enrichment.
 #'
 #' @export
-findCellTypesFromEnrichment <- function(gobject = NULL,
-    spat_unit = NULL,
-    feat_type = NULL,
-    enrichment_name = "PAGE_z_score",
-    return_frequency_table = FALSE) {
+findCellTypesFromEnrichment <- function(
+        gobject = NULL,
+        spat_unit = NULL,
+        feat_type = NULL,
+        enrichment_name = "PAGE_z_score",
+        return_frequency_table = FALSE) {
     # guard clauses
 
-    if (!inherits(gobject, "giotto")) 
+    if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
+    }
 
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -69,17 +71,20 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
     # new column, mapping a cell to it's most likely type
     if (enrich_is_p_value) {
         pz_enrich[, probable_cell_type := names(
-            .SD)[max.col(-.SD)], .SDcols = 2:n_c]
+            .SD
+        )[max.col(-.SD)], .SDcols = 2:n_c]
     } else {
         pz_enrich[, probable_cell_type := names(
-            .SD)[max.col(.SD)], .SDcols = 2:n_c]
+            .SD
+        )[max.col(.SD)], .SDcols = 2:n_c]
     }
 
     cell_ID_and_types_pz_enrich <- pz_enrich[, .(cell_ID, probable_cell_type)]
 
     if (return_frequency_table) {
         pz_enrich_cell_type_frequencies <- table(
-            cell_ID_and_types_pz_enrich$probable_cell_type)
+            cell_ID_and_types_pz_enrich$probable_cell_type
+        )
         return(pz_enrich_cell_type_frequencies)
     }
 
@@ -90,7 +95,7 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 #' @name plotCellTypesFromEnrichment
 #' @param gobject Giotto Object
 #' @param spat_unit spatial unit in which the enrichment information is stored
-#' @param feat_type feature type for which the enrichment information was 
+#' @param feat_type feature type for which the enrichment information was
 #' calculated
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
@@ -104,20 +109,21 @@ findCellTypesFromEnrichment <- function(gobject = NULL,
 #' This function generates a bar plot of cell types vs the frequency
 #' of that cell type in the data. These cell type results are
 #' based on the provided `enrichment_name`, and will be determined
-#' by the maximum value of the z-score or p-value for a given cell or 
+#' by the maximum value of the z-score or p-value for a given cell or
 #' annotation.
 #'
 #' @export
-plotCellTypesFromEnrichment <- function(gobject = NULL,
-    spat_unit = NULL,
-    feat_type = NULL,
-    enrichment_name = "PAGE_z_score",
-    title = NULL,
-    save_param = list(),
-    default_save_name = "cell_types_from_enrichment",
-    save_plot = NULL,
-    show_plot = NULL,
-    return_plot = NULL) {
+plotCellTypesFromEnrichment <- function(
+        gobject = NULL,
+        spat_unit = NULL,
+        feat_type = NULL,
+        enrichment_name = "PAGE_z_score",
+        title = NULL,
+        save_param = list(),
+        default_save_name = "cell_types_from_enrichment",
+        save_plot = NULL,
+        show_plot = NULL,
+        return_plot = NULL) {
     # guard clauses handled at first step downstream
     # therefore, omitting here.
     id_and_types <- findCellTypesFromEnrichment(
@@ -131,8 +137,11 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
     # data.table column
     probable_cell_type <- NULL
 
-    if (is.null(title)) title <- paste0(
-        spat_unit, "cell types (maximum", enrichment_name, ")")
+    if (is.null(title)) {
+        title <- paste0(
+            spat_unit, "cell types (maximum", enrichment_name, ")"
+        )
+    }
 
     pl <- ggplot2::ggplot(id_and_types, aes(x = probable_cell_type)) +
         ggplot2::geom_bar() +
@@ -163,7 +172,7 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
 #' @name pieCellTypesFromEnrichment
 #' @param gobject Giotto Object
 #' @param spat_unit spatial unit in which the enrichment information is stored
-#' @param feat_type feature type for which the enrichment information was 
+#' @param feat_type feature type for which the enrichment information was
 #' calculated
 #' @param enrichment_name name of the spatial enrichment
 #'  i.e. output from GiottoClass::list_spatial_enrichment_names()
@@ -179,16 +188,17 @@ plotCellTypesFromEnrichment <- function(gobject = NULL,
 #' and will be determined by the maximum value of the z-score
 #' or p-value for a given cell or annotation.
 #' @export
-pieCellTypesFromEnrichment <- function(gobject = NULL,
-    spat_unit = NULL,
-    feat_type = NULL,
-    enrichment_name = "PAGE_z_score",
-    title = NULL,
-    save_param = list(),
-    default_save_name = "cell_types_from_enrichment_pie",
-    save_plot = NULL,
-    show_plot = NULL,
-    return_plot = NULL) {
+pieCellTypesFromEnrichment <- function(
+        gobject = NULL,
+        spat_unit = NULL,
+        feat_type = NULL,
+        enrichment_name = "PAGE_z_score",
+        title = NULL,
+        save_param = list(),
+        default_save_name = "cell_types_from_enrichment_pie",
+        save_plot = NULL,
+        show_plot = NULL,
+        return_plot = NULL) {
     # guard clauses handled one step downstream
 
     freq_table <- findCellTypesFromEnrichment(
@@ -211,7 +221,8 @@ pieCellTypesFromEnrichment <- function(gobject = NULL,
     for (i in cell_types) {
         # hackish, admittedly
         nullvar <- freq_dt[cell_type == i, perc := num_cells / sum(
-            freq_dt$num_cells) * 100]
+            freq_dt$num_cells
+        ) * 100]
     }
     rm(nullvar) # saves memory
 

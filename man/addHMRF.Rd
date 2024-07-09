@@ -39,11 +39,12 @@ Add selected results from doHMRF to the giotto object
 g <- GiottoData::loadGiottoMini("visium")
 spat_genes <- binSpect(g)
 
-output_folder <- file.path(tempdir(), 'HMRF')
-if(!file.exists(output_folder)) dir.create(output_folder, recursive = TRUE)
+output_folder <- file.path(tempdir(), "HMRF")
+if (!file.exists(output_folder)) dir.create(output_folder, recursive = TRUE)
 
 out <- doHMRF(
-    g, spatial_genes = spat_genes[seq_len(20)]$feats,
+    g,
+    spatial_genes = spat_genes[seq_len(20)]$feats,
     expression_values = "scaled",
     spatial_network_name = "Delaunay_network",
     k = 6, betas = c(0, 10, 5),
@@ -59,6 +60,6 @@ g <- addHMRF(
 )
 
 spatPlot(
-    gobject = g, cell_color = 'HMRF_k6_b.20',
+    gobject = g, cell_color = "HMRF_k6_b.20",
 )
 }

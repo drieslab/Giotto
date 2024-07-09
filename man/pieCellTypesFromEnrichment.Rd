@@ -22,7 +22,7 @@ pieCellTypesFromEnrichment(
 
 \item{spat_unit}{spatial unit in which the enrichment information is stored}
 
-\item{feat_type}{feature type for which the enrichment information was 
+\item{feat_type}{feature type for which the enrichment information was
 calculated}
 
 \item{enrichment_name}{name of the spatial enrichment

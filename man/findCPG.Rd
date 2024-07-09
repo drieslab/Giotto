@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{findCPG}
 \alias{findCPG}
-\title{findCPG}
+\title{deprecated}
 \usage{
 findCPG(...)
 }

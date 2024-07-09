@@ -21,7 +21,7 @@
 ggplot
 }
 \description{
-Plots recovery plot to compare ligand-receptor rankings from 
+Plots recovery plot to compare ligand-receptor rankings from
 spatial and expression information
 }
 \keyword{internal}

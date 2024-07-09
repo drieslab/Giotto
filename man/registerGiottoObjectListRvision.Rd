@@ -22,16 +22,16 @@ registerGiottoObjectListRvision(
 
 \item{spatloc_unreg}{spatial locations to use}
 
-\item{spatloc_reg_name}{name for registered spatial locations to. Defaults 
+\item{spatloc_reg_name}{name for registered spatial locations to. Defaults
 to replacement of spat_unreg (optional)}
 
 \item{verbose}{be verbose}
 }
 \value{
-list of registered giotto objects where the registered images and 
+list of registered giotto objects where the registered images and
 spatial locations
 }
 \description{
-Function to spatially align gobject data based on Rvision image 
+Function to spatially align gobject data based on Rvision image
 registration.
 }

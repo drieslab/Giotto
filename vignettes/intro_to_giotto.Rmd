@@ -9,8 +9,8 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -63,8 +63,9 @@ g <- runPCA(g)
 Plot PCA
 
 ```{r}
-plotPCA(g, 
-        cell_color = "leiden_clus")
+plotPCA(g,
+    cell_color = "leiden_clus"
+)
 ```
 
 Run UMAP
@@ -77,7 +78,8 @@ Plot UMAP
 
 ```{r}
 plotUMAP(g,
-         cell_color = "leiden_clus")
+    cell_color = "leiden_clus"
+)
 ```
 
 Run tSNE
@@ -90,7 +92,8 @@ Plot tSNE
 
 ```{r}
 plotTSNE(g,
-         cell_color = "leiden_clus")
+    cell_color = "leiden_clus"
+)
 ```
 
 Do clustering
@@ -103,7 +106,8 @@ Spatial plot with clusters
 
 ```{r}
 spatPlot2D(g,
-           cell_color = "leiden_clus")
+    cell_color = "leiden_clus"
+)
 ```
 
 Session info

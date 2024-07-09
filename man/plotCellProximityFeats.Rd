@@ -39,7 +39,7 @@ plotCellProximityFeats(
 
 \item{min_int_cells}{minimum number of interacting neighbor cell type}
 
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor 
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor
 cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
@@ -77,6 +77,8 @@ Create visualization for cell proximity feature scores
 g <- GiottoData::loadGiottoMini("visium")
 icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
 
-plotCellProximityFeats(gobject = g, icfObject = icfObject,
-show_plot = TRUE, save_plot = FALSE, return_plot = FALSE)
+plotCellProximityFeats(
+    gobject = g, icfObject = icfObject,
+    show_plot = TRUE, save_plot = FALSE, return_plot = FALSE
+)
 }

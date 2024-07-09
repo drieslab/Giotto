@@ -16,14 +16,15 @@
 #' of the tile: sx (start x), ex (end x), sy, and ey.
 #'
 #' @export
-doCellSegmentation <- function(raster_img,
-    folder_path,
-    reduce_resolution = 4,
-    overlapping_pixels = 50,
-    python_path = NULL) {
+doCellSegmentation <- function(
+        raster_img,
+        folder_path,
+        reduce_resolution = 4,
+        overlapping_pixels = 50,
+        python_path = NULL) {
     package_check("deepcell", repository = "pip")
     package_check("PIL", repository = "pip")
-    
+
     # prepare python path and segmentation script
     reticulate::use_python(required = TRUE, python = python_path)
     python_segmentation_function <- system.file("python",

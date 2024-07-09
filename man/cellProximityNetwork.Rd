@@ -42,10 +42,10 @@ cellProximityNetwork(
 
 \item{rescale_edge_weights}{rescale edge weights (boolean)}
 
-\item{edge_weight_range_depletion}{numerical vector of length 2 to rescale 
+\item{edge_weight_range_depletion}{numerical vector of length 2 to rescale
 depleted edge weights}
 
-\item{edge_weight_range_enrichment}{numerical vector of length 2 to rescale 
+\item{edge_weight_range_enrichment}{numerical vector of length 2 to rescale
 enriched edge weights}
 
 \item{layout}{layout algorithm to use to draw nodes and edges}
