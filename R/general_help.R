@@ -688,7 +688,7 @@ get10Xmatrix_h5 <- function(
 #' info. A default of 0.2125 is provided.
 #' @param affine filepath to `...imagealignment.csv` which contains an affine
 #' transformation matrix
-#' @keywords internal
+#' @export
 read10xAffineImage <- function(
         file, imagealignment_path, micron = 0.2125
 ) {
