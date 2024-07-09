@@ -678,6 +678,43 @@ get10Xmatrix_h5 <- function(
 }
 
 
+#' @name read10xAffineImage
+#' @description Read a 10x image that is provided with an affine matrix
+#' transform. Loads the image in with an orientation that matches the dataset
+#' points and polygons vector information
+#' @param file filepath to image
+#' @param micron micron scaling. Directly used if a numeric is supplied.
+#' Also prefers a filepath to the `experiment.xenium` file which contains this
+#' info. A default of 0.2125 is provided.
+#' @param affine filepath to `...imagealignment.csv` which contains an affine
+#' transformation matrix
+#' @keywords internal
+read10xAffineImage <- function(
+        file, imagealignment_path, micron = 0.2125
+) {
+    checkmate::assert_file_exists(file)
+    checkmate::assert_file_exists(imagealignment_path)
+    if (!is.numeric(micron)) {
+        checkmate::assert_file_exists(micron)
+        micron <- jsonlite::read_json(micron)$pixel_size
+    }
+
+    aff <- data.table::fread(imagealignment_path) %>%
+        as.matrix()
+
+    img <- createGiottoLargeImage(file)
+
+    aff_img <- .tenx_img_affine(x = img, affine = aff, micron = micron)
+
+    return(aff_img)
+}
+
+.tenx_img_affine <- function(x, affine, micron) {
+    x %>%
+        affine(affine[seq(2), seq(2)]) %>%
+        rescale(micron, x0 = 0, y0 = 0) %>%
+        spatShift(dx = affine[1,3] * micron, dy = -affine[2,3] * micron)
+}
 
 
 
