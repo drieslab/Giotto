@@ -4,7 +4,7 @@
 \alias{print.icfObject}
 \title{icfObject print method}
 \usage{
-\method{print}{icfObject}(x, ...)
+print.icfObject(x, ...)
 }
 \arguments{
 \item{x}{object to print}
