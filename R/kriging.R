@@ -194,7 +194,7 @@ setMethod(
                     # model to use
                     model <- gstat::gstat(
                         id = feat,
-                        formula = as.formula(sprintf("`%s` ~ 1"), feat),
+                        formula = as.formula(sprintf("`%s` ~ 1", feat)),
                         locations = ~ sdimx + sdimy,
                         data = annotatedlocs,
                         nmax = 7,
