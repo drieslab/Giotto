@@ -4,7 +4,7 @@
 \alias{print.combIcfObject}
 \title{combIcfObject print method}
 \usage{
-\method{print}{combIcfObject}(x, ...)
+print.combIcfObject(x, ...)
 }
 \arguments{
 \item{x}{object to print}
