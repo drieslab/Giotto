@@ -32,13 +32,13 @@ doKmeans(
 
 \item{spat_unit}{spatial unit (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use
+\item{expression_values}{expression values from list_expression()
 (e.g. "normalized", "scaled", "custom")}
 
-\item{feats_to_use}{subset of features to use}
+\item{feats_to_use}{(optional) subset of features to use}
 
-\item{dim_reduction_to_use}{dimension reduction to use
-(e.g. "cells", "pca", "umap", "tsne")}
+\item{dim_reduction_to_use}{dimension reduction from list_dim_reductions()
+(e.g. "pca", "umap", "tsne")}
 
 \item{dim_reduction_name}{dimensions reduction name, default to "pca"}
 
@@ -65,13 +65,15 @@ doKmeans(
 \item{seed_number}{number for seed}
 }
 \value{
-giotto object with new clusters appended to cell metadata
+if return_gobject = TRUE: giotto object with new clusters appended to cell metadata
 }
 \description{
 cluster cells using kmeans algorithm
 }
 \details{
-Description on how to use Kmeans clustering method.
+The default settings will use dimension reduction results as input. 
+Set dim_reduction_to_use = NULL if you want to directly use expression values as input. 
+By providing a feature vector to feats_to_use you can subset the expression matrix.
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
