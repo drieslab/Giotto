@@ -721,7 +721,7 @@ get10Xmatrix_h5 <- function(
     }
 }
 
-
+#' read10xAffineImage
 #' @name read10xAffineImage
 #' @description Read a 10x image that is provided with an affine matrix
 #' transform. Loads the image in with an orientation that matches the dataset
