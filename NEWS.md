@@ -4,6 +4,9 @@
 * Fix error in `plotInteractivePolygons()` when providing a spatial plot with a continuous scale [#964](https://github.com/drieslab/Giotto/issues/964) by jweis3
 * Fix error in DWLS `find_dampening_constant()` when `S[subset, ]` produces only 1 gene.
 
+## New
+* `read10xAffineImage()` for reading 10x affine tranformed images
+
 # Giotto 4.0.9
 
 ## Breaking changes

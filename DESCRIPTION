@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.9
+Version: 4.1.0
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
@@ -31,7 +31,7 @@ Depends:
     utils (>= 4.1.0),
     R (>= 4.1.0),
     methods,
-    GiottoClass (>= 0.3.1)
+    GiottoClass (>= 0.3.2)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -40,9 +40,8 @@ Imports:
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
     ggplot2 (>= 3.1.1),
-    ggrepel,
     GiottoUtils (>= 0.1.9),
-    GiottoVisuals (>= 0.2.2),
+    GiottoVisuals (>= 0.2.4),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
@@ -126,11 +125,18 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     qs
+Remotes:
+    drieslab/GiottoUtils,
+    drieslab/GiottoClass,
+    drieslab/GiottoVisuals
 Collate:
     'auxiliary_giotto.R'
     'cell_segmentation.R'
     'clustering.R'
-    'convenience.R'
+    'convenience_cosmx.R'
+    'convenience_general.R'
+    'convenience_visiumHD.R'
+    'convenience_xenium.R'
     'cross_section.R'
     'dd.R'
     'differential_expression.R'
