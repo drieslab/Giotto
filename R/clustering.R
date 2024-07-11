@@ -1204,11 +1204,11 @@ doSNNCluster <- function(
 #' @param gobject giotto object
 #' @param feat_type feature type (e.g. "cell")
 #' @param spat_unit spatial unit (e.g. "rna", "dna", "protein")
-#' @param expression_values expression values to use
+#' @param expression_values expression values from list_expression()
 #' (e.g. "normalized", "scaled", "custom")
-#' @param feats_to_use subset of features to use
-#' @param dim_reduction_to_use dimension reduction to use
-#' (e.g. "cells", "pca", "umap", "tsne")
+#' @param feats_to_use (optional) subset of features to use
+#' @param dim_reduction_to_use dimension reduction from list_dim_reductions()
+#' (e.g. "pca", "umap", "tsne")
 #' @param dim_reduction_name dimensions reduction name, default to "pca"
 #' @param dimensions_to_use dimensions to use, default = 1:10
 #' @param distance_method distance method (e.g. "original", "pearson",
@@ -1222,8 +1222,10 @@ doSNNCluster <- function(
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = TRUE)
 #' @param seed_number number for seed
-#' @returns giotto object with new clusters appended to cell metadata
-#' @details Description on how to use Kmeans clustering method.
+#' @returns if return_gobject = TRUE: giotto object with new clusters appended to cell metadata
+#' @details The default settings will use dimension reduction results as input. 
+#' Set dim_reduction_to_use = NULL if you want to directly use expression values as input. 
+#' By providing a feature vector to feats_to_use you can subset the expression matrix.
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
@@ -1252,6 +1254,7 @@ doKmeans <- function(
         return_gobject = TRUE,
         set_seed = TRUE,
         seed_number = 1234) {
+  
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1264,10 +1267,6 @@ doKmeans <- function(
     )
 
 
-    dim_reduction_to_use <- match.arg(
-        dim_reduction_to_use,
-        choices = c("cells", "pca", "umap", "tsne")
-    )
     distance_method <- match.arg(distance_method, choices = c(
         "original", "pearson", "spearman",
         "euclidean", "maximum", "manhattan",
@@ -1276,52 +1275,49 @@ doKmeans <- function(
 
 
     ## using dimension reduction ##
-    if (dim_reduction_to_use != "cells" & !is.null(dim_reduction_to_use)) {
-        ## TODO: check if reduction exists
-
-        # use only available dimensions if dimensions < dimensions_to_use
-        dim_coord <- get_dimReduction(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            reduction = "cells",
-            reduction_method = dim_reduction_to_use,
-            name = dim_reduction_name,
-            output = "dimObj"
-        )
-
-        dimensions_to_use <- dimensions_to_use[
-            dimensions_to_use %in% seq_len(ncol(dim_coord[]))
-        ]
-        matrix_to_use <- dim_coord[][, dimensions_to_use]
+    if(!is.null(dim_reduction_to_use)) {
+      
+      # use only available dimensions if dimensions < dimensions_to_use
+      dim_coord <- get_dimReduction(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        reduction = "cells",
+        reduction_method = dim_reduction_to_use,
+        name = dim_reduction_name,
+        output = "dimObj"
+      )
+      
+      dimensions_to_use <- dimensions_to_use[
+        dimensions_to_use %in% seq_len(ncol(dim_coord[]))
+      ]
+      matrix_to_use <- dim_coord[][, dimensions_to_use]
+      
     } else {
-        values <- match.arg(
-            expression_values,
-            unique(c("normalized", "scaled", "custom", expression_values))
-        )
-
-        ## using original matrix ##
-        expr_values <- getExpression(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            values = values,
-            output = "exprObj"
-        )
-
-        # subset expression matrix
-        if (!is.null(feats_to_use)) {
-            expr_values[] <- expr_values[][
-                rownames(expr_values[]) %in% feats_to_use,
-            ]
-        }
-
-        # features as columns
-        # cells as rows
-        matrix_to_use <- t_flex(expr_values[])
+      
+      ## using original matrix ##
+      expr_values <- getExpression(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        values = expression_values,
+        output = "exprObj"
+      )
+      
+      # subset expression matrix
+      if (!is.null(feats_to_use)) {
+        expr_values[] <- expr_values[][
+          rownames(expr_values[]) %in% feats_to_use,
+        ]
+      }
+      
+      # features as columns
+      # cells as rows
+      matrix_to_use <- t_flex(expr_values[])
+      
     }
-
-
+    
+    
     ## distance
     if (distance_method == "original") {
         celldist <- matrix_to_use
@@ -1480,10 +1476,6 @@ doHclust <- function(
     )
 
 
-    dim_reduction_to_use <- match.arg(
-        dim_reduction_to_use,
-        choices = c("cells", "pca", "umap", "tsne")
-    )
     distance_method <- match.arg(
         distance_method,
         choices = c(
