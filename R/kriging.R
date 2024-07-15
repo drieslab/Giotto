@@ -192,8 +192,9 @@ setMethod(
                     filename <- file.path(savedir, paste0(name, ".tif"))
 
                     # create subset table with only relevant data
-                    data <-
-                        annotatedlocs[, c("cell_ID", feat, "sdimx", "sdimy")]
+                    data <- annotatedlocs[,
+                        c("cell_ID", feat, "sdimx", "sdimy"), with = FALSE
+                    ]
                     data.table::setnames(data, old = feat, new = "count")
 
                     # model to use
