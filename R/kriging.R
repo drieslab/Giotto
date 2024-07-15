@@ -191,12 +191,18 @@ setMethod(
                     name <- sprintf(name_fmt, feat)
                     filename <- file.path(savedir, paste0(name, ".tif"))
 
+                    # create subset table with only relevant data
+                    data <- annotatedlocs[,
+                        c("cell_ID", feat, "sdimx", "sdimy"), with = FALSE
+                    ]
+                    data.table::setnames(data, old = feat, new = "count")
+
                     # model to use
                     model <- gstat::gstat(
                         id = feat,
-                        formula = as.formula(sprintf("`%s` ~ 1", feat)),
+                        formula = count ~ 1,
                         locations = ~ sdimx + sdimy,
-                        data = annotatedlocs,
+                        data = data,
                         nmax = 7,
                         set = list(
                             idp = 0.5
