@@ -190,7 +190,7 @@ setMethod(
                 function(feat) {
                     name <- sprintf(name_fmt, feat)
                     filename <- file.path(savedir, paste0(name, ".tif"))
-
+browser()
                     # create subset table with only relevant data
                     data <-
                         annotatedlocs[, c("cell_ID", feat, "sdimx", "sdimy")]
