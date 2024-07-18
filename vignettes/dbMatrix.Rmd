@@ -54,11 +54,11 @@ dgc = getExpression(visium, output = "matrix")
 con = DBI::dbConnect(duckb::duckdb(), ":memory:")
 
 # Create a dbSparseMatrix using the dbMatrix constructor function
-dbsm = dbMatrix::createDBMatrix(value = dgc, 
-                                con = con, 
-                                name = 'dgc', 
-                                class = "dbSparseMatrix",
-                                overwrite = TRUE)
+dbsm = dbMatrix::dbMatrix(value = dgc, 
+                          con = con, 
+                          name = 'dgc', 
+                          class = "dbSparseMatrix",
+                          overwrite = TRUE)
 
 # Create Giotto exprObj with the dbMatrix
 expObj_db = createExprObj(expression_data = dbsm, 
