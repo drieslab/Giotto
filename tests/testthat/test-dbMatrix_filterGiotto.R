@@ -8,7 +8,7 @@ dgc = getExpression(visium, output = "matrix")
 
 con = DBI::dbConnect(duckdb::duckdb(), ":memory:")
 
-dbsm = dbMatrix::createDBMatrix(value = dgc, 
+dbsm = dbMatrix::dbMatrix(value = dgc, 
                                 con = con, 
                                 name = 'dgc', 
                                 class = "dbSparseMatrix",
