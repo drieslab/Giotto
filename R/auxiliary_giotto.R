@@ -785,12 +785,6 @@ filterGiotto <- function(gobject,
     feat_names <- rownames(raw_expr[])
     col_names <- colnames(raw_expr[])
 
-  # set global option options(giotto.dbmatrix_compute = FALSE) if not desired
-  # see ?dplyr::compute() for more details
-  if(inherits(raw_expr[], "dbMatrix")){
-    compute_mat <- getOption("giotto.dbmatrix_compute", FALSE)
-  }
-
     ## 1. library size normalize
     if (library_size_norm == TRUE) {
         norm_expr <- .lib_norm_giotto(
@@ -860,8 +854,9 @@ filterGiotto <- function(gobject,
     }
 
     ## 5. create and set exprObj
-    # Save dbMatrix to db if global option is set
-    if(compute_mat & !is.null(norm_expr)){
+    # Save dbMatrix to db
+    compute_mat <- getOption("giotto.dbmatrix_compute", default = FALSE)
+    if(compute_mat && !is.null(norm_expr)){
         norm_expr <- .compute_dbMatrix(
             dbMatrix = norm_expr,
             name = 'normalized',
@@ -878,7 +873,8 @@ filterGiotto <- function(gobject,
         misc = NULL
     )
   
-    if(compute_mat & !is.null(norm_scaled_expr)){
+    # Save dbMatrix to db
+    if(compute_mat && !is.null(norm_scaled_expr)){
         norm_scaled_expr = .compute_dbMatrix(
             dbMatrix = norm_scaled_expr,
             name = 'scaled',
