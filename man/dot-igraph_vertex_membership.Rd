@@ -4,12 +4,16 @@
 \alias{.igraph_vertex_membership}
 \title{igraph vertex membership}
 \usage{
-.igraph_vertex_membership(g, clus_name)
+.igraph_vertex_membership(g, clus_name, all_ids = NULL, missing_id_name)
 }
 \arguments{
 \item{g}{igraph}
 
 \item{clus_name}{character. name to assign column of clustering info}
+
+\item{all_ids}{(optional) character vector with all ids}
+
+\item{missing_id_name}{character and name for vertices that were missing from g}
 }
 \value{
 data.table
