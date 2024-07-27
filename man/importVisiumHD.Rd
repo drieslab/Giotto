@@ -20,7 +20,7 @@ importVisiumHD(
 
 \item{expression_source}{character. Raw or filter expression data. Defaults to 'raw'}
 
-\item{gene_column_index}{numeric. Expression column to use for gene names 
+\item{gene_column_index}{numeric. Expression column to use for gene names
 1 = Ensembl and 2 = gene symbols}
 
 \item{barcodes}{character vector. (optional) Use if you only want to load
@@ -74,7 +74,7 @@ expression_obj = readerHD$load_expression()
 Load transcript data (cell metadata, expression object, and transcripts per pixel)
 my_transcripts = readerHD$load_transcripts(array_subset_row = c(500, 1000),
                                            array_subset_col = c(500, 1000))
-                                           
+
 # Create a `giotto` object and add the loaded data
 TODO
 }
