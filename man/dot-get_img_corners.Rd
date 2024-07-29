@@ -13,7 +13,7 @@
 data.frame
 }
 \description{
-finds four corner spatial coords of giottoImages or 
+finds four corner spatial coords of giottoImages or
 magick-images
 }
 \keyword{internal}

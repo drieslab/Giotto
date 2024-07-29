@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{findICG}
 \alias{findICG}
-\title{findICG}
+\title{deprecated}
 \usage{
 findICG(...)
 }

@@ -208,8 +208,6 @@ separately (default)}
 \item{expression_matrix}{expression matrix}
 
 \item{spatial_network}{spatial network in data.table format}
-
-\item{subset_genes}{deprecated, use subset_feats}
 }
 \value{
 data.table with results (see details)

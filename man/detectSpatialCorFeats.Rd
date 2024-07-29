@@ -2,7 +2,8 @@
 % Please edit documentation in R/spatial_genes.R
 \name{detectSpatialCorFeats}
 \alias{detectSpatialCorFeats}
-\title{detectSpatialCorFeats}
+\alias{detectSpatialCorFeatsMatrix}
+\title{Detect spatially correlated features}
 \usage{
 detectSpatialCorFeats(
   gobject,
@@ -15,6 +16,18 @@ detectSpatialCorFeats(
   spatial_network_name = "Delaunay_network",
   network_smoothing = NULL,
   spatial_grid_name = "spatial_grid",
+  min_cells_per_grid = 4,
+  cor_method = c("pearson", "kendall", "spearman")
+)
+
+detectSpatialCorFeatsMatrix(
+  expression_matrix,
+  method = c("grid", "network"),
+  spatial_network,
+  spatial_grid,
+  spatial_locs,
+  subset_feats = NULL,
+  network_smoothing = NULL,
   min_cells_per_grid = 4,
   cor_method = c("pearson", "kendall", "spearman")
 )
@@ -32,44 +45,70 @@ detectSpatialCorFeats(
 
 \item{expression_values}{gene expression values to use}
 
-\item{subset_feats}{subset of feats to use}
+\item{subset_feats}{subset of features to use}
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{network_smoothing}{smoothing factor beteen 0 and 1
-(default: automatic)}
+\item{network_smoothing}{smoothing factor between 0 and 1
+(has automatic default, see details)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
 \item{min_cells_per_grid}{minimum number of cells to consider a grid}
 
 \item{cor_method}{correlation method}
+
+\item{expression_matrix}{provided expression matrix}
+
+\item{spatial_network}{provided spatial network}
+
+\item{spatial_grid}{provided spatial grid}
+
+\item{spatial_locs}{provided spatial locations}
 }
 \value{
-returns a spatial correlation object: "spatCorObject"
+returns a spatial correlation object: \code{spatCorObject}
 }
 \description{
-Detect features that are spatially correlated
+Detect features that are spatially correlated. Functions for
+starting from either a gobject (\code{detectSpatialCorFeats()}) or individual
+pieces of data (\code{detectSpatialCorFeatsMatrix()}) are provided.
 }
 \details{
-For method = network, it expects a fully connected spatial network. You
-can make sure to create a
+For \code{method = network}, it expects a fully connected spatial network.
+You can make sure to create a
 fully connected network by setting minimal_k > 0 in the
- \code{\link{createSpatialNetwork}} function.
-\itemize{
- \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
- \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell
- by using the neighbours within the predefined spatial network. b is a smoothening factor
- that defaults to 1 - 1/k, where k is the median number of  k-neighbors in the
- selected spatial network. Setting b = 0 means no smoothing and b = 1 means no contribution
- from its own expression.}
+\code{\link{createSpatialNetwork}} function.
+\enumerate{
+\item \strong{grid-averaging:} average gene expression values within a predefined
+spatial grid
+\item \strong{network-averaging:} smoothens the gene expression matrix by
+averaging the expression within one cell by using the neighbours within
+the predefined spatial network. \eqn{b} is a smoothening factor passed by
+\code{network_smoothing} param that defaults to \eqn{1 - 1/k}, where \eqn{k}
+is the median number of k-neighbors in the selected spatial network.
+Setting \eqn{b = 0} means no smoothing and \eqn{b = 1} means no
+contribution from its own expression.
 }
-The spatCorObject can be further explored with showSpatialCorFeats()
+
+The \code{spatCorObject} can be further explored with \code{showSpatialCorFeats()}
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
 
+# Perform with data in a gobject
 detectSpatialCorFeats(g, method = "network")
+
+# This analysis can also be performed with data outside of the gobject
+detectSpatialCorFeatsMatrix(
+    expression_matrix = getExpression(
+        g,
+        output = "matrix"
+    ),
+    method = "network",
+    spatial_network = getSpatialNetwork(g, output = "networkDT")
+)
+
 }
 \seealso{
 \code{\link{showSpatialCorFeats}}

@@ -43,21 +43,22 @@ NULL
 #' @export
 setMethod(
     "interpolateFeature", signature(x = "giotto", y = "missing"),
-    function(x,
-    spat_unit = NULL,
-    feat_type = NULL,
-    feats,
-    spatvalues_params = list(),
-    spat_loc_name = "raw",
-    ext = NULL,
-    buffer = 50,
-    name_fmt = "%s",
-    savedir = file.path(getwd(), "interp_rasters"),
-    overwrite = FALSE,
-    verbose = NULL,
-    ...) {
+    function(
+        x,
+        spat_unit = NULL,
+        feat_type = NULL,
+        feats,
+        spatvalues_params = list(),
+        spat_loc_name = "raw",
+        ext = NULL,
+        buffer = 50,
+        name_fmt = "%s",
+        savedir = file.path(getwd(), "interp_rasters"),
+        overwrite = FALSE,
+        verbose = NULL,
+        ...) {
         sl <- NULL
-        
+
         # This method prepares the data from the giotto object to pass
         # downstream where the actual interpolation happens
 
@@ -132,9 +133,6 @@ setMethod(
 #' @rdname interpolateFeature
 #' @param rastersize numeric. Length of major axis in px of interpolation
 #' raster to create.
-#' @param name name of interpolation `giottoLargeImage` to generate
-#' @param filename character. Output filename. Default is \[`name`\].tif within
-#' the working directory.
 #' @param overwrite logical. Whether raster outputs should be overwritten if
 #' the same `filename` is provided.
 #' @details
@@ -144,15 +142,16 @@ setMethod(
 setMethod(
     "interpolateFeature",
     signature(x = "spatLocsObj", y = "data.frame"),
-    function(x, y,
-    ext = NULL,
-    buffer = 50,
-    rastersize = 500,
-    name_fmt = "%s",
-    savedir = file.path(getwd(), "interp_rasters"),
-    overwrite = FALSE,
-    # cores = GiottoUtils::determine_cores(),
-    ...) {
+    function(
+        x, y,
+        ext = NULL,
+        buffer = 50,
+        rastersize = 500,
+        name_fmt = "%s",
+        savedir = file.path(getwd(), "interp_rasters"),
+        overwrite = FALSE,
+        # cores = GiottoUtils::determine_cores(),
+        ...) {
         checkmate::assert_character(savedir)
         checkmate::assert_character(name_fmt)
         checkmate::assert_logical(overwrite)
@@ -192,12 +191,18 @@ setMethod(
                     name <- sprintf(name_fmt, feat)
                     filename <- file.path(savedir, paste0(name, ".tif"))
 
+                    # create subset table with only relevant data
+                    data <- annotatedlocs[,
+                        c("cell_ID", feat, "sdimx", "sdimy"), with = FALSE
+                    ]
+                    data.table::setnames(data, old = feat, new = "count")
+
                     # model to use
                     model <- gstat::gstat(
                         id = feat,
-                        formula = as.formula(paste(feat, "~ 1")),
+                        formula = count ~ 1,
                         locations = ~ sdimx + sdimy,
-                        data = annotatedlocs,
+                        data = data,
                         nmax = 7,
                         set = list(
                             idp = 0.5

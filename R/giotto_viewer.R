@@ -1,19 +1,21 @@
 #' @title write_giotto_viewer_annotation
-#' @description write out factor-like annotation data from a giotto object for 
+#' @description write out factor-like annotation data from a giotto object for
 #' the Viewer
 #' @param annotation annotation from the data.table from giotto object
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_annotation <- function(annotation,
-    annot_name = "test",
-    output_directory = getwd()) {
+write_giotto_viewer_annotation <- function(
+        annotation,
+        annot_name = "test",
+        output_directory = getwd()) {
     if (is.numeric(annotation) == TRUE) {
         # annotation information and mapping
         sorted_unique_numbers <- sort(unique(annotation))
         annot_map <- data.table::data.table(
-            num = sorted_unique_numbers, fac = sorted_unique_numbers)
+            num = sorted_unique_numbers, fac = sorted_unique_numbers
+        )
         annot_information <- annotation
     } else {
         # factors to numerics
@@ -54,9 +56,10 @@ write_giotto_viewer_annotation <- function(annotation,
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_numeric_annotation <- function(annotation,
-    annot_name = "test",
-    output_directory = getwd()) {
+write_giotto_viewer_numeric_annotation <- function(
+        annotation,
+        annot_name = "test",
+        output_directory = getwd()) {
     # write to output directory
     annot_inf_map <- paste0(annot_name, "_num_annot_information", ".txt")
     write.table(annotation,
@@ -79,14 +82,16 @@ write_giotto_viewer_numeric_annotation <- function(annotation,
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
-    dim_red = NULL,
-    dim_red_name = NULL,
-    dim_red_rounding = NULL,
-    dim_red_rescale = c(-20, 20),
-    output_directory = getwd()) {
+write_giotto_viewer_dim_reduction <- function(
+        dim_reduction_cell,
+        dim_red = NULL,
+        dim_red_name = NULL,
+        dim_red_rounding = NULL,
+        dim_red_rescale = c(-20, 20),
+        output_directory = getwd()) {
     dim_red_coord <- dim_reduction_cell[[dim_red]][[
-        dim_red_name]]$coordinates[, seq_len(2)]
+        dim_red_name
+    ]]$coordinates[, seq_len(2)]
 
     if (is.null(dim_red_coord)) {
         cat("\n combination of ", dim_red, " and ", dim_red_name, " does not exist \n")
@@ -99,7 +104,8 @@ write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
         # rescale dimension reduction coordinates
         if (!is.null(dim_red_rescale) & length(dim_red_rescale) == 2) {
             dim_red_coord <- scales::rescale(
-                x = dim_red_coord, to = dim_red_rescale)
+                x = dim_red_coord, to = dim_red_rescale
+            )
         }
 
         dim_red_name <- paste0(dim_red, "_", dim_red_name, "_dim_coord.txt")
@@ -137,33 +143,34 @@ write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
 #' include the provided spatial enrichment name (default PAGE or rank)
 #' and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 #' @export
-exportGiottoViewer <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spat_loc_name = "raw",
-    output_directory = NULL,
-    spat_enr_names = NULL,
-    factor_annotations = NULL,
-    numeric_annotations = NULL,
-    dim_reductions,
-    dim_reduction_names,
-    expression_values = c("scaled", "normalized", "custom"),
-    dim_red_rounding = NULL,
-    dim_red_rescale = c(-20, 20),
-    expression_rounding = 2,
-    overwrite_dir = TRUE,
-    verbose = TRUE) {
+exportGiottoViewer <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spat_loc_name = "raw",
+        output_directory = NULL,
+        spat_enr_names = NULL,
+        factor_annotations = NULL,
+        numeric_annotations = NULL,
+        dim_reductions,
+        dim_reduction_names,
+        expression_values = c("scaled", "normalized", "custom"),
+        dim_red_rounding = NULL,
+        dim_red_rescale = c(-20, 20),
+        expression_rounding = 2,
+        overwrite_dir = TRUE,
+        verbose = TRUE) {
     ## output directory ##
     if (file.exists(output_directory)) {
         if (overwrite_dir == TRUE) {
-            message("output directory already exists, files will be 
+            message("output directory already exists, files will be
                     overwritten")
         } else {
-            stop("output directory already exists, change overwrite_dir = TRUE 
+            stop("output directory already exists, change overwrite_dir = TRUE
                 to overwrite files \n")
         }
     } else if (is.null(output_directory)) {
-        message("no output directory is provided, defaults to current 
+        message("no output directory is provided, defaults to current
                 directory: ", getwd(), "\n")
         output_directory <- getwd()
     } else {
@@ -265,10 +272,13 @@ exportGiottoViewer <- function(gobject,
             }
 
             annot_list <- data.table(
-                txtfiles = unlist(text_file_names), names = unlist(annot_names))
+                txtfiles = unlist(text_file_names), names = unlist(annot_names)
+            )
             write.table(annot_list,
-                file = paste0(output_directory, "/", 
-                            "annotation_list", "_", feat, ".txt"),
+                file = paste0(
+                    output_directory, "/",
+                    "annotation_list", "_", feat, ".txt"
+                ),
                 quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " "
             )
         }
@@ -302,10 +312,13 @@ exportGiottoViewer <- function(gobject,
             }
 
             annot_list <- data.table(
-                txtfiles = unlist(text_file_names), names = unlist(annot_names))
+                txtfiles = unlist(text_file_names), names = unlist(annot_names)
+            )
             write.table(annot_list,
-                file = paste0(output_directory, "/", 
-                            "annotation_num_list", "_", feat, ".txt"),
+                file = paste0(
+                    output_directory, "/",
+                    "annotation_num_list", "_", feat, ".txt"
+                ),
                 quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " "
             )
         }
@@ -364,38 +377,41 @@ exportGiottoViewer <- function(gobject,
         }
         output_directory_norm <- normalizePath(output_directory)
         fileWrite_directory <- paste0(
-            output_directory_norm, "/", "giotto_expression.csv")
+            output_directory_norm, "/", "giotto_expression.csv"
+        )
         data.table::fwrite(
-            data.table::as.data.table(expr_values, keep.rownames = "gene"), 
-            file = fileWrite_directory, sep = ",", 
-            quote = FALSE, row.names = FALSE, col.names = TRUE)
+            data.table::as.data.table(expr_values, keep.rownames = "gene"),
+            file = fileWrite_directory, sep = ",",
+            quote = FALSE, row.names = FALSE, col.names = TRUE
+        )
 
 
-        if (verbose == TRUE) 
+        if (verbose == TRUE) {
             cat("finished writing giotto viewer files to", output_directory)
+        }
 
         if (verbose == TRUE) {
             message("=========================================================")
-            message("Next steps. Please manually run the following in a SHELL 
+            message("Next steps. Please manually run the following in a SHELL
                     terminal:")
             message("=========================================================")
             message(paste("cd ", output_directory))
-            message("giotto_setup_image --require-stitch=n --image=n 
-                    --image-multi-channel=n --segmentation=n --multi-fov=n 
+            message("giotto_setup_image --require-stitch=n --image=n
+                    --image-multi-channel=n --segmentation=n --multi-fov=n
                     --output-json=step1.json")
             message("smfish_step1_setup -c step1.json")
-            message("giotto_setup_viewer --num-panel=2 
-                    --input-preprocess-json=step1.json 
-                    --panel-1=PanelPhysicalSimple --panel-2=PanelTsne 
-                    --output-json=step2.json 
+            message("giotto_setup_viewer --num-panel=2
+                    --input-preprocess-json=step1.json
+                    --panel-1=PanelPhysicalSimple --panel-2=PanelTsne
+                    --output-json=step2.json
                     --input-annotation-list=annotation_list.txt")
-            message("smfish_read_config -c step2.json -o test.dec6.js 
+            message("smfish_read_config -c step2.json -o test.dec6.js
                     -p test.dec6.html -q test.dec6.css")
             message("giotto_copy_js_css --output .")
             message("python3 -m http.server")
             message("=========================================================")
-            message("Finally, open your browser, navigate to 
-                    http://localhost:8000/. Then click on the file 
+            message("Finally, open your browser, navigate to
+                    http://localhost:8000/. Then click on the file
                     test.dec6.html to see the viewer.")
             message("For more information, http://spatialgiotto.rc.fas.harvard.edu/giotto.viewer.setup3.html", "\n")
         }

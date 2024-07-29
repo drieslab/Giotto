@@ -111,7 +111,7 @@ are used when this is TRUE. continuous colors when FALSE.}
 plotly
 }
 \description{
-Visualize 3D cell-cell interactions according to spatial 
+Visualize 3D cell-cell interactions according to spatial
 coordinates in plotly mode
 }
 \details{
