@@ -130,6 +130,7 @@ Remotes:
     drieslab/GiottoClass,
     drieslab/GiottoVisuals
 Collate:
+    'ONTraC_wrapper.R'
     'auxiliary_giotto.R'
     'cell_segmentation.R'
     'clustering.R'
