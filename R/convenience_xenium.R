@@ -783,7 +783,8 @@ importXenium <- function(
     }
 
     dropcols <- dropcols[dropcols %in% colnames(feat_meta)]
-    feat_meta[, (dropcols) := NULL] # remove dropcols
+    # remove dropcols
+    if (length(dropcols) > 0L) feat_meta[, (dropcols) := NULL]
 
     fx <- createFeatMetaObj(
         metadata = feat_meta,
