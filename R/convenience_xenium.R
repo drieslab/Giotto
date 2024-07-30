@@ -886,7 +886,7 @@ importXenium <- function(
     )
 
     # ensure list
-    if (!inherits(ex, "list")) ex_list <- list(ex_list)
+    if (!inherits(ex_list, "list")) ex_list <- list(ex_list)
 
     # lapply to process more than one if present
     eo_list <- lapply(ex_list, function(ex) {
