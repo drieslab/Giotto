@@ -475,12 +475,13 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 #' @returns `XeniumReader` object
 #' @export
 importXenium <- function(
-        xenium_dir = NULL, qv_threshold = 20,
+        xenium_dir = NULL, qv_threshold = 20
 ) {
     a <- list(Class = "XeniumReader")
     if (!is.null(xenium_dir)) {
         a$xenium_dir <- xenium_dir
     }
+    a$qv_threshold <- qv_threshold
 
     do.call(new, args = a)
 }
