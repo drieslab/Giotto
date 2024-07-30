@@ -161,7 +161,7 @@ setMethod(
         if (length(obj@micron) == 0) { # if no value already set
             if (!is.null(experiment_info_path)) {
                 obj@micron <- jsonlite::fromJSON(
-                    manifest$experiment.xenium)$pixel_size
+                    experiment_info_path)$pixel_size
             } else {
                 warning(wrap_txt("No .xenium file found.
                         Guessing 0.2125 as micron scaling"))
@@ -472,6 +472,8 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 #' can be flexibly modified to do things such as look in alternative
 #' directories or paths
 #' @param xenium_dir Xenium output directory
+#' @param qv_threshold Minimum Phred-scaled quality score cutoff to be included
+#' as a subcellular transcript detection (default = 20)
 #' @returns `XeniumReader` object
 #' @export
 importXenium <- function(
