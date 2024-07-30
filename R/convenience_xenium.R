@@ -9,6 +9,7 @@ setClass(
         xenium_dir = "character",
         filetype = "list",
         qv = "ANY",
+        micron = "numeric",
         calls = "list"
     ),
     prototype = list(
@@ -62,31 +63,35 @@ setMethod(
         .Object,
         xenium_dir,
         filetype,
-        qv_cutoff
+        qv_cutoff,
+        micron
     ) {
-        .Object <- callNextMethod(.Object)
+        obj <- callNextMethod(.Object)
 
         # provided params (if any)
         if (!missing(xenium_dir)) {
             checkmate::assert_directory_exists(xenium_dir)
-            .Object@xenium_dir <- xenium_dir
+            obj@xenium_dir <- xenium_dir
         }
         if (!missing(filetype)) {
-            .Object@filetype <- filetype
+            obj@filetype <- filetype
         }
         if (!missing(qv_cutoff)) {
-            .Object@qv <- qv_cutoff
+            obj@qv <- qv_cutoff
+        }
+        if (!missing(micron)) {
+            obj@micron <- micron
         }
 
 
         # check filetype
         ftype_data <- c("transcripts", "boundaries", "expression", "cell_meta")
-        if (!all(ftype_data %in% names(.Object@filetype))) {
+        if (!all(ftype_data %in% names(obj@filetype))) {
             stop(wrap_txt("`$filetype` must have entries for each of:\n",
                           paste(ftype_data, collapse = ", ")))
         }
 
-        ftype <- .Object@filetype
+        ftype <- obj@filetype
         ft_tab <- c("csv", "parquet")
         ft_exp <- c("h5", "mtx", "zarr")
         if (!ftype$transcripts %in% ft_tab) {
@@ -112,7 +117,7 @@ setMethod(
 
 
         # detect paths and subdirs
-        p <- .Object@xenium_dir
+        p <- obj@xenium_dir
         .xenium_detect <- function(pattern, ...) {
             .detect_in_dir(
                 pattern = pattern, ...,
@@ -152,6 +157,17 @@ setMethod(
         expr_path <- .xenium_ftype(expr_path, ftype$expression)
         cell_meta_path <- .xenium_ftype(cell_meta_path, ftype$cell_meta)
 
+        # decide micron scaling
+        if (length(obj@micron) == 0) { # if no value already set
+            if (!is.null(experiment_info_path)) {
+                obj@micron <- jsonlite::fromJSON(
+                    manifest$experiment.xenium)$pixel_size
+            } else {
+                warning(wrap_txt("No .xenium file found.
+                        Guessing 0.2125 as micron scaling"))
+                obj@micron <- 0.2125 # default
+            }
+        }
 
         # transcripts load call
         tx_fun <- function(
@@ -168,7 +184,7 @@ setMethod(
             "NegControlCodeword"
         ),
         dropcols = c(),
-        qv_threshold = .Object@qv,
+        qv_threshold = obj@qv,
         cores = determine_cores(),
         verbose = NULL
         ) {
@@ -182,15 +198,15 @@ setMethod(
                 verbose = verbose
             )
         }
-        .Object@calls$load_transcripts <- tx_fun
+        obj@calls$load_transcripts <- tx_fun
 
         # load polys call
         poly_fun <- function(
-        path = cell_bound_path,
-        name = "cell",
-        calc_centroids = TRUE,
-        cores = determine_cores(),
-        verbose = NULL
+            path = cell_bound_path,
+            name = "cell",
+            calc_centroids = TRUE,
+            cores = determine_cores(),
+            verbose = NULL
         ) {
             .xenium_poly(
                 path = path,
@@ -200,14 +216,14 @@ setMethod(
                 verbose = verbose
             )
         }
-        .Object@calls$load_polys <- poly_fun
+        obj@calls$load_polys <- poly_fun
 
         # load cellmeta
         cmeta_fun <- function(
-        path = cell_meta_path,
-        dropcols = c(),
-        cores = determine_cores(),
-        verbose = NULL
+            path = cell_meta_path,
+            dropcols = c(),
+            cores = determine_cores(),
+            verbose = NULL
         ) {
             .xenium_cellmeta(
                 path = path,
@@ -216,14 +232,14 @@ setMethod(
                 verbose = verbose
             )
         }
-        .Object@calls$load_cellmeta <- cmeta_fun
+        obj@calls$load_cellmeta <- cmeta_fun
 
         # load featmeta
         fmeta_fun <- function(
-        path = panel_meta_path,
-        dropcols = c(),
-        cores = determine_cores(),
-        verbose = NULL
+            path = panel_meta_path,
+            dropcols = c(),
+            cores = determine_cores(),
+            verbose = NULL
         ) {
             .xenium_featmeta(
                 path = path,
@@ -232,15 +248,15 @@ setMethod(
                 verbose = verbose
             )
         }
-        .Object@calls$load_featmeta <- fmeta_fun
+        obj@calls$load_featmeta <- fmeta_fun
 
         # load expression call
         expr_fun <- function(
-        path,
-        gene_ids = "symbols",
-        remove_zero_rows = TRUE,
-        split_by_type = TRUE,
-        verbose = NULL
+            path = expr_path,
+            gene_ids = "symbols",
+            remove_zero_rows = TRUE,
+            split_by_type = TRUE,
+            verbose = NULL
         ) {
             .xenium_expression(
                 path = path,
@@ -250,11 +266,43 @@ setMethod(
                 verbose = verbose
             )
         }
-        .Object@calls$load_expression <- expr_fun
+        obj@calls$load_expression <- expr_fun
 
         # load image call
+        img_fun <- function(
+            path,
+            name = "image",
+            micron = obj@micron,
+            negative_y = TRUE,
+            flip_vertical = FALSE,
+            flip_horizontal = FALSE,
+            verbose = NULL
+        ) {
+            .xenium_image(
+                path = path,
+                name = name,
+                micron = micron,
+                negative_y = negative_y,
+                flip_vertical = flip_vertical,
+                flip_horizontal = flip_horizontal,
+                verbose = verbose
+            )
+        }
+        obj@calls$load_image <- img_fun
 
-
+        # load aligned image call
+        img_aff_fun <- function(
+            path = path,
+            micron = obj@micron,
+            imagealignment_path
+        ) {
+            read10xAffineImage(
+                file = path,
+                imagealignment_path = imagealignment_path,
+                micron = micron
+            )
+        }
+        obj@calls$load_aligned_image <- img_aff_fun
 
 
         # create giotto object call
@@ -301,7 +349,7 @@ setMethod(
 
 
 
-            funs <- .Object@calls
+            funs <- obj@calls
 
             # init gobject
             g <- giotto()
@@ -367,10 +415,10 @@ setMethod(
 
 
         }
-        .Object@calls$create_gobject <- gobject_fun
+        obj@calls$create_gobject <- gobject_fun
 
 
-        return(.Object)
+        return(obj)
     }
 )
 
@@ -414,7 +462,7 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 # MODULAR ####
 
 
-
+## transcript ####
 
 .xenium_transcript <- function(
         path,
@@ -452,6 +500,7 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
         verbose = verbose
     )
     vmsg("Loading transcript level info...", .v = verbose)
+    # pass to specific reader fun based on filetype
     tx <- switch(e,
         "csv" = do.call(.xenium_transcript_csv,
                         args = c(a, list(cores = cores))),
@@ -558,6 +607,9 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     return(tx_dt)
 }
 
+
+## polygon ####
+
 .xenium_poly <- function(
         path,
         name = "cell",
@@ -572,6 +624,7 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 
     a <- list(path = path)
     vmsg("Loading boundary info...", .v = verbose)
+    # pass to specific load function based on file extension
     polys <- switch(e,
         "csv" = do.call(.xenium_poly_csv, args = c(a, list(cores = cores))),
         "parquet" = do.call(.xenium_poly_parquet, args = a),
@@ -607,6 +660,9 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
         as.data.frame() %>%
         data.table::setDT()
 }
+
+
+## cellmeta ####
 
 .xenium_cellmeta <- function(
         path,
@@ -651,9 +707,11 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     arrow::read_parquet(file = path, as_data_frame = FALSE) %>%
         dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
         dplyr::select(-dplyr::any_of(dropcols)) %>%
-        as.data.frame() %>%
-        data.table::setDT()
+        data.table::as.data.table()
 }
+
+
+## featmeta ####
 
 .xenium_featmeta <- function(
         path,
@@ -693,6 +751,42 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 
     return(fx)
 }
+
+
+.load_xenium_panel_json <- function(path, gene_ids = "symbols") {
+    gene_ids <- match.arg(gene_ids, c("symbols", "ensembl"))
+
+    # tested on v1.6
+    j <- jsonlite::fromJSON(path)
+    # j$metadata # dataset meta
+    # j$payload # main content
+    # j$payload$chemistry # panel chemistry used
+    # j$payload$customer # panel customer
+    # j$payload$designer # panel designer
+    # j$payload$spec_version # versioning
+    # j$payload$panel # dataset panel stats
+
+    panel_info <- j$payload$targets$type %>%
+        data.table::as.data.table()
+
+    switch(gene_ids,
+           "symbols" = data.table::setnames(
+               panel_info,
+               old = c("data.id", "data.name", "descriptor"),
+               new = c("ensembl", "feat_ID", "type")
+           ),
+           "ensembl" = data.table::setnames(
+               panel_info,
+               old = c("data.id", "data.name", "descriptor"),
+               new = c("feat_ID", "symbol", "type")
+           )
+    )
+    return(panel_info)
+}
+
+
+
+## expression ####
 
 .xenium_expression <- function(
         path,
@@ -772,22 +866,101 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     )
 }
 
+
+
+## image ####
+
 .xenium_image <- function(
         path,
-        name = "image",
+        name,
+        output_dir,
+        micron,
         negative_y = TRUE,
         flip_vertical = FALSE,
         flip_horizontal = FALSE,
-        affine = NULL,
-        verbose = NULL
+        verbose = NULL,
+        ...
 ) {
     if (missing(path)) {
         stop(wrap_txt(
-            "No path to image file to load provided or auto-detected"
+            "No path to image file or dir to load provided or auto-detected"
         ), call. = FALSE)
     }
-    checkmate::assert_file_exists(path)
 
+    # [directory input] -> load as individual .ome paths with defined names
+    # intended for usage with single channel stain focus images
+    if (checkmate::check_directory_exists(path)) {
+        if (missing(output_dir)) output_dir <- file.path(path, "tif_exports")
+        # find actual image paths in directory
+        ome_paths <- list.files(path, full.names = TRUE, pattern = ".ome")
+        # parse ome metadata for images names
+        ome_xml <- ometif_metadata(
+            ome_paths[[1]], node = "Channel", output = "data.frame"
+        )
+        # update names with the channel names
+        name <- ome_xml$Name
+
+        # do conversion if file does not already exist in output_dir
+        vmsg(.v = verbose, "> ometif to tif conversion")
+        lapply(ome_paths, function(ome) {
+            try(silent = TRUE, { # ignore fail when already written
+                ometif_to_tif(
+                    # can pass overwrite = TRUE via ... if needed
+                    ome, output_dir = output_dir, ...
+                )
+            })
+        })
+        # update path param
+        path <- list.files(output_dir, pattern = ".tif", full.names = TRUE)
+    }
+
+    # set default if still missing
+    if (missing(name)) name <- "image"
+
+    # [paths]
+    # check files exist
+    vapply(path, checkmate::assert_file_exists, FUN.VALUE = character(1L))
+    # names
+    if (length(name) != length(path) &&
+        length(name) != 1) {
+        stop("length of `name` should be same as length of `path`")
+    }
+    if (length(name) == 1 &&
+        length(path) > 1) {
+        name <- sprintf("%s_%d", name, seq_along(path))
+    }
+    # micron
+    checkmate::assert_numeric(micron)
+
+    progressr::with_progress({
+        p <- progressr::progressor(along = path)
+
+        gimg_list <- lapply(seq_along(path), function(img_i) {
+            gimg <- .xenium_image_single(
+                path = path[[img_i]],
+                name = name[[img_i]],
+                micron = micron,
+                negative_y = negative_y,
+                flip_vertical = flip_vertical,
+                flip_horizontal = flip_horizontal,
+                verbose = verbose
+            )
+            p()
+            return(gimg)
+        })
+    })
+    return(gimg_list)
+}
+
+.xenium_image_single <- function(
+        path,
+        name = "image",
+        micron,
+        negative_y = TRUE,
+        flip_vertical = FALSE,
+        flip_horizontal = FALSE,
+        verbose = NULL
+) {
     vmsg(.v = verbose, sprintf("loading image as '%s'", name))
     vmsg(.v = verbose, .is_debug = TRUE, path)
     vmsg(
@@ -797,323 +970,32 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
         .prefix = ""
     )
 
-    verbose <- verbose %null% TRUE
-
-    # TODO
-}
-
-
-
-#' @title Load xenium data from folder
-#' @name load_xenium_folder
-#' @param path_list list of full filepaths from .read_xenium_folder
-#' @inheritParams createGiottoXeniumObject
-#' @returns list of loaded in xenium data
-NULL
-
-#' @rdname load_xenium_folder
-#' @keywords internal
-.load_xenium_folder <- function(
-        path_list,
-        load_format = "csv",
-        data_to_use = "subcellular",
-        h5_expression = "FALSE",
-        h5_gene_ids = "symbols",
-        gene_column_index = 1,
-        cores,
-        verbose = TRUE
-) {
-    data_list <- switch(load_format,
-        "csv" = .load_xenium_folder_csv(
-            path_list = path_list,
-            data_to_use = data_to_use,
-            h5_expression = h5_expression,
-            h5_gene_ids = h5_gene_ids,
-            gene_column_index = gene_column_index,
-            cores = cores,
-            verbose = verbose
-        ),
-        "parquet" = .load_xenium_folder_parquet(
-            path_list = path_list,
-            data_to_use = data_to_use,
-            h5_expression = h5_expression,
-            h5_gene_ids = h5_gene_ids,
-            gene_column_index = gene_column_index,
-            cores = cores,
-            verbose = verbose
-        ),
-        "zarr" = stop("load_format zarr:\n Not yet implemented", call. = FALSE)
-    )
-
-    return(data_list)
-}
-
-
-#' @describeIn load_xenium_folder Load from csv files
-#' @keywords internal
-.load_xenium_folder_csv <- function(
-        path_list,
-        cores,
-        data_to_use = "subcellular",
-        h5_expression = FALSE,
-        h5_gene_ids = "symbols",
-        gene_column_index = 1,
-        verbose = TRUE
-) {
-    # initialize return vars
-    feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
-
-    vmsg("Loading feature metadata...", .v = verbose)
-    # updated for pipeline v1.6 json format
-    fdata_path <- path_list$panel_meta_path[[1]]
-    fdata_ext <- GiottoUtils::file_extension(fdata_path)
-    if ("json" %in% fdata_ext) {
-        feat_meta <- .load_xenium_panel_json(path = fdata_path,
-                                             gene_ids = h5_gene_ids)
-    } else {
-        feat_meta <- data.table::fread(fdata_path, nThread = cores)
-        colnames(feat_meta)[[1]] <- "feat_ID"
-    }
-
-    # **** subcellular info ****
-    if (data_to_use == "subcellular") {
-        # append missing QC probe info to feat_meta
-        if (isTRUE(h5_expression)) {
-            h5 <- hdf5r::H5File$new(path_list$agg_expr_path)
-            tryCatch({
-                root <- names(h5)
-                feature_id <- h5[[paste0(root, "/features/id")]][]
-                feature_info <- h5[[paste0(root, "/features/feature_type")]][]
-                feature_names <- h5[[paste0(root, "/features/name")]][]
-                features_dt <- data.table::data.table(
-                    "id" = feature_id,
-                    "name" = feature_names,
-                    "feature_type" = feature_info
-                )
-            }, finally = {
-                h5$close_all()
-            })
-        } else {
-            features_dt <- data.table::fread(
-                paste0(path_list$agg_expr_path, "/features.tsv.gz"),
-                header = FALSE
-            )
-        }
-        colnames(features_dt) <- c("id", "feat_ID", "feat_class")
-        feat_meta <- merge(
-            features_dt[, c(2, 3)], feat_meta, all.x = TRUE, by = "feat_ID")
-
-        GiottoUtils::vmsg("Loading transcript level info...", .v = verbose)
-        tx_dt <- data.table::fread(path_list$tx_path[[1]], nThread = cores)
-        data.table::setnames(
-            x = tx_dt,
-            old = c("feature_name", "x_location", "y_location"),
-            new = c("feat_ID", "x", "y")
-        )
-
-        GiottoUtils::vmsg("Loading boundary info...", .v = verbose)
-        bound_dt_list <- lapply(
-            path_list$bound_paths,
-            function(x) data.table::fread(x[[1]], nThread = cores)
+    # warning to for single channel .ome.tif images that terra::rast() and
+    # gdal still have difficulties with. May be related to JP2OpenJPEG driver
+    # but even loading this does not seem to fix it.
+    if (file_extension(path) %in% "ome") {
+        warning(wrap_txt(
+            ".ome.tif images not fully supported.
+            If reading fails, try converting to a basic tif `ometif_to_tif()`")
         )
     }
 
-    # **** aggregate info ****
-    GiottoUtils::vmsg("loading cell metadata...", .v = verbose)
-    cell_meta <- data.table::fread(
-        path_list$cell_meta_path[[1]], nThread = cores)
-
-    if (data_to_use == "aggregate") {
-        GiottoUtils::vmsg("Loading aggregated expression...", .v = verbose)
-        if (isTRUE(h5_expression)) {
-            agg_expr <- get10Xmatrix_h5(
-                path_to_data = path_list$agg_expr_path,
-                gene_ids = h5_gene_ids,
-                remove_zero_rows = TRUE,
-                split_by_type = TRUE
-            )
-        } else {
-            agg_expr <- get10Xmatrix(
-                path_to_data = path_list$agg_expr_path,
-                gene_column_index = gene_column_index,
-                remove_zero_rows = TRUE,
-                split_by_type = TRUE
-            )
-        }
-    }
-
-    data_list <- list(
-        "feat_meta" = feat_meta,
-        "tx_dt" = tx_dt,
-        "bound_dt_list" = bound_dt_list,
-        "cell_meta" = cell_meta,
-        "agg_expr" = agg_expr
+    img <- createGiottoLargeImage(path,
+        name = name,
+        flip_vertical = flip_vertical,
+        flip_horizontal = flip_horizontal,
+        negative_y = negative_y,
+        verbose = verbose
     )
-
-    return(data_list)
+    img <- rescale(img, micron, x0 = 0, y0 = 0)
+    return(img)
 }
 
+# for affine, see the init method
 
 
 
-#' @describeIn load_xenium_folder Load from parquet files
-#' @keywords internal
-.load_xenium_folder_parquet <- function(
-        path_list,
-        cores,
-        data_to_use = "subcellular",
-        h5_expression = FALSE,
-        h5_gene_ids = "symbols",
-        gene_column_index = 1,
-        verbose = TRUE
-) {
-    # initialize return vars
-    feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
-    # dplyr variable
-    cell_id <- NULL
 
-    vmsg("Loading feature metadata...", .v = verbose)
-    # updated for pipeline v1.6 json format
-    fdata_path <- path_list$panel_meta_path[[1]]
-    fdata_ext <- GiottoUtils::file_extension(fdata_path)
-    if ("json" %in% fdata_ext) {
-        feat_meta <- .load_xenium_panel_json(
-            path = fdata_path, gene_ids = h5_gene_ids)
-    } else {
-        feat_meta <- data.table::fread(fdata_path, nThread = cores)
-        colnames(feat_meta)[[1]] <- "feat_ID"
-    }
-
-    # **** subcellular info ****
-    if (data_to_use == "subcellular") {
-        # define for data.table
-        transcript_id <- feature_name <- NULL
-
-        # append missing QC probe info to feat_meta
-        if (isTRUE(h5_expression)) {
-            h5 <- hdf5r::H5File$new(path_list$agg_expr_path)
-            tryCatch({
-                root <- names(h5)
-                feature_id <- h5[[paste0(root, "/features/id")]][]
-                feature_info <- h5[[paste0(root, "/features/feature_type")]][]
-                feature_names <- h5[[paste0(root, "/features/name")]][]
-                features_dt <- data.table::data.table(
-                    "id" = feature_id,
-                    "name" = feature_names,
-                    "feature_type" = feature_info
-                )
-            }, finally = {
-                h5$close_all()
-            })
-        } else {
-            features_dt <- arrow::read_tsv_arrow(paste0(
-                path_list$agg_expr_path, "/features.tsv.gz"),
-                col_names = FALSE
-            ) %>%
-                data.table::setDT()
-        }
-        colnames(features_dt) <- c("id", "feat_ID", "feat_class")
-        feat_meta <- merge(features_dt[
-            , c(2, 3)], feat_meta, all.x = TRUE, by = "feat_ID")
-
-        vmsg("Loading transcript level info...", .v = verbose)
-        tx_dt <- arrow::read_parquet(
-            file = path_list$tx_path[[1]],
-            as_data_frame = FALSE
-        ) %>%
-            dplyr::mutate(
-                transcript_id = cast(transcript_id, arrow::string())) %>%
-            dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-            dplyr::mutate(
-                feature_name = cast(feature_name, arrow::string())) %>%
-            as.data.frame() %>%
-            data.table::setDT()
-        data.table::setnames(
-            x = tx_dt,
-            old = c("feature_name", "x_location", "y_location"),
-            new = c("feat_ID", "x", "y")
-        )
-        vmsg("Loading boundary info...", .v = verbose)
-        bound_dt_list <- lapply(path_list$bound_paths, function(x) {
-            arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
-                dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-                as.data.frame() %>%
-                data.table::setDT()
-        })
-    }
-    # **** aggregate info ****
-    if (data_to_use == "aggregate") {
-        vmsg("Loading cell metadata...", .v = verbose)
-        cell_meta <- arrow::read_parquet(
-            file = path_list$cell_meta_path[[1]],
-            as_data_frame = FALSE
-        ) %>%
-            dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
-            as.data.frame() %>%
-            data.table::setDT()
-
-        # NOTE: no parquet for agg_expr.
-        vmsg("Loading aggregated expression...", .v = verbose)
-        if (isTRUE(h5_expression)) {
-            agg_expr <- get10Xmatrix_h5(
-                path_to_data = path_list$agg_expr_path,
-                gene_ids = h5_gene_ids,
-                remove_zero_rows = TRUE,
-                split_by_type = TRUE
-            )
-        } else {
-            agg_expr <- get10Xmatrix(
-                path_to_data = path_list$agg_expr_path,
-                gene_column_index = gene_column_index,
-                remove_zero_rows = TRUE,
-                split_by_type = TRUE
-            )
-        }
-    }
-
-    data_list <- list(
-        "feat_meta" = feat_meta,
-        "tx_dt" = tx_dt,
-        "bound_dt_list" = bound_dt_list,
-        "cell_meta" = cell_meta,
-        "agg_expr" = agg_expr
-    )
-
-    return(data_list)
-}
-
-
-
-.load_xenium_panel_json <- function(path, gene_ids = "symbols") {
-    gene_ids <- match.arg(gene_ids, c("symbols", "ensembl"))
-
-    # tested on v1.6
-    j <- jsonlite::fromJSON(path)
-    # j$metadata # dataset meta
-    # j$payload # main content
-    # j$payload$chemistry # panel chemistry used
-    # j$payload$customer # panel customer
-    # j$payload$designer # panel designer
-    # j$payload$spec_version # versioning
-    # j$payload$panel # dataset panel stats
-
-    panel_info <- j$payload$targets$type %>%
-        data.table::as.data.table()
-
-    switch(gene_ids,
-           "symbols" = data.table::setnames(
-               panel_info,
-               old = c("data.id", "data.name", "descriptor"),
-               new = c("ensembl", "feat_ID", "type")
-           ),
-           "ensembl" = data.table::setnames(
-               panel_info,
-               old = c("data.id", "data.name", "descriptor"),
-               new = c("feat_ID", "symbol", "type")
-           )
-    )
-    return(panel_info)
-}
 
 
 # OLD ####
@@ -1636,4 +1518,280 @@ createGiottoXeniumObject <- function(
     return(path_list)
 }
 
+#' @title Load xenium data from folder
+#' @name load_xenium_folder
+#' @param path_list list of full filepaths from .read_xenium_folder
+#' @inheritParams createGiottoXeniumObject
+#' @returns list of loaded in xenium data
+NULL
 
+#' @rdname load_xenium_folder
+#' @keywords internal
+.load_xenium_folder <- function(
+        path_list,
+        load_format = "csv",
+        data_to_use = "subcellular",
+        h5_expression = "FALSE",
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        cores,
+        verbose = TRUE
+) {
+    data_list <- switch(load_format,
+                        "csv" = .load_xenium_folder_csv(
+                            path_list = path_list,
+                            data_to_use = data_to_use,
+                            h5_expression = h5_expression,
+                            h5_gene_ids = h5_gene_ids,
+                            gene_column_index = gene_column_index,
+                            cores = cores,
+                            verbose = verbose
+                        ),
+                        "parquet" = .load_xenium_folder_parquet(
+                            path_list = path_list,
+                            data_to_use = data_to_use,
+                            h5_expression = h5_expression,
+                            h5_gene_ids = h5_gene_ids,
+                            gene_column_index = gene_column_index,
+                            cores = cores,
+                            verbose = verbose
+                        ),
+                        "zarr" = stop("load_format zarr:\n Not yet implemented", call. = FALSE)
+    )
+
+    return(data_list)
+}
+
+
+#' @describeIn load_xenium_folder Load from csv files
+#' @keywords internal
+.load_xenium_folder_csv <- function(
+        path_list,
+        cores,
+        data_to_use = "subcellular",
+        h5_expression = FALSE,
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        verbose = TRUE
+) {
+    # initialize return vars
+    feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
+
+    vmsg("Loading feature metadata...", .v = verbose)
+    # updated for pipeline v1.6 json format
+    fdata_path <- path_list$panel_meta_path[[1]]
+    fdata_ext <- GiottoUtils::file_extension(fdata_path)
+    if ("json" %in% fdata_ext) {
+        feat_meta <- .load_xenium_panel_json(path = fdata_path,
+                                             gene_ids = h5_gene_ids)
+    } else {
+        feat_meta <- data.table::fread(fdata_path, nThread = cores)
+        colnames(feat_meta)[[1]] <- "feat_ID"
+    }
+
+    # **** subcellular info ****
+    if (data_to_use == "subcellular") {
+        # append missing QC probe info to feat_meta
+        if (isTRUE(h5_expression)) {
+            h5 <- hdf5r::H5File$new(path_list$agg_expr_path)
+            tryCatch({
+                root <- names(h5)
+                feature_id <- h5[[paste0(root, "/features/id")]][]
+                feature_info <- h5[[paste0(root, "/features/feature_type")]][]
+                feature_names <- h5[[paste0(root, "/features/name")]][]
+                features_dt <- data.table::data.table(
+                    "id" = feature_id,
+                    "name" = feature_names,
+                    "feature_type" = feature_info
+                )
+            }, finally = {
+                h5$close_all()
+            })
+        } else {
+            features_dt <- data.table::fread(
+                paste0(path_list$agg_expr_path, "/features.tsv.gz"),
+                header = FALSE
+            )
+        }
+        colnames(features_dt) <- c("id", "feat_ID", "feat_class")
+        feat_meta <- merge(
+            features_dt[, c(2, 3)], feat_meta, all.x = TRUE, by = "feat_ID")
+
+        GiottoUtils::vmsg("Loading transcript level info...", .v = verbose)
+        tx_dt <- data.table::fread(path_list$tx_path[[1]], nThread = cores)
+        data.table::setnames(
+            x = tx_dt,
+            old = c("feature_name", "x_location", "y_location"),
+            new = c("feat_ID", "x", "y")
+        )
+
+        GiottoUtils::vmsg("Loading boundary info...", .v = verbose)
+        bound_dt_list <- lapply(
+            path_list$bound_paths,
+            function(x) data.table::fread(x[[1]], nThread = cores)
+        )
+    }
+
+    # **** aggregate info ****
+    GiottoUtils::vmsg("loading cell metadata...", .v = verbose)
+    cell_meta <- data.table::fread(
+        path_list$cell_meta_path[[1]], nThread = cores)
+
+    if (data_to_use == "aggregate") {
+        GiottoUtils::vmsg("Loading aggregated expression...", .v = verbose)
+        if (isTRUE(h5_expression)) {
+            agg_expr <- get10Xmatrix_h5(
+                path_to_data = path_list$agg_expr_path,
+                gene_ids = h5_gene_ids,
+                remove_zero_rows = TRUE,
+                split_by_type = TRUE
+            )
+        } else {
+            agg_expr <- get10Xmatrix(
+                path_to_data = path_list$agg_expr_path,
+                gene_column_index = gene_column_index,
+                remove_zero_rows = TRUE,
+                split_by_type = TRUE
+            )
+        }
+    }
+
+    data_list <- list(
+        "feat_meta" = feat_meta,
+        "tx_dt" = tx_dt,
+        "bound_dt_list" = bound_dt_list,
+        "cell_meta" = cell_meta,
+        "agg_expr" = agg_expr
+    )
+
+    return(data_list)
+}
+
+
+
+
+#' @describeIn load_xenium_folder Load from parquet files
+#' @keywords internal
+.load_xenium_folder_parquet <- function(
+        path_list,
+        cores,
+        data_to_use = "subcellular",
+        h5_expression = FALSE,
+        h5_gene_ids = "symbols",
+        gene_column_index = 1,
+        verbose = TRUE
+) {
+    # initialize return vars
+    feat_meta <- tx_dt <- bound_dt_list <- cell_meta <- agg_expr <- NULL
+    # dplyr variable
+    cell_id <- NULL
+
+    vmsg("Loading feature metadata...", .v = verbose)
+    # updated for pipeline v1.6 json format
+    fdata_path <- path_list$panel_meta_path[[1]]
+    fdata_ext <- GiottoUtils::file_extension(fdata_path)
+    if ("json" %in% fdata_ext) {
+        feat_meta <- .load_xenium_panel_json(
+            path = fdata_path, gene_ids = h5_gene_ids)
+    } else {
+        feat_meta <- data.table::fread(fdata_path, nThread = cores)
+        colnames(feat_meta)[[1]] <- "feat_ID"
+    }
+
+    # **** subcellular info ****
+    if (data_to_use == "subcellular") {
+        # define for data.table
+        transcript_id <- feature_name <- NULL
+
+        # append missing QC probe info to feat_meta
+        if (isTRUE(h5_expression)) {
+            h5 <- hdf5r::H5File$new(path_list$agg_expr_path)
+            tryCatch({
+                root <- names(h5)
+                feature_id <- h5[[paste0(root, "/features/id")]][]
+                feature_info <- h5[[paste0(root, "/features/feature_type")]][]
+                feature_names <- h5[[paste0(root, "/features/name")]][]
+                features_dt <- data.table::data.table(
+                    "id" = feature_id,
+                    "name" = feature_names,
+                    "feature_type" = feature_info
+                )
+            }, finally = {
+                h5$close_all()
+            })
+        } else {
+            features_dt <- arrow::read_tsv_arrow(paste0(
+                path_list$agg_expr_path, "/features.tsv.gz"),
+                col_names = FALSE
+            ) %>%
+                data.table::setDT()
+        }
+        colnames(features_dt) <- c("id", "feat_ID", "feat_class")
+        feat_meta <- merge(features_dt[
+            , c(2, 3)], feat_meta, all.x = TRUE, by = "feat_ID")
+
+        vmsg("Loading transcript level info...", .v = verbose)
+        tx_dt <- arrow::read_parquet(
+            file = path_list$tx_path[[1]],
+            as_data_frame = FALSE
+        ) %>%
+            dplyr::mutate(
+                transcript_id = cast(transcript_id, arrow::string())) %>%
+            dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+            dplyr::mutate(
+                feature_name = cast(feature_name, arrow::string())) %>%
+            as.data.frame() %>%
+            data.table::setDT()
+        data.table::setnames(
+            x = tx_dt,
+            old = c("feature_name", "x_location", "y_location"),
+            new = c("feat_ID", "x", "y")
+        )
+        vmsg("Loading boundary info...", .v = verbose)
+        bound_dt_list <- lapply(path_list$bound_paths, function(x) {
+            arrow::read_parquet(file = x[[1]], as_data_frame = FALSE) %>%
+                dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+                as.data.frame() %>%
+                data.table::setDT()
+        })
+    }
+    # **** aggregate info ****
+    if (data_to_use == "aggregate") {
+        vmsg("Loading cell metadata...", .v = verbose)
+        cell_meta <- arrow::read_parquet(
+            file = path_list$cell_meta_path[[1]],
+            as_data_frame = FALSE
+        ) %>%
+            dplyr::mutate(cell_id = cast(cell_id, arrow::string())) %>%
+            as.data.frame() %>%
+            data.table::setDT()
+
+        # NOTE: no parquet for agg_expr.
+        vmsg("Loading aggregated expression...", .v = verbose)
+        if (isTRUE(h5_expression)) {
+            agg_expr <- get10Xmatrix_h5(
+                path_to_data = path_list$agg_expr_path,
+                gene_ids = h5_gene_ids,
+                remove_zero_rows = TRUE,
+                split_by_type = TRUE
+            )
+        } else {
+            agg_expr <- get10Xmatrix(
+                path_to_data = path_list$agg_expr_path,
+                gene_column_index = gene_column_index,
+                remove_zero_rows = TRUE,
+                split_by_type = TRUE
+            )
+        }
+    }
+
+    data_list <- list(
+        "feat_meta" = feat_meta,
+        "tx_dt" = tx_dt,
+        "bound_dt_list" = bound_dt_list,
+        "cell_meta" = cell_meta,
+        "agg_expr" = agg_expr
+    )
+
+    return(data_list)
+}
