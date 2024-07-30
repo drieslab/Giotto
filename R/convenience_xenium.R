@@ -246,6 +246,7 @@ setMethod(
                 path = path,
                 gene_ids = gene_ids,
                 dropcols = dropcols,
+                cores = cores,
                 verbose = verbose
             )
         }
@@ -525,6 +526,7 @@ importXenium <- function(
     checkmate::assert_file_exists(path)
     e <- file_extension(path) %>% head(1L) %>% tolower()
     vmsg(.v = verbose, .is_debug = TRUE, "[TX_READ] FMT =", e)
+    vmsg(.v = verbose, .is_debug = TRUE, path)
 
     # read in as data.table
     a <- list(
@@ -658,6 +660,8 @@ importXenium <- function(
 
     a <- list(path = path)
     vmsg("Loading boundary info...", .v = verbose)
+    vmsg(.v = verbose, .is_debug = TRUE, "[POLY_READ] FMT =", e)
+    vmsg(.v = verbose, .is_debug = TRUE, path)
     # pass to specific load function based on file extension
     polys <- switch(e,
         "csv" = do.call(.xenium_poly_csv, args = c(a, list(cores = cores))),
@@ -714,6 +718,7 @@ importXenium <- function(
     e <- file_extension(path) %>% head(1L) %>% tolower()
     a <- list(path = path, dropcols = dropcols)
     vmsg('Loading cell metadata...', .v = verbose)
+    vmsg(.v = verbose, .is_debug = TRUE, "[CMETA_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
     cx <- switch(e,
@@ -765,6 +770,7 @@ importXenium <- function(
     }
     checkmate::assert_file_exists(path)
     vmsg("Loading feature metadata...", .v = verbose)
+    vmsg(.v = verbose, .is_debug = TRUE, path)
     # updated for pipeline v1.6 json format
     fdata_ext <- GiottoUtils::file_extension(path)
     if ("json" %in% fdata_ext) {
@@ -855,6 +861,7 @@ importXenium <- function(
     }
 
     vmsg("Loading 10x pre-aggregated expression...", .v = verbose)
+    vmsg(.v = verbose, .is_debug = TRUE, "[EXPR_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
     ex <- switch(e,
