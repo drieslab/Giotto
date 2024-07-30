@@ -171,27 +171,29 @@ setMethod(
 
         # transcripts load call
         tx_fun <- function(
-        path = tx_path,
-        feat_type = c(
-            "rna",
-            "NegControlProbe",
-            "UnassignedCodeword",
-            "NegControlCodeword"
-        ),
-        split_keyword = list(
-            "NegControlProbe",
-            "UnassignedCodeword",
-            "NegControlCodeword"
-        ),
-        dropcols = c(),
-        qv_threshold = obj@qv,
-        cores = determine_cores(),
-        verbose = NULL
+            path = tx_path,
+            feat_type = c(
+                "rna",
+                "NegControlProbe",
+                "UnassignedCodeword",
+                "NegControlCodeword"
+            ),
+            split_keyword = list(
+                "NegControlProbe",
+                "UnassignedCodeword",
+                "NegControlCodeword"
+            ),
+            flip_vertical = TRUE,
+            dropcols = c(),
+            qv_threshold = obj@qv,
+            cores = determine_cores(),
+            verbose = NULL
         ) {
             .xenium_transcript(
                 path = path,
                 feat_type = feat_type,
                 split_keyword = split_keyword,
+                flip_vertical = flip_vertical,
                 dropcols = dropcols,
                 qv_threshold = qv_threshold,
                 cores = cores,
@@ -204,6 +206,7 @@ setMethod(
         poly_fun <- function(
             path = cell_bound_path,
             name = "cell",
+            flip_vertical = TRUE,
             calc_centroids = TRUE,
             cores = determine_cores(),
             verbose = NULL
@@ -211,6 +214,7 @@ setMethod(
             .xenium_poly(
                 path = path,
                 name = name,
+                flip_vertical = flip_vertical,
                 calc_centroids = calc_centroids,
                 cores = cores,
                 verbose = verbose
@@ -512,6 +516,7 @@ importXenium <- function(
             "UnassignedCodeword",
             "NegControlCodeword"
         ),
+        flip_vertical = TRUE,
         dropcols = c(),
         qv_threshold = 20,
         cores = determine_cores(),
@@ -537,12 +542,17 @@ importXenium <- function(
     )
     vmsg("Loading transcript level info...", .v = verbose)
     # pass to specific reader fun based on filetype
+    # return as data.table with colnames `feat_ID`, `x`, `y`
     tx <- switch(e,
         "csv" = do.call(.xenium_transcript_csv,
                         args = c(a, list(cores = cores))),
         "parquet" = do.call(.xenium_transcript_parquet, args = a),
         "zarr" = stop('zarr not yet supported')
     )
+
+    # flip values vertically
+    y <- NULL # NSE var
+    if (flip_vertical) tx[, y := -y]
 
     # create gpoints
     gpointslist <- createGiottoPoints(
@@ -649,6 +659,7 @@ importXenium <- function(
 .xenium_poly <- function(
         path,
         name = "cell",
+        flip_vertical = TRUE,
         calc_centroids = TRUE,
         cores = determine_cores(),
         verbose = NULL
@@ -663,11 +674,15 @@ importXenium <- function(
     vmsg(.v = verbose, .is_debug = TRUE, "[POLY_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     # pass to specific load function based on file extension
+    # returns as data.table with colnames `cell_id`, `vertex_x`, `vertex_y`
     polys <- switch(e,
         "csv" = do.call(.xenium_poly_csv, args = c(a, list(cores = cores))),
         "parquet" = do.call(.xenium_poly_parquet, args = a),
         "zarr" = stop("zarr not yet supported")
     )
+
+    vertex_y <- NULL # NSE var
+    if (flip_vertical) polys[, vertex_y := -vertex_y]
 
     # create gpolys
     verbose <- verbose %null% FALSE
@@ -935,7 +950,7 @@ importXenium <- function(
 
     # [directory input] -> load as individual .ome paths with defined names
     # intended for usage with single channel stain focus images
-    if (checkmate::check_directory_exists(path)) {
+    if (checkmate::test_directory_exists(path)) {
         if (missing(output_dir)) output_dir <- file.path(path, "tif_exports")
         # find actual image paths in directory
         ome_paths <- list.files(path, full.names = TRUE, pattern = ".ome")
