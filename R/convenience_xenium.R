@@ -881,8 +881,8 @@ importXenium <- function(
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
     ex <- switch(e,
-        "mtx" = do.call(.xenium_cellmeta_csv, args = a),
-        "h5" = do.call(.xenium_cellmeta_parquet, args = a)
+        "mtx" = do.call(.xenium_expression_mtx, args = a),
+        "h5" = do.call(.xenium_expression_h5, args = a)
     )
 
     eo <- createExprObj(
