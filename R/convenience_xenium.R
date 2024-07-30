@@ -481,7 +481,7 @@ importXenium <- function(
     if (!is.null(xenium_dir)) {
         a$xenium_dir <- xenium_dir
     }
-    a$qv_threshold <- qv_threshold
+    a$qv <- qv_threshold
 
     do.call(new, args = a)
 }
