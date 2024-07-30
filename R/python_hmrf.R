@@ -1778,7 +1778,7 @@ initHMRF_V2 <-
             gobject@dimension_reduction$cells$spatial$spatial_feat$coordinates <- y
 
             gobject <- createNearestNetwork(
-                gobject = gobject,
+                gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
                 dim_reduction_to_use = "spatial",
                 dim_reduction_name = "spatial_feat",
                 dimensions_to_use = seq_len(ncol(y)),
@@ -1788,7 +1788,7 @@ initHMRF_V2 <-
             if (cl.method == "leiden") {
                 message("Leiden clustering initialization...")
                 leiden.cl <- doLeidenCluster(
-                    gobject = gobject,
+                    gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
                     nn_network_to_use = "sNN",
                     network_name = "sNN.initHMRF",
                     set_seed = hmrf_seed,
@@ -1803,7 +1803,7 @@ initHMRF_V2 <-
             } else if (cl.method == "louvain") {
                 message("Louvain clustering initialization...")
                 louvain.cl <- doLouvainCluster(
-                    gobject = gobject,
+                    gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
                     nn_network_to_use = "sNN",
                     network_name = "sNN.initHMRF",
                     set_seed = hmrf_seed,
@@ -2033,19 +2033,19 @@ addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            column_cell_ID = "cell_ID",
-            # new_metadata = HMRFoutput[[i]]$class[match(
-            #     ordered_cell_IDs, names(HMRFoutput[[i]]$class))],
-            new_metadata = HMRFoutput[[i]]$prob[ordered_cell_IDs, ],
+            new_metadata = HMRFoutput[[i]]$class[match(
+                ordered_cell_IDs, 
+                rownames(HMRFoutput[[i]]$prob))],
             vector_name = paste(name, names(HMRFoutput)[i])
+            # ,column_cell_ID = 'cell_ID',
             # by_column = TRUE
         )
     }
     return(gobject)
 }
 
-
-
+                             
+                             
 #' @title viewHMRFresults_V2
 #' @name viewHMRFresults_V2
 #' @description function to view HMRF results with multiple betas
