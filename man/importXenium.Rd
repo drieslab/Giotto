@@ -8,6 +8,9 @@ importXenium(xenium_dir = NULL, qv_threshold = 20)
 }
 \arguments{
 \item{xenium_dir}{Xenium output directory}
+
+\item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included
+as a subcellular transcript detection (default = 20)}
 }
 \value{
 `XeniumReader` object
