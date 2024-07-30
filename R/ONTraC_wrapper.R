@@ -243,8 +243,7 @@ loadOntraCResults <- function(gobject, # nolint: object_name_linter.
 #' @param values name of the expression matrix stored connectivity values
 #' @details This function plots the niche cluster connectivity matrix
 #' @export
-plotNicheClusterConnectivity <- function(
-    # nolint: object_name_linter.
+plotNicheClusterConnectivity <- function( # nolint: object_name_linter.
     gobject,
     spat_unit = "niche cluster",
     feat_type = "connectivity",
@@ -371,8 +370,7 @@ plotNicheClusterConnectivity <- function(
 #' @param values name of the expression matrix stored connectivity values
 #' @details This function plots the niche cluster connectivity matrix
 #' @export
-plotCTCompositionInNicheCluster <- function(
-    # nolint: object_name_linter.
+plotCTCompositionInNicheCluster <- function( # nolint: object_name_linter.
     gobject,
     cell_type,
     values = "prob",
