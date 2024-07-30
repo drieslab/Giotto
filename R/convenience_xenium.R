@@ -459,6 +459,36 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
 
 
 
+# CREATE READER ####
+
+#' @title Import a 10X Xenium Assay
+#' @name importXenium
+#' @description
+#' Giotto import functionalities for Xenium datasets. This function creates a
+#' `XeniumReader` instance that has convenient reader functions for converting
+#' individual pieces of Xenium data into Giotto-compatible representations.
+#'
+#' These functions should have all param values provided as defaults, but
+#' can be flexibly modified to do things such as look in alternative
+#' directories or paths
+#' @param xenium_dir Xenium output directory
+#' @returns `XeniumReader` object
+#' @export
+importXenium <- function(
+        xenium_dir = NULL, qv_threshold = 20,
+) {
+    a <- list(Class = "XeniumReader")
+    if (!is.null(xenium_dir)) {
+        a$xenium_dir <- xenium_dir
+    }
+
+    do.call(new, args = a)
+}
+
+
+
+
+
 # MODULAR ####
 
 
@@ -683,9 +713,13 @@ setMethod("$<-", signature("XeniumReader"), function(x, name, value) {
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
     cx <- switch(e,
-                 "csv" = do.call(.xenium_cellmeta_csv, args = c(a, list(cores = cores))),
-                 "parquet" = do.call(.xenium_cellmeta_parquet, args = a)
+        "csv" = do.call(
+             .xenium_cellmeta_csv,
+             args = c(a, list(cores = cores))
+        ),
+        "parquet" = do.call(.xenium_cellmeta_parquet, args = a)
     )
+    data.table::setnames(cx, "cell_id", "cell_ID")
 
     cx <- createCellMetaObj(
         metadata = cx,
