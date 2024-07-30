@@ -880,19 +880,26 @@ importXenium <- function(
     vmsg(.v = verbose, .is_debug = TRUE, "[EXPR_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
-    ex <- switch(e,
+    ex_list <- switch(e,
         "mtx" = do.call(.xenium_expression_mtx, args = a),
         "h5" = do.call(.xenium_expression_h5, args = a)
     )
 
-    eo <- createExprObj(
-        expression_data = ex,
-        name = "raw",
-        spat_unit = "cell",
-        feat_type = "rna",
-        provenance = "cell"
-    )
-    return(eo)
+    # ensure list
+    if (!inherits(ex, "list")) ex_list <- list(ex_list)
+
+    # lapply to process more than one if present
+    eo_list <- lapply(ex_list, function(ex) {
+        createExprObj(
+            expression_data = ex,
+            name = "raw",
+            spat_unit = "cell",
+            feat_type = "rna",
+            provenance = "cell"
+        )
+    })
+
+    return(eo_list)
 }
 
 .xenium_expression_h5 <- function(
