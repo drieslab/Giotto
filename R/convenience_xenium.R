@@ -237,13 +237,14 @@ setMethod(
         # load featmeta
         fmeta_fun <- function(
             path = panel_meta_path,
+            gene_ids = "symbols",
             dropcols = c(),
             cores = determine_cores(),
             verbose = NULL
         ) {
             .xenium_featmeta(
                 path = path,
-                gene_ids,
+                gene_ids = gene_ids,
                 dropcols = dropcols,
                 verbose = verbose
             )
