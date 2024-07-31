@@ -124,7 +124,8 @@ Suggests:
     tiff,
     trendsceek,
     testthat (>= 3.0.0),
-    qs
+    qs,
+    rmarkdown
 Remotes:
     drieslab/GiottoUtils,
     drieslab/GiottoClass,

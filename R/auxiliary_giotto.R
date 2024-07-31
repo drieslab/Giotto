@@ -47,10 +47,13 @@
         #   mymatrix = log(mymatrix + offset)/log(base)
     } else if (methods::is(mymatrix, "dgCMatrix")) {
         mymatrix@x <- log(mymatrix@x + offset) / log(base)
-        # replace with sparseMatrixStats
+       # replace with sparseMatrixStats
     } else if (methods::is(mymatrix, "Matrix")) {
         mymatrix@x <- log(mymatrix@x + offset) / log(base)
-    } else {
+    } else if(methods::is(mymatrix, 'dbMatrix')) {
+        mymatrix[] <- dplyr::mutate(mymatrix[], x = x + offset) # workaround for lack of @x slot
+        mymatrix <- log(mymatrix)/log(base)
+  } else {
         mymatrix <- log(as.matrix(mymatrix) + offset) / log(base)
     }
 
@@ -732,7 +735,9 @@ filterGiotto <- function(
         description = "_filter"
     )
 
-    return(newGiottoObject)
+  return(newGiottoObject)
+
+
 }
 
 
@@ -740,6 +745,46 @@ filterGiotto <- function(
 
 ### normalization ####
 
+#' @title compute_dbMatrix
+#' @description saves dbMatrix to db if global option is set
+#' @details
+#' Set \code{options(giotto.dbmatrix_compute = FALSE)} if saving dbMatrix
+#' after each step of normalization workflow is not desired.
+#' @keywords internal
+.compute_dbMatrix <- function(dbMatrix, name, verbose = TRUE) {
+  # input validation
+  if(!inherits(dbMatrix, 'dbMatrix')) {
+    stop('dbMatrix must be of class dbMatrix')
+  }
+  
+  if(!is.character(name)) {
+    stop('name must be a character')
+  }
+  
+  # TODO: update with dbData generic
+  con = dbMatrix:::get_con(dbMatrix)
+  
+  # overwrite table by default
+  if(name %in% DBI::dbListTables(con)) {
+    DBI::dbRemoveTable(con, name)
+  }
+  
+  if(verbose){
+    msg <- glue::glue('Computing {name} expression matrix on disk...')
+    cat(msg)   
+  }
+  
+  dbMatrix[] |>
+    dplyr::compute(temporary=F, name = name)
+    
+  # TODO: update below with proper setters from dbMatrix
+  dbMatrix[] <- dplyr::tbl(con, name) # reassign to computed mat
+  dbMatrix@name <- name
+  
+  if(verbose) cat('done \n')
+  
+  return(dbMatrix)
+}
 
 #' @title RNA standard normalization
 #' @name .rna_standard_normalization
@@ -775,9 +820,6 @@ filterGiotto <- function(
 
     feat_names <- rownames(raw_expr[])
     col_names <- colnames(raw_expr[])
-
-
-
 
     ## 1. library size normalize
     if (library_size_norm == TRUE) {
@@ -853,6 +895,16 @@ filterGiotto <- function(
     }
 
     ## 5. create and set exprObj
+    # Save dbMatrix to db
+    compute_mat <- getOption("giotto.dbmatrix_compute", default = FALSE)
+    if(compute_mat && !is.null(norm_expr)){
+        norm_expr <- .compute_dbMatrix(
+            dbMatrix = norm_expr,
+            name = 'normalized',
+            verbose = verbose
+        ) 
+    }
+
     norm_expr <- create_expr_obj(
         name = "normalized",
         exprMat = norm_expr,
@@ -861,6 +913,15 @@ filterGiotto <- function(
         provenance = provenance,
         misc = NULL
     )
+  
+    # Save dbMatrix to db
+    if(compute_mat && !is.null(norm_scaled_expr)){
+        norm_scaled_expr = .compute_dbMatrix(
+            dbMatrix = norm_scaled_expr,
+            name = 'scaled',
+            verbose = verbose
+        ) 
+    }
 
     norm_scaled_expr <- create_expr_obj(
         name = "scaled",
