@@ -90,7 +90,7 @@ loaded by default since the results may be slightly different from those
 that Giotto spatially aggregates.
 }
 \details{
-\link[=\\strong{arrow zstd support}]{\strong{arrow zstd support}}
+[\strong{arrow zstd support}]
 Xenium parquets have zstd compression. \pkg{arrow} is used to access
 parquets, however it may not install on all systems with zstd by default.
 You can check whether zstd support is installed by running:
@@ -101,7 +101,7 @@ reinstalled with the following:
  install.packages("arrow", repos = c("https://apache.r-universe.dev"))
 }
 
-\link[=\\strong{QC feature types}]{\strong{QC feature types}}
+[\strong{QC feature types}]
 Xenium provides info on feature detections that include more than only the
 Gene Expression specific probes. Additional probes for QC are included:
 \emph{blank codeword}, \emph{negative control codeword}, and
@@ -109,7 +109,7 @@ Gene Expression specific probes. Additional probes for QC are included:
 are treated as their own feature types so that they can largely remain
 independent of the gene expression information.
 
-\link[=\\strong{feat_type and split_keyword}]{\strong{feat_type and split_keyword}}
+[\strong{feat_type and split_keyword}]
 Additional QC probe information is in the subcellular feature detections
 information and must be separated from the gene expression information
 during processing.

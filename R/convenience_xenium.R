@@ -1200,7 +1200,7 @@ importXenium <- function(
 #' @returns `giotto` object
 #' @details
 #'
-#' [\strong{arrow zstd support}]
+#' \[\strong{arrow zstd support}\]
 #' Xenium parquets have zstd compression. \pkg{arrow} is used to access
 #' parquets, however it may not install on all systems with zstd by default.
 #' You can check whether zstd support is installed by running:
@@ -1211,7 +1211,7 @@ importXenium <- function(
 #'  install.packages("arrow", repos = c("https://apache.r-universe.dev"))
 #' }
 #'
-#' [\strong{QC feature types}]
+#' \[\strong{QC feature types}\]
 #' Xenium provides info on feature detections that include more than only the
 #' Gene Expression specific probes. Additional probes for QC are included:
 #' \emph{blank codeword}, \emph{negative control codeword}, and
@@ -1219,7 +1219,7 @@ importXenium <- function(
 #' are treated as their own feature types so that they can largely remain
 #' independent of the gene expression information.
 #'
-#' [\strong{feat_type and split_keyword}]
+#' \[\strong{feat_type and split_keyword}\]
 #' Additional QC probe information is in the subcellular feature detections
 #' information and must be separated from the gene expression information
 #' during processing.
@@ -1313,7 +1313,7 @@ createGiottoXeniumObject <- function(
 #' #' @returns giotto object
 #' #' @details
 #' #'
-#' #' [\strong{QC feature types}]
+#' #' \[\strong{QC feature types}\]
 #' #' Xenium provides info on feature detections that include more than only the
 #' #' Gene Expression specific probes. Additional probes for QC are included:
 #' #' \emph{blank codeword}, \emph{negative control codeword}, and
@@ -1321,7 +1321,7 @@ createGiottoXeniumObject <- function(
 #' #' are treated as their own feature types so that they can largely remain
 #' #' independent of the gene expression information.
 #' #'
-#' #' [\strong{key_list}]
+#' #' \[\strong{key_list}\]
 #' #' Related to \code{data_to_use = 'subcellular'} workflow only:
 #' #' Additional QC probe information is in the subcellular feature detections
 #' #' information and must be separated from the gene expression information
