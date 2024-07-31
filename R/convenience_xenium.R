@@ -344,7 +344,7 @@ setMethod(
             ),
             gene_panel_json_path = panel_meta_path,
             expression_path = expr_path,
-            metadata_path = meta_path,
+            metadata_path = cell_meta_path,
             feat_type = c(
                 "rna",
                 "NegControlProbe",
