@@ -474,7 +474,7 @@ setMethod(
                 imglist <- list()
                 imnames <- names(load_images)
                 for (impath_i in seq_along(load_images)) {
-                    im <- load_image(
+                    im <- funs$load_image(
                         path = load_images[[impath_i]],
                         name = imnames[[impath_i]]
                     )
@@ -490,7 +490,7 @@ setMethod(
                 aimglist <- list()
                 aimnames <- names(load_aligned_images)
                 for (aim_i in seq_along(load_aligned_images)) {
-                    aim <- load_aligned_image(
+                    aim <- funs$load_aligned_image(
                         path = load_aligned_images[[aim_i]][1],
                         imagealignment_path = load_aligned_images[[aim_i]][2]
                     )
