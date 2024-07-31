@@ -25,43 +25,43 @@ createGiottoXeniumObject(
 \item{xenium_dir}{Full path to the exported xenium directory}
 
 \item{transcript_path}{Optional. Filepath to desired transcripts file to
-load. Either the `.parquet` or `.csv` files can be used.}
+load. Either the \code{.parquet} or \code{.csv} files can be used.}
 
 \item{bounds_path}{Optional. Named list of filepaths to desired Xenium
-bounds/polygon files to load. Either the `.parquet` or `.csv` files can be
-used. The default is to load the `.parquets` of both cell and nucleus.}
+bounds/polygon files to load. Either the \code{.parquet} or \code{.csv} files can be
+used. The default is to load the \code{.parquets} of both cell and nucleus.}
 
 \item{gene_panel_json_path}{Optional. Filepath to panel json. This json
 contains feature metadata information and ENSG names.}
 
 \item{expression_path}{Optional. Filepath to cell feature matrix. Accepts
-either the `.h5` or the unzipped directory containing `.mtx` files.}
+either the \code{.h5} or the unzipped directory containing \code{.mtx} files.}
 
-\item{metadata_path}{Optional. Filepath to `cells.csv.gz` or `cells.parquet`
+\item{metadata_path}{Optional. Filepath to \code{cells.csv.gz} or \code{cells.parquet}
 which contain cell metadata information.}
 
 \item{feat_type}{character. feature type. Provide more than one value if
-using the `split_keyword` param. For each set of keywords to split by, an
+using the \code{split_keyword} param. For each set of keywords to split by, an
 additional feat_type should be provided in the same order. Affects how
 the transcripts information is loaded. Helpful for separating out the
 QC probes. See details.}
 
 \item{split_keyword}{list of character vectors of keywords to split the
-transcripts based on their feat_ID. Keywords will be `grepl()`
+transcripts based on their feat_ID. Keywords will be \code{grepl()}
 matched against the feature IDs information. See details.}
 
 \item{qv_threshold}{Minimum Phred-scaled quality score cutoff to be included
 as a subcellular transcript detection (default = 20)}
 
-\item{load_images}{Named list of filepaths to `.tif` images, usually the
-ones in the `morphology_focus` directory. These `ome.tif` images are not
-compatible and must be converted to `tif` using
-`[GiottoClass::ometif_to_tif()]`.}
+\item{load_images}{Named list of filepaths to \code{.tif} images, usually the
+ones in the \code{morphology_focus} directory. These \code{ome.tif} images are not
+compatible and must be converted to \code{tif} using
+\verb{[GiottoClass::ometif_to_tif()]}.}
 
 \item{load_aligned_images}{Named list of filepaths. The list names are used
 as the image names when loaded. Two filepaths are expected per entry. The
-first one should be to the `.tif` image. The second path is to the `.csv`
-alignment matrix file. `ome.tif` images will work, but they are currently
+first one should be to the \code{.tif} image. The second path is to the \code{.csv}
+alignment matrix file. \code{ome.tif} images will work, but they are currently
 slower in our imaging pipeline.}
 
 \item{load_expression}{logical. Default = FALSE. Whether to load in 10X
@@ -70,38 +70,38 @@ provided expression matrix.}
 \item{load_cellmeta}{logical. Default = FALSE. Whether to laod in 10X
 provided cell metadata information}
 
-\item{verbose}{logical or NULL. NULL uses the `giotto.verbose` option
+\item{verbose}{logical or NULL. NULL uses the \code{giotto.verbose} option
 setting and defaults to TRUE.}
 }
 \value{
-`giotto` object
+\code{giotto} object
 }
 \description{
 Create a Giotto object from a Xenium experiment output folder.
-Only the `xenium_dir`, `load_images`, and `load_aligned_images` params
+Only the \code{xenium_dir}, \code{load_images}, and \code{load_aligned_images} params
 need to be supplied when defaults are sufficient. All other params have
 defaults set and are there in case of non-standard directory layouts or
 alternative preference in file format to load from.\cr
-When possible, `.parquet` files are loaded. This requires the additional
-installation of \pkg{arrow} with zstd support. See details. `h5` is also
+When possible, \code{.parquet} files are loaded. This requires the additional
+installation of \pkg{arrow} with zstd support. See details. \code{h5} is also
 used by default if the 10x provided expression matrix is loaded.\cr
 The 10X provided aggregated expression matrix and cell metdata are not
 loaded by default since the results may be slightly different from those
 that Giotto spatially aggregates.
 }
 \details{
-[\strong{arrow zstd support}]
+\link[=\\strong{arrow zstd support}]{\strong{arrow zstd support}}
 Xenium parquets have zstd compression. \pkg{arrow} is used to access
 parquets, however it may not install on all systems with zstd by default.
 You can check whether zstd support is installed by running:
-`arrow::arrow_info()$capabilities[["zstd"]]`. If `FALSE`, it needs to be
+\code{arrow::arrow_info()$capabilities[["zstd"]]}. If \code{FALSE}, it needs to be
 reinstalled with the following:
 \preformatted{
  Sys.setenv(ARROW_WITH_ZSTD = "ON")
  install.packages("arrow", repos = c("https://apache.r-universe.dev"))
 }
 
-[\strong{QC feature types}]
+\link[=\\strong{QC feature types}]{\strong{QC feature types}}
 Xenium provides info on feature detections that include more than only the
 Gene Expression specific probes. Additional probes for QC are included:
 \emph{blank codeword}, \emph{negative control codeword}, and
@@ -109,16 +109,16 @@ Gene Expression specific probes. Additional probes for QC are included:
 are treated as their own feature types so that they can largely remain
 independent of the gene expression information.
 
-[\strong{feat_type and split_keyword}]
+\link[=\\strong{feat_type and split_keyword}]{\strong{feat_type and split_keyword}}
 Additional QC probe information is in the subcellular feature detections
 information and must be separated from the gene expression information
 during processing.
 The QC probes have prefixes that allow them to be selected from the rest of
 the feature IDs.
-Giotto uses `feat_type` and `split_keyword` params to select these QC
+Giotto uses \code{feat_type} and \code{split_keyword} params to select these QC
 probes out as separate feature types. See examples in
-`[GiottoClass::createGiottoPoints]` for how this works.
+\verb{[GiottoClass::createGiottoPoints]} for how this works.
 
-The Gene expression subset labeled as `rna` is accepted as the subset of
-feat_IDs that do not get matched to any of the `split_keywords`.
+The Gene expression subset labeled as \code{rna} is accepted as the subset of
+feat_IDs that do not get matched to any of the \code{split_keywords}.
 }

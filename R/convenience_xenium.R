@@ -1232,6 +1232,7 @@ importXenium <- function(
 #' The Gene expression subset labeled as `rna` is accepted as the subset of
 #' feat_IDs that do not get matched to any of the `split_keywords`.
 #'
+#' @md
 #' @export
 createGiottoXeniumObject <- function(
         xenium_dir,
