@@ -1,0 +1,19 @@
+name: giotto_cellpose
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - pandas
+  - networkx
+  - python-igraph
+  - leidenalg
+  - scikit-learn
+  - tifffile
+  - pip:
+    - cellpose
+    - python-louvain
+    - smfishHmrf
+    - git+https://github.com/wwang-chcn/bento-tools.git@giotto_install
