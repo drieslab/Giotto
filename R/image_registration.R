@@ -1020,8 +1020,8 @@ registerImagesFIJI <- function(
 
 
 
-#' Record landmarks by interactive selection
-#'
+#' @title title Record landmarks by interactive selection
+#' @name interactiveLandmarkSelection
 #' @description Record landmarks by interactive selection
 #' @param source_image the image to be plotted on the left, and landmarks will output in the first of the list. Input can be a ggplot object, a GiottoImage, or a character represent a path to a image
 #' @param target_image the image to be plotted on the right, and landmarks will output in the second of the list. Input can be a ggplot object, a GiottoImage, or a character represent a path to a image
@@ -1029,8 +1029,7 @@ registerImagesFIJI <- function(
 #' @returns a list of landmarks
 #'
 #' @export
-
-InteractiveLandmarkSelection <- function(source, target) {
+interactiveLandmarkSelection <- function(source, target) {
     GiottoUtils::package_check("shiny")
     GiottoUtils::package_check("ggplot2")
     GiottoUtils::package_check("miniUI")
@@ -1158,8 +1157,8 @@ InteractiveLandmarkSelection <- function(source, target) {
 
 
 
-#' Calculate a affine transformation matrix from two set of landmarks
-#'
+#' @title Calculate a affine transformation matrix from two set of landmarks
+#' @name calculateAffineMatrixFromLandmarks
 #' @description calculate a affine transformation matrix from two set of landmarks
 #' @param source_df source landmarks, two columns, first column represent x coordinate and second column represent y coordinate.
 #' @param target_df target landmarks, two columns, first column represent x coordinate and second column represent y coordinate.
@@ -1167,7 +1166,6 @@ InteractiveLandmarkSelection <- function(source, target) {
 #' @returns a 3 by 3 matrix with the third row close to (0,0,1)
 #'
 #' @export
-
 calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
     source_landmarks_matrix = as.matrix(source_df)
     source_landmarks_matrix = cbind(source_landmarks_matrix,rep(1,nrow(source_landmarks_matrix)))
@@ -1380,8 +1378,6 @@ preprocessImageToMatrix <- function(x,
 #' @param keypoints1 keypoints extracted from target image via .sift_detect
 #' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
 #' @returns a list of model and inliners
-#' 
-
 .estimate_transform_from_matched_descriptor <- function(keypoints1,
                                                         keypoints2,
                                                         match,
@@ -1420,8 +1416,6 @@ preprocessImageToMatrix <- function(x,
 #' @param y target image from .sift_preprocess
 #' @param model estimated transformation object from .estimate_transform_from_matched_descriptor
 #' @returns None, it will write to a output path
-#' 
-
 .warp_transformed_image <- function(x,
                                     y,
                                     model,
@@ -1454,8 +1448,6 @@ preprocessImageToMatrix <- function(x,
 #' @param keypoints1 keypoints extracted from target image via .sift_detect
 #' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
 #' @returns None
-#' 
-
 .plot_matched_descriptors <- function(x, y, keypoints1, keypoints2, match, pkg_ptr){
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")

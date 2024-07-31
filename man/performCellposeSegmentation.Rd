@@ -46,7 +46,7 @@ performCellposeSegmentation(
 
 \item{channel_2}{channel number for Nuclei, default to 0(gray scale)}
 
-\item{model_name}{Name of the model to run inference. Default to 'cyto3'}
+\item{model_name}{Name of the model to run inference. Default to 'cyto3', if you want to run cutomized trained model, place your model file in ~/.cellpose/models and specify your model name.}
 
 \item{batch_size}{Cellpose Parameter, Number of 224x224 patches to run simultaneously on the GPU. Can make smaller or bigger depending on GPU memory usage. Defaults to 8.}
 

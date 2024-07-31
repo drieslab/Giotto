@@ -101,7 +101,7 @@ doCellSegmentation <- function(
 #' @param mask_output required. Provide a path to the output mask file.
 #' @param channel_1 channel number for cytoplasm, default to 0(gray scale)
 #' @param channel_2 channel number for Nuclei, default to 0(gray scale)
-#' @param model_name Name of the model to run inference. Default to 'cyto3'
+#' @param model_name Name of the model to run inference. Default to 'cyto3', if you want to run cutomized trained model, place your model file in ~/.cellpose/models and specify your model name.
 #' @param batch_size Cellpose Parameter, Number of 224x224 patches to run simultaneously on the GPU. Can make smaller or bigger depending on GPU memory usage. Defaults to 8.
 #' @param resample Cellpose Parameter
 #' @param channel_axis Cellpose Parameter
