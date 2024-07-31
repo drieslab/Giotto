@@ -54,12 +54,18 @@ into the input \code{giotto} object's metadata and the \code{giotto} object is
 returned.
 }
 \description{
-run \emph{scrublet} doublet detection for raw expression.
+Run \emph{scrublet} doublet detection for raw expression. Intended
+for single cell data
 }
 \examples{
+# Should only be done with single cell data, but this is just a
+# convenient example.
 g <- GiottoData::loadGiottoMini("visium")
 
-doScrubletDetect(g)
+g <- doScrubletDetect(g)
+
+pDataDT(g) # doublet_scores and doublet cols are added
+dimPlot2D(g, cell_color = "doublet_scores", color_as_factor = FALSE)
 }
 \seealso{
 This function wraps the python package scrublet

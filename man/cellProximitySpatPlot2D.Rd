@@ -114,7 +114,7 @@ are used when this is TRUE. continuous colors when FALSE.}
 ggplot
 }
 \description{
-Visualize 2D cell-cell interactions according to spatial 
+Visualize 2D cell-cell interactions according to spatial
 coordinates in ggplot mode
 }
 \details{
@@ -125,6 +125,8 @@ g <- GiottoData::loadGiottoMini("visium")
 g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
 x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
 
-cellProximitySpatPlot2D(gobject = g, cluster_column = "leiden_clus",
-interaction_name = x)
+cellProximitySpatPlot2D(
+    gobject = g, cluster_column = "leiden_clus",
+    interaction_name = x
+)
 }

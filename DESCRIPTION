@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.0.8
+Version: 4.1.0
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
@@ -25,13 +25,13 @@ Encoding: UTF-8
 LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends:
     base (>= 4.1.0),
     utils (>= 4.1.0),
     R (>= 4.1.0),
     methods,
-    GiottoClass (>= 0.3.1)
+    GiottoClass (>= 0.3.3)
 Imports:
     BiocParallel,
     BiocSingular,
@@ -40,9 +40,8 @@ Imports:
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
     ggplot2 (>= 3.1.1),
-    ggrepel,
-    GiottoUtils (>= 0.1.8),
-    GiottoVisuals (>= 0.2.2),
+    GiottoUtils (>= 0.1.9),
+    GiottoVisuals (>= 0.2.4),
     igraph (>= 1.2.4.1),
     jsonlite,
     limma,
@@ -61,7 +60,6 @@ Imports:
 Suggests:
     ArchR,
     arrow,
-    Biobase,
     biomaRt,
     ClusterR,
     clustree,
@@ -70,14 +68,12 @@ Suggests:
     DelayedMatrixStats,
     dendextend (>= 1.13.0),
     dplyr,
-    exactextractr,
     FactoMineR,
     factoextra,
     fitdistrplus,
     FNN,
     future,
     future.apply,
-    geometry,
     GiottoData,
     ggalluvial,
     ggdendro,
@@ -87,7 +83,6 @@ Suggests:
     graphcoloring,
     HDF5Array (>= 1.18.1),
     hdf5r,
-    htmlwidgets,
     jackstraw,
     kableExtra,
     knitr,
@@ -96,7 +91,6 @@ Suggests:
     multinet (>= 3.0.2),
     networkD3,
     pheatmap,
-    png,
     quadprog,
     harmony,
     R.utils,
@@ -106,10 +100,7 @@ Suggests:
     rhdf5,
     RTriangle (>= 1.6-0.10),
     Rvision,
-    S4Vectors,
     scater,
-    scatterpie,
-    scattermore,
     scran (>= 1.10.1),
     Seurat,
     sf,
@@ -122,19 +113,22 @@ Suggests:
     STexampleData,
     SummarizedExperiment,
     tidygraph,
-    tiff,
     trendsceek,
     testthat (>= 3.0.0),
-    qs
+    rmarkdown
 Remotes:
     drieslab/GiottoUtils,
     drieslab/GiottoClass,
     drieslab/GiottoVisuals
 Collate:
+    'ONTraC_wrapper.R'
     'auxiliary_giotto.R'
     'cell_segmentation.R'
     'clustering.R'
-    'convenience.R'
+    'convenience_cosmx.R'
+    'convenience_general.R'
+    'convenience_visiumHD.R'
+    'convenience_xenium.R'
     'cross_section.R'
     'dd.R'
     'differential_expression.R'

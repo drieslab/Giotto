@@ -20,8 +20,9 @@ NULL
 #' value inner each spot
 #' @param cell_IDs cell_IDs
 #' @keywords internal
-.cell_proximity_spots_internal <- function(cell_IDs,
-    dwls_values) {
+.cell_proximity_spots_internal <- function(
+        cell_IDs,
+        dwls_values) {
     # data.table variables
     value <- unified_int <- Var1 <- Var2 <- internal <- NULL
 
@@ -41,7 +42,8 @@ NULL
             unified_int_same <- names(same_ct)
             unified_int_same <- paste0(unified_int_same, "--", unified_int_same)
             same_ct <- data.table::data.table(
-                "unified_int" = unified_int_same, "internal" = same_ct)
+                "unified_int" = unified_int_same, "internal" = same_ct
+            )
         }
 
         # calculate proximity of different cell type (A==B)
@@ -55,13 +57,17 @@ NULL
             diff_ct <- data.table::as.data.table(reshape2::melt(diff_ct))
             diff_ct <- diff_ct[value != "NA"]
             diff_ct[, c("Var1", "Var2") := lapply(
-                .SD, as.character), .SDcols = c("Var1", "Var2")]
+                .SD, as.character
+            ), .SDcols = c("Var1", "Var2")]
             diff_ct[, unified_int := ifelse(
                 Var1 < Var2, paste0(Var1, "--", Var2),
-                paste0(Var2, "--", Var1))]
+                paste0(Var2, "--", Var1)
+            )]
             diff_ct <- diff_ct[, c("unified_int", "value")]
             data.table::setnames(
-                diff_ct, old = c("value"), new = c("internal"))
+                diff_ct,
+                old = c("value"), new = c("internal")
+            )
         }
 
         # merge spot proximity to proximity data.table
@@ -80,21 +86,23 @@ NULL
 #' value for interacted spots
 #' @param pairs data.table of paired spots. Format: cell_ID1, cell_ID2, N
 #' @keywords internal
-.cell_proximity_spots_external <- function(
-        pairs,
-        dwls_values) {
+.cell_proximity_spots_external <- function(pairs,
+    dwls_values) {
     cell_IDs <- unique(c(pairs$from, pairs$to))
     pairs <- pairs[, .N, by = c("from", "to")]
     # add internal pairs to make full matrix
     pairs_spots <- data.table::data.table(from = cell_IDs, to = cell_IDs, N = 0)
     pairs_balance <- data.table::data.table(
-        from = pairs$to, to = pairs$from, N = pairs$N)
+        from = pairs$to, to = pairs$from, N = pairs$N
+    )
     pairs_for_mat <- rbind(pairs_spots, pairs, pairs_balance)
     pairs_for_mat <- pairs_for_mat[, .N, by = c("from", "to")]
 
     # make square matrix of interaction between spots
     pairs_mat <- reshape2::acast(
-        pairs_for_mat, from ~ to, value.var = "N", fill = 0)
+        pairs_for_mat, from ~ to,
+        value.var = "N", fill = 0
+    )
     pairs_mat <- pairs_mat[cell_IDs, cell_IDs]
 
     # calculate cell-type/cell-type interactions
@@ -133,9 +141,10 @@ NULL
 #' @param pairs_external data.table of paired spots. Format: cell_ID1, cell_ID2,
 #' N. Passes to `.cell_proximity_spots_external` `pairs` param
 #' @keywords internal
-.cell_proximity_spots <- function(cell_IDs,
-    pairs_external,
-    dwls_values) {
+.cell_proximity_spots <- function(
+        cell_IDs,
+        pairs_external,
+        dwls_values) {
     # data.table variables
     V1 <- internal <- external <- s1 <- s2 <- unified_int <- type_int <- NULL
 
@@ -156,7 +165,9 @@ NULL
 
     if (length(cell_IDs) > 0) {
         proximity_dt <- merge(
-            proximity_ex, proximity_in, by = "unified_int", all = TRUE)
+            proximity_ex, proximity_in,
+            by = "unified_int", all = TRUE
+        )
     } else {
         proximity_dt <- proximity_ex[, "internal" := 0]
     }
@@ -164,12 +175,15 @@ NULL
     proximity_dt[, V1 := internal + external]
 
     proximity_dt[, s1 := strsplit(as.character(
-        unified_int), split = "--")[[1]][1], by = seq_len(nrow(proximity_dt))]
+        unified_int
+    ), split = "--")[[1]][1], by = seq_len(nrow(proximity_dt))]
     proximity_dt[, s2 := strsplit(as.character(
-        unified_int), split = "--")[[1]][2], by = seq_len(nrow(proximity_dt))]
+        unified_int
+    ), split = "--")[[1]][2], by = seq_len(nrow(proximity_dt))]
     proximity_dt[, type_int := ifelse(s1 == s2, "homo", "hetero")]
     proximity_dt <- proximity_dt[
-        , c("unified_int", "type_int", "V1", "external", "internal")]
+        , c("unified_int", "type_int", "V1", "external", "internal")
+    ]
     return(proximity_dt)
 }
 
@@ -207,33 +221,36 @@ NULL
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #' x <- findMarkers_one_vs_all(g,
-#' cluster_column = "leiden_clus", min_feats = 20)
+#'     cluster_column = "leiden_clus", min_feats = 20
+#' )
 #' sign_gene <- x$feats
 #'
-#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10),
-#' nrow = length(sign_gene))
+#' sign_matrix <- matrix(rnorm(length(sign_gene) * 8, mean = 10),
+#'     nrow = length(sign_gene)
+#' )
 #' rownames(sign_matrix) <- sign_gene
-#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' colnames(sign_matrix) <- paste0("celltype_", unique(x$cluster))
 #'
 #' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
 #'
 #' cellProximityEnrichmentSpots(gobject = g)
 #' @export
-cellProximityEnrichmentSpots <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spatial_network_name = "spatial_network",
-    cluster_column = "cell_ID",
-    cells_in_spot = 1,
-    number_of_simulations = 100,
-    adjust_method = c(
-        "none", "fdr", "bonferroni", "BH",
-        "holm", "hochberg", "hommel",
-        "BY"
-    ),
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = FALSE) {
+cellProximityEnrichmentSpots <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spatial_network_name = "spatial_network",
+        cluster_column = "cell_ID",
+        cells_in_spot = 1,
+        number_of_simulations = 100,
+        adjust_method = c(
+            "none", "fdr", "bonferroni", "BH",
+            "holm", "hochberg", "hommel",
+            "BY"
+        ),
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = FALSE) {
     # p.adj test
     sel_adjust_method <- match.arg(adjust_method, choices = c(
         "none", "fdr", "bonferroni", "BH",
@@ -254,7 +271,8 @@ cellProximityEnrichmentSpots <- function(gobject,
         V1 <- original <- enrichm <- simulations <- NULL
 
     spatial_network_annot <- dt_sort_combine_two_columns(
-        spatial_network_annot, "to", "from", "unified_cells")
+        spatial_network_annot, "to", "from", "unified_cells"
+    )
     spatial_network_annot <- spatial_network_annot[!duplicated(unified_cells)]
 
     # exact spatial_enrichment matrix
@@ -325,21 +343,26 @@ cellProximityEnrichmentSpots <- function(gobject,
     # add missing combinations from original or simulations
     # probably not needed anymore
     all_sim_ints <- as.character(unique(table_results[
-        orig == "simulations"]$unified_int))
+        orig == "simulations"
+    ]$unified_int))
     all_orig_ints <- as.character(unique(table_results[
-        orig == "original"]$unified_int))
+        orig == "original"
+    ]$unified_int))
     missing_in_orig <- all_sim_ints[!all_sim_ints %in% all_orig_ints]
     missing_in_sim <- all_orig_ints[!all_orig_ints %in% all_sim_ints]
     create_missing_for_orig <- table_results[unified_int %in% missing_in_orig]
     create_missing_for_orig <- unique(create_missing_for_orig[
-        , c("orig", "V1") := list("original", 0)])
+        , c("orig", "V1") := list("original", 0)
+    ])
     create_missing_for_sim <- table_results[unified_int %in% missing_in_sim]
     create_missing_for_sim <- unique(create_missing_for_sim[
-        , c("orig", "V1") := list("simulations", 0)])
+        , c("orig", "V1") := list("simulations", 0)
+    ])
 
     table_results <- do.call(
         "rbind",
-        list(table_results, create_missing_for_orig, create_missing_for_sim))
+        list(table_results, create_missing_for_orig, create_missing_for_sim)
+    )
 
     ## p-values
     if (verbose) message("3/5 Calculating p-values")
@@ -364,9 +387,9 @@ cellProximityEnrichmentSpots <- function(gobject,
         }
 
         p_orig_higher <- 1 - (sum((orig_value + 1) > (sim_values + 1)) /
-                                number_of_simulations)
+            number_of_simulations)
         p_orig_lower <- 1 - (sum((orig_value + 1) < (sim_values + 1)) /
-                                number_of_simulations)
+            number_of_simulations)
 
         combo_list[[int_combo]] <- this_combo
         p_high[[int_combo]] <- p_orig_higher
@@ -375,23 +398,29 @@ cellProximityEnrichmentSpots <- function(gobject,
     res_pvalue_DT <- data.table::data.table(
         unified_int = as.vector(combo_list),
         p_higher_orig = p_high,
-        p_lower_orig = p_low)
+        p_lower_orig = p_low
+    )
 
 
     # depletion or enrichment in barplot format
     if (verbose) message("4/5 Depletion or enrichment in barplot format")
 
     table_mean_results <- table_results[
-        , .(mean(V1)), by = c("orig", "unified_int", "type_int")]
+        , .(mean(V1)),
+        by = c("orig", "unified_int", "type_int")
+    ]
     table_mean_results_dc <- data.table::dcast.data.table(
         data = table_mean_results,
-        formula = type_int + unified_int ~ orig, value.var = "V1")
+        formula = type_int + unified_int ~ orig, value.var = "V1"
+    )
     table_mean_results_dc[, original := ifelse(is.na(original), 0, original)]
     table_mean_results_dc[, enrichm := log2((original + 1) / (simulations + 1))]
 
 
     table_mean_results_dc <- merge(
-        table_mean_results_dc, res_pvalue_DT, by = "unified_int")
+        table_mean_results_dc, res_pvalue_DT,
+        by = "unified_int"
+    )
     data.table::setorder(table_mean_results_dc, enrichm)
     table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
 
@@ -404,9 +433,13 @@ cellProximityEnrichmentSpots <- function(gobject,
         PI_value <- int_ranking <- NULL
 
     table_mean_results_dc[, p.adj_higher := stats::p.adjust(
-        p_higher_orig, method = sel_adjust_method)]
+        p_higher_orig,
+        method = sel_adjust_method
+    )]
     table_mean_results_dc[, p.adj_lower := stats::p.adjust(
-        p_lower_orig, method = sel_adjust_method)]
+        p_lower_orig,
+        method = sel_adjust_method
+    )]
 
 
     table_mean_results_dc[, PI_value := ifelse(p.adj_higher <= p.adj_lower,
@@ -420,7 +453,8 @@ cellProximityEnrichmentSpots <- function(gobject,
     table_mean_results_dc[, int_ranking := seq_len(.N)]
 
     return(list(
-        raw_sim_table = table_results, enrichm_res = table_mean_results_dc))
+        raw_sim_table = table_results, enrichm_res = table_mean_results_dc
+    ))
 }
 
 
@@ -442,10 +476,11 @@ cellProximityEnrichmentSpots <- function(gobject,
 #'
 #' @returns matrix
 #' @export
-featExpDWLS <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    ave_celltype_exp) {
+featExpDWLS <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        ave_celltype_exp) {
     # exact spatial_enrichment matrix
     dwls_values <- getSpatialEnrichment(gobject,
         spat_unit = spat_unit,
@@ -502,17 +537,21 @@ featExpDWLS <- function(gobject,
 #' @param ave_celltype_exp average expression matrix in cell types
 #' @returns matrix
 #' @keywords internal
-.cal_expr_residual <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    ave_celltype_exp) {
+.cal_expr_residual <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        ave_celltype_exp) {
     # expression data
     values <- match.arg(
-        expression_values, choices = c("normalized", "scaled", "custom"))
+        expression_values,
+        choices = c("normalized", "scaled", "custom")
+    )
 
     expr_observed <- slot(gobject@expression[[spat_unit]][[
-        feat_type]][[values]], "exprMat")
+        feat_type
+    ]][[values]], "exprMat")
 
     # Compute predicted feature expression value
     expr_predicted <- featExpDWLS(
@@ -525,9 +564,11 @@ featExpDWLS <- function(gobject,
     # Get the difference expression matrix between observed and predicted
     # expression
     intersect_feature <- intersect(
-        rownames(expr_predicted), rownames(expr_observed))
+        rownames(expr_predicted), rownames(expr_observed)
+    )
     expr_residual <- expr_observed[intersect_feature, ] - expr_predicted[
-        intersect_feature, ]
+        intersect_feature,
+    ]
     expr_residual <- as.matrix(expr_residual)
 
     return(expr_residual)
@@ -554,20 +595,22 @@ featExpDWLS <- function(gobject,
 #' )
 #' sign_gene <- x$feats
 #'
-#' sign_matrix <- matrix(rnorm(length(sign_gene)*8, mean  = 10),
-#' nrow = length(sign_gene))
+#' sign_matrix <- matrix(rnorm(length(sign_gene) * 8, mean = 10),
+#'     nrow = length(sign_gene)
+#' )
 #' rownames(sign_matrix) <- sign_gene
-#' colnames(sign_matrix) <- paste0("celltype_",unique(x$cluster))
+#' colnames(sign_matrix) <- paste0("celltype_", unique(x$cluster))
 #'
 #' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
 #'
 #' cellProximityEnrichmentEachSpot(gobject = g)
 #' @export
-cellProximityEnrichmentEachSpot <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spatial_network_name = "spatial_network",
-    cluster_column = "cell_ID") {
+cellProximityEnrichmentEachSpot <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spatial_network_name = "spatial_network",
+        cluster_column = "cell_ID") {
     spatial_network_annot <- annotateSpatialNetwork(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -581,7 +624,8 @@ cellProximityEnrichmentEachSpot <- function(gobject,
         unified_cells <- type_int <- N <- NULL
 
     spatial_network_annot <- dt_sort_combine_two_columns(
-        spatial_network_annot, "to", "from", "unified_cells")
+        spatial_network_annot, "to", "from", "unified_cells"
+    )
     spatial_network_annot <- spatial_network_annot[!duplicated(unified_cells)]
 
     # exact spatial_enrichment matrix
@@ -602,9 +646,11 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     # get cell-cell types pairs
     cts <- colnames(dwls_values)
     ct_pairs <- data.table::data.table(
-        V1 = rep(cts, each = length(cts)), V2 = rep(cts, length(cts)))
+        V1 = rep(cts, each = length(cts)), V2 = rep(cts, length(cts))
+    )
     ct_pairs[, unified_int := paste0(V1, "--", V2),
-            by = seq_len(nrow(ct_pairs))]
+        by = seq_len(nrow(ct_pairs))
+    ]
     unified_int <- ct_pairs$unified_int
 
 
@@ -672,7 +718,8 @@ cellProximityEnrichmentEachSpot <- function(gobject,
         spot_proximity <- reshape2::melt(spot_proximity)
         spot_proximity <- data.table::data.table(spot_proximity)
         spot_proximity[, c("Var1", "Var2") := lapply(
-            .SD, as.character), .SDcols = c("Var1", "Var2")]
+            .SD, as.character
+        ), .SDcols = c("Var1", "Var2")]
         spot_proximity[, unified_int := paste0(Var1, "--", Var2)]
 
         # add to proximityMat(matrix)
@@ -687,12 +734,13 @@ cellProximityEnrichmentEachSpot <- function(gobject,
 #' cell proximity score of selected cell for spots
 #' @returns data.table
 #' @keywords internal
-.cal_diff_per_interaction <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    proximityMat,
-    expr_residual) {
+.cal_diff_per_interaction <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        proximityMat,
+        expr_residual) {
     pcc_diff <- sel <- other <- NULL
 
     # get data
@@ -731,7 +779,9 @@ cellProximityEnrichmentEachSpot <- function(gobject,
     expr_residual_dt[, diff := sel - other]
 
     results_dt <- data.table::merge.data.table(
-        expr_residual_dt, pcc_dt, by = "features")
+        expr_residual_dt, pcc_dt,
+        by = "features"
+    )
 
     return(results_dt)
 }
@@ -748,13 +798,14 @@ NULL
 
 #' @describeIn do_permuttest_spot Calculate original values for spots
 #' @keywords internal
-.do_permuttest_original_spot <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    name = "orig",
-    proximityMat,
-    expr_residual) {
+.do_permuttest_original_spot <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        name = "orig",
+        proximityMat,
+        expr_residual) {
     resultsDT <- .cal_diff_per_interaction(
         sel_int = sel_int,
         other_ints = other_ints,
@@ -770,15 +821,16 @@ NULL
 
 #' @describeIn do_permuttest_spot Calculate random values for spots
 #' @keywords internal
-.do_permuttest_random_spot <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    name = "perm_1",
-    proximityMat,
-    expr_residual,
-    set_seed = TRUE,
-    seed_number = 1234) {
+.do_permuttest_random_spot <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        name = "perm_1",
+        proximityMat,
+        expr_residual,
+        set_seed = TRUE,
+        seed_number = 1234) {
     # data.table variables
     features <- NULL
 
@@ -801,10 +853,16 @@ NULL
     prox <- proximityMat[random_sel_int, ]
     prox <- prox[prox > 0]
     random_select <- c(sample(
-        all_IDs, size = l_select_ind - 1, replace = FALSE), names(prox[1]))
-    random_other <- c(sample(
-        all_IDs, size = l_other_ind, replace = FALSE),
-        names(prox[length(prox)]))
+        all_IDs,
+        size = l_select_ind - 1, replace = FALSE
+    ), names(prox[1]))
+    random_other <- c(
+        sample(
+            all_IDs,
+            size = l_other_ind, replace = FALSE
+        ),
+        names(prox[length(prox)])
+    )
 
     resultsDT <- .cal_diff_per_interaction(
         sel_int = random_sel_int,
@@ -823,16 +881,17 @@ NULL
 
 #' @describeIn do_permuttest_spot Calculate multiple random values for spots
 #' @keywords internal
-.do_multi_permuttest_random_spot <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    proximityMat,
-    expr_residual,
-    n = 100,
-    cores = NA,
-    set_seed = TRUE,
-    seed_number = 1234) {
+.do_multi_permuttest_random_spot <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        proximityMat,
+        expr_residual,
+        n = 100,
+        cores = NA,
+        set_seed = TRUE,
+        seed_number = 1234) {
     if (set_seed == TRUE) {
         seed_number_list <- seed_number:(seed_number + (n - 1))
     }
@@ -860,17 +919,18 @@ NULL
 #' @describeIn do_permuttest_spot Performs permutation test on subsets of a
 #' matrix for spots
 #' @keywords internal
-.do_permuttest_spot <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    proximityMat,
-    expr_residual,
-    n_perm = 100,
-    adjust_method = "fdr",
-    cores = 2,
-    set_seed = TRUE,
-    seed_number = 1234) {
+.do_permuttest_spot <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        proximityMat,
+        expr_residual,
+        n_perm = 100,
+        adjust_method = "fdr",
+        cores = 2,
+        set_seed = TRUE,
+        seed_number = 1234) {
     # data.table variables
     log2fc_diff <- log2fc <- sel <- other <- features <- p_higher <-
         p_lower <- perm_sel <- NULL
@@ -906,9 +966,12 @@ NULL
     ##
     # random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
     random_perms[, c(
-        "perm_sel", "perm_other", "perm_pcc_sel", "perm_pcc_diff") := list(
-            mean(sel), mean(other), mean(pcc_sel), mean(pcc_diff)),
-        by = features]
+        "perm_sel", "perm_other", "perm_pcc_sel", "perm_pcc_diff"
+    ) := list(
+        mean(sel), mean(other), mean(pcc_sel), mean(pcc_diff)
+    ),
+    by = features
+    ]
 
     ## get p-values
     random_perms[, p_higher := sum(pcc_diff > 0), by = features]
@@ -919,11 +982,13 @@ NULL
     ## combine results permutation and original
     random_perms_res <- unique(random_perms[, .(
         features, perm_sel, perm_other, perm_pcc_sel, perm_pcc_diff,
-        p_higher, p_lower)])
+        p_higher, p_lower
+    )])
     results_m <- data.table::merge.data.table(
         random_perms_res,
         original[, .(features, sel, other, diff, pcc_sel, pcc_other, pcc_diff)],
-        by = "features")
+        by = "features"
+    )
 
     # select lowest p-value and perform p.adj
     results_m[, p.value := ifelse(p_higher <= p_lower, p_higher, p_lower)]
@@ -931,7 +996,8 @@ NULL
 
     results_m <- results_m[, .(
         features, sel, other, pcc_sel, pcc_other, pcc_diff, p.value, p.adj,
-        perm_sel, perm_other, perm_pcc_sel, perm_pcc_diff)]
+        perm_sel, perm_other, perm_pcc_sel, perm_pcc_diff
+    )]
     setorder(results_m, p.adj, -pcc_diff)
 
     return(results_m)
@@ -944,21 +1010,24 @@ NULL
 #' for spots
 #' @returns differential test on subsets of a matrix
 #' @keywords internal
-.do_cell_proximity_test_spot <- function(sel_int,
-    other_ints,
-    select_ind,
-    other_ind,
-    proximityMat,
-    expr_residual,
-    diff_test,
-    n_perm = 100,
-    adjust_method = "fdr",
-    cores = 2,
-    set_seed = TRUE,
-    seed_number = 1234) {
+.do_cell_proximity_test_spot <- function(
+        sel_int,
+        other_ints,
+        select_ind,
+        other_ind,
+        proximityMat,
+        expr_residual,
+        diff_test,
+        n_perm = 100,
+        adjust_method = "fdr",
+        cores = 2,
+        set_seed = TRUE,
+        seed_number = 1234) {
     # get parameters
     diff_test <- match.arg(
-        diff_test, choices = c("permutation", "limma", "t.test", "wilcox"))
+        diff_test,
+        choices = c("permutation", "limma", "t.test", "wilcox")
+    )
     adjust_method <- match.arg(adjust_method, choices = c(
         "bonferroni", "BH", "holm", "hochberg", "hommel",
         "BY", "fdr", "none"
@@ -989,21 +1058,22 @@ NULL
 #' proximity to other cell types for spots.
 #' @returns data.table
 #' @keywords internal
-.findICF_per_interaction_spot <- function(sel_int,
-    all_ints,
-    proximityMat,
-    expr_residual,
-    dwls_values,
-    dwls_cutoff = 0.001,
-    CCI_cell_score = 0.01,
-    minimum_unique_cells = 1,
-    minimum_unique_int_cells = 1,
-    diff_test = "permutation",
-    n_perm = 100,
-    adjust_method = "fdr",
-    cores = 2,
-    set_seed = TRUE,
-    seed_number = 1234) {
+.findICF_per_interaction_spot <- function(
+        sel_int,
+        all_ints,
+        proximityMat,
+        expr_residual,
+        dwls_values,
+        dwls_cutoff = 0.001,
+        CCI_cell_score = 0.01,
+        minimum_unique_cells = 1,
+        minimum_unique_int_cells = 1,
+        diff_test = "permutation",
+        n_perm = 100,
+        adjust_method = "fdr",
+        cores = 2,
+        set_seed = TRUE,
+        seed_number = 1234) {
     # data.table variables
     unified_int <- NULL
 
@@ -1028,7 +1098,8 @@ NULL
 
     ## do not continue if too few cells ##
     if (length(spec_IDs) < minimum_unique_cells | length(
-        other_IDs) < minimum_unique_cells) {
+        other_IDs
+    ) < minimum_unique_cells) {
         result <- NULL
     } else {
         result <- .do_cell_proximity_test_spot(
@@ -1068,7 +1139,8 @@ NULL
 #' @name findICFSpot
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF) for
 #' spots, i.e. features expression residual that are different due to proximity
-#' to other cell types.
+#' to other cell types. Works using results from celltype deconvolution methods
+#' such as those from [runDWLSDeconv()].
 #'
 #' @param gobject A giotto object
 #' @param spat_unit spatial unit (e.g. 'cell')
@@ -1077,6 +1149,7 @@ NULL
 #' @param ave_celltype_exp average feature expression in each cell type
 #' @param selected_features subset of selected features (optional)
 #' @param spatial_network_name name of spatial network to use
+#' @param deconv_name name of deconvolution/spatial enrichment values to use
 #' @param minimum_unique_cells minimum number of target cells required
 #' @param minimum_unique_int_cells minimum number of interacting cells required
 #' @param CCI_cell_score cell proximity score to filter no interacted cell
@@ -1090,35 +1163,61 @@ NULL
 #' @param seed_number seed number
 #' @param verbose be verbose
 #'
-#' @returns icfObject that contains the differential feat scores
+#' @returns `icfObject` that contains the differential feat scores
 #' @details Function to calculate if features expression residual are
 #' differentially expressed in cell types when they interact
 #' (approximated by physical proximity) with other cell types.
 #' Feature expression residual calculated as:
 #' (observed expression in spot - cell_type_proportion *
 #' average_expressed_in_cell_type)
-#' The results data.table in the icfObject contains - at least -
+#' The results data.table in the `icfObject` contains - at least -
 #' the following columns:
-#' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression residual in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression residual in the NOT-interacting cells from the target cell type }
-#'  \item{pcc_sel:}{ correlation between cell proximity score and expression residual in the interacting cells from the target cell type}
-#'  \item{pcc_other:}{ correlation between cell proximity score and expression residual in the NOT-interacting cells from the target cell type }
-#'  \item{pcc_diff:}{ correlation difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
-#' }
+#'  * **features:** All or selected list of tested features
+#'  * **sel:** average feature expression residual in the interacting cells
+#'  from the target cell type
+#'  * **other:** average feature expression residual in the NOT-interacting
+#'  cells from the target cell type
+#'  * **pcc_sel:** correlation between cell proximity score and expression
+#'  residual in the interacting cells from the target cell type
+#'  * **pcc_other:** correlation between cell proximity score and expression
+#'  residual in the NOT-interacting cells from the target cell type
+#'  * **pcc_diff:** correlation difference between sel and other
+#'  * **p.value:** associated p-value
+#'  * **p.adj:** adjusted p-value
+#'  * **cell_type:** target cell type
+#'  * **int_cell_type:** interacting cell type
+#'  * **nr_select:** number of cells for selected target cell type
+#'  * **int_nr_select:** number of cells for interacting cell type
+#'  * **unif_int:** cell-cell interaction
+#'
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' g_expression <- getExpression(g, output = "matrix")
+#' x <- findMarkers_one_vs_all(g,
+#'     cluster_column = "leiden_clus", min_feats = 20
+#' )
+#' sign_gene <- x$feats
 #'
-#' findICFSpot(g, spat_unit = "cell", feat_type = "rna", ave_celltype_exp = g_expression, spatial_network_name = "spatial_network")
+#' sign_matrix <- matrix(rnorm(length(sign_gene) * 8, mean = 10),
+#'     nrow = length(sign_gene)
+#' )
+#' rownames(sign_matrix) <- sign_gene
+#' colnames(sign_matrix) <- paste0("celltype_", unique(x$cluster))
+#'
+#' g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
+#' ave_celltype_exp <- calculateMetaTable(g, metadata_cols = "leiden_clus")
+#' ave_celltype_exp <- reshape2::dcast(ave_celltype_exp, variable~leiden_clus)
+#' rownames(ave_celltype_exp) <- ave_celltype_exp$variable
+#' ave_celltype_exp <- ave_celltype_exp[,-1]
+#' colnames(ave_celltype_exp) <- colnames(sign_matrix)
+#' 
+#' findICFSpot(g,
+#'     spat_unit = "cell",
+#'     feat_type = "rna",
+#'     ave_celltype_exp = ave_celltype_exp,
+#'     spatial_network_name = "spatial_network"
+#' )
+#' @seealso [findInteractionChangedFeats()]
+#' @md
 #' @export
 findICFSpot <- function(gobject,
     spat_unit = NULL,
@@ -1127,6 +1226,7 @@ findICFSpot <- function(gobject,
     ave_celltype_exp,
     selected_features = NULL,
     spatial_network_name = "Delaunay_network",
+    deconv_name = "DWLS",
     minimum_unique_cells = 5,
     minimum_unique_int_cells = 5,
     CCI_cell_score = 0.1,
@@ -1144,9 +1244,12 @@ findICFSpot <- function(gobject,
 
     # expression data
     values <- match.arg(
-        expression_values, choices = c("normalized", "scaled", "custom"))
+        expression_values,
+        choices = c("normalized", "scaled", "custom")
+    )
     features_overlap <- intersect(
-        slot(gobject, "feat_ID")[[feat_type]], rownames(ave_celltype_exp))
+        slot(gobject, "feat_ID")[[feat_type]], rownames(ave_celltype_exp)
+    )
     ave_celltype_exp_sel <- ave_celltype_exp[features_overlap, ]
     expr_residual <- .cal_expr_residual(
         gobject = gobject,
@@ -1158,7 +1261,8 @@ findICFSpot <- function(gobject,
     ## test selected features ##
     if (!is.null(selected_features)) {
         expr_residual <- expr_residual[
-            rownames(expr_residual) %in% selected_features, ]
+            rownames(expr_residual) %in% selected_features,
+        ]
     }
 
     # compute cell proximity for each spot
@@ -1171,16 +1275,18 @@ findICFSpot <- function(gobject,
     # compute correlation between features and cell-types to find ICFs
     all_ints <- data.table::data.table(unified_int = rownames(proximityMat))
     all_ints[, cell_type := strsplit(
-        as.character(unified_int), "--")[[1]][1], by = seq_len(nrow(all_ints))]
+        as.character(unified_int), "--"
+    )[[1]][1], by = seq_len(nrow(all_ints))]
     all_ints[, int_cell_type := strsplit(
-        as.character(unified_int), "--")[[1]][2], by = seq_len(nrow(all_ints))]
+        as.character(unified_int), "--"
+    )[[1]][2], by = seq_len(nrow(all_ints))]
 
     # exact spatial_enrichment matrix
     dwls_values <- getSpatialEnrichment(
         gobject = gobject,
         spat_unit = spat_unit,
         feat_type = feat_type,
-        name = "DWLS",
+        name = deconv_name,
         output = "data.table"
     )
     data.table::setDF(dwls_values)
@@ -1192,23 +1298,24 @@ findICFSpot <- function(gobject,
     if (do_parallel == TRUE) {
         fin_result <- lapply_flex(
             X = all_ints$unified_int, cores = cores, fun = function(x) {
-            tempres <- .findICF_per_interaction_spot(
-                sel_int = x,
-                all_ints = all_ints,
-                proximityMat = proximityMat,
-                expr_residual = expr_residual,
-                dwls_values = dwls_values,
-                dwls_cutoff = dwls_cutoff,
-                CCI_cell_score = CCI_cell_score,
-                minimum_unique_cells = minimum_unique_cells,
-                minimum_unique_int_cells = minimum_unique_int_cells,
-                n_perm = nr_permutations,
-                adjust_method = adjust_method,
-                cores = cores,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-        })
+                tempres <- .findICF_per_interaction_spot(
+                    sel_int = x,
+                    all_ints = all_ints,
+                    proximityMat = proximityMat,
+                    expr_residual = expr_residual,
+                    dwls_values = dwls_values,
+                    dwls_cutoff = dwls_cutoff,
+                    CCI_cell_score = CCI_cell_score,
+                    minimum_unique_cells = minimum_unique_cells,
+                    minimum_unique_int_cells = minimum_unique_int_cells,
+                    n_perm = nr_permutations,
+                    adjust_method = adjust_method,
+                    cores = cores,
+                    set_seed = set_seed,
+                    seed_number = seed_number
+                )
+            }
+        )
     } else {
         fin_result <- list()
 
@@ -1243,30 +1350,34 @@ findICFSpot <- function(gobject,
 
     final_result[, spec_int := paste0(cell_type, "--", int_cell_type)]
     final_result[, type_int := ifelse(
-        cell_type == int_cell_type, "homo", "hetero")]
+        cell_type == int_cell_type, "homo", "hetero"
+    )]
 
 
     # return(final_result)
 
     permutation_test <- ifelse(
-        diff_test == "permutation", nr_permutations, "no permutations")
-
-    icfObject <- list(
-        ICFscores = final_result,
-        Giotto_info = list(
-            "values" = values,
-            "cluster" = "cell_ID",
-            "spatial network" = spatial_network_name
-        ),
-        test_info = list(
-            "test" = diff_test,
-            "p.adj" = adjust_method,
-            "min cells" = minimum_unique_cells,
-            "min interacting cells" = minimum_unique_int_cells,
-            "perm" = permutation_test
-        )
+        diff_test == "permutation", nr_permutations, "no permutations"
     )
-    class(icfObject) <- append(class(icfObject), "icfObject")
+
+    icfObject <- structure(
+        .Data = list(
+            ICFscores = final_result,
+            Giotto_info = list(
+                "values" = values,
+                "cluster" = "cell_ID",
+                "spatial network" = spatial_network_name
+            ),
+            test_info = list(
+                "test" = diff_test,
+                "p.adj" = adjust_method,
+                "min cells" = minimum_unique_cells,
+                "min interacting cells" = minimum_unique_int_cells,
+                "perm" = permutation_test
+            )
+        ),
+        class = "icfObject"
+    )
     return(icfObject)
 }
 
@@ -1295,16 +1406,17 @@ findICFSpot <- function(gobject,
 #'
 #' filterICFSpot(icfObject = icfObject)
 #' @export
-filterICFSpot <- function(icfObject,
-    min_cells = 4,
-    min_cells_expr_resi = 0.05,
-    min_int_cells = 4,
-    min_int_cells_expr_resi = 0.05,
-    min_fdr = 0.5,
-    min_pcc_diff = 0.05,
-    min_zscore = 0.05,
-    zscores_column = c("cell_type", "features"),
-    direction = c("both", "up", "down")) {
+filterICFSpot <- function(
+        icfObject,
+        min_cells = 4,
+        min_cells_expr_resi = 0.05,
+        min_int_cells = 4,
+        min_int_cells_expr_resi = 0.05,
+        min_fdr = 0.5,
+        min_pcc_diff = 0.05,
+        min_zscore = 0.05,
+        zscores_column = c("cell_type", "features"),
+        direction = c("both", "up", "down")) {
     # data.table variables
     nr_select <- int_nr_select <- zscores <- perm_diff <- sel <- other <-
         p.adj <- NULL
@@ -1316,7 +1428,9 @@ filterICFSpot <- function(icfObject,
     }
 
     zscores_column <- match.arg(
-        zscores_column, choices = c("cell_type", "features"))
+        zscores_column,
+        choices = c("cell_type", "features")
+    )
 
     ICFscore <- copy(icfObject[["ICFscores"]])
 
@@ -1327,7 +1441,8 @@ filterICFSpot <- function(icfObject,
     ## sequential filter steps ##
     # 1. minimum number of source and target cells
     selection_scores <- ICFscore[
-        nr_select >= min_cells & int_nr_select >= min_int_cells]
+        nr_select >= min_cells & int_nr_select >= min_int_cells
+    ]
 
     # 2. create z-scores for log2fc per cell type
     selection_scores[, zscores := scale(perm_diff), by = c(zscores_column)]
@@ -1335,9 +1450,11 @@ filterICFSpot <- function(icfObject,
     # 3. filter based on z-scores and minimum levels
     comb_DT <- rbind(
         selection_scores[zscores >= min_zscore & abs(
-            perm_diff) >= min_pcc_diff & sel >= min_cells_expr_resi],
+            perm_diff
+        ) >= min_pcc_diff & sel >= min_cells_expr_resi],
         selection_scores[zscores <= -min_zscore & abs(
-            perm_diff) >= min_pcc_diff & other >= min_int_cells_expr_resi]
+            perm_diff
+        ) >= min_pcc_diff & other >= min_int_cells_expr_resi]
     )
 
     # 4. filter based on adjusted p-value (fdr)
@@ -1372,24 +1489,29 @@ filterICFSpot <- function(icfObject,
 #' @returns plot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' icfObject <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
 #'
-#' plotICFSpot(gobject = g, icfObject = icfObject,
-#' source_type = "1", source_markers = "Ccnd2",
-#' ICF_features = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
+#' plotICFSpot(
+#'     gobject = g, icfObject = icfObject,
+#'     source_type = "1", source_markers = "Ccnd2",
+#'     ICF_features = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17")
+#' )
 #' @export
-plotICFSpot <- function(gobject,
-    icfObject,
-    source_type,
-    source_markers,
-    ICF_features,
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotICFSpot") {
+plotICFSpot <- function(
+        gobject,
+        icfObject,
+        source_type,
+        source_markers,
+        ICF_features,
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotICFSpot") {
     # data.table variables
     cell_type <- int_cell_type <- pcc_diff <- feats <- perm_diff <- NULL
 
@@ -1420,16 +1542,20 @@ plotICFSpot <- function(gobject,
     features <- group <- NULL
 
     tempDT <- ICFscores[feats %in% all_features][
-        cell_type == source_type][int_cell_type %in% neighbor_types]
+        cell_type == source_type
+    ][int_cell_type %in% neighbor_types]
     tempDT[, features := factor(feats, levels = detected_features)]
     tempDT[, group := names(ICF_features[
-        ICF_features == feats]), by = seq_len(nrow(tempDT))]
+        ICF_features == feats
+    ]), by = seq_len(nrow(tempDT))]
 
 
     if (is.null(cell_color_code)) {
         mycolors <- set_default_color_discrete_cell(
-            instrs = instructions(gobject))(n = length(unique(
-                tempDT$int_cell_type)))
+            instrs = instructions(gobject)
+        )(n = length(unique(
+            tempDT$int_cell_type
+        )))
         names(mycolors) <- unique(tempDT$int_cell_type)
     } else {
         mycolors <- cell_color_code
@@ -1439,17 +1565,20 @@ plotICFSpot <- function(gobject,
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
         axis.text.x = ggplot2::element_text(
-            size = 14, angle = 45, vjust = 1, hjust = 1),
+            size = 14, angle = 45, vjust = 1, hjust = 1
+        ),
         axis.text.y = ggplot2::element_text(size = 14),
         axis.title = ggplot2::element_text(size = 14)
     )
     pl <- pl + ggplot2::geom_bar(
         data = tempDT,
         ggplot2::aes(x = feats, y = perm_diff, fill = int_cell_type),
-        stat = "identity", position = ggplot2::position_dodge())
+        stat = "identity", position = ggplot2::position_dodge()
+    )
     pl <- pl + ggplot2::scale_fill_manual(values = mycolors)
     pl <- pl + ggplot2::labs(x = "", title = paste0(
-        "fold-change z-scores in ", source_type))
+        "fold-change z-scores in ", source_type
+    ))
 
     return(plot_output_handler(
         gobject = gobject,
@@ -1485,29 +1614,34 @@ plotICFSpot <- function(gobject,
 #' g <- GiottoData::loadGiottoMini("visium")
 #' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
 #'
-#' plotCellProximityFeatSpot(gobject = g, icfObject = icfObject,
-#' show_plot = TRUE, save_plot = FALSE, return_plot = FALSE,
-#' min_pcc_diff = 0.01)
+#' plotCellProximityFeatSpot(
+#'     gobject = g, icfObject = icfObject,
+#'     show_plot = TRUE, save_plot = FALSE, return_plot = FALSE,
+#'     min_pcc_diff = 0.01
+#' )
 #' @export
-plotCellProximityFeatSpot <- function(gobject,
-    icfObject,
-    method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey",
-                "heatmap", "dotplot"),
-    min_cells = 4,
-    min_cells_expr_resi = 0.05,
-    min_int_cells = 4,
-    min_int_cells_expr_resi = 0.05,
-    min_fdr = 0.5,
-    min_pcc_diff = 0.05,
-    min_zscore = 0.05,
-    zscores_column = c("cell_type", "features"),
-    direction = c("both", "up", "down"),
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCellProximityFeats") {
+plotCellProximityFeatSpot <- function(
+        gobject,
+        icfObject,
+        method = c(
+            "volcano", "cell_barplot", "cell-cell", "cell_sankey",
+            "heatmap", "dotplot"
+        ),
+        min_cells = 4,
+        min_cells_expr_resi = 0.05,
+        min_int_cells = 4,
+        min_int_cells_expr_resi = 0.05,
+        min_fdr = 0.5,
+        min_pcc_diff = 0.05,
+        min_zscore = 0.05,
+        zscores_column = c("cell_type", "features"),
+        direction = c("both", "up", "down"),
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCellProximityFeats") {
     if (!"icfObject" %in% class(icfObject)) {
         stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
@@ -1517,14 +1651,17 @@ plotCellProximityFeatSpot <- function(gobject,
     show_plot <- ifelse(
         is.null(show_plot),
         readGiottoInstructions(gobject, param = "show_plot"),
-        show_plot)
+        show_plot
+    )
     save_plot <- ifelse(
         is.null(save_plot),
         readGiottoInstructions(gobject, param = "save_plot"),
-        save_plot)
+        save_plot
+    )
     return_plot <- ifelse(
         is.null(return_plot),
-        readGiottoInstructions(gobject, param = "return_plot"), return_plot)
+        readGiottoInstructions(gobject, param = "return_plot"), return_plot
+    )
 
 
     ## first filter
@@ -1547,8 +1684,11 @@ plotCellProximityFeatSpot <- function(gobject,
     ## other parameters
     method <- match.arg(
         method,
-        choices = c("volcano", "cell_barplot", "cell-cell", "cell_sankey",
-                    "heatmap", "dotplot"))
+        choices = c(
+            "volcano", "cell_barplot", "cell-cell", "cell_sankey",
+            "heatmap", "dotplot"
+        )
+    )
 
 
     # variables
@@ -1562,7 +1702,9 @@ plotCellProximityFeatSpot <- function(gobject,
             data = complete_part,
             ggplot2::aes(
                 x = perm_diff,
-                y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))))
+                y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))
+            )
+        )
         pl <- pl + ggplot2::theme_classic()
         pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
         pl <- pl + ggplot2::labs(x = "pcc diff", y = "-log10(p.adjusted)")
@@ -1577,8 +1719,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = pl,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1594,10 +1739,12 @@ plotCellProximityFeatSpot <- function(gobject,
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::geom_bar(
             data = complete_part,
-            ggplot2::aes(x = unif_int, fill = unif_int))
+            ggplot2::aes(x = unif_int, fill = unif_int)
+        )
         pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
             axis.text.x = ggplot2::element_text
-            (angle = 90, hjust = 1, vjust = 1))
+            (angle = 90, hjust = 1, vjust = 1)
+        )
         pl <- pl + ggplot2::coord_flip()
 
         ## print plot
@@ -1609,8 +1756,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = pl,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1627,14 +1777,17 @@ plotCellProximityFeatSpot <- function(gobject,
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::geom_bar(
             data = complete_part,
-            ggplot2::aes(x = cell_type, fill = int_cell_type))
+            ggplot2::aes(x = cell_type, fill = int_cell_type)
+        )
         if (!is.null(cell_color_code)) {
             pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         }
         pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
-            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+        )
         pl <- pl + ggplot2::labs(
-            x = "", y = "# of features influenced by cell neighborhood")
+            x = "", y = "# of features influenced by cell neighborhood"
+        )
 
 
         ## print plot
@@ -1646,8 +1799,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = pl,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1668,14 +1824,18 @@ plotCellProximityFeatSpot <- function(gobject,
         ) +
             ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1 / 12) +
             ggalluvial::geom_stratum(
-                width = 1 / 12, fill = "black", color = "grey") +
+                width = 1 / 12, fill = "black", color = "grey"
+            ) +
             ggplot2::scale_x_discrete(
-                limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
+                limits = c("cell type", "neighbours"), expand = c(.05, .05)
+            ) +
             ggplot2::geom_label(
-                tat = "stratum", label.strata = TRUE, size = 3) +
+                tat = "stratum", label.strata = TRUE, size = 3
+            ) +
             ggplot2::theme_classic() +
             ggplot2::labs(
-                x = "", y = "# of features influenced by cell neighborhood")
+                x = "", y = "# of features influenced by cell neighborhood"
+            )
 
         if (!is.null(cell_color_code)) {
             pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
@@ -1692,8 +1852,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = pl,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1702,23 +1865,30 @@ plotCellProximityFeatSpot <- function(gobject,
         }
     } else if (method == "dotplot") {
         changed_features <- complete_part[
-            , .N, by = c("cell_type", "int_cell_type")]
+            , .N,
+            by = c("cell_type", "int_cell_type")
+        ]
 
         changed_features[, cell_type := factor(cell_type, unique(cell_type))]
         changed_features[, int_cell_type := factor(
-            int_cell_type, unique(int_cell_type))]
+            int_cell_type, unique(int_cell_type)
+        )]
 
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::theme_classic()
         pl <- pl + ggplot2::geom_point(
             data = changed_features,
-            ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
+            ggplot2::aes(x = cell_type, y = int_cell_type, size = N)
+        )
         pl <- pl + ggplot2::scale_size_continuous(
-            guide = guide_legend(title = "# of ICFs"))
+            guide = guide_legend(title = "# of ICFs")
+        )
         pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(
-            angle = 90, vjust = 1, hjust = 1))
+            angle = 90, vjust = 1, hjust = 1
+        ))
         pl <- pl + ggplot2::labs(
-            x = "source cell type", y = "neighbor cell type")
+            x = "source cell type", y = "neighbor cell type"
+        )
 
         ## print plot
         if (show_plot == TRUE) {
@@ -1729,8 +1899,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = pl,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1739,17 +1912,21 @@ plotCellProximityFeatSpot <- function(gobject,
         }
     } else if (method == "heatmap") {
         changed_features <- complete_part[
-            , .N, by = c("cell_type", "int_cell_type")]
+            , .N,
+            by = c("cell_type", "int_cell_type")
+        ]
 
         changed_features[, cell_type := factor(cell_type, unique(cell_type))]
         changed_features[, int_cell_type := factor(
-            int_cell_type, unique(int_cell_type))]
+            int_cell_type, unique(int_cell_type)
+        )]
 
         changed_features_d <- data.table::dcast.data.table(
             changed_features,
             cell_type ~ int_cell_type,
             value.var = "N",
-            fill = 0)
+            fill = 0
+        )
         changed_features_m <- dt_to_matrix(changed_features_d)
 
         col_fun <- GiottoVisuals::colorRamp2(
@@ -1757,8 +1934,10 @@ plotCellProximityFeatSpot <- function(gobject,
             colors = c("white", "white", "blue", "yellow", "red")
         )
 
-        heatm <- ComplexHeatmap::Heatmap(as.matrix(log2(
-            changed_features_m + 1)),
+        heatm <- ComplexHeatmap::Heatmap(
+            as.matrix(log2(
+                changed_features_m + 1
+            )),
             col = col_fun,
             row_title = "cell_type",
             column_title = "int_cell_type",
@@ -1774,8 +1953,11 @@ plotCellProximityFeatSpot <- function(gobject,
         if (save_plot == TRUE) {
             do.call(
                 "all_plots_save_function",
-                c(list(gobject = gobject, plot_object = heatm,
-                        default_save_name = default_save_name), save_param))
+                c(list(
+                    gobject = gobject, plot_object = heatm,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1823,48 +2005,56 @@ plotCellProximityFeatSpot <- function(gobject,
 #' expected based on a reshuffled null distribution of feature expression
 #' values in cells that are spatially in proximity to each other.
 #' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expressionresidual(observed - DWLS_predicted) of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression residual(observed - DWLS_predicted) of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression residual from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ LR_expr - rand_expr }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#'  * LR_comb: Pair of ligand and receptor
+#'  * lig_cell_type: cell type to assess expression level of ligand
+#'  * lig_expr: average expression residual (observed - DWLS_predicted) of
+#'  ligand in lig_cell_type
+#'  * ligand: ligand name
+#'  * rec_cell_type: cell type to assess expression level of receptor
+#'  * rec_expr: average expression residual(observed - DWLS_predicted) of
+#'  receptor in rec_cell_type
+#'  * receptor: receptor name
+#'  * LR_expr: combined average ligand and receptor expression
+#'  * lig_nr: total number of cells from lig_cell_type that spatially interact
+#'  with cells from rec_cell_type
+#'  * rec_nr: total number of cells from rec_cell_type that spatially interact
+#'  with cells from lig_cell_type
+#'  * rand_expr: average combined ligand and receptor expression residual from
+#'  random spatial permutations
+#'  * av_diff: average difference between LR_expr and rand_expr over all random
+#'  spatial permutations
+#'  * sd_diff: (optional) standard deviation of the difference between LR_expr
+#'  and rand_expr over all random spatial permutations
+#'  * z_score: (optinal) z-score
+#'  * log2fc: LR_expr - rand_expr
+#'  * pvalue: p-value
+#'  * LR_cell_comb: cell type pair combination
+#'  * p.adj: adjusted p-value
+#'  * PI: significance score: log2fc \* -log10(p.adj)
 #' }
 #' @keywords internal
-.specific_CCCScores_spots <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expr_residual,
-    dwls_values,
-    proximityMat,
-    random_iter = 1000,
-    cell_type_1 = "astrocytes",
-    cell_type_2 = "endothelial",
-    feature_set_1,
-    feature_set_2,
-    min_observations = 2,
-    detailed = FALSE,
-    adjust_method = c(
-        "fdr", "bonferroni", " BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ),
-    adjust_target = c("features", "cells"),
-    set_seed = FALSE,
-    seed_number = 1234,
-    verbose = FALSE) {
+.specific_CCCScores_spots <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expr_residual,
+        dwls_values,
+        proximityMat,
+        random_iter = 1000,
+        cell_type_1 = "astrocytes",
+        cell_type_2 = "endothelial",
+        feature_set_1,
+        feature_set_2,
+        min_observations = 2,
+        detailed = FALSE,
+        adjust_method = c(
+            "fdr", "bonferroni", " BH", "holm", "hochberg", "hommel",
+            "BY", "none"
+        ),
+        adjust_target = c("features", "cells"),
+        set_seed = FALSE,
+        seed_number = 1234,
+        verbose = FALSE) {
     # data.table variables
     from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
         rec_nr <- rand_expr <- NULL
@@ -1883,8 +2073,11 @@ plotCellProximityFeatSpot <- function(gobject,
     cell_direction_1 <- paste0(cell_type_1, "--", cell_type_2)
     cell_direction_2 <- paste0(cell_type_2, "--", cell_type_1)
 
-    if (verbose) print(paste0(
-        "Processing specific CCC Scores: ", cell_direction_1))
+    if (verbose) {
+        print(paste0(
+            "Processing specific CCC Scores: ", cell_direction_1
+        ))
+    }
 
     proxi_1 <- proximityMat[cell_direction_1, ]
     proxi_2 <- proximityMat[cell_direction_2, ]
@@ -1955,9 +2148,13 @@ plotCellProximityFeatSpot <- function(gobject,
             }
 
             random_ids_1 <- sample(
-                all_cell_ids, size = length(ct1_cell_ids), replace = FALSE)
+                all_cell_ids,
+                size = length(ct1_cell_ids), replace = FALSE
+            )
             random_ids_2 <- sample(
-                all_cell_ids, size = length(ct2_cell_ids), replace = FALSE)
+                all_cell_ids,
+                size = length(ct2_cell_ids), replace = FALSE
+            )
 
             # get feature expression residual for ligand and receptor
             random_expr_res_L <- expr_residual[feature_set_1, random_ids_1]
@@ -2000,7 +2197,9 @@ plotCellProximityFeatSpot <- function(gobject,
         if (detailed == TRUE) {
             av_difference_scores <- rowMeans_flex(total_sum)
             sd_difference_scores <- apply(
-                total_sum, MARGIN = 1, FUN = stats::sd)
+                total_sum,
+                MARGIN = 1, FUN = stats::sd
+            )
 
             comScore[, av_diff := av_difference_scores]
             comScore[, sd_diff := sd_difference_scores]
@@ -2016,10 +2215,14 @@ plotCellProximityFeatSpot <- function(gobject,
 
         if (adjust_target == "features") {
             comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_cell_comb)]
+                pvalue,
+                method = adjust_method
+            ), by = .(LR_cell_comb)]
         } else if (adjust_target == "cells") {
             comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_comb)]
+                pvalue,
+                method = adjust_method
+            ), by = .(LR_comb)]
         }
 
         # get minimum adjusted p.value that is not zero
@@ -2028,7 +2231,8 @@ plotCellProximityFeatSpot <- function(gobject,
         comScore[, PI := ifelse(
             p.adj == 0,
             log2fc * (-log10(lowest_p.adj)),
-            log2fc * (-log10(p.adj)))]
+            log2fc * (-log10(p.adj))
+        )]
 
         return(comScore)
     }
@@ -2072,49 +2276,57 @@ plotCellProximityFeatSpot <- function(gobject,
 #' expected based on a reshuffled null distribution of feature expression
 #' values in cells that are spatially in proximity to each other.
 #' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression residual(observed - DWLS_predicted) of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression residual(observed - DWLS_predicted) of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression residual}
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression residual from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ LR_expr - rand_expr }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#'  * LR_comb:Pair of ligand and receptor
+#'  * lig_cell_type: cell type to assess expression level of ligand
+#'  * lig_expr: average expression residual(observed - DWLS_predicted) of
+#'  ligand in lig_cell_type
+#'  * ligand: ligand name
+#'  * rec_cell_type: cell type to assess expression level of receptor
+#'  * rec_expr: average expression residual(observed - DWLS_predicted) of
+#'  receptor in rec_cell_type
+#'  * receptor: receptor name
+#'  * LR_expr: combined average ligand and receptor expression residual
+#'  * lig_nr: total number of cells from lig_cell_type that spatially interact
+#'  with cells from rec_cell_type
+#'  * rec_nr: total number of cells from rec_cell_type that spatially interact
+#'  with cells from lig_cell_type
+#'  * rand_expr: average combined ligand and receptor expression residual from
+#'  random spatial permutations
+#'  * av_diff: average difference between LR_expr and rand_expr over all random
+#'  spatial permutations
+#'  * sd_diff: (optional) standard deviation of the difference between LR_expr
+#'  and rand_expr over all random spatial permutations
+#'  * z_score: (optional) z-score
+#'  * log2fc: LR_expr - rand_expr
+#'  * pvalue: p-value
+#'  * LR_cell_comb: cell type pair combination
+#'  * p.adj: adjusted p-value
+#'  * PI: significanc score: log2fc \* -log10(p.adj)
 #' }
 #' @export
-spatCellCellcomSpots <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    ave_celltype_exp,
-    spatial_network_name = "Delaunay_network",
-    cluster_column = "cell_ID",
-    random_iter = 1000,
-    feature_set_1,
-    feature_set_2,
-    min_observations = 2,
-    expression_values = c("normalized", "scaled", "custom"),
-    detailed = FALSE,
-    adjust_method = c(
-        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ),
-    adjust_target = c("features", "cells"),
-    do_parallel = TRUE,
-    cores = NA,
-    set_seed = TRUE,
-    seed_number = 1234,
-    verbose = c("a little", "a lot", "none")) {
+spatCellCellcomSpots <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        ave_celltype_exp,
+        spatial_network_name = "Delaunay_network",
+        cluster_column = "cell_ID",
+        random_iter = 1000,
+        feature_set_1,
+        feature_set_2,
+        min_observations = 2,
+        expression_values = c("normalized", "scaled", "custom"),
+        detailed = FALSE,
+        adjust_method = c(
+            "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+            "BY", "none"
+        ),
+        adjust_target = c("features", "cells"),
+        do_parallel = TRUE,
+        cores = NA,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = c("a little", "a lot", "none")) {
     # data.table vars
     V1 <- V2 <- LR_cell_comb <- NULL
 
@@ -2140,7 +2352,9 @@ spatCellCellcomSpots <- function(gobject,
 
     # expression data
     values <- match.arg(
-        expression_values, choices = c("normalized", "scaled", "custom"))
+        expression_values,
+        choices = c("normalized", "scaled", "custom")
+    )
     expr_residual <- .cal_expr_residual(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -2158,7 +2372,8 @@ spatCellCellcomSpots <- function(gobject,
 
     # select overlapped spots
     intersect_cell_IDs <- intersect(
-        colnames(expr_residual), colnames(proximityMat))
+        colnames(expr_residual), colnames(proximityMat)
+    )
     expr_residual <- expr_residual[, intersect_cell_IDs]
     proximityMat <- proximityMat[, intersect_cell_IDs]
 
@@ -2176,17 +2391,19 @@ spatCellCellcomSpots <- function(gobject,
 
     # check feature list
     LR_comb <- data.table::data.table(
-        ligand = feature_set_1, receptor = feature_set_2)
+        ligand = feature_set_1, receptor = feature_set_2
+    )
     # check LR pair not captured in giotto object
     LR_out <- LR_comb[!LR_comb$ligand %in% rownames(
-        expr_residual) | !LR_comb$receptor %in% rownames(expr_residual)]
+        expr_residual
+    ) | !LR_comb$receptor %in% rownames(expr_residual)]
 
     if (dim(LR_out)[1] > 0) {
         message("Ligand or receptor were removed after computing expresion
               residual.")
         print(LR_out)
         LR_comb <- LR_comb[LR_comb$ligand %in% rownames(expr_residual) &
-                                LR_comb$receptor %in% rownames(expr_residual)]
+            LR_comb$receptor %in% rownames(expr_residual)]
         feature_set_1 <- LR_comb$ligand
         feature_set_2 <- LR_comb$receptor
     }
@@ -2194,38 +2411,41 @@ spatCellCellcomSpots <- function(gobject,
     ## get all combinations between cell types
     combn_DT <- data.table::data.table(LR_cell_comb = rownames(proximityMat))
     combn_DT[, V1 := strsplit(
-        LR_cell_comb, "--")[[1]][1], by = seq_len(nrow(combn_DT))]
+        LR_cell_comb, "--"
+    )[[1]][1], by = seq_len(nrow(combn_DT))]
     combn_DT[, V2 := strsplit(
-        LR_cell_comb, "--")[[1]][2], by = seq_len(nrow(combn_DT))]
+        LR_cell_comb, "--"
+    )[[1]][2], by = seq_len(nrow(combn_DT))]
 
     ## parallel option ##
     if (do_parallel == TRUE) {
         savelist <- lapply_flex(
             X = seq_len(nrow(combn_DT)), cores = cores, fun = function(row) {
-            cell_type_1 <- combn_DT[row][["V1"]]
-            cell_type_2 <- combn_DT[row][["V2"]]
+                cell_type_1 <- combn_DT[row][["V1"]]
+                cell_type_2 <- combn_DT[row][["V2"]]
 
 
-            specific_scores <- .specific_CCCScores_spots(
-                gobject = gobject,
-                spat_unit = spat_unit,
-                feat_type = feat_type,
-                expr_residual = expr_residual,
-                dwls_values = dwls_values,
-                proximityMat = proximityMat,
-                random_iter = random_iter,
-                cell_type_1 = cell_type_1,
-                cell_type_2 = cell_type_2,
-                feature_set_1 = feature_set_1,
-                feature_set_2 = feature_set_2,
-                min_observations = min_observations,
-                detailed = detailed,
-                adjust_method = adjust_method,
-                adjust_target = adjust_target,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-        })
+                specific_scores <- .specific_CCCScores_spots(
+                    gobject = gobject,
+                    spat_unit = spat_unit,
+                    feat_type = feat_type,
+                    expr_residual = expr_residual,
+                    dwls_values = dwls_values,
+                    proximityMat = proximityMat,
+                    random_iter = random_iter,
+                    cell_type_1 = cell_type_1,
+                    cell_type_2 = cell_type_2,
+                    feature_set_1 = feature_set_1,
+                    feature_set_2 = feature_set_2,
+                    min_observations = min_observations,
+                    detailed = detailed,
+                    adjust_method = adjust_method,
+                    adjust_target = adjust_target,
+                    set_seed = set_seed,
+                    seed_number = seed_number
+                )
+            }
+        )
     } else {
         ## for loop over all combinations ##
         savelist <- list()
@@ -2235,9 +2455,12 @@ spatCellCellcomSpots <- function(gobject,
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
-            if (verbose == "a little" | verbose == "a lot")
-                cat("PROCESS nr ", countdown, ": ",
-                    cell_type_1, " and ", cell_type_2)
+            if (verbose == "a little" | verbose == "a lot") {
+                cat(
+                    "PROCESS nr ", countdown, ": ",
+                    cell_type_1, " and ", cell_type_2
+                )
+            }
 
             specific_scores <- .specific_CCCScores_spots(
                 gobject = gobject,

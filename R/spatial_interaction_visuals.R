@@ -10,40 +10,46 @@
 #' @returns ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
-#'  @examples
-#'  g <- GiottoData::loadGiottoMini("visium")
-#'  
-#'  cellProximityBarplot(gobject = g, 
-#'  CPscore = cellProximityEnrichment(g, cluster_column = "leiden_clus"))
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' cellProximityBarplot(
+#'     gobject = g,
+#'     CPscore = cellProximityEnrichment(g, cluster_column = "leiden_clus")
+#' )
 #' @export
-cellProximityBarplot <- function(gobject,
-    CPscore,
-    min_orig_ints = 5,
-    min_sim_ints = 5,
-    p_val = 0.05,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "cellProximityBarplot") {
+cellProximityBarplot <- function(
+        gobject,
+        CPscore,
+        min_orig_ints = 5,
+        min_sim_ints = 5,
+        p_val = 0.05,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "cellProximityBarplot") {
     table_mean_results_dc <- CPscore$enrichm_res
 
     ## filter to remove low number of cell-cell proximity interactions ##
 
     # data.table variables
-    original <- simulations <- p_higher_orig <- p_lower_orig <- enrichm <- 
+    original <- simulations <- p_higher_orig <- p_lower_orig <- enrichm <-
         type_int <- unified_int <- NULL
 
     table_mean_results_dc_filter <- table_mean_results_dc[
-        original >= min_orig_ints & simulations >= min_sim_ints, ]
+        original >= min_orig_ints & simulations >= min_sim_ints,
+    ]
     table_mean_results_dc_filter <- table_mean_results_dc_filter[
-        p_higher_orig <= p_val | p_lower_orig <= p_val, ]
+        p_higher_orig <= p_val | p_lower_orig <= p_val,
+    ]
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::geom_bar(
-        data = table_mean_results_dc_filter, 
-        ggplot2::aes(x = unified_int, y = enrichm, fill = type_int), 
-        stat = "identity", show.legend = FALSE)
+        data = table_mean_results_dc_filter,
+        ggplot2::aes(x = unified_int, y = enrichm, fill = type_int),
+        stat = "identity", show.legend = FALSE
+    )
     pl <- pl + ggplot2::coord_flip()
     pl <- pl + ggplot2::theme_bw()
     pl <- pl + ggplot2::labs(y = "enrichment/depletion")
@@ -51,18 +57,22 @@ cellProximityBarplot <- function(gobject,
 
     bpl <- ggplot2::ggplot()
     bpl <- bpl + ggplot2::geom_bar(
-        data = table_mean_results_dc_filter, 
-        ggplot2::aes(x = unified_int, y = original, fill = type_int), 
-        stat = "identity", show.legend = TRUE)
+        data = table_mean_results_dc_filter,
+        ggplot2::aes(x = unified_int, y = original, fill = type_int),
+        stat = "identity", show.legend = TRUE
+    )
     bpl <- bpl + ggplot2::coord_flip()
     bpl <- bpl + ggplot2::theme_bw() + ggplot2::theme(
-        axis.text.y = element_blank())
+        axis.text.y = element_blank()
+    )
     bpl <- bpl + ggplot2::labs(y = "# of interactions")
     bpl
 
     combo_plot <- cowplot::plot_grid(
-        pl, bpl, ncol = 2, rel_heights = c(1), 
-        rel_widths = c(3, 1.5), align = "h")
+        pl, bpl,
+        ncol = 2, rel_heights = c(1),
+        rel_widths = c(3, 1.5), align = "h"
+    )
 
     # output plot
     return(GiottoVisuals::plot_output_handler(
@@ -85,7 +95,7 @@ cellProximityBarplot <- function(gobject,
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param scale scale cell-cell proximity interaction scores
 #' @param order_cell_types order cell types based on enrichment correlation
-#' @param color_breaks numerical vector of length 3 to represent min, mean 
+#' @param color_breaks numerical vector of length 3 to represent min, mean
 #' and maximum
 #' @param color_names character color vector of length 3
 #' @returns ggplot heatmap
@@ -93,50 +103,60 @@ cellProximityBarplot <- function(gobject,
 #'  enrichment or depletion of cell type pairs.
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
-#' 
+#'
 #' cellProximityHeatmap(gobject = g, CPscore = x)
 #' @export
-cellProximityHeatmap <- function(gobject,
-    CPscore,
-    scale = TRUE,
-    order_cell_types = TRUE,
-    color_breaks = NULL,
-    color_names = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "cellProximityHeatmap") {
+cellProximityHeatmap <- function(
+        gobject,
+        CPscore,
+        scale = TRUE,
+        order_cell_types = TRUE,
+        color_breaks = NULL,
+        color_names = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "cellProximityHeatmap") {
     enrich_res <- CPscore$enrichm_res
 
     # data.table variables
     first_type <- second_type <- unified_int <- NULL
 
     enrich_res[, first_type := strsplit(
-        x = as.character(unified_int), split = "--")[[1]][1], 
-        by = seq_len(nrow(enrich_res))]
+        x = as.character(unified_int), split = "--"
+    )[[1]][1],
+    by = seq_len(nrow(enrich_res))
+    ]
     enrich_res[, second_type := strsplit(
-        x = as.character(unified_int), split = "--")[[1]][2], 
-        by = seq_len(nrow(enrich_res))]
+        x = as.character(unified_int), split = "--"
+    )[[1]][2],
+    by = seq_len(nrow(enrich_res))
+    ]
 
     # create matrix
     enrich_mat <- data.table::dcast.data.table(
-        data = enrich_res, 
-        formula = first_type ~ second_type, 
-        value.var = "enrichm")
+        data = enrich_res,
+        formula = first_type ~ second_type,
+        value.var = "enrichm"
+    )
     matrix_d <- as.matrix(enrich_mat[, -1])
     rownames(matrix_d) <- as.vector(enrich_mat[[1]])
     t_matrix_d <- t_flex(matrix_d)
 
     # fill in NAs based on values in upper and lower matrix triangle
     t_matrix_d[upper.tri(t_matrix_d)][is.na(t_matrix_d[
-        upper.tri(t_matrix_d)])] <- matrix_d[upper.tri(matrix_d)][
-            is.na(t_matrix_d[upper.tri(t_matrix_d)])]
+        upper.tri(t_matrix_d)
+    ])] <- matrix_d[upper.tri(matrix_d)][
+        is.na(t_matrix_d[upper.tri(t_matrix_d)])
+    ]
     t_matrix_d[lower.tri(t_matrix_d)][is.na(t_matrix_d[
-        lower.tri(t_matrix_d)])] <- matrix_d[lower.tri(matrix_d)][
-            is.na(t_matrix_d[lower.tri(t_matrix_d)])]
+        lower.tri(t_matrix_d)
+    ])] <- matrix_d[lower.tri(matrix_d)][
+        is.na(t_matrix_d[lower.tri(t_matrix_d)])
+    ]
     t_matrix_d[is.na(t_matrix_d)] <- 0
     final_matrix <- t_matrix_d
 
@@ -145,7 +165,8 @@ cellProximityHeatmap <- function(gobject,
         final_matrix <- t_flex(scale(t_flex(final_matrix)))
         final_matrix <- t_flex(final_matrix)
         final_matrix[lower.tri(final_matrix)] <- t_flex(final_matrix)[
-            lower.tri(final_matrix)]
+            lower.tri(final_matrix)
+        ]
     }
 
     # order cell types
@@ -171,17 +192,19 @@ cellProximityHeatmap <- function(gobject,
         }
 
         heatm <- ComplexHeatmap::Heatmap(
-            matrix = final_matrix, 
-            cluster_rows = FALSE, 
+            matrix = final_matrix,
+            cluster_rows = FALSE,
             cluster_columns = FALSE,
             col = GiottoVisuals::colorRamp2(
-                breaks = color_breaks, colors = color_names)
+                breaks = color_breaks, colors = color_names
+            )
         )
     } else {
         heatm <- ComplexHeatmap::Heatmap(
-            matrix = final_matrix, 
-            cluster_rows = FALSE, 
-            cluster_columns = FALSE)
+            matrix = final_matrix,
+            cluster_rows = FALSE,
+            cluster_columns = FALSE
+        )
     }
 
     return(plot_output_handler(
@@ -208,9 +231,9 @@ cellProximityHeatmap <- function(gobject,
 #' @param color_depletion color for depleted cell-cell interactions
 #' @param color_enrichment color for enriched cell-cell interactions
 #' @param rescale_edge_weights rescale edge weights (boolean)
-#' @param edge_weight_range_depletion numerical vector of length 2 to rescale 
+#' @param edge_weight_range_depletion numerical vector of length 2 to rescale
 #' depleted edge weights
-#' @param edge_weight_range_enrichment numerical vector of length 2 to rescale 
+#' @param edge_weight_range_enrichment numerical vector of length 2 to rescale
 #' enriched edge weights
 #' @param layout layout algorithm to use to draw nodes and edges
 #' @param only_show_enrichment_edges show only the enriched pairwise scores
@@ -223,31 +246,32 @@ cellProximityHeatmap <- function(gobject,
 #'  enrichment or depletion of cell type pairs.
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
-#' 
+#'
 #' cellProximityNetwork(gobject = g, CPscore = x)
 #' @export
-cellProximityNetwork <- function(gobject,
-    CPscore,
-    remove_self_edges = FALSE,
-    self_loop_strength = 0.1,
-    color_depletion = "lightgreen",
-    color_enrichment = "red",
-    rescale_edge_weights = TRUE,
-    edge_weight_range_depletion = c(0.1, 1),
-    edge_weight_range_enrichment = c(1, 5),
-    layout = c("Fruchterman", "DrL", "Kamada-Kawai"),
-    only_show_enrichment_edges = FALSE,
-    edge_width_range = c(0.1, 2),
-    node_size = 4,
-    node_color_code = NULL,
-    node_text_size = 6,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "cellProximityNetwork") {
+cellProximityNetwork <- function(
+        gobject,
+        CPscore,
+        remove_self_edges = FALSE,
+        self_loop_strength = 0.1,
+        color_depletion = "lightgreen",
+        color_enrichment = "red",
+        rescale_edge_weights = TRUE,
+        edge_weight_range_depletion = c(0.1, 1),
+        edge_weight_range_enrichment = c(1, 5),
+        layout = c("Fruchterman", "DrL", "Kamada-Kawai"),
+        only_show_enrichment_edges = FALSE,
+        edge_width_range = c(0.1, 2),
+        node_size = 4,
+        node_color_code = NULL,
+        node_text_size = 6,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "cellProximityNetwork") {
     # extract scores
 
     # data.table variables
@@ -255,19 +279,27 @@ cellProximityNetwork <- function(gobject,
 
     CPscores <- CPscore[["enrichm_res"]]
     CPscores[, cell_1 := strsplit(
-        as.character(unified_int), split = "--")[[1]][1], 
-        by = seq_len(nrow(CPscores))]
+        as.character(unified_int),
+        split = "--"
+    )[[1]][1],
+    by = seq_len(nrow(CPscores))
+    ]
     CPscores[, cell_2 := strsplit(
-        as.character(unified_int), split = "--")[[1]][2], 
-        by = seq_len(nrow(CPscores))]
+        as.character(unified_int),
+        split = "--"
+    )[[1]][2],
+    by = seq_len(nrow(CPscores))
+    ]
 
     # create igraph with enrichm as weight edges
     igd <- igraph::graph_from_data_frame(
-        d = CPscores[, c("cell_1", "cell_2", "enrichm")], directed = FALSE)
+        d = CPscores[, c("cell_1", "cell_2", "enrichm")], directed = FALSE
+    )
 
     if (remove_self_edges == TRUE) {
         igd <- igraph::simplify(
-            graph = igd, remove.loops = TRUE, remove.multiple = FALSE)
+            graph = igd, remove.loops = TRUE, remove.multiple = FALSE
+        )
     }
 
     edges_sizes <- igraph::get.edge.attribute(igd, "enrichm")
@@ -277,9 +309,11 @@ cellProximityNetwork <- function(gobject,
     # rescale if wanted
     if (rescale_edge_weights == TRUE) {
         pos_edges_sizes_resc <- scales::rescale(
-            x = post_edges_sizes, to = edge_weight_range_enrichment)
+            x = post_edges_sizes, to = edge_weight_range_enrichment
+        )
         neg_edges_sizes_resc <- scales::rescale(
-            x = neg_edges_sizes, to = edge_weight_range_depletion)
+            x = neg_edges_sizes, to = edge_weight_range_depletion
+        )
         edges_sizes_resc <- c(pos_edges_sizes_resc, neg_edges_sizes_resc)
     } else {
         edges_sizes_resc <- c(post_edges_sizes, neg_edges_sizes)
@@ -300,15 +334,18 @@ cellProximityNetwork <- function(gobject,
         }
     } else {
         layout <- match.arg(
-            arg = layout, choices = c("Fruchterman", "DrL", "Kamada-Kawai"))
+            arg = layout, choices = c("Fruchterman", "DrL", "Kamada-Kawai")
+        )
     }
 
     igd <- igraph::set.edge.attribute(
-        graph = igd, index = igraph::E(igd), name = "color", 
-        value = edges_colors)
+        graph = igd, index = igraph::E(igd), name = "color",
+        value = edges_colors
+    )
     igd <- igraph::set.edge.attribute(
-        graph = igd, index = igraph::E(igd), name = "size", 
-        value = as.numeric(edges_sizes_resc))
+        graph = igd, index = igraph::E(igd), name = "size",
+        value = as.numeric(edges_sizes_resc)
+    )
 
     ## only show attractive edges
     if (only_show_enrichment_edges == TRUE) {
@@ -323,13 +360,16 @@ cellProximityNetwork <- function(gobject,
     ## get coordinates layouts
     if (layout == "Fruchterman") {
         coords <- igraph::layout_with_fr(
-            graph = igd, weights = edges_sizes_resc)
+            graph = igd, weights = edges_sizes_resc
+        )
     } else if (layout == "DrL") {
         coords <- igraph::layout_with_drl(
-            graph = igd, weights = edges_sizes_resc)
+            graph = igd, weights = edges_sizes_resc
+        )
     } else if (layout == "Kamada-Kawai") {
         coords <- igraph::layout_with_kk(
-            graph = igd, weights = edges_sizes_resc)
+            graph = igd, weights = edges_sizes_resc
+        )
     } else {
         stop("Currently no other layouts have been implemented")
     }
@@ -337,25 +377,36 @@ cellProximityNetwork <- function(gobject,
     ## create plot
     gpl <- ggraph::ggraph(graph = igd, layout = coords)
     gpl <- gpl + ggraph::geom_edge_link(
-        ggplot2::aes(color = factor(color), 
-                     edge_width = size, edge_alpha = size), 
-        show.legend = FALSE)
+        ggplot2::aes(
+            color = factor(color),
+            edge_width = size, edge_alpha = size
+        ),
+        show.legend = FALSE
+    )
 
     if (remove_self_edges == FALSE) {
         gpl <- gpl + ggraph::geom_edge_loop(
-            ggplot2::aes(color = factor(color), edge_width = size, 
-                         edge_alpha = size, strength = self_loop_strength), 
-            show.legend = FALSE)
+            ggplot2::aes(
+                color = factor(color), edge_width = size,
+                edge_alpha = size, strength = self_loop_strength
+            ),
+            show.legend = FALSE
+        )
     }
 
     gpl <- gpl + ggraph::scale_edge_color_manual(
-        values = c("enriched" = color_enrichment, "depleted" = color_depletion))
+        values = c("enriched" = color_enrichment, "depleted" = color_depletion)
+    )
     gpl <- gpl + ggraph::scale_edge_width(range = edge_width_range)
     gpl <- gpl + ggraph::scale_edge_alpha(range = c(0.1, 1))
     gpl <- gpl + ggraph::geom_node_text(
-        ggplot2::aes(label = name), repel = TRUE, size = node_text_size)
+        ggplot2::aes(label = name),
+        repel = TRUE, size = node_text_size
+    )
     gpl <- gpl + ggraph::geom_node_point(
-        ggplot2::aes(color = name), size = node_size)
+        ggplot2::aes(color = name),
+        size = node_size
+    )
     if (!is.null(node_color_code)) {
         gpl <- gpl + ggplot2::scale_color_manual(values = node_color_code)
     }
@@ -392,52 +443,59 @@ cellProximityNetwork <- function(gobject,
 NULL
 
 
-#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell 
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell
 #' interactions according to spatial coordinates in ggplot mode
 #' @keywords internal
-.cellProximityVisPlot_2D_ggplot <- function(gobject,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = NULL,
-    sdimy = NULL,
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = FALSE,
-    show_network = FALSE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    coord_fix_ratio = 1,
-    show_legend = TRUE,
-    point_size_select = 2,
-    point_select_border_col = "black",
-    point_select_border_stroke = 0.05,
-    point_size_other = 1,
-    point_alpha_other = 0.3,
-    point_other_border_col = "lightgrey",
-    point_other_border_stroke = 0.01,
-    ...) {
+.cellProximityVisPlot_2D_ggplot <- function(
+        gobject,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = NULL,
+        sdimy = NULL,
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = FALSE,
+        show_network = FALSE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        coord_fix_ratio = 1,
+        show_legend = TRUE,
+        point_size_select = 2,
+        point_select_border_col = "black",
+        point_select_border_stroke = 0.05,
+        point_size_other = 1,
+        point_alpha_other = 0.3,
+        point_other_border_col = "lightgrey",
+        point_other_border_stroke = 0.01,
+        ...) {
     # data.table variables
-    unified_int <- sdimx_begin <- sdimy_begin <- sdimx_end <- sdimy_end <- 
+    unified_int <- sdimx_begin <- sdimy_begin <- sdimx_end <- sdimy_end <-
         x_start <- x_end <- NULL
     y_start <- y_end <- cell_ID <- NULL
 
     if (is.null(interaction_name)) {
-        stop("you need to specific at least one interaction name, run 
+        stop("you need to specific at least one interaction name, run
             cellProximityEnrichment")
     }
 
 
-    cell_locations <- getSpatialLocations(gobject = gobject,
-                                          output = "data.table")
-    spatial_grid <- getSpatialGrid(gobject = gobject,
-                                   name = spatial_grid_name)
-    cell_metadata <- getCellMetadata(gobject = gobject,
-                                    output = "data.table")
+    cell_locations <- getSpatialLocations(
+        gobject = gobject,
+        output = "data.table"
+    )
+    spatial_grid <- getSpatialGrid(
+        gobject = gobject,
+        name = spatial_grid_name
+    )
+    cell_metadata <- getCellMetadata(
+        gobject = gobject,
+        output = "data.table"
+    )
 
 
 
@@ -456,7 +514,8 @@ NULL
     if (show_other_cells) {
         CellType <- strsplit(interaction_name, "--")
         all_cell_IDs <- cell_metadata[cell_metadata[[
-            cluster_column]] == CellType[[1]][1] |
+            cluster_column
+        ]] == CellType[[1]][1] |
             cell_metadata[[cluster_column]] == CellType[[1]][2], ]$cell_ID
         other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
     }
@@ -467,13 +526,15 @@ NULL
         cell_locations_metadata <- cell_locations
     } else {
         cell_locations_metadata <- merge(
-            cell_locations, cell_metadata, by = "cell_ID")
+            cell_locations, cell_metadata,
+            by = "cell_ID"
+        )
     }
 
 
     # first 2 dimensions need to be defined
     if (is.null(sdimx) | is.null(sdimy)) {
-        message("first and second dimenion need to be defined, default is 
+        message("first and second dimenion need to be defined, default is
                 first 2\n")
         sdimx <- "sdimx"
         sdimy <- "sdimy"
@@ -487,15 +548,19 @@ NULL
         if (show_other_network) {
             pl <- pl + ggplot2::geom_segment(
                 data = spatial_network[!unified_int %in% interaction_name],
-                aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, 
-                    yend = sdimy_end),
+                aes(
+                    x = sdimx_begin, y = sdimy_begin, xend = sdimx_end,
+                    yend = sdimy_end
+                ),
                 color = "lightgrey", size = 0.5, alpha = 0.5
             )
         }
         pl <- pl + ggplot2::geom_segment(
             data = spatial_network[unified_int %in% interaction_name],
-            aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, 
-                yend = sdimy_end),
+            aes(
+                x = sdimx_begin, y = sdimy_begin, xend = sdimx_end,
+                yend = sdimy_end
+            ),
             color = network_color, size = 0.5, alpha = 0.5
         )
     }
@@ -503,7 +568,7 @@ NULL
     if (!is.null(spatial_grid) & show_grid == TRUE) {
         if (is.null(grid_color)) grid_color <- "black"
         pl <- pl + ggplot2::geom_rect(
-            data = spatial_grid, 
+            data = spatial_grid,
             aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
             color = grid_color, fill = NA
         )
@@ -513,22 +578,22 @@ NULL
     if (is.null(cell_color)) {
         cell_color <- "lightblue"
         pl <- pl + ggplot2::geom_point(
-            data = cell_locations[!cell_ID %in% cell_IDs_to_keep], 
+            data = cell_locations[!cell_ID %in% cell_IDs_to_keep],
             aes_string(x = sdimx, y = sdimy),
-            show.legend = show_legend, shape = 21, fill = "lightgrey", 
+            show.legend = show_legend, shape = 21, fill = "lightgrey",
             size = point_size_other
         )
         pl <- pl + ggplot2::geom_point(
-            data = cell_locations[cell_ID %in% cell_IDs_to_keep], 
+            data = cell_locations[cell_ID %in% cell_IDs_to_keep],
             aes_string(x = sdimx, y = sdimy),
-            show.legend = show_legend, shape = 21, fill = cell_color, 
+            show.legend = show_legend, shape = 21, fill = cell_color,
             size = point_size_select
         )
         if (show_other_cells) {
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations[cell_ID %in% other_cell_IDs], 
+                data = cell_locations[cell_ID %in% other_cell_IDs],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, fill = cell_color, 
+                show.legend = show_legend, shape = 21, fill = cell_color,
                 alpha = point_alpha_other,
                 size = point_size_select * 0.5
             )
@@ -541,24 +606,24 @@ NULL
             }
 
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], 
+                data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy),
                 fill = "lightgrey", shape = 21, size = point_size_other,
-                color = point_other_border_col, 
+                color = point_other_border_col,
                 stroke = point_other_border_stroke
             )
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], 
+                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy, fill = cell_color),
                 show.legend = show_legend, shape = 21, size = point_size_select,
-                color = point_select_border_col, 
+                color = point_select_border_col,
                 stroke = point_select_border_stroke
             )
             if (show_other_cells) {
                 pl <- pl + ggplot2::geom_point(
                     data = cell_locations_metadata[cell_ID %in% other_cell_IDs],
                     aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                    show.legend = show_legend, shape = 21, 
+                    show.legend = show_legend, shape = 21,
                     alpha = point_alpha_other,
                     size = point_size_select * 0.5
                 )
@@ -571,7 +636,8 @@ NULL
             } else if (color_as_factor == TRUE) {
                 number_colors <- length(unique(factor_data))
                 cell_color_code <- set_default_color_discrete_cell(
-                    instrs = instructions(gobject))(n = number_colors)
+                    instrs = instructions(gobject)
+                )(n = number_colors)
                 names(cell_color_code) <- unique(factor_data)
                 pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
             } else if (color_as_factor == FALSE) {
@@ -588,19 +654,20 @@ NULL
         } else {
             pl <- pl + ggplot2::geom_point(
                 data = cell_locations_metadata[
-                    !cell_ID %in% cell_IDs_to_keep], 
+                    !cell_ID %in% cell_IDs_to_keep
+                ],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, 
+                show.legend = show_legend, shape = 21,
                 fill = "lightgrey", size = point_size_other,
-                color = point_other_border_col, 
+                color = point_other_border_col,
                 stroke = point_other_border_stroke
             )
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], 
+                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, fill = cell_color, 
+                show.legend = show_legend, shape = 21, fill = cell_color,
                 size = point_size_select,
-                color = point_select_border_col, 
+                color = point_select_border_col,
                 stroke = point_select_border_stroke
             )
         }
@@ -624,39 +691,40 @@ NULL
 
 
 
-#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell 
+#' @describeIn cellProximityVisPlot_internals Visualize 2D cell-cell
 #' interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-.cellProximityVisPlot_2D_plotly <- function(gobject,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = NULL,
-    sdimy = NULL,
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = FALSE,
-    show_network = FALSE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    show_legend = TRUE,
-    point_size_select = 2,
-    point_size_other = 1,
-    point_alpha_other = 0.3,
-    axis_scale = c("cube", "real", "custom"),
-    custom_ratio = NULL,
-    x_ticks = NULL,
-    y_ticks = NULL,
-    ...) {
+.cellProximityVisPlot_2D_plotly <- function(
+        gobject,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = NULL,
+        sdimy = NULL,
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = FALSE,
+        show_network = FALSE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        show_legend = TRUE,
+        point_size_select = 2,
+        point_size_other = 1,
+        point_alpha_other = 0.3,
+        axis_scale = c("cube", "real", "custom"),
+        custom_ratio = NULL,
+        x_ticks = NULL,
+        y_ticks = NULL,
+        ...) {
     # data.table variables
     cell_ID <- unified_int <- NULL
 
     if (is.null(interaction_name)) {
-        stop("you need to specific at least one interaction name, run 
+        stop("you need to specific at least one interaction name, run
             cellProximityEnrichment")
     }
 
@@ -667,18 +735,21 @@ NULL
 
 
     spatial_network <- annotateSpatialNetwork(
-        gobject = gobject, 
-        spatial_network_name = spatial_network_name, 
-        cluster_column = cluster_column)
+        gobject = gobject,
+        spatial_network_name = spatial_network_name,
+        cluster_column = cluster_column
+    )
 
     cell_IDs_to_keep <- unique(c(
-        spatial_network[unified_int %in% interaction_name]$to, 
-        spatial_network[unified_int %in% interaction_name]$from))
+        spatial_network[unified_int %in% interaction_name]$to,
+        spatial_network[unified_int %in% interaction_name]$from
+    ))
 
     if (show_other_cells) {
         CellType <- strsplit(interaction_name, "-")
         all_cell_IDs <- cell_metadata[cell_metadata[[
-            cluster_column]] == CellType[[1]][1] |
+            cluster_column
+        ]] == CellType[[1]][1] |
             cell_metadata[[cluster_column]] == CellType[[1]][2], ]$cell_ID
         other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
     }
@@ -688,7 +759,9 @@ NULL
         cell_locations_metadata <- cell_locations
     } else {
         cell_locations_metadata <- merge(
-            cell_locations, cell_metadata, by = "cell_ID")
+            cell_locations, cell_metadata,
+            by = "cell_ID"
+        )
     }
 
 
@@ -696,7 +769,7 @@ NULL
 
     # first 2 dimensions need to be defined
     if (is.null(sdimx) | is.null(sdimy)) {
-        message("first and second dimenion need to be defined, default is 
+        message("first and second dimenion need to be defined, default is
                 first 2")
         sdimx <- "sdimx"
         sdimy <- "sdimy"
@@ -775,12 +848,15 @@ NULL
         if (cell_color %in% colnames(cell_locations_metadata)) {
             if (is.null(cell_color_code)) {
                 number_colors <- length(unique(cell_locations_metadata[[
-                    cell_color]]))
+                    cell_color
+                ]]))
                 cell_color_code <- set_default_color_discrete_cell(
-                    instrs = instructions(gobject))(n = number_colors)
+                    instrs = instructions(gobject)
+                )(n = number_colors)
             }
             cell_locations_metadata[[cell_color]] <- as.factor(
-                cell_locations_metadata[[cell_color]])
+                cell_locations_metadata[[cell_color]]
+            )
 
             pl <- pl %>% plotly::add_trace(
                 type = "scatter", mode = "markers",
@@ -788,7 +864,8 @@ NULL
                 data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 x = ~sdimx, y = ~sdimy,
                 color = cell_locations_metadata[
-                    cell_ID %in% cell_IDs_to_keep][[cell_color]],
+                    cell_ID %in% cell_IDs_to_keep
+                ][[cell_color]],
                 colors = cell_color_code,
                 marker = list(size = point_size_select)
             )
@@ -799,7 +876,8 @@ NULL
                     data = cell_locations_metadata[cell_ID %in% other_cell_IDs],
                     x = ~sdimx, y = ~sdimy,
                     color = cell_locations_metadata[
-                        cell_ID %in% other_cell_IDs][[cell_color]],
+                        cell_ID %in% other_cell_IDs
+                    ][[cell_color]],
                     colors = cell_color_code,
                     opacity = point_alpha_other,
                     marker = list(size = point_size_select * 0.7)
@@ -811,9 +889,10 @@ NULL
                 data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                 x = ~sdimx, y = ~sdimy,
                 marker = list(
-                    size = point_size_other, 
-                    color = "lightgray", 
-                    colors = "lightgray"),
+                    size = point_size_other,
+                    color = "lightgray",
+                    colors = "lightgray"
+                ),
                 opacity = point_alpha_other
             )
         } else {
@@ -826,9 +905,10 @@ NULL
             data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
             x = ~sdimx, y = ~sdimy,
             marker = list(
-                size = point_size_select, 
-                color = "lightblue", 
-                colors = "lightblue")
+                size = point_size_select,
+                color = "lightblue",
+                colors = "lightblue"
+            )
         )
         if (show_other_cells) {
             pl <- pl %>% plotly::add_trace(
@@ -837,9 +917,10 @@ NULL
                 x = ~sdimx, y = ~sdimy,
                 name = "selected cells outside network",
                 marker = list(
-                    size = point_size_select * 0.7, 
-                    color = "lightblue", 
-                    colors = "lightblue"),
+                    size = point_size_select * 0.7,
+                    color = "lightblue",
+                    colors = "lightblue"
+                ),
                 opacity = point_alpha_other
             )
         }
@@ -849,9 +930,10 @@ NULL
             data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
             x = ~sdimx, y = ~sdimy,
             marker = list(
-                size = point_size_other, 
-                color = "lightgray", 
-                colors = "lightgray"),
+                size = point_size_other,
+                color = "lightgray",
+                colors = "lightgray"
+            ),
             opacity = point_alpha_other
         )
     }
@@ -871,41 +953,42 @@ NULL
 }
 
 
-#' @describeIn cellProximityVisPlot_internals Visualize 3D cell-cell 
+#' @describeIn cellProximityVisPlot_internals Visualize 3D cell-cell
 #' interactions according to spatial coordinates in plotly mode
 #' @keywords internal
-.cellProximityVisPlot_3D_plotly <- function(gobject,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = NULL,
-    sdimy = NULL,
-    sdimz = NULL,
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = FALSE,
-    show_network = FALSE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    show_legend = TRUE,
-    point_size_select = 2,
-    point_size_other = 1,
-    point_alpha_other = 0.5,
-    axis_scale = c("cube", "real", "custom"),
-    custom_ratio = NULL,
-    x_ticks = NULL,
-    y_ticks = NULL,
-    z_ticks = NULL,
-    ...) {
+.cellProximityVisPlot_3D_plotly <- function(
+        gobject,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = NULL,
+        sdimy = NULL,
+        sdimz = NULL,
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = FALSE,
+        show_network = FALSE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        show_legend = TRUE,
+        point_size_select = 2,
+        point_size_other = 1,
+        point_alpha_other = 0.5,
+        axis_scale = c("cube", "real", "custom"),
+        custom_ratio = NULL,
+        x_ticks = NULL,
+        y_ticks = NULL,
+        z_ticks = NULL,
+        ...) {
     # data.table variables
     cell_ID <- unified_int <- NULL
 
     if (is.null(interaction_name)) {
-        stop("you need to specific at least one interaction name, 
+        stop("you need to specific at least one interaction name,
             run cellProximityEnrichment")
     }
 
@@ -916,18 +999,23 @@ NULL
 
 
     spatial_network <- annotateSpatialNetwork(
-        gobject = gobject, 
-        spatial_network_name = spatial_network_name, 
-        cluster_column = cluster_column)
+        gobject = gobject,
+        spatial_network_name = spatial_network_name,
+        cluster_column = cluster_column
+    )
 
-    cell_IDs_to_keep <- unique(c(spatial_network[
-        unified_int %in% interaction_name]$to, 
-        spatial_network[unified_int %in% interaction_name]$from))
+    cell_IDs_to_keep <- unique(c(
+        spatial_network[
+            unified_int %in% interaction_name
+        ]$to,
+        spatial_network[unified_int %in% interaction_name]$from
+    ))
 
     if (show_other_cells) {
         CellType <- strsplit(interaction_name, "-")
         all_cell_IDs <- cell_metadata[cell_metadata[[
-            cluster_column]] == CellType[[1]][1] |
+            cluster_column
+        ]] == CellType[[1]][1] |
             cell_metadata[[cluster_column]] == CellType[[1]][2], ]$cell_ID
         other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
     }
@@ -937,7 +1025,9 @@ NULL
         cell_locations_metadata <- cell_locations
     } else {
         cell_locations_metadata <- merge(
-            cell_locations, cell_metadata, by = "cell_ID")
+            cell_locations, cell_metadata,
+            by = "cell_ID"
+        )
     }
 
 
@@ -945,7 +1035,7 @@ NULL
 
     # first 2 dimensions need to be defined
     if (is.null(sdimx) | is.null(sdimy)) {
-        message("first and second dimenion need to be defined, default is 
+        message("first and second dimenion need to be defined, default is
                 first 2")
         sdimx <- "sdimx"
         sdimy <- "sdimy"
@@ -972,21 +1062,26 @@ NULL
         if (cell_color %in% colnames(cell_locations_metadata)) {
             if (is.null(cell_color_code)) {
                 number_colors <- length(unique(cell_locations_metadata[[
-                    cell_color]]))
+                    cell_color
+                ]]))
                 cell_color_code <- set_default_color_discrete_cell(
-                    instrs = instructions(gobject))(n = number_colors)
+                    instrs = instructions(gobject)
+                )(n = number_colors)
             }
             cell_locations_metadata[[cell_color]] <- as.factor(
-                cell_locations_metadata[[cell_color]])
+                cell_locations_metadata[[cell_color]]
+            )
 
             pl <- pl %>%
                 plotly::add_trace(
                     type = "scatter3d", mode = "markers",
                     data = cell_locations_metadata[
-                        cell_ID %in% cell_IDs_to_keep],
+                        cell_ID %in% cell_IDs_to_keep
+                    ],
                     x = ~sdimx, y = ~sdimy, z = ~sdimz,
                     color = cell_locations_metadata[
-                        cell_ID %in% cell_IDs_to_keep][[cell_color]],
+                        cell_ID %in% cell_IDs_to_keep
+                    ][[cell_color]],
                     colors = cell_color_code,
                     marker = list(size = point_size_select)
                 ) %>%
@@ -994,12 +1089,14 @@ NULL
                     type = "scatter3d", mode = "markers",
                     name = "unselected cells",
                     data = cell_locations_metadata[
-                        !cell_ID %in% cell_IDs_to_keep],
+                        !cell_ID %in% cell_IDs_to_keep
+                    ],
                     x = ~sdimx, y = ~sdimy, z = ~sdimz,
                     marker = list(
-                        size = point_size_other, 
-                        color = "lightgray", 
-                        colors = "lightgray"),
+                        size = point_size_other,
+                        color = "lightgray",
+                        colors = "lightgray"
+                    ),
                     opacity = point_alpha_other
                 )
             if (show_other_cells) {
@@ -1009,7 +1106,8 @@ NULL
                     data = cell_locations_metadata[cell_ID %in% other_cell_IDs],
                     x = ~sdimx, y = ~sdimy, z = ~sdimz,
                     color = cell_locations_metadata[
-                        cell_ID %in% other_cell_IDs][[cell_color]],
+                        cell_ID %in% other_cell_IDs
+                    ][[cell_color]],
                     colors = cell_color_code,
                     opacity = point_alpha_other,
                     marker = list(size = point_size_select * 0.7)
@@ -1026,9 +1124,10 @@ NULL
                 data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 x = ~sdimx, y = ~sdimy, z = ~sdimz,
                 marker = list(
-                    size = point_size_select, 
-                    color = "lightblue", 
-                    colors = "lightblue")
+                    size = point_size_select,
+                    color = "lightblue",
+                    colors = "lightblue"
+                )
             ) %>%
             plotly::add_trace(
                 type = "scatter3d", mode = "markers",
@@ -1036,9 +1135,10 @@ NULL
                 data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                 x = ~sdimx, y = ~sdimy, z = ~sdimz,
                 marker = list(
-                    size = point_size_other, 
-                    color = "lightgray", 
-                    colors = "lightgray"),
+                    size = point_size_other,
+                    color = "lightgray",
+                    colors = "lightgray"
+                ),
                 opacity = point_alpha_other
             )
         if (show_other_cells) {
@@ -1048,9 +1148,10 @@ NULL
                 x = ~sdimx, y = ~sdimy, z = ~sdimz,
                 name = "selected cells outside network",
                 marker = list(
-                    size = point_size_select * 0.7, 
-                    color = "lightblue", 
-                    colors = "lightblue"),
+                    size = point_size_select * 0.7,
+                    color = "lightblue",
+                    colors = "lightblue"
+                ),
                 opacity = point_alpha_other
             )
         }
@@ -1062,18 +1163,18 @@ NULL
         unselect_network <- spatial_network[!unified_int %in% interaction_name]
         select_network <- spatial_network[unified_int %in% interaction_name]
         pl <- pl %>% plotly::add_trace(
-            name = "sptial network", mode = "lines", 
+            name = "sptial network", mode = "lines",
             type = "scatter3d", opacity = 0.5,
             data = plotly_network(select_network),
-            x = ~x, y = ~y, z = ~z, inherit = FALSE, 
+            x = ~x, y = ~y, z = ~z, inherit = FALSE,
             line = list(color = network_color)
         )
         if (show_other_network == TRUE) {
             pl <- pl %>% plotly::add_trace(
-                name = "unselected sptial network", mode = "lines", 
+                name = "unselected sptial network", mode = "lines",
                 type = "scatter3d", opacity = 0.1,
                 data = plotly_network(unselect_network),
-                x = ~x, y = ~y, z = ~z, inherit = FALSE, 
+                x = ~x, y = ~y, z = ~z, inherit = FALSE,
                 line = list(color = "lightgray")
             )
         }
@@ -1095,7 +1196,7 @@ NULL
 
 #' @title cellProximityVisPlot
 #' @name cellProximityVisPlot
-#' @description Visualize cell-cell interactions according to spatial 
+#' @description Visualize cell-cell interactions according to spatial
 #' coordinates
 #' @param gobject giotto object
 #' @param interaction_name cell-cell interaction name
@@ -1136,43 +1237,46 @@ NULL
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
 #' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
-#' 
-#' cellProximityVisPlot(gobject = g, interaction_name = x,
-#' cluster_column = "leiden_clus", sdimx = "sdimx", sdimy = "sdimy")
+#'
+#' cellProximityVisPlot(
+#'     gobject = g, interaction_name = x,
+#'     cluster_column = "leiden_clus", sdimx = "sdimx", sdimy = "sdimy"
+#' )
 #' @export
-cellProximityVisPlot <- function(gobject,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = NULL,
-    sdimy = NULL,
-    sdimz = NULL,
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = FALSE,
-    show_network = FALSE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    coord_fix_ratio = 1,
-    show_legend = TRUE,
-    point_size_select = 2,
-    point_select_border_col = "black",
-    point_select_border_stroke = 0.05,
-    point_size_other = 1,
-    point_alpha_other = 0.3,
-    point_other_border_col = "lightgrey",
-    point_other_border_stroke = 0.01,
-    axis_scale = c("cube", "real", "custom"),
-    custom_ratio = NULL,
-    x_ticks = NULL,
-    y_ticks = NULL,
-    z_ticks = NULL,
-    plot_method = c("ggplot", "plotly"),
-    ...) {
+cellProximityVisPlot <- function(
+        gobject,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = NULL,
+        sdimy = NULL,
+        sdimz = NULL,
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = FALSE,
+        show_network = FALSE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        coord_fix_ratio = 1,
+        show_legend = TRUE,
+        point_size_select = 2,
+        point_select_border_col = "black",
+        point_select_border_stroke = 0.05,
+        point_size_other = 1,
+        point_alpha_other = 0.3,
+        point_other_border_col = "lightgrey",
+        point_other_border_stroke = 0.01,
+        axis_scale = c("cube", "real", "custom"),
+        custom_ratio = NULL,
+        x_ticks = NULL,
+        y_ticks = NULL,
+        z_ticks = NULL,
+        plot_method = c("ggplot", "plotly"),
+        ...) {
     ## decide plot method
     plot_method <- match.arg(plot_method, choices = c("ggplot", "plotly"))
     axis_scale <- match.arg(axis_scale, c("cube", "real", "custom"))
@@ -1180,7 +1284,7 @@ cellProximityVisPlot <- function(gobject,
 
     if (plot_method == "ggplot") {
         if (is.null(sdimx) | is.null(sdimy)) {
-            warning("plot_method = ggplot, but spatial dimensions for sdimx 
+            warning("plot_method = ggplot, but spatial dimensions for sdimx
             and sdimy for 2D plotting are not given. \n
             It will default to the 'sdimx' and 'sdimy'")
             sdimx <- "sdimx"
@@ -1188,7 +1292,7 @@ cellProximityVisPlot <- function(gobject,
         }
 
         if (length(c(sdimx, sdimy, sdimz)) == 3) {
-            warning("ggplot is not able to produce 3D plot! Please choose 
+            warning("ggplot is not able to produce 3D plot! Please choose
                     plotly method")
         }
         result <- .cellProximityVisPlot_2D_ggplot(
@@ -1311,7 +1415,7 @@ cellProximityVisPlot <- function(gobject,
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor 
+#' @param min_int_cells_expr minimum expression level for interacting neighbor
 #' cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
@@ -1323,45 +1427,53 @@ cellProximityVisPlot <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
-#' 
-#' plotCellProximityFeats(gobject = g, icfObject = icfObject,
-#' show_plot = TRUE, save_plot = FALSE, return_plot = FALSE)
+#'
+#' plotCellProximityFeats(
+#'     gobject = g, icfObject = icfObject,
+#'     show_plot = TRUE, save_plot = FALSE, return_plot = FALSE
+#' )
 #' @export
-plotCellProximityFeats <- function(gobject,
-    icfObject,
-    method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", 
-                "heatmap", "dotplot"),
-    min_cells = 4,
-    min_cells_expr = 1,
-    min_int_cells = 4,
-    min_int_cells_expr = 1,
-    min_fdr = 0.1,
-    min_spat_diff = 0.2,
-    min_log2_fc = 0.2,
-    min_zscore = 2,
-    zscores_column = c("cell_type", "feats"),
-    direction = c("both", "up", "down"),
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCellProximityFeats") {
+plotCellProximityFeats <- function(
+        gobject,
+        icfObject,
+        method = c(
+            "volcano", "cell_barplot", "cell-cell", "cell_sankey",
+            "heatmap", "dotplot"
+        ),
+        min_cells = 4,
+        min_cells_expr = 1,
+        min_int_cells = 4,
+        min_int_cells_expr = 1,
+        min_fdr = 0.1,
+        min_spat_diff = 0.2,
+        min_log2_fc = 0.2,
+        min_zscore = 2,
+        zscores_column = c("cell_type", "feats"),
+        direction = c("both", "up", "down"),
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCellProximityFeats") {
     if (!"icfObject" %in% class(icfObject)) {
-        stop("icfObject needs to be the output from 
+        stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
     }
 
     # print, return and save parameters
     show_plot <- ifelse(
-        is.na(show_plot), 
-        readGiottoInstructions(gobject, param = "show_plot"), show_plot)
+        is.na(show_plot),
+        readGiottoInstructions(gobject, param = "show_plot"), show_plot
+    )
     save_plot <- ifelse(
-        is.na(save_plot), 
-        readGiottoInstructions(gobject, param = "save_plot"), save_plot)
+        is.na(save_plot),
+        readGiottoInstructions(gobject, param = "save_plot"), save_plot
+    )
     return_plot <- ifelse(
-        is.na(return_plot), 
-        readGiottoInstructions(gobject, param = "return_plot"), return_plot)
+        is.na(return_plot),
+        readGiottoInstructions(gobject, param = "return_plot"), return_plot
+    )
 
 
     ## first filter
@@ -1383,9 +1495,12 @@ plotCellProximityFeats <- function(gobject,
 
     ## other parameters
     method <- match.arg(
-        method, 
-        choices = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", 
-                    "heatmap", "dotplot"))
+        method,
+        choices = c(
+            "volcano", "cell_barplot", "cell-cell", "cell_sankey",
+            "heatmap", "dotplot"
+        )
+    )
 
 
     # variables
@@ -1396,14 +1511,19 @@ plotCellProximityFeats <- function(gobject,
         ## volcanoplot
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::geom_point(
-            data = complete_part, 
-            ggplot2::aes(x = log2fc, 
-                        y = ifelse(is.infinite(-log10(p.adj)), 
-                                   1000, -log10(p.adj))))
+            data = complete_part,
+            ggplot2::aes(
+                x = log2fc,
+                y = ifelse(is.infinite(-log10(p.adj)),
+                    1000, -log10(p.adj)
+                )
+            )
+        )
         pl <- pl + ggplot2::theme_classic()
         pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
         pl <- pl + ggplot2::labs(
-            x = "log2 fold-change", y = "-log10(p.adjusted)")
+            x = "log2 fold-change", y = "-log10(p.adjusted)"
+        )
 
 
         ## print plot
@@ -1414,9 +1534,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = pl, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1431,11 +1554,14 @@ plotCellProximityFeats <- function(gobject,
 
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::geom_bar(
-            data = complete_part, 
-            ggplot2::aes(x = unif_int, fill = unif_int))
+            data = complete_part,
+            ggplot2::aes(x = unif_int, fill = unif_int)
+        )
         pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
             axis.text.x = ggplot2::element_text(
-                angle = 90, hjust = 1, vjust = 1))
+                angle = 90, hjust = 1, vjust = 1
+            )
+        )
         pl <- pl + ggplot2::coord_flip()
 
         ## print plot
@@ -1446,9 +1572,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = pl, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1465,14 +1594,17 @@ plotCellProximityFeats <- function(gobject,
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::geom_bar(
             data = complete_part,
-            ggplot2::aes(x = cell_type, fill = int_cell_type))
+            ggplot2::aes(x = cell_type, fill = int_cell_type)
+        )
         if (!is.null(cell_color_code)) {
             pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         }
         pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
-            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+        )
         pl <- pl + ggplot2::labs(
-            x = "", y = "# of features influenced by cell neighborhood")
+            x = "", y = "# of features influenced by cell neighborhood"
+        )
 
 
         ## print plot
@@ -1483,9 +1615,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = pl, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1505,14 +1640,18 @@ plotCellProximityFeats <- function(gobject,
         ) +
             ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1 / 12) +
             ggalluvial::geom_stratum(
-                width = 1 / 12, fill = "black", color = "grey") +
+                width = 1 / 12, fill = "black", color = "grey"
+            ) +
             ggplot2::scale_x_discrete(
-                limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
+                limits = c("cell type", "neighbours"), expand = c(.05, .05)
+            ) +
             ggplot2::geom_label(
-                stat = "stratum", label.strata = TRUE, size = 3) +
+                stat = "stratum", label.strata = TRUE, size = 3
+            ) +
             ggplot2::theme_classic() +
             ggplot2::labs(
-                x = "", y = "# of features influenced by cell neighborhood")
+                x = "", y = "# of features influenced by cell neighborhood"
+            )
 
         if (!is.null(cell_color_code)) {
             pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
@@ -1528,9 +1667,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = pl, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1539,23 +1681,30 @@ plotCellProximityFeats <- function(gobject,
         }
     } else if (method == "dotplot") {
         changed_feats <- complete_part[
-            , .N, by = c("cell_type", "int_cell_type")]
+            , .N,
+            by = c("cell_type", "int_cell_type")
+        ]
 
         changed_feats[, cell_type := factor(cell_type, unique(cell_type))]
         changed_feats[, int_cell_type := factor(
-            int_cell_type, unique(int_cell_type))]
+            int_cell_type, unique(int_cell_type)
+        )]
 
         pl <- ggplot2::ggplot()
         pl <- pl + ggplot2::theme_classic()
         pl <- pl + ggplot2::geom_point(
-            data = changed_feats, 
-            ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
+            data = changed_feats,
+            ggplot2::aes(x = cell_type, y = int_cell_type, size = N)
+        )
         pl <- pl + ggplot2::scale_size_continuous(
-            guide = guide_legend(title = "# of ICFs"))
+            guide = guide_legend(title = "# of ICFs")
+        )
         pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(
-            angle = 90, vjust = 1, hjust = 1))
+            angle = 90, vjust = 1, hjust = 1
+        ))
         pl <- pl + ggplot2::labs(
-            x = "source cell type", y = "neighbor cell type")
+            x = "source cell type", y = "neighbor cell type"
+        )
 
         ## print plot
         if (show_plot == TRUE) {
@@ -1565,9 +1714,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = pl, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = pl,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1576,14 +1728,19 @@ plotCellProximityFeats <- function(gobject,
         }
     } else if (method == "heatmap") {
         changed_feats <- complete_part[
-            , .N, by = c("cell_type", "int_cell_type")]
+            , .N,
+            by = c("cell_type", "int_cell_type")
+        ]
 
         changed_feats[, cell_type := factor(cell_type, unique(cell_type))]
         changed_feats[, int_cell_type := factor(
-            int_cell_type, unique(int_cell_type))]
+            int_cell_type, unique(int_cell_type)
+        )]
 
         changed_feats_d <- data.table::dcast.data.table(
-            changed_feats, cell_type ~ int_cell_type, value.var = "N", fill = 0)
+            changed_feats, cell_type ~ int_cell_type,
+            value.var = "N", fill = 0
+        )
         changed_feats_m <- dt_to_matrix(changed_feats_d)
 
         col_fun <- GiottoVisuals::colorRamp2(
@@ -1593,7 +1750,7 @@ plotCellProximityFeats <- function(gobject,
 
         heatm <- ComplexHeatmap::Heatmap(log2(changed_feats_m + 1),
             col = col_fun,
-            row_title = "cell_type", 
+            row_title = "cell_type",
             column_title = "int_cell_type",
             heatmap_legend_param = list(title = "log2(# DEGs)")
         )
@@ -1606,9 +1763,12 @@ plotCellProximityFeats <- function(gobject,
         ## save plot
         if (save_plot == TRUE) {
             do.call(
-                "all_plots_save_function", 
-                c(list(gobject = gobject, plot_object = heatm, 
-                        default_save_name = default_save_name), save_param))
+                "all_plots_save_function",
+                c(list(
+                    gobject = gobject, plot_object = heatm,
+                    default_save_name = default_save_name
+                ), save_param)
+            )
         }
 
         ## return plot
@@ -1641,7 +1801,7 @@ plotCellProximityFeats <- function(gobject,
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor 
+#' @param min_int_cells_expr minimum expression level for interacting neighbor
 #' cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
@@ -1652,32 +1812,39 @@ plotCellProximityFeats <- function(gobject,
 #' @returns plot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
-#' plotCPF(gobject = g, icfObject = icfObject, show_plot = TRUE,
-#' save_plot = FALSE, return_plot = FALSE)
+#' icfObject <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
+#'
+#' plotCPF(
+#'     gobject = g, icfObject = icfObject, show_plot = TRUE,
+#'     save_plot = FALSE, return_plot = FALSE
+#' )
 #' @export
-plotCPF <- function(gobject,
-    icfObject,
-    method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", 
-                "heatmap", "dotplot"),
-    min_cells = 5,
-    min_cells_expr = 1,
-    min_int_cells = 3,
-    min_int_cells_expr = 1,
-    min_fdr = 0.05,
-    min_spat_diff = 0.2,
-    min_log2_fc = 0.2,
-    min_zscore = 2,
-    zscores_column = c("cell_type", "feats"),
-    direction = c("both", "up", "down"),
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCPG") {
+plotCPF <- function(
+        gobject,
+        icfObject,
+        method = c(
+            "volcano", "cell_barplot", "cell-cell", "cell_sankey",
+            "heatmap", "dotplot"
+        ),
+        min_cells = 5,
+        min_cells_expr = 1,
+        min_int_cells = 3,
+        min_int_cells_expr = 1,
+        min_fdr = 0.05,
+        min_spat_diff = 0.2,
+        min_log2_fc = 0.2,
+        min_zscore = 2,
+        zscores_column = c("cell_type", "feats"),
+        direction = c("both", "up", "down"),
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCPG") {
     plotCellProximityFeats(
         gobject = gobject,
         icfObject = icfObject,
@@ -1716,30 +1883,35 @@ plotCPF <- function(gobject,
 #' @returns plot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
-#' plotInteractionChangedFeats(gobject = g, icfObject = icfObject,
-#' source_type = "1", source_markers = "Ccnd2", 
-#' ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
+#' icfObject <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
+#'
+#' plotInteractionChangedFeats(
+#'     gobject = g, icfObject = icfObject,
+#'     source_type = "1", source_markers = "Ccnd2",
+#'     ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17")
+#' )
 #' @export
-plotInteractionChangedFeats <- function(gobject,
-    icfObject,
-    source_type,
-    source_markers,
-    ICF_feats,
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotInteractionChangedFeats") {
+plotInteractionChangedFeats <- function(
+        gobject,
+        icfObject,
+        source_type,
+        source_markers,
+        ICF_feats,
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotInteractionChangedFeats") {
     # data.table variables
     cell_type <- int_cell_type <- log2fc <- NULL
 
 
     if (!"icfObject" %in% class(icfObject)) {
-        stop("icfObject needs to be the output from 
+        stop("icfObject needs to be the output from
             findInteractionChangedFeats() or findICF()")
     }
 
@@ -1756,23 +1928,28 @@ plotInteractionChangedFeats <- function(gobject,
     if (length(not_detected_feats) > 0) {
         cat(
             "These selected features are not in the icfObject: \n",
-            not_detected_feats)
+            not_detected_feats
+        )
     }
 
     # data.table set column names
     feats <- group <- NULL
 
     tempDT <- ICFscores[feats %in% all_feats][cell_type == source_type][
-        int_cell_type %in% neighbor_types]
+        int_cell_type %in% neighbor_types
+    ]
     tempDT[, feats := factor(feats, levels = detected_feats)]
-    tempDT[, group := names(ICF_feats[ICF_feats == feats]), 
-            by = seq_len(nrow(tempDT))]
+    tempDT[, group := names(ICF_feats[ICF_feats == feats]),
+        by = seq_len(nrow(tempDT))
+    ]
 
 
     if (is.null(cell_color_code)) {
         mycolors <- set_default_color_discrete_cell(
-            instrs = instructions(gobject))(n = length(unique(
-                tempDT$int_cell_type)))
+            instrs = instructions(gobject)
+        )(n = length(unique(
+            tempDT$int_cell_type
+        )))
         names(mycolors) <- unique(tempDT$int_cell_type)
     } else {
         mycolors <- cell_color_code
@@ -1782,17 +1959,20 @@ plotInteractionChangedFeats <- function(gobject,
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
         axis.text.x = ggplot2::element_text(
-            size = 14, angle = 45, vjust = 1, hjust = 1),
+            size = 14, angle = 45, vjust = 1, hjust = 1
+        ),
         axis.text.y = ggplot2::element_text(size = 14),
         axis.title = ggplot2::element_text(size = 14)
     )
     pl <- pl + ggplot2::geom_bar(
-        data = tempDT, 
-        ggplot2::aes(x = feats, y = log2fc, fill = int_cell_type), 
-        stat = "identity", position = ggplot2::position_dodge())
+        data = tempDT,
+        ggplot2::aes(x = feats, y = log2fc, fill = int_cell_type),
+        stat = "identity", position = ggplot2::position_dodge()
+    )
     pl <- pl + ggplot2::scale_fill_manual(values = mycolors)
     pl <- pl + ggplot2::labs(x = "", title = paste0(
-        "fold-change z-scores in ", source_type))
+        "fold-change z-scores in ", source_type
+    ))
 
     # output plot
     return(GiottoVisuals::plot_output_handler(
@@ -1826,24 +2006,29 @@ plotInteractionChangedFeats <- function(gobject,
 #' @returns plot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' icfObject <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
-#' plotICF(gobject = g, icfObject = icfObject,
-#' source_type = "1", source_markers = "Ccnd2", 
-#' ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17"))
+#' icfObject <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
+#'
+#' plotICF(
+#'     gobject = g, icfObject = icfObject,
+#'     source_type = "1", source_markers = "Ccnd2",
+#'     ICF_feats = c("3" = "Gna12", "1" = "Ccnd2", "8" = "Btbd17")
+#' )
 #' @export
-plotICF <- function(gobject,
-    icfObject,
-    source_type,
-    source_markers,
-    ICF_feats,
-    cell_color_code = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotICF") {
+plotICF <- function(
+        gobject,
+        icfObject,
+        source_type,
+        source_markers,
+        ICF_feats,
+        cell_color_code = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotICF") {
     plotInteractionChangedFeats(
         gobject = gobject,
         icfObject = icfObject,
@@ -1884,58 +2069,64 @@ plotICF <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' g_icf <- findInteractionChangedFeats(g, 
-#' cluster_column = "leiden_clus", 
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
+#'
+#' g_icf <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
+#'
 #' combIcfObject <- combineInteractionChangedFeats(g_icf)
-#' 
-#' plotCombineInteractionChangedFeats(gobject = g, 
-#' combIcfObject = combIcfObject, 
-#' selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
-#' selected_interactions = "1--8")
+#'
+#' plotCombineInteractionChangedFeats(
+#'     gobject = g,
+#'     combIcfObject = combIcfObject,
+#'     selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"),
+#'     selected_interactions = "1--8"
+#' )
 #' @export
-plotCombineInteractionChangedFeats <- function(gobject,
-    combIcfObject,
-    selected_interactions = NULL,
-    selected_feat_to_feat = NULL,
-    detail_plot = TRUE,
-    simple_plot = FALSE,
-    simple_plot_facet = c("interaction", "feats"),
-    facet_scales = "fixed",
-    facet_ncol = length(selected_feat_to_feat),
-    facet_nrow = length(selected_interactions),
-    colors = c("#9932CC", "#FF8C00"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCombineICF") {
+plotCombineInteractionChangedFeats <- function(
+        gobject,
+        combIcfObject,
+        selected_interactions = NULL,
+        selected_feat_to_feat = NULL,
+        detail_plot = TRUE,
+        simple_plot = FALSE,
+        simple_plot_facet = c("interaction", "feats"),
+        facet_scales = "fixed",
+        facet_ncol = length(selected_feat_to_feat),
+        facet_nrow = length(selected_interactions),
+        colors = c("#9932CC", "#FF8C00"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCombineICF") {
     ## check validity
     if (!"combIcfObject" %in% class(combIcfObject)) {
-        stop("combIcfObject needs to be the output from 
+        stop("combIcfObject needs to be the output from
             combineInteractionChangedFeats() or combineICF()")
     }
     combIcfscore <- copy(combIcfObject[["combICFscores"]])
 
     if (is.null(selected_interactions) | is.null(selected_feat_to_feat)) {
-        stop("You need to provide a selection of cell-cell interactions and 
+        stop("You need to provide a selection of cell-cell interactions and
             features-features to plot")
     }
 
 
     # data.table variables
-    unif_feat_feat <- unif_int <- other_2 <- sel_2 <- other_1 <- sel_1 <- 
+    unif_feat_feat <- unif_int <- other_2 <- sel_2 <- other_1 <- sel_1 <-
         cols <- NULL
 
 
-    subDT <- combIcfscore[unif_feat_feat %in% selected_feat_to_feat & 
-                            unif_int %in% selected_interactions]
+    subDT <- combIcfscore[unif_feat_feat %in% selected_feat_to_feat &
+        unif_int %in% selected_interactions]
 
     # order interactions and feat-to-feat according to input
     subDT[, unif_feat_feat := factor(
-        unif_feat_feat, levels = selected_feat_to_feat)]
+        unif_feat_feat,
+        levels = selected_feat_to_feat
+    )]
     subDT[, unif_int := factor(unif_int, levels = selected_interactions)]
 
     if (simple_plot == FALSE) {
@@ -1944,31 +2135,37 @@ plotCombineInteractionChangedFeats <- function(gobject,
 
         if (detail_plot == TRUE) {
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = 0, y = other_2, colour = "other cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = 0, y = other_2, colour = "other cell expression"),
+                shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = 0, y = sel_2, colour = "selected cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = 0, y = sel_2, colour = "selected cell expression"),
+                shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = other_1, y = 0, colour = "other cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = other_1, y = 0, colour = "other cell expression"),
+                shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = sel_1, y = 0, colour = "selected cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = sel_1, y = 0, colour = "selected cell expression"),
+                shape = 1
+            )
         }
 
         pl <- pl + ggplot2::geom_point(
-            data = subDT, 
-            aes(x = other_1, y = other_2, colour = "other cell expression"), 
-            size = 2)
+            data = subDT,
+            aes(x = other_1, y = other_2, colour = "other cell expression"),
+            size = 2
+        )
         pl <- pl + ggplot2::geom_point(
-            data = subDT, 
-            aes(x = sel_1, y = sel_2, colour = "selected cell expression"), 
-            size = 2)
+            data = subDT,
+            aes(x = sel_1, y = sel_2, colour = "selected cell expression"),
+            size = 2
+        )
         pl <- pl + ggplot2::geom_segment(data = subDT, aes(
             x = other_1, xend = sel_1,
             y = other_2, yend = sel_2
@@ -1978,14 +2175,16 @@ plotCombineInteractionChangedFeats <- function(gobject,
             y = paste(subDT$feats_2, subDT$cell_type_2, sep = " in ")
         )
         pl <- pl + ggplot2::scale_colour_manual(
-            name = "expression source", values = colors)
+            name = "expression source", values = colors
+        )
         pl <- pl + ggplot2::facet_wrap(~ unif_feat_feat + unif_int,
             nrow = facet_nrow, ncol = facet_ncol,
             scales = facet_scales
         )
     } else {
         simple_plot_facet <- match.arg(
-            arg = simple_plot_facet, choices = c("interaction", "feats"))
+            arg = simple_plot_facet, choices = c("interaction", "feats")
+        )
 
         if (simple_plot_facet == "interaction") {
             pl <- ggplot2::ggplot()
@@ -1995,15 +2194,22 @@ plotCombineInteractionChangedFeats <- function(gobject,
                 y = unif_feat_feat, yend = unif_feat_feat
             ), linetype = 2)
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = sum(c(other_1, other_2)), y = unif_feat_feat, 
-                    colour = "other cell expression"))
+                data = subDT,
+                aes(
+                    x = sum(c(other_1, other_2)), y = unif_feat_feat,
+                    colour = "other cell expression"
+                )
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = sum(c(sel_1, sel_2)), y = unif_feat_feat, 
-                    colour = "selected cell expression"))
+                data = subDT,
+                aes(
+                    x = sum(c(sel_1, sel_2)), y = unif_feat_feat,
+                    colour = "selected cell expression"
+                )
+            )
             pl <- pl + ggplot2::scale_colour_manual(
-                name = "expression source", values = cols)
+                name = "expression source", values = cols
+            )
             pl <- pl + ggplot2::facet_wrap(~unif_int, scales = facet_scales)
             pl <- pl + ggplot2::labs(x = "interactions", y = "feat-feat")
         } else {
@@ -2014,17 +2220,26 @@ plotCombineInteractionChangedFeats <- function(gobject,
                 y = unif_int, yend = unif_int
             ), linetype = 2)
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = sum(c(other_1, other_2)), y = unif_int, 
-                    colour = "other cell expression"))
+                data = subDT,
+                aes(
+                    x = sum(c(other_1, other_2)), y = unif_int,
+                    colour = "other cell expression"
+                )
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = sum(c(sel_1, sel_2)), y = unif_int, 
-                    colour = "selected cell expression"))
+                data = subDT,
+                aes(
+                    x = sum(c(sel_1, sel_2)), y = unif_int,
+                    colour = "selected cell expression"
+                )
+            )
             pl <- pl + ggplot2::scale_colour_manual(
-                name = "expression source", values = cols)
+                name = "expression source", values = cols
+            )
             pl <- pl + ggplot2::facet_wrap(
-                ~unif_feat_feat, scales = facet_scales)
+                ~unif_feat_feat,
+                scales = facet_scales
+            )
             pl <- pl + ggplot2::labs(x = "feat-feat", y = "interactions")
         }
     }
@@ -2066,33 +2281,37 @@ plotCombineInteractionChangedFeats <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' g_icf <- findInteractionChangedFeats(g, 
-#' cluster_column = "leiden_clus", 
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' 
+#'
+#' g_icf <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10
+#' )
+#'
 #' combIcfObject <- combineInteractionChangedFeats(g_icf)
-#' 
-#' plotCombineICF(gobject = g, combIcfObject = combIcfObject, 
-#' selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"), 
-#' selected_interactions = "1--8")
+#'
+#' plotCombineICF(
+#'     gobject = g, combIcfObject = combIcfObject,
+#'     selected_feat_to_feat = c("Btbd17--Ccnd2", "Btbd17--Gna12"),
+#'     selected_interactions = "1--8"
+#' )
 #' @export
-plotCombineICF <- function(gobject,
-    combIcfObject,
-    selected_interactions = NULL,
-    selected_feat_to_feat = NULL,
-    detail_plot = TRUE,
-    simple_plot = FALSE,
-    simple_plot_facet = c("interaction", "feats"),
-    facet_scales = "fixed",
-    facet_ncol = length(selected_feat_to_feat),
-    facet_nrow = length(selected_interactions),
-    colors = c("#9932CC", "#FF8C00"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCombineICF") {
+plotCombineICF <- function(
+        gobject,
+        combIcfObject,
+        selected_interactions = NULL,
+        selected_feat_to_feat = NULL,
+        detail_plot = TRUE,
+        simple_plot = FALSE,
+        simple_plot_facet = c("interaction", "feats"),
+        facet_scales = "fixed",
+        facet_ncol = length(selected_feat_to_feat),
+        facet_nrow = length(selected_interactions),
+        colors = c("#9932CC", "#FF8C00"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCombineICF") {
     plotCombineInteractionChangedFeats(
         gobject = gobject,
         combIcfObject = combIcfObject,
@@ -2129,13 +2348,13 @@ plotCombineICF <- function(gobject,
 
 #' @title plotCombineCellCellCommunication
 #' @name plotCombineCellCellCommunication
-#' @description Create visualization for combined (pairwise) cell proximity 
+#' @description Create visualization for combined (pairwise) cell proximity
 #' gene scores
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @param combCCcom combined communcation scores, output from combCCcom()
 #' @param selected_LR selected ligand-receptor pair
-#' @param selected_cell_LR selected cell-cell interaction pair for 
+#' @param selected_cell_LR selected cell-cell interaction pair for
 #' ligand-receptor pair
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
@@ -2147,49 +2366,59 @@ plotCombineICF <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
-#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
-#' 
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
-#' 
+#'
+#' comScores <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"),
+#'     feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17")
+#' )
+#'
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+#' )
+#' spatialCC <- spatCellCellcom(
+#'     gobject = g, cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot"
+#' )
+#'
 #' combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
-#' 
-#' plotCombineCellCellCommunication(gobject = g, combCCcom = combCCcom,
-#' selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
+#'
+#' plotCombineCellCellCommunication(
+#'     gobject = g, combCCcom = combCCcom,
+#'     selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1")
+#' )
 #' @export
-plotCombineCellCellCommunication <- function(gobject,
-    combCCcom,
-    selected_LR = NULL,
-    selected_cell_LR = NULL,
-    detail_plot = TRUE,
-    simple_plot = FALSE,
-    simple_plot_facet = c("interaction", "genes"),
-    facet_scales = "fixed",
-    facet_ncol = length(selected_LR),
-    facet_nrow = length(selected_cell_LR),
-    colors = c("#9932CC", "#FF8C00"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCombineCellCellCommunication") {
+plotCombineCellCellCommunication <- function(
+        gobject,
+        combCCcom,
+        selected_LR = NULL,
+        selected_cell_LR = NULL,
+        detail_plot = TRUE,
+        simple_plot = FALSE,
+        simple_plot_facet = c("interaction", "genes"),
+        facet_scales = "fixed",
+        facet_ncol = length(selected_LR),
+        facet_nrow = length(selected_cell_LR),
+        colors = c("#9932CC", "#FF8C00"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCombineCellCellCommunication") {
     # data.table variables
-    LR_comb <- LR_cell_comb <- lig_expr <- lig_expr_spat <- rec_expr <- 
+    LR_comb <- LR_cell_comb <- lig_expr <- lig_expr_spat <- rec_expr <-
         rec_expr_spat <- LR_expr <- LR_expr_spat <- NULL
 
     ## check validity
     if (is.null(selected_cell_LR) | is.null(selected_LR)) {
-        stop("You need to provide a selection of cell-cell interactions 
+        stop("You need to provide a selection of cell-cell interactions
             and genes-genes to plot")
     }
 
     subDT <- combCCcom[
-        LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+        LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR
+    ]
 
     # order interactions and gene-to-gene according to input
     subDT[, LR_comb := factor(LR_comb, levels = selected_LR)]
@@ -2201,31 +2430,43 @@ plotCombineCellCellCommunication <- function(gobject,
 
         if (detail_plot == TRUE) {
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = 0, y = lig_expr, colour = "overall cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = 0, y = lig_expr, colour = "overall cell expression"),
+                shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = 0, y = lig_expr_spat, 
-                    colour = "spatial cell expression"), shape = 1)
+                data = subDT,
+                aes(
+                    x = 0, y = lig_expr_spat,
+                    colour = "spatial cell expression"
+                ), shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = rec_expr, y = 0, colour = "overall cell expression"), 
-                shape = 1)
+                data = subDT,
+                aes(x = rec_expr, y = 0, colour = "overall cell expression"),
+                shape = 1
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = rec_expr_spat, y = 0,
-                    colour = "spatial cell expression"), shape = 1)
+                data = subDT,
+                aes(
+                    x = rec_expr_spat, y = 0,
+                    colour = "spatial cell expression"
+                ), shape = 1
+            )
         }
 
         pl <- pl + ggplot2::geom_point(
-            data = subDT, 
+            data = subDT,
             aes(x = rec_expr, y = lig_expr, colour = "overall cell expression"),
-            size = 2)
+            size = 2
+        )
         pl <- pl + ggplot2::geom_point(
-            data = subDT, 
-            aes(x = rec_expr_spat, y = lig_expr_spat, 
-                colour = "spatial cell expression"), size = 2)
+            data = subDT,
+            aes(
+                x = rec_expr_spat, y = lig_expr_spat,
+                colour = "spatial cell expression"
+            ), size = 2
+        )
         pl <- pl + ggplot2::geom_segment(data = subDT, aes(
             x = rec_expr, xend = rec_expr_spat,
             y = lig_expr, yend = lig_expr_spat
@@ -2235,14 +2476,16 @@ plotCombineCellCellCommunication <- function(gobject,
             y = paste(subDT$ligand, subDT$lig_cell_type, sep = " in ")
         )
         pl <- pl + ggplot2::scale_colour_manual(
-            name = "expression source", values = colors)
+            name = "expression source", values = colors
+        )
         pl <- pl + ggplot2::facet_wrap(~ LR_comb + LR_cell_comb,
             nrow = facet_nrow, ncol = facet_ncol,
             scales = facet_scales
         )
     } else {
         simple_plot_facet <- match.arg(
-            arg = simple_plot_facet, choices = c("interaction", "genes"))
+            arg = simple_plot_facet, choices = c("interaction", "genes")
+        )
 
         if (simple_plot_facet == "interaction") {
             pl <- ggplot2::ggplot()
@@ -2252,15 +2495,22 @@ plotCombineCellCellCommunication <- function(gobject,
                 y = LR_comb, yend = LR_comb
             ), linetype = 2)
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = LR_expr, y = LR_comb, 
-                    colour = "overall cell expression"))
+                data = subDT,
+                aes(
+                    x = LR_expr, y = LR_comb,
+                    colour = "overall cell expression"
+                )
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = LR_expr_spat, y = LR_comb, 
-                    colour = "spatial cell expression"))
+                data = subDT,
+                aes(
+                    x = LR_expr_spat, y = LR_comb,
+                    colour = "spatial cell expression"
+                )
+            )
             pl <- pl + ggplot2::scale_colour_manual(
-                name = "expression source", values = colors)
+                name = "expression source", values = colors
+            )
             pl <- pl + ggplot2::facet_wrap(~LR_cell_comb, scales = "fixed")
             pl <- pl + ggplot2::labs(x = "interactions", y = "gene-gene")
             pl
@@ -2272,15 +2522,22 @@ plotCombineCellCellCommunication <- function(gobject,
                 y = LR_cell_comb, yend = LR_cell_comb
             ), linetype = 2)
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = LR_expr, y = LR_cell_comb, 
-                    colour = "overall cell expression"))
+                data = subDT,
+                aes(
+                    x = LR_expr, y = LR_cell_comb,
+                    colour = "overall cell expression"
+                )
+            )
             pl <- pl + ggplot2::geom_point(
-                data = subDT, 
-                aes(x = LR_expr_spat, y = LR_cell_comb, 
-                    colour = "spatial cell expression"))
+                data = subDT,
+                aes(
+                    x = LR_expr_spat, y = LR_cell_comb,
+                    colour = "spatial cell expression"
+                )
+            )
             pl <- pl + ggplot2::scale_colour_manual(
-                name = "expression source", values = colors)
+                name = "expression source", values = colors
+            )
             pl <- pl + ggplot2::facet_wrap(~LR_comb, scales = facet_scales)
             pl <- pl + ggplot2::labs(x = "gene-gene", y = "interactions")
         }
@@ -2303,13 +2560,13 @@ plotCombineCellCellCommunication <- function(gobject,
 
 #' @title plotCombineCCcom
 #' @name plotCombineCCcom
-#' @description Create visualization for combined (pairwise) cell proximity 
+#' @description Create visualization for combined (pairwise) cell proximity
 #' gene scores
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @param combCCcom combined communcation scores, output from combCCcom()
 #' @param selected_LR selected ligand-receptor pair
-#' @param selected_cell_LR selected cell-cell interaction pair for 
+#' @param selected_cell_LR selected cell-cell interaction pair for
 #' ligand-receptor pair
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
@@ -2321,37 +2578,46 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
-#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
-#' 
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot")
-#' 
+#'
+#' comScores <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"),
+#'     feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17")
+#' )
+#'
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+#' )
+#' spatialCC <- spatCellCellcom(
+#'     gobject = g, cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot"
+#' )
+#'
 #' combCCcom <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
-#' 
-#' plotCombineCCcom(gobject = g, combCCcom = combCCcom,
-#' selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1"))
+#'
+#' plotCombineCCcom(
+#'     gobject = g, combCCcom = combCCcom,
+#'     selected_LR = c("Gm19935-9630013A20Rik"), selected_cell_LR = c("1--1")
+#' )
 #' @export
-plotCombineCCcom <- function(gobject,
-    combCCcom,
-    selected_LR = NULL,
-    selected_cell_LR = NULL,
-    detail_plot = TRUE,
-    simple_plot = FALSE,
-    simple_plot_facet = c("interaction", "genes"),
-    facet_scales = "fixed",
-    facet_ncol = length(selected_LR),
-    facet_nrow = length(selected_cell_LR),
-    colors = c("#9932CC", "#FF8C00"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCombineCCcom") {
+plotCombineCCcom <- function(
+        gobject,
+        combCCcom,
+        selected_LR = NULL,
+        selected_cell_LR = NULL,
+        detail_plot = TRUE,
+        simple_plot = FALSE,
+        simple_plot_facet = c("interaction", "genes"),
+        facet_scales = "fixed",
+        facet_ncol = length(selected_LR),
+        facet_nrow = length(selected_cell_LR),
+        colors = c("#9932CC", "#FF8C00"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCombineCCcom") {
     plotCombineCellCellCommunication(
         gobject = gobject,
         combCCcom = combCCcom,
@@ -2376,15 +2642,15 @@ plotCombineCCcom <- function(gobject,
 
 #' @title plotCCcomHeatmap
 #' @name plotCCcomHeatmap
-#' @description Plots heatmap for ligand-receptor communication scores in 
+#' @description Plots heatmap for ligand-receptor communication scores in
 #' cell-cell interactions
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @inheritParams plot_params
-#' @param comScores communinication scores from \code{\link{exprCellCellcom}} 
+#' @param comScores communinication scores from \code{\link{exprCellCellcom}}
 #' or \code{\link{spatCellCellcom}}
 #' @param selected_LR selected ligand-receptor combinations
-#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor 
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor
 #' combinations
 #' @param show_LR_names show ligand-receptor names
 #' @param show_cell_LR_names show cell-cell names
@@ -2394,33 +2660,40 @@ plotCombineCCcom <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
-#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
-#' 
+#'
+#' comScores <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"),
+#'     feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17")
+#' )
+#'
 #' plotCCcomHeatmap(gobject = g, comScores = comScores, show_plot = TRUE)
 #' @export
-plotCCcomHeatmap <- function(gobject,
-    comScores,
-    selected_LR = NULL,
-    selected_cell_LR = NULL,
-    show_LR_names = TRUE,
-    show_cell_LR_names = TRUE,
-    show = c("PI", "LR_expr", "log2fc"),
-    cor_method = c("pearson", "kendall", "spearman"),
-    aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", 
-                    "mcquitty", "median", "centroid"),
-    gradient_color = NULL,
-    gradient_style = c("divergent", "sequential"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCCcomHeatmap") {
+plotCCcomHeatmap <- function(
+        gobject,
+        comScores,
+        selected_LR = NULL,
+        selected_cell_LR = NULL,
+        show_LR_names = TRUE,
+        show_cell_LR_names = TRUE,
+        show = c("PI", "LR_expr", "log2fc"),
+        cor_method = c("pearson", "kendall", "spearman"),
+        aggl_method = c(
+            "ward.D", "ward.D2", "single", "complete", "average",
+            "mcquitty", "median", "centroid"
+        ),
+        gradient_color = NULL,
+        gradient_style = c("divergent", "sequential"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCCcomHeatmap") {
     # get parameters
     cor_method <- match.arg(
-        cor_method, choices = c("pearson", "kendall", "spearman"))
+        cor_method,
+        choices = c("pearson", "kendall", "spearman")
+    )
     aggl_method <- match.arg(aggl_method, choices = c(
         "ward.D", "ward.D2", "single", "complete",
         "average", "mcquitty", "median", "centroid"
@@ -2432,8 +2705,8 @@ plotCCcomHeatmap <- function(gobject,
 
     # plot method
     if (!is.null(selected_LR) & !is.null(selected_cell_LR)) {
-        selDT <- comScores[LR_comb %in% selected_LR & LR_cell_comb %in% 
-                                selected_cell_LR]
+        selDT <- comScores[LR_comb %in% selected_LR & LR_cell_comb %in%
+            selected_cell_LR]
     } else if (!is.null(selected_LR)) {
         selDT <- comScores[LR_comb %in% selected_LR]
     } else if (!is.null(selected_cell_LR)) {
@@ -2445,14 +2718,18 @@ plotCCcomHeatmap <- function(gobject,
     # creat matrix
     show <- match.arg(show, choices = c("PI", "LR_expr", "log2fc"))
     selDT_d <- data.table::dcast.data.table(
-        selDT, LR_cell_comb ~ LR_comb, value.var = show, fill = 0)
+        selDT, LR_cell_comb ~ LR_comb,
+        value.var = show, fill = 0
+    )
     selDT_m <- dt_to_matrix(selDT_d)
 
     ## cells
     corclus_cells_dist <- stats::as.dist(
-        1 - cor_flex(x = t_flex(selDT_m), method = cor_method))
+        1 - cor_flex(x = t_flex(selDT_m), method = cor_method)
+    )
     hclusters_cells <- stats::hclust(
-        d = corclus_cells_dist, method = aggl_method)
+        d = corclus_cells_dist, method = aggl_method
+    )
     clus_names <- rownames(selDT_m)
     names(clus_names) <- seq_along(clus_names)
     clus_sort_names <- clus_names[hclusters_cells$order]
@@ -2460,9 +2737,11 @@ plotCCcomHeatmap <- function(gobject,
 
     ## genes
     corclus_genes_dist <- stats::as.dist(
-        1 - cor_flex(x = selDT_m, method = cor_method))
+        1 - cor_flex(x = selDT_m, method = cor_method)
+    )
     hclusters_genes <- stats::hclust(
-        d = corclus_genes_dist, method = aggl_method)
+        d = corclus_genes_dist, method = aggl_method
+    )
     clus_names <- colnames(selDT_m)
     names(clus_names) <- seq_along(clus_names)
     clus_sort_names <- clus_names[hclusters_genes$order]
@@ -2516,19 +2795,19 @@ plotCCcomHeatmap <- function(gobject,
 
 #' @title plotCCcomDotplot
 #' @name plotCCcomDotplot
-#' @description Plots dotplot for ligand-receptor communication scores in 
+#' @description Plots dotplot for ligand-receptor communication scores in
 #' cell-cell interactions
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @inheritParams plot_params
-#' @param comScores communication scores from \code{\link{exprCellCellcom}} 
+#' @param comScores communication scores from \code{\link{exprCellCellcom}}
 #' or \code{\link{spatCellCellcom}}
 #' @param selected_LR selected ligand-receptor combinations
-#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor 
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor
 #' combinations
 #' @param show_LR_names show ligand-receptor names
 #' @param show_cell_LR_names show cell-cell names
-#' @param cluster_on values to use for clustering of cell-cell and 
+#' @param cluster_on values to use for clustering of cell-cell and
 #' ligand-receptor pairs
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
@@ -2537,33 +2816,40 @@ plotCCcomHeatmap <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' comScores <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"), 
-#' feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17"))
-#' 
+#'
+#' comScores <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = c("Gm19935", "2900040C04Rik", "Ccnd2"),
+#'     feat_set_2 = c("9630013A20Rik", "Gna12", "Btbd17")
+#' )
+#'
 #' plotCCcomDotplot(gobject = g, comScores = comScores, show_plot = TRUE)
 #' @export
-plotCCcomDotplot <- function(gobject,
-    comScores,
-    selected_LR = NULL,
-    selected_cell_LR = NULL,
-    show_LR_names = TRUE,
-    show_cell_LR_names = TRUE,
-    cluster_on = c("PI", "LR_expr", "log2fc"),
-    cor_method = c("pearson", "kendall", "spearman"),
-    aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", 
-                    "mcquitty", "median", "centroid"),
-    dot_color_gradient = NULL,
-    gradient_style = c("divergent", "sequential"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotCCcomDotplot") {
+plotCCcomDotplot <- function(
+        gobject,
+        comScores,
+        selected_LR = NULL,
+        selected_cell_LR = NULL,
+        show_LR_names = TRUE,
+        show_cell_LR_names = TRUE,
+        cluster_on = c("PI", "LR_expr", "log2fc"),
+        cor_method = c("pearson", "kendall", "spearman"),
+        aggl_method = c(
+            "ward.D", "ward.D2", "single", "complete", "average",
+            "mcquitty", "median", "centroid"
+        ),
+        dot_color_gradient = NULL,
+        gradient_style = c("divergent", "sequential"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotCCcomDotplot") {
     # get parameters
     cor_method <- match.arg(
-        cor_method, choices = c("pearson", "kendall", "spearman"))
+        cor_method,
+        choices = c("pearson", "kendall", "spearman")
+    )
     aggl_method <- match.arg(aggl_method, choices = c(
         "ward.D", "ward.D2", "single", "complete",
         "average", "mcquitty", "median", "centroid"
@@ -2575,8 +2861,8 @@ plotCCcomDotplot <- function(gobject,
 
     # plot method
     if (!is.null(selected_LR) & !is.null(selected_cell_LR)) {
-        selDT <- comScores[LR_comb %in% selected_LR & LR_cell_comb %in% 
-                                selected_cell_LR]
+        selDT <- comScores[LR_comb %in% selected_LR & LR_cell_comb %in%
+            selected_cell_LR]
     } else if (!is.null(selected_LR)) {
         selDT <- comScores[LR_comb %in% selected_LR]
     } else if (!is.null(selected_cell_LR)) {
@@ -2588,27 +2874,37 @@ plotCCcomDotplot <- function(gobject,
     # creat matrix
     cluster_on <- match.arg(cluster_on, choices = c("PI", "LR_expr", "log2fc"))
     selDT_d <- data.table::dcast.data.table(
-        selDT, LR_cell_comb ~ LR_comb, value.var = cluster_on, fill = 0)
+        selDT, LR_cell_comb ~ LR_comb,
+        value.var = cluster_on, fill = 0
+    )
     selDT_m <- dt_to_matrix(selDT_d)
 
     # remove zero variance
     sd_rows <- apply(selDT_m, 1, sd)
     sd_rows_zero <- names(sd_rows[sd_rows == 0])
-    if (length(sd_rows_zero) > 0) selDT_m <- selDT_m[
-        !rownames(selDT_m) %in% sd_rows_zero, ]
+    if (length(sd_rows_zero) > 0) {
+        selDT_m <- selDT_m[
+            !rownames(selDT_m) %in% sd_rows_zero,
+        ]
+    }
 
     sd_cols <- apply(selDT_m, 2, sd)
     sd_cols_zero <- names(sd_cols[sd_cols == 0])
-    if (length(sd_cols_zero) > 0) selDT_m <- selDT_m[
-        , !colnames(selDT_m) %in% sd_cols_zero]
+    if (length(sd_cols_zero) > 0) {
+        selDT_m <- selDT_m[
+            , !colnames(selDT_m) %in% sd_cols_zero
+        ]
+    }
 
 
 
     ## cells
     corclus_cells_dist <- stats::as.dist(
-        1 - cor_flex(x = t_flex(selDT_m), method = cor_method))
+        1 - cor_flex(x = t_flex(selDT_m), method = cor_method)
+    )
     hclusters_cells <- stats::hclust(
-        d = corclus_cells_dist, method = aggl_method)
+        d = corclus_cells_dist, method = aggl_method
+    )
     clus_names <- rownames(selDT_m)
     names(clus_names) <- seq_along(clus_names)
     clus_sort_names <- clus_names[hclusters_cells$order]
@@ -2616,9 +2912,11 @@ plotCCcomDotplot <- function(gobject,
 
     ## genes
     corclus_genes_dist <- stats::as.dist(
-        1 - cor_flex(x = selDT_m, method = cor_method))
+        1 - cor_flex(x = selDT_m, method = cor_method)
+    )
     hclusters_genes <- stats::hclust(
-        d = corclus_genes_dist, method = aggl_method)
+        d = corclus_genes_dist, method = aggl_method
+    )
     clus_names <- colnames(selDT_m)
     names(clus_names) <- seq_along(clus_names)
     clus_sort_names <- clus_names[hclusters_genes$order]
@@ -2678,7 +2976,7 @@ plotCCcomDotplot <- function(gobject,
 
 #' @title plotRankSpatvsExpr
 #' @name plotRankSpatvsExpr
-#' @description Plots dotplot to compare ligand-receptor rankings from 
+#' @description Plots dotplot to compare ligand-receptor rankings from
 #' spatial and expression information
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
@@ -2694,39 +2992,44 @@ plotCCcomDotplot <- function(gobject,
 #' @param size_range size ranges of dotplot
 #' @param xlims x-limits, numerical vector of 2
 #' @param ylims y-limits, numerical vector of 2
-#' @param selected_ranks numerical vector, will be used to print out the 
+#' @param selected_ranks numerical vector, will be used to print out the
 #' percentage of top spatial ranks are recovered
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
-#' random_iter = 10)
-#' 
+#'
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+#' )
+#' spatialCC <- spatCellCellcom(
+#'     gobject = g, cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#'     random_iter = 10
+#' )
+#'
 #' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
-#' 
+#'
 #' plotRankSpatvsExpr(gobject = g, combCC = combCC)
 #' @export
-plotRankSpatvsExpr <- function(gobject,
-    combCC,
-    expr_rnk_column = "LR_expr_rnk",
-    spat_rnk_column = "LR_spat_rnk",
-    dot_color_gradient = NULL,
-    midpoint = deprecated(),
-    gradient_midpoint = 10,
-    gradient_style = c("divergent", "sequential"),
-    size_range = c(0.01, 1.5),
-    xlims = NULL,
-    ylims = NULL,
-    selected_ranks = c(1, 10, 20),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotRankSpatvsExpr") {
+plotRankSpatvsExpr <- function(
+        gobject,
+        combCC,
+        expr_rnk_column = "LR_expr_rnk",
+        spat_rnk_column = "LR_spat_rnk",
+        dot_color_gradient = NULL,
+        midpoint = deprecated(),
+        gradient_midpoint = 10,
+        gradient_style = c("divergent", "sequential"),
+        size_range = c(0.01, 1.5),
+        xlims = NULL,
+        ylims = NULL,
+        selected_ranks = c(1, 10, 20),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotRankSpatvsExpr") {
     # deprecate
     if (GiottoUtils::is_present(midpoint)) {
         deprecate_warn(
@@ -2746,9 +3049,13 @@ plotRankSpatvsExpr <- function(gobject,
     rnk_list <- list()
     spt_list <- list()
     for (rnk in seq_len(total_rnks)) {
-        mytab <- table(cut(sort(combCC[get(expr_rnk_column) == rnk][[
-            spat_rnk_column]]), breaks = seq(0, total_rnks, 1), 
-            labels = seq_len(total_rnks)))
+        mytab <- table(cut(
+            sort(combCC[get(expr_rnk_column) == rnk][[
+                spat_rnk_column
+            ]]),
+            breaks = seq(0, total_rnks, 1),
+            labels = seq_len(total_rnks)
+        ))
         rnk_list[[rnk]] <- mytab
         spt_list[[rnk]] <- names(mytab)
     }
@@ -2763,20 +3070,24 @@ plotRankSpatvsExpr <- function(gobject,
     rnk_res_m[, diff := variable - spt_rank]
 
     for (i in selected_ranks) {
-        perc_recovered <- 100 * (sum(rnk_res_m[abs(diff) < i]$value) / 
-                                    sum(rnk_res_m$value))
-        cat("for top ", i, " expression ranks, you recover ", 
-            round(perc_recovered, 2), "% of the highest spatial rank")
+        perc_recovered <- 100 * (sum(rnk_res_m[abs(diff) < i]$value) /
+            sum(rnk_res_m$value))
+        cat(
+            "for top ", i, " expression ranks, you recover ",
+            round(perc_recovered, 2), "% of the highest spatial rank"
+        )
     }
 
 
     # full plot
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(
-        axis.text = element_blank())
+        axis.text = element_blank()
+    )
     pl <- pl + ggplot2::geom_point(
-        data = rnk_res_m, 
-        ggplot2::aes(x = variable, y = spt_rank, size = value, color = value))
+        data = rnk_res_m,
+        ggplot2::aes(x = variable, y = spt_rank, size = value, color = value)
+    )
     pl <- pl + set_default_color_continuous_CCcom_dotplot(
         colors = dot_color_gradient,
         instrs = instructions(gobject),
@@ -2786,7 +3097,8 @@ plotRankSpatvsExpr <- function(gobject,
         guide = guide_legend(title = "")
     )
     pl <- pl + ggplot2::scale_size_continuous(
-        range = size_range, guide = "none")
+        range = size_range, guide = "none"
+    )
     pl <- pl + ggplot2::labs(x = "expression rank", y = "spatial rank")
 
     if (!is.null(xlims)) {
@@ -2814,16 +3126,17 @@ plotRankSpatvsExpr <- function(gobject,
 
 #' @title Create recovery plot
 #' @name .plotRecovery_sub
-#' @description Plots recovery plot to compare ligand-receptor rankings from 
+#' @description Plots recovery plot to compare ligand-receptor rankings from
 #' spatial and expression information
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
 #' @returns ggplot
 #' @keywords internal
-.plotRecovery_sub <- function(combCC,
-    first_col = "LR_expr_rnk",
-    second_col = "LR_spat_rnk") {
+.plotRecovery_sub <- function(
+        combCC,
+        first_col = "LR_expr_rnk",
+        second_col = "LR_spat_rnk") {
     # data.table variables
     concord <- perc <- not_concord <- secondrank <- secondrank_perc <- NULL
 
@@ -2857,8 +3170,9 @@ plotRankSpatvsExpr <- function(gobject,
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
     pl <- pl + ggplot2::geom_point(
-        data = mymatDT, 
-        aes(x = secondrank_perc, y = perc))
+        data = mymatDT,
+        aes(x = secondrank_perc, y = perc)
+    )
     pl <- pl + ggplot2::scale_x_continuous(expand = c(0, 0), limits = c(0, 100))
     pl <- pl + ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, 100))
     pl <- pl + ggplot2::geom_abline(slope = 1, intercept = 0, color = "blue")
@@ -2872,7 +3186,7 @@ plotRankSpatvsExpr <- function(gobject,
 
 #' @title plotRecovery
 #' @name plotRecovery
-#' @description Plots recovery plot to compare ligand-receptor rankings from 
+#' @description Plots recovery plot to compare ligand-receptor rankings from
 #' spatial and expression information
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
@@ -2883,29 +3197,36 @@ plotRankSpatvsExpr <- function(gobject,
 #' @returns ggplot
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus", 
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
-#' random_iter = 10)
-#' 
+#'
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik"
+#' )
+#' spatialCC <- spatCellCellcom(
+#'     gobject = g, cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
+#'     random_iter = 10
+#' )
+#'
 #' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
-#' 
+#'
 #' plotRecovery(gobject = g, combCC = combCC)
 #' @export
-plotRecovery <- function(gobject,
-    combCC,
-    expr_rnk_column = "exprPI_rnk",
-    spat_rnk_column = "spatPI_rnk",
-    ground_truth = c("spatial", "expression"),
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "plotRecovery") {
+plotRecovery <- function(
+        gobject,
+        combCC,
+        expr_rnk_column = "exprPI_rnk",
+        spat_rnk_column = "spatPI_rnk",
+        ground_truth = c("spatial", "expression"),
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "plotRecovery") {
     ground_truth <- match.arg(
-        ground_truth, choices = c("spatial", "expression"))
+        ground_truth,
+        choices = c("spatial", "expression")
+    )
 
 
     if (ground_truth == "spatial") {
@@ -2915,8 +3236,9 @@ plotRecovery <- function(gobject,
             second_col = expr_rnk_column
         )
         pl <- pl + ggplot2::labs(
-            x = "% expression rank included", 
-            y = "% highest spatial rank recovered")
+            x = "% expression rank included",
+            y = "% highest spatial rank recovered"
+        )
     } else if (ground_truth == "expression") {
         pl <- .plotRecovery_sub(
             combCC = combCC,
@@ -2924,8 +3246,9 @@ plotRecovery <- function(gobject,
             second_col = spat_rnk_column
         )
         pl <- pl + ggplot2::labs(
-            x = "% spatial rank included", 
-            y = "% highest expression rank recovered")
+            x = "% spatial rank included",
+            y = "% highest expression rank recovered"
+        )
     }
 
     return(plot_output_handler(
@@ -2953,7 +3276,7 @@ plotRecovery <- function(gobject,
 
 #' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
-#' @description Visualize 2D cell-cell interactions according to spatial 
+#' @description Visualize 2D cell-cell interactions according to spatial
 #' coordinates in ggplot mode
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
@@ -2986,45 +3309,48 @@ plotRecovery <- function(gobject,
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g <- createSpatialGrid(g, sdimx_stepsize = 5, sdimy_stepsize = 5)
 #' x <- cellProximityEnrichment(g, cluster_column = "leiden_clus")
-#' 
-#' cellProximitySpatPlot2D(gobject = g, cluster_column = "leiden_clus",
-#' interaction_name = x)
+#'
+#' cellProximitySpatPlot2D(
+#'     gobject = g, cluster_column = "leiden_clus",
+#'     interaction_name = x
+#' )
 #' @export
-cellProximitySpatPlot2D <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spat_loc_name = NULL,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = "sdimx",
-    sdimy = "sdimy",
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = FALSE,
-    show_network = FALSE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    coord_fix_ratio = 1,
-    show_legend = TRUE,
-    point_size_select = 2,
-    point_select_border_col = "black",
-    point_select_border_stroke = 0.05,
-    point_size_other = 1,
-    point_alpha_other = 0.3,
-    point_other_border_col = "lightgrey",
-    point_other_border_stroke = 0.01,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "cellProximitySpatPlot2D") {
+cellProximitySpatPlot2D <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spat_loc_name = NULL,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = "sdimx",
+        sdimy = "sdimy",
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = FALSE,
+        show_network = FALSE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        coord_fix_ratio = 1,
+        show_legend = TRUE,
+        point_size_select = 2,
+        point_select_border_col = "black",
+        point_select_border_stroke = 0.05,
+        point_size_other = 1,
+        point_alpha_other = 0.3,
+        point_other_border_col = "lightgrey",
+        point_other_border_stroke = 0.01,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "cellProximitySpatPlot2D") {
     if (is.null(interaction_name)) {
-        stop("you need to specific at least one interaction name, run 
+        stop("you need to specific at least one interaction name, run
              cellProximityEnrichment")
     }
 
@@ -3074,7 +3400,7 @@ cellProximitySpatPlot2D <- function(gobject,
 
 
     # data.table variables
-    unified_int <- sdimx_begin <- sdimy_begin <- sdimx_end <- sdimy_end <- 
+    unified_int <- sdimx_begin <- sdimy_begin <- sdimx_end <- sdimy_end <-
         x_start <- x_end <- y_start <- y_end <- cell_ID <- NULL
 
     cell_IDs_to_keep <- unique(c(
@@ -3085,7 +3411,8 @@ cellProximitySpatPlot2D <- function(gobject,
     if (show_other_cells) {
         CellType <- strsplit(interaction_name, "--")
         all_cell_IDs <- cell_metadata[cell_metadata[[
-            cluster_column]] == CellType[[1]][1] |
+            cluster_column
+        ]] == CellType[[1]][1] |
             cell_metadata[[cluster_column]] == CellType[[1]][2], ]$cell_ID
         other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
     }
@@ -3096,13 +3423,15 @@ cellProximitySpatPlot2D <- function(gobject,
         cell_locations_metadata <- cell_locations
     } else {
         cell_locations_metadata <- merge(
-            cell_locations, cell_metadata, by = "cell_ID")
+            cell_locations, cell_metadata,
+            by = "cell_ID"
+        )
     }
 
 
     # first 2 dimensions need to be defined
     if (is.null(sdimx) | is.null(sdimy)) {
-        message("first and second dimension need to be defined, default is 
+        message("first and second dimension need to be defined, default is
                 first 2")
         sdimx <- "sdimx"
         sdimy <- "sdimy"
@@ -3116,15 +3445,19 @@ cellProximitySpatPlot2D <- function(gobject,
         if (show_other_network) {
             pl <- pl + ggplot2::geom_segment(
                 data = spatial_network[!unified_int %in% interaction_name],
-                aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, 
-                    yend = sdimy_end),
+                aes(
+                    x = sdimx_begin, y = sdimy_begin, xend = sdimx_end,
+                    yend = sdimy_end
+                ),
                 color = "lightgrey", size = 0.5, alpha = 0.5
             )
         }
         pl <- pl + ggplot2::geom_segment(
             data = spatial_network[unified_int %in% interaction_name],
-            aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, 
-                yend = sdimy_end),
+            aes(
+                x = sdimx_begin, y = sdimy_begin, xend = sdimx_end,
+                yend = sdimy_end
+            ),
             color = network_color, size = 0.5, alpha = 0.5
         )
     }
@@ -3132,7 +3465,7 @@ cellProximitySpatPlot2D <- function(gobject,
     if (!is.null(spatial_grid) & show_grid == TRUE) {
         if (is.null(grid_color)) grid_color <- "black"
         pl <- pl + ggplot2::geom_rect(
-            data = spatial_grid, 
+            data = spatial_grid,
             aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
             color = grid_color, fill = NA
         )
@@ -3142,22 +3475,22 @@ cellProximitySpatPlot2D <- function(gobject,
     if (is.null(cell_color)) {
         cell_color <- "lightblue"
         pl <- pl + ggplot2::geom_point(
-            data = cell_locations[!cell_ID %in% cell_IDs_to_keep], 
+            data = cell_locations[!cell_ID %in% cell_IDs_to_keep],
             aes_string(x = sdimx, y = sdimy),
-            show.legend = show_legend, shape = 21, fill = "lightgrey", 
+            show.legend = show_legend, shape = 21, fill = "lightgrey",
             size = point_size_other
         )
         pl <- pl + ggplot2::geom_point(
-            data = cell_locations[cell_ID %in% cell_IDs_to_keep], 
+            data = cell_locations[cell_ID %in% cell_IDs_to_keep],
             aes_string(x = sdimx, y = sdimy),
-            show.legend = show_legend, shape = 21, fill = cell_color, 
+            show.legend = show_legend, shape = 21, fill = cell_color,
             size = point_size_select
         )
         if (show_other_cells) {
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations[cell_ID %in% other_cell_IDs], 
+                data = cell_locations[cell_ID %in% other_cell_IDs],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, fill = cell_color, 
+                show.legend = show_legend, shape = 21, fill = cell_color,
                 alpha = point_alpha_other,
                 size = point_size_select * 0.5
             )
@@ -3173,21 +3506,21 @@ cellProximitySpatPlot2D <- function(gobject,
                 data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy),
                 fill = "lightgrey", shape = 21, size = point_size_other,
-                color = point_other_border_col, 
+                color = point_other_border_col,
                 stroke = point_other_border_stroke
             )
             pl <- pl + ggplot2::geom_point(
-                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], 
+                data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy, fill = cell_color),
                 show.legend = show_legend, shape = 21, size = point_size_select,
-                color = point_select_border_col, 
+                color = point_select_border_col,
                 stroke = point_select_border_stroke
             )
             if (show_other_cells) {
                 pl <- pl + ggplot2::geom_point(
                     data = cell_locations_metadata[cell_ID %in% other_cell_IDs],
                     aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                    show.legend = show_legend, shape = 21, 
+                    show.legend = show_legend, shape = 21,
                     alpha = point_alpha_other,
                     size = point_size_select * 0.5
                 )
@@ -3200,7 +3533,8 @@ cellProximitySpatPlot2D <- function(gobject,
             } else if (color_as_factor == TRUE) {
                 number_colors <- length(unique(factor_data))
                 cell_color_code <- set_default_color_discrete_cell(
-                    instrs = instructions(gobject))(n = number_colors)
+                    instrs = instructions(gobject)
+                )(n = number_colors)
                 names(cell_color_code) <- unique(factor_data)
                 pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
             } else if (color_as_factor == FALSE) {
@@ -3218,17 +3552,17 @@ cellProximitySpatPlot2D <- function(gobject,
             pl <- pl + ggplot2::geom_point(
                 data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, fill = "lightgrey", 
+                show.legend = show_legend, shape = 21, fill = "lightgrey",
                 size = point_size_other,
-                color = point_other_border_col, 
+                color = point_other_border_col,
                 stroke = point_other_border_stroke
             )
             pl <- pl + ggplot2::geom_point(
                 data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                 aes_string(x = sdimx, y = sdimy),
-                show.legend = show_legend, shape = 21, fill = cell_color, 
+                show.legend = show_legend, shape = 21, fill = cell_color,
                 size = point_size_select,
-                color = point_select_border_col, 
+                color = point_select_border_col,
                 stroke = point_select_border_stroke
             )
         }
@@ -3263,14 +3597,14 @@ cellProximitySpatPlot2D <- function(gobject,
 
 #' @title cellProximitySpatPlot
 #' @name cellProximitySpatPlot
-#' @description Visualize 2D cell-cell interactions according to spatial 
+#' @description Visualize 2D cell-cell interactions according to spatial
 #' coordinates in ggplot mode
 #' @param gobject giotto object
 #' @inheritDotParams cellProximitySpatPlot2D -gobject
 #' @returns ggplot
 #' @details Description of parameters.
 #' @export
-#' @seealso  \code{\link{cellProximitySpatPlot2D}} and 
+#' @seealso  \code{\link{cellProximitySpatPlot2D}} and
 #' \code{\link{cellProximitySpatPlot3D}} for 3D
 cellProximitySpatPlot <- function(gobject, ...) {
     cellProximitySpatPlot2D(gobject = gobject, ...)
@@ -3279,7 +3613,7 @@ cellProximitySpatPlot <- function(gobject, ...) {
 
 #' @title cellProximitySpatPlot3D
 #' @name cellProximitySpatPlot3D
-#' @description Visualize 3D cell-cell interactions according to spatial 
+#' @description Visualize 3D cell-cell interactions according to spatial
 #' coordinates in plotly mode
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
@@ -3310,38 +3644,39 @@ cellProximitySpatPlot <- function(gobject, ...) {
 #' @returns plotly
 #' @details Description of parameters.
 #' @export
-cellProximitySpatPlot3D <- function(gobject,
-    interaction_name = NULL,
-    cluster_column = NULL,
-    sdimx = "sdimx",
-    sdimy = "sdimy",
-    sdimz = "sdimz",
-    cell_color = NULL,
-    cell_color_code = NULL,
-    color_as_factor = TRUE,
-    show_other_cells = TRUE,
-    show_network = TRUE,
-    show_other_network = FALSE,
-    network_color = NULL,
-    spatial_network_name = "Delaunay_network",
-    show_grid = FALSE,
-    grid_color = NULL,
-    spatial_grid_name = "spatial_grid",
-    show_legend = TRUE,
-    point_size_select = 4,
-    point_size_other = 2,
-    point_alpha_other = 0.5,
-    axis_scale = c("cube", "real", "custom"),
-    custom_ratio = NULL,
-    x_ticks = NULL,
-    y_ticks = NULL,
-    z_ticks = NULL,
-    show_plot = NULL,
-    return_plot = NULL,
-    save_plot = NULL,
-    save_param = list(),
-    default_save_name = "cellProximitySpatPlot3D",
-    ...) {
+cellProximitySpatPlot3D <- function(
+        gobject,
+        interaction_name = NULL,
+        cluster_column = NULL,
+        sdimx = "sdimx",
+        sdimy = "sdimy",
+        sdimz = "sdimz",
+        cell_color = NULL,
+        cell_color_code = NULL,
+        color_as_factor = TRUE,
+        show_other_cells = TRUE,
+        show_network = TRUE,
+        show_other_network = FALSE,
+        network_color = NULL,
+        spatial_network_name = "Delaunay_network",
+        show_grid = FALSE,
+        grid_color = NULL,
+        spatial_grid_name = "spatial_grid",
+        show_legend = TRUE,
+        point_size_select = 4,
+        point_size_other = 2,
+        point_alpha_other = 0.5,
+        axis_scale = c("cube", "real", "custom"),
+        custom_ratio = NULL,
+        x_ticks = NULL,
+        y_ticks = NULL,
+        z_ticks = NULL,
+        show_plot = NULL,
+        return_plot = NULL,
+        save_plot = NULL,
+        save_param = list(),
+        default_save_name = "cellProximitySpatPlot3D",
+        ...) {
     if (is.null(sdimz)) {
         pl <- .cellProximityVisPlot_2D_plotly(
             gobject = gobject,

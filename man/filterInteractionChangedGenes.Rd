@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{filterInteractionChangedGenes}
 \alias{filterInteractionChangedGenes}
-\title{filterInteractionChangedGenes}
+\title{deprecated}
 \usage{
 filterInteractionChangedGenes(...)
 }

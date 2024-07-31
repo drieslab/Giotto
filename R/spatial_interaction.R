@@ -190,7 +190,7 @@ cellProximityEnrichment <- function(gobject,
     minimum_simulations <- unique_ints[rep(
         seq_len(nrow(unique_ints)), number_of_simulations), ]
     minimum_simulations[, round := rep(
-        paste0("sim", seq_len(number_of_simulations)), 
+        paste0("sim", seq_len(number_of_simulations)),
         each = nrow(unique_ints))]
     minimum_simulations[, N := 0]
 
@@ -1052,9 +1052,13 @@ NULL
 
 #' @title findInteractionChangedFeats
 #' @name findInteractionChangedFeats
+#' @aliases findICF
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. features that are differentially expressed due to proximity to other
-#' cell types.
+#' cell types. This function is appropriate for single-cell level data. For
+#' data from spot-based spatial assays or spatially binned data, see
+#' [findICFSpot()], which runs on top of DWLS results or similar spot-level
+#' cell-type enrichment outputs
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
@@ -1073,33 +1077,48 @@ NULL
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
-#' @returns icfObject that contains the Interaction Changed differential
+#' @returns `icfObject` that contains the Interaction Changed differential
 #' feature scores
 #' @details Function to calculate if features are differentially expressed in
 #' cell types when they interact (approximated by physical proximity) with
-#' other cell types. The results data.table in the icfObject contains
+#' other cell types. The results data.table in the `icfObject` contains
 #' - at least - the following columns:
-#' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
-#' }
+#'   * **features:** All or selected list of tested features
+#'   * **sel:** average feature expression in the interacting cells from the
+#'   target cell type
+#'   * **other:** average feature expression in the NOT-interacting cells from
+#'   the target cell type
+#'   * **log2fc:** log2 fold-change between sel and other
+#'   * **diff:** spatial expression difference between sel and other
+#'   * **p.value:** associated p-value
+#'   * **p.adj:** adjusted p-value
+#'   * **cell_type:** target cell type
+#'   * **int_cell_type:** interacting cell type
+#'   * **nr_select:** number of cells for selected target cell type
+#'   * **int_nr_select:** number of cells for interacting cell type
+#'   * **nr_other:** number of other cells of selected target cell type
+#'   * **int_nr_other:** number of other cells for interacting cell type
+#'   * **unif_int:** cell-cell interaction
+#'
+#' @seealso [filterInteractionChangedFeats()] [findICFSpot()]
+#' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#' icf1 <- findInteractionChangedFeats(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#' )
+#' force(icf1)
+#' force(icf1$ICFscores)
+#'
+#' # this is just an alias with a shorter name
+#' icf2 <- findICF(g,
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#'  )
 #' @export
 findInteractionChangedFeats <- function(gobject,
     feat_type = NULL,
@@ -1165,8 +1184,9 @@ findInteractionChangedFeats <- function(gobject,
     mean_method <- match.arg(mean_method, choices = c("arithmic", "geometric"))
 
     ## metadata
-    cell_metadata <- pDataDT(gobject, feat_type = feat_type)
-
+    cell_metadata <- pDataDT(
+        gobject, spat_unit = spat_unit, feat_type = feat_type
+    )
 
 
     ## annotated spatial network
@@ -1179,267 +1199,108 @@ findInteractionChangedFeats <- function(gobject,
 
     all_interactions <- unique(annot_spatnetwork$unified_int)
 
-    if (do_parallel == TRUE) {
-        fin_result <- lapply_flex(
-            X = all_interactions, future.seed = TRUE, FUN = function(x) {
+    ## prepare function
+    fcp_feats_per_i <- function(x) {
+        .findCellProximityFeats_per_interaction(
+            expr_values = expr_values,
+            cell_metadata = cell_metadata,
+            annot_spatnetwork = annot_spatnetwork,
+            minimum_unique_cells = minimum_unique_cells,
+            minimum_unique_int_cells = minimum_unique_int_cells,
+            sel_int = x,
+            cluster_column = cluster_column,
+            exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+            diff_test = diff_test,
+            mean_method = mean_method,
+            offset = offset,
+            adjust_method = adjust_method,
+            nr_permutations = nr_permutations,
+            set_seed = set_seed,
+            seed_number = seed_number
+        )
+    }
 
-            tempres <- .findCellProximityFeats_per_interaction(
-                expr_values = expr_values,
-                cell_metadata = cell_metadata,
-                annot_spatnetwork = annot_spatnetwork,
-                minimum_unique_cells = minimum_unique_cells,
-                minimum_unique_int_cells = minimum_unique_int_cells,
-                sel_int = x,
-                cluster_column = cluster_column,
-                exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                diff_test = diff_test,
-                mean_method = mean_method,
-                offset = offset,
-                adjust_method = adjust_method,
-                nr_permutations = nr_permutations,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-        })
-    } else {
+    if (isTRUE(do_parallel)) { # parallel
+        fin_result <- lapply_flex(
+            X = all_interactions, future.seed = TRUE, FUN = fcp_feats_per_i
+        )
+    } else { # sequential
         fin_result <- list()
 
         for (i in seq_along(all_interactions)) {
             x <- all_interactions[i]
-
-
-            tempres <- .findCellProximityFeats_per_interaction(
-                expr_values = expr_values,
-                cell_metadata = cell_metadata,
-                annot_spatnetwork = annot_spatnetwork,
-                minimum_unique_cells = minimum_unique_cells,
-                minimum_unique_int_cells = minimum_unique_int_cells,
-                sel_int = x,
-                cluster_column = cluster_column,
-                exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                diff_test = diff_test,
-                mean_method = mean_method,
-                offset = offset,
-                adjust_method = adjust_method,
-                nr_permutations = nr_permutations,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-
+            tempres <- fcp_feats_per_i(x)
             fin_result[[i]] <- tempres
         }
     }
 
     final_result <- do.call("rbind", fin_result)
 
-
-
-    # data.table variables
+    # NSE variables
     spec_int <- cell_type <- int_cell_type <- type_int <- NULL
 
     final_result[, spec_int := paste0(cell_type, "--", int_cell_type)]
     final_result[, type_int := ifelse(
         cell_type == int_cell_type, "homo", "hetero")]
 
-
-    # return(final_result)
-
     permutation_test <- ifelse(
         diff_test == "permutation", nr_permutations, "no permutations")
 
-    icfObject <- list(
-        ICFscores = final_result,
-        Giotto_info = list(
-            "values" = values,
-            "cluster" = cluster_column,
-            "spatial network" = spatial_network_name
+    icfObject <- structure(
+        .Data = list(
+            ICFscores = final_result,
+            Giotto_info = list(
+                "values" = values,
+                "cluster" = cluster_column,
+                "spatial network" = spatial_network_name
+            ),
+            test_info = list(
+                "test" = diff_test,
+                "p.adj" = adjust_method,
+                "min cells" = minimum_unique_cells,
+                "min interacting cells" = minimum_unique_int_cells,
+                "exclude selected cells" = exclude_selected_cells_from_test,
+                "perm" = permutation_test
+            )
         ),
-        test_info = list(
-            "test" = diff_test,
-            "p.adj" = adjust_method,
-            "min cells" = minimum_unique_cells,
-            "min interacting cells" = minimum_unique_int_cells,
-            "exclude selected cells" = exclude_selected_cells_from_test,
-            "perm" = permutation_test
-        )
+        class = "icfObject"
     )
-    class(icfObject) <- append("icfObject", class(icfObject))
     return(icfObject)
 }
 
-
-
-#' @title findInteractionChangedGenes
-#' @name findInteractionChangedGenes
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interactions with other
-#' cell types.
-#' @param ... params to pass to \code{findInteractionChangedFeats}
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @returns interaction changed genes
+#' @rdname findInteractionChangedFeats
 #' @export
-findInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "findInteractionChangedFeats")
+findICF <- findInteractionChangedFeats
 
-    findInteractionChangedFeats(...)
-}
-
-
-
-#' @title findCellProximityGenes
-#' @name findCellProximityGenes
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell
-#' types.
-#' @inheritDotParams findInteractionChangedFeats
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @returns cell-cell interaction changed genes
+#' @name print.icfObject
+#' @title icfObject print method
+#' @param x object to print
+#' @param \dots additional params to pass (none implemented)
+#' @keywords internal
 #' @export
-findCellProximityGenes <- function(...) {
-    .Deprecated(new = "findInteractionChangedFeats")
-
-    findInteractionChangedFeats(...)
-}
-
-
-
-
-
-#' @title findICF
-#' @name findICF
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. features that are differentially expressed due to proximity to other
-#' cell types.
-#' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param expression_values expression values to use
-#' @param selected_feats subset of selected features (optional)
-#' @param cluster_column name of column to use for cell types
-#' @param spatial_network_name name of spatial network to use
-#' @param minimum_unique_cells minimum number of target cells required
-#' @param minimum_unique_int_cells minimum number of interacting cells required
-#' @param diff_test which differential expression test
-#' @param mean_method method to use to calculate the mean
-#' @param offset offset value to use when calculating log2 ratio
-#' @param adjust_method which method to adjust p-values
-#' @param nr_permutations number of permutations if diff_test = permutation
-#' @param exclude_selected_cells_from_test exclude interacting cells other cells
-#' @param do_parallel run calculations in parallel with mclapply
-#' @param set_seed set a seed for reproducibility
-#' @param seed_number seed number
-#' @returns `icfObject` that contains the Interaction Changed differential gene
-#' scores
-#' @details Function to calculate if genes are differentially expressed in
-#' cell types when they interact (approximated by physical proximity) with
-#' other cell types. The results data.table in the `icfObject` contains
-#' - at least - the following columns:
-#' \itemize{
-#'  \item{features:}{ All or selected list of tested features}
-#'  \item{sel:}{ average feature expression in the interacting cells from the target cell type }
-#'  \item{other:}{ average feature expression in the NOT-interacting cells from the target cell type }
-#'  \item{log2fc:}{ log2 fold-change between sel and other}
-#'  \item{diff:}{ spatial expression difference between sel and other}
-#'  \item{p.value:}{ associated p-value}
-#'  \item{p.adj:}{ adjusted p-value}
-#'  \item{cell_type:}{ target cell type}
-#'  \item{int_cell_type:}{ interacting cell type}
-#'  \item{nr_select:}{ number of cells for selected target cell type}
-#'  \item{int_nr_select:}{ number of cells for interacting cell type}
-#'  \item{nr_other:}{ number of other cells of selected target cell type}
-#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
-#'  \item{unif_int:}{ cell-cell interaction}
-#' }
-#' @seealso \code{\link{findInteractionChangedFeats}}
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' findICF(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#' @export
-findICF <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = "normalized",
-    selected_feats = NULL,
-    cluster_column,
-    spatial_network_name = "Delaunay_network",
-    minimum_unique_cells = 1,
-    minimum_unique_int_cells = 1,
-    diff_test = c("permutation", "limma", "t.test", "wilcox"),
-    mean_method = c("arithmic", "geometric"),
-    offset = 0.1,
-    adjust_method = c(
-        "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "fdr", "none"
-    ),
-    nr_permutations = 100,
-    exclude_selected_cells_from_test = TRUE,
-    do_parallel = TRUE,
-    set_seed = TRUE,
-    seed_number = 1234) {
-    findInteractionChangedFeats(
-        gobject = gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit,
-        expression_values = expression_values,
-        selected_feats = selected_feats,
-        cluster_column = cluster_column,
-        spatial_network_name = spatial_network_name,
-        minimum_unique_cells = minimum_unique_cells,
-        minimum_unique_int_cells = minimum_unique_int_cells,
-        diff_test = diff_test,
-        mean_method = mean_method,
-        offset = offset,
-        adjust_method = adjust_method,
-        nr_permutations = nr_permutations,
-        exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-        do_parallel = do_parallel,
-        set_seed = set_seed,
-        seed_number = seed_number
+print.icfObject <- function(x, ...) {
+    cat("An object of class", class(x), "\n")
+    info <- list(
+        dimensions = sprintf("%d, %d (icfs, attributes)",
+                             nrow(x$ICFscores), ncol(x$ICFscores))
     )
+    print_list(info, pre = " -")
+    cat("<giotto info>\n")
+    print_list(x$Giotto_info, pre = " -")
+    cat("<test info>\n")
+    print_list(x$test_info, pre = " -")
 }
 
 
 
 
-#' @title findICG
-#' @name findICG
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to interaction with other
-#' cell types.
-#' @inheritDotParams findICF
-#' @seealso \code{\link{findICF}}
-#' @returns cell-cell interaction changed features
-#' @export
-findICG <- function(...) {
-    .Deprecated(new = "findICF")
-
-    findICF(...)
-}
-
-
-
-#' @title findCPG
-#' @name findCPG
-#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
-#' i.e. genes that are differentially expressed due to proximity to other cell
-#' types.
-#' @inheritDotParams findICF
-#' @returns cell-to-cell Interaction Changed Genes
-#' @seealso \code{\link{findICF}}
-#' @export
-findCPG <- function(...) {
-    .Deprecated(new = "findICF")
-
-    findICF(...)
-}
 
 
 
 
 #' @title filterInteractionChangedFeats
 #' @name filterInteractionChangedFeats
+#' @aliases filterICF
 #' @description Filter Interaction Changed Feature scores.
 #' @param icfObject ICF (interaction changed feature) score object
 #' @param min_cells minimum number of source cell type
@@ -1453,7 +1314,27 @@ findCPG <- function(...) {
 #' @param min_zscore minimum z-score change
 #' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
-#' @returns icfObject that contains the filtered differential feature scores
+#' @returns `icfObject` that contains the filtered differential feature scores
+#' @md
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#'
+#' icf <- findInteractionChangedFeats(g,
+#'      cluster_column = "leiden_clus",
+#'      selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'      nr_permutations = 10
+#' )
+#' force(icf)
+#' force(icf$ICFscores)
+#'
+#' icf_filter1 <- filterInteractionChangedFeats(icf, min_cells = 4)
+#' force(icf_filter1)
+#' force(icf_filter1$ICFscores)
+#'
+#' # filterICF is a simple alias with a shortened name
+#' icf_filter2 <- filterICF(icf, min_cells = 4)
+#' force(icf_filter2)
+#'
 #' @export
 filterInteractionChangedFeats <- function(icfObject,
     min_cells = 4,
@@ -1466,7 +1347,7 @@ filterInteractionChangedFeats <- function(icfObject,
     min_zscore = 2,
     zscores_column = c("cell_type", "feats"),
     direction = c("both", "up", "down")) {
-    # data.table variables
+    # NSE vars
     nr_select <- int_nr_select <- zscores <- log2fc <- sel <- other <-
         p.adj <- NULL
 
@@ -1522,117 +1403,13 @@ filterInteractionChangedFeats <- function(icfObject,
     return(newobj)
 }
 
-
-#' @title filterInteractionChangedGenes
-#' @name filterInteractionChangedGenes
-#' @description Filter Interaction Changed Feature scores.
-#' @inheritDotParams filterInteractionChangedFeats
-#' @seealso \code{\link{filterInteractionChangedFeats}}
-#' @returns filtered interaction changed feature scores
+#' @rdname filterInteractionChangedFeats
 #' @export
-filterInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "filterInteractionChangedFeats")
-
-    filterInteractionChangedFeats(...)
-}
-
-
-#' @title filterCellProximityGenes
-#' @name filterCellProximityGenes
-#' @description Filter Interaction Changed Feature scores.
-#' @inheritDotParams filterInteractionChangedFeats
-#' @seealso \code{\link{filterInteractionChangedFeats}}
-#' @returns proximity genes
-#' @export
-filterCellProximityGenes <- function(...) {
-    .Deprecated(new = "filterInteractionChangedFeats")
-
-    filterInteractionChangedFeats(...)
-}
+filterICF <- filterInteractionChangedFeats
 
 
 
 
-
-#' @title filterICF
-#' @name filterICF
-#' @description Filter Interaction Changed Feature scores.
-#' @param icfObject ICF (interaction changed feature) score object
-#' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type
-#' @param min_int_cells minimum number of interacting neighbor cell type
-#' @param min_int_cells_expr minimum expression level for interacting neighbor
-#' cell type
-#' @param min_fdr minimum adjusted p-value
-#' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum log2 fold-change
-#' @param min_zscore minimum z-score change
-#' @param zscores_column calculate z-scores over cell types or features
-#' @param direction differential expression directions to keep
-#' @returns icfObject that contains the filtered differential feature scores
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#'
-#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus")
-#'
-#' filterICF(g_icf)
-#' @export
-filterICF <- function(icfObject,
-    min_cells = 4,
-    min_cells_expr = 1,
-    min_int_cells = 4,
-    min_int_cells_expr = 1,
-    min_fdr = 0.1,
-    min_spat_diff = 0.2,
-    min_log2_fc = 0.2,
-    min_zscore = 2,
-    zscores_column = c("cell_type", "feats"),
-    direction = c("both", "up", "down")) {
-    filterInteractionChangedFeats(
-        icfObject = icfObject,
-        min_cells = min_cells,
-        min_cells_expr = min_cells_expr,
-        min_int_cells = min_int_cells,
-        min_int_cells_expr = min_int_cells_expr,
-        min_fdr = min_fdr,
-        min_spat_diff = min_spat_diff,
-        min_log2_fc = min_log2_fc,
-        min_zscore = min_zscore,
-        zscores_column = zscores_column,
-        direction = direction
-    )
-}
-
-
-
-
-#' @title filterICG
-#' @name filterICG
-#' @description Filter Interaction Changed Gene scores.
-#' @inheritDotParams filterICF
-#' @seealso \code{\link{filterICF}}
-#' @returns filtered interaction changed gene scores
-#' @export
-filterICG <- function(...) {
-    .Deprecated(new = "filterICF")
-
-    filterICF(...)
-}
-
-
-
-#' @title filterCPG
-#' @name filterCPG
-#' @description Filter Interaction Changed Gene scores.
-#' @inheritDotParams filterICF
-#' @seealso \code{\link{filterICF}}
-#' @returns filtered interaction changed gene scores
-#' @export
-filterCPG <- function(...) {
-    .Deprecated(new = "filterICF")
-
-    filterICF(...)
-}
 
 
 
@@ -1982,6 +1759,7 @@ filterCPG <- function(...) {
 
 #' @title combineInteractionChangedFeats
 #' @name combineInteractionChangedFeats
+#' @aliases combineICF
 #' @description Combine ICF scores in a pairwise manner.
 #' @param icfObject ICF (interaction changed feat) score object
 #' @param selected_ints subset of selected cell-cell interactions (optional)
@@ -1997,14 +1775,19 @@ filterCPG <- function(...) {
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param verbose verbose
-#' @returns combIcfObject that contains the filtered differential feature scores
+#' @returns `combIcfObject` that contains the filtered differential feature
+#' scores
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #' g_icf <- findInteractionChangedFeats(g,
-#' cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
+#'     cluster_column = "leiden_clus",
+#'     selected_feats = c("Gna12", "Ccnd2", "Btbd17"),
+#'     nr_permutations = 10
+#' )
 #'
-#' combineInteractionChangedFeats(g_icf)
+#' cicf <- combineInteractionChangedFeats(g_icf)
+#' force(cicf)
+#' combineICF(g_icf) # this is a shortened alias
 #' @export
 combineInteractionChangedFeats <- function(icfObject,
     selected_ints = NULL,
@@ -2018,7 +1801,7 @@ combineInteractionChangedFeats <- function(icfObject,
     min_log2_fc = 0.5,
     do_parallel = TRUE,
     verbose = TRUE) {
-    # data.table variables
+    # NSE vars
     unif_int <- feat1_feat2 <- feats_1 <- feats_2 <- comb_logfc <-
         log2fc_1 <- log2fc_2 <- direction <- NULL
 
@@ -2091,136 +1874,53 @@ combineInteractionChangedFeats <- function(icfObject,
         ifelse(log2fc_1 < 0 & log2fc_2 < 0, "both_down", "mixed")
     )]
 
-    combIcfObject <- list(
-        combICFscores = final_results,
-        Giotto_info = list(
-            "values" = icfObject[["Giotto_info"]][["values"]],
-            "cluster" = icfObject[["Giotto_info"]][["cluster"]],
-            "spatial network" = icfObject[["Giotto_info"]][["spatial network"]]
+    combIcfObject <- structure(
+        .Data = list(
+            combICFscores = final_results,
+            Giotto_info = list(
+                "values" = icfObject[["Giotto_info"]][["values"]],
+                "cluster" = icfObject[["Giotto_info"]][["cluster"]],
+                "spatial network" =
+                    icfObject[["Giotto_info"]][["spatial network"]]
+            ),
+            test_info = list(
+                "test" = icfObject[["test_info"]][["test"]],
+                "p.adj" = icfObject[["test_info"]][["p.adj"]],
+                "min cells" = icfObject[["test_info"]][["min cells"]],
+                "min interacting cells" = icfObject[["test_info"]][[
+                    "min interacting cells"]],
+                "exclude selected cells" = icfObject[["test_info"]][[
+                    "exclude selected cells"]],
+                "perm" = icfObject[["test_info"]][["perm"]]
+            )
         ),
-        test_info = list(
-            "test" = icfObject[["test_info"]][["test"]],
-            "p.adj" = icfObject[["test_info"]][["p.adj"]],
-            "min cells" = icfObject[["test_info"]][["min cells"]],
-            "min interacting cells" = icfObject[["test_info"]][[
-                "min interacting cells"]],
-            "exclude selected cells" = icfObject[["test_info"]][[
-                "exclude selected cells"]],
-            "perm" = icfObject[["test_info"]][["perm"]]
-        )
+        class = "combIcfObject"
     )
-    class(combIcfObject) <- append(class(combIcfObject), "combIcfObject")
     return(combIcfObject)
 }
 
-
-#' @title combineInteractionChangedGenes
-#' @name combineInteractionChangedGenes
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineInteractionChangedFeats
-#' @returns ICF scores
-#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @rdname combineInteractionChangedFeats
 #' @export
-combineInteractionChangedGenes <- function(...) {
-    .Deprecated(new = "combineInteractionChangedFeats")
+combineICF <- combineInteractionChangedFeats
 
-    combineInteractionChangedFeats(...)
-}
-
-
-#' @title combineCellProximityGenes
-#' @name combineCellProximityGenes
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineInteractionChangedFeats
-#' @returns ICF scores
-#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @name print.combIcfObject
+#' @title combIcfObject print method
+#' @param x object to print
+#' @param \dots additional params to pass (none implemented)
+#' @keywords internal
 #' @export
-combineCellProximityGenes <- function(...) {
-    .Deprecated(new = "combineInteractionChangedFeats")
-
-    combineInteractionChangedFeats(...)
-}
-
-#' @title combineICF
-#' @name combineICF
-#' @description Combine ICF scores in a pairwise manner.
-#' @param icfObject ICF (interaction changed feat) score object
-#' @param selected_ints subset of selected cell-cell interactions (optional)
-#' @param selected_feats subset of selected Feats (optional)
-#' @param specific_feats_1 specific Featset combo
-#' (need to position match specific_genes_2)
-#' @param specific_feats_2 specific Featset combo
-#' (need to position match specific_genes_1)
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
-#' @param min_fdr minimum adjusted p-value
-#' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change
-#' @param do_parallel run calculations in parallel with mclapply
-#' @param verbose verbose
-#' @returns icfObject that contains the filtered differential feats scores
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#' g_icf <- findInteractionChangedFeats(g, cluster_column = "leiden_clus",
-#' selected_feats = c("Gna12", "Ccnd2", "Btbd17"), nr_permutations = 10)
-#'
-#' combineICF(g_icf)
-#' @export
-combineICF <- function(icfObject,
-    selected_ints = NULL,
-    selected_feats = NULL,
-    specific_feats_1 = NULL,
-    specific_feats_2 = NULL,
-    min_cells = 5,
-    min_int_cells = 3,
-    min_fdr = 0.05,
-    min_spat_diff = 0,
-    min_log2_fc = 0.5,
-    do_parallel = TRUE,
-    verbose = TRUE) {
-    combineInteractionChangedFeats(
-        icfObject = icfObject,
-        selected_ints = selected_ints,
-        selected_feats = selected_feats,
-        specific_feats_1 = specific_feats_1,
-        specific_feats_2 = specific_feats_2,
-        min_cells = min_cells,
-        min_int_cells = min_int_cells,
-        min_fdr = min_fdr,
-        min_spat_diff = min_spat_diff,
-        min_log2_fc = min_log2_fc,
-        do_parallel = do_parallel,
-        verbose = verbose
+print.combIcfObject <- function(x, ...) {
+    cat("An object of class", class(x), "\n")
+    info <- list(
+        dimensions = sprintf("%d, %d (icf pairs, attributes)",
+                             nrow(x$combICFscores), ncol(x$combICFscores))
     )
+    print_list(info, pre = " -")
+    cat("<giotto info>\n")
+    print_list(x$Giotto_info, pre = " -")
+    cat("<test info>\n")
+    print_list(x$test_info, pre = " -")
 }
-
-
-#' @title combineICG
-#' @name combineICG
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineICF
-#' @returns ICF scores
-#' @seealso \code{\link{combineICF}}
-#' @export
-combineICG <- function(...) {
-    .Deprecated(new = "combineICF")
-
-    combineICF(...)
-}
-
-#' @title combineCPG
-#' @name combineCPG
-#' @description Combine ICF scores in a pairwise manner.
-#' @inheritDotParams combineICF
-#' @returns ICF scores
-#' @seealso \code{\link{combineICF}}
-#' @export
-combineCPG <- function(...) {
-    .Deprecated(new = "combineICF")
-
-    combineICF(...)
-}
-
 
 
 
@@ -2229,7 +1929,7 @@ combineCPG <- function(...) {
 
 
 #' @title average_feat_feat_expression_in_groups
-#' @name average_feat_feat_expression_in_groups
+#' @name .average_feat_feat_expression_in_groups
 #' @description calculate average expression per cluster
 #' @param gobject giotto object to use
 #' @param spat_unit spatial unit
@@ -2239,7 +1939,7 @@ combineCPG <- function(...) {
 #' @param feat_set_2 second specific feat set from feat pairs
 #' @returns data.table with average expression scores for each cluster
 #' @keywords internal
-average_feat_feat_expression_in_groups <- function(gobject,
+.average_feat_feat_expression_in_groups <- function(gobject,
     spat_unit = NULL,
     feat_type = NULL,
     cluster_column = "cell_types",
@@ -2297,7 +1997,7 @@ average_feat_feat_expression_in_groups <- function(gobject,
     lig_test <- data.table::as.data.table(
         reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
     lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
-    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1], 
+    lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1],
             by = seq_len(nrow(lig_test))]
     lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
     setnames(lig_test, "value", "lig_expr")
@@ -2357,8 +2057,13 @@ average_feat_feat_expression_in_groups <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' exprCellCellcom(g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
+#' res <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
+#'
+#' force(res)
 #' @export
 exprCellCellcom <- function(gobject,
     feat_type = NULL,
@@ -2410,7 +2115,7 @@ exprCellCellcom <- function(gobject,
     names(nr_cells) <- nr_cell_types$cluster_column
 
 
-    comScore <- average_feat_feat_expression_in_groups(
+    comScore <- .average_feat_feat_expression_in_groups(
         gobject = gobject,
         feat_type = feat_type,
         spat_unit = spat_unit,
@@ -2438,60 +2143,67 @@ exprCellCellcom <- function(gobject,
     # not yet available
 
 
-    for (sim in seq_len(random_iter)) {
-        if (verbose == TRUE) cat("simulation ", sim)
+    progressr::with_progress({
+        pb <- progressr::progressor(steps = random_iter)
 
+        for (sim in seq_len(random_iter)) {
 
-        # create temporary giotto
-        tempGiotto <- subsetGiotto(
-            gobject = gobject,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
+            # create temporary giotto
+            tempGiotto <- subsetGiotto(
+                gobject = gobject,
+                feat_type = feat_type,
+                spat_unit = spat_unit
+            )
 
-        # randomize annoation
-        cell_types <- cell_metadata[[cluster_column]]
-        if (set_seed == TRUE) {
-            seed_number <- seed_number + sim
-            set.seed(seed = seed_number)
+            # randomize annoation
+            cell_types <- cell_metadata[[cluster_column]]
+            if (set_seed == TRUE) {
+                seed_number <- seed_number + sim
+                set.seed(seed = seed_number)
+            }
+            random_cell_types <- sample(
+                x = cell_types, size = length(cell_types)
+            )
+            tempGiotto <- addCellMetadata(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                new_metadata = random_cell_types,
+                by_column = FALSE # on purpose since values are random
+            )
+
+            # get random communication scores
+            randomScore <- .average_feat_feat_expression_in_groups(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = "random_cell_types",
+                feat_set_1 = feat_set_1,
+                feat_set_2 = feat_set_2
+            )
+
+            # average random score
+            total_av <- total_av + randomScore[["LR_expr"]]
+
+            # difference between observed and random
+            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
+
+            # calculate total difference
+            if (detailed == FALSE) {
+                total_sum <- total_sum + difference
+            } else {
+                total_sum[, sim] <- difference
+            }
+
+            # calculate p-values
+            difference[difference > 0] <- 1
+            difference[difference < 0] <- -1
+            total_bool <- total_bool + difference
+
+            pb(sprintf("simulation %d", sim))
         }
-        random_cell_types <- sample(x = cell_types, size = length(cell_types))
-        tempGiotto <- addCellMetadata(
-            gobject = tempGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            new_metadata = random_cell_types,
-            by_column = FALSE # on purpose since values are random
-        )
+    })
 
-        # get random communication scores
-        randomScore <- average_feat_feat_expression_in_groups(
-            gobject = tempGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            cluster_column = "random_cell_types",
-            feat_set_1 = feat_set_1,
-            feat_set_2 = feat_set_2
-        )
-
-        # average random score
-        total_av <- total_av + randomScore[["LR_expr"]]
-
-        # difference between observed and random
-        difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
-
-        # calculate total difference
-        if (detailed == FALSE) {
-            total_sum <- total_sum + difference
-        } else {
-            total_sum[, sim] <- difference
-        }
-
-        # calculate p-values
-        difference[difference > 0] <- 1
-        difference[difference < 0] <- -1
-        total_bool <- total_bool + difference
-    }
 
     comScore[, rand_expr := total_av / random_iter]
 
@@ -2593,304 +2305,7 @@ exprCellCellcom <- function(gobject,
 
 
 
-#' @title specificCellCellcommunicationScores
-#' @name specificCellCellcommunicationScores
-#' @description Specific Cell-Cell communication scores based on spatial
-#' expression of interacting cells
-#' @param gobject giotto object to use
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param spatial_network_name spatial network to use for identifying
-#' interacting cells
-#' @param cluster_column cluster column with cell type information
-#' @param random_iter number of iterations
-#' @param cell_type_1 first cell type
-#' @param cell_type_2 second cell type
-#' @param feat_set_1 first specific gene set from gene pairs
-#' @param feat_set_2 second specific gene set from gene pairs
-#' @param gene_set_1 deprecated, use feat_set_1
-#' @param gene_set_2 deprecated, use feat_set_2
-#' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param min_observations minimum number of interactions needed to be
-#' considered
-#' @param detailed provide more detailed information
-#' (random variance and z-score)
-#' @param adjust_method which method to adjust p-values
-#' @param adjust_target adjust multiple hypotheses at the cell or feature level
-#' @param set_seed set a seed for reproducibility
-#' @param seed_number seed number
-#' @param verbose verbose
-#' @returns Cell-Cell communication scores for feature pairs based on spatial 
-#' interaction
-#' @details Statistical framework to identify if pairs of features
-#' (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null
-#' distribution of feature expression values in cells that are spatially in
-#' proximity to each other.
-#' \itemize{
-#'  \item{LR_comb:}{Pair of ligand and receptor}
-#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
-#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
-#'  \item{ligand:}{ ligand name }
-#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
-#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
-#'  \item{receptor:}{ receptor name }
-#'  \item{LR_expr:}{ combined average ligand and receptor expression }
-#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
-#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
-#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
-#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
-#'  \item{z_score:}{ (optinal) z-score }
-#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
-#'  \item{pvalue:}{ p-value }
-#'  \item{LR_cell_comb:}{ cell type pair combination }
-#'  \item{p.adj:}{ adjusted p-value }
-#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
-#' }
-#' @examples
-#' g <- GiottoData::loadGiottoMini("visium")
-#' 
-#' specificCellCellcommunicationScores(g, cluster_column = "leiden_clus")
-#' @export
-specificCellCellcommunicationScores <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    spatial_network_name = "Delaunay_network",
-    cluster_column = "cell_types",
-    random_iter = 100,
-    cell_type_1 = "astrocyte",
-    cell_type_2 = "endothelial",
-    feat_set_1,
-    feat_set_2,
-    gene_set_1 = NULL,
-    gene_set_2 = NULL,
-    log2FC_addendum = 0.1,
-    min_observations = 2,
-    detailed = FALSE,
-    adjust_method = c(
-        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ),
-    adjust_target = c("feats", "cells"),
-    set_seed = FALSE,
-    seed_number = 1234,
-    verbose = TRUE) {
-    # Set feat_type and spat_unit
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
-    ## deprecated arguments
-    if (!is.null(gene_set_1)) {
-        feat_set_1 <- gene_set_1
-        warning("gene_set_1 is deprecated, use feat_set_1 in the future")
-    }
-    if (!is.null(gene_set_2)) {
-        feat_set_2 <- gene_set_2
-        warning("gene_set_2 is deprecated, use feat_set_2 in the future")
-    }
-
-
-    # data.table variables
-    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
-        rec_nr <- rand_expr <- NULL
-    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <-
-        LR_comb <- PI <- NULL
-    sd_diff <- z_score <- NULL
-
-    # get parameters
-    adjust_method <- match.arg(adjust_method, choices = c(
-        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-        "BY", "none"
-    ))
-    adjust_target <- match.arg(adjust_target, choices = c("feats", "cells"))
-
-    # metadata
-    cell_metadata <- pDataDT(
-        gobject = gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit
-    )
-
-    # get annotated spatial network
-    annot_network <- annotateSpatialNetwork(gobject,
-        feat_type = feat_type,
-        spat_unit = spat_unit,
-        spatial_network_name = spatial_network_name,
-        cluster_column = cluster_column
-    )
-
-    cell_direction_1 <- paste0(cell_type_1, "-", cell_type_2)
-    cell_direction_2 <- paste0(cell_type_2, "-", cell_type_1)
-
-    subset_annot_network <- annot_network[from_to %in% c(
-        cell_direction_1, cell_direction_2)]
-
-    # make sure that there are sufficient observations
-    if (nrow(subset_annot_network) <= min_observations) {
-        return(NULL)
-    } else {
-        # subset giotto object to only interacting cells
-        subset_ids <- unique(c(
-            subset_annot_network$to, subset_annot_network$from))
-        subsetGiotto <- subsetGiotto(
-            gobject = gobject,
-            cell_ids = subset_ids,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
-
-        # get information about number of cells
-        temp_meta <- pDataDT(subsetGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit
-        )
-        nr_cell_types <- temp_meta[cell_ID %in% subset_ids][
-            , .N, by = c(cluster_column)]
-        nr_cells <- nr_cell_types$N
-        names(nr_cells) <- nr_cell_types$cell_types
-
-        # get average communication scores
-        comScore <- average_feat_feat_expression_in_groups(
-            gobject = subsetGiotto,
-            feat_type = feat_type,
-            spat_unit = spat_unit,
-            cluster_column = cluster_column,
-            feat_set_1 = feat_set_1,
-            feat_set_2 = feat_set_2
-        )
-        comScore <- comScore[(lig_cell_type == cell_type_1 &
-                                rec_cell_type == cell_type_2) |
-            (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
-
-        comScore[, lig_nr := nr_cells[lig_cell_type]]
-        comScore[, rec_nr := nr_cells[rec_cell_type]]
-
-        # prepare for randomized scores
-        total_av <- rep(0, nrow(comScore))
-
-        if (detailed == FALSE) {
-            total_sum <- rep(0, nrow(comScore))
-        } else {
-            total_sum <- matrix(nrow = nrow(comScore), ncol = random_iter)
-        }
-
-        total_bool <- rep(0, nrow(comScore))
-
-        # identify which cell types you need
-        subset_metadata <- cell_metadata[cell_ID %in% subset_ids]
-        needed_cell_types <- subset_metadata[[cluster_column]]
-
-
-
-        ## simulations ##
-        for (sim in seq_len(random_iter)) {
-            if (verbose == TRUE) cat("simulation ", sim)
-
-            # get random ids and subset
-            if (set_seed == TRUE) {
-                seed_number <- seed_number + sim
-                set.seed(seed = seed_number)
-            }
-            random_ids <- .create_cell_type_random_cell_IDs(
-                gobject = gobject,
-                feat_type = feat_type,
-                spat_unit = spat_unit,
-                cluster_column = cluster_column,
-                needed_cell_types = needed_cell_types,
-                set_seed = set_seed,
-                seed_number = seed_number
-            )
-            tempGiotto <- subsetGiotto(
-                gobject = gobject,
-                cell_ids = random_ids,
-                feat_type = feat_type,
-                spat_unit = spat_unit
-            )
-
-            # get random communication scores
-            randomScore <- average_feat_feat_expression_in_groups(
-                gobject = tempGiotto,
-                feat_type = feat_type,
-                spat_unit = spat_unit,
-                cluster_column = cluster_column,
-                feat_set_1 = feat_set_1,
-                feat_set_2 = feat_set_2
-            )
-            randomScore <- randomScore[(lig_cell_type == cell_type_1 &
-                                            rec_cell_type == cell_type_2) |
-                (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
-
-
-
-
-            # average random score
-            total_av <- total_av + randomScore[["LR_expr"]]
-
-            # difference between observed and random
-            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
-
-            # calculate total difference
-            if (detailed == FALSE) {
-                total_sum <- total_sum + difference
-            } else {
-                total_sum[, sim] <- difference
-            }
-
-            # calculate p-values
-            difference[difference > 0] <- 1
-            difference[difference < 0] <- -1
-            total_bool <- total_bool + difference
-        }
-
-        comScore[, rand_expr := total_av / random_iter]
-
-        if (detailed == TRUE) {
-            av_difference_scores <- rowMeans_flex(total_sum)
-            sd_difference_scores <- apply(
-                total_sum, MARGIN = 1, FUN = stats::sd)
-
-            comScore[, av_diff := av_difference_scores]
-            comScore[, sd_diff := sd_difference_scores]
-            comScore[, z_score := (LR_expr - rand_expr) / sd_diff]
-        } else {
-            comScore[, av_diff := total_sum / random_iter]
-        }
-
-
-        comScore[, log2fc := log2((LR_expr + log2FC_addendum) / (
-            rand_expr + log2FC_addendum))]
-        comScore[, pvalue := total_bool / random_iter]
-        comScore[, pvalue := ifelse(pvalue > 0, 1 - pvalue, 1 + pvalue)]
-        comScore[, LR_cell_comb := paste0(lig_cell_type, "--", rec_cell_type)]
-
-        if (adjust_target == "feats") {
-            comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_cell_comb)]
-        } else if (adjust_target == "cells") {
-            comScore[, p.adj := stats::p.adjust(
-                pvalue, method = adjust_method), by = .(LR_comb)]
-        }
-
-        # get minimum adjusted p.value that is not zero
-        all_p.adj <- comScore[["p.adj"]]
-        lowest_p.adj <- min(all_p.adj[all_p.adj != 0])
-        comScore[, PI := ifelse(p.adj == 0, log2fc * (
-            -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
-
-        return(comScore)
-    }
-}
-
-
-#' @title spatCellCellcom
+#' @title Spatial cell cell communication scoring
 #' @name spatCellCellcom
 #' @description Spatial Cell-Cell communication scores based on spatial
 #' expression of interacting cells
@@ -2947,12 +2362,13 @@ specificCellCellcommunicationScores <- function(gobject,
 #' * **pvalue:** p-value
 #' * **LR_cell_comb:** cell type pair combination
 #' * **p.adj:** adjusted p-value
-#' * **PI:** significance score: log2fc * -log10(p.adj)
+#' * **PI:** significance score: \eqn{log2fc * -log10(p.adj)}
+#'
 #' @md
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' spatCellCellcom(
+#' res1 <- spatCellCellcom(
 #'     gobject = g,
 #'     cluster_column = "leiden_clus",
 #'     feat_set_1 = "Gm19935",
@@ -2960,12 +2376,23 @@ specificCellCellcommunicationScores <- function(gobject,
 #'     verbose = "a lot",
 #'     random_iter = 10
 #' )
+#' force(res1)
+#'
+#' res2 <- specificCellCellcommunicationScores(g,
+#'     cluster_column = "leiden_clus",
+#'     cell_type_1 = 1,
+#'     cell_type_2 = 2,
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
+#'
+#' force(res2)
 #' @export
 spatCellCellcom <- function(gobject,
     feat_type = NULL,
     spat_unit = NULL,
     spatial_network_name = "Delaunay_network",
-    cluster_column = "cell_types",
+    cluster_column = NULL,
     random_iter = 1000,
     feat_set_1,
     feat_set_2,
@@ -3020,6 +2447,10 @@ spatCellCellcom <- function(gobject,
         warning("gene_set_2 is deprecated, use feat_set_2 in the future")
     }
 
+    if (is.null(cluster_column)) {
+        stop("Name of column in cell metadata with cell type info is needed")
+    }
+
 
     cell_metadata <- pDataDT(gobject,
         feat_type = feat_type,
@@ -3034,7 +2465,7 @@ spatCellCellcom <- function(gobject,
     combn_DT <- rbind(same_DT, combn_DT)
 
     ## parallel option ##
-    if (do_parallel == TRUE) {
+    if (isTRUE(do_parallel)) {
         savelist <- lapply_flex(
             X = seq_len(nrow(combn_DT)), future.seed = TRUE,
             cores = cores, fun = function(row) {
@@ -3058,7 +2489,8 @@ spatCellCellcom <- function(gobject,
                 adjust_method = adjust_method,
                 adjust_target = adjust_target,
                 set_seed = set_seed,
-                seed_number = seed_number
+                seed_number = seed_number,
+                verbose = verbose %in% c("a lot")
             )
         })
     } else {
@@ -3070,9 +2502,9 @@ spatCellCellcom <- function(gobject,
             cell_type_1 <- combn_DT[row][["V1"]]
             cell_type_2 <- combn_DT[row][["V2"]]
 
-            if (verbose == "a little" | verbose == "a lot")
-                cat("PROCESS nr ", countdown, ": ", cell_type_1, " and ",
-                    cell_type_2)
+            if (verbose == "a little" || verbose == "a lot")
+                cat(sprintf("[PROCESS nr  %d :  %d  and  %d]  ",
+                            countdown, cell_type_1, cell_type_2))
 
             if (verbose %in% c("a little", "none")) {
                 specific_verbose <- FALSE
@@ -3118,7 +2550,280 @@ spatCellCellcom <- function(gobject,
 
 
 
-#' @title combCCcom
+
+#' @rdname spatCellCellcom
+#' @param cell_type_1 character. First cell type
+#' @param cell_type_2 character. Second cell type
+#' @export
+specificCellCellcommunicationScores <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        spatial_network_name = "Delaunay_network",
+        cluster_column = NULL,
+        random_iter = 100,
+        cell_type_1 = NULL,
+        cell_type_2 = NULL,
+        feat_set_1,
+        feat_set_2,
+        gene_set_1 = NULL,
+        gene_set_2 = NULL,
+        log2FC_addendum = 0.1,
+        min_observations = 2,
+        detailed = FALSE,
+        adjust_method = c(
+            "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+            "BY", "none"
+        ),
+        adjust_target = c("feats", "cells"),
+        set_seed = FALSE,
+        seed_number = 1234,
+        verbose = TRUE
+) {
+
+    # Set feat_type and spat_unit
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject,
+        spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type
+    )
+
+    ## deprecated arguments
+    if (!is.null(gene_set_1)) {
+        feat_set_1 <- gene_set_1
+        warning("gene_set_1 is deprecated, use feat_set_1 in the future")
+    }
+    if (!is.null(gene_set_2)) {
+        feat_set_2 <- gene_set_2
+        warning("gene_set_2 is deprecated, use feat_set_2 in the future")
+    }
+
+    if (is.null(cluster_column)) {
+        stop("Name of column in cell metadata with cell type info is needed")
+    }
+
+    if (is.null(cell_type_1) || is.null(cell_type_2)) {
+        stop(sprintf(
+            "`%s` and `%s` in `%s` must be given",
+            "cell_type_1", "cell_type_2", "cluster_column")
+        )
+    }
+
+
+    # data.table variables
+    from_to <- cell_ID <- lig_cell_type <- rec_cell_type <- lig_nr <-
+        rec_nr <- rand_expr <- NULL
+    av_diff <- log2fc <- LR_expr <- pvalue <- LR_cell_comb <- p.adj <-
+        LR_comb <- PI <- NULL
+    sd_diff <- z_score <- NULL
+
+    # get parameters
+    adjust_method <- match.arg(adjust_method, choices = c(
+        "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+        "BY", "none"
+    ))
+    adjust_target <- match.arg(adjust_target, choices = c("feats", "cells"))
+
+    # metadata
+    cell_metadata <- pDataDT(
+        gobject = gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit
+    )
+
+    # get annotated spatial network
+    annot_network <- annotateSpatialNetwork(gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit,
+        spatial_network_name = spatial_network_name,
+        cluster_column = cluster_column
+    )
+
+    cell_direction_1 <- paste0(cell_type_1, "-", cell_type_2)
+    cell_direction_2 <- paste0(cell_type_2, "-", cell_type_1)
+
+    subset_annot_network <- annot_network[from_to %in% c(
+        cell_direction_1, cell_direction_2)]
+
+    # make sure that there are sufficient observations
+    if (nrow(subset_annot_network) <= min_observations) {
+        return(NULL)
+    } else {
+        # subset giotto object to only interacting cells
+        subset_ids <- unique(c(
+            subset_annot_network$to, subset_annot_network$from))
+        subsetGiotto <- subsetGiotto(
+            gobject = gobject,
+            cell_ids = subset_ids,
+            feat_type = feat_type,
+            spat_unit = spat_unit
+        )
+
+        # get information about number of cells
+        temp_meta <- pDataDT(subsetGiotto,
+                             feat_type = feat_type,
+                             spat_unit = spat_unit
+        )
+        nr_cell_types <- temp_meta[cell_ID %in% subset_ids][
+            , .N, by = c(cluster_column)]
+        nr_cells <- nr_cell_types$N
+        names(nr_cells) <- nr_cell_types$cell_types
+
+        # get average communication scores
+        comScore <- .average_feat_feat_expression_in_groups(
+            gobject = subsetGiotto,
+            feat_type = feat_type,
+            spat_unit = spat_unit,
+            cluster_column = cluster_column,
+            feat_set_1 = feat_set_1,
+            feat_set_2 = feat_set_2
+        )
+        comScore <- comScore[(lig_cell_type == cell_type_1 &
+                                  rec_cell_type == cell_type_2) |
+                                 (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+        comScore[, lig_nr := nr_cells[lig_cell_type]]
+        comScore[, rec_nr := nr_cells[rec_cell_type]]
+
+        # prepare for randomized scores
+        total_av <- rep(0, nrow(comScore))
+
+        if (detailed == FALSE) {
+            total_sum <- rep(0, nrow(comScore))
+        } else {
+            total_sum <- matrix(nrow = nrow(comScore), ncol = random_iter)
+        }
+
+        total_bool <- rep(0, nrow(comScore))
+
+        # identify which cell types you need
+        subset_metadata <- cell_metadata[cell_ID %in% subset_ids]
+        needed_cell_types <- subset_metadata[[cluster_column]]
+
+        if (verbose) cat("simulations:")
+
+        ## simulations ##
+        for (sim in seq_len(random_iter)) {
+            if (verbose) {
+                cat(sprintf(" %s ", sim))
+            }
+
+            # get random ids and subset
+            if (set_seed == TRUE) {
+                seed_number <- seed_number + sim
+                set.seed(seed = seed_number)
+            }
+            random_ids <- .create_cell_type_random_cell_IDs(
+                gobject = gobject,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = cluster_column,
+                needed_cell_types = needed_cell_types,
+                set_seed = set_seed,
+                seed_number = seed_number
+            )
+            tempGiotto <- subsetGiotto(
+                gobject = gobject,
+                cell_ids = random_ids,
+                feat_type = feat_type,
+                spat_unit = spat_unit
+            )
+
+            # get random communication scores
+            randomScore <- .average_feat_feat_expression_in_groups(
+                gobject = tempGiotto,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
+                cluster_column = cluster_column,
+                feat_set_1 = feat_set_1,
+                feat_set_2 = feat_set_2
+            )
+            randomScore <- randomScore[(lig_cell_type == cell_type_1 &
+                                            rec_cell_type == cell_type_2) |
+                                           (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+
+
+
+            # average random score
+            total_av <- total_av + randomScore[["LR_expr"]]
+
+            # difference between observed and random
+            difference <- comScore[["LR_expr"]] - randomScore[["LR_expr"]]
+
+            # calculate total difference
+            if (detailed == FALSE) {
+                total_sum <- total_sum + difference
+            } else {
+                total_sum[, sim] <- difference
+            }
+
+            # calculate p-values
+            difference[difference > 0] <- 1
+            difference[difference < 0] <- -1
+            total_bool <- total_bool + difference
+        }
+
+        comScore[, rand_expr := total_av / random_iter]
+
+        if (detailed == TRUE) {
+            av_difference_scores <- rowMeans_flex(total_sum)
+            sd_difference_scores <- apply(
+                total_sum, MARGIN = 1, FUN = stats::sd)
+
+            comScore[, av_diff := av_difference_scores]
+            comScore[, sd_diff := sd_difference_scores]
+            comScore[, z_score := (LR_expr - rand_expr) / sd_diff]
+        } else {
+            comScore[, av_diff := total_sum / random_iter]
+        }
+
+
+        comScore[, log2fc := log2((LR_expr + log2FC_addendum) / (
+            rand_expr + log2FC_addendum))]
+        comScore[, pvalue := total_bool / random_iter]
+        comScore[, pvalue := ifelse(pvalue > 0, 1 - pvalue, 1 + pvalue)]
+        comScore[, LR_cell_comb := paste0(lig_cell_type, "--", rec_cell_type)]
+
+        if (adjust_target == "feats") {
+            comScore[, p.adj := stats::p.adjust(
+                pvalue, method = adjust_method), by = .(LR_cell_comb)]
+        } else if (adjust_target == "cells") {
+            comScore[, p.adj := stats::p.adjust(
+                pvalue, method = adjust_method), by = .(LR_comb)]
+        }
+
+        # get minimum adjusted p.value that is not zero
+        all_p.adj <- comScore[["p.adj"]]
+        nonzero_p.adj <- all_p.adj[all_p.adj != 0]
+        if (length(nonzero_p.adj) == 0L) {
+            warning(
+                call. = FALSE,
+                "no adjusted p.values that are not zero; returning Inf"
+            )
+            if (verbose) cat("<- Inf returned")
+            lowest_p.adj <- Inf
+        } else {
+            lowest_p.adj <- min(nonzero_p.adj)
+        }
+
+        comScore[, PI := ifelse(p.adj == 0, log2fc * (
+            -log10(lowest_p.adj)), log2fc * (-log10(p.adj)))]
+
+        if (verbose) cat("\n")
+
+        return(comScore)
+    }
+}
+
+
+
+
+#' @title Combine cell cell communication tables
 #' @name combCCcom
 #' @description Combine spatial and expression based cell-cell communication
 #' data.tables
@@ -3135,13 +2840,22 @@ spatCellCellcom <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' exprCC <- exprCellCellcom(g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik")
-#' spatialCC <- spatCellCellcom(gobject = g, cluster_column = "leiden_clus",
-#' feat_set_1 = "Gm19935", feat_set_2 = "9630013A20Rik", verbose = "a lot",
-#' random_iter = 10)
+#' exprCC <- exprCellCellcom(g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik"
+#' )
 #'
-#' combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' spatialCC <- spatCellCellcom(gobject = g,
+#'     cluster_column = "leiden_clus",
+#'     feat_set_1 = "Gm19935",
+#'     feat_set_2 = "9630013A20Rik",
+#'     verbose = "a lot",
+#'     random_iter = 10
+#' )
+#'
+#' combCC <- combCCcom(spatialCC = spatialCC, exprCC = exprCC)
+#' force(combCC)
 #' @export
 combCCcom <- function(spatialCC,
     exprCC,
@@ -3202,4 +2916,191 @@ combCCcom <- function(spatialCC,
     merge_DT[, spatPI_rnk := rank(-PI_spat), by = LR_comb]
 
     return(merge_DT)
+}
+
+
+
+
+
+
+
+# DEPRECATED ####
+
+#' @title deprecated
+#' @name findInteractionChangedGenes
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to interactions with other
+#' cell types.
+#' @param ... params to pass to \code{findInteractionChangedFeats}
+#' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns interaction changed genes
+#' @export
+findInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "findInteractionChangedFeats")
+
+    findInteractionChangedFeats(...)
+}
+
+
+
+#' @title deprecated
+#' @name findCellProximityGenes
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to proximity to other cell
+#' types.
+#' @inheritDotParams findInteractionChangedFeats
+#' @seealso \code{\link{findInteractionChangedFeats}}
+#' @returns cell-cell interaction changed genes
+#' @export
+findCellProximityGenes <- function(...) {
+    .Deprecated(new = "findInteractionChangedFeats")
+
+    findInteractionChangedFeats(...)
+}
+
+
+
+#' @title deprecated
+#' @name findICG
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to interaction with other
+#' cell types.
+#' @inheritDotParams findICF
+#' @seealso \code{\link{findICF}}
+#' @returns cell-cell interaction changed features
+#' @export
+findICG <- function(...) {
+    .Deprecated(new = "findICF")
+
+    findICF(...)
+}
+
+
+
+#' @title deprecated
+#' @name findCPG
+#' @description Identifies cell-to-cell Interaction Changed Features (ICF),
+#' i.e. genes that are differentially expressed due to proximity to other cell
+#' types.
+#' @inheritDotParams findICF
+#' @returns cell-to-cell Interaction Changed Genes
+#' @seealso \code{\link{findICF}}
+#' @export
+findCPG <- function(...) {
+    .Deprecated(new = "findICF")
+
+    findICF(...)
+}
+
+#' @title deprecated
+#' @name filterInteractionChangedGenes
+#' @description Filter Interaction Changed Feature scores.
+#' @inheritDotParams filterInteractionChangedFeats
+#' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns filtered interaction changed feature scores
+#' @export
+filterInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "filterInteractionChangedFeats")
+
+    filterInteractionChangedFeats(...)
+}
+
+
+#' @title deprecated
+#' @name filterCellProximityGenes
+#' @description Filter Interaction Changed Feature scores.
+#' @inheritDotParams filterInteractionChangedFeats
+#' @seealso \code{\link{filterInteractionChangedFeats}}
+#' @returns proximity genes
+#' @export
+filterCellProximityGenes <- function(...) {
+    .Deprecated(new = "filterInteractionChangedFeats")
+
+    filterInteractionChangedFeats(...)
+}
+
+
+
+
+
+#' @title deprecated
+#' @name filterICG
+#' @description Filter Interaction Changed Gene scores.
+#' @inheritDotParams filterICF
+#' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
+#' @export
+filterICG <- function(...) {
+    .Deprecated(new = "filterICF")
+
+    filterICF(...)
+}
+
+
+
+#' @title deprecated
+#' @name filterCPG
+#' @description Filter Interaction Changed Gene scores.
+#' @inheritDotParams filterICF
+#' @seealso \code{\link{filterICF}}
+#' @returns filtered interaction changed gene scores
+#' @export
+filterCPG <- function(...) {
+    .Deprecated(new = "filterICF")
+
+    filterICF(...)
+}
+
+
+#' @title deprecated
+#' @name combineInteractionChangedGenes
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
+#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @export
+combineInteractionChangedGenes <- function(...) {
+    .Deprecated(new = "combineInteractionChangedFeats")
+
+    combineInteractionChangedFeats(...)
+}
+
+
+#' @title deprecated
+#' @name combineCellProximityGenes
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineInteractionChangedFeats
+#' @returns ICF scores
+#' @seealso \code{\link{combineInteractionChangedFeats}}
+#' @export
+combineCellProximityGenes <- function(...) {
+    .Deprecated(new = "combineInteractionChangedFeats")
+
+    combineInteractionChangedFeats(...)
+}
+
+#' @title deprecated
+#' @name combineICG
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineICF
+#' @returns ICF scores
+#' @seealso \code{\link{combineICF}}
+#' @export
+combineICG <- function(...) {
+    .Deprecated(new = "combineICF")
+
+    combineICF(...)
+}
+
+#' @title deprecated
+#' @name combineCPG
+#' @description Combine ICF scores in a pairwise manner.
+#' @inheritDotParams combineICF
+#' @returns ICF scores
+#' @seealso \code{\link{combineICF}}
+#' @export
+combineCPG <- function(...) {
+    .Deprecated(new = "combineICF")
+
+    combineICF(...)
 }

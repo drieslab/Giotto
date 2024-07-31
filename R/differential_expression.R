@@ -35,18 +35,19 @@
 #'
 #' findScranMarkers(g, cluster_column = "leiden_clus")
 #' @export
-findScranMarkers <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    group_1 = NULL,
-    group_1_name = NULL,
-    group_2 = NULL,
-    group_2_name = NULL,
-    verbose = TRUE,
-    ...) {
+findScranMarkers <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        group_1 = NULL,
+        group_1_name = NULL,
+        group_2 = NULL,
+        group_2_name = NULL,
+        verbose = TRUE,
+        ...) {
     # verify if optional package is installed
     package_check(pkg_name = "scran", repository = "Bioc")
 
@@ -76,8 +77,11 @@ findScranMarkers <- function(gobject,
     # expression data
     values <- match.arg(
         expression_values,
-        choices = unique(c("normalized", "scaled", "custom",
-                          expression_values)))
+        choices = unique(c(
+            "normalized", "scaled", "custom",
+            expression_values
+        ))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
@@ -104,20 +108,23 @@ findScranMarkers <- function(gobject,
         expr_data <- expr_data[, colnames(expr_data) %in% subset_cell_IDs]
     } else if (!is.null(group_1) & !is.null(group_2)) {
         cell_metadata <- cell_metadata[
-            get(cluster_column) %in% c(group_1, group_2)]
+            get(cluster_column) %in% c(group_1, group_2)
+        ]
 
         # create new pairwise group
         if (!is.null(group_1_name)) {
-            if (!is.character(group_1_name))
+            if (!is.character(group_1_name)) {
                 stop("group_1_name needs to be a character")
+            }
             group_1_name <- group_1_name
         } else {
             group_1_name <- paste0(group_1, collapse = "_")
         }
 
         if (!is.null(group_2_name)) {
-            if (!is.character(group_2_name))
+            if (!is.character(group_2_name)) {
                 stop("group_2_name needs to be a character")
+            }
             group_2_name <- group_2_name
         } else {
             group_2_name <- paste0(group_2, collapse = "_")
@@ -128,7 +135,8 @@ findScranMarkers <- function(gobject,
         pairwise_select_comp <- NULL
 
         cell_metadata[, pairwise_select_comp := ifelse(
-            get(cluster_column) %in% group_1, group_1_name, group_2_name)]
+            get(cluster_column) %in% group_1, group_1_name, group_2_name
+        )]
 
         cluster_column <- "pairwise_select_comp"
 
@@ -140,7 +148,8 @@ findScranMarkers <- function(gobject,
 
     ## SCRAN ##
     marker_results <- scran::findMarkers(
-        x = expr_data, groups = cell_metadata[[cluster_column]], ...)
+        x = expr_data, groups = cell_metadata[[cluster_column]], ...
+    )
 
     # data.table variables
     genes <- cluster <- feats <- NULL
@@ -180,18 +189,19 @@ findScranMarkers <- function(gobject,
 #'
 #' findScranMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
-findScranMarkers_one_vs_all <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    pval = 0.01,
-    logFC = 0.5,
-    min_feats = 10,
-    min_genes = NULL,
-    verbose = TRUE,
-    ...) {
+findScranMarkers_one_vs_all <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        pval = 0.01,
+        logFC = 0.5,
+        min_feats = 10,
+        min_genes = NULL,
+        verbose = TRUE,
+        ...) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
@@ -203,12 +213,13 @@ findScranMarkers_one_vs_all <- function(gobject,
     package_check(pkg_name = "scran", repository = "Bioc")
 
     # print message with information #
-    if (verbose)
-      message("using 'Scran' to detect marker feats. If used in published
+    if (verbose) {
+        message("using 'Scran' to detect marker feats. If used in published
       research, please cite: Lun ATL, McCarthy DJ, Marioni JC (2016).
       'A step-by-step workflow for low-level analysis of single-cell RNA-seq
       data with Bioconductor.'
       F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
+    }
 
 
     # Set feat_type and spat_unit
@@ -225,8 +236,11 @@ findScranMarkers_one_vs_all <- function(gobject,
     # expression data
     values <- match.arg(
         expression_values,
-        choices = unique(c("normalized", "scaled", "custom",
-                          expression_values)))
+        choices = unique(c(
+            "normalized", "scaled", "custom",
+            expression_values
+        ))
+    )
 
     # cluster column
     cell_metadata <- getCellMetadata(gobject,
@@ -294,7 +308,8 @@ findScranMarkers_one_vs_all <- function(gobject,
                     unique(x$cluster) == selected_clus
                 }))
                 selected_table <- data.table::as.data.table(
-                    markers[select_bool])
+                    markers[select_bool]
+                )
 
                 # remove summary column from scran output if present
                 col_ind_keep <- !grepl("summary", colnames(selected_table))
@@ -302,9 +317,11 @@ findScranMarkers_one_vs_all <- function(gobject,
 
                 # change logFC.xxx name to logFC
                 data.table::setnames(
-                    selected_table, colnames(selected_table)[4], "logFC")
+                    selected_table, colnames(selected_table)[4], "logFC"
+                )
                 data.table::setnames(
-                    selected_table, colnames(selected_table)[5], "feats")
+                    selected_table, colnames(selected_table)[5], "feats"
+                )
 
                 # filter selected table
                 filtered_table <- selected_table[logFC > 0]
@@ -314,7 +331,8 @@ findScranMarkers_one_vs_all <- function(gobject,
                 p.value <- ranking <- NULL
 
                 filtered_table <- filtered_table[
-                    (p.value <= pval & logFC >= logFC) | (ranking <= min_feats)]
+                    (p.value <= pval & logFC >= logFC) | (ranking <= min_feats)
+                ]
 
                 pb(message = c("cluster ", clus_i, "/", length(uniq_clusters)))
                 return(filtered_table)
@@ -385,22 +403,23 @@ findScranMarkers_one_vs_all <- function(gobject,
 #'
 #' findGiniMarkers(g, cluster_column = "leiden_clus")
 #' @export
-findGiniMarkers <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    group_1 = NULL,
-    group_1_name = NULL,
-    group_2 = NULL,
-    group_2_name = NULL,
-    min_expr_gini_score = 0.2,
-    min_det_gini_score = 0.2,
-    detection_threshold = 0,
-    rank_score = 1,
-    min_feats = 5,
-    min_genes = NULL) {
+findGiniMarkers <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        group_1 = NULL,
+        group_1_name = NULL,
+        group_2 = NULL,
+        group_2_name = NULL,
+        min_expr_gini_score = 0.2,
+        min_det_gini_score = 0.2,
+        detection_threshold = 0,
+        rank_score = 1,
+        min_feats = 5,
+        min_genes = NULL) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
@@ -422,7 +441,8 @@ findGiniMarkers <- function(gobject,
     ## select expression values
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
 
 
     # cluster column
@@ -441,7 +461,8 @@ findGiniMarkers <- function(gobject,
     # subset clusters
     if (!is.null(subset_clusters)) {
         cell_metadata[] <- cell_metadata[][
-            get(cluster_column) %in% subset_clusters]
+            get(cluster_column) %in% subset_clusters
+        ]
         subset_cell_IDs <- cell_metadata[][["cell_ID"]]
         gobject <- subsetGiotto(
             gobject = gobject,
@@ -451,20 +472,23 @@ findGiniMarkers <- function(gobject,
         )
     } else if (!is.null(group_1) & !is.null(group_2)) {
         cell_metadata[] <- cell_metadata[][
-            get(cluster_column) %in% c(group_1, group_2)]
+            get(cluster_column) %in% c(group_1, group_2)
+        ]
 
         # create new pairwise group
         if (!is.null(group_1_name)) {
-            if (!is.character(group_1_name))
+            if (!is.character(group_1_name)) {
                 stop("group_1_name needs to be a character")
+            }
             group_1_name <- group_1_name
         } else {
             group_1_name <- paste0(group_1, collapse = "_")
         }
 
         if (!is.null(group_2_name)) {
-            if (!is.character(group_2_name))
+            if (!is.character(group_2_name)) {
                 stop("group_2_name needs to be a character")
+            }
             group_2_name <- group_2_name
         } else {
             group_2_name <- paste0(group_2, collapse = "_")
@@ -473,7 +497,8 @@ findGiniMarkers <- function(gobject,
         pairwise_select_comp <- NULL
 
         cell_metadata[][, pairwise_select_comp := ifelse(
-            get(cluster_column) %in% group_1, group_1_name, group_2_name)]
+            get(cluster_column) %in% group_1, group_1_name, group_2_name
+        )]
 
         cluster_column <- "pairwise_select_comp"
 
@@ -526,9 +551,11 @@ findGiniMarkers <- function(gobject,
         detection_threshold = detection_threshold
     )
     aggr_detection_sc_clusters_DT <- data.table::as.data.table(
-        aggr_detection_sc_clusters)
+        aggr_detection_sc_clusters
+    )
     aggr_detection_sc_clusters_DT[, feats := rownames(
-        aggr_detection_sc_clusters)]
+        aggr_detection_sc_clusters
+    )]
     aggr_detection_sc_clusters_DT_melt <- data.table::melt.data.table(
         aggr_detection_sc_clusters_DT,
         variable.name = "cluster",
@@ -541,15 +568,20 @@ findGiniMarkers <- function(gobject,
     expression_gini <- detection_gini <- detection <- NULL
 
     aggr_sc_clusters_DT_melt[, expression_gini := mygini_fun(
-        expression), by = feats]
+        expression
+    ), by = feats]
     aggr_detection_sc_clusters_DT_melt[, detection_gini := mygini_fun(
-        detection), by = feats]
+        detection
+    ), by = feats]
 
 
     ## combine
-    aggr_sc <- cbind(aggr_sc_clusters_DT_melt,
-                    aggr_detection_sc_clusters_DT_melt[
-                    , .(detection, detection_gini)])
+    aggr_sc <- cbind(
+        aggr_sc_clusters_DT_melt,
+        aggr_detection_sc_clusters_DT_melt[
+            , .(detection, detection_gini)
+        ]
+    )
 
     ## create combined rank
 
@@ -561,13 +593,17 @@ findGiniMarkers <- function(gobject,
 
     aggr_sc[, expression_rank := rank(-expression), by = feats]
     aggr_sc[, expression_rank := scales::rescale(
-        expression_rank, to = c(1, 0.1)), by = cluster]
+        expression_rank,
+        to = c(1, 0.1)
+    ), by = cluster]
 
     # detection rank for each feat in all samples
     # rescale detection rank range between 1 and 0.1
     aggr_sc[, detection_rank := rank(-detection), by = feats]
     aggr_sc[, detection_rank := scales::rescale(
-        detection_rank, to = c(1, 0.1)), by = cluster]
+        detection_rank,
+        to = c(1, 0.1)
+    ), by = cluster]
 
     # create combine score based on rescaled ranks and gini scores
 
@@ -590,7 +626,8 @@ findGiniMarkers <- function(gobject,
     original_uniq_cluster_names <- unique(cell_metadata[][[cluster_column]])
     if (sum(grepl("cluster_", original_uniq_cluster_names)) == 0) {
         top_feats_scores_filtered[, cluster := gsub(
-            x = cluster, "cluster_", "")]
+            x = cluster, "cluster_", ""
+        )]
     }
 
     return(top_feats_scores_filtered)
@@ -623,19 +660,20 @@ findGiniMarkers <- function(gobject,
 #'
 #' findGiniMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
-findGiniMarkers_one_vs_all <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    min_expr_gini_score = 0.5,
-    min_det_gini_score = 0.5,
-    detection_threshold = 0,
-    rank_score = 1,
-    min_feats = 4,
-    min_genes = NULL,
-    verbose = TRUE) {
+findGiniMarkers_one_vs_all <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        min_expr_gini_score = 0.5,
+        min_det_gini_score = 0.5,
+        detection_threshold = 0,
+        rank_score = 1,
+        min_feats = 4,
+        min_genes = NULL,
+        verbose = TRUE) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
@@ -657,7 +695,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
     ## select expression values
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
 
 
     # cluster column
@@ -767,21 +806,24 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' findMastMarkers(gobject = g, cluster_column = "leiden_clus", group_1 = 1,
-#' group_2 = 2)
+#' findMastMarkers(
+#'     gobject = g, cluster_column = "leiden_clus", group_1 = 1,
+#'     group_2 = 2
+#' )
 #' @export
-findMastMarkers <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    group_1 = NULL,
-    group_1_name = NULL,
-    group_2 = NULL,
-    group_2_name = NULL,
-    adjust_columns = NULL,
-    verbose = FALSE,
-    ...) {
+findMastMarkers <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        group_1 = NULL,
+        group_1_name = NULL,
+        group_2 = NULL,
+        group_2_name = NULL,
+        adjust_columns = NULL,
+        verbose = FALSE,
+        ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -797,16 +839,18 @@ findMastMarkers <- function(gobject,
     package_check(pkg_name = "MAST", repository = "Bioc")
 
     # print message with information #
-    if (verbose)
-      message("using 'MAST' to detect marker feats. If used in published
+    if (verbose) {
+        message("using 'MAST' to detect marker feats. If used in published
       research, please cite: McDavid A, Finak G, Yajima M (2020).
       MAST: Model-based Analysis of Single Cell Transcriptomics.
       R package version 1.14.0, https://github.com/RGLab/MAST/.")
+    }
 
     ## select expression values to use
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values)))
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
 
     ## cluster column
     cell_metadata <- getCellMetadata(gobject,
@@ -826,7 +870,8 @@ findMastMarkers <- function(gobject,
 
     ## subset data based on group_1 and group_2
     cell_metadata[] <- cell_metadata[][
-        get(cluster_column) %in% c(group_1, group_2)]
+        get(cluster_column) %in% c(group_1, group_2)
+    ]
     if (nrow(cell_metadata[]) == 0) {
         stop("there are no cells for group_1 or group_2, check cluster column")
     }
@@ -839,7 +884,8 @@ findMastMarkers <- function(gobject,
     pairwise_select_comp <- NULL
 
     cell_metadata[][, pairwise_select_comp := ifelse(
-        get(cluster_column) %in% group_1, group_1_name, group_2_name)]
+        get(cluster_column) %in% group_1, group_1_name, group_2_name
+    )]
 
     if (nrow(cell_metadata[][pairwise_select_comp == group_1_name]) == 0) {
         stop("there are no cells for group_1, check cluster column")
@@ -873,8 +919,11 @@ findMastMarkers <- function(gobject,
     # expression data
     values <- match.arg(
         expression_values,
-        choices = unique(c("normalized", "scaled", "custom",
-                          expression_values)))
+        choices = unique(c(
+            "normalized", "scaled", "custom",
+            expression_values
+        ))
+    )
     expr_data <- getExpression(
         gobject = gobject,
         feat_type = feat_type,
@@ -914,7 +963,8 @@ findMastMarkers <- function(gobject,
     if (!is.null(adjust_columns)) {
         myformula <- stats::as.formula(paste0(
             "~ 1 + ", cluster_column, " + ",
-            paste(adjust_columns, collapse = " + ")))
+            paste(adjust_columns, collapse = " + ")
+        ))
     } else {
         myformula <- stats::as.formula(paste0("~ 1 + ", cluster_column))
     }
@@ -929,12 +979,15 @@ findMastMarkers <- function(gobject,
     sample <- paste0(cluster_column, group_1_name)
     summaryCond <- MAST::summary(zlmCond, doLRT = sample)
     summaryDt <- summaryCond$datatable
-    fcHurdle <- merge(summaryDt[
-        contrast == sample & component == "H",
-        .(primerid, `Pr(>Chisq)`)], # hurdle P values
+    fcHurdle <- merge(
+        summaryDt[
+            contrast == sample & component == "H",
+            .(primerid, `Pr(>Chisq)`)
+        ], # hurdle P values
         summaryDt[
             contrast == sample & component == "logFC",
-            .(primerid, coef, ci.hi, ci.lo)],
+            .(primerid, coef, ci.hi, ci.lo)
+        ],
         by = "primerid"
     ) # logFC coefficients
     fcHurdle[, fdr := stats::p.adjust(`Pr(>Chisq)`, "fdr")]
@@ -976,19 +1029,20 @@ findMastMarkers <- function(gobject,
 #'
 #' findMastMarkers_one_vs_all(gobject = g, cluster_column = "leiden_clus")
 #' @export
-findMastMarkers_one_vs_all <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    adjust_columns = NULL,
-    pval = 0.001,
-    logFC = 1,
-    min_feats = 10,
-    min_genes = NULL,
-    verbose = TRUE,
-    ...) {
+findMastMarkers_one_vs_all <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        adjust_columns = NULL,
+        pval = 0.001,
+        logFC = 1,
+        min_feats = 10,
+        min_genes = NULL,
+        verbose = TRUE,
+        ...) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
@@ -1011,11 +1065,12 @@ findMastMarkers_one_vs_all <- function(gobject,
     package_check(pkg_name = "MAST", repository = "Bioc")
 
     # print message with information #
-    if (verbose)
+    if (verbose) {
         message("using 'MAST' to detect marker feats. If used in published
         research, please cite: McDavid A, Finak G, Yajima M (2020).
         MAST: Model-based Analysis of Single Cell Transcriptomics.
         R package version 1.14.0, https://github.com/RGLab/MAST/.")
+    }
 
 
     ## cluster column
@@ -1087,7 +1142,8 @@ findMastMarkers_one_vs_all <- function(gobject,
 
     result_dt[, ranking := seq_len(.N), by = "cluster"]
     filtered_result_dt <- result_dt[
-        ranking <= min_feats | (fdr < pval & coef > logFC)]
+        ranking <= min_feats | (fdr < pval & coef > logFC)
+    ]
 
     return(filtered_result_dt)
 }
@@ -1134,25 +1190,26 @@ findMastMarkers_one_vs_all <- function(gobject,
 #'
 #' findMarkers(g, cluster_column = "leiden_clus")
 #' @export
-findMarkers <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column = NULL,
-    method = c("scran", "gini", "mast"),
-    subset_clusters = NULL,
-    group_1 = NULL,
-    group_2 = NULL,
-    min_expr_gini_score = 0.5,
-    min_det_gini_score = 0.5,
-    detection_threshold = 0,
-    rank_score = 1,
-    min_feats = 4,
-    min_genes = NULL,
-    group_1_name = NULL,
-    group_2_name = NULL,
-    adjust_columns = NULL,
-    ...) {
+findMarkers <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column = NULL,
+        method = c("scran", "gini", "mast"),
+        subset_clusters = NULL,
+        group_1 = NULL,
+        group_2 = NULL,
+        min_expr_gini_score = 0.5,
+        min_det_gini_score = 0.5,
+        detection_threshold = 0,
+        rank_score = 1,
+        min_feats = 4,
+        min_genes = NULL,
+        group_1_name = NULL,
+        group_2_name = NULL,
+        adjust_columns = NULL,
+        ...) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes
@@ -1256,27 +1313,28 @@ findMarkers <- function(gobject,
 #'
 #' findMarkers_one_vs_all(g, cluster_column = "leiden_clus")
 #' @export
-findMarkers_one_vs_all <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    cluster_column,
-    subset_clusters = NULL,
-    method = c("scran", "gini", "mast"),
-    # scran & mast
-    pval = 0.01,
-    logFC = 0.5,
-    min_feats = 10,
-    min_genes = NULL,
-    # gini
-    min_expr_gini_score = 0.5,
-    min_det_gini_score = 0.5,
-    detection_threshold = 0,
-    rank_score = 1,
-    # mast specific
-    adjust_columns = NULL,
-    verbose = TRUE,
-    ...) {
+findMarkers_one_vs_all <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        cluster_column,
+        subset_clusters = NULL,
+        method = c("scran", "gini", "mast"),
+        # scran & mast
+        pval = 0.01,
+        logFC = 0.5,
+        min_feats = 10,
+        min_genes = NULL,
+        # gini
+        min_expr_gini_score = 0.5,
+        min_det_gini_score = 0.5,
+        detection_threshold = 0,
+        rank_score = 1,
+        # mast specific
+        adjust_columns = NULL,
+        verbose = TRUE,
+        ...) {
     ## deprecated arguments
     if (!is.null(min_genes)) {
         min_feats <- min_genes

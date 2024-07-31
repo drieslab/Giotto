@@ -84,7 +84,7 @@ giotto object with updated UMAP dimension reduction
 run UMAP on subset and project on the rest
 }
 \details{
-See \code{\link[uwot]{umap}} for more information about these and 
+See \code{\link[uwot]{umap}} for more information about these and
 other parameters.
 \itemize{
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
