@@ -757,7 +757,7 @@ importXenium <- function(
     e <- file_extension(path) %>% head(1L) %>% tolower()
 
     a <- list(path = path)
-    vmsg("Loading boundary info...", .v = verbose)
+    vmsg(sprintf("Loading boundary info '%s'", name), .v = verbose)
     vmsg(.v = verbose, .is_debug = TRUE, "[POLY_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     # pass to specific load function based on file extension
