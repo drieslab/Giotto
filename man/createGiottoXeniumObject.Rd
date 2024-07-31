@@ -10,7 +10,7 @@ createGiottoXeniumObject(
   bounds_path = list(cell = "cell", nucleus = "nucleus"),
   gene_panel_json_path = NULL,
   expression_path = NULL,
-  metadata_path = NULL,
+  cell_metadata_path = NULL,
   feat_type = c("rna", "NegControlProbe", "UnassignedCodeword", "NegControlCodeword"),
   split_keyword = list("NegControlProbe", "UnassignedCodeword", "NegControlCodeword"),
   qv_threshold = 20,
@@ -37,7 +37,8 @@ contains feature metadata information and ENSG names.}
 \item{expression_path}{Optional. Filepath to cell feature matrix. Accepts
 either the \code{.h5} or the unzipped directory containing \code{.mtx} files.}
 
-\item{metadata_path}{Optional. Filepath to \code{cells.csv.gz} or \code{cells.parquet}
+\item{cell_metadata_path}{Optional. Filepath to \code{cells.csv.gz} or
+\code{cells.parquet}
 which contain cell metadata information.}
 
 \item{feat_type}{character. feature type. Provide more than one value if
