@@ -395,7 +395,10 @@ plotCTCompositionInNicheCluster <- function( # nolint: object_name_linter.
   prob_df$cell_ID <- rownames(prob_df)
   ## combine the cell type and niche cluster probability matrix
   combined_df <- merge(
-    pDataDT(gobject, feat_type = feat_type)[, c("cell_ID", cell_type)],
+    as.data.frame(pDataDT(gobject, feat_type = feat_type))[, c(
+      "cell_ID",
+      cell_type
+    )],
     prob_df,
     by = "cell_ID"
   )
@@ -407,31 +410,34 @@ plotCTCompositionInNicheCluster <- function( # nolint: object_name_linter.
       names_to = "Cluster",
       values_to = "Probability"
     ) %>%
-    dplyr::group_by(Cell_Type, Cluster) %>% # nolint: object_usage_linter.
+    dplyr::group_by(
+      !!rlang::sym(cell_type),
+      Cluster # nolint: object_usage_linter.
+    ) %>%
     dplyr::summarise(Sum = sum(Probability, # nolint: object_usage_linter.
       na.rm = TRUE
     )) %>%
     tidyr::spread(key = "Cluster", value = "Sum", fill = 0)
   cell_type_counts_df <- as.data.frame(cell_type_counts_df)
-  rownames(cell_type_counts_df) <- cell_type_counts_df$Cell_Type
-  cell_type_counts_df$Cell_Type <- NULL
+  rownames(cell_type_counts_df) <- cell_type_counts_df[[cell_type]]
+  cell_type_counts_df[[cell_type]] <- NULL
   normalized_df <- as.data.frame(t(
     t(cell_type_counts_df) / colSums(cell_type_counts_df)
   ))
 
 
   # Reshape the data frame into long format
-  normalized_df$Cell_Type <- rownames(normalized_df)
+  normalized_df[[cell_type]] <- rownames(normalized_df)
   df_long <- normalized_df %>%
     tidyr::pivot_longer(
-      cols = -Cell_Type, # nolint: object_usage_linter.
+      cols = -!!rlang::sym(cell_type), # nolint: object_usage_linter.
       names_to = "Cluster",
       values_to = "Composition"
     )
 
   # Create the heatmap using ggplot2
   pl <- ggplot(df_long, aes(
-    x = Cell_Type, # nolint: object_usage_linter.
+    x = !!rlang::sym(cell_type), # nolint: object_usage_linter.
     y = Cluster, # nolint: object_usage_linter.
     fill = Composition # nolint: object_usage_linter.
   )) +
@@ -470,7 +476,7 @@ plotCellTypeNTScore <- function(gobject, # nolint: object_name_linter.
                                 cell_type,
                                 values = "NTScore",
                                 spat_unit = "cell",
-                                feat_type = "rna",
+                                feat_type = "niche cluster",
                                 show_plot = NULL,
                                 return_plot = NULL,
                                 save_plot = NULL,
@@ -484,16 +490,16 @@ plotCellTypeNTScore <- function(gobject, # nolint: object_name_linter.
     feat_type = feat_type
   )
   avg_scores <- data_df %>%
-    dplyr::group_by(Cell_Type) %>% # nolint: object_usage_linter.
+    dplyr::group_by(!!rlang::sym(cell_type)) %>% # nolint: object_usage_linter.
     dplyr::summarise(Avg_NTScore = mean(NTScore)) # nolint: object_usage_linter.
-  data_df$Cell_Type <- factor(data_df$Cell_Type,
-    levels = avg_scores$Cell_Type[order(avg_scores$Avg_NTScore)]
+  data_df[[cell_type]] <- factor(data_df[[cell_type]],
+    levels = avg_scores[[cell_type]][order(avg_scores$Avg_NTScore)]
   )
 
   pl <- ggplot(data_df, aes(
     x = NTScore, # nolint: object_usage_linter.
-    y = Cell_Type, # nolint: object_usage_linter.
-    fill = Cell_Type
+    y = !!rlang::sym(cell_type),
+    fill = !!rlang::sym(cell_type)
   )) +
     geom_violin() +
     theme_minimal() +
