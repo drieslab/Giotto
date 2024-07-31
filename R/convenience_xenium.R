@@ -1,4 +1,28 @@
 
+# modular reader functions layout #
+# <class & methods> #
+# - initialize method for reader object
+#   - filepath detection based on directory path
+#   - register modular load functions as tx_fun(), poly_fun, etc. in the object.
+#     include expected defaults that update based on filepath info
+#   - `create_gobject()` single function that utilizes other functions
+#     registered to the reader object in previous step. Returns gobject with
+#     desired data contents
+#     For params that `create_gobject()` is in charge of, the registered funs
+#     should use the params passed to `create_gobject()` instead of the baked
+#     in defaults
+#
+# <importXYZ> #
+# - exported function to create a `XYZReader` class object
+#
+# <modular load functions> #
+# - from `path` and other minimal args, create a giotto subobject with access
+#   to specific ways to load and manipulate data
+
+
+
+
+
 # CLASS ####
 
 
@@ -276,7 +300,7 @@ setMethod(
 
         # load image call
         img_fun <- function(
-            path,
+            path = img_focus_path,
             name = "image",
             micron = obj@micron,
             negative_y = TRUE,
@@ -298,9 +322,9 @@ setMethod(
 
         # load aligned image call
         img_aff_fun <- function(
-            path = path,
-            micron = obj@micron,
-            imagealignment_path
+            path,
+            imagealignment_path,
+            micron = obj@micron
         ) {
             read10xAffineImage(
                 file = path,
@@ -313,29 +337,32 @@ setMethod(
 
         # create giotto object call
         gobject_fun <- function(
-        transcript_path = tx_path,
-        load_bounds = list(
-            cell = "cell",
-            nucleus = "nucleus"
-        ),
-        expression_path = expr_path,
-        metadata_path = meta_path,
-        feat_type = c(
-            "rna",
-            "NegControlProbe",
-            "UnassignedCodeword",
-            "NegControlCodeword"
-        ),
-        split_keyword = list(
-            "NegControlProbe",
-            "UnassignedCodeword",
-            "NegControlCodeword"
-        ),
-        load_images = list(
-            morphology = "focus",
-        ),
-        load_expression = FALSE,
-        load_cellmeta = FALSE
+            transcript_path = tx_path,
+            load_bounds = list(
+                cell = "cell",
+                nucleus = "nucleus"
+            ),
+            gene_panel_json_path = panel_meta_path,
+            expression_path = expr_path,
+            metadata_path = meta_path,
+            feat_type = c(
+                "rna",
+                "NegControlProbe",
+                "UnassignedCodeword",
+                "NegControlCodeword"
+            ),
+            split_keyword = list(
+                "NegControlProbe",
+                "UnassignedCodeword",
+                "NegControlCodeword"
+            ),
+            load_images = list(
+                morphology = "focus"
+            ),
+            load_aligned_images = NULL,
+            load_expression = FALSE,
+            load_cellmeta = FALSE,
+            verbose = NULL
         ) {
             load_expression <- as.logical(load_expression)
             load_cellmeta <- as.logical(load_cellmeta)
@@ -343,18 +370,35 @@ setMethod(
             if (!is.null(load_images)) {
                 checkmate::assert_list(load_images)
                 if (is.null(names(load_images))) {
-                    stop("Images paths provided to 'load_images' must be named")
+                    stop("'load_images' must be a named list of filepaths\n")
+                }
+            }
+            if (!is.null(load_aligned_images)) {
+                checkmate::assert_list(load_aligned_images)
+                if (is.null(names(load_aligned_images))) {
+                    stop(wrap_txt(
+                        "'load_aligned_images' must be a named list"
+                    ))
+                }
+                if (any(lengths(load_aligned_images) != 2L) ||
+                    any(!vapply(load_aligned_images, is.character,
+                                FUN.VALUE = logical(1L)))) {
+                    stop(wrap_txt(
+                        "'load_aligned_images' must be character with length 2:
+                        1. image path
+                        2. alignment matrix path"
+                    ))
                 }
             }
             if (!is.null(load_bounds)) {
                 checkmate::assert_list(load_bounds)
                 if (is.null(names(load_bounds))) {
-                    stop("bounds paths provided to 'load_bounds' must be named")
+                    stop("'load_bounds' must be named list of filepaths\n")
                 }
             }
 
 
-
+            # place calls in new variable for easier access
             funs <- obj@calls
 
             # init gobject
@@ -365,12 +409,10 @@ setMethod(
             tx_list <- funs$load_transcripts(
                 path = transcript_path,
                 feat_type = feat_type,
-                split_keyword = split_keyword
+                split_keyword = split_keyword,
+                verbose = verbose
             )
-            for (tx in tx_list) {
-                g <- setGiotto(g, tx)
-            }
-
+            g <- setGiotto(g, tx, verbose = FALSE) # lists are fine
 
             # polys
             if (!is.null(load_bounds)) {
@@ -383,31 +425,46 @@ setMethod(
                 for (b_i in seq_along(load_bounds)) {
                     b <- funs$load_polys(
                         path = load_bounds[[b_i]],
-                        name = bnames[[b_i]]
+                        name = bnames[[b_i]],
+                        verbose = verbose
                     )
                     blist <- c(blist, b)
                 }
-                for (gpoly_i in seq_along(blist)) {
-                    g <- setGiotto(g, blist[[gpoly_i]])
-                }
+                g <- setGiotto(g, blist, verbose = FALSE)
             }
 
 
             # feat metadata
             fx <- funs$load_featmeta(
-                path =
+                path = gene_panel_json_path,
+                # ID = symbols makes sense with the subcellular feat_IDs
+                gene_ids = "symbols",
+                # no dropcols
+                verbose = verbose
             )
+            g <- setGiotto(g, fx)
 
 
             # expression
             if (load_expression) {
-
+                ex <- funs$load_expression(
+                    path = expression_path,
+                    gene_ids = "symbols",
+                    remove_zero_rows = TRUE,
+                    split_by_type = TRUE,
+                    verbose = verbose
+                )
+                g <- setGiotto(g, ex)
             }
 
 
             # cell metadata
             if (load_cellmeta) {
-
+                cx <- funs$load_cellmeta(
+                    path = metadata_path,
+                    verbose = verbose
+                )
+                g <- setGiotto(g, cx)
             }
 
 
@@ -415,11 +472,36 @@ setMethod(
             if (!is.null(load_images)) {
                 # replace convenient shortnames
                 load_images[load_images == "focus"] <- img_focus_path
+
+                imglist <- list()
+                imnames <- names(load_images)
+                for (impath_i in seq_along(load_images)) {
+                    im <- load_image(
+                        path = load_images[[impath_i]],
+                        name = imnames[[impath_i]]
+                    )
+                    imglist <- c(imglist, im)
+                }
+                g <- setGiotto(g, imglist)
             }
 
+            # aligned images can be placed in random places and do not have
+            # a standardized naming scheme.
 
+            if (!is.null(load_aligned_images)) {
+                aimglist <- list()
+                aimnames <- names(load_aligned_images)
+                for (aim_i in seq_along(load_aligned_images)) {
+                    aim <- load_aligned_image(
+                        path = load_aligned_images[[aim_i]][1],
+                        imagealignment_path = load_aligned_images[[aim_i]][2]
+                    )
+                    aimglist <- c(aimglist, aim)
+                }
+                g <- setGiotto(g, aimglist)
+            }
 
-
+            return(g)
         }
         obj@calls$create_gobject <- gobject_fun
 
@@ -1023,6 +1105,7 @@ importXenium <- function(
 .xenium_image_single <- function(
         path,
         name = "image",
+        output_dir,
         micron,
         negative_y = TRUE,
         flip_vertical = FALSE,
@@ -1059,8 +1142,7 @@ importXenium <- function(
     return(img)
 }
 
-# for affine, see the init method
-
+# for aligned_image (affine), see the `XeniumReader` init method
 
 
 
