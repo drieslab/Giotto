@@ -494,8 +494,8 @@ setMethod(
                 aimglist <- list()
                 aimnames <- names(load_aligned_images)
                 for (aim_i in seq_along(load_aligned_images)) {
-                    vmsg(.v = verbose, "loading aligned image as '%s'",
-                         aimnames[[aim_i]])
+                    vmsg(.v = verbose, sprintf("loading aligned image as '%s'",
+                         aimnames[[aim_i]]))
                     aim <- funs$load_aligned_image(
                         path = load_aligned_images[[aim_i]][1],
                         imagealignment_path = load_aligned_images[[aim_i]][2],
