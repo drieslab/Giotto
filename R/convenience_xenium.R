@@ -969,7 +969,7 @@ importXenium <- function(
     if (!inherits(ex_list, "list")) ex_list <- list(ex_list)
     # set correct feature name
     fname <- "rna"
-    if (length(fname) > 1L) fname <- names(fname)
+    if (length(names(ex_list)) > 1L) fname <- names(ex_list)
     fname[fname == "Gene Expression"] <- "rna"
 
     # lapply to process more than one if present
