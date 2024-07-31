@@ -325,13 +325,15 @@ setMethod(
             path,
             imagealignment_path,
             name = "aligned_image",
-            micron = obj@micron
+            micron = obj@micron,
+            verbose = NULL
         ) {
             read10xAffineImage(
                 file = path,
                 imagealignment_path = imagealignment_path,
                 name = name,
-                micron = micron
+                micron = micron,
+                verbose = verbose
             )
         }
         obj@calls$load_aligned_image <- img_aff_fun
@@ -492,6 +494,8 @@ setMethod(
                 aimglist <- list()
                 aimnames <- names(load_aligned_images)
                 for (aim_i in seq_along(load_aligned_images)) {
+                    vmsg(.v = verbose, "loading aligned image as '%s'",
+                         aimnames[[aim_i]])
                     aim <- funs$load_aligned_image(
                         path = load_aligned_images[[aim_i]][1],
                         imagealignment_path = load_aligned_images[[aim_i]][2],
@@ -815,7 +819,7 @@ importXenium <- function(
 
     e <- file_extension(path) %>% head(1L) %>% tolower()
     a <- list(path = path, dropcols = dropcols)
-    vmsg('Loading cell metadata...', .v = verbose)
+    vmsg('Loading 10X cell metadata...', .v = verbose)
     vmsg(.v = verbose, .is_debug = TRUE, "[CMETA_READ] FMT =", e)
     vmsg(.v = verbose, .is_debug = TRUE, path)
     verbose <- verbose %null% TRUE
