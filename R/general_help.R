@@ -727,14 +727,18 @@ get10Xmatrix_h5 <- function(
 #' transform. Loads the image in with an orientation that matches the dataset
 #' points and polygons vector information
 #' @param file filepath to image
+#' @param imagealignment_path filepath to alignment file which contains
+#' an affine transformation matrix. Usually a `.csv` file
+#' @param name character. Name to assign the image. Default is 'image'.
 #' @param micron micron scaling. Directly used if a numeric is supplied.
 #' Also prefers a filepath to the `experiment.xenium` file which contains this
 #' info. A default of 0.2125 is provided.
-#' @param affine filepath to `...imagealignment.csv` which contains an affine
-#' transformation matrix
+#' @param \dots additional params to pass to
+#' `[GiottoClass::createGiottoLargeImage]`
+#' @md
 #' @export
 read10xAffineImage <- function(
-        file, imagealignment_path, micron = 0.2125
+        file, imagealignment_path, name = "aligned_image", micron = 0.2125, ...
 ) {
     checkmate::assert_file_exists(file)
     checkmate::assert_file_exists(imagealignment_path)
@@ -746,7 +750,7 @@ read10xAffineImage <- function(
     aff <- data.table::fread(imagealignment_path) %>%
         as.matrix()
 
-    img <- createGiottoLargeImage(file)
+    img <- createGiottoLargeImage(file, name = name, ...)
 
     aff_img <- .tenx_img_affine(x = img, affine = aff, micron = micron)
 

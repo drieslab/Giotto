@@ -324,11 +324,13 @@ setMethod(
         img_aff_fun <- function(
             path,
             imagealignment_path,
+            name = "aligned_image",
             micron = obj@micron
         ) {
             read10xAffineImage(
                 file = path,
                 imagealignment_path = imagealignment_path,
+                name = name,
                 micron = micron
             )
         }
@@ -492,7 +494,8 @@ setMethod(
                 for (aim_i in seq_along(load_aligned_images)) {
                     aim <- funs$load_aligned_image(
                         path = load_aligned_images[[aim_i]][1],
-                        imagealignment_path = load_aligned_images[[aim_i]][2]
+                        imagealignment_path = load_aligned_images[[aim_i]][2],
+                        name = aimnames[[aim_i]]
                     )
                     aimglist <- c(aimglist, aim)
                 }
