@@ -114,12 +114,14 @@ Suggests:
     SummarizedExperiment,
     tidygraph,
     trendsceek,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    rmarkdown
 Remotes:
     drieslab/GiottoUtils,
     drieslab/GiottoClass,
     drieslab/GiottoVisuals
 Collate:
+    'ONTraC_wrapper.R'
     'auxiliary_giotto.R'
     'cell_segmentation.R'
     'clustering.R'
