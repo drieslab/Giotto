@@ -1181,7 +1181,8 @@ importXenium <- function(
 #' contains feature metadata information and ENSG names.
 #' @param expression_path Optional. Filepath to cell feature matrix. Accepts
 #' either the `.h5` or the unzipped directory containing `.mtx` files.
-#' @param metadata_path Optional. Filepath to `cells.csv.gz` or `cells.parquet`
+#' @param cell_metadata_path Optional. Filepath to `cells.csv.gz` or
+#' `cells.parquet`
 #' which contain cell metadata information.
 #' @param feat_type character. feature type. Provide more than one value if
 #' using the `split_keyword` param. For each set of keywords to split by, an
@@ -1252,9 +1253,9 @@ createGiottoXeniumObject <- function(
             cell = "cell",
             nucleus = "nucleus"
         ),
-        gene_panel_json_path = NULL,
+        gene_panel_json_path = NULL, # optional
         expression_path = NULL, # optional
-        metadata_path = NULL,
+        cell_metadata_path = NULL, # optional
         feat_type = c(
             "rna",
             "NegControlProbe",
@@ -1277,21 +1278,25 @@ createGiottoXeniumObject <- function(
     # apply reader params
     x$qv <- qv_threshold
 
-    g <- x$create_gobject(
-        transcript_path = transcript_path,
-        load_bounds = bounds_path,
-        gene_panel_json_path = gene_panel_json_path,
-        expression_path = expression_path,
-        metadata_path = metadata_path,
-        feat_type = split_keyword,
-        split_keyword = split_keyword,
-        load_images = load_images,
-        load_aligned_images = load_aligned_images,
-        load_expression = load_expression,
-        load_cellmeta = load_cellmeta,
-        verbose = verbose
-    )
+    # directly passed
+    a <- list(load_bounds = bounds_path,
+              feat_type = feat_type,
+              split_keyword = split_keyword,
+              load_images = load_images,
+              load_aligned_images = load_aligned_images,
+              load_expression = load_expression,
+              load_cellmeta = load_cellmeta,
+              verbose = verbose)
 
+    # only passed if not null
+    if (!is.null(transcript_path)) a$transcript_path <- transcript_path
+    if (!is.null(gene_panel_json_path)) {
+        a$gene_panel_json_path <- gene_panel_json_path
+    }
+    if (!is.null(expression_path)) a$expression_path <- expression_path
+    if (!is.null(cell_metadata_path)) a$metadata_path <- cell_metadata_path
+
+    g <- do.call(x$create_gobject, args = a)
     return(g)
 }
 
