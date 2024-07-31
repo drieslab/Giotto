@@ -1023,7 +1023,7 @@ importXenium <- function(
 .xenium_image <- function(
         path,
         name,
-        output_dir,
+        # output_dir,
         micron,
         negative_y = TRUE,
         flip_vertical = FALSE,
@@ -1033,36 +1033,36 @@ importXenium <- function(
 ) {
     if (missing(path)) {
         stop(wrap_txt(
-            "No path to image file or dir to load provided or auto-detected"
+            "No path to image file provided or auto-detected"
         ), call. = FALSE)
     }
 
-    # [directory input] -> load as individual .ome paths with defined names
-    # intended for usage with single channel stain focus images
-    if (checkmate::test_directory_exists(path)) {
-        if (missing(output_dir)) output_dir <- file.path(path, "tif_exports")
-        # find actual image paths in directory
-        ome_paths <- list.files(path, full.names = TRUE, pattern = ".ome")
-        # parse ome metadata for images names
-        ome_xml <- ometif_metadata(
-            ome_paths[[1]], node = "Channel", output = "data.frame"
-        )
-        # update names with the channel names
-        name <- ome_xml$Name
-
-        # do conversion if file does not already exist in output_dir
-        vmsg(.v = verbose, "> ometif to tif conversion")
-        lapply(ome_paths, function(ome) {
-            try(silent = TRUE, { # ignore fail when already written
-                ometif_to_tif(
-                    # can pass overwrite = TRUE via ... if needed
-                    ome, output_dir = output_dir, ...
-                )
-            })
-        })
-        # update path param
-        path <- list.files(output_dir, pattern = ".tif", full.names = TRUE)
-    }
+    # # [directory input] -> load as individual .ome paths with defined names
+    # # intended for usage with single channel stain focus images
+    # if (checkmate::test_directory_exists(path)) {
+    #     if (missing(output_dir)) output_dir <- file.path(path, "tif_exports")
+    #     # find actual image paths in directory
+    #     ome_paths <- list.files(path, full.names = TRUE, pattern = ".ome")
+    #     # parse ome metadata for images names
+    #     ome_xml <- ometif_metadata(
+    #         ome_paths[[1]], node = "Channel", output = "data.frame"
+    #     )
+    #     # update names with the channel names
+    #     name <- ome_xml$Name
+    #
+    #     # do conversion if file does not already exist in output_dir
+    #     vmsg(.v = verbose, "> ometif to tif conversion")
+    #     lapply(ome_paths, function(ome) {
+    #         try(silent = TRUE, { # ignore fail when already written
+    #             ometif_to_tif(
+    #                 # can pass overwrite = TRUE via ... if needed
+    #                 ome, output_dir = output_dir, ...
+    #             )
+    #         })
+    #     })
+    #     # update path param
+    #     path <- list.files(output_dir, pattern = ".tif", full.names = TRUE)
+    # }
 
     # set default if still missing
     if (missing(name)) name <- "image"
@@ -1105,7 +1105,6 @@ importXenium <- function(
 .xenium_image_single <- function(
         path,
         name = "image",
-        output_dir,
         micron,
         negative_y = TRUE,
         flip_vertical = FALSE,
