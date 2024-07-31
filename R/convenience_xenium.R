@@ -117,7 +117,7 @@ setMethod(
 
         ftype <- obj@filetype
         ft_tab <- c("csv", "parquet")
-        ft_exp <- c("h5", "mtx", "zarr")
+        ft_exp <- c("h5", "mtx") # zarr not yet supported
         if (!ftype$transcripts %in% ft_tab) {
             stop(wrap_txt("`$filetype$transcripts` must be one of",
                           paste(ft_tab, collapse = ", ")),
@@ -956,7 +956,7 @@ importXenium <- function(
             "No path to expression dir (mtx) or file (h5) provided or auto-detected"
         ), call. = FALSE)
     }
-    checkmate::assert_file_exists(path)
+    if (!file.exists(path)) stop("filepath or directory does not exist.\n")
     a <- list(
         path = path,
         gene_ids = gene_ids,
@@ -978,7 +978,8 @@ importXenium <- function(
     verbose <- verbose %null% TRUE
     ex_list <- switch(e,
         "mtx" = do.call(.xenium_expression_mtx, args = a),
-        "h5" = do.call(.xenium_expression_h5, args = a)
+        "h5" = do.call(.xenium_expression_h5, args = a),
+        "zarr" = stop("zarr reading not yet implemented")
     )
 
     # ensure list
