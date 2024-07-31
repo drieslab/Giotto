@@ -4,17 +4,28 @@
 \alias{read10xAffineImage}
 \title{read10xAffineImage}
 \usage{
-read10xAffineImage(file, imagealignment_path, micron = 0.2125)
+read10xAffineImage(
+  file,
+  imagealignment_path,
+  name = "aligned_image",
+  micron = 0.2125,
+  ...
+)
 }
 \arguments{
 \item{file}{filepath to image}
 
+\item{imagealignment_path}{filepath to alignment file which contains
+an affine transformation matrix. Usually a \code{.csv} file}
+
+\item{name}{character. Name to assign the image. Default is 'image'.}
+
 \item{micron}{micron scaling. Directly used if a numeric is supplied.
-Also prefers a filepath to the `experiment.xenium` file which contains this
+Also prefers a filepath to the \code{experiment.xenium} file which contains this
 info. A default of 0.2125 is provided.}
 
-\item{affine}{filepath to `...imagealignment.csv` which contains an affine
-transformation matrix}
+\item{\dots}{additional params to pass to
+\verb{[GiottoClass::createGiottoLargeImage]}}
 }
 \description{
 Read a 10x image that is provided with an affine matrix
