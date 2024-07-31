@@ -135,7 +135,7 @@ setMethod(
         }
         if (!ftype$expression %in% ft_exp) {
             stop(wrap_txt("`$filetype$expression` must be one of",
-                          paste(ft_tab, collapse = ", ")),
+                          paste(tf_exp, collapse = ", ")),
                  call. = FALSE)
         }
 
@@ -178,8 +178,17 @@ setMethod(
         tx_path <- .xenium_ftype(tx_path, ftype$transcripts)
         cell_bound_path <- .xenium_ftype(cell_bound_path, ftype$boundaries)
         nuc_bound_path <- .xenium_ftype(nuc_bound_path, ftype$boundaries)
-        expr_path <- .xenium_ftype(expr_path, ftype$expression)
         cell_meta_path <- .xenium_ftype(cell_meta_path, ftype$cell_meta)
+
+        # for mtx, check if directory instead
+        if (ftype$expression == "mtx") {
+            is_dir <- vapply(
+                expr_path, checkmate::test_directory, FUN.VALUE = logical(1L)
+            )
+            expr_path <- expr_path[is_dir]
+        } else {
+            expr_path <- .xenium_ftype(expr_path, ftype$expression)
+        }
 
         # decide micron scaling
         if (length(obj@micron) == 0) { # if no value already set
@@ -444,7 +453,7 @@ setMethod(
                 # no dropcols
                 verbose = verbose
             )
-            g <- setGiotto(g, fx)
+            g <- setGiotto(g, fx, verbose = FALSE)
 
 
             # expression
