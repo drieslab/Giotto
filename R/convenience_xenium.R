@@ -249,7 +249,7 @@ setMethod(
         # load cellmeta
         cmeta_fun <- function(
             path = cell_meta_path,
-            dropcols = c(),
+            dropcols = c("x_centroid", "y_centroid"),
             cores = determine_cores(),
             verbose = NULL
         ) {
@@ -967,14 +967,18 @@ importXenium <- function(
 
     # ensure list
     if (!inherits(ex_list, "list")) ex_list <- list(ex_list)
+    # set correct feature name
+    fname <- "rna"
+    if (length(fname) > 1L) fname <- names(fname)
+    fname[fname == "Gene Expression"] <- "rna"
 
     # lapply to process more than one if present
-    eo_list <- lapply(ex_list, function(ex) {
+    eo_list <- lapply(seq_along(ex_list), function(ex_i) {
         createExprObj(
-            expression_data = ex,
+            expression_data = ex_list[[ex_i]],
             name = "raw",
             spat_unit = "cell",
-            feat_type = "rna",
+            feat_type = fname[[ex_i]],
             provenance = "cell"
         )
     })
