@@ -410,7 +410,7 @@ setMethod(
                 split_keyword = split_keyword,
                 verbose = verbose
             )
-            g <- setGiotto(g, tx, verbose = FALSE) # lists are fine
+            g <- setGiotto(g, tx_list, verbose = FALSE) # lists are fine
 
             # polys
             if (!is.null(load_bounds)) {
