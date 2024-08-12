@@ -87,7 +87,7 @@ column 1 = gene symbols, column 2 = weight or rank metric
 for more details, see:
 https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#RNK:_Ranked_list_file_format_.28.2A.rnk.29
 
-For more information on parameter convetions,
+For more information on parameter conventions,
 please reference GSEA's documentation here:
 https://www.gsea-msigdb.org/gsea/doc/GSEAUserGuideTEXT.htm#_Syntax
 }
