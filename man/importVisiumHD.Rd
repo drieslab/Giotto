@@ -76,6 +76,6 @@ my_transcripts = readerHD$load_transcripts(array_subset_row = c(500, 1000),
                                            array_subset_col = c(500, 1000))
 
 # Create a `giotto` object and add the loaded data
-TODO
+# TODO
 }
 }
