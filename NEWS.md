@@ -1,3 +1,10 @@
+
+# Giotto 4.1.1
+
+## Bug fixes
+* Allow `giottoInstructions` passing for Xenium convenience functions
+
+
 # Giotto 4.1.0 (2024/07/31)
 
 ## Breaking changes
