@@ -138,7 +138,7 @@ setMethod("print", signature("VisiumHDReader"), function(x, ...) show(x))
 #'                                            array_subset_col = c(500, 1000))
 #'
 #' # Create a `giotto` object and add the loaded data
-#' TODO
+#' # TODO
 #' }
 #' @export
 importVisiumHD <- function(

@@ -18,6 +18,7 @@ createGiottoXeniumObject(
   load_aligned_images = NULL,
   load_expression = FALSE,
   load_cellmeta = FALSE,
+  instructions = NULL,
   verbose = NULL
 )
 }
@@ -68,8 +69,11 @@ slower in our imaging pipeline.}
 \item{load_expression}{logical. Default = FALSE. Whether to load in 10X
 provided expression matrix.}
 
-\item{load_cellmeta}{logical. Default = FALSE. Whether to laod in 10X
+\item{load_cellmeta}{logical. Default = FALSE. Whether to load in 10X
 provided cell metadata information}
+
+\item{instructions}{list of instructions or output result from
+\code{\link[=createGiottoInstructions]{createGiottoInstructions()}}}
 
 \item{verbose}{logical or NULL. NULL uses the \code{giotto.verbose} option
 setting and defaults to TRUE.}
