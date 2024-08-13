@@ -373,6 +373,7 @@ setMethod(
             load_aligned_images = NULL,
             load_expression = FALSE,
             load_cellmeta = FALSE,
+            instructions = NULL,
             verbose = NULL
         ) {
             load_expression <- as.logical(load_expression)
@@ -413,7 +414,7 @@ setMethod(
             funs <- obj@calls
 
             # init gobject
-            g <- giotto()
+            g <- giotto(instructions = instructions)
 
 
             # transcripts
@@ -1215,8 +1216,10 @@ importXenium <- function(
 #' slower in our imaging pipeline.
 #' @param load_expression logical. Default = FALSE. Whether to load in 10X
 #' provided expression matrix.
-#' @param load_cellmeta logical. Default = FALSE. Whether to laod in 10X
+#' @param load_cellmeta logical. Default = FALSE. Whether to load in 10X
 #' provided cell metadata information
+#' @param instructions list of instructions or output result from
+#' [createGiottoInstructions()]
 #' @param verbose logical or NULL. NULL uses the `giotto.verbose` option
 #' setting and defaults to TRUE.
 #' @returns `giotto` object
@@ -1282,6 +1285,7 @@ createGiottoXeniumObject <- function(
         load_aligned_images = NULL,
         load_expression = FALSE,
         load_cellmeta = FALSE,
+        instructions = NULL,
         verbose = NULL
 ) {
     x <- importXenium(xenium_dir)
@@ -1296,6 +1300,7 @@ createGiottoXeniumObject <- function(
               load_aligned_images = load_aligned_images,
               load_expression = load_expression,
               load_cellmeta = load_cellmeta,
+              instructions = instructions,
               verbose = verbose)
 
     # only passed if not null
