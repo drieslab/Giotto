@@ -58,7 +58,7 @@
   
   # add vertices that were missing from g back 
   if(!is.null(all_ids)) {
-    missing_ids = all_ids[!all_ids %in% V(g)$name]
+    missing_ids = all_ids[!all_ids %in% igraph::V(g)$name]
     missing_membership = data.table::data.table('cell_ID' = missing_ids, 'cluster_name' = missing_id_name)
     data.table::setnames(missing_membership, c("cell_ID", clus_name))
     membership = data.table::rbindlist(list(membership, missing_membership))
