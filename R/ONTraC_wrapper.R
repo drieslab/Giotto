@@ -1,3 +1,82 @@
+#' @title installONTraCEnvironment
+#' @description Installs a conda environment contains ONTraC. This
+#' includes a miniconda installation and also a set of python packages that
+#' Giotto may often use. See details for further information
+#' @param packages_to_install python modules (packages) to install for Giotto.
+#' @param python_version python version to use within the giotto conda
+#' environment. Default is v3.11.9
+#' @param ontrac_version ONTraC version to install. Default is "latest"
+#' @param mini_install_path (optional) desired miniconda installation location.
+#' Default is chosen by `reticulate::install_miniconda()`
+#' @param confirm whether to pause for confirmation of conda environment
+#' install location (default = TRUE)
+#' @param envname name to assign environment. Default = "giotto_ontrac_env"
+#' @param conda either "auto" (default) to allow reticulate to handle it, or
+#' the full filepath to the conda executable. You can also set the option
+#' "reticulate.conda_binary" or `Sys.setenv()` "RETICULATE_CONDA" to tell
+#' reticulate where to look.
+#' @param force_miniconda force reinstallation of miniconda
+#' @param force_environment force reinstallation of the giotto environment
+#' @param verbose be verbose
+#' @returns installs a giotto environment using the reticulate miniconda system
+#' @details This function will install a local conda environment using
+#' the miniconda system as implemented by \pkg{reticulate}. Which contains
+#' ONTraC and a set of python packages that Giotto may often use.
+#'
+#' @examples
+#' installONTraCEnvironment()
+#'
+#' @export
+installONTraCEnvironment <- function(
+    python_version = "3.11.9",
+    ontrac_version = "latest",
+    mini_install_path = NULL,
+    confirm = TRUE,
+    envname = "giotto_ontrac_env",
+    conda = "auto",
+    force_miniconda = FALSE,
+    force_environment = FALSE,
+    verbose = NULL) {
+
+    # handle ontrac version
+    if (ontrac_version == "latest") {
+        ontrac <- "ONTraC"
+    } else {
+        ontrac <- paste0("ONTraC==", ontrac_version)
+    }
+
+    # install conda env
+    installGiottoEnvironment(
+        packages_to_install = c(
+            "pandas==2.2.1",
+            "networkx==2.8.8",
+            "python-igraph==0.10.2",
+            "leidenalg==0.9.0",
+            "python-louvain==0.16",
+            "python.app==1.4",
+            "scikit-learn==1.1.3",
+            "smfishhmrf",
+            "session-info",
+            ontrac
+        ),
+        pip_packages = c(
+            "python-louvain",
+            "smfishhmrf",
+            "session-info",
+            "ONTraC"
+        ),
+        python_version = python_version,
+        mini_install_path = mini_install_path,
+        confirm = confirm,
+        envname = envname,
+        conda = "auto",
+        force_miniconda = force_miniconda,
+        force_environment = force_environment,
+        verbose = verbose
+    )
+}
+
+
 #' @title getONTraCv1Input
 #' @name getONTraCv1Input
 #' @description generate the input data for ONTraC v1
