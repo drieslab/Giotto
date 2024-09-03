@@ -15,7 +15,7 @@ plotCellTypeNTScore(
   save_plot = NULL,
   save_param = list(),
   theme_param = list(),
-  default_save_name = "discreteAlongContinuous"
+  default_save_name = "CellTypeNTScore"
 )
 }
 \arguments{

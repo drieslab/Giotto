@@ -2,15 +2,14 @@
 % Please edit documentation in R/ONTraC_wrapper.R
 \name{plotDiscreteAlongContinuous}
 \alias{plotDiscreteAlongContinuous}
-\alias{plotCellTypeNTScore}
 \title{plotDiscreteAlongContinuous}
 \usage{
-plotCellTypeNTScore(
+plotDiscreteAlongContinuous(
   gobject,
-  cell_type,
-  values = "NTScore",
-  spat_unit = "cell",
-  feat_type = "niche cluster",
+  discrete_annotation,
+  continuous_values = "NTScore",
+  spat_unit = NULL,
+  feat_type = NULL,
   show_plot = NULL,
   return_plot = NULL,
   save_plot = NULL,
@@ -22,9 +21,11 @@ plotCellTypeNTScore(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cell_type}{the column name of discrete annotation in cell metadata}
+\item{discrete_annotation}{the column name of discrete annotation in cell
+metadata}
 
-\item{values}{the column name of continuous values in cell metadata}
+\item{continuous_values}{the column name of continuous values in cell
+metadata}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
