@@ -756,33 +756,33 @@ filterGiotto <- function(
   if(!inherits(dbMatrix, 'dbMatrix')) {
     stop('dbMatrix must be of class dbMatrix')
   }
-  
+
   if(!is.character(name)) {
     stop('name must be a character')
   }
-  
+
   # TODO: update with dbData generic
   con = dbMatrix:::get_con(dbMatrix)
-  
+
   # overwrite table by default
   if(name %in% DBI::dbListTables(con)) {
     DBI::dbRemoveTable(con, name)
   }
-  
+
   if(verbose){
     msg <- glue::glue('Computing {name} expression matrix on disk...')
-    cat(msg)   
+    cat(msg)
   }
-  
+
   dbMatrix[] |>
     dplyr::compute(temporary=F, name = name)
-    
+
   # TODO: update below with proper setters from dbMatrix
   dbMatrix[] <- dplyr::tbl(con, name) # reassign to computed mat
   dbMatrix@name <- name
-  
+
   if(verbose) cat('done \n')
-  
+
   return(dbMatrix)
 }
 
@@ -902,7 +902,7 @@ filterGiotto <- function(
             dbMatrix = norm_expr,
             name = 'normalized',
             verbose = verbose
-        ) 
+        )
     }
 
     norm_expr <- create_expr_obj(
@@ -913,14 +913,14 @@ filterGiotto <- function(
         provenance = provenance,
         misc = NULL
     )
-  
+
     # Save dbMatrix to db
     if(compute_mat && !is.null(norm_scaled_expr)){
         norm_scaled_expr = .compute_dbMatrix(
             dbMatrix = norm_scaled_expr,
             name = 'scaled',
             verbose = verbose
-        ) 
+        )
     }
 
     norm_scaled_expr <- create_expr_obj(
@@ -1296,6 +1296,8 @@ adjustGiottoMatrix <- function(
         stop("Metadata for either different batches or covariates must be
             provided.")
     }
+
+    package_check("limma")
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(

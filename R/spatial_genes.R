@@ -2924,6 +2924,9 @@ showPattern3D <- function(
         save_plot = NULL,
         save_param = list(),
         default_save_name = "showPattern3D") {
+
+    package_check("plotly", repository = "CRAN:plotly")
+
     # data.table variables
     center_x <- x_start <- x_end <- center_y <- y_start <- y_end <-
         center_z <- z_start <- z_end <- NULL

@@ -512,6 +512,8 @@ NULL
     offset = 0.1) {
     vmsg(.is_debug = TRUE, ".do_limmatest")
 
+    package_check("limma")
+
     # data.table variables
     sel <- other <- feats <- P.Value <- adj.P.Val <- p.adj <- NULL
 
