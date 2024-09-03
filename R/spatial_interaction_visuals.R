@@ -720,6 +720,9 @@ NULL
         x_ticks = NULL,
         y_ticks = NULL,
         ...) {
+
+    package_check("plotly")
+
     # data.table variables
     cell_ID <- unified_int <- NULL
 
@@ -984,6 +987,9 @@ NULL
         y_ticks = NULL,
         z_ticks = NULL,
         ...) {
+
+    package_check("plotly")
+
     # data.table variables
     cell_ID <- unified_int <- NULL
 
@@ -3677,6 +3683,7 @@ cellProximitySpatPlot3D <- function(
         save_param = list(),
         default_save_name = "cellProximitySpatPlot3D",
         ...) {
+
     if (is.null(sdimz)) {
         pl <- .cellProximityVisPlot_2D_plotly(
             gobject = gobject,
