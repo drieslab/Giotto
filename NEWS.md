@@ -1,4 +1,16 @@
 
+# Giotto 4.1.2
+
+## Breaking changes
+* remove deprecated `PAGEEnrich()`. Use `runPAGEEnrich()` instead
+* remove deprecated `rankEnrich()`. Use `runRankEnrich()` instead
+* remove deprecated `hyperGeometricEnrich()`. Use `runHyperGeometricEnrich()` instead
+* remove deprecated `createSpatialEnrich()`. Use `runSpatialEnrich()` instead
+* remove deprecated `heatmSpatialCorGenes()`. Use `heatmSpatialCorFeats()` instead
+* remove deprecated `runPAGEEnrich_OLD()`. Use `runPAGEEnrich()` instead
+
+
+
 # Giotto 4.1.1
 
 ## Bug fixes
