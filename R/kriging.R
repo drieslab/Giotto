@@ -182,8 +182,8 @@ setMethod(
         e_numeric <- ext[]
 
 
-        progressr::with_progress({
-            pb <- progressr::progressor(along = feats)
+        with_pbar({
+            pb <- pbar(along = feats)
 
             interp_img_list <- lapply_flex(
                 feats,

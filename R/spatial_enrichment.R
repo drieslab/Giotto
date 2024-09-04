@@ -1948,9 +1948,9 @@ spatialAutoCorLocal <- function(
         step_size <- step_size <- ceiling(nfeats / 10L)
     }
 
-    progressr::with_progress({
+    with_pbar({
         if (step_size > 1) {
-            pb <- progressr::progressor(
+            pb <- pbar(
                 steps = nfeats / step_size
             )
         }
@@ -2031,9 +2031,9 @@ spatialAutoCorLocal <- function(
         step_size <- step_size <- ceiling(nfeats / 10L)
     }
 
-    progressr::with_progress({
+    with_pbar({
         if (step_size > 1) {
-            pb <- progressr::progressor(
+            pb <- pbar(
                 steps = nfeats / step_size
             )
         }

@@ -2145,8 +2145,8 @@ exprCellCellcom <- function(gobject,
     # not yet available
 
 
-    progressr::with_progress({
-        pb <- progressr::progressor(steps = random_iter)
+    with_pbar({
+        pb <- pbar(steps = random_iter)
 
         for (sim in seq_len(random_iter)) {
 

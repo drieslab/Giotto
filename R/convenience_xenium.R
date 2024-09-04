@@ -1102,8 +1102,8 @@ importXenium <- function(
     # micron
     checkmate::assert_numeric(micron)
 
-    progressr::with_progress({
-        p <- progressr::progressor(along = path)
+    with_pbar({
+        p <- pbar(along = path)
 
         gimg_list <- lapply(seq_along(path), function(img_i) {
             gimg <- .xenium_image_single(
