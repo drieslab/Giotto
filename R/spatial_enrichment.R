@@ -52,12 +52,12 @@
 #'         "Rims2", "Gfap", "Gjc3", "Chrna4", "Prkcd"
 #'     ),
 #'     cell_type2 = c(
-#'         "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", "Hrh3", "Tmbim1",
-#'         "Carhsp1", "Tmem88b", "Ugt8a"
+#'         "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", "Hrh3",
+#'          "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a"
 #'     ),
 #'     cell_type2 = c(
-#'         "Arpp19", "Lamp5", "Galnt6", "Hlf", "Hs3st2", "Tbr1", "Myl4",
-#'         "Cygb", "Ttc9b", "Ipcef1"
+#'         "Arpp19", "Lamp5", "Galnt6", "Hlf", "Hs3st2",
+#'         "Tbr1", "Myl4", "Cygb", "Ttc9b", "Ipcef1"
 #'     )
 #' )
 #'
