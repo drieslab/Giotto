@@ -744,7 +744,7 @@ read10xAffineImage <- function(
     checkmate::assert_file_exists(imagealignment_path)
     if (!is.numeric(micron)) {
         checkmate::assert_file_exists(micron)
-        micron <- jsonlite::read_json(micron)$pixel_size
+        micron <- read_json(micron)$pixel_size
     }
 
     aff <- data.table::fread(imagealignment_path) %>%

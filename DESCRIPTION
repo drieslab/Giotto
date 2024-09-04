@@ -43,7 +43,6 @@ Imports:
     GiottoUtils (>= 0.1.12),
     GiottoVisuals (>= 0.2.4),
     igraph (>= 1.2.4.1),
-    jsonlite,
     Matrix (>= 1.6-2),
     MatrixGenerics,
     reticulate (>= 1.25),

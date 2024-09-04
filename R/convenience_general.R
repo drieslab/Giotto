@@ -656,7 +656,7 @@ addVisiumPolygons <- function(gobject,
         return(NULL)
     }
 
-    json_scalefactors <- jsonlite::read_json(json_path)
+    json_scalefactors <- read_json(json_path)
 
     # Intial assertion that json dimensions are appropriate
     checkmate::assert_list(

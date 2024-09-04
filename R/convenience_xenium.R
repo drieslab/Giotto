@@ -193,7 +193,7 @@ setMethod(
         # decide micron scaling
         if (length(obj@micron) == 0) { # if no value already set
             if (!is.null(experiment_info_path)) {
-                obj@micron <- jsonlite::fromJSON(
+                obj@micron <- fromJSON(
                     experiment_info_path)$pixel_size
             } else {
                 warning(wrap_txt("No .xenium file found.
@@ -914,7 +914,7 @@ importXenium <- function(
     gene_ids <- match.arg(gene_ids, c("symbols", "ensembl"))
 
     # tested on v1.6
-    j <- jsonlite::fromJSON(path)
+    j <- fromJSON(path)
     # j$metadata # dataset meta
     # j$payload # main content
     # j$payload$chemistry # panel chemistry used
