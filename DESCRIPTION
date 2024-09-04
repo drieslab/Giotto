@@ -46,7 +46,6 @@ Imports:
     jsonlite,
     Matrix (>= 1.6-2),
     MatrixGenerics,
-    reshape2,
     reticulate (>= 1.25),
     scales (>= 1.0.0),
     sparseMatrixStats,

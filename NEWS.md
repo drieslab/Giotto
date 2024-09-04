@@ -9,7 +9,10 @@
 * remove deprecated `heatmSpatialCorGenes()`. Use `heatmSpatialCorFeats()` instead
 * remove deprecated `runPAGEEnrich_OLD()`. Use `runPAGEEnrich()` instead
 
-
+## Changes
+* `limma`, `plotly`, and `Rtsne` moved to Suggests
+* move `progressr` and `jsonlite` dependencies to GiottoUtils v0.1.12
+* remove `reshape2` dependency.
 
 # Giotto 4.1.1
 
