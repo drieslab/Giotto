@@ -10,6 +10,7 @@ plotCTCompositionInNicheCluster(
   values = "prob",
   spat_unit = "cell",
   feat_type = "niche cluster",
+  normalization = c("by_feat_type", "by_cell_type", NULL),
   show_plot = NULL,
   return_plot = NULL,
   save_plot = NULL,
@@ -29,6 +30,8 @@ assigned to each niche cluster}
 \item{spat_unit}{name of spatial unit niche stored cluster features}
 
 \item{feat_type}{name of the feature type stored probability matrix}
+
+\item{normalization}{normalization method for the cell type composition}
 
 \item{show_plot}{logical. show plot}
 

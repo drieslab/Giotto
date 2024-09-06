@@ -27,7 +27,7 @@ runONTraCV1(
   purity_loss_weight = 300,
   regularization_loss_weight = 0.1,
   beta = 0.03,
-  envname = "giotto_ontrac_env",
+  python_path = "giotto_ontrac_env",
   shell = FALSE
 )
 }
@@ -40,8 +40,52 @@ runONTraCV1(
 
 \item{NTScore_dir}{the directory to save the NTScore results}
 
-\item{envname, }{the name of the conda environment. Default is
-"giotto_ontrac_env"}
+\item{n_cpu}{the number of CPUs used for niche network constructing. Default
+is 4L}
+
+\item{n_neighbors}{the number of neighbors used for ONTraC in niche network
+construction. Default is 50L}
+
+\item{n_local}{the index of local neighbor used for ONTraC in niche network
+construction for normalization. Default is 20L}
+
+\item{device}{the device used for ONTraC running GNN model. Default is "cpu"}
+
+\item{epochs}{the maximum number of epochs for model training. Default is
+1000L}
+
+\item{patience}{the number of epochs wait for better result. Default is 100L}
+
+\item{min_delta}{the minimum change of loss to be considered as improvement.
+Default is 0.001}
+
+\item{min_epochs}{the minimum number of epochs to train. Default is 50L}
+
+\item{batch_size}{the batch size for training. Default is 0L for whole
+dataset}
+
+\item{seed}{the random seed for reproducibility. Default is 42L}
+
+\item{lr}{the learning rate for training. Default is 0.03}
+
+\item{hidden_feats}{the number of hidden features for GNN model. Default is
+4L}
+
+\item{k}{the number of neighbors for GNN model. Default is 6L}
+
+\item{modularity_loss_weight}{the weight of modularity loss. Default is 0.3}
+
+\item{purity_loss_weight}{the weight of purity loss. Default is 300.0}
+
+\item{regularization_loss_weight}{the weight of regularization loss. Default
+is 0.1}
+
+\item{beta}{the weight of entropy loss. Default is 0.03}
+
+\item{python_path, }{path to python executable within a conda/miniconda
+environment. Default is "giotto_ontrac_env"}
+
+\item{shell}{whether to run the command in shell. Default is FALSE}
 }
 \value{
 none
