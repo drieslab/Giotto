@@ -301,7 +301,6 @@ runONTraCV1 <- function(
     beta = 0.03,
     python_path = "giotto_ontrac_env",
     shell = FALSE) {
-
     # parameters check
     device <- match.arg(device)
 
@@ -310,59 +309,63 @@ runONTraCV1 <- function(
         python_path <- reticulate::conda_python(envname = python_path)
         ONTraC_path <- file.path(dirname(python_path), "ONTraC")
         # run ONTraC
-        command <- paste(ONTraC_path,
-                    "-d", dataset,
-                    "--preprocessing-dir", preprocessing_dir,
-                    "--GNN-dir", GNN_dir,
-                    "--NTScore-dir", NTScore_dir,
-                    "--n-cpu", n_cpu,
-                    "--n-neighbors", n_neighbors,
-                    "--n-local", n_local,
-                    "--device", device,
-                    "--epochs", epochs,
-                    "--patience", patience,
-                    "--min-delta", min_delta,
-                    "--min-epochs", min_epochs,
-                    "--batch-size", batch_size,
-                    "--seed", seed,
-                    "--lr", lr,
-                    "--hidden-feats", hidden_feats,
-                    "--k", k,
-                    "--modularity-loss-weight", modularity_loss_weight,
-                    "--purity-loss-weight", purity_loss_weight,
-                    "--regularization-loss-weight", regularization_loss_weight,
-                    "--beta", beta
-                    )
+        command <- paste(
+            ONTraC_path,
+            "-d", dataset,
+            "--preprocessing-dir", preprocessing_dir,
+            "--GNN-dir", GNN_dir,
+            "--NTScore-dir", NTScore_dir,
+            "--n-cpu", n_cpu,
+            "--n-neighbors", n_neighbors,
+            "--n-local", n_local,
+            "--device", device,
+            "--epochs", epochs,
+            "--patience", patience,
+            "--min-delta", min_delta,
+            "--min-epochs", min_epochs,
+            "--batch-size", batch_size,
+            "--seed", seed,
+            "--lr", lr,
+            "--hidden-feats", hidden_feats,
+            "--k", k,
+            "--modularity-loss-weight", modularity_loss_weight,
+            "--purity-loss-weight", purity_loss_weight,
+            "--regularization-loss-weight", regularization_loss_weight,
+            "--beta", beta
+        )
         wrap_msg(paste0("+", command))
         system(command)
     } else {
         # running through R-reticulate
         ONTraC_path <- system.file("python", "python_ontrac.py",
-                                   package = "Giotto")
+            package = "Giotto"
+        )
 
         reticulate::source_python(ONTraC_path)
 
-        ONTraC(ONTraC_input = ONTraC_input,
-               preprocessing_dir = preprocessing_dir,
-               GNN_dir = GNN_dir,
-               NTScore_dir = NTScore_dir,
-               n_cpu = n_cpu,
-               n_neighbors = n_neighbors,
-               n_local = n_local,
-               device = device,
-               epochs = epochs,
-               patience = patience,
-               min_delta = min_delta,
-               min_epochs = min_epochs,
-               batch_size = batch_size,
-               seed = seed,
-               lr = lr,
-               hidden_feats = hidden_feats,
-               k = k,
-               modularity_loss_weight = modularity_loss_weight,
-               purity_loss_weight = purity_loss_weight,
-               regularization_loss_weight = regularization_loss_weight,
-               beta = beta)
+        ONTraC(
+            ONTraC_input = ONTraC_input,
+            preprocessing_dir = preprocessing_dir,
+            GNN_dir = GNN_dir,
+            NTScore_dir = NTScore_dir,
+            n_cpu = n_cpu,
+            n_neighbors = n_neighbors,
+            n_local = n_local,
+            device = device,
+            epochs = epochs,
+            patience = patience,
+            min_delta = min_delta,
+            min_epochs = min_epochs,
+            batch_size = batch_size,
+            seed = seed,
+            lr = lr,
+            hidden_feats = hidden_feats,
+            k = k,
+            modularity_loss_weight = modularity_loss_weight,
+            purity_loss_weight = purity_loss_weight,
+            regularization_loss_weight = regularization_loss_weight,
+            beta = beta
+        )
     }
 }
 
@@ -659,6 +662,7 @@ plotNicheClusterConnectivity <- function(
 #' @inheritParams plot_output_params
 #' @param spat_unit name of spatial unit niche stored cluster features
 #' @param feat_type name of the feature type stored probability matrix
+#' @param normalization normalization method for the cell type composition
 #' @param values name of the expression matrix stored probability of each cell
 #' assigned to each niche cluster
 #' @details This function plots the cell type composition within each niche
@@ -670,12 +674,15 @@ plotCTCompositionInNicheCluster <- function(
     values = "prob",
     spat_unit = "cell",
     feat_type = "niche cluster",
+    normalization = c("by_feat_type", "by_cell_type", NULL),
     show_plot = NULL,
     return_plot = NULL,
     save_plot = NULL,
     save_param = list(),
     theme_param = list(),
     default_save_name = "CellTypeCompositionInNicheCluster") {
+    normalization <- match.arg(normalization)
+
     # Get the cell type composition within each niche cluster
     ## extract the cell-level niche cluster probability matrix
     exp <- getExpression(
@@ -715,10 +722,18 @@ plotCTCompositionInNicheCluster <- function(
     cell_type_counts_df <- as.data.frame(cell_type_counts_df)
     rownames(cell_type_counts_df) <- cell_type_counts_df[[cell_type]]
     cell_type_counts_df[[cell_type]] <- NULL
-    normalized_df <- as.data.frame(t(
-        t(cell_type_counts_df) / colSums(cell_type_counts_df)
-    ))
 
+    if (normalization == "by_cell_type") {
+        normalized_df <- as.data.frame(
+            cell_type_counts_df / rowSums(cell_type_counts_df)
+        )
+    } else if (normalization == "by_cell_type") {
+        normalized_df <- as.data.frame(t(
+            t(cell_type_counts_df) / colSums(cell_type_counts_df)
+        ))
+    } else if (normalization == NULL) {
+        normalized_df <- cell_type_counts_df
+    }
 
     # Reshape the data frame into long format
     normalized_df[[cell_type]] <- rownames(normalized_df)
