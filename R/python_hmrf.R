@@ -2034,7 +2034,7 @@ addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
             spat_unit = spat_unit,
             feat_type = feat_type,
             new_metadata = HMRFoutput[[i]]$class[match(
-                ordered_cell_IDs, 
+                ordered_cell_IDs,
                 rownames(HMRFoutput[[i]]$prob))],
             vector_name = paste(name, names(HMRFoutput)[i])
             # ,column_cell_ID = 'cell_ID',
@@ -2044,8 +2044,8 @@ addHMRF_V2 <- function(gobject, HMRFoutput, name = "hmrf") {
     return(gobject)
 }
 
-                             
-                             
+
+
 #' @title viewHMRFresults_V2
 #' @name viewHMRFresults_V2
 #' @description function to view HMRF results with multiple betas
@@ -2151,7 +2151,7 @@ viewHMRFresults_V2 <-
         }
 
         # combine plots with cowplot
-        combo_plot <- cowplot::plot_grid(
+        combo_plot <- plot_grid(
             plotlist = savelist,
             ncol = cow_n_col,
             rel_heights = cow_rel_h,

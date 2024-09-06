@@ -1629,7 +1629,7 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     savelist <- list(pl, cpl)
 
     ## combine plots with cowplot
-    combo_plot <- cowplot::plot_grid(
+    combo_plot <- plot_grid(
         plotlist = savelist,
         ncol = 1,
         rel_heights = c(1),
