@@ -237,8 +237,34 @@ getONTraCv2Input <- function(gobject,
 #' @param preprocessing_dir the directory to save the preprocessing results
 #' @param GNN_dir the directory to save the GNN results
 #' @param NTScore_dir the directory to save the NTScore results
-#' @param envname, the name of the conda environment. Default is
-#' "giotto_ontrac_env"
+#' @param n_cpu the number of CPUs used for niche network constructing. Default
+#' is 4L
+#' @param n_neighbors the number of neighbors used for ONTraC in niche network
+#' construction. Default is 50L
+#' @param n_local the index of local neighbor used for ONTraC in niche network
+#' construction for normalization. Default is 20L
+#' @param device the device used for ONTraC running GNN model. Default is "cpu"
+#' @param epochs the maximum number of epochs for model training. Default is
+#' 1000L
+#' @param patience the number of epochs wait for better result. Default is 100L
+#' @param min_delta the minimum change of loss to be considered as improvement.
+#' Default is 0.001
+#' @param min_epochs the minimum number of epochs to train. Default is 50L
+#' @param batch_size the batch size for training. Default is 0L for whole
+#' dataset
+#' @param seed the random seed for reproducibility. Default is 42L
+#' @param lr the learning rate for training. Default is 0.03
+#' @param hidden_feats the number of hidden features for GNN model. Default is
+#' 4L
+#' @param k the number of neighbors for GNN model. Default is 6L
+#' @param modularity_loss_weight the weight of modularity loss. Default is 0.3
+#' @param purity_loss_weight the weight of purity loss. Default is 300.0
+#' @param regularization_loss_weight the weight of regularization loss. Default
+#' is 0.1
+#' @param beta the weight of entropy loss. Default is 0.03
+#' @param python_path, path to python executable within a conda/miniconda
+#' environment. Default is "giotto_ontrac_env"
+#' @param shell whether to run the command in shell. Default is FALSE
 #' @returns none
 #' @details This function runs ONTraC
 #' @examples
@@ -273,7 +299,7 @@ runONTraCV1 <- function(
     purity_loss_weight = 300.0,
     regularization_loss_weight = 0.1,
     beta = 0.03,
-    envname = "giotto_ontrac_env",
+    python_path = "giotto_ontrac_env",
     shell = FALSE) {
 
     # parameters check
@@ -281,7 +307,7 @@ runONTraCV1 <- function(
 
     if (shell) {
         # handle conda env
-        python_path <- reticulate::conda_python(envname = envname)
+        python_path <- reticulate::conda_python(envname = python_path)
         ONTraC_path <- file.path(dirname(python_path), "ONTraC")
         # run ONTraC
         command <- paste(ONTraC_path,
@@ -307,7 +333,7 @@ runONTraCV1 <- function(
                     "--regularization-loss-weight", regularization_loss_weight,
                     "--beta", beta
                     )
-        wrap_msg(paste0("+",command))
+        wrap_msg(paste0("+", command))
         system(command)
     } else {
         # running through R-reticulate
@@ -339,39 +365,6 @@ runONTraCV1 <- function(
                beta = beta)
     }
 }
-
-
-# runONTraCV1 <- function(
-#     preprocessing_dir,
-#     GNN_dir,
-#     NTScore_dir,
-#     ONTraC_input = NULL,
-#     dataset,
-#     envname = "giotto_ontrac_env") {
-
-#     # running through R-reticulate
-#     ONTraC_path <- system.file("python", "python_ontrac.py",
-#                                    package = "Giotto")
-
-#     reticulate::source_python(ONTraC_path)
-
-#     ONTraC(ONTraC_input = ONTraC_input,
-#        dataset = dataset,
-#        preprocessing_dir = preprocessing_dir,
-#        GNN_dir = GNN_dir,
-#        NTScore_dir = NTScore_dir)
-
-#     # # handle conda env
-#     # python_path <- reticulate::conda_python(envname = envname)
-#     # ONTraC_path <- file.path(dirname(python_path), "ONTraC")
-#     # # run ONTraC
-#     # system(paste(ONTraC_path,
-#     #              "-d", dataset,
-#     #              "--preprocessing-dir", preprocessing_dir,
-#     #              "--GNN-dir", GNN_dir,
-#     #              "--NTScore-dir", NTScore_dir,
-#     #              "2>&1", "|", "tee", "ONTraC.log"))
-# }
 
 
 #' @title load_cell_bin_niche_cluster
