@@ -96,7 +96,7 @@ plotInteractivePolygons <- function(
                         geom_polygon(
                             data = clicklist(),
                             aes(x, y, color = name),
-                            alpha = 0, 
+                            alpha = 0,
                             show.legend = FALSE,
                             ...
                         ) +
@@ -649,6 +649,12 @@ plotInteractive3D <- function(
         cell_color = "leiden_clus",
         cell_color_code = NULL, point_size = 0.5,
         width = "100%", height = "400px") {
+
+    package_check(
+        c("plotly", "miniUI", "shiny"),
+        repository = c("CRAN:plotly", "CRAN:miniUI", "CRAN:shiny")
+    )
+
     # NSE vars
     sdimx <- sdimy <- sdimz <- cell_ID <- NULL
 

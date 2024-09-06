@@ -1119,6 +1119,9 @@ insertCrossSectionSpatPlot3D <- function(
         custom_ratio = NULL,
         default_save_name = "spat3D_with_cross_section",
         ...) {
+
+    package_check("plotly", repository = "CRAN:plotly")
+
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -1253,6 +1256,9 @@ insertCrossSectionFeatPlot3D <- function(gobject,
     save_param = list(),
     default_save_name = "spatGenePlot3D_with_cross_section",
     ...) {
+
+    package_check("plotly", repository = "CRAN:plotly")
+
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )

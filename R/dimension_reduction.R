@@ -2634,6 +2634,9 @@ runtSNE <- function(
         seed_number = 1234,
         verbose = TRUE,
         ...) {
+
+    package_check("Rtsne")
+
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
