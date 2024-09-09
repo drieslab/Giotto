@@ -564,7 +564,7 @@ plotCTCompositionInNicheCluster <- function(
     values = "prob",
     spat_unit = "cell",
     feat_type = "niche cluster",
-    normalization = c("by_feat_type", "by_cell_type", NULL),
+    normalization = c("by_niche_cluster", "by_cell_type", NULL),
     show_plot = NULL,
     return_plot = NULL,
     save_plot = NULL,
@@ -617,7 +617,7 @@ plotCTCompositionInNicheCluster <- function(
         normalized_df <- as.data.frame(
             cell_type_counts_df / rowSums(cell_type_counts_df)
         )
-    } else if (normalization == "by_cell_type") {
+    } else if (normalization == "by_niche_cluster") {
         normalized_df <- as.data.frame(t(
             t(cell_type_counts_df) / colSums(cell_type_counts_df)
         ))
