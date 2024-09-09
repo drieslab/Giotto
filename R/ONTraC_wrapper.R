@@ -222,74 +222,41 @@ runONTraCV1 <- function(
     purity_loss_weight = 300.0,
     regularization_loss_weight = 0.1,
     beta = 0.03,
-    python_path = "giotto_ontrac_env",
-    shell = FALSE) {
+    python_path = "giotto_ontrac_env") {
     # parameters check
     device <- match.arg(device)
 
-    if (shell) {
-        # handle conda env
-        python_path <- reticulate::conda_python(envname = python_path)
-        ONTraC_path <- file.path(dirname(python_path), "ONTraC")
-        # run ONTraC
-        command <- paste(
-            ONTraC_path,
-            "-d", dataset,
-            "--preprocessing-dir", preprocessing_dir,
-            "--GNN-dir", GNN_dir,
-            "--NTScore-dir", NTScore_dir,
-            "--n-cpu", n_cpu,
-            "--n-neighbors", n_neighbors,
-            "--n-local", n_local,
-            "--device", device,
-            "--epochs", epochs,
-            "--patience", patience,
-            "--min-delta", min_delta,
-            "--min-epochs", min_epochs,
-            "--batch-size", batch_size,
-            "--seed", seed,
-            "--lr", lr,
-            "--hidden-feats", hidden_feats,
-            "--k", k,
-            "--modularity-loss-weight", modularity_loss_weight,
-            "--purity-loss-weight", purity_loss_weight,
-            "--regularization-loss-weight", regularization_loss_weight,
-            "--beta", beta
-        )
-        wrap_msg(paste0("+", command))
-        system(command)
-    } else {
-        # running through R-reticulate
-        ONTraC_path <- system.file("python", "python_ontrac.py",
-            package = "Giotto"
-        )
-
-        reticulate::source_python(ONTraC_path)
-
-        ONTraC(
-            ONTraC_input = ONTraC_input,
-            preprocessing_dir = preprocessing_dir,
-            GNN_dir = GNN_dir,
-            NTScore_dir = NTScore_dir,
-            n_cpu = n_cpu,
-            n_neighbors = n_neighbors,
-            n_local = n_local,
-            device = device,
-            epochs = epochs,
-            patience = patience,
-            min_delta = min_delta,
-            min_epochs = min_epochs,
-            batch_size = batch_size,
-            seed = seed,
-            lr = lr,
-            hidden_feats = hidden_feats,
-            k = k,
-            modularity_loss_weight = modularity_loss_weight,
-            purity_loss_weight = purity_loss_weight,
-            regularization_loss_weight = regularization_loss_weight,
-            beta = beta
-        )
-    }
+    # handle conda env
+    set_giotto_python_path(python_path)
+    python_path <- reticulate::conda_python(envname = python_path)
+    ONTraC_path <- file.path(dirname(python_path), "ONTraC")
+    # run ONTraC
+    command <- paste(
+        ONTraC_path,
+        "-d", dataset,
+        "--preprocessing-dir", preprocessing_dir,
+        "--GNN-dir", GNN_dir,
+        "--NTScore-dir", NTScore_dir,
+        "--n-cpu", n_cpu,
+        "--n-neighbors", n_neighbors,
+        "--n-local", n_local,
+        "--device", device,
+        "--epochs", epochs,
+        "--patience", patience,
+        "--min-delta", min_delta,
+        "--min-epochs", min_epochs,
+        "--batch-size", batch_size,
+        "--seed", seed,
+        "--lr", lr,
+        "--hidden-feats", hidden_feats,
+        "--k", k,
+        "--modularity-loss-weight", modularity_loss_weight,
+        "--purity-loss-weight", purity_loss_weight,
+        "--regularization-loss-weight", regularization_loss_weight,
+        "--beta", beta
+    )
+    wrap_msg(paste0("+", command))
+    system(command)
 }
 
 
