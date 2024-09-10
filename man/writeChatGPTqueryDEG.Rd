@@ -27,11 +27,11 @@ writeChatGPTqueryDEG(
 writes a .txt file to the desired location
 }
 \description{
-This function writes a query as a .txt file that can be used with 
-ChatGPT or a similar LLM service to find the most likely cell types based on the 
+This function writes a query as a .txt file that can be used with
+ChatGPT or a similar LLM service to find the most likely cell types based on the
 top differential expressed genes (DEGs) between identified clusters.
 }
 \details{
-This function does not run any LLM service. It simply creates the .txt 
+This function does not run any LLM service. It simply creates the .txt
 file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
 }

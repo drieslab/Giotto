@@ -1,30 +1,31 @@
-# Giotto 4.1.0 TBD
-
-## Bug fixes
-* Fix error in `plotInteractivePolygons()` when providing a spatial plot with a continuous scale [#964](https://github.com/drieslab/Giotto/issues/964) by jweis3
-* Fix error in DWLS `find_dampening_constant()` when `S[subset, ]` produces only 1 gene.
-* Fix error in `interpolateFeatures()` where feature names with `-` or starting with numbers did not work
-
-## New
-* `read10xAffineImage()` for reading 10x affine transformed images
-* Several modular importer functions
-
-# Giotto 4.0.9
+# Giotto 4.1.0 (2024/07/31)
 
 ## Breaking changes
 * Deprecated `detectSpatialCorGenes()` removed. Use `detectSpatialCorFeats()` instead
 * Deprecated `findInteractionChangedGenes()` removed. Use `findInteractionChangedFeats()` instead
 * Deprecated `findCellProximityGenes()` removed. Use `findInteractionChangedFeats()` instead
+* `createGiottoXeniumObject()` has been overhauled and parameters have changed.
 
 ## Bug fixes
+* Fix error in `plotInteractivePolygons()` when providing a spatial plot with a continuous scale [#964](https://github.com/drieslab/Giotto/issues/964) by jweis3
+* Fix error in DWLS `find_dampening_constant()` when `S[subset, ]` produces only 1 gene.
+* Fix error in `interpolateFeatures()` where feature names with `-` or starting with numbers did not work
 * Add catch in `runPCAprojectionBatch()` for when ncp requested exceeds number of feats used
 * Make `spatCellCellcom()` respect `verbose` flag [#949](https://github.com/drieslab/Giotto/issues/949) by rbutleriii
+
+## New
+* Dataset affine registration via interactive shiny app and automated SIFT detection
+* Cell segmentation via Cellpose
+* `read10xAffineImage()` for reading 10x affine transformed images
+* Several modular importer and convenience functions
+* ONTraC implementation
 
 ## Enhancements
 * `print()` methods for `icfObject` and `combIcfObject`
 
 ## Changes
-* require GiottoUtils (>= 0.1.9)
+* require GiottoUtils (>= 0.1.10)
+* require GiottoClass (>= 0.3.3)
 
 # Giotto 4.0.8 (2024/05/22)
 

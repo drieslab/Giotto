@@ -23,11 +23,11 @@ plotCTCompositionInNicheCluster(
 
 \item{cell_type}{the cell type column name in the metadata}
 
-\item{values}{name of the expression matrix stored connectivity values}
+\item{values}{name of the expression matrix stored probability of each cell assigned to each niche cluster}
 
 \item{spat_unit}{name of spatial unit niche stored cluster features}
 
-\item{feat_type}{name of the feature type stored niche cluster connectivities}
+\item{feat_type}{name of the feature type stored probability matrix}
 
 \item{show_plot}{logical. show plot}
 
@@ -43,5 +43,5 @@ plotCTCompositionInNicheCluster(
 plot cell type composition within each niche cluster
 }
 \details{
-This function plots the niche cluster connectivity matrix
+This function plots the cell type composition within each niche cluster
 }

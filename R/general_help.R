@@ -276,8 +276,8 @@ rank_binarize_wrapper <- function(
 
 #' @title writeChatGPTqueryDEG
 #' @name writeChatGPTqueryDEG
-#' @description This function writes a query as a .txt file that can be used with 
-#' ChatGPT or a similar LLM service to find the most likely cell types based on the 
+#' @description This function writes a query as a .txt file that can be used with
+#' ChatGPT or a similar LLM service to find the most likely cell types based on the
 #' top differential expressed genes (DEGs) between identified clusters.
 #' @param DEG_output the output format from the differenetial expression functions
 #' @param top_n_genes number of genes for each cluster
@@ -285,36 +285,36 @@ rank_binarize_wrapper <- function(
 #' @param folder_name path to the folder where you want to save the .txt file
 #' @param file_name name of .txt file
 #' @returns writes a .txt file to the desired location
-#' @details This function does not run any LLM service. It simply creates the .txt 
+#' @details This function does not run any LLM service. It simply creates the .txt
 #' file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
 #' @export
-writeChatGPTqueryDEG = function(DEG_output, 
-                                top_n_genes = 10, 
-                                tissue_type = 'human breast cancer', 
-                                folder_name = getwd(), 
+writeChatGPTqueryDEG = function(DEG_output,
+                                top_n_genes = 10,
+                                tissue_type = 'human breast cancer',
+                                folder_name = getwd(),
                                 file_name = 'chatgpt_query.txt') {
-  
+
   chatgpt_query = paste0("Identify cell types of ", tissue_type, " tissue using the following markers. Identify one cell type for each row. Only provide the cell type name and the marker genes used for cell type identification.")
-  
+
   selected_DEG_output = DEG_output[, head(.SD, top_n_genes), by="cluster"]
-  
+
   finallist = list()
   finallist[[1]] = chatgpt_query
-  
+
   for(clus in unique(selected_DEG_output$cluster)) {
     x = selected_DEG_output[cluster == clus][['feats']]
     x = c(clus, x)
     finallist[[as.numeric(clus)+1]] = x
   }
-  
+
   outputdt = data.table::data.table(finallist)
-  
+
   cat('\n start writing \n')
-  data.table::fwrite(x = outputdt, 
+  data.table::fwrite(x = outputdt,
                      file = paste0(folder_name,'/', file_name),
                      sep2 = c(""," ",""), col.names = F)
-  
-} 
+
+}
 
 
 
@@ -691,7 +691,7 @@ get10Xmatrix_h5 <- function(
             ]
 
             # change names to gene symbols if it's expression
-            if (fclass == "Gene Expression" & gene_ids == "symbols") {
+            if (fclass == "Gene Expression" && gene_ids == "symbols") {
                 conv_vector <- features_dt$uniq_name
                 names(conv_vector) <- features_dt$id
 
@@ -727,14 +727,18 @@ get10Xmatrix_h5 <- function(
 #' transform. Loads the image in with an orientation that matches the dataset
 #' points and polygons vector information
 #' @param file filepath to image
+#' @param imagealignment_path filepath to alignment file which contains
+#' an affine transformation matrix. Usually a `.csv` file
+#' @param name character. Name to assign the image. Default is 'image'.
 #' @param micron micron scaling. Directly used if a numeric is supplied.
 #' Also prefers a filepath to the `experiment.xenium` file which contains this
 #' info. A default of 0.2125 is provided.
-#' @param affine filepath to `...imagealignment.csv` which contains an affine
-#' transformation matrix
+#' @param \dots additional params to pass to
+#' `[GiottoClass::createGiottoLargeImage]`
+#' @md
 #' @export
 read10xAffineImage <- function(
-        file, imagealignment_path, micron = 0.2125
+        file, imagealignment_path, name = "aligned_image", micron = 0.2125, ...
 ) {
     checkmate::assert_file_exists(file)
     checkmate::assert_file_exists(imagealignment_path)
@@ -746,7 +750,7 @@ read10xAffineImage <- function(
     aff <- data.table::fread(imagealignment_path) %>%
         as.matrix()
 
-    img <- createGiottoLargeImage(file)
+    img <- createGiottoLargeImage(file, name = name, ...)
 
     aff_img <- .tenx_img_affine(x = img, affine = aff, micron = micron)
 
