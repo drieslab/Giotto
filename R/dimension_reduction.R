@@ -1376,7 +1376,8 @@ runPCAprojectionBatch <- function(
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @inheritParams create_screeplot
-#' @param name name of PCA object if available
+#' @param dim_reduction_name name of PCA
+#' @param name deprecated
 #' @param expression_values expression values to use
 #' @param reduction cells or features
 #' @param method which implementation to use
@@ -1402,7 +1403,8 @@ screePlot <- function(
         gobject,
         spat_unit = NULL,
         feat_type = NULL,
-        name = NULL,
+        dim_reduction_name = NULL,
+        name = deprecated(),
         expression_values = c("normalized", "scaled", "custom"),
         reduction = c("cells", "feats"),
         method = c("irlba", "exact", "random", "factominer"),
@@ -1419,6 +1421,17 @@ screePlot <- function(
         save_param = list(),
         default_save_name = "screePlot",
         ...) {
+
+    if (is_present(name)) {
+        deprecate_warn(
+            when = "4.1.1",
+            what = "screePlot(name = )",
+            with = "screePlot(dim_reduction_name = )"
+        )
+    } else {
+        name <- dim_reduction_name # shorter varname
+    }
+
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,

@@ -4,6 +4,9 @@
 ## Bug fixes
 * Allow `giottoInstructions` passing for Xenium convenience functions
 
+## Changes
+* Deprecate `screePlot()` `name` in favor of `dim_reduction_name` param
+
 
 # Giotto 4.1.0 (2024/07/31)
 
