@@ -723,8 +723,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
     )
 
     fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
-    progressr::with_progress({
-        p <- progressr::progressor(along = fovs)
+    with_pbar({
+        p <- pbar(along = fovs)
 
         gpolys <- lapply(fovs, function(f) {
             segfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))
@@ -925,8 +925,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
     fovs <- fovs %null% .cosmx_imgname_fovparser(path) # ALL if NULL
     verbose <- verbose %null% TRUE
 
-    progressr::with_progress({
-        p <- progressr::progressor(along = fovs)
+    with_pbar({
+        p <- pbar(along = fovs)
 
         gimg_list <- lapply(fovs, function(f) {
             imgfile <- Sys.glob(paths = sprintf("%s/*F%03d*", path, f))

@@ -746,7 +746,7 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     json_path = file.path(path, 'scalefactors_json.json')
     checkmate::assert_file_exists(json_path)
 
-    json_scalefactors <- jsonlite::read_json(json_path)
+    json_scalefactors <- read_json(json_path)
 
     expected_json_names <- c(
         "regist_target_img_scalef", # NEW as of 2023

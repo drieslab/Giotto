@@ -1223,8 +1223,8 @@ doSNNCluster <- function(
 #' @param set_seed set seed (default = TRUE)
 #' @param seed_number number for seed
 #' @returns if return_gobject = TRUE: giotto object with new clusters appended to cell metadata
-#' @details The default settings will use dimension reduction results as input. 
-#' Set dim_reduction_to_use = NULL if you want to directly use expression values as input. 
+#' @details The default settings will use dimension reduction results as input.
+#' Set dim_reduction_to_use = NULL if you want to directly use expression values as input.
 #' By providing a feature vector to feats_to_use you can subset the expression matrix.
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @examples
@@ -1254,7 +1254,7 @@ doKmeans <- function(
         return_gobject = TRUE,
         set_seed = TRUE,
         seed_number = 1234) {
-  
+
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1276,7 +1276,7 @@ doKmeans <- function(
 
     ## using dimension reduction ##
     if(!is.null(dim_reduction_to_use)) {
-      
+
       # use only available dimensions if dimensions < dimensions_to_use
       dim_coord <- get_dimReduction(
         gobject = gobject,
@@ -1287,14 +1287,14 @@ doKmeans <- function(
         name = dim_reduction_name,
         output = "dimObj"
       )
-      
+
       dimensions_to_use <- dimensions_to_use[
         dimensions_to_use %in% seq_len(ncol(dim_coord[]))
       ]
       matrix_to_use <- dim_coord[][, dimensions_to_use]
-      
+
     } else {
-      
+
       ## using original matrix ##
       expr_values <- getExpression(
         gobject = gobject,
@@ -1303,21 +1303,21 @@ doKmeans <- function(
         values = expression_values,
         output = "exprObj"
       )
-      
+
       # subset expression matrix
       if (!is.null(feats_to_use)) {
         expr_values[] <- expr_values[][
           rownames(expr_values[]) %in% feats_to_use,
         ]
       }
-      
+
       # features as columns
       # cells as rows
       matrix_to_use <- t_flex(expr_values[])
-      
+
     }
-    
-    
+
+
     ## distance
     if (distance_method == "original") {
         celldist <- matrix_to_use
@@ -2817,7 +2817,7 @@ getClusterSimilarity <- function(
 
     # correlation matrix
     cormatrix <- cor_flex(x = testmatrix, method = cor)
-    cor_table <- data.table::as.data.table(reshape2::melt(cormatrix))
+    cor_table <- melt_matrix(cormatrix)
     data.table::setnames(
         cor_table,
         old = c("Var1", "Var2"), c("group1", "group2")
