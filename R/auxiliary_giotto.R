@@ -762,7 +762,7 @@ filterGiotto <- function(
   }
   
   # TODO: update with dbData generic
-  con = dbMatrix:::get_con(dbMatrix)
+  con = dbplyr::remote_con(dbMatrix[])
   
   # overwrite table by default
   if(name %in% DBI::dbListTables(con)) {
