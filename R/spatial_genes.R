@@ -4104,19 +4104,6 @@ heatmSpatialCorFeats <- function(
 
 
 
-#' @title heatmSpatialCorGenes
-#' @name heatmSpatialCorGenes
-#' @description Create heatmap of spatially correlated genes
-#' @inheritDotParams heatmSpatialCorFeats
-#' @returns heatmap
-#' @seealso \code{\link{heatmSpatialCorFeats}}
-#' @export
-heatmSpatialCorGenes <- function(...) {
-    .Deprecated(new = "heatmSpatialCorFeats")
-
-    heatmSpatialCorFeats(...)
-}
-
 
 
 

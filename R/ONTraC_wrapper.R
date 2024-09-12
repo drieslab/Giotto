@@ -398,7 +398,7 @@ plotNicheClusterConnectivity <- function( # nolint: object_name_linter.
   )
   gpl <- gpl + ggraph::scale_edge_alpha(range = c(0.1, 1))
   gpl <- gpl + ggraph::scale_edge_colour_gradientn(
-    colours = RColorBrewer::brewer.pal(9, "Reds"),
+    colours = getColors("Reds", 9, src = "RColorBrewer"),
     name = "Value"
   )
 

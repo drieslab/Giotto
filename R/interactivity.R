@@ -380,7 +380,7 @@ comparePolygonExpression <- function(
     }
 
     # get expression
-    my_expression <- get_expression_values(gobject,
+    my_expression <- getExpression(gobject,
         values = expression_values,
         spat_unit = spat_unit,
         feat_type = feat_type,
@@ -587,7 +587,7 @@ plotPolygons <- function(
     if (is.null(x)) stop("A plot object must be provided")
 
     ## get polygons spatial info
-    polygon_spatVector <- get_polygon_info(
+    polygon_spatVector <- getPolygonInfo(
         gobject = gobject,
         polygon_name = polygon_name,
         return_giottoPolygon = FALSE

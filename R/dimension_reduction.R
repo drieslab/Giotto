@@ -541,9 +541,7 @@ runPCA <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(
-            gobject = gobject, dimObject = dimObject, verbose = verbose
-        )
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -945,7 +943,7 @@ runPCAprojection <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1349,7 +1347,7 @@ runPCAprojectionBatch <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1376,7 +1374,8 @@ runPCAprojectionBatch <- function(
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @inheritParams create_screeplot
-#' @param name name of PCA object if available
+#' @param dim_reduction_name name of PCA
+#' @param name deprecated
 #' @param expression_values expression values to use
 #' @param reduction cells or features
 #' @param method which implementation to use
@@ -1402,7 +1401,8 @@ screePlot <- function(
         gobject,
         spat_unit = NULL,
         feat_type = NULL,
-        name = NULL,
+        dim_reduction_name = NULL,
+        name = deprecated(),
         expression_values = c("normalized", "scaled", "custom"),
         reduction = c("cells", "feats"),
         method = c("irlba", "exact", "random", "factominer"),
@@ -1419,6 +1419,17 @@ screePlot <- function(
         save_param = list(),
         default_save_name = "screePlot",
         ...) {
+
+    if (is_present(name)) {
+        deprecate_warn(
+            when = "4.1.1",
+            what = "screePlot(name = )",
+            with = "screePlot(dim_reduction_name = )"
+        )
+    } else {
+        name <- dim_reduction_name # shorter varname
+    }
+
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1629,7 +1640,7 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
     savelist <- list(pl, cpl)
 
     ## combine plots with cowplot
-    combo_plot <- cowplot::plot_grid(
+    combo_plot <- plot_grid(
         plotlist = savelist,
         ncol = 1,
         rel_heights = c(1),
@@ -2155,7 +2166,7 @@ runUMAP <- function(
         ## using dimension reduction ##
         if (!is.null(dim_reduction_to_use)) {
             ## TODO: check if reduction exists
-            dimObj_to_use <- get_dimReduction(
+            dimObj_to_use <- getDimReduction(
                 gobject = gobject,
                 spat_unit = spat_unit,
                 feat_type = feat_type,
@@ -2278,10 +2289,7 @@ runUMAP <- function(
 
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(
-                gobject = gobject,
-                dimObject = dimObject
-            )
+            gobject <- setGiotto(gobject, dimObject, verbose = verbose)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -2553,7 +2561,7 @@ runUMAPprojection <- function(
 
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         ## update parameters used ##
@@ -2781,10 +2789,7 @@ runtSNE <- function(
             )
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(
-                gobject = gobject,
-                dimObject = dimObject
-            )
+            gobject <- setGiotto(gobject, dimObject, verbose = verbose)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             ## update parameters used ##
@@ -2918,7 +2923,7 @@ runGiottoHarmony <- function(
     ## using dimension reduction ##
     if (!is.null(dim_reduction_to_use)) {
         ## TODO: check if reduction exists
-        matrix_to_use <- get_dimReduction(
+        matrix_to_use <- getDimReduction(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
@@ -2987,14 +2992,14 @@ runGiottoHarmony <- function(
     colnames(harmony_results) <- paste0("Dim.", seq_len(ncol(harmony_results)))
     rownames(harmony_results) <- rownames(matrix_to_use)
 
-    harmdimObject <- create_dim_obj(
+    harmdimObject <- createDimObj(
+        coordinates = harmony_results,
         name = name,
         spat_unit = spat_unit,
         feat_type = feat_type,
-        provenance = provenance,
+        method = "harmony",
         reduction = "cells", # set to spat_unit?
-        reduction_method = "harmony",
-        coordinates = harmony_results,
+        provenance = provenance,
         misc = NULL
     )
 
@@ -3016,10 +3021,7 @@ runGiottoHarmony <- function(
         }
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(
-            gobject = gobject,
-            dimObject = harmdimObject
-        )
+        gobject <- setGiotto(gobject, harmdimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 

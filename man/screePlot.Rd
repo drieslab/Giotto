@@ -8,7 +8,8 @@ screePlot(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  name = NULL,
+  dim_reduction_name = NULL,
+  name = deprecated(),
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
   method = c("irlba", "exact", "random", "factominer"),
@@ -34,7 +35,9 @@ screePlot(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{name}{name of PCA object if available}
+\item{dim_reduction_name}{name of PCA}
+
+\item{name}{deprecated}
 
 \item{expression_values}{expression values to use}
 

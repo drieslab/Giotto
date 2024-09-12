@@ -1,8 +1,26 @@
 
+# Giotto 4.1.2
+
+## Breaking changes
+* remove deprecated `PAGEEnrich()`. Use `runPAGEEnrich()` instead
+* remove deprecated `rankEnrich()`. Use `runRankEnrich()` instead
+* remove deprecated `hyperGeometricEnrich()`. Use `runHyperGeometricEnrich()` instead
+* remove deprecated `createSpatialEnrich()`. Use `runSpatialEnrich()` instead
+* remove deprecated `heatmSpatialCorGenes()`. Use `heatmSpatialCorFeats()` instead
+* remove deprecated `runPAGEEnrich_OLD()`. Use `runPAGEEnrich()` instead
+
+## Changes
+* `limma`, `plotly`, and `Rtsne` moved to Suggests
+* move `progressr` and `jsonlite` dependencies to GiottoUtils v0.1.12
+* remove `reshape2` dependency.
+
 # Giotto 4.1.1
 
 ## Bug fixes
 * Allow `giottoInstructions` passing for Xenium convenience functions
+
+## Changes
+* Deprecate `screePlot()` `name` in favor of `dim_reduction_name` param
 
 
 # Giotto 4.1.0 (2024/07/31)

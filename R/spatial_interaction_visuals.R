@@ -68,7 +68,7 @@ cellProximityBarplot <- function(
     bpl <- bpl + ggplot2::labs(y = "# of interactions")
     bpl
 
-    combo_plot <- cowplot::plot_grid(
+    combo_plot <- plot_grid(
         pl, bpl,
         ncol = 2, rel_heights = c(1),
         rel_widths = c(3, 1.5), align = "h"

@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 4.1.1
+Version: 4.1.2
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7650-7754")),
@@ -36,18 +36,14 @@ Imports:
     BiocParallel,
     BiocSingular,
     checkmate,
-    cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
     dbscan (>= 1.1-3),
     ggplot2 (>= 3.1.1),
-    GiottoUtils (>= 0.1.9),
-    GiottoVisuals (>= 0.2.4),
+    GiottoUtils (>= 0.1.12),
+    GiottoVisuals (>= 0.2.5),
     igraph (>= 1.2.4.1),
-    jsonlite,
     Matrix (>= 1.6-2),
     MatrixGenerics,
-    progressr,
-    reshape2,
     reticulate (>= 1.25),
     scales (>= 1.0.0),
     sparseMatrixStats,
