@@ -1645,7 +1645,7 @@ createGiottoCosMxObject <- function(
         provenance = "cell_agg"
     )
 
-    cosmx_gobject <- set_expression_values(cosmx_gobject, values = s4_expr)
+    cosmx_gobject <- setGiotto(cosmx_gobject, s4_expr)
 
     # Add spatial locations
     if (isTRUE(verbose)) wrap_msg(
@@ -1669,9 +1669,8 @@ createGiottoCosMxObject <- function(
         provenance = "cell_agg"
     )
 
-    cosmx_gobject <- set_spatial_locations(cosmx_gobject, spatlocs = locsObj)
-    cosmx_gobject <- set_spatial_locations(cosmx_gobject,
-                                           spatlocs = locsObj_fov)
+    cosmx_gobject <- setGiotto(cosmx_gobject, locsObj, initialize = FALSE)
+    cosmx_gobject <- setGiotto(cosmx_gobject, locsObj_fov, initialize = FALSE)
 
     # initialize cell and feat IDs and metadata slots for 'cell_agg' spat_unit
     agg_cell_ID <- colnames(s4_expr[])

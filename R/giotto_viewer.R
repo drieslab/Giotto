@@ -212,9 +212,10 @@ exportGiottoViewer <- function(
 
     # data.table variables
     sdimx <- sdimy <- NULL
-    spatial_location <- get_spatial_locations(
+    spatial_location <- getSpatialLocations(
         gobject = gobject,
-        spat_loc_name = spat_loc_name
+        spat_unit = spat_unit,
+        name = spat_loc_name
     )
     spatial_location <- spatial_location[, .(sdimx, sdimy)]
     write.table(spatial_location,
@@ -241,6 +242,7 @@ exportGiottoViewer <- function(
         cell_metadata <- combineMetadata(
             gobject = gobject,
             feat_type = feat,
+            spat_unit = spat_unit,
             spat_enr_names = spat_enr_names
         )
 
@@ -361,11 +363,12 @@ exportGiottoViewer <- function(
     values <- match.arg(expression_values, unique(c("scaled", "normalized", "custom", expression_values)))
 
     for (feat in feat_type) {
-        expr_values <- get_expression_values(
+        expr_values <- getExpression(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat,
-            values = values
+            values = values,
+            output = "matrix"
         )
         expr_values <- as.matrix(expr_values)
 

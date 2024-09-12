@@ -2255,6 +2255,8 @@ plotCellProximityFeatSpot <- function(
 #' @param expression_values (e.g. 'normalized', 'scaled', 'custom')
 #' @param spatial_network_name spatial network to use for identifying
 #' interacting cells
+#' @param spat_enr_name name of spatial enrichment containing DWLS results.
+#' Default = `"DWLS"`
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
 #' @param feature_set_1 first specific feature set from feature pairs
@@ -2306,6 +2308,7 @@ plotCellProximityFeatSpot <- function(
 #'  * p.adj: adjusted p-value
 #'  * PI: significanc score: log2fc \* -log10(p.adj)
 #' }
+#' @md
 #' @export
 spatCellCellcomSpots <- function(
         gobject,
@@ -2313,6 +2316,7 @@ spatCellCellcomSpots <- function(
         feat_type = NULL,
         ave_celltype_exp,
         spatial_network_name = "Delaunay_network",
+        spat_enr_name = "DWLS",
         cluster_column = "cell_ID",
         random_iter = 1000,
         feature_set_1,
@@ -2381,10 +2385,11 @@ spatCellCellcomSpots <- function(
     proximityMat <- proximityMat[, intersect_cell_IDs]
 
     # exact spatial_enrichment matrix
-    dwls_values <- get_spatial_enrichment(
+    dwls_values <- getSpatialEnrichment(
         gobject = gobject,
         spat_unit = spat_unit,
         feat_type = feat_type,
+        name = spat_enr_name,
         output = "data.table"
     )
     data.table::setDF(dwls_values)

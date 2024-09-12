@@ -1498,7 +1498,7 @@ initHMRF_V2 <-
                 "scaled",
                 "normalized", "custom", expression_values
             )))
-            expr_values <- get_expression_values(
+            expr_values <- getExpression(
                 gobject = gobject,
                 spat_unit = spat_unit,
                 feat_type = feat_type,
@@ -1506,7 +1506,7 @@ initHMRF_V2 <-
             )
             if (zscore != "none") {
                 zscore <- match.arg(zscore, c("none", "colrow", "rowcol"))
-                expr_values <- get_expression_values(
+                expr_values <- getExpression(
                     gobject = gobject,
                     spat_unit = spat_unit,
                     feat_type = feat_type,

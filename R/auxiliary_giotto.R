@@ -933,19 +933,12 @@ filterGiotto <- function(
     )
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject <- set_expression_values(
-        gobject = gobject,
-        values = norm_expr
-    )
-
-    gobject <- set_expression_values(
-        gobject = gobject,
-        values = norm_scaled_expr
-    )
+    gobject <- setGiotto(gobject, norm_expr, initialize = FALSE)
+    gobject <- setGiotto(gobject, norm_scaled_expr, initialize = FALSE)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     ## 6. return Giotto object
-    return(gobject)
+    return(initialize(gobject))
 }
 
 
@@ -991,12 +984,8 @@ filterGiotto <- function(
     )
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject <- set_expression_values(
-        gobject = gobject,
-        values = norm_feats_cells
-    )
+    gobject <- setGiotto(giotto, norm_feats_cells)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
 
     return(gobject)
 }
@@ -1088,10 +1077,7 @@ filterGiotto <- function(
     )
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject <- set_expression_values(
-        gobject = gobject,
-        values = z
-    )
+    gobject <- setGiotto(gobject, z)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     return(gobject)
@@ -1391,10 +1377,7 @@ adjustGiottoMatrix <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_expression_values(
-            gobject = gobject,
-            values = adjusted_matrix
-        )
+        gobject <- setGiotto(gobject, adjusted_matrix)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         ## update parameters used ##
@@ -1456,14 +1439,14 @@ processGiotto <- function(
         adjust_params = list(),
         verbose = TRUE) {
     # filter Giotto
-    if (verbose == TRUE) message("1. start filter step")
+    vmsg(.v = verbose, "1. start filter step")
     if (!inherits(filter_params, "list")) {
         stop("filter_params need to be a list of parameters for filterGiotto")
     }
     gobject <- do.call("filterGiotto", c(gobject = gobject, filter_params))
 
     # normalize Giotto
-    if (verbose == TRUE) message("2. start normalization step")
+    vmsg(.v = verbose, "2. start normalization step")
     if (!inherits(norm_params, "list")) {
         stop("norm_params need to be a list of parameters for normalizeGiotto")
     }
@@ -1623,10 +1606,7 @@ addFeatStatistics <- function(
                 "mean_expr_det"
             ) := NULL]
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_feature_metadata(gobject,
-                metadata = feat_metadata,
-                verbose = FALSE
-            )
+            gobject <- setGiotto(gobject, feat_metadata, verbose = FALSE)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         }
 

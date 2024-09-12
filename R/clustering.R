@@ -1278,7 +1278,7 @@ doKmeans <- function(
     if(!is.null(dim_reduction_to_use)) {
 
       # use only available dimensions if dimensions < dimensions_to_use
-      dim_coord <- get_dimReduction(
+      dim_coord <- getDimReduction(
         gobject = gobject,
         spat_unit = spat_unit,
         feat_type = feat_type,

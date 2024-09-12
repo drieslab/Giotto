@@ -114,7 +114,7 @@ sm <- makeSignMatrixPAGE(
 )
 
 g <- runPAGEEnrich(gobject = g,
-    sign_matrix = sign_matrix,
+    sign_matrix = sm,
     min_overlap_genes = 2
 )
 

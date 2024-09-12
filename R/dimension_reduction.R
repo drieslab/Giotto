@@ -541,9 +541,7 @@ runPCA <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(
-            gobject = gobject, dimObject = dimObject, verbose = verbose
-        )
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -945,7 +943,7 @@ runPCAprojection <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1349,7 +1347,7 @@ runPCAprojectionBatch <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -2168,7 +2166,7 @@ runUMAP <- function(
         ## using dimension reduction ##
         if (!is.null(dim_reduction_to_use)) {
             ## TODO: check if reduction exists
-            dimObj_to_use <- get_dimReduction(
+            dimObj_to_use <- getDimReduction(
                 gobject = gobject,
                 spat_unit = spat_unit,
                 feat_type = feat_type,
@@ -2291,10 +2289,7 @@ runUMAP <- function(
 
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(
-                gobject = gobject,
-                dimObject = dimObject
-            )
+            gobject <- setGiotto(gobject, dimObject, verbose = verbose)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -2566,7 +2561,7 @@ runUMAPprojection <- function(
 
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(gobject = gobject, dimObject = dimObject)
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         ## update parameters used ##
@@ -2794,10 +2789,7 @@ runtSNE <- function(
             )
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_dimReduction(
-                gobject = gobject,
-                dimObject = dimObject
-            )
+            gobject <- setGiotto(gobject, dimObject, verbose = verbose)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             ## update parameters used ##
@@ -2931,7 +2923,7 @@ runGiottoHarmony <- function(
     ## using dimension reduction ##
     if (!is.null(dim_reduction_to_use)) {
         ## TODO: check if reduction exists
-        matrix_to_use <- get_dimReduction(
+        matrix_to_use <- getDimReduction(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
@@ -3000,14 +2992,14 @@ runGiottoHarmony <- function(
     colnames(harmony_results) <- paste0("Dim.", seq_len(ncol(harmony_results)))
     rownames(harmony_results) <- rownames(matrix_to_use)
 
-    harmdimObject <- create_dim_obj(
+    harmdimObject <- createDimObj(
+        coordinates = harmony_results,
         name = name,
         spat_unit = spat_unit,
         feat_type = feat_type,
-        provenance = provenance,
+        method = "harmony",
         reduction = "cells", # set to spat_unit?
-        reduction_method = "harmony",
-        coordinates = harmony_results,
+        provenance = provenance,
         misc = NULL
     )
 
@@ -3029,10 +3021,7 @@ runGiottoHarmony <- function(
         }
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_dimReduction(
-            gobject = gobject,
-            dimObject = harmdimObject
-        )
+        gobject <- setGiotto(gobject, harmdimObject, verbose = verbose)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 

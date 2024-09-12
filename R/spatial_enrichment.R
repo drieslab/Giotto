@@ -67,7 +67,7 @@
 #' )
 #'
 #' g <- runPAGEEnrich(gobject = g,
-#'     sign_matrix = sign_matrix,
+#'     sign_matrix = sm,
 #'     min_overlap_genes = 2
 #' )
 #'
@@ -256,7 +256,7 @@ makeSignMatrixDWLS <- function(
         expression_values,
         unique(c("normalized", "scaled", "custom", expression_values))
     )
-    expr_values <- get_expression_values(
+    expr_values <- getExpression(
         gobject = gobject,
         spat_unit = spat_unit,
         feat_type = feat_type,
@@ -828,10 +828,7 @@ runPAGEEnrich <- function(
         gobject@parameters <- parameters_list
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_spatial_enrichment(
-            gobject = gobject,
-            spatenrichment = enrObj
-        )
+        gobject <- setGiotto(gobject, enrObj)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1132,10 +1129,7 @@ runRankEnrich <- function(
         gobject@parameters <- parameters_list
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_spatial_enrichment(
-            gobject = gobject,
-            spatenrichment = enrObj
-        )
+        gobject <- setGiotto(gobject, enrObj)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         return(gobject)
@@ -1351,10 +1345,7 @@ runHyperGeometricEnrich <- function(
         gobject@parameters <- parameters_list
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_spatial_enrichment(
-            gobject = gobject,
-            spatenrichment = enrObj
-        )
+        gobject <- setGiotto(gobject, enrObj)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         return(gobject)
@@ -1904,10 +1895,7 @@ spatialAutoCorLocal <- function(
             )
         }
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_spatial_enrichment(
-            gobject = gobject,
-            spatenrichment = enr
-        )
+        gobject <- setGiotto(gobject, enr)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         return(gobject)
@@ -2928,10 +2916,7 @@ runDWLSDeconv <- function(
         gobject@parameters <- parameters_list
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_spatial_enrichment(
-            gobject = gobject,
-            spatenrichment = enrObj
-        )
+        gobject <- setGiotto(gobject, enrObj)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         return(gobject)
