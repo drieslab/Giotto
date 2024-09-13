@@ -512,10 +512,7 @@ findGiniMarkers <- function(
         )
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_cell_metadata(gobject,
-            metadata = cell_metadata,
-            verbose = FALSE
-        )
+        gobject <- setGiotto(gobject, cell_metadata, verbose = FALSE)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     }
 
@@ -907,10 +904,7 @@ findMastMarkers <- function(
     )
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject <- set_cell_metadata(gobject,
-        metadata = cell_metadata,
-        verbose = FALSE
-    )
+    gobject <- setGiotto(gobject, cell_metadata, verbose = FALSE)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 

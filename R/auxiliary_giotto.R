@@ -1763,10 +1763,7 @@ addCellStatistics <- function(
             )
             cell_metadata[][, c("nr_feats", "perc_feats", "total_expr") := NULL]
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- set_cell_metadata(gobject,
-                metadata = cell_metadata,
-                verbose = FALSE
-            )
+            gobject <- setGiotto(gobject, cell_metadata, verbose = FALSE)
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         }
 
