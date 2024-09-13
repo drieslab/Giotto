@@ -427,10 +427,7 @@ addCellIntMetadata <- function(gobject,
 
     if (return_gobject == TRUE) {
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_cell_metadata(gobject,
-            metadata = cell_metadata,
-            verbose = FALSE
-        )
+        gobject <- setGiotto(gobject, cell_metadata, verbose = FALSE)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         ## update parameters used ##
