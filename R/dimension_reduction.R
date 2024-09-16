@@ -160,103 +160,57 @@
         ncp <- min_ncp - 1
     }
 
-    # start seed
-    if (isTRUE(set_seed)) {
-        set.seed(seed = seed_number)
-    }
+    if (isTRUE(rev)) x <- t_flex(x)
 
-    if (isTRUE(rev)) {
-        x <- t_flex(x)
+    pca_param <- list(
+        x = x,
+        rank = ncp,
+        center = center,
+        scale = scale,
+        BPPARAM = BPPARAM,
+        ...
+    )
 
-        if (BSPARAM == "irlba") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::IrlbaParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        } else if (BSPARAM == "exact") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::ExactParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        } else if (BSPARAM == "random") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::RandomParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        }
+    pca_param$BSPARAM <- switch(BSPARAM,
+        "irlba" = BiocSingular::IrlbaParam(),
+        "exact" = BiocSingular::ExactParam(),
+        "random" = BiocSingular::RandomParam()
+    )
 
-
-
-        # eigenvalues
-        eigenvalues <- pca_res$sdev^2
-        # PC loading
-        loadings <- pca_res$x
-        rownames(loadings) <- rownames(x)
-        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
-        # coordinates
-        coords <- pca_res$rotation
-        rownames(coords) <- colnames(x)
-        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
-        result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords
-        )
+    if (set_seed) {
+        withSeed({
+            pca_res <- do.call(BiocSingular::runPCA, pca_param)
+        }, seed = seed_number)
     } else {
-        if (BSPARAM == "irlba") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::IrlbaParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        } else if (BSPARAM == "exact") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::ExactParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        } else if (BSPARAM == "random") {
-            pca_res <- BiocSingular::runPCA(
-                x = x, rank = ncp,
-                center = center, scale = scale,
-                BSPARAM = BiocSingular::RandomParam(),
-                BPPARAM = BPPARAM,
-                ...
-            )
-        }
+        pca_res <- do.call(BiocSingular::runPCA, pca_param)
+    }
 
-        # eigenvalues
-        eigenvalues <- pca_res$sdev^2
-        # PC loading
+
+    # eigenvalues
+    eigenvalues <- pca_res$sdev^2
+
+    # loadings and coords
+    if (isTRUE(rev)) {
+        loadings <- pca_res$x
+        coords <- pca_res$rotation
+        rownames(loadings) <- rownames(x)
+        rownames(coords) <- colnames(x)
+    } else {
         loadings <- pca_res$rotation
-        rownames(loadings) <- colnames(x)
-        colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
-        # coordinates
         coords <- pca_res$x
+        rownames(loadings) <- colnames(x)
         rownames(coords) <- rownames(x)
-        colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
-        result <- list(
-            eigenvalues = eigenvalues, loadings = loadings, coords = coords
-        )
     }
 
-    # exit seed
-    if (isTRUE(set_seed)) {
-        set.seed(seed = Sys.time())
-    }
+    colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
+    colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
 
-    vmsg(.is_debug = TRUE, "finished .run_pca_biocsingular, method ==", BSPARAM)
+    result <- list(
+        eigenvalues = eigenvalues, loadings = loadings, coords = coords
+    )
+
+    vmsg(.is_debug = TRUE,
+         "finished .run_pca_biocsingular, method ==", BSPARAM)
 
     return(result)
 }
