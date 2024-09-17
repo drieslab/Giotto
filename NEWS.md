@@ -9,6 +9,9 @@
 * remove deprecated `heatmSpatialCorGenes()`. Use `heatmSpatialCorFeats()` instead
 * remove deprecated `runPAGEEnrich_OLD()`. Use `runPAGEEnrich()` instead
 
+## Enhancements
+* `normalizeGiotto()` now has `'quantile'` normalization
+
 ## Changes
 * `limma`, `plotly`, and `Rtsne` moved to Suggests
 * move `progressr` and `jsonlite` dependencies to GiottoUtils v0.1.12
