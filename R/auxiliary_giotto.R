@@ -22,6 +22,7 @@
 #' @param scalefactor scalefactor
 #' @returns matrix
 #' @keywords internal
+#' @noRd
 .lib_norm_giotto <- function(mymatrix, scalefactor) {
     libsizes <- colSums_flex(mymatrix)
 
@@ -998,7 +999,7 @@ filterGiotto <- function(
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 #' @returns giotto object
 #' @keywords internal
-#' @noMd
+#' @noRd
 .rna_pears_resid_normalization <- function(
         gobject,
         raw_expr,

@@ -230,7 +230,7 @@
 #' @param feats_to_use feats to use, character or vector of features
 #' @param verbose verbosity
 #' @keywords internal
-#' @noMd
+#' @noRd
 #' @returns subsetted matrix based on selected features
 .create_feats_to_use_matrix <- function(
         gobject,
