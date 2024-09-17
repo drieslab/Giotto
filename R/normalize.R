@@ -199,6 +199,7 @@ normalizeGiotto <- function(gobject,
 #' @title Log normalize expression matrix
 #' @returns matrix
 #' @keywords internal
+#' @noRd
 .log_norm_giotto <- function(mymatrix, base, offset) {
     if (methods::is(mymatrix, "DelayedArray")) {
         mymatrix <- log(mymatrix + offset) / log(base)
@@ -226,6 +227,7 @@ normalizeGiotto <- function(gobject,
 #' Set \code{options(giotto.dbmatrix_compute = FALSE)} if saving dbMatrix
 #' after each step of normalization workflow is not desired.
 #' @keywords internal
+#' @noRd
 .compute_dbMatrix <- function(dbMatrix, name, verbose = TRUE) {
     # input validation
     if (!inherits(dbMatrix, "dbMatrix")) {
@@ -266,6 +268,7 @@ normalizeGiotto <- function(gobject,
 #' @description standard function for RNA normalization
 #' @returns giotto object
 #' @keywords internal
+#' @noRd
 .rna_standard_normalization <- function(gobject,
     raw_expr,
     feat_type,
@@ -422,6 +425,7 @@ normalizeGiotto <- function(gobject,
 #' @description function for RNA normalization according to osmFISH paper
 #' @returns giotto object
 #' @keywords internal
+#' @noRd
 .rna_osmfish_normalization <- function(gobject,
     raw_expr,
     feat_type,
