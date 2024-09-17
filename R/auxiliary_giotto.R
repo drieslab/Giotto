@@ -1046,6 +1046,29 @@ filterGiotto <- function(
     return(gobject)
 }
 
+.quantile_norm <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "quantile",
+        verbose = TRUE) {
+    z <- .qnorm(x = raw_expr[])
+    z <- create_expr_obj(
+        name = name,
+        exprMat = z,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        provenance = prov(raw_expr)
+    )
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject <- setGiotto(gobject, z, verbose = verbose)
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    return(gobject)
+}
+
 # pearson residuals normalization
 # x      : raw expression matrix
 # .csums : function for colSums that does not drop to vector
@@ -1073,6 +1096,44 @@ filterGiotto <- function(
 }
 
 
+
+# quantile normalization
+.qnorm <- function(x) {
+    # apply on features by default
+    x <- t_flex(x)
+    # Rank the values within each column
+    ranked_data <- t_flex(MatrixGenerics::colRanks(x, ties.method = "average"))
+
+    # Calculate the mean of sorted values across all columns
+    rank_means <- rowMeans(apply(x, 2, sort))
+
+    # Replace the original values with the rank means
+    # TODO revisit for large matrices
+    normalized_data <- apply(ranked_data, 2, function(idx) {
+        .qnorm_vector(idx, rank_means)
+    }) |>
+        methods::as("Matrix")
+
+    # Retain the original column names
+    colnames(normalized_data) <- colnames(x)
+    normalized_data <- t_flex(normalized_data)
+    return(normalized_data)
+}
+
+# create lookup value vector for quantile norm.
+# .5 indices should pull the mean of the adjacent values
+# indices: index values with some values being .5, designating ranking ties
+# values: values to pull from with the indices
+.qnorm_vector <- function(indices, values) {
+    sorted_values <- sort(values)
+    lower_indices <- floor(indices)
+    upper_indices <- ceiling(indices)
+    lower_values <- sorted_values[lower_indices]
+    upper_values <- sorted_values[upper_indices]
+    weights <- indices - lower_indices
+    result <- (1 - weights) * lower_values + weights * upper_values
+    return(result)
+}
 
 
 #' @title normalizeGiotto
@@ -1130,7 +1191,7 @@ normalizeGiotto <- function(
         spat_unit = NULL,
         feat_type = NULL,
         expression_values = "raw",
-        norm_methods = c("standard", "pearson_resid", "osmFISH"),
+        norm_methods = c("standard", "pearson_resid", "osmFISH", "quantile"),
         library_size_norm = TRUE,
         scalefactor = 6e3,
         log_norm = TRUE,
@@ -1171,12 +1232,14 @@ normalizeGiotto <- function(
     )
 
     norm_methods <- match.arg(
-        arg = norm_methods, choices = c("standard", "pearson_resid", "osmFISH")
+        arg = norm_methods, choices = c(
+            "standard", "pearson_resid", "osmFISH", "quantile"
+        )
     )
 
     # normalization according to standard methods
-    if (norm_methods == "standard") {
-        gobject <- .rna_standard_normalization(
+    gobject <- switch(norm_methods,
+        "standard" = .rna_standard_normalization(
             gobject = gobject,
             raw_expr = raw_expr,
             feat_type = feat_type,
@@ -1190,18 +1253,16 @@ normalizeGiotto <- function(
             scale_cells = scale_cells,
             scale_order = scale_order,
             verbose = verbose
-        )
-    } else if (norm_methods == "osmFISH") {
-        gobject <- .rna_osmfish_normalization(
+        ),
+        "osmFISH" = .rna_osmfish_normalization(
             gobject = gobject,
             raw_expr = raw_expr,
             feat_type = feat_type,
             spat_unit = spat_unit,
             name = update_slot,
             verbose = verbose
-        )
-    } else if (norm_methods == "pearson_resid") {
-        gobject <- .rna_pears_resid_normalization(
+        ),
+        "pearson_resid" = .rna_pears_resid_normalization(
             gobject = gobject,
             raw_expr = raw_expr,
             feat_type = feat_type,
@@ -1209,8 +1270,16 @@ normalizeGiotto <- function(
             theta = theta,
             name = update_slot,
             verbose = verbose
+        ),
+        "quantile" = .quantile_norm(
+            gobject = gobject,
+            raw_expr = raw_expr,
+            feat_type = feat_type,
+            spat_unit = spat_unit,
+            name = update_slot,
+            verbose = verbose
         )
-    }
+    )
 
     ## update parameters used ##
 
