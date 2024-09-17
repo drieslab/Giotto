@@ -1023,51 +1023,14 @@ filterGiotto <- function(
     }
 
     if (methods::is(raw_expr[], "HDF5Matrix")) {
-        counts_sum0 <- methods::as(matrix(
-            MatrixGenerics::colSums2(raw_expr[]),
-            nrow = 1
-        ), "HDF5Matrix")
-        counts_sum1 <- methods::as(matrix(
-            MatrixGenerics::rowSums2(raw_expr[]),
-            ncol = 1
-        ), "HDF5Matrix")
-        counts_sum <- sum(raw_expr[])
-
-        # get residuals
-        mu <- (counts_sum1 %*% counts_sum0) / counts_sum
-        z <- (raw_expr[] - mu) / sqrt(mu + mu^2 / theta)
-
-        # clip to sqrt(n)
-        n <- ncol(raw_expr[])
-        z[z > sqrt(n)] <- sqrt(n)
-        z[z < -sqrt(n)] <- -sqrt(n)
+        .csums <- .csum_nodrop.HDF5Matrix
+        .rsums <- .rsum_nodrop.HDF5Matrix
     } else {
-        counts_sum0 <- methods::as(matrix(Matrix::colSums(
-            raw_expr[]
-        ), nrow = 1), "dgCMatrix")
-        counts_sum1 <- methods::as(matrix(Matrix::rowSums(
-            raw_expr[]
-        ), ncol = 1), "dgCMatrix")
-        counts_sum <- sum(raw_expr[])
-
-        # get residuals
-        mu <- (counts_sum1 %*% counts_sum0) / counts_sum
-        z <- (raw_expr[] - mu) / sqrt(mu + mu^2 / theta)
-
-        # clip to sqrt(n)
-        n <- ncol(raw_expr[])
-        z[z > sqrt(n)] <- sqrt(n)
-        z[z < -sqrt(n)] <- -sqrt(n)
+        .csums <- .csum_nodrop.Matrix
+        .rsums <- .rsum_nodrop.Matrix
     }
 
-    # return results to Giotto object
-    if (verbose == TRUE) {
-        message(
-            "\n Pearson residual normalized data will be returned to the ",
-            name, " Giotto slot \n"
-        )
-    }
-
+    z <- .prnorm(x = raw_expr[], theta, .csums = .csums, .rsums = .rsums)
     z <- create_expr_obj(
         name = name,
         exprMat = z,
@@ -1081,6 +1044,32 @@ filterGiotto <- function(
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     return(gobject)
+}
+
+# pearson residuals normalization
+# x      : raw expression matrix
+# .csums : function for colSums that does not drop to vector
+# .rsums : function for rowSums that does not drop to vector
+.prnorm <- function(x,
+    theta = 100,
+    .csums = .csum_nodrop.Matrix,
+    .rsums = .rsum_nodrop.Matrix
+) {
+    # find 1. colsums, 2. rowsums, 3. matrix sum
+    counts_sum0 <- .csums(x)
+    counts_sum1 <- .rsums(x)
+    counts_sum <- sum(x)
+
+    # get residuals
+    mu <- (counts_sum1 %*% counts_sum0) / counts_sum
+    z <- (x - mu) / sqrt(mu + mu^2 / theta)
+
+    # clip to be within the range [-sqrt(n), sqrt(n)]
+    # This is done to prevent extreme values from dominating the analysis.
+    n <- ncol(x)
+    z[z > sqrt(n)] <- sqrt(n)
+    z[z < -sqrt(n)] <- -sqrt(n)
+    return(z)
 }
 
 
@@ -2071,3 +2060,33 @@ findNetworkNeighbors <- function(
 
     return(nb_annot)
 }
+
+
+# internals ####
+
+.csum_nodrop.Matrix <- function(x) {
+    x |>
+        Matrix::colSums() |>
+        matrix(nrow = 1L) |>
+        methods::as("Matrix")
+}
+.rsum_nodrop.Matrix <- function(x) {
+    x |>
+        Matrix::rowSums() |>
+        matrix(ncol = 1L) |>
+        methods::as("Matrix")
+}
+.csum_nodrop.HDF5Matrix <- function(x) {
+    x |>
+        MatrixGenerics::colSums2() |>
+        matrix(nrow = 1L) |>
+        methods::as("HDF5Matrix")
+}
+.rsum_nodrop.HDF5Matrix <- function(x) {
+    x |>
+        MatrixGenerics::rowSums2() |>
+        matrix(ncol = 1L) |>
+        methods::as("HDF5Matrix")
+}
+
+
