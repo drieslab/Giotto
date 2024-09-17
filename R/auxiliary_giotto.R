@@ -822,7 +822,7 @@ filterGiotto <- function(
     col_names <- colnames(raw_expr[])
 
     ## 1. library size normalize
-    if (library_size_norm == TRUE) {
+    if (isTRUE(library_size_norm)) {
         norm_expr <- .lib_norm_giotto(
             mymatrix = raw_expr[],
             scalefactor = scalefactor
@@ -831,8 +831,8 @@ filterGiotto <- function(
         norm_expr <- raw_expr[]
     }
 
-    ## 2. lognormalize
-    if (log_norm == TRUE) {
+    ## 2. log normalize
+    if (isTRUE(log_norm)) {
         norm_expr <- .log_norm_giotto(
             mymatrix = norm_expr,
             base = logbase,
@@ -841,14 +841,14 @@ filterGiotto <- function(
     }
 
     ## 3. scale
-    if (scale_feats == TRUE & scale_cells == TRUE) {
+    if (isTRUE(scale_feats) && isTRUE(scale_cells)) {
         scale_order <- match.arg(
             arg = scale_order, choices = c("first_feats", "first_cells")
         )
 
         if (scale_order == "first_feats") {
             if (isTRUE(verbose)) {
-                wrap_msg("\n first scale feats and then cells \n")
+                vmsg(.v = verbose, "first scale feats and then cells")
             }
 
             norm_scaled_expr <- t_flex(standardise_flex(
@@ -859,7 +859,7 @@ filterGiotto <- function(
             )
         } else if (scale_order == "first_cells") {
             if (isTRUE(verbose)) {
-                wrap_msg("\n first scale cells and then feats \n")
+                vmsg(.v = verbose, "first scale cells and then feats")
             }
 
             norm_scaled_expr <- standardise_flex(
@@ -871,11 +871,11 @@ filterGiotto <- function(
         } else {
             stop("\n scale order must be given \n")
         }
-    } else if (scale_feats == TRUE) {
+    } else if (isTRUE(scale_feats)) {
         norm_scaled_expr <- t_flex(standardise_flex(
             x = t_flex(norm_expr), center = TRUE, scale = TRUE
         ))
-    } else if (scale_cells == TRUE) {
+    } else if (isTRUE(scale_cells)) {
         norm_scaled_expr <- standardise_flex(
             x = norm_expr, center = TRUE, scale = TRUE
         )
@@ -992,12 +992,13 @@ filterGiotto <- function(
 
 
 #' @title RNA pearson residuals normalization
-#' @name .rna_pears_resid_normalization
+#' @name rna_pears_resid_normalization
 #' @description function for RNA normalization according to Lause/Kobak et al
 #' paper
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 #' @returns giotto object
 #' @keywords internal
+#' @noMd
 .rna_pears_resid_normalization <- function(
         gobject,
         raw_expr,
@@ -1014,7 +1015,6 @@ filterGiotto <- function(
       'Analytic Pearson residuals for normalization of single-cell RNA-seq UMI
       data' ")
     }
-
 
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
@@ -1073,11 +1073,11 @@ filterGiotto <- function(
         exprMat = z,
         spat_unit = spat_unit,
         feat_type = feat_type,
-        provenance = raw_expr@provenance
+        provenance = prov(raw_expr)
     )
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject <- setGiotto(gobject, z)
+    gobject <- setGiotto(gobject, z, verbose = verbose)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     return(gobject)
@@ -1134,7 +1134,7 @@ filterGiotto <- function(
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
-#' normalizeGiotto(g)
+#' normalizeGiotto(g) # default is method A
 #' @export
 normalizeGiotto <- function(
         gobject,
