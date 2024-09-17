@@ -230,6 +230,7 @@
 #' @param feats_to_use feats to use, character or vector of features
 #' @param verbose verbosity
 #' @keywords internal
+#' @noMd
 #' @returns subsetted matrix based on selected features
 .create_feats_to_use_matrix <- function(
         gobject,
@@ -2868,20 +2869,13 @@ runGiottoHarmony <- function(
     }
 
 
-
-
-    # set cores to use
-    # n_threads = determine_cores(cores = n_threads)
-
-
     ## using dimension reduction ##
     if (!is.null(dim_reduction_to_use)) {
-        ## TODO: check if reduction exists
         matrix_to_use <- getDimReduction(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            reduction = reduction, # set to spat_unit?
+            reduction = reduction,
             reduction_method = dim_reduction_to_use,
             name = dim_reduction_name,
             output = "dimObj"
@@ -2975,7 +2969,7 @@ runGiottoHarmony <- function(
         }
 
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- setGiotto(gobject, harmdimObject, verbose = verbose)
+        gobject <- setGiotto(gobject, harmdimObject, verbose = FALSE)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
