@@ -41,6 +41,12 @@
 #'   \item{1. First calculate expected values based on Pearson correlations.}
 #'   \item{2. Next calculate z-scores based on observed and expected values.}
 #' }
+#' D. Quantile normalization across features
+#' \itemize{
+#'   \item{1. Rank feature expression}
+#'   \item{2. Define a common distribution by sorting expression values per feature then finding the mean across all features per index}
+#'   \item{3. Apply common distribution to expression information by using the ranks from step 1 as indices}
+#' }
 #' By default the latter two results will be saved in the Giotto slot for
 #' scaled expression, this can be changed by changing the update_slot parameters
 #' @examples
