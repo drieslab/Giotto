@@ -366,7 +366,6 @@ setMethod("initialize", signature("VisiumHDReader"), function(
 
     load_poly_fun <- function(
         path = expr_dir,
-        tissue_positions_path = spatial_dir,
         shape = 'hexagon',
         shape_size = 400,
         name = 'hex400',
@@ -374,7 +373,6 @@ setMethod("initialize", signature("VisiumHDReader"), function(
     ) {
         .visiumHD_poly(
             path = path,
-            tissue_positions_path = tissue_positions_path,
             shape = shape,
             shape_size = shape_size,
             name = name,
@@ -458,7 +456,6 @@ setMethod("initialize", signature("VisiumHDReader"), function(
 
         polys <- funs$load_polygon(
             path = expr_dir,
-            tissue_positions_path = spatial_dir,
             shape = shape,
             shape_size = shape_size,
             name = paste0(shape, shape_size),
@@ -588,7 +585,7 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     if (!file.exists(expr_counts_path)) .gstop(expr_counts_path, "does not exist!")
 
     ## 2. check spatial locations
-    spatial_dir <- paste0(path, "/", "spatial/")
+    spatial_dir <- paste0(path, "/", "spatial")
     tissue_positions_path = Sys.glob(paths = file.path(spatial_dir, 'tissue_positions*'))
 
     ## 3. check spatial image
@@ -872,7 +869,6 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     return(visiumHD_img_list)
 }
 .visiumHD_poly = function(path,
-                          tissue_positions_path,
                           shape = "hexagon",
                           shape_size = 400,
                           name = 'hex400',
@@ -886,15 +882,19 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
         stop("Size must be a positive number.")
     }
 
+    tp <- arrow::read_parquet(
+        file = .visiumHD_read_folder(
+            path, verbose = FALSE)[3]$tissue_positions_path,as_data_frame = FALSE)
 
-    original_feat_ext <- data.table::as.data.table(.visiumHD_tissue_positions(path = tissue_positions_path,
-                                                    verbose = FALSE)) %>%
+
+    original_feat_ext <- tp %>%
         dplyr::summarise(
             xmin = min(pxl_row_in_fullres, na.rm = TRUE),
             xmax = max(pxl_row_in_fullres, na.rm = TRUE),
             ymin = min(pxl_col_in_fullres, na.rm = TRUE),
             ymax = max(pxl_col_in_fullres, na.rm = TRUE)
-        ) %>%
+        )%>%
+        dplyr::collect()%>%
         { ext(.$xmin, .$xmax, .$ymin, .$ymax) }
 
         #ext(gpoints$rna@spatVector)
