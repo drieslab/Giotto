@@ -744,7 +744,7 @@ read10xAffineImage <- function(
     checkmate::assert_file_exists(imagealignment_path)
     if (!is.numeric(micron)) {
         checkmate::assert_file_exists(micron)
-        micron <- jsonlite::read_json(micron)$pixel_size
+        micron <- read_json(micron)$pixel_size
     }
 
     aff <- data.table::fread(imagealignment_path) %>%
@@ -859,8 +859,8 @@ readPolygonFilesVizgenHDF5_old <- function(
 
     # append data from all FOVs to single list
     init <- proc.time()
-    progressr::with_progress({
-        pb <- progressr::progressor(along = hdf5_boundary_selected_list)
+    with_pbar({
+        pb <- pbar(along = hdf5_boundary_selected_list)
         read_list <- lapply_flex(seq_along(hdf5_boundary_selected_list),
             cores = cores,
             future.packages = c("rhdf5", "Rhdf5lib"),
@@ -933,8 +933,8 @@ readPolygonFilesVizgenHDF5_old <- function(
 
 
     # create Giotto polygons and add them to gobject
-    progressr::with_progress({
-        pb <- progressr::progressor(along = result_list_rbind)
+    with_pbar({
+        pb <- pbar(along = result_list_rbind)
         smooth_cell_polygons_list <- lapply_flex(seq_along(result_list_rbind),
             cores = cores, function(i) {
                 dfr_subset <- result_list_rbind[[i]][, .(x, y, cell_id)]
@@ -1074,8 +1074,8 @@ readPolygonFilesVizgenHDF5 <- function(
 
     # append data from all FOVs to single list
     init <- Sys.time()
-    progressr::with_progress({
-        pb <- progressr::progressor(length(hdf5_boundary_selected_list) / 5)
+    with_pbar({
+        pb <- pbar(length(hdf5_boundary_selected_list) / 5)
         read_list <- lapply_flex(seq_along(hdf5_boundary_selected_list),
             future.packages = c("rhdf5", "Rhdf5lib"),
             function(init, z_indices, segm_to_use, bound_i) {
@@ -1167,8 +1167,8 @@ readPolygonFilesVizgenHDF5 <- function(
 
     # **** sequential method ****
     if (!isTRUE(create_gpoly_parallel)) {
-        progressr::with_progress({
-            pb <- progressr::progressor(along = z_read_DT)
+        with_pbar({
+            pb <- pbar(along = z_read_DT)
             smooth_cell_polygons_list <- lapply(
                 seq_along(z_read_DT), function(i) {
                     dfr_subset <- z_read_DT[[i]][, .(x, y, cell_id)]
@@ -1213,8 +1213,8 @@ readPolygonFilesVizgenHDF5 <- function(
     # **** parallel methods ****
     # no binning
     if (!is.numeric(create_gpoly_bin)) {
-        progressr::with_progress({
-            pb <- progressr::progressor(along = z_read_DT)
+        with_pbar({
+            pb <- pbar(along = z_read_DT)
             smooth_cell_polygons_list <- lapply_flex(
                 seq_along(z_read_DT),
                 future.packages = c("terra", "stats", "data.table"),
@@ -1282,8 +1282,8 @@ readPolygonFilesVizgenHDF5 <- function(
 
         bin_steps <- sum(unlist(lapply(dfr_subset, length)))
 
-        progressr::with_progress({
-            pb <- progressr::progressor(steps = bin_steps)
+        with_pbar({
+            pb <- pbar(steps = bin_steps)
             smooth_cell_polygons_list <- lapply( # sequential across z index
                 seq_along(dfr_subset),
                 function(i) {

@@ -427,10 +427,7 @@ addCellIntMetadata <- function(gobject,
 
     if (return_gobject == TRUE) {
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- set_cell_metadata(gobject,
-            metadata = cell_metadata,
-            verbose = FALSE
-        )
+        gobject <- setGiotto(gobject, cell_metadata, verbose = FALSE)
         ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
         ## update parameters used ##
@@ -1996,8 +1993,10 @@ print.combIcfObject <- function(x, ...) {
         lig_cell_type <- rec_cell_type <- NULL
 
     all_ligand_cols <- colnames(ligand_match)
-    lig_test <- data.table::as.data.table(
-        reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
+    lig_test <- data.table::melt(
+        data.table::as.data.table(ligand_match),
+        measure.vars = all_ligand_cols
+    )
     lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
     lig_test[, ligand := strsplit(ligand, "\\.")[[1]][1],
             by = seq_len(nrow(lig_test))]
@@ -2006,8 +2005,10 @@ print.combIcfObject <- function(x, ...) {
     setnames(lig_test, "variable", "lig_cell_type")
 
     all_receptor_cols <- colnames(receptor_match)
-    rec_test <- data.table::as.data.table(reshape2::melt(
-        receptor_match, measure.vars = all_receptor_cols))
+    rec_test <- data.table::melt(
+        data.table::as.data.table(receptor_match),
+        measure.vars = all_receptor_cols
+    )
     rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
     rec_test[, receptor := strsplit(
         receptor, "\\.")[[1]][1], by = seq_len(nrow(rec_test))]
@@ -2045,7 +2046,7 @@ print.combIcfObject <- function(x, ...) {
 #' (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or feature level
-#' @param set_seed set seed for random simulations (default = TRUE)
+#' @param set_seed `logical`. set seed for random simulations (default = TRUE)
 #' @param seed_number seed number
 #' @param verbose verbose
 #' @returns Cell-Cell communication scores for feature pairs based on
@@ -2145,8 +2146,8 @@ exprCellCellcom <- function(gobject,
     # not yet available
 
 
-    progressr::with_progress({
-        pb <- progressr::progressor(steps = random_iter)
+    with_pbar({
+        pb <- pbar(steps = random_iter)
 
         for (sim in seq_len(random_iter)) {
 

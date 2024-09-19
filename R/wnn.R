@@ -458,7 +458,7 @@ runWNN <- function(
         matrix_result_name <- "theta_weighted_matrix"
     }
 
-    gobject <- set_multiomics(
+    gobject <- setMultiomics(
         gobject = gobject,
         result = theta_weighted,
         spat_unit = spat_unit,
@@ -476,7 +476,7 @@ runWNN <- function(
         w_name_modality_1 <- paste0("w_", modality_1)
     }
 
-    gobject <- set_multiomics(
+    gobject <- setMultiomics(
         gobject = gobject,
         result = w_modality1,
         spat_unit = spat_unit,
@@ -491,7 +491,7 @@ runWNN <- function(
         w_name_modality_2 <- paste0("w_", modality_2)
     }
 
-    gobject <- set_multiomics(
+    gobject <- setMultiomics(
         gobject = gobject,
         result = w_modality2,
         spat_unit = spat_unit,
@@ -539,7 +539,7 @@ runIntegratedUMAP <- function(
         integrated_feat_type <- paste0(modality1, "_", modality2)
     }
 
-    theta_weighted <- get_multiomics(gobject,
+    theta_weighted <- getMultiomics(gobject,
         spat_unit = spat_unit,
         feat_type = integrated_feat_type,
         integration_method = integration_method,
@@ -594,17 +594,10 @@ runIntegratedUMAP <- function(
             feat_type = modality1
         )
 
-        gobject <- set_NearestNetwork(
-            gobject = gobject,
-            nn_network = nnNetObj,
-            spat_unit = spat_unit,
-            feat_type = modality1,
-            nn_network_to_use = "kNN",
-            network_name = "integrated_kNN"
-        )
+        gobject <- setGiotto(gobject, nnNetObj)
 
         ## store nn_network id
-        gobject <- set_multiomics(
+        gobject <- setMultiomics(
             gobject = gobject,
             result = nn_network$id,
             spat_unit = spat_unit,
@@ -615,7 +608,7 @@ runIntegratedUMAP <- function(
         )
 
         ## store nn_network dist
-        gobject <- set_multiomics(
+        gobject <- setMultiomics(
             gobject = gobject,
             result = nn_network$dist,
             spat_unit = spat_unit,

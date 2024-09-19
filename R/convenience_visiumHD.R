@@ -149,7 +149,9 @@ importVisiumHD <- function(
         array_subset_row = NULL,
         array_subset_col = NULL,
         pxl_subset_row = NULL,
-        pxl_subset_col = NULL) {
+        pxl_subset_col = NULL,
+        shape = 'hexagon',
+        shape_size = 400   ) {
 
     # get params
     a <- list(Class = "VisiumHDReader")
@@ -364,8 +366,6 @@ setMethod("initialize", signature("VisiumHDReader"), function(
 
     load_poly_fun <- function(
         path = expr_dir,
-        gpoints,
-        tissue_positions_path = spatial_dir,
         shape = 'hexagon',
         shape_size = 400,
         name = 'hex400',
@@ -373,8 +373,6 @@ setMethod("initialize", signature("VisiumHDReader"), function(
     ) {
         .visiumHD_poly(
             path = path,
-            gpoints = gpoints,
-            tissue_positions_path = tissue_positions_path,
             shape = shape,
             shape_size = shape_size,
             name = name,
@@ -424,6 +422,8 @@ setMethod("initialize", signature("VisiumHDReader"), function(
         tissue_positions_path = spatial_dir,
         expression_path = expr_path,
         metadata_path = spatial_dir,
+        shape = "hexagon",
+        shape_size = 400,
         load_expression = TRUE,
         load_metadata = TRUE,
         instructions = NULL,
@@ -456,16 +456,21 @@ setMethod("initialize", signature("VisiumHDReader"), function(
 
         polys <- funs$load_polygon(
             path = expr_dir,
-            gpoints,
-            tissue_positions_path = spatial_dir,
-            shape = 'hexagon',
-            shape_size = 400,
-            name = 'hex400',
+            shape = shape,
+            shape_size = shape_size,
+            name = paste0(shape, shape_size),
             verbose = NULL
         )
         g <- setGiotto(g, polys)
         g <- addSpatialCentroidLocations(gobject = g,
-                                         poly_info = "hex400")
+                                         poly_info = paste0(shape, shape_size))
+        g <- calculateOverlap(g,
+                              spatial_info = paste0(shape, shape_size),
+                              feat_info = 'rna')
+        g <-  overlapToMatrix(g,
+                                   poly_info = paste0(shape, shape_size),
+                                   feat_info = 'rna',
+                                   name = 'raw')
         # images
 
         images <- funs$load_image(
@@ -556,9 +561,57 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
 
 
 
+.visiumHD_read_folder <- function(
+        path,
+        expr_data = c("raw", "filter"),
+        gene_column_index = 1,
+        png_name = NULL,
+        verbose = NULL) {
+    vmsg(.v = verbose, "A structured visium directory will be used")
+
+    if (is.null(path))
+        .gstop("path needs to be a path to a visium directory")
+    path <- path.expand(path)
+    path <- dirname(path)
+    if (!dir.exists(path)) .gstop(path, " does not exist!")
+    expr_data <- match.arg(expr_data, choices = c("raw", "filter"))
+
+    ## 1. check expression
+    expr_counts_path <- switch(
+        expr_data,
+        "raw" = paste0(path, '/', 'raw_feature_bc_matrix/'),
+        "filter" = paste0(path, '/', 'filtered_feature_bc_matrix/')
+    )
+    if (!file.exists(expr_counts_path)) .gstop(expr_counts_path, "does not exist!")
+
+    ## 2. check spatial locations
+    spatial_dir <- paste0(path, "/", "spatial")
+    tissue_positions_path = Sys.glob(paths = file.path(spatial_dir, 'tissue_positions*'))
+
+    ## 3. check spatial image
+    if(is.null(png_name)) {
+        png_list = list.files(spatial_dir, pattern = "*.png")
+        png_name = png_list[1]
+    }
+    png_path = paste0(spatial_dir,'/',png_name)
+    if(!file.exists(png_path)) .gstop(png_path, ' does not exist!')
+
+    ## 4. check scalefactors
+    scalefactors_path <- paste0(spatial_dir, "/", "scalefactors_json.json")
+    if (!file.exists(scalefactors_path))
+        .gstop(scalefactors_path, "does not exist!")
 
 
-.visiumHD_matrix = function(path,
+    list(
+        expr_counts_path = expr_counts_path,
+        gene_column_index = gene_column_index,
+        tissue_positions_path = tissue_positions_path,
+        image_path = png_path,
+        scale_json_path = scalefactors_path
+    )
+}
+
+.visiumHD_matrix = function(path = path,
                             gene_column_index = 2,
                             remove_zero_rows = TRUE,
                             split_by_type = TRUE,
@@ -627,55 +680,7 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
 
 
 }
-.visiumHD_read_folder <- function(
-        path,
-        expr_data = c("raw", "filter"),
-        gene_column_index = 1,
-        png_name = NULL,
-        verbose = NULL) {
-    vmsg(.v = verbose, "A structured visium directory will be used")
 
-    if (is.null(path))
-        .gstop("path needs to be a path to a visium directory")
-    path <- path.expand(path)
-    path <- dirname(path)
-    if (!dir.exists(path)) .gstop(path, " does not exist!")
-    expr_data <- match.arg(expr_data, choices = c("raw", "filter"))
-
-    ## 1. check expression
-    expr_counts_path <- switch(
-        expr_data,
-        "raw" = paste0(path, '/', 'raw_feature_bc_matrix/'),
-        "filter" = paste0(path, '/', 'filtered_feature_bc_matrix/')
-    )
-    if (!file.exists(expr_counts_path)) .gstop(expr_counts_path, "does not exist!")
-
-    ## 2. check spatial locations
-    spatial_dir <- paste0(path, "/", "spatial/")
-    tissue_positions_path = Sys.glob(paths = file.path(spatial_dir, 'tissue_positions*'))
-
-    ## 3. check spatial image
-    if(is.null(png_name)) {
-        png_list = list.files(spatial_dir, pattern = "*.png")
-        png_name = png_list[1]
-    }
-    png_path = paste0(spatial_dir,'/',png_name)
-    if(!file.exists(png_path)) .gstop(png_path, ' does not exist!')
-
-    ## 4. check scalefactors
-    scalefactors_path <- paste0(spatial_dir, "/", "scalefactors_json.json")
-    if (!file.exists(scalefactors_path))
-        .gstop(scalefactors_path, "does not exist!")
-
-
-    list(
-        expr_counts_path = expr_counts_path,
-        gene_column_index = gene_column_index,
-        tissue_positions_path = tissue_positions_path,
-        image_path = png_path,
-        scale_json_path = scalefactors_path
-    )
-}
 .visiumHD_tissue_positions = function(path,
                                       verbose = TRUE) {
 
@@ -697,7 +702,8 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     checkmate::assert_file_exists(tissue_positions_path)
 
     # read with parquet and data.table
-    tissue_positions = data.table::as.data.table(x = arrow::read_parquet(tissue_positions_path))
+    #tissue_positions = data.table::as.data.table(x = arrow::read_parquet(tissue_positions_path))
+    tissue_positions = arrow::read_parquet(tissue_positions_path)
 
     return(tissue_positions)
 
@@ -746,7 +752,7 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     json_path = file.path(path, 'scalefactors_json.json')
     checkmate::assert_file_exists(json_path)
 
-    json_scalefactors <- jsonlite::read_json(json_path)
+    json_scalefactors <- read_json(json_path)
 
     expected_json_names <- c(
         "regist_target_img_scalef", # NEW as of 2023
@@ -863,27 +869,36 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
     return(visiumHD_img_list)
 }
 .visiumHD_poly = function(path,
-                          gpoints,
-                          tissue_positions_path,
-                          shape = 'hexagon',
+                          shape = "hexagon",
                           shape_size = 400,
                           name = 'hex400',
                           verbose = TRUE){
 
-    transcripts <- .visiumHD_transcript(expr_path = path,
-                                        gene_column_index = 2,
-                                        remove_zero_rows = TRUE,
-                                        split_by_type = TRUE,
-                                        tissue_positions_path = tissue_positions_path,
-                                        barcodes = NULL,
-                                        array_subset_row =c(500, 1000),
-                                        array_subset_col = c(500, 1000),
-                                        pxl_subset_row = NULL,
-                                        pxl_subset_col = NULL,
-                                        verbose = TRUE)
+    if (!shape %in% c("hexagon", "square", "circle")) {
+        stop("Invalid shape. Please choose either 'hexagon', 'square', or 'circle'.")
+    }
 
-    gpoints = transcripts[[3]]
-    original_feat_ext = ext(gpoints$rna@spatVector)
+    if (shape_size <= 0) {
+        stop("Size must be a positive number.")
+    }
+
+    tp <- arrow::read_parquet(
+        file = .visiumHD_read_folder(
+            path, verbose = FALSE)[3]$tissue_positions_path,as_data_frame = FALSE)
+
+
+    original_feat_ext <- tp %>%
+        dplyr::summarise(
+            xmin = min(pxl_row_in_fullres, na.rm = TRUE),
+            xmax = max(pxl_row_in_fullres, na.rm = TRUE),
+            ymin = min(pxl_col_in_fullres, na.rm = TRUE),
+            ymax = max(pxl_col_in_fullres, na.rm = TRUE)
+        )%>%
+        dplyr::collect()%>%
+        { ext(.$xmin, .$xmax, .$ymin, .$ymax) }
+
+        #ext(gpoints$rna@spatVector)
+    message(paste("Creating a", shape, "polygon with size", shape_size))
     polygons = tessellate(extent = original_feat_ext,
                           shape = shape,
                           shape_size = shape_size,
@@ -958,10 +973,10 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
 
 
     # function to create tissue position data.table
-    tissue_positions = .visiumHD_tissue_positions(
+    tissue_positions = data.table::as.data.table(.visiumHD_tissue_positions(
         path = tissue_positions_path,
         verbose = verbose
-    )
+    ))
 
 
 
@@ -1044,14 +1059,33 @@ setMethod("$<-", signature("VisiumHDReader"), function(x, name, value) {
 
 }
 
-
+#' @title Create 10x VisiumHD Giotto Object
+#' @name createGiottoVisiumHDObject
+#' @description Given the path to a VisiumHD output folder, creates a
+#' Giotto object
+#' @param VisiumHD_dir full path to the exported visiumHD directory [required]
+#' @param expr_data raw or filtered data (see details)
+#' @param gene_column_index which column index to select (see details)
+#' @param expression_matrix_class class of expression matrix to use
+#' (e.g. 'dgCMatrix', 'DelayedArray')
+#' @param cores how many cores or threads to use to read data if paths are
+#' provided
+#' @param verbose be verbose
+#' @inheritParams get10Xmatrix
+#' @returns giotto object
+#' @details
+#' \itemize{
+#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
+#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
+#' }
+#' @export
 createGiottoVisiumHDObject = function(visiumHD_dir = NULL,
                                     expr_data = c('raw', 'filter'),
                                     gene_column_index = 1,
                                     instructions = NULL,
                                     expression_matrix_class = c("dgCMatrix", "DelayedArray"),
                                     cores = NA,
-                                    verbose = NULL){
+                                    verbose = FALSE){
 
     # NSE vars
     barcode = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
@@ -1136,7 +1170,7 @@ createGiottoVisiumHDObject = function(visiumHD_dir = NULL,
         spatial_locs = spatial_locs,
         instructions = instructions,
         cell_metadata = meta_list,
-        largeImages = visium_png_list
+        images = visium_png_list
     )
 
     # 7. polygon information
