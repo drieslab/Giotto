@@ -12,7 +12,9 @@ importVisiumHD(
   array_subset_row = NULL,
   array_subset_col = NULL,
   pxl_subset_row = NULL,
-  pxl_subset_col = NULL
+  pxl_subset_col = NULL,
+  shape = "hexagon",
+  shape_size = 400
 )
 }
 \arguments{
