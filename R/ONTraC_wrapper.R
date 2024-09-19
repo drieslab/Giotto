@@ -223,13 +223,23 @@ runONTraCV1 <- function(
     regularization_loss_weight = 0.1,
     beta = 0.03,
     python_path = "giotto_ontrac_env") {
+    
     # parameters check
     device <- match.arg(device)
 
+    # 1. identify operating system
+    my_os <- get_os()
+    
     # handle conda env
     set_giotto_python_path(python_path)
     python_path <- reticulate::conda_python(envname = python_path)
-    ONTraC_path <- file.path(dirname(python_path), "ONTraC")
+    if (my_os == "windows") {
+        python_path <- file.path(dirname(python_path), "ONTraC")
+    }
+    else {
+        ONTraC_path <- file.path(dirname(python_path), "Scripts", "ONTraC")
+    }
+    
     # run ONTraC
     command <- paste(
         ONTraC_path,
