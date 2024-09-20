@@ -27,8 +27,7 @@ runONTraCV1(
   purity_loss_weight = 300,
   regularization_loss_weight = 0.1,
   beta = 0.03,
-  python_path = "giotto_ontrac_env",
-  shell = FALSE
+  python_path = "giotto_ontrac_env"
 )
 }
 \arguments{
@@ -84,8 +83,6 @@ is 0.1}
 
 \item{python_path, }{path to python executable within a conda/miniconda
 environment. Default is "giotto_ontrac_env"}
-
-\item{shell}{whether to run the command in shell. Default is FALSE}
 }
 \value{
 none

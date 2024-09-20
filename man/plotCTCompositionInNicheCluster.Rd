@@ -10,7 +10,7 @@ plotCTCompositionInNicheCluster(
   values = "prob",
   spat_unit = "cell",
   feat_type = "niche cluster",
-  normalization = c("by_feat_type", "by_cell_type", NULL),
+  normalization = c("by_niche_cluster", "by_cell_type", NULL),
   show_plot = NULL,
   return_plot = NULL,
   save_plot = NULL,
