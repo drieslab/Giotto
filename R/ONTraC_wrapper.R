@@ -233,10 +233,10 @@ runONTraCV1 <- function(
     set_giotto_python_path(python_path)
     python_path <- reticulate::conda_python(envname = python_path)
     if (my_os == "windows") {
-        python_path <- file.path(dirname(python_path), "ONTraC")
+        python_path <- file.path(dirname(python_path), "Scripts", "ONTraC")
     }
     else {
-        ONTraC_path <- file.path(dirname(python_path), "Scripts", "ONTraC")
+        ONTraC_path <- file.path(dirname(python_path), "ONTraC")
     }
     
     # run ONTraC
