@@ -8,14 +8,18 @@
 * remove deprecated `createSpatialEnrich()`. Use `runSpatialEnrich()` instead
 * remove deprecated `heatmSpatialCorGenes()`. Use `heatmSpatialCorFeats()` instead
 * remove deprecated `runPAGEEnrich_OLD()`. Use `runPAGEEnrich()` instead
+* remove `do_pca`, `expression_values`, `feats_to_use` args from `runGiottoHarmony()`. Running PCA during the `harmony::RunHarmony()` call is deprecated.
 
 ## Enhancements
-* `normalizeGiotto()` now has `'quantile'` normalization
+* add `'quantile'` normalization method to `normalizeGiotto()`
 
 ## Changes
 * `limma`, `plotly`, and `Rtsne` moved to Suggests
 * move `progressr` and `jsonlite` dependencies to GiottoUtils v0.1.12
 * remove `reshape2` dependency.
+
+## New
+* `labelTransfer()` for transferring labels between giotto objects or subsets thereof. Supercedes `doClusterProjection()`
 
 # Giotto 4.1.1
 
