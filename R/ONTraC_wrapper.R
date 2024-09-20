@@ -187,7 +187,6 @@ getONTraCv1Input <- function(gobject,
 #' @param beta the weight of entropy loss. Default is 0.03
 #' @param python_path, path to python executable within a conda/miniconda
 #' environment. Default is "giotto_ontrac_env"
-#' @param shell whether to run the command in shell. Default is FALSE
 #' @returns none
 #' @details This function runs ONTraC
 #' @examples
