@@ -1,4 +1,4 @@
-#' @title installONTraCEnvironment
+#' @title installGiottoONTraCEnvironment
 #' @description Installs a conda environment contains ONTraC. This
 #' includes a miniconda installation and also a set of python packages that
 #' Giotto may often use. See details for further information
@@ -24,10 +24,10 @@
 #' ONTraC and a set of python packages that Giotto may often use.
 #'
 #' @examples
-#' installONTraCEnvironment()
+#' installGiottoONTraCEnvironment()
 #'
 #' @export
-installONTraCEnvironment <- function(
+installGiottoONTraCEnvironment <- function(
     python_version = "3.11.9",
     ontrac_version = "latest",
     mini_install_path = NULL,
@@ -222,23 +222,21 @@ runONTraCV1 <- function(
     regularization_loss_weight = 0.1,
     beta = 0.03,
     python_path = "giotto_ontrac_env") {
-    
     # parameters check
     device <- match.arg(device)
 
     # 1. identify operating system
     my_os <- get_os()
-    
+
     # handle conda env
     set_giotto_python_path(python_path)
     python_path <- reticulate::conda_python(envname = python_path)
     if (my_os == "windows") {
         ONTraC_path <- file.path(dirname(python_path), "Scripts", "ONTraC")
-    }
-    else {
+    } else {
         ONTraC_path <- file.path(dirname(python_path), "ONTraC")
     }
-    
+
     # run ONTraC
     command <- paste(
         ONTraC_path,
@@ -274,15 +272,21 @@ runONTraCV1 <- function(
 #' @description load cell-level binarized niche cluster
 #' @inheritParams data_access_params
 #' @inheritParams read_data_params
-#' @param ontrac_results_dir the directory where the ONTraC results are saved
+#' @param ontrac_results_dir the directory where the ONTraC results are saved.
+#' Default is getwd()
+#' @param GNN_dir the directory to save the GNN results. Default is
+#' file.path(ontrac_results_dir, "GNN_dir")
 #' @returns gobject with cell-level binarized niche cluster
 #' @details This function loads the ONTraC outputed cell-level binarized niche
 #' cluster into the giotto object.
 load_cell_bin_niche_cluster <- function(gobject,
-                                        ontrac_results_dir = getwd()) {
+                                        ontrac_results_dir = getwd(),
+                                        GNN_dir = file.path(
+                                            ontrac_results_dir,
+                                            "GNN_dir"
+                                        )) {
     bin_niche_cluster_df <- read.csv(file = file.path(
-        ontrac_results_dir,
-        "GNN_dir", "cell_level_max_niche_cluster.csv.gz"
+        GNN_dir, "cell_level_max_niche_cluster.csv.gz"
     ))
     colnames(bin_niche_cluster_df) <- c("cell_ID", "NicheCluster")
     gobject <- GiottoClass::addCellMetadata(gobject,
@@ -299,14 +303,20 @@ load_cell_bin_niche_cluster <- function(gobject,
 #' @description load cell-level NT score
 #' @inheritParams data_access_params
 #' @inheritParams read_data_params
-#' @param ontrac_results_dir the directory where the ONTraC results are saved
+#' @param ontrac_results_dir the directory where the ONTraC results are saved.
+#' Default is getwd()
+#' @param NTScore_dir the directory to save the NTScore results. Default is
+#' file.path(ontrac_results_dir, "NTScore_dir")
 #' @returns gobject with cell-level NT score
 #' @details This function loads the ONTraC outputed cell-level NT score
 load_cell_NT_score <- function(gobject,
-                               ontrac_results_dir = getwd()) {
+                               ontrac_results_dir = getwd(),
+                               NTScore_dir = file.path(
+                                   ontrac_results_dir,
+                                   "NTScore_dir"
+                               )) {
     NT_score_df <- read.csv(file = file.path(
-        ontrac_results_dir,
-        "NTScore_dir", "NTScore.csv.gz"
+        NTScore_dir, "NTScore.csv.gz"
     ))[c("Cell_ID", "Cell_NTScore")]
     colnames(NT_score_df) <- c("cell_ID", "NTScore")
     gobject <- addCellMetadata(gobject,
@@ -324,19 +334,25 @@ load_cell_NT_score <- function(gobject,
 #' @description load cell-niche cluster probability
 #' @inheritParams data_access_params
 #' @inheritParams read_data_params
-#' @param ontrac_results_dir the directory where the ONTraC results are saved
+#' @param ontrac_results_dir the directory where the ONTraC results are saved.
+#' Default is getwd()
+#' @param GNN_dir the directory to save the GNN results. Default is
+#' file.path(ontrac_results_dir, "GNN_dir")
 #' @param name name for the probability matrix
 #' @returns gobject with cell-niche cluster probability matrix
 #' @details This function loads the ONTraC outputed cell-niche cluster
 #' probability as an exprObj into the giotto object.
 load_cell_niche_cluster_prob <- function(gobject,
                                          ontrac_results_dir = getwd(),
+                                         GNN_dir = file.path(
+                                             ontrac_results_dir,
+                                             "GNN_dir"
+                                         ),
                                          spat_unit = "cell",
                                          feat_type = "niche cluster",
                                          name = "prob") {
     niche_cluster_prob_df <- read.csv(file = file.path(
-        ontrac_results_dir,
-        "GNN_dir", "cell_level_niche_cluster.csv.gz"
+        GNN_dir, "cell_level_niche_cluster.csv.gz"
     ))
     rownames(niche_cluster_prob_df) <- niche_cluster_prob_df$Cell_ID
     niche_cluster_prob_df$Cell_ID <- NULL
@@ -361,19 +377,25 @@ load_cell_niche_cluster_prob <- function(gobject,
 #' @description load niche cluster connectivity
 #' @inheritParams data_access_params
 #' @inheritParams read_data_params
-#' @param ontrac_results_dir the directory where the ONTraC results are saved
+#' @param ontrac_results_dir the directory where the ONTraC results are saved.
+#' Default is getwd()
+#' @param GNN_dir the directory to save the GNN results. Default is
+#' file.path(ontrac_results_dir, "GNN_dir")
 #' @param name name for the connectivity matrix
 #' @returns gobject with niche cluster connectivity matrix
 #' @details This function loads the ONTraC outputed niche cluster connectivity
 #' matrix as an exprObj into the giotto object.
 load_nc_connectivity <- function(gobject,
                                  ontrac_results_dir = getwd(),
+                                 GNN_dir = file.path(
+                                     ontrac_results_dir,
+                                     "GNN_dir"
+                                 ),
                                  spat_unit = "niche cluster",
                                  feat_type = "connectivity",
                                  name = "normalized") {
     connectivity_df <- read.csv(file = file.path(
-        ontrac_results_dir,
-        "GNN_dir", "consolidate_out_adj.csv.gz"
+        GNN_dir, "consolidate_out_adj.csv.gz"
     ), header = FALSE)
     rownames(connectivity_df) <- paste0(
         "NicheCluster_",
@@ -399,20 +421,91 @@ load_nc_connectivity <- function(gobject,
 }
 
 
+#' @title load_niche_cluster_nt_score
+#' @name load_niche_cluster_nt_score
+#' @description load niche cluster NT score
+#' @inheritParams data_access_params
+#' @inheritParams read_data_params
+#' @param ontrac_results_dir the directory where the ONTraC results are saved.
+#' Default is getwd()
+#' @param NTScore_dir the directory to save the NTScore results. Default is
+#' file.path(ontrac_results_dir, "NTScore_dir")
+#' @returns gobject with niche cluster NT score
+#' @details This function loads the ONTraC outputed niche cluster NT score
+#' into the giotto object.
+load_niche_cluster_nt_score <- function(gobject,
+                                        ontrac_results_dir = getwd(),
+                                        NTScore_dir = file.path(
+                                            ontrac_results_dir,
+                                            "NTScore_dir"
+                                        ),
+                                        spat_unit = "niche cluster",
+                                        feat_type = "connectivity") {
+    niche_cluster_df <- read.csv(file = file.path(
+        NTScore_dir, "niche_cluster_score.csv.gz"
+    ), header = FALSE)
+    colnames(niche_cluster_df) <- c("NTScore")
+    niche_cluster_df$nc_id <- paste0(
+        "NicheCluster_",
+        seq_len(dim(niche_cluster_df)[1]) - 1
+    )
+    gobject <- GiottoClass::addCellMetadata(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        new_metadata = niche_cluster_df,
+        by_column = TRUE,
+        column_cell_ID = "nc_id"
+    )
+
+    return(gobject)
+}
+
+
 #' @title loadOntraCResults
 #' @name loadOntraCResults
 #' @description load ONTraC results
 #' @inheritParams data_access_params
 #' @inheritParams read_data_params
 #' @param ontrac_results_dir the directory where the ONTraC results are saved
+#' @param preprocessing_dir the directory to save the preprocessing results.
+#' Default is file.path(ontrac_results_dir, "preprocessing_dir")
+#' @param GNN_dir the directory to save the GNN results. Default is
+#' file.path(ontrac_results_dir, "GNN_dir")
+#' @param NTScore_dir the directory to save the NTScore results. Default is
+#' file.path(ontrac_results_dir, "NTScore_dir")
 #' @returns gobject with ONTraC results
 #' @details This function loads the ONTraC results into the giotto object.
 #' @export
 loadOntraCResults <- function(gobject,
-                              ontrac_results_dir = getwd()) {
-    gobject <- load_cell_bin_niche_cluster(gobject, ontrac_results_dir)
-    gobject <- load_cell_NT_score(gobject, ontrac_results_dir)
-    gobject <- load_cell_niche_cluster_prob(gobject, ontrac_results_dir)
+                              ontrac_results_dir = getwd(),
+                              preprocessing_dir = file.path(
+                                  ontrac_results_dir,
+                                  "preprocessing_dir"
+                              ),
+                              GNN_dir = file.path(
+                                  ontrac_results_dir,
+                                  "GNN_dir"
+                              ),
+                              NTScore_dir = file.path(
+                                  ontrac_results_dir,
+                                  "NTScore_dir"
+                              )) {
+    gobject <- load_cell_bin_niche_cluster(
+        gobject = gobject,
+        ontrac_results_dir = ontrac_results_dir,
+        GNN_dir = GNN_dir
+    )
+    gobject <- load_cell_NT_score(
+        gobject = gobject,
+        ontrac_results_dir = ontrac_results_dir,
+        NTScore_dir = NTScore_dir
+    )
+    gobject <- load_cell_niche_cluster_prob(
+        gobject = gobject,
+        ontrac_results_dir = ontrac_results_dir,
+        GNN_dir = GNN_dir
+    )
     gobject <- GiottoClass::addCellMetadata(
         gobject = gobject,
         spat_unit = "cell",
@@ -421,8 +514,8 @@ loadOntraCResults <- function(gobject,
         by_column = TRUE,
         column_cell_ID = "cell_ID"
     )
-
     gobject <- load_nc_connectivity(gobject, ontrac_results_dir)
+    gobject <- load_niche_cluster_nt_score(gobject, ontrac_results_dir)
 
     return(gobject)
 }
