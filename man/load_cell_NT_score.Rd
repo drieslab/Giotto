@@ -7,7 +7,8 @@
 load_cell_NT_score(
   gobject,
   ontrac_results_dir = getwd(),
-  NTScore_dir = file.path(ontrac_results_dir, "NTScore_dir")
+  NTScore_dir = file.path(ontrac_results_dir, "NTScore_dir"),
+  NTScore_reverse = FALSE
 )
 }
 \arguments{
@@ -18,6 +19,8 @@ Default is getwd()}
 
 \item{NTScore_dir}{the directory to save the NTScore results. Default is
 file.path(ontrac_results_dir, "NTScore_dir")}
+
+\item{NTScore_reverse}{whether to reverse the NTScore. Default is FALSE}
 }
 \value{
 gobject with cell-level NT score

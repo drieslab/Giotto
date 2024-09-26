@@ -9,7 +9,8 @@ loadOntraCResults(
   ontrac_results_dir = getwd(),
   preprocessing_dir = file.path(ontrac_results_dir, "preprocessing_dir"),
   GNN_dir = file.path(ontrac_results_dir, "GNN_dir"),
-  NTScore_dir = file.path(ontrac_results_dir, "NTScore_dir")
+  NTScore_dir = file.path(ontrac_results_dir, "NTScore_dir"),
+  NTScore_reverse = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ file.path(ontrac_results_dir, "GNN_dir")}
 
 \item{NTScore_dir}{the directory to save the NTScore results. Default is
 file.path(ontrac_results_dir, "NTScore_dir")}
+
+\item{NTScore_reverse}{whether to reverse the NTScore. Default is FALSE}
 }
 \value{
 gobject with ONTraC results

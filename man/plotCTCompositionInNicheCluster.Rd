@@ -15,7 +15,6 @@ plotCTCompositionInNicheCluster(
   return_plot = NULL,
   save_plot = NULL,
   save_param = list(),
-  theme_param = list(),
   default_save_name = "CellTypeCompositionInNicheCluster"
 )
 }

@@ -8,8 +8,7 @@ load_niche_cluster_nt_score(
   gobject,
   ontrac_results_dir = getwd(),
   NTScore_dir = file.path(ontrac_results_dir, "NTScore_dir"),
-  spat_unit = "niche cluster",
-  feat_type = "connectivity"
+  NTScore_reverse = FALSE
 )
 }
 \arguments{
@@ -21,9 +20,7 @@ Default is getwd()}
 \item{NTScore_dir}{the directory to save the NTScore results. Default is
 file.path(ontrac_results_dir, "NTScore_dir")}
 
-\item{spat_unit}{spatial unit (e.g. "cell")}
-
-\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+\item{NTScore_reverse}{whether to reverse the NTScore. Default is FALSE}
 }
 \value{
 gobject with niche cluster NT score
