@@ -3262,6 +3262,327 @@ getDendrogramSplits <- function(
 
 # projection ####
 
+#' @name labelTransfer
+#' @title Transfer labels/annotations between sets of data via similarity
+#' voting
+#' @description
+#' When two sets of data share an embedding space, transfer the labels from
+#' one of the sets to the other based on KNN similarity voting in that space.
+#' @param x target object
+#' @param y source object
+#' @param source_cell_ids cell/spatial IDs with the source labels to transfer
+#' @param target_cell_ids cell/spatial IDs to transfer the labels to.
+#' IDs from `source_cell_ids` are always included as well.
+#' @param labels metadata column in source with labels to transfer
+#' @param k number of k-neighbors to train a KNN classifier
+#' @param name metadata column in target to apply the full set of labels to
+#' @param prob output probabilities together with label predictions
+#' @param reduction reduction on cells or features (default = 'cells')
+#' @param reduction_method shared reduction method (default = 'pca' space)
+#' @param reduction_name name of shared reduction space (default name = 'pca')
+#' @param dimensions_to_use dimensions to use in shared reduction space
+#' (default = 1:10)
+#' @returns object `x` with new transferred labels added to metadata
+#' @inheritDotParams FNN::knn -train -test -cl -k -prob
+#' @details
+#' This function trains a KNN classifier with [FNN::knn()].
+#' The training data is from object `y` or `source_cell_ids` subset in `x` and
+#' uses existing annotations within the cell metadata.
+#' Cells without annotation/labels from `x` or `target_cell_ids` subset in `x`
+#' will receive predicted labels (and optional probabilities when
+#' `prob = TRUE`).
+#'
+#' **IMPORTANT** This projection assumes that you're using the same dimension
+#' reduction space (e.g. PCA) and number of dimensions (e.g. first 10 PCs) to
+#' train the KNN classifier as you used to create the initial
+#' annotations/labels in the source Giotto object.
+#'
+#' This function can allow you to work with very big data as you can predict
+#' cell labels on a smaller & subsetted Giotto object and then project the cell
+#' labels to the remaining cells in the target Giotto object. It can also be
+#' used to transfer labels from one set of annotated data to another dataset
+#' based on expression similarity after joining and integrating.
+#'
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' id_subset <- sample(spatIDs(g), 300)
+#' n_pred <- nrow(pDataDT(g)) - 300
+#'
+#' # transfer labels from one object to another ###################
+#' g_small <- g[, id_subset]
+#' # additional steps to get labels to transfer on smaller object...
+#' g <- labelTransfer(g, g_small, labels = "leiden_clus")
+#' sum(!g$trnsfr_leiden_clus == g$leiden_clus) / n_pred * 100 # percent wrong
+#'
+#' # transfer labels between subsets of a single object ###########
+#' g <- labelTransfer(g,
+#'     label = "leiden_clus", source_cell_ids = id_subset, name = "knn_leiden2"
+#' )
+#' sum(!g$knn_leiden2 == g$leiden_clus) / n_pred * 100 # percent wrong
+#' @md
+NULL
+
+setGeneric("labelTransfer", function(x, y, ...) standardGeneric("labelTransfer"))
+
+#' @rdname labelTransfer
+#' @export
+setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(
+        x, y,
+        spat_unit = NULL,
+        feat_type = NULL,
+        labels,
+        k = 10,
+        name = paste0("trnsfr_", labels),
+        prob = TRUE,
+        reduction = "cells",
+        reduction_method = "pca",
+        reduction_name = "pca",
+        dimensions_to_use = 1:10,
+        return_gobject = TRUE,
+        ...
+) {
+    # NSE vars
+    temp_name <- cell_ID <- temp_name_prob <- NULL
+
+    package_check(pkg_name = "FNN", repository = "CRAN")
+    spat_unit <- set_default_spat_unit(x, spat_unit = spat_unit)
+    feat_type <- set_default_feat_type(x,
+        spat_unit = spat_unit, feat_type = feat_type
+    )
+
+    # get data
+    cx_src <- getCellMetadata(y,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        output = "data.table"
+    )
+    cx_tgt <- getCellMetadata(x,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        output = "data.table"
+    )
+    dim_coord <- getDimReduction(x,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        reduction = reduction,
+        reduction_method = reduction_method,
+        name = reduction_name,
+        output = "matrix"
+    )
+
+    # source annotation vector #
+    # names : cell_ID
+    # values: label
+    source_annot_vec <- cx_src[[labels]]
+    names(source_annot_vec) <- cx_src[["cell_ID"]]
+
+    # create the matrix from the target object that you want to use for the kNN classifier
+    # the matrix should be the same for the source and target objects (e.g. same PCA space)
+    dimensions_to_use <- dimensions_to_use[
+        # ensure dims to use exist
+        dimensions_to_use %in% seq_len(ncol(dim_coord))
+    ]
+    matrix_to_use <- dim_coord[, dimensions_to_use]
+
+    ## create the training and testset from the matrix
+
+    # the training set is those spatial IDs that are in the source
+    # (w/ labels) AND target giotto object
+    in_common <- rownames(matrix_to_use) %in% names(source_annot_vec)
+    train <- matrix_to_use[in_common,]
+    train <- train[match(names(source_annot_vec), rownames(train)), ]
+
+    # the test set are the remaining cell_IDs that need a label
+    test <- matrix_to_use[!in_common,]
+
+    # make prediction
+    knnprediction <- FNN::knn(
+        train = train,
+        test = test,
+        cl = source_annot_vec,
+        k = k,
+        prob = prob,
+        ...
+    )
+
+    # get prediction results
+    knnprediction_vec <- as.vector(knnprediction)
+    names(knnprediction_vec) <- rownames(test)
+
+    # add probability information
+    if (isTRUE(prob)) {
+        probs <- attr(knnprediction, "prob")
+        names(probs) <- rownames(test)
+    }
+
+    # create annotation vector for all cell IDs (from source and predicted)
+    all_vec <- c(source_annot_vec, knnprediction_vec)
+    cx_tgt[, temp_name := all_vec[cell_ID]]
+
+    if (isTRUE(prob)) {
+        cx_tgt[, temp_name_prob := probs[cell_ID]]
+        cx_tgt <- cx_tgt[, .(cell_ID, temp_name, temp_name_prob)]
+        cx_tgt[, temp_name_prob := ifelse(
+            is.na(temp_name_prob), 1, temp_name_prob
+        )]
+
+        data.table::setnames(cx_tgt,
+            old = c("temp_name", "temp_name_prob"),
+            new = c(name, paste0(name, "_prob"))
+        )
+    } else {
+        cx_tgt <- cx_tgt[, .(cell_ID, temp_name)]
+        data.table::setnames(cx_tgt, old = "temp_name", new = name)
+    }
+
+
+    if (return_gobject) {
+        x <- addCellMetadata(x,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            new_metadata = cx_tgt,
+            by_column = TRUE,
+            column_cell_ID = "cell_ID"
+        )
+        return(x)
+    } else {
+        return(cx_tgt)
+    }
+})
+
+#' @rdname labelTransfer
+#' @export
+setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(
+        x,
+        spat_unit = NULL,
+        feat_type = NULL,
+        source_cell_ids,
+        target_cell_ids,
+        labels,
+        k = 10,
+        name = paste0("trnsfr_", labels),
+        prob = TRUE,
+        reduction = "cells",
+        reduction_method = "pca",
+        reduction_name = "pca",
+        dimensions_to_use = 1:10,
+        return_gobject = TRUE,
+        ...
+) {
+    # NSE vars
+    temp_name <- cell_ID <- temp_name_prob <- NULL
+
+    package_check(pkg_name = "FNN", repository = "CRAN")
+    spat_unit <- set_default_spat_unit(x, spat_unit = spat_unit)
+    feat_type <- set_default_feat_type(x,
+        spat_unit = spat_unit, feat_type = feat_type
+    )
+
+    # get data
+    cx <- getCellMetadata(x,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        output = "data.table"
+    )
+    dim_coord <- getDimReduction(x,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        reduction = reduction,
+        reduction_method = reduction_method,
+        name = reduction_name,
+        output = "matrix"
+    )
+
+    # source annotation vector #
+    # names : cell_ID
+    # values: label
+    source_annot_vec <- cx[[labels]]
+    names(source_annot_vec) <- cx[["cell_ID"]]
+    source_annot_vec <- source_annot_vec[source_cell_ids]
+
+    # target cell IDs (if not provided) are everything not in the source cell IDs
+    if (missing(target_cell_ids)) {
+        sids <- cx[["cell_ID"]]
+        target_cell_ids <- sids[!sids %in% source_cell_ids]
+    }
+
+    # create the matrix from the target object that you want to use for the kNN classifier
+    # the matrix should be the same for the source and target objects (e.g. same PCA space)
+    dimensions_to_use <- dimensions_to_use[
+        # ensure dims to use exist
+        dimensions_to_use %in% seq_len(ncol(dim_coord))
+    ]
+    matrix_to_use <- dim_coord[, dimensions_to_use]
+
+    ## create the training and testset from the matrix
+
+    # the training set is those spatial IDs that are in the source
+    # (w/ labels) AND target giotto object
+    train <- matrix_to_use[source_cell_ids,]
+    train <- train[match(names(source_annot_vec), rownames(train)), ]
+
+    # the test set are the remaining cell_IDs that need a label
+    test <- matrix_to_use[target_cell_ids,]
+
+    # make prediction
+    knnprediction <- FNN::knn(
+        train = train,
+        test = test,
+        cl = source_annot_vec,
+        k = k,
+        prob = prob,
+        ...
+    )
+
+    # get prediction results
+    knnprediction_vec <- as.vector(knnprediction)
+    names(knnprediction_vec) <- rownames(test)
+
+    # add probability information
+    if (isTRUE(prob)) {
+        probs <- attr(knnprediction, "prob")
+        names(probs) <- rownames(test)
+    }
+
+    # create annotation vector for all cell IDs (from source and predicted)
+    all_vec <- c(source_annot_vec, knnprediction_vec)
+    cx[, temp_name := all_vec[cell_ID]]
+
+    if (isTRUE(prob)) {
+        cx[, temp_name_prob := probs[cell_ID]]
+        cx <- cx[, .(cell_ID, temp_name, temp_name_prob)]
+        cx[, temp_name_prob := ifelse(
+            is.na(temp_name_prob), 1, temp_name_prob
+        )]
+
+        data.table::setnames(cx,
+            old = c("temp_name", "temp_name_prob"),
+            new = c(name, paste0(name, "_prob"))
+        )
+    } else {
+        cx <- cx[, .(cell_ID, temp_name)]
+        data.table::setnames(cx, old = "temp_name", new = name)
+    }
+
+
+    if (return_gobject) {
+        x <- addCellMetadata(x,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            new_metadata = cx,
+            by_column = TRUE,
+            column_cell_ID = "cell_ID"
+        )
+        return(x)
+    } else {
+        return(cx)
+    }
+})
+
+
+
+
+
 #' @title Projection of cluster labels
 #' @name doClusterProjection
 #' @description Use a fast KNN classifier to predict labels from a smaller
@@ -3325,10 +3646,15 @@ doClusterProjection <- function(
             "cover_tree", "brute"
         ),
         return_gobject = TRUE) {
+    deprecate_warn(
+        when = "4.1.2",
+        what = "doClusterProjection()",
+        with = "labelTransfer()"
+    )
+
     # NSE vars
     cell_ID <- temp_name_prob <- NULL
 
-    # package check for dendextend
     package_check(pkg_name = "FNN", repository = "CRAN")
 
     spat_unit <- set_default_spat_unit(

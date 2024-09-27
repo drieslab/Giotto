@@ -2773,16 +2773,13 @@ runtSNE <- function(
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @param vars_use If meta_data is dataframe, this defines which variable(s) to
-#'   remove (character vector).
-#' @param do_pca Whether to perform PCA on input matrix.
-#' @param expression_values expression values to use
+#' @param vars_use character vector. Which variable(s) in metadata
+#' for harmony to remove
 #' @param reduction reduction on cells or features
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for Harmony run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which feats to use
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
@@ -2802,14 +2799,11 @@ runGiottoHarmony <- function(
         spat_unit = NULL,
         feat_type = NULL,
         vars_use = "list_ID",
-        do_pca = FALSE,
-        expression_values = c("normalized", "scaled", "custom"),
         reduction = "cells",
         dim_reduction_to_use = "pca",
         dim_reduction_name = NULL,
         dimensions_to_use = 1:10,
         name = NULL,
-        feats_to_use = NULL,
         set_seed = TRUE,
         seed_number = 1234,
         toplevel_params = 2,
@@ -2870,53 +2864,19 @@ runGiottoHarmony <- function(
 
 
     ## using dimension reduction ##
-    if (!is.null(dim_reduction_to_use)) {
-        matrix_to_use <- getDimReduction(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            reduction = reduction,
-            reduction_method = dim_reduction_to_use,
-            name = dim_reduction_name,
-            output = "dimObj"
-        )
-        provenance <- prov(matrix_to_use)
-        matrix_to_use <- matrix_to_use[]
+    matrix_to_use <- getDimReduction(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        reduction = reduction,
+        reduction_method = dim_reduction_to_use,
+        name = dim_reduction_name,
+        output = "dimObj"
+    )
+    provenance <- prov(matrix_to_use)
+    matrix_to_use <- matrix_to_use[]
 
-        matrix_to_use <- matrix_to_use[, dimensions_to_use]
-    } else {
-        ## using original matrix ##
-        # expression values to be used
-        values <- match.arg(
-            expression_values,
-            unique(c("normalized", "scaled", "custom", expression_values))
-        )
-        expr_values <- getExpression(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            values = values,
-            output = "exprObj"
-        )
-
-        provenance <- prov(expr_values)
-        expr_values <- expr_values[] # extract matrix
-
-
-        ## subset matrix
-        if (!is.null(feats_to_use)) {
-            expr_values <- .create_feats_to_use_matrix(
-                gobject = gobject,
-                feat_type = feat_type,
-                spat_unit = spat_unit,
-                sel_matrix = expr_values,
-                feats_to_use = feats_to_use,
-                verbose = verbose
-            )
-        }
-
-        matrix_to_use <- t_flex(expr_values)
-    }
+    matrix_to_use <- matrix_to_use[, dimensions_to_use]
 
     # get metadata
     metadata <- pDataDT(gobject, feat_type = feat_type, spat_unit = spat_unit)
@@ -2932,7 +2892,6 @@ runGiottoHarmony <- function(
         data_mat = matrix_to_use,
         meta_data = metadata,
         vars_use = vars_use,
-        do_pca = do_pca,
         ...
     )
 
