@@ -1427,7 +1427,7 @@ cellProximityVisPlot <- function(
 #' @param min_spat_diff minimum absolute spatial expression difference
 #' @param min_log2_fc minimum log2 fold-change
 #' @param min_zscore minimum z-score change
-#' @param zscores_column calculate z-scores over cell types or featuress
+#' @param zscores_column calculate z-scores over cell types or features
 #' @param direction differential expression directions to keep
 #' @returns volcano, cell_barplot, cell-cell, cell_sankey, heatmap, or dotplot
 #' @examples
