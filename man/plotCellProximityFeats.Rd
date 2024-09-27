@@ -50,7 +50,7 @@ cell type}
 
 \item{min_zscore}{minimum z-score change}
 
-\item{zscores_column}{calculate z-scores over cell types or featuress}
+\item{zscores_column}{calculate z-scores over cell types or features}
 
 \item{direction}{differential expression directions to keep}
 
