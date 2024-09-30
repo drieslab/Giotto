@@ -28,7 +28,7 @@ runWNN(
 
 \item{reduction_names}{names of the reduction methods to use. Default = c("rna.pca", "protein.pca")}
 
-\item{k}{k number, default = 20}
+\item{k}{number of neighbors to calculate cell distances, default = 20}
 
 \item{integrated_feat_type}{integrated feature type (e.g. 'rna_protein')}
 
