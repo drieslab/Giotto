@@ -5,7 +5,7 @@
 #' @param feat_types feature types to integrate. Default = c("rna", "protein")
 #' @param reduction_methods reduction methods for each feature type. Default = c("pca", "pca") 
 #' @param reduction_names names of the reduction methods to use. Default = c("rna.pca", "protein.pca")
-#' @param k k number, default = 20
+#' @param k number of neighbors to calculate cell distances, default = 20
 #' @param integrated_feat_type integrated feature type (e.g. 'rna_protein')
 #' @param matrix_result_name Default = 'theta_weighted_matrix'
 #' @param verbose be verbose

@@ -4,7 +4,7 @@
 * Add `giottoToAnndataZarr()` to create a local anndata zarr folder and interact with the vitessceR package.
 
 ## Changes
-* WNN arguments were updated to make the function flexible to handle any number of modalities.
+* `runWNN()` and `runIntegratedUMAP()` arguments were updated to make the function flexible to handle any number of modalities.
 
 # Giotto 4.1.2
 
