@@ -20,14 +20,14 @@ createGiottoVisiumHDObject(
 \item{gene_column_index}{which column index to select (see details)}
 
 \item{expression_matrix_class}{class of expression matrix to use
-(e.g. 'dgCMatrix', 'DelayedArray')}
+(e.g. "dgCMatrix", "DelayedArray")}
 
 \item{cores}{how many cores or threads to use to read data if paths are
 provided}
 
 \item{verbose}{be verbose}
 
-\item{VisiumHD_dir}{full path to the exported visiumHD directory [required]}
+\item{VisiumHD_dir}{full path to the exported visiumHD directory}
 }
 \value{
 giotto object
@@ -38,7 +38,9 @@ Giotto object
 }
 \details{
 \itemize{
-  \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
-  \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
+  \item{expr_data: raw will take expression data from raw_feature_bc_matrix 
+  and filter from filtered_feature_bc_matrix}
+  \item{gene_column_index: which gene identifiers (names) to use if there 
+  are multiple columns (e.g. ensemble and gene symbol)}
 }
 }

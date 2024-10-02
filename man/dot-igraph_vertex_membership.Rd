@@ -13,7 +13,8 @@
 
 \item{all_ids}{(optional) character vector with all ids}
 
-\item{missing_id_name}{character and name for vertices that were missing from g}
+\item{missing_id_name}{character and name for vertices that were missing 
+from g}
 }
 \value{
 data.table

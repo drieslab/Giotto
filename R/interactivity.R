@@ -11,11 +11,10 @@
 #' @returns A `data.table` containing x,y coordinates from the plotted polygons.
 #'
 #' @export
-plotInteractivePolygons <- function(
-        x,
-        width = "auto",
-        height = "auto",
-        ...) {
+plotInteractivePolygons <- function(x,
+    width = "auto",
+    height = "auto",
+    ...) {
     package_check(pkg_name = "miniUI", repository = "CRAN")
     package_check(pkg_name = "shiny", repository = "CRAN")
 
@@ -179,12 +178,11 @@ plotInteractivePolygons <- function(
 #' getCellsFromPolygon(g)
 #'
 #' @export
-getCellsFromPolygon <- function(
-        gobject,
-        polygon_name = "selections",
-        spat_unit = "cell",
-        spat_loc_name = "raw",
-        polygons = NULL) {
+getCellsFromPolygon <- function(gobject,
+    polygon_name = "selections",
+    spat_unit = "cell",
+    spat_loc_name = "raw",
+    polygons = NULL) {
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
     }
@@ -263,14 +261,13 @@ getCellsFromPolygon <- function(
 #' g <- addPolygonCells(g)
 #' pDataDT(g)
 #' @export
-addPolygonCells <- function(
-        gobject,
-        polygon_name = "selections",
-        spat_unit = "cell",
-        spat_loc_name = "raw",
-        feat_type = "rna",
-        polygons = NULL,
-        na.label = "no_polygon") {
+addPolygonCells <- function(gobject,
+    polygon_name = "selections",
+    spat_unit = "cell",
+    spat_loc_name = "raw",
+    feat_type = "rna",
+    polygons = NULL,
+    na.label = "no_polygon") {
     ## verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -365,15 +362,14 @@ addPolygonCells <- function(
 #'
 #' comparePolygonExpression(g)
 #' @export
-comparePolygonExpression <- function(
-        gobject,
-        polygon_name = "selections",
-        spat_unit = "cell",
-        feat_type = "rna",
-        selected_feats = "top_genes",
-        expression_values = "normalized",
-        method = "scran",
-        ...) {
+comparePolygonExpression <- function(gobject,
+    polygon_name = "selections",
+    spat_unit = "cell",
+    feat_type = "rna",
+    selected_feats = "top_genes",
+    expression_values = "normalized",
+    method = "scran",
+    ...) {
     # verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -487,13 +483,12 @@ comparePolygonExpression <- function(
 #'
 #' compareCellAbundance(g)
 #' @export
-compareCellAbundance <- function(
-        gobject,
-        polygon_name = "selections",
-        spat_unit = "cell",
-        feat_type = "rna",
-        cell_type_column = "leiden_clus",
-        ...) {
+compareCellAbundance <- function(gobject,
+    polygon_name = "selections",
+    spat_unit = "cell",
+    feat_type = "rna",
+    cell_type_column = "leiden_clus",
+    ...) {
     # verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -569,13 +564,12 @@ compareCellAbundance <- function(
 #'
 #' plotPolygons(g, x = x)
 #' @export
-plotPolygons <- function(
-        gobject,
-        polygon_name = "selections",
-        x,
-        spat_unit = "cell",
-        polygons = NULL,
-        ...) {
+plotPolygons <- function(gobject,
+    polygon_name = "selections",
+    x,
+    spat_unit = "cell",
+    polygons = NULL,
+    ...) {
     ## verify gobject
     if (!inherits(gobject, "giotto")) {
         stop("gobject must be a Giotto object")
@@ -644,12 +638,10 @@ plotPolygons <- function(
 #' @returns data.table with selected cell_IDs, spatial coordinates, and
 #' cluster_ID.
 #' @export
-plotInteractive3D <- function(
-        gobject, spat_unit = "cell", feat_type = "rna",
-        cell_color = "leiden_clus",
-        cell_color_code = NULL, point_size = 0.5,
-        width = "100%", height = "400px") {
-
+plotInteractive3D <- function(gobject, spat_unit = "cell", feat_type = "rna",
+    cell_color = "leiden_clus",
+    cell_color_code = NULL, point_size = 0.5,
+    width = "100%", height = "400px") {
     package_check(
         c("plotly", "miniUI", "shiny"),
         repository = c("CRAN:plotly", "CRAN:miniUI", "CRAN:shiny")
@@ -760,7 +752,8 @@ plotInteractive3D <- function(
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
-#' @param expression expression values to extract (e.g. "raw", "normalized", "scaled")
+#' @param expression expression values to extract (e.g. "raw", "normalized", 
+#' "scaled")
 #' @param output_path path to create and save the anndata zarr folder
 #'
 #' @return local anndata zarr folder
@@ -769,111 +762,129 @@ plotInteractive3D <- function(
 #' @examples
 #' # using the mini visium object
 #' giotto_object <- GiottoData::loadGiottoMini("visium")
-#' 
+#'
 #' giottoToAnndataZarr(giotto_object,
-#'                     expression = "raw"
-#'                     output_path = tempdir())
-#' 
+#'     expression = "raw",
+#'     output_path = tempdir()
+#' )
+#'
 #' # using the mini vizgen object
 #' giotto_object <- GiottoData::loadGiottoMini("vizgen")
-#' 
+#'
 #' giottoToAnndataZarr(giotto_object,
-#'                     spat_unit = "aggregate",
-#'                     expression = "scaled",
-#'                     output_path = tempdir())
-giottoToAnndataZarr <- function(gobject, spat_unit = NULL, 
-                                feat_type = NULL, expression = "raw",
-                                output_path) {
-    
-    proc <- basilisk::basiliskStart(GiottoClass::instructions(gobject = gobject, 
-                                                              param = "python_path"))
+#'     spat_unit = "aggregate",
+#'     expression = "scaled",
+#'     output_path = tempdir()
+#' )
+giottoToAnndataZarr <- function(gobject, spat_unit = NULL,
+    feat_type = NULL, expression = "raw",
+    output_path) {
+    proc <- basilisk::basiliskStart(GiottoClass::instructions(
+        gobject = gobject,
+        param = "python_path"
+    ))
     on.exit(basilisk::basiliskStop(proc))
-    
+
     success <- basilisk::basiliskRun(
-        proc, 
-        function(gobject, 
-                 output_path, 
-                 expression) {
-            
+        proc,
+        function(gobject,
+    output_path,
+    expression) {
             anndata <- reticulate::import("anndata")
             zarr <- reticulate::import("zarr")
-            
+
             # extract expression matrix
-            X <- t(as.matrix(GiottoClass::getExpression(gobject = gobject, 
-                                                        spat_unit = spat_unit,
-                                                        feat_type = feat_type,
-                                                        values = expression,
-                                                        output = "matrix")))
-            
+            X <- t(as.matrix(GiottoClass::getExpression(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                values = expression,
+                output = "matrix"
+            )))
+
             # extract cell metadata
-            obs <- as.data.frame(GiottoClass::getCellMetadata(gobject = gobject,
-                                                              spat_unit = spat_unit,
-                                                              feat_type = feat_type,
-                                                              output = "data.table"))
-            
+            obs <- as.data.frame(GiottoClass::getCellMetadata(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                output = "data.table"
+            ))
+
             rownames(obs) <- obs$cell_ID
-            
+
             # extract feature metadata
-            var <- as.data.frame(GiottoClass::getFeatureMetadata(gobject = gobject,
-                                                                 spat_unit = spat_unit,
-                                                                 feat_type = feat_type,
-                                                                 output = "data.table"))
-            
+            var <- as.data.frame(GiottoClass::getFeatureMetadata(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                output = "data.table"
+            ))
+
             obsm <- list()
-            
+
             # extract spatial locations
-            spatial_locs <- as.data.frame(GiottoClass::getSpatialLocations(gobject = gobject,
-                                                                           spat_unit = spat_unit,
-                                                                           output = "data.table"))
-            
+            spatial_locs <- as.data.frame(GiottoClass::getSpatialLocations(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                output = "data.table"
+            ))
+
             if (!is.null(spatial_locs)) {
                 rownames(spatial_locs) <- spatial_locs$cell_ID
-                spatial_locs <- spatial_locs[obs$cell_ID,]
-                spatial_locs_matrix <- as.matrix(spatial_locs[,1:2])
-                
+                spatial_locs <- spatial_locs[obs$cell_ID, ]
+                spatial_locs_matrix <- as.matrix(spatial_locs[, 1:2])
+
                 obsm[["spatial"]] <- spatial_locs_matrix
             }
-            
+
             # extract pca
-            dim_reducs_pca <- GiottoClass::getDimReduction(gobject = gobject,
-                                                           spat_unit = spat_unit,
-                                                           feat_type = feat_type,
-                                                           reduction_method = "pca",
-                                                           output = "matrix")
-            
-            if(!is.null(dim_reducs_pca)) {
-                obsm[["pca"]] <- dim_reducs_pca[obs$cell_ID,]
+            dim_reducs_pca <- GiottoClass::getDimReduction(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                reduction_method = "pca",
+                output = "matrix"
+            )
+
+            if (!is.null(dim_reducs_pca)) {
+                obsm[["pca"]] <- dim_reducs_pca[obs$cell_ID, ]
             }
-            
+
             # extract umap
-            dim_reducs_umap <- GiottoClass::getDimReduction(gobject = gobject,
-                                                            spat_unit = spat_unit,
-                                                            feat_type = feat_type,
-                                                            reduction_method = "umap",
-                                                            name = "umap",
-                                                            output = "matrix")
-            
-            if(!is.null(dim_reducs_umap)) {
-                obsm[["umap"]] <- dim_reducs_umap[obs$cell_ID,]
+            dim_reducs_umap <- GiottoClass::getDimReduction(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                reduction_method = "umap",
+                name = "umap",
+                output = "matrix"
+            )
+
+            if (!is.null(dim_reducs_umap)) {
+                obsm[["umap"]] <- dim_reducs_umap[obs$cell_ID, ]
             }
-            
+
             # extract tSNE
-            dim_reducs_tsne <- GiottoClass::getDimReduction(gobject = gobject,
-                                                            spat_unit = spat_unit,
-                                                            feat_type = feat_type,
-                                                            reduction_method = "tsne",
-                                                            name = "tsne",
-                                                            output = "matrix")
-            
-            if(!is.null(dim_reducs_tsne)) {
-                obsm[["tsne"]] <- dim_reducs_tsne[obs$cell_ID,]
+            dim_reducs_tsne <- GiottoClass::getDimReduction(
+                gobject = gobject,
+                spat_unit = spat_unit,
+                feat_type = feat_type,
+                reduction_method = "tsne",
+                name = "tsne",
+                output = "matrix"
+            )
+
+            if (!is.null(dim_reducs_tsne)) {
+                obsm[["tsne"]] <- dim_reducs_tsne[obs$cell_ID, ]
             }
-            
+
             adata <- anndata$AnnData(X = X, obs = obs, var = var, obsm = obsm)
-            
+
             adata$write_zarr(output_path)
             return(TRUE)
-        }, gobject = gobject, output_path = output_path, expression = expression)
-    
+        },
+        gobject = gobject, output_path = output_path, expression = expression
+    )
+
     return(success)
 }

@@ -11,9 +11,8 @@
 #' @param output_folder path to which the GSEA results will be saved. Default
 #' is current working directory.
 #' @param name_analysis_folder default output subdirectory prefix to which
-#' results are saved.
-#'                             Will live within output_folder; equivalent of
-#'                             "Analysis Name" in GSEA Application.
+#' results are saved. Will live within output_folder; equivalent of
+#' "Analysis Name" in GSEA Application.
 #' @param collapse only 'false' is supported. This will use your dataset as-is,
 #' in the original format.
 #' @param mode option selected in Advanced Field "Collapsing Mode for
@@ -50,27 +49,26 @@
 #' please reference GSEA's documentation here:
 #' https://www.gsea-msigdb.org/gsea/doc/GSEAUserGuideTEXT.htm#_Syntax
 #' @export
-doFeatureSetEnrichment <- function(
-        dryrun = TRUE,
-        path_to_GSEA = NULL,
-        GSEA_dataset = NULL,
-        GSEA_ranked_file = NULL,
-        output_folder = NULL,
-        name_analysis_folder = "my_GSEA_analysis",
-        collapse = "false",
-        mode = c(
-            "Abs_max_of_probes",
-            "Max_probe",
-            "Median_of_probes",
-            "Mean_of_probes",
-            "Sum_of_probes"
-        ),
-        norm = "meandiv",
-        nperm = 1000,
-        scoring_scheme = "weighted",
-        plot_top_x = 20,
-        set_max = 500,
-        set_min = 15) {
+doFeatureSetEnrichment <- function(dryrun = TRUE,
+    path_to_GSEA = NULL,
+    GSEA_dataset = NULL,
+    GSEA_ranked_file = NULL,
+    output_folder = NULL,
+    name_analysis_folder = "my_GSEA_analysis",
+    collapse = "false",
+    mode = c(
+        "Abs_max_of_probes",
+        "Max_probe",
+        "Median_of_probes",
+        "Mean_of_probes",
+        "Sum_of_probes"
+    ),
+    norm = "meandiv",
+    nperm = 1000,
+    scoring_scheme = "weighted",
+    plot_top_x = 20,
+    set_max = 500,
+    set_min = 15) {
     # set don't run to false as a start
     dont_run <- FALSE
 

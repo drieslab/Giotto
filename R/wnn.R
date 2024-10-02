@@ -3,7 +3,7 @@
 #' @param gobject A Giotto object with individual PCA feat_types pre-calculated
 #' @param spat_unit spatial unit
 #' @param feat_types feature types to integrate. Default = c("rna", "protein")
-#' @param reduction_methods reduction methods for each feature type. Default = c("pca", "pca") 
+#' @param reduction_methods reduction methods for each feature type. Default = c("pca", "pca")
 #' @param reduction_names names of the reduction methods to use. Default = c("rna.pca", "protein.pca")
 #' @param k number of neighbors to calculate cell distances, default = 20
 #' @param integrated_feat_type integrated feature type (e.g. 'rna_protein')
@@ -13,17 +13,16 @@
 #'
 #' @returns A Giotto object with a new multiomics slot containing the theta_weighted_matrix and individual weight matrices.
 #' @export
-runWNN <- function(
-        gobject,
-        spat_unit = "cell",
-        feat_types = c("rna", "protein"),
-        reduction_methods = c("pca", "pca"), 
-        reduction_names = c("rna.pca", "protein.pca"),
-        k = 20,
-        integrated_feat_type = NULL,
-        matrix_result_name = NULL,
-        w_names = c(NULL, NULL),
-        verbose = FALSE) {
+runWNN <- function(gobject,
+    spat_unit = "cell",
+    feat_types = c("rna", "protein"),
+    reduction_methods = c("pca", "pca"),
+    reduction_names = c("rna.pca", "protein.pca"),
+    k = 20,
+    integrated_feat_type = NULL,
+    matrix_result_name = NULL,
+    w_names = c(NULL, NULL),
+    verbose = FALSE) {
     # validate Giotto object
     if (!inherits(gobject, "giotto")) {
         stop("gobject needs to be a giotto object")
@@ -32,7 +31,8 @@ runWNN <- function(
     # validate feat_types
     for (feat_type in feat_types) {
         if (!feat_type %in% names(
-            slot(gobject, "dimension_reduction")$cells[[spat_unit]])) {
+            slot(gobject, "dimension_reduction")$cells[[spat_unit]]
+        )) {
             stop(paste(feat_type, " and their dimension reductions must exist in the Giotto object"))
         }
     }
@@ -40,51 +40,52 @@ runWNN <- function(
     # extract kNN and PCA
     kNN_list <- list()
     pca_list <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         kNN_list[[feat_type]] <- getNearestNetwork(gobject,
-                                                   spat_unit = spat_unit,
-                                                   feat_type = feat_type,
-                                                   nn_type = "kNN",
-                                                   output = "igraph")
-        
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            nn_type = "kNN",
+            output = "igraph"
+        )
+
         pca_list[[feat_type]] <- getDimReduction(gobject,
-                                                 spat_unit = spat_unit,
-                                                 feat_type = feat_type,
-                                                 reduction = "cells",
-                                                 reduction_method = reduction_methods[i],
-                                                 name = reduction_names[i],
-                                                 output = "matrix")
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            reduction = "cells",
+            reduction_method = reduction_methods[i],
+            name = reduction_names[i],
+            output = "matrix"
+        )
     }
 
 
     ## get cell names
     cell_names <- GiottoClass:::get_cell_id(gobject,
-                                            spat_unit = spat_unit)
+        spat_unit = spat_unit
+    )
 
     ######################## distances calculation ############################
 
     cell_distances <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         cell_distances[[feat_type]] <- list()
-        
+
         message("Calculating ", feat_type, "-", feat_type, " distance")
-        
+
         cell_distances[[feat_type]][[feat_type]] <- list()
-        
+
         for (cell_a in cell_names) {
             my_kNN <- kNN_list[[feat_type]][[cell_a]][[cell_a]]
-            
+
             cell_distances[[feat_type]][[feat_type]][[cell_a]] <- rep(0, k)
             names(cell_distances[[feat_type]][[feat_type]][[cell_a]]) <- names(my_kNN)
-            
+
             for (cell_i in names(my_kNN)) {
                 dimensions_cell_a_i <- pca_list[[feat_type]][c(cell_a, cell_i), ]
                 cell_distances[[feat_type]][[feat_type]][[cell_a]][cell_i] <- sqrt(sum((
@@ -96,26 +97,23 @@ runWNN <- function(
     ########################### all cell-cell distances ########################
 
     all_cell_distances <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         all_cell_distances[[feat_type]] <- list()
-        
+
         if (verbose) {
             message(paste(
                 "Calculating low dimensional cell-cell distances for",
                 feat_type
             ))
         }
-        
+
         pca_distances <- dist(pca_list[[feat_type]])
         all_cell_distances[[feat_type]][[feat_type]] <- as.matrix(pca_distances)
-        
-    
-        }
-        
+    }
+
     ######################## within-modality prediction ########################
 
     if (verbose) message("Calculating within-modality prediction")
@@ -124,19 +122,18 @@ runWNN <- function(
     predicted_values <- list()
 
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         predicted_values[[feat_type]] <- list()
         predicted_values[[feat_type]][[feat_type]] <- list()
-        
+
         for (cell_a in cell_names) {
             dimensions_cell_a <- pca_list[[feat_type]][kNN_list[[feat_type]][[cell_a]][[cell_a]], ]
-            
+
             predicted_values[[feat_type]][[feat_type]][[cell_a]] <- colSums(dimensions_cell_a) / k
         }
     }
-    
+
 
     ######################## cross-modality prediction #########################
 
@@ -145,7 +142,7 @@ runWNN <- function(
     ## predicted feat_type1 modality2
     feat_type1 <- feat_types[1]
     feat_type2 <- feat_types[2]
-    
+
     predicted_values[[feat_type1]][[feat_type2]] <- list()
 
     for (cell_a in cell_names) {
@@ -168,41 +165,40 @@ runWNN <- function(
     if (verbose) message("Calculating Jaccard similarities")
 
     sNN_list <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         sNN_result <- createNearestNetwork(gobject,
-                                           spat_unit = "cell",
-                                           feat_type = feat_type,
-                                           type = "sNN",
-                                           dim_reduction_to_use = reduction_methods[i],
-                                           dim_reduction_name = reduction_names[i],
-                                           dimensions_to_use = 1:100,
-                                           return_gobject = FALSE,
-                                           minimum_shared = 1,
-                                           k = 20)
-        
+            spat_unit = "cell",
+            feat_type = feat_type,
+            type = "sNN",
+            dim_reduction_to_use = reduction_methods[i],
+            dim_reduction_name = reduction_names[i],
+            dimensions_to_use = 1:100,
+            return_gobject = FALSE,
+            minimum_shared = 1,
+            k = 20
+        )
+
         sNN_list[[feat_type]] <- igraph::as_data_frame(sNN_result)
     }
-    
+
     if (verbose) message("Calculating kernel bandwidths")
 
     # cell-specific kernel bandwidth.
     sigma_i <- list()
 
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         sigma_i[[feat_type]] <- numeric()
-        
-        
+
+
         for (cell_a in cell_names) {
             ### 20 small jaccard values
             jaccard_values <- sNN_list[[feat_type]][sNN_list[[feat_type]]$from == cell_a, ]
-            
+
             if (nrow(jaccard_values == 20)) {
                 further_cell_cell_distances <- all_cell_distances[[feat_type]][[feat_type]][
                     cell_a, jaccard_values$to
@@ -212,11 +208,10 @@ runWNN <- function(
                     cell_a,
                 ]), 20)
             }
-            
+
             sigma_i[[feat_type]][cell_a] <- mean(further_cell_cell_distances)
             # cell-specific kernel bandwidth.
         }
-        
     }
 
     ###################### cell-specific modality weights ######################
@@ -225,34 +220,33 @@ runWNN <- function(
 
     ## feat_type1 feat_type1
     theta_list <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         theta_list[[feat_type]] <- list()
         theta_list[[feat_type]][[feat_type]] <- list()
-        
+
         for (cell_a in cell_names) {
             feat_type1_i <- pca_list[[feat_type]][cell_a, ] # profile of current cell
-            
+
             d_feat_type1_i_modality2_predicted <- sqrt(sum((
                 feat_type1_i - predicted_values[[feat_type]][[feat_type]][[cell_a]])^2))
-            
+
             first_knn <- names(sort(cell_distances[[feat_type]][[feat_type]][[cell_a]]))[1]
-            
+
             feat_type1_knn1 <- pca_list[[feat_type]][first_knn, ] # profile of the nearest neighbor
-            
+
             d_feat_type1_i_feat_type1_knn1 <- sqrt(sum((
                 feat_type1_i - feat_type1_knn1)^2))
-            
+
             difference_distances <- d_feat_type1_i_modality2_predicted -
                 d_feat_type1_i_feat_type1_knn1
             max_value <- max(c(difference_distances, 0))
-            
+
             theta_list[[feat_type]][[feat_type]][[cell_a]] <- exp((
                 -max_value) / (sigma_i[[feat_type]][cell_a] -
-                                   d_feat_type1_i_feat_type1_knn1))
+                d_feat_type1_i_feat_type1_knn1))
         }
     }
 
@@ -260,7 +254,7 @@ runWNN <- function(
     ## feat_type1 modality2
     feat_type1 <- feat_types[1]
     feat_type2 <- feat_types[2]
-    
+
     theta_list[[feat_type1]][[feat_type2]] <- list()
 
     for (cell_a in cell_names) {
@@ -268,7 +262,7 @@ runWNN <- function(
         d_feat_type1_i_modality2_predicted <- sqrt(sum((
             feat_type1_i - predicted_values[[feat_type1]][[feat_type2]][[cell_a]])^2))
         first_knn <- names(sort(cell_distances[[feat_type1]][[feat_type1]][[cell_a]]))[1]
-        
+
         feat_type1_knn1 <- pca_list[[feat_type1]][first_knn, ] # profile of the nearest neighbor
         d_feat_type1_i_feat_type1_knn1 <- sqrt(sum((
             feat_type1_i - feat_type1_knn1)^2))
@@ -285,13 +279,13 @@ runWNN <- function(
 
     ## modality2 feat_type1
     theta_list[[feat_type2]][[feat_type1]] <- list()
-    
+
     for (cell_a in cell_names) {
         modality2_i <- pca_list[[feat_type2]][cell_a, ] # profile of current cell
         d_modality2_i_feat_type1_predicted <- sqrt(sum((
             modality2_i - predicted_values[[feat_type2]][[feat_type1]][[cell_a]])^2))
         first_knn <- names(sort(cell_distances[[feat_type2]][[feat_type2]][[cell_a]]))[1]
-        
+
         modality2_knn1 <- pca_list[[feat_type2]][first_knn, ] # profile of the nearest neighbor
         d_modality2_i_modality2_knn1 <- sqrt(sum((
             modality2_i - modality2_knn1)^2))
@@ -311,20 +305,20 @@ runWNN <- function(
     if (verbose) message("Calculating WNN")
 
     epsilon <- 10^-4
-    
+
     ratio_list <- list()
-    
+
     ## feat_type1
     ratio_list[[feat_type1]] <- list()
-        
+
     for (cell_a in cell_names) {
         ratio_list[[feat_type1]][[cell_a]] <- theta_list[[feat_type1]][[feat_type1]][[cell_a]] /
             (theta_list[[feat_type1]][[feat_type2]][[cell_a]] + epsilon)
     }
-    
+
     ## modality2
     ratio_list[[feat_type2]] <- list()
-  
+
     for (cell_a in cell_names) {
         ratio_list[[feat_type2]][[cell_a]] <- theta_list[[feat_type2]][[feat_type2]][[cell_a]] /
             (theta_list[[feat_type2]][[feat_type1]][[cell_a]] + epsilon)
@@ -336,14 +330,13 @@ runWNN <- function(
     if (verbose) message("Calculating WNN normalization")
 
     w_list <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         w_list[[feat_type]] <- rep(0, length(cell_names))
         names(w_list[[feat_type]]) <- cell_names
-        
+
         for (cell_a in cell_names) {
             w_list[[feat_type]][cell_a] <- exp(ratio_list[[feat_type]][[cell_a]]) /
                 (exp(ratio_list[[feat_type1]][[cell_a]]) + exp(ratio_list[[feat_type2]][[cell_a]]))
@@ -365,15 +358,14 @@ runWNN <- function(
     kernelpower <- 1
 
     ## theta_feat_type1
-    
+
     theta_cella_cellb <- list()
-    
+
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i] 
-        
+        feat_type <- feat_types[i]
+
         theta_cella_cellb[[feat_type]] <- exp(-1 * (all_cell_distances[[feat_type]][[feat_type]] /
-                                                     sigma_i[[feat_type]])**kernelpower)
+            sigma_i[[feat_type]])**kernelpower)
     }
 
     ## theta_weighted
@@ -407,13 +399,12 @@ runWNN <- function(
 
     # save feat_types weight
     for (i in seq(length(feat_types))) {
-        
-        feat_type <- feat_types[i]  
-        
+        feat_type <- feat_types[i]
+
         if (is.null(w_names[i])) {
             w_names[i] <- paste0("w_", feat_type)
         }
-        
+
         gobject <- setMultiomics(
             gobject = gobject,
             result = w_list[feat_type],
@@ -445,30 +436,29 @@ runWNN <- function(
 #'
 #' @returns A Giotto object with integrated UMAP
 #' @export
-runIntegratedUMAP <- function(
-        gobject,
-        spat_unit = "cell",
-        feat_types = c("rna", "protein"),
-        integrated_feat_type = NULL,
-        integration_method = "WNN",
-        matrix_result_name = "theta_weighted_matrix",
-        k = 20,
-        spread = 5,
-        min_dist = 0.01,
-        force = FALSE,
-        ...) {
-    
+runIntegratedUMAP <- function(gobject,
+    spat_unit = "cell",
+    feat_types = c("rna", "protein"),
+    integrated_feat_type = NULL,
+    integration_method = "WNN",
+    matrix_result_name = "theta_weighted_matrix",
+    k = 20,
+    spread = 5,
+    min_dist = 0.01,
+    force = FALSE,
+    ...) {
     # validate feat_types
     for (feat_type in feat_types) {
         if (!feat_type %in% names(
-            slot(gobject, "dimension_reduction")$cells[[spat_unit]])) {
+            slot(gobject, "dimension_reduction")$cells[[spat_unit]]
+        )) {
             stop(paste(feat_type, " and their dimension reductions must exist in the Giotto object"))
         }
     }
-    
+
     feat_type1 <- feat_types[1]
     feat_type2 <- feat_types[2]
-    
+
     if (is.null(integrated_feat_type)) {
         integrated_feat_type <- paste0(feat_type1, "_", feat_type2)
     }
@@ -590,19 +580,22 @@ runIntegratedUMAP <- function(
 
     ## add umap
     for (feat_type in feat_types) {
-        
-        umap_object <- createDimObj(coordinates = integrated_umap,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type,
-                                    method = "umap",
-                                    name = "integrated.umap")
-        
-        gobject <- setDimReduction(gobject = gobject,
-                                   x = umap_object,
-                                   spat_unit = spat_unit,
-                                   feat_type = feat_type,
-                                   reduction_method = "umap",
-                                   name = "integrated.umap")
+        umap_object <- createDimObj(
+            coordinates = integrated_umap,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            method = "umap",
+            name = "integrated.umap"
+        )
+
+        gobject <- setDimReduction(
+            gobject = gobject,
+            x = umap_object,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            reduction_method = "umap",
+            name = "integrated.umap"
+        )
     }
 
     return(gobject)

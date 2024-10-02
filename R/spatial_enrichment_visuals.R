@@ -5,8 +5,8 @@
 #' @param feat_type feature type for which the enrichment information was
 #' calculated
 #' @param enrichment_name name of the spatial enrichment
-#'  i.e. output from GiottoClass::list_spatial_enrichment_names()
-#'  Default value is "PAGE_Z_score"
+#' i.e. output from GiottoClass::list_spatial_enrichment_names()
+#' Default value is "PAGE_Z_score"
 #' @param return_frequency_table see details. Default FALSE
 #' @returns table
 #' @details
@@ -24,12 +24,11 @@
 #' the associated cell types from the enrichment.
 #'
 #' @export
-findCellTypesFromEnrichment <- function(
-        gobject = NULL,
-        spat_unit = NULL,
-        feat_type = NULL,
-        enrichment_name = "PAGE_z_score",
-        return_frequency_table = FALSE) {
+findCellTypesFromEnrichment <- function(gobject = NULL,
+    spat_unit = NULL,
+    feat_type = NULL,
+    enrichment_name = "PAGE_z_score",
+    return_frequency_table = FALSE) {
     # guard clauses
 
     if (!inherits(gobject, "giotto")) {
@@ -113,17 +112,16 @@ findCellTypesFromEnrichment <- function(
 #' annotation.
 #'
 #' @export
-plotCellTypesFromEnrichment <- function(
-        gobject = NULL,
-        spat_unit = NULL,
-        feat_type = NULL,
-        enrichment_name = "PAGE_z_score",
-        title = NULL,
-        save_param = list(),
-        default_save_name = "cell_types_from_enrichment",
-        save_plot = NULL,
-        show_plot = NULL,
-        return_plot = NULL) {
+plotCellTypesFromEnrichment <- function(gobject = NULL,
+    spat_unit = NULL,
+    feat_type = NULL,
+    enrichment_name = "PAGE_z_score",
+    title = NULL,
+    save_param = list(),
+    default_save_name = "cell_types_from_enrichment",
+    save_plot = NULL,
+    show_plot = NULL,
+    return_plot = NULL) {
     # guard clauses handled at first step downstream
     # therefore, omitting here.
     id_and_types <- findCellTypesFromEnrichment(
@@ -188,17 +186,16 @@ plotCellTypesFromEnrichment <- function(
 #' and will be determined by the maximum value of the z-score
 #' or p-value for a given cell or annotation.
 #' @export
-pieCellTypesFromEnrichment <- function(
-        gobject = NULL,
-        spat_unit = NULL,
-        feat_type = NULL,
-        enrichment_name = "PAGE_z_score",
-        title = NULL,
-        save_param = list(),
-        default_save_name = "cell_types_from_enrichment_pie",
-        save_plot = NULL,
-        show_plot = NULL,
-        return_plot = NULL) {
+pieCellTypesFromEnrichment <- function(gobject = NULL,
+    spat_unit = NULL,
+    feat_type = NULL,
+    enrichment_name = "PAGE_z_score",
+    title = NULL,
+    save_param = list(),
+    default_save_name = "cell_types_from_enrichment_pie",
+    save_plot = NULL,
+    show_plot = NULL,
+    return_plot = NULL) {
     # guard clauses handled one step downstream
 
     freq_table <- findCellTypesFromEnrichment(

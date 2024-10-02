@@ -30,10 +30,10 @@ clustering}
 
 \item{split_clus_name}{character. Name to assign the split cluster results}
 
-\item{include_all_ids}{Boolean. Include all ids, including vertex ids not found
-in the spatial network}
+\item{include_all_ids}{Boolean. Include all ids, including vertex ids not 
+found in the spatial network}
 
-\item{missing_id_name}{Character. Name for vertices that were missing from 
+\item{missing_id_name}{Character. Name for vertices that were missing from
 spatial network}
 
 \item{return_gobject}{Boolean. Return giotto object}

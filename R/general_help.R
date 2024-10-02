@@ -7,9 +7,8 @@
 #' @description calculate gini coefficient
 #' @keywords internal
 #' @returns gini coefficient
-mygini_fun <- function(
-        x,
-        weights = rep(1, length(x))) {
+mygini_fun <- function(x,
+    weights = rep(1, length(x))) {
     # adapted from R package GiniWegNeg
     dataset <- cbind(x, weights)
     ord_x <- order(x)
@@ -37,10 +36,9 @@ mygini_fun <- function(
 #' @description calculate gini coefficient on a minimum length vector
 #' @keywords internal
 #' @returns gini coefficient
-extended_gini_fun <- function(
-        x,
-        weights = rep(1, length = length(x)),
-        minimum_length = 16) {
+extended_gini_fun <- function(x,
+    weights = rep(1, length = length(x)),
+    minimum_length = 16) {
     if (length(x) < minimum_length) {
         difference <- minimum_length - length(x)
         min_value <- min(x)
@@ -59,11 +57,10 @@ extended_gini_fun <- function(
 #' @description create binarized scores from a vector using kmeans
 #' @returns numeric
 #' @keywords internal
-.kmeans_binarize <- function(
-        x,
-        nstart = 3,
-        iter.max = 10,
-        seed = NULL) {
+.kmeans_binarize <- function(x,
+    nstart = 3,
+    iter.max = 10,
+    seed = NULL) {
     if (!is.null(seed)) {
         on.exit(random_seed(), add = TRUE)
         set.seed(seed)
@@ -134,12 +131,11 @@ extended_gini_fun <- function(
 #' kmeans_arma
 #' @returns numeric
 #' @keywords internal
-.kmeans_arma_subset_binarize <- function(
-        x,
-        n_iter = 5,
-        extreme_nr = 20,
-        sample_nr = 200,
-        seed = NULL) {
+.kmeans_arma_subset_binarize <- function(x,
+    n_iter = 5,
+    extreme_nr = 20,
+    sample_nr = 200,
+    seed = NULL) {
     length_x <- length(x)
 
     vector_x <- sort(x)
@@ -190,14 +186,15 @@ extended_gini_fun <- function(
 #' @description wrapper for different binarization functions
 #' @returns matrix
 #' @keywords internal
-kmeans_binarize_wrapper <- function(expr_values,
-    subset_feats = NULL,
-    kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
-    nstart = 3,
-    iter_max = 10,
-    extreme_nr = 50,
-    sample_nr = 50,
-    seed = NULL) {
+kmeans_binarize_wrapper <- function(
+        expr_values,
+        subset_feats = NULL,
+        kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
+        nstart = 3,
+        iter_max = 10,
+        extreme_nr = 50,
+        sample_nr = 50,
+        seed = NULL) {
     # expression values
     if (!is.null(subset_feats)) {
         expr_values <- expr_values[rownames(expr_values) %in% subset_feats, ]
@@ -254,10 +251,9 @@ kmeans_binarize_wrapper <- function(expr_values,
 #' @description wrapper for rank binarization function
 #' @returns matrix
 #' @keywords internal
-rank_binarize_wrapper <- function(
-        expr_values,
-        subset_feats = NULL,
-        percentage_rank = 30) {
+rank_binarize_wrapper <- function(expr_values,
+    subset_feats = NULL,
+    percentage_rank = 30) {
     # expression values
     if (!is.null(subset_feats)) {
         expr_values <- expr_values[rownames(expr_values) %in% subset_feats, ]
@@ -276,44 +272,50 @@ rank_binarize_wrapper <- function(
 
 #' @title writeChatGPTqueryDEG
 #' @name writeChatGPTqueryDEG
-#' @description This function writes a query as a .txt file that can be used with
-#' ChatGPT or a similar LLM service to find the most likely cell types based on the
-#' top differential expressed genes (DEGs) between identified clusters.
-#' @param DEG_output the output format from the differenetial expression functions
+#' @description This function writes a query as a .txt file that can be used 
+#' with ChatGPT or a similar LLM service to find the most likely cell types 
+#' based on the top differential expressed genes (DEGs) between identified 
+#' clusters.
+#' @param DEG_output the output format from the differential expression 
+#' functions
 #' @param top_n_genes number of genes for each cluster
 #' @param tissue_type tissue type
 #' @param folder_name path to the folder where you want to save the .txt file
 #' @param file_name name of .txt file
 #' @returns writes a .txt file to the desired location
-#' @details This function does not run any LLM service. It simply creates the .txt
-#' file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
+#' @details This function does not run any LLM service. It simply creates the 
+#' .txt file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
 #' @export
-writeChatGPTqueryDEG = function(DEG_output,
-                                top_n_genes = 10,
-                                tissue_type = 'human breast cancer',
-                                folder_name = getwd(),
-                                file_name = 'chatgpt_query.txt') {
+writeChatGPTqueryDEG <- function(DEG_output,
+    top_n_genes = 10,
+    tissue_type = "human breast cancer",
+    folder_name = getwd(),
+    file_name = "chatgpt_query.txt") {
+    chatgpt_query <- paste0(
+        "Identify cell types of ", tissue_type, 
+        " tissue using the following markers. Identify one cell type for each 
+        row. Only provide the cell type name and the marker genes used for cell 
+        type identification.")
 
-  chatgpt_query = paste0("Identify cell types of ", tissue_type, " tissue using the following markers. Identify one cell type for each row. Only provide the cell type name and the marker genes used for cell type identification.")
+    selected_DEG_output <- DEG_output[, head(.SD, top_n_genes), by = "cluster"]
 
-  selected_DEG_output = DEG_output[, head(.SD, top_n_genes), by="cluster"]
+    finallist <- list()
+    finallist[[1]] <- chatgpt_query
 
-  finallist = list()
-  finallist[[1]] = chatgpt_query
+    for (clus in unique(selected_DEG_output$cluster)) {
+        x <- selected_DEG_output[cluster == clus][["feats"]]
+        x <- c(clus, x)
+        finallist[[as.numeric(clus) + 1]] <- x
+    }
 
-  for(clus in unique(selected_DEG_output$cluster)) {
-    x = selected_DEG_output[cluster == clus][['feats']]
-    x = c(clus, x)
-    finallist[[as.numeric(clus)+1]] = x
-  }
+    outputdt <- data.table::data.table(finallist)
 
-  outputdt = data.table::data.table(finallist)
-
-  cat('\n start writing \n')
-  data.table::fwrite(x = outputdt,
-                     file = paste0(folder_name,'/', file_name),
-                     sep2 = c(""," ",""), col.names = F)
-
+    cat("\n start writing \n")
+    data.table::fwrite(
+        x = outputdt,
+        file = paste0(folder_name, "/", file_name),
+        sep2 = c("", " ", ""), col.names = FALSE
+    )
 }
 
 
@@ -330,9 +332,8 @@ writeChatGPTqueryDEG = function(DEG_output,
 #' @returns expression matrix with gene symbols as rownames
 #' @details This function requires that the biomaRt library is installed
 #' @export
-convertEnsemblToGeneSymbol <- function(
-        matrix,
-        species = c("mouse", "human")) {
+convertEnsemblToGeneSymbol <- function(matrix,
+    species = c("mouse", "human")) {
     # data.table: set global variable
     dupes <- mgi_symbol <- gene_symbol <- ensembl_gene_id <- hgnc_symbol <- NULL
 
@@ -445,16 +446,17 @@ convertEnsemblToGeneSymbol <- function(
 #' @name gpoly_from_dfr_smoothed_wrapped
 #' @returns giottoPolygon
 #' @keywords internal
-gpoly_from_dfr_smoothed_wrapped <- function(segmdfr,
-    name = "cell",
-    calc_centroids = FALSE,
-    smooth_polygons = FALSE,
-    vertices = 20L,
-    k = 3L,
-    set_neg_to_zero = TRUE,
-    skip_eval_dfr = FALSE,
-    copy_dt = TRUE,
-    verbose = TRUE) {
+gpoly_from_dfr_smoothed_wrapped <- function(
+        segmdfr,
+        name = "cell",
+        calc_centroids = FALSE,
+        smooth_polygons = FALSE,
+        vertices = 20L,
+        k = 3L,
+        set_neg_to_zero = TRUE,
+        skip_eval_dfr = FALSE,
+        copy_dt = TRUE,
+        verbose = TRUE) {
     gpoly <- createGiottoPolygonsFromDfr(
         segmdfr = segmdfr,
         name = name,
@@ -514,11 +516,10 @@ gpoly_from_dfr_smoothed_wrapped <- function(segmdfr,
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user
 #' can select another column.
 #' @export
-get10Xmatrix <- function(
-        path_to_data,
-        gene_column_index = 1,
-        remove_zero_rows = TRUE,
-        split_by_type = TRUE) {
+get10Xmatrix <- function(path_to_data,
+    gene_column_index = 1,
+    remove_zero_rows = TRUE,
+    split_by_type = TRUE) {
     # data.table variables
     total <- gene_symbol <- gene_id <- gene_id_num <- cell_id <-
         cell_id_num <- sort_gene_id_num <- NULL
@@ -605,11 +606,10 @@ get10Xmatrix <- function(
 #' (e.g. expression vs QC probes) or modalities (e.g. RNA and protein), and
 #' \code{split_by_type} param is \code{TRUE}, multiple matrices will be returned
 #' @export
-get10Xmatrix_h5 <- function(
-        path_to_data,
-        gene_ids = c("symbols", "ensembl"),
-        remove_zero_rows = TRUE,
-        split_by_type = TRUE) {
+get10Xmatrix_h5 <- function(path_to_data,
+    gene_ids = c("symbols", "ensembl"),
+    remove_zero_rows = TRUE,
+    split_by_type = TRUE) {
     ## function inspired by and modified from the VISION package
     ## see read_10x_h5_v3 in
     ## https://github.com/YosefLab/VISION/blob/master/R/Utilities.R
@@ -736,10 +736,10 @@ get10Xmatrix_h5 <- function(
 #' @param \dots additional params to pass to
 #' `[GiottoClass::createGiottoLargeImage]`
 #' @md
+#' @returns 10xAffineImage
 #' @export
-read10xAffineImage <- function(
-        file, imagealignment_path, name = "aligned_image", micron = 0.2125, ...
-) {
+read10xAffineImage <- function(file, imagealignment_path, 
+                                name = "aligned_image", micron = 0.2125, ...) {
     checkmate::assert_file_exists(file)
     checkmate::assert_file_exists(imagealignment_path)
     if (!is.numeric(micron)) {
@@ -761,7 +761,7 @@ read10xAffineImage <- function(
     x %>%
         affine(affine[seq(2), seq(2)]) %>%
         rescale(micron, x0 = 0, y0 = 0) %>%
-        spatShift(dx = affine[1,3] * micron, dy = -affine[2,3] * micron)
+        spatShift(dx = affine[1, 3] * micron, dy = -affine[2, 3] * micron)
 }
 
 
@@ -794,19 +794,18 @@ read10xAffineImage <- function(
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission
 #' issues.
 #' @export
-readPolygonFilesVizgenHDF5_old <- function(
-        boundaries_path,
-        fovs = NULL,
-        polygon_feat_types = 0:6,
-        custom_polygon_names = NULL,
-        flip_x_axis = FALSE,
-        flip_y_axis = FALSE,
-        smooth_polygons = TRUE,
-        smooth_vertices = 60,
-        set_neg_to_zero = FALSE,
-        H5Fopen_flags = "H5F_ACC_RDWR",
-        cores = NA,
-        verbose = TRUE) {
+readPolygonFilesVizgenHDF5_old <- function(boundaries_path,
+    fovs = NULL,
+    polygon_feat_types = 0:6,
+    custom_polygon_names = NULL,
+    flip_x_axis = FALSE,
+    flip_y_axis = FALSE,
+    smooth_polygons = TRUE,
+    smooth_vertices = 60,
+    set_neg_to_zero = FALSE,
+    H5Fopen_flags = "H5F_ACC_RDWR",
+    cores = NA,
+    verbose = TRUE) {
     # necessary pkgs
     package_check(pkg_name = "rhdf5", repository = "Bioc")
 
@@ -1001,25 +1000,24 @@ readPolygonFilesVizgenHDF5_old <- function(
 #' @details Set H5Fopen_flags to "H5F_ACC_RDONLY" if you encounter permission
 #' issues.
 #' @export
-readPolygonFilesVizgenHDF5 <- function(
-        boundaries_path,
-        fovs = NULL,
-        z_indices = 1L:7L,
-        segm_to_use = 1L,
-        custom_polygon_names = NULL,
-        flip_x_axis = FALSE,
-        flip_y_axis = TRUE,
-        calc_centroids = FALSE,
-        smooth_polygons = TRUE,
-        smooth_vertices = 60L,
-        set_neg_to_zero = FALSE,
-        H5Fopen_flags = "H5F_ACC_RDWR",
-        cores = determine_cores(),
-        create_gpoly_parallel = TRUE,
-        create_gpoly_bin = FALSE,
-        verbose = TRUE,
-        output = c("giottoPolygon", "data.table"),
-        polygon_feat_types = NULL) {
+readPolygonFilesVizgenHDF5 <- function(boundaries_path,
+    fovs = NULL,
+    z_indices = 1L:7L,
+    segm_to_use = 1L,
+    custom_polygon_names = NULL,
+    flip_x_axis = FALSE,
+    flip_y_axis = TRUE,
+    calc_centroids = FALSE,
+    smooth_polygons = TRUE,
+    smooth_vertices = 60L,
+    set_neg_to_zero = FALSE,
+    H5Fopen_flags = "H5F_ACC_RDWR",
+    cores = determine_cores(),
+    create_gpoly_parallel = TRUE,
+    create_gpoly_bin = FALSE,
+    verbose = TRUE,
+    output = c("giottoPolygon", "data.table"),
+    polygon_feat_types = NULL) {
     # necessary pkgs
     package_check(pkg_name = "rhdf5", repository = "Bioc")
 
@@ -1147,16 +1145,15 @@ readPolygonFilesVizgenHDF5 <- function(
 
 #' @keywords internal
 #' @noRd
-.create_giotto_polygons_vizgen <- function(
-        z_read_DT,
-        poly_names = names(z_read_DT),
-        set_neg_to_zero = FALSE,
-        calc_centroids = FALSE,
-        smooth_polygons = TRUE,
-        smooth_vertices = 60L,
-        create_gpoly_parallel = TRUE,
-        create_gpoly_bin = FALSE,
-        verbose = TRUE) {
+.create_giotto_polygons_vizgen <- function(z_read_DT,
+    poly_names = names(z_read_DT),
+    set_neg_to_zero = FALSE,
+    calc_centroids = FALSE,
+    smooth_polygons = TRUE,
+    smooth_vertices = 60L,
+    create_gpoly_parallel = TRUE,
+    create_gpoly_bin = FALSE,
+    verbose = TRUE) {
     checkmate::assert_list(z_read_DT)
     checkmate::assert_numeric(smooth_vertices)
 
@@ -1193,7 +1190,8 @@ readPolygonFilesVizgenHDF5 <- function(
                         )
                     }
                     if (isTRUE(calc_centroids)) {
-                        # NOTE: won't recalculate if centroids are already attached
+                        # NOTE: won't recalculate if centroids are already 
+                        # attached
                         cell_polygons <- centroids(
                             cell_polygons,
                             append_gpolygon = TRUE
@@ -1355,10 +1353,11 @@ readPolygonFilesVizgenHDF5 <- function(
 #' @param verbose be verbose
 #' @returns giottoPolygons
 #' @export
-readPolygonVizgenParquet <- function(file,
-    z_index = "all",
-    calc_centroids = TRUE,
-    verbose = TRUE) {
+readPolygonVizgenParquet <- function(
+        file,
+        z_index = "all",
+        calc_centroids = TRUE,
+        verbose = TRUE) {
     # package checks
     package_check("arrow")
     package_check("sf")
@@ -1468,18 +1467,17 @@ readPolygonVizgenParquet <- function(file,
 #' @returns giotto object or cell polygons list
 #' @seealso \code{\link{smoothGiottoPolygons}}
 #' @export
-readPolygonFilesVizgen <- function(
-        gobject,
-        boundaries_path,
-        fovs = NULL,
-        polygon_feat_types = 0:6,
-        flip_x_axis = FALSE,
-        flip_y_axis = FALSE,
-        smooth_polygons = TRUE,
-        smooth_vertices = 60,
-        set_neg_to_zero = FALSE,
-        return_gobject = TRUE,
-        verbose = TRUE) {
+readPolygonFilesVizgen <- function(gobject,
+    boundaries_path,
+    fovs = NULL,
+    polygon_feat_types = 0:6,
+    flip_x_axis = FALSE,
+    flip_y_axis = FALSE,
+    smooth_polygons = TRUE,
+    smooth_vertices = 60,
+    set_neg_to_zero = FALSE,
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # define names
     poly_feat_names <- paste0("z", polygon_feat_types)
     poly_feat_indexes <- paste0("zIndex_", polygon_feat_types)
@@ -1524,11 +1522,10 @@ readPolygonFilesVizgen <- function(
 #' @describeIn readPolygonFilesVizgen (internal) Optimized .hdf5 reading for
 #' vizgen merscope output. Returns a data.table of xyz coords and cell_id
 #' @keywords internal
-.h5_read_vizgen <- function(
-        h5File,
-        z_indices = 1L:7L,
-        segm_to_use = "p_0",
-        H5Fopen_flags = "H5F_ACC_RDWR") {
+.h5_read_vizgen <- function(h5File,
+    z_indices = 1L:7L,
+    segm_to_use = "p_0",
+    H5Fopen_flags = "H5F_ACC_RDWR") {
     # data.table vars
     group <- name <- cell <- z_name <- otype <- d_name <- cell_id <- NULL
 
@@ -1629,9 +1626,8 @@ readPolygonFilesVizgen <- function(
 #' @param bin_size bin size to select from .gef file
 #' @returns transcript with coordinates
 #' @export
-getGEFtxCoords <- function(
-        gef_file,
-        bin_size = "bin100") {
+getGEFtxCoords <- function(gef_file,
+    bin_size = "bin100") {
     # data.table vars
     genes <- NULL
 

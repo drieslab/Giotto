@@ -77,7 +77,8 @@ which can detect communities in graphs of millions of nodes (cells),
 as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}}
 for more information.
 
-Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
+Set \emph{weights = NULL} to use the vertices weights associated with the 
+igraph network.
 Set \emph{weights = NA} if you don't want to use vertices weights
 }
 \examples{

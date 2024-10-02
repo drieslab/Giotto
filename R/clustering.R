@@ -47,25 +47,24 @@
 #'
 #' doLeidenCluster(g)
 #' @export
-doLeidenCluster <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        name = "leiden_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        python_path = NULL,
-        resolution = 1,
-        weight_col = "weight",
-        partition_type = c(
-            "RBConfigurationVertexPartition",
-            "ModularityVertexPartition"
-        ),
-        init_membership = NULL,
-        n_iterations = 1000,
-        return_gobject = TRUE,
-        set_seed = TRUE,
-        seed_number = 1234) {
+doLeidenCluster <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    name = "leiden_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    python_path = NULL,
+    resolution = 1,
+    weight_col = "weight",
+    partition_type = c(
+        "RBConfigurationVertexPartition",
+        "ModularityVertexPartition"
+    ),
+    init_membership = NULL,
+    n_iterations = 1000,
+    return_gobject = TRUE,
+    set_seed = TRUE,
+    seed_number = 1234) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -204,7 +203,8 @@ doLeidenCluster <- function(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE,
             column_cell_ID = "cell_ID"
         )
@@ -253,7 +253,8 @@ doLeidenCluster <- function(
 #' as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}}
 #' for more information.
 #'
-#' Set \emph{weights = NULL} to use the vertices weights associated with the igraph network.
+#' Set \emph{weights = NULL} to use the vertices weights associated with the 
+#' igraph network.
 #' Set \emph{weights = NA} if you don't want to use vertices weights
 #'
 #' @examples
@@ -261,23 +262,22 @@ doLeidenCluster <- function(
 #'
 #' doLeidenClusterIgraph(g)
 #' @export
-doLeidenClusterIgraph <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        name = "leiden_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        objective_function = c("modularity", "CPM"),
-        weights = NULL,
-        resolution_parameter = 1,
-        beta = 0.01,
-        initial_membership = NULL,
-        n_iterations = 1000,
-        return_gobject = TRUE,
-        set_seed = TRUE,
-        seed_number = 1234,
-        ...) {
+doLeidenClusterIgraph <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    name = "leiden_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    objective_function = c("modularity", "CPM"),
+    weights = NULL,
+    resolution_parameter = 1,
+    beta = 0.01,
+    initial_membership = NULL,
+    n_iterations = 1000,
+    return_gobject = TRUE,
+    set_seed = TRUE,
+    seed_number = 1234,
+    ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -369,7 +369,8 @@ doLeidenClusterIgraph <- function(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE,
             column_cell_ID = "cell_ID"
         )
@@ -426,18 +427,17 @@ doLeidenClusterIgraph <- function(
 #'     show_plot = FALSE, save_plot = FALSE
 #' )
 #' @export
-doGiottoClustree <- function(
-        gobject,
-        res_vector = NULL,
-        res_seq = NULL,
-        return_gobject = FALSE,
-        show_plot = NULL,
-        save_plot = NULL,
-        return_plot = NULL,
-        save_param = list(),
-        default_save_name = "clustree",
-        verbose = TRUE,
-        ...) {
+doGiottoClustree <- function(gobject,
+    res_vector = NULL,
+    res_seq = NULL,
+    return_gobject = FALSE,
+    show_plot = NULL,
+    save_plot = NULL,
+    return_plot = NULL,
+    save_param = list(),
+    default_save_name = "clustree",
+    verbose = TRUE,
+    ...) {
     package_check(pkg_name = "clustree", repository = "CRAN")
     ## setting resolutions to use
     if (is.null(res_vector)) {
@@ -510,21 +510,20 @@ doGiottoClustree <- function(
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #' @md
 #' @keywords internal
-.doLouvainCluster_community <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        name = "louvain_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        python_path = NULL,
-        resolution = 1,
-        weight_col = NULL,
-        louv_random = FALSE,
-        return_gobject = TRUE,
-        set_seed = FALSE,
-        seed_number = 1234,
-        ...) {
+.doLouvainCluster_community <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    name = "louvain_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    python_path = NULL,
+    resolution = 1,
+    weight_col = NULL,
+    louv_random = FALSE,
+    return_gobject = TRUE,
+    set_seed = FALSE,
+    seed_number = 1234,
+    ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -656,7 +655,8 @@ doGiottoClustree <- function(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE, column_cell_ID = "cell_ID"
         )
 
@@ -713,18 +713,17 @@ doGiottoClustree <- function(
 #' in R for more information.
 #'
 #' @keywords internal
-.doLouvainCluster_multinet <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        name = "louvain_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        gamma = 1,
-        omega = 1,
-        return_gobject = TRUE,
-        set_seed = FALSE,
-        seed_number = 1234) {
+.doLouvainCluster_multinet <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    name = "louvain_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    gamma = 1,
+    omega = 1,
+    return_gobject = TRUE,
+    set_seed = FALSE,
+    seed_number = 1234) {
     if ("multinet" %in% rownames(installed.packages()) == FALSE) {
         stop(
             "package 'multinet' is not yet installed \n",
@@ -823,7 +822,8 @@ doGiottoClustree <- function(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE, column_cell_ID = "cell_ID"
         )
 
@@ -893,24 +893,23 @@ doGiottoClustree <- function(
 #'
 #' doLouvainCluster(g)
 #' @export
-doLouvainCluster <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        version = c("community", "multinet"),
-        name = "louvain_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        python_path = NULL,
-        resolution = 1,
-        weight_col = NULL,
-        gamma = 1,
-        omega = 1,
-        louv_random = FALSE,
-        return_gobject = TRUE,
-        set_seed = FALSE,
-        seed_number = 1234,
-        ...) {
+doLouvainCluster <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    version = c("community", "multinet"),
+    name = "louvain_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    python_path = NULL,
+    resolution = 1,
+    weight_col = NULL,
+    gamma = 1,
+    omega = 1,
+    louv_random = FALSE,
+    return_gobject = TRUE,
+    set_seed = FALSE,
+    seed_number = 1234,
+    ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -993,17 +992,16 @@ doLouvainCluster <- function(
 #' g <- doRandomWalkCluster(g)
 #' pDataDT(g)
 #' @export
-doRandomWalkCluster <- function(
-        gobject,
-        name = "random_walk_clus",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        walk_steps = 4,
-        walk_clusters = 10,
-        walk_weights = NA,
-        return_gobject = TRUE,
-        set_seed = FALSE,
-        seed_number = 1234) {
+doRandomWalkCluster <- function(gobject,
+    name = "random_walk_clus",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    walk_steps = 4,
+    walk_clusters = 10,
+    walk_weights = NA,
+    return_gobject = TRUE,
+    set_seed = FALSE,
+    seed_number = 1234) {
     ## get cell IDs ##
     cell_ID_vec <- gobject@cell_ID
 
@@ -1090,18 +1088,17 @@ doRandomWalkCluster <- function(
 #'
 #' doSNNCluster(g)
 #' @export
-doSNNCluster <- function(
-        gobject,
-        name = "sNN_clus",
-        nn_network_to_use = "kNN",
-        network_name = "kNN.pca",
-        k = 20,
-        eps = 4,
-        minPts = 16,
-        borderPoints = TRUE,
-        return_gobject = TRUE,
-        set_seed = FALSE,
-        seed_number = 1234) {
+doSNNCluster <- function(gobject,
+    name = "sNN_clus",
+    nn_network_to_use = "kNN",
+    network_name = "kNN.pca",
+    k = 20,
+    eps = 4,
+    minPts = 16,
+    borderPoints = TRUE,
+    return_gobject = TRUE,
+    set_seed = FALSE,
+    seed_number = 1234) {
     ## get cell IDs ##
     cell_ID_vec <- gobject@cell_ID
 
@@ -1222,39 +1219,40 @@ doSNNCluster <- function(
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = TRUE)
 #' @param seed_number number for seed
-#' @returns if return_gobject = TRUE: giotto object with new clusters appended to cell metadata
+#' @returns if return_gobject = TRUE: giotto object with new clusters appended 
+#' to cell metadata
 #' @details The default settings will use dimension reduction results as input.
-#' Set dim_reduction_to_use = NULL if you want to directly use expression values as input.
-#' By providing a feature vector to feats_to_use you can subset the expression matrix.
+#' Set dim_reduction_to_use = NULL if you want to directly use expression 
+#' values as input.
+#' By providing a feature vector to feats_to_use you can subset the expression 
+#' matrix.
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
 #' doKmeans(g)
 #' @export
-doKmeans <- function(
-        gobject,
-        feat_type = NULL,
-        spat_unit = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        feats_to_use = NULL,
-        dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
-        dim_reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        distance_method = c(
-            "original", "pearson", "spearman",
-            "euclidean", "maximum", "manhattan",
-            "canberra", "binary", "minkowski"
-        ),
-        centers = 10,
-        iter_max = 100,
-        nstart = 1000,
-        algorithm = "Hartigan-Wong",
-        name = "kmeans",
-        return_gobject = TRUE,
-        set_seed = TRUE,
-        seed_number = 1234) {
-
+doKmeans <- function(gobject,
+    feat_type = NULL,
+    spat_unit = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    feats_to_use = NULL,
+    dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+    dim_reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    distance_method = c(
+        "original", "pearson", "spearman",
+        "euclidean", "maximum", "manhattan",
+        "canberra", "binary", "minkowski"
+    ),
+    centers = 10,
+    iter_max = 100,
+    nstart = 1000,
+    algorithm = "Hartigan-Wong",
+    name = "kmeans",
+    return_gobject = TRUE,
+    set_seed = TRUE,
+    seed_number = 1234) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1275,46 +1273,42 @@ doKmeans <- function(
 
 
     ## using dimension reduction ##
-    if(!is.null(dim_reduction_to_use)) {
+    if (!is.null(dim_reduction_to_use)) {
+        # use only available dimensions if dimensions < dimensions_to_use
+        dim_coord <- getDimReduction(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            reduction = "cells",
+            reduction_method = dim_reduction_to_use,
+            name = dim_reduction_name,
+            output = "dimObj"
+        )
 
-      # use only available dimensions if dimensions < dimensions_to_use
-      dim_coord <- getDimReduction(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        reduction = "cells",
-        reduction_method = dim_reduction_to_use,
-        name = dim_reduction_name,
-        output = "dimObj"
-      )
-
-      dimensions_to_use <- dimensions_to_use[
-        dimensions_to_use %in% seq_len(ncol(dim_coord[]))
-      ]
-      matrix_to_use <- dim_coord[][, dimensions_to_use]
-
-    } else {
-
-      ## using original matrix ##
-      expr_values <- getExpression(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        values = expression_values,
-        output = "exprObj"
-      )
-
-      # subset expression matrix
-      if (!is.null(feats_to_use)) {
-        expr_values[] <- expr_values[][
-          rownames(expr_values[]) %in% feats_to_use,
+        dimensions_to_use <- dimensions_to_use[
+            dimensions_to_use %in% seq_len(ncol(dim_coord[]))
         ]
-      }
+        matrix_to_use <- dim_coord[][, dimensions_to_use]
+    } else {
+        ## using original matrix ##
+        expr_values <- getExpression(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            values = expression_values,
+            output = "exprObj"
+        )
 
-      # features as columns
-      # cells as rows
-      matrix_to_use <- t_flex(expr_values[])
+        # subset expression matrix
+        if (!is.null(feats_to_use)) {
+            expr_values[] <- expr_values[][
+                rownames(expr_values[]) %in% feats_to_use,
+            ]
+        }
 
+        # features as columns
+        # cells as rows
+        matrix_to_use <- t_flex(expr_values[])
     }
 
 
@@ -1393,7 +1387,8 @@ doKmeans <- function(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE,
             column_cell_ID = "cell_ID"
         )
@@ -1439,31 +1434,30 @@ doKmeans <- function(
 #'
 #' doHclust(g)
 #' @export
-doHclust <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        feats_to_use = NULL,
-        dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
-        dim_reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        distance_method = c(
-            "pearson", "spearman", "original",
-            "euclidean", "maximum", "manhattan",
-            "canberra", "binary", "minkowski"
-        ),
-        agglomeration_method = c(
-            "ward.D2", "ward.D", "single",
-            "complete", "average", "mcquitty",
-            "median", "centroid"
-        ),
-        k = 10,
-        h = NULL,
-        name = "hclust",
-        return_gobject = TRUE,
-        set_seed = TRUE,
-        seed_number = 1234) {
+doHclust <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    feats_to_use = NULL,
+    dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+    dim_reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    distance_method = c(
+        "pearson", "spearman", "original",
+        "euclidean", "maximum", "manhattan",
+        "canberra", "binary", "minkowski"
+    ),
+    agglomeration_method = c(
+        "ward.D2", "ward.D", "single",
+        "complete", "average", "mcquitty",
+        "median", "centroid"
+    ),
+    k = 10,
+    h = NULL,
+    name = "hclust",
+    return_gobject = TRUE,
+    set_seed = TRUE,
+    seed_number = 1234) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1604,7 +1598,8 @@ doHclust <- function(
             gobject = gobject,
             feat_type = feat_type,
             spat_unit = spat_unit,
-            new_metadata = ident_clusters_DT[, c("cell_ID", name), with = FALSE],
+            new_metadata = ident_clusters_DT[
+                , c("cell_ID", name), with = FALSE],
             by_column = TRUE,
             column_cell_ID = "cell_ID"
         )
@@ -1680,62 +1675,61 @@ doHclust <- function(
 #'
 #' clusterCells(g)
 #' @export
-clusterCells <- function(
-        gobject,
-        cluster_method = c(
-            "leiden",
-            "louvain_community", "louvain_multinet",
-            "randomwalk", "sNNclust",
-            "kmeans", "hierarchical"
-        ),
-        name = "cluster_name",
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        pyth_leid_resolution = 1,
-        pyth_leid_weight_col = "weight",
-        pyth_leid_part_type = c(
-            "RBConfigurationVertexPartition",
-            "ModularityVertexPartition"
-        ),
-        pyth_leid_init_memb = NULL,
-        pyth_leid_iterations = 1000,
-        pyth_louv_resolution = 1,
-        pyth_louv_weight_col = NULL,
-        python_louv_random = FALSE,
-        python_path = NULL,
-        louvain_gamma = 1,
-        louvain_omega = 1,
-        walk_steps = 4,
-        walk_clusters = 10,
-        walk_weights = NA,
-        sNNclust_k = 20,
-        sNNclust_eps = 4,
-        sNNclust_minPts = 16,
-        borderPoints = TRUE,
-        expression_values = c("normalized", "scaled", "custom"),
-        feats_to_use = NULL,
-        dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
-        dim_reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        distance_method = c(
-            "original", "pearson", "spearman",
-            "euclidean", "maximum", "manhattan",
-            "canberra", "binary", "minkowski"
-        ),
-        km_centers = 10,
-        km_iter_max = 100,
-        km_nstart = 1000,
-        km_algorithm = "Hartigan-Wong",
-        hc_agglomeration_method = c(
-            "ward.D2", "ward.D", "single",
-            "complete", "average", "mcquitty",
-            "median", "centroid"
-        ),
-        hc_k = 10,
-        hc_h = NULL,
-        return_gobject = TRUE,
-        set_seed = TRUE,
-        seed_number = 1234) {
+clusterCells <- function(gobject,
+    cluster_method = c(
+        "leiden",
+        "louvain_community", "louvain_multinet",
+        "randomwalk", "sNNclust",
+        "kmeans", "hierarchical"
+    ),
+    name = "cluster_name",
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    pyth_leid_resolution = 1,
+    pyth_leid_weight_col = "weight",
+    pyth_leid_part_type = c(
+        "RBConfigurationVertexPartition",
+        "ModularityVertexPartition"
+    ),
+    pyth_leid_init_memb = NULL,
+    pyth_leid_iterations = 1000,
+    pyth_louv_resolution = 1,
+    pyth_louv_weight_col = NULL,
+    python_louv_random = FALSE,
+    python_path = NULL,
+    louvain_gamma = 1,
+    louvain_omega = 1,
+    walk_steps = 4,
+    walk_clusters = 10,
+    walk_weights = NA,
+    sNNclust_k = 20,
+    sNNclust_eps = 4,
+    sNNclust_minPts = 16,
+    borderPoints = TRUE,
+    expression_values = c("normalized", "scaled", "custom"),
+    feats_to_use = NULL,
+    dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+    dim_reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    distance_method = c(
+        "original", "pearson", "spearman",
+        "euclidean", "maximum", "manhattan",
+        "canberra", "binary", "minkowski"
+    ),
+    km_centers = 10,
+    km_iter_max = 100,
+    km_nstart = 1000,
+    km_algorithm = "Hartigan-Wong",
+    hc_agglomeration_method = c(
+        "ward.D2", "ward.D", "single",
+        "complete", "average", "mcquitty",
+        "median", "centroid"
+    ),
+    hc_k = 10,
+    hc_h = NULL,
+    return_gobject = TRUE,
+    set_seed = TRUE,
+    seed_number = 1234) {
     ## select cluster method
     cluster_method <- match.arg(
         arg = cluster_method,
@@ -1941,40 +1935,41 @@ NULL
 
 #' @rdname subClusterCells
 #' @export
-subClusterCells <- function(gobject,
-    name = "sub_clus",
-    cluster_method = c(
-        "leiden",
-        "louvain_community",
-        "louvain_multinet"
-    ),
-    cluster_column = NULL,
-    selected_clusters = NULL,
-    hvg_param = deprecated(),
-    hvf_param = list(
-        reverse_log_scale = TRUE, difference_in_cov = 1,
-        expression_values = "normalized"
-    ),
-    hvg_min_perc_cells = deprecated(),
-    hvf_min_perc_cells = 5,
-    hvg_mean_expr_det = deprecated(),
-    hvf_mean_expr_det = 1,
-    use_all_genes_as_hvg = deprecated(),
-    use_all_feats_as_hvf = FALSE,
-    min_nr_of_hvg = deprecated(),
-    min_nr_of_hvf = 5,
-    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-    nn_param = list(dimensions_to_use = 1:20),
-    k_neighbors = 10,
-    resolution = 1,
-    n_iterations = 1000,
-    gamma = 1,
-    omega = 1,
-    python_path = NULL,
-    nn_network_to_use = "sNN",
-    network_name = "sNN.pca",
-    return_gobject = TRUE,
-    verbose = TRUE) {
+subClusterCells <- function(
+        gobject,
+        name = "sub_clus",
+        cluster_method = c(
+            "leiden",
+            "louvain_community",
+            "louvain_multinet"
+        ),
+        cluster_column = NULL,
+        selected_clusters = NULL,
+        hvg_param = deprecated(),
+        hvf_param = list(
+            reverse_log_scale = TRUE, difference_in_cov = 1,
+            expression_values = "normalized"
+        ),
+        hvg_min_perc_cells = deprecated(),
+        hvf_min_perc_cells = 5,
+        hvg_mean_expr_det = deprecated(),
+        hvf_mean_expr_det = 1,
+        use_all_genes_as_hvg = deprecated(),
+        use_all_feats_as_hvf = FALSE,
+        min_nr_of_hvg = deprecated(),
+        min_nr_of_hvf = 5,
+        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+        nn_param = list(dimensions_to_use = 1:20),
+        k_neighbors = 10,
+        resolution = 1,
+        n_iterations = 1000,
+        gamma = 1,
+        omega = 1,
+        python_path = NULL,
+        nn_network_to_use = "sNN",
+        network_name = "sNN.pca",
+        return_gobject = TRUE,
+        verbose = TRUE) {
     ## select cluster method
     cluster_method <- match.arg(arg = cluster_method, choices = c(
         "leiden",
@@ -1993,7 +1988,8 @@ subClusterCells <- function(gobject,
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+                                       use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
     # gather common args
@@ -2060,36 +2056,35 @@ subClusterCells <- function(gobject,
 #' @param toplevel do not use
 #' @param feat_type feature type
 #' @export
-doLeidenSubCluster <- function(
-        gobject,
-        feat_type = NULL,
-        name = "sub_leiden_clus",
-        cluster_column = NULL,
-        selected_clusters = NULL,
-        hvf_param = list(
-            reverse_log_scale = TRUE, difference_in_cov = 1,
-            expression_values = "normalized"
-        ),
-        hvg_param = deprecated(),
-        hvf_min_perc_cells = 5,
-        hvg_min_perc_cells = deprecated(),
-        hvf_mean_expr_det = 1,
-        hvg_mean_expr_det = deprecated(),
-        use_all_feats_as_hvf = FALSE,
-        use_all_genes_as_hvg = deprecated(),
-        min_nr_of_hvf = 5,
-        min_nr_of_hvg = deprecated(),
-        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-        nn_param = list(dimensions_to_use = 1:20),
-        k_neighbors = 10,
-        resolution = 0.5,
-        n_iterations = 500,
-        python_path = NULL,
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        return_gobject = TRUE,
-        toplevel = 2,
-        verbose = TRUE) {
+doLeidenSubCluster <- function(gobject,
+    feat_type = NULL,
+    name = "sub_leiden_clus",
+    cluster_column = NULL,
+    selected_clusters = NULL,
+    hvf_param = list(
+        reverse_log_scale = TRUE, difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvg_param = deprecated(),
+    hvf_min_perc_cells = 5,
+    hvg_min_perc_cells = deprecated(),
+    hvf_mean_expr_det = 1,
+    hvg_mean_expr_det = deprecated(),
+    use_all_feats_as_hvf = FALSE,
+    use_all_genes_as_hvg = deprecated(),
+    min_nr_of_hvf = 5,
+    min_nr_of_hvg = deprecated(),
+    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+    nn_param = list(dimensions_to_use = 1:20),
+    k_neighbors = 10,
+    resolution = 0.5,
+    n_iterations = 500,
+    python_path = NULL,
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    return_gobject = TRUE,
+    toplevel = 2,
+    verbose = TRUE) {
     # specify feat_type
     if (is.null(feat_type)) {
         feat_type <- gobject@expression_feat[[1]]
@@ -2106,7 +2101,8 @@ doLeidenSubCluster <- function(
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+                                       use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
 
@@ -2262,29 +2258,28 @@ doLeidenSubCluster <- function(
 
 # subcluster cells using a NN-network and the Louvain community
 # detection algorithm
-.doLouvainSubCluster_community <- function(
-        gobject,
-        name = "sub_louvain_comm_clus",
-        cluster_column = NULL,
-        selected_clusters = NULL,
-        hvf_param = list(
-            reverse_log_scale = TRUE,
-            difference_in_cov = 1,
-            expression_values = "normalized"
-        ),
-        hvf_min_perc_cells = 5,
-        hvf_mean_expr_det = 1,
-        use_all_feats_as_hvf = FALSE,
-        min_nr_of_hvf = 5,
-        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-        nn_param = list(dimensions_to_use = 1:20),
-        k_neighbors = 10,
-        resolution = 0.5,
-        python_path = NULL,
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        return_gobject = TRUE,
-        verbose = TRUE) {
+.doLouvainSubCluster_community <- function(gobject,
+    name = "sub_louvain_comm_clus",
+    cluster_column = NULL,
+    selected_clusters = NULL,
+    hvf_param = list(
+        reverse_log_scale = TRUE,
+        difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvf_min_perc_cells = 5,
+    hvf_mean_expr_det = 1,
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvf = 5,
+    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+    nn_param = list(dimensions_to_use = 1:20),
+    k_neighbors = 10,
+    resolution = 0.5,
+    python_path = NULL,
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    return_gobject = TRUE,
+    verbose = TRUE) {
     iter_list <- list()
 
     cell_metadata <- pDataDT(gobject)
@@ -2447,28 +2442,27 @@ doLeidenSubCluster <- function(
 
 # subcluster cells using a NN-network and the Louvain multinet
 # detection algorithm
-.doLouvainSubCluster_multinet <- function(
-        gobject,
-        name = "sub_louvain_mult_clus",
-        cluster_column = NULL,
-        selected_clusters = NULL,
-        hvf_param = list(
-            reverse_log_scale = TRUE, difference_in_cov = 1,
-            expression_values = "normalized"
-        ),
-        hvf_min_perc_cells = 5,
-        hvf_mean_expr_det = 1,
-        use_all_feats_as_hvf = FALSE,
-        min_nr_of_hvf = 5,
-        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-        nn_param = list(dimensions_to_use = 1:20),
-        k_neighbors = 10,
-        gamma = 1,
-        omega = 1,
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        return_gobject = TRUE,
-        verbose = TRUE) {
+.doLouvainSubCluster_multinet <- function(gobject,
+    name = "sub_louvain_mult_clus",
+    cluster_column = NULL,
+    selected_clusters = NULL,
+    hvf_param = list(
+        reverse_log_scale = TRUE, difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvf_min_perc_cells = 5,
+    hvf_mean_expr_det = 1,
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvf = 5,
+    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+    nn_param = list(dimensions_to_use = 1:20),
+    k_neighbors = 10,
+    gamma = 1,
+    omega = 1,
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    return_gobject = TRUE,
+    verbose = TRUE) {
     if ("multinet" %in% rownames(installed.packages()) == FALSE) {
         stop(
             "package 'multinet' is not yet installed \n",
@@ -2639,36 +2633,35 @@ doLeidenSubCluster <- function(
 #' @param version version of Louvain algorithm to use. One of "community" or
 #' "multinet", with the default being "community"
 #' @export
-doLouvainSubCluster <- function(
-        gobject,
-        name = "sub_louvain_clus",
-        version = c("community", "multinet"),
-        cluster_column = NULL,
-        selected_clusters = NULL,
-        hvg_param = deprecated(),
-        hvf_param = list(
-            reverse_log_scale = TRUE, difference_in_cov = 1,
-            expression_values = "normalized"
-        ),
-        hvg_min_perc_cells = deprecated(),
-        hvf_min_perc_cells = 5,
-        hvg_mean_expr_det = deprecated(),
-        hvf_mean_expr_det = 1,
-        use_all_genes_as_hvg = deprecated(),
-        use_all_feats_as_hvf = FALSE,
-        min_nr_of_hvg = deprecated(),
-        min_nr_of_hvf = 5,
-        pca_param = list(expression_values = "normalized", scale_unit = TRUE),
-        nn_param = list(dimensions_to_use = 1:20),
-        k_neighbors = 10,
-        resolution = 0.5,
-        gamma = 1,
-        omega = 1,
-        python_path = NULL,
-        nn_network_to_use = "sNN",
-        network_name = "sNN.pca",
-        return_gobject = TRUE,
-        verbose = TRUE) {
+doLouvainSubCluster <- function(gobject,
+    name = "sub_louvain_clus",
+    version = c("community", "multinet"),
+    cluster_column = NULL,
+    selected_clusters = NULL,
+    hvg_param = deprecated(),
+    hvf_param = list(
+        reverse_log_scale = TRUE, difference_in_cov = 1,
+        expression_values = "normalized"
+    ),
+    hvg_min_perc_cells = deprecated(),
+    hvf_min_perc_cells = 5,
+    hvg_mean_expr_det = deprecated(),
+    hvf_mean_expr_det = 1,
+    use_all_genes_as_hvg = deprecated(),
+    use_all_feats_as_hvf = FALSE,
+    min_nr_of_hvg = deprecated(),
+    min_nr_of_hvf = 5,
+    pca_param = list(expression_values = "normalized", scale_unit = TRUE),
+    nn_param = list(dimensions_to_use = 1:20),
+    k_neighbors = 10,
+    resolution = 0.5,
+    gamma = 1,
+    omega = 1,
+    python_path = NULL,
+    nn_network_to_use = "sNN",
+    network_name = "sNN.pca",
+    return_gobject = TRUE,
+    verbose = TRUE) {
     ## louvain clustering version to use
     version <- match.arg(version, c("community", "multinet"))
 
@@ -2683,7 +2676,8 @@ doLouvainSubCluster <- function(
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, use_all_feats_as_hvf)
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+                                       use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
     # get common args
@@ -2760,13 +2754,12 @@ doLouvainSubCluster <- function(
 #'
 #' getClusterSimilarity(g, cluster_column = "leiden_clus")
 #' @export
-getClusterSimilarity <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        cluster_column,
-        cor = c("pearson", "spearman")) {
+getClusterSimilarity <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    cluster_column,
+    cor = c("pearson", "spearman")) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -2885,20 +2878,19 @@ getClusterSimilarity <- function(
 #'
 #' mergeClusters(g, cluster_column = "leiden_clus")
 #' @export
-mergeClusters <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        cluster_column,
-        cor = c("pearson", "spearman"),
-        new_cluster_name = "merged_cluster",
-        min_cor_score = 0.8,
-        max_group_size = 20,
-        force_min_group_size = 10,
-        max_sim_clusters = 10,
-        return_gobject = TRUE,
-        verbose = TRUE) {
+mergeClusters <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    cluster_column,
+    cor = c("pearson", "spearman"),
+    new_cluster_name = "merged_cluster",
+    min_cor_score = 0.8,
+    max_group_size = 20,
+    force_min_group_size = 10,
+    max_sim_clusters = 10,
+    return_gobject = TRUE,
+    verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -3176,18 +3168,17 @@ mergeClusters <- function(
 #'
 #' getDendrogramSplits(g, cluster_column = "leiden_clus")
 #' @export
-getDendrogramSplits <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        cluster_column,
-        cor = c("pearson", "spearman"),
-        distance = "ward.D",
-        h = NULL,
-        h_color = "red",
-        show_dend = TRUE,
-        verbose = TRUE) {
+getDendrogramSplits <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    cluster_column,
+    cor = c("pearson", "spearman"),
+    distance = "ward.D",
+    h = NULL,
+    h_color = "red",
+    show_dend = TRUE,
+    verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -3277,9 +3268,9 @@ getDendrogramSplits <- function(
 #' @param k number of k-neighbors to train a KNN classifier
 #' @param name metadata column in target to apply the full set of labels to
 #' @param prob output probabilities together with label predictions
-#' @param reduction reduction on cells or features (default = 'cells')
-#' @param reduction_method shared reduction method (default = 'pca' space)
-#' @param reduction_name name of shared reduction space (default name = 'pca')
+#' @param reduction reduction on cells or features (default = "cells")
+#' @param reduction_method shared reduction method (default = "pca" space)
+#' @param reduction_name name of shared reduction space (default name = "pca")
 #' @param dimensions_to_use dimensions to use in shared reduction space
 #' (default = 1:10)
 #' @returns object `x` with new transferred labels added to metadata
@@ -3322,25 +3313,24 @@ getDendrogramSplits <- function(
 #' @md
 NULL
 
-setGeneric("labelTransfer", function(x, y, ...) standardGeneric("labelTransfer"))
+setGeneric("labelTransfer", 
+           function(x, y, ...) standardGeneric("labelTransfer"))
 
 #' @rdname labelTransfer
 #' @export
-setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(
-        x, y,
-        spat_unit = NULL,
-        feat_type = NULL,
-        labels,
-        k = 10,
-        name = paste0("trnsfr_", labels),
-        prob = TRUE,
-        reduction = "cells",
-        reduction_method = "pca",
-        reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        return_gobject = TRUE,
-        ...
-) {
+setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(x, y,
+    spat_unit = NULL,
+    feat_type = NULL,
+    labels,
+    k = 10,
+    name = paste0("trnsfr_", labels),
+    prob = TRUE,
+    reduction = "cells",
+    reduction_method = "pca",
+    reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    return_gobject = TRUE,
+    ...) {
     # NSE vars
     temp_name <- cell_ID <- temp_name_prob <- NULL
 
@@ -3376,8 +3366,10 @@ setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(
     source_annot_vec <- cx_src[[labels]]
     names(source_annot_vec) <- cx_src[["cell_ID"]]
 
-    # create the matrix from the target object that you want to use for the kNN classifier
-    # the matrix should be the same for the source and target objects (e.g. same PCA space)
+    # create the matrix from the target object that you want to use for the 
+    # kNN classifier
+    # the matrix should be the same for the source and target objects 
+    # (e.g. same PCA space)
     dimensions_to_use <- dimensions_to_use[
         # ensure dims to use exist
         dimensions_to_use %in% seq_len(ncol(dim_coord))
@@ -3389,11 +3381,11 @@ setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(
     # the training set is those spatial IDs that are in the source
     # (w/ labels) AND target giotto object
     in_common <- rownames(matrix_to_use) %in% names(source_annot_vec)
-    train <- matrix_to_use[in_common,]
+    train <- matrix_to_use[in_common, ]
     train <- train[match(names(source_annot_vec), rownames(train)), ]
 
     # the test set are the remaining cell_IDs that need a label
-    test <- matrix_to_use[!in_common,]
+    test <- matrix_to_use[!in_common, ]
 
     # make prediction
     knnprediction <- FNN::knn(
@@ -3452,23 +3444,21 @@ setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(
 
 #' @rdname labelTransfer
 #' @export
-setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(
-        x,
-        spat_unit = NULL,
-        feat_type = NULL,
-        source_cell_ids,
-        target_cell_ids,
-        labels,
-        k = 10,
-        name = paste0("trnsfr_", labels),
-        prob = TRUE,
-        reduction = "cells",
-        reduction_method = "pca",
-        reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        return_gobject = TRUE,
-        ...
-) {
+setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(x,
+    spat_unit = NULL,
+    feat_type = NULL,
+    source_cell_ids,
+    target_cell_ids,
+    labels,
+    k = 10,
+    name = paste0("trnsfr_", labels),
+    prob = TRUE,
+    reduction = "cells",
+    reduction_method = "pca",
+    reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    return_gobject = TRUE,
+    ...) {
     # NSE vars
     temp_name <- cell_ID <- temp_name_prob <- NULL
 
@@ -3500,14 +3490,17 @@ setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(
     names(source_annot_vec) <- cx[["cell_ID"]]
     source_annot_vec <- source_annot_vec[source_cell_ids]
 
-    # target cell IDs (if not provided) are everything not in the source cell IDs
+    # target cell IDs (if not provided) are everything not in the source cell 
+    # IDs
     if (missing(target_cell_ids)) {
         sids <- cx[["cell_ID"]]
         target_cell_ids <- sids[!sids %in% source_cell_ids]
     }
 
-    # create the matrix from the target object that you want to use for the kNN classifier
-    # the matrix should be the same for the source and target objects (e.g. same PCA space)
+    # create the matrix from the target object that you want to use for the 
+    # kNN classifier
+    # the matrix should be the same for the source and target objects 
+    # (e.g. same PCA space)
     dimensions_to_use <- dimensions_to_use[
         # ensure dims to use exist
         dimensions_to_use %in% seq_len(ncol(dim_coord))
@@ -3518,11 +3511,11 @@ setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(
 
     # the training set is those spatial IDs that are in the source
     # (w/ labels) AND target giotto object
-    train <- matrix_to_use[source_cell_ids,]
+    train <- matrix_to_use[source_cell_ids, ]
     train <- train[match(names(source_annot_vec), rownames(train)), ]
 
     # the test set are the remaining cell_IDs that need a label
-    test <- matrix_to_use[target_cell_ids,]
+    test <- matrix_to_use[target_cell_ids, ]
 
     # make prediction
     knnprediction <- FNN::knn(
@@ -3628,24 +3621,23 @@ setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(
 #'     source_cluster_labels = "leiden_clus"
 #' )
 #' @export
-doClusterProjection <- function(
-        target_gobject,
-        target_cluster_label_name = "knn_labels",
-        spat_unit = NULL,
-        feat_type = NULL,
-        source_gobject,
-        source_cluster_labels = NULL,
-        reduction = "cells",
-        reduction_method = "pca",
-        reduction_name = "pca",
-        dimensions_to_use = 1:10,
-        knn_k = 10,
-        prob = FALSE,
-        algorithm = c(
-            "kd_tree",
-            "cover_tree", "brute"
-        ),
-        return_gobject = TRUE) {
+doClusterProjection <- function(target_gobject,
+    target_cluster_label_name = "knn_labels",
+    spat_unit = NULL,
+    feat_type = NULL,
+    source_gobject,
+    source_cluster_labels = NULL,
+    reduction = "cells",
+    reduction_method = "pca",
+    reduction_name = "pca",
+    dimensions_to_use = 1:10,
+    knn_k = 10,
+    prob = FALSE,
+    algorithm = c(
+        "kd_tree",
+        "cover_tree", "brute"
+    ),
+    return_gobject = TRUE) {
     deprecate_warn(
         when = "4.1.2",
         what = "doClusterProjection()",
@@ -3677,8 +3669,10 @@ doClusterProjection <- function(
     source_annot_vec <- cell_meta_source[[source_cluster_labels]]
     names(source_annot_vec) <- cell_meta_source[["cell_ID"]]
 
-    # create the matrix from the target object that you want to use for the kNN classifier
-    # the matrix should be the same for the source and target objects (e.g. same PCA space)
+    # create the matrix from the target object that you want to use for the 
+    # kNN classifier
+    # the matrix should be the same for the source and target objects 
+    # (e.g. same PCA space)
     dim_obj <- getDimReduction(
         gobject = target_gobject,
         spat_unit = spat_unit,

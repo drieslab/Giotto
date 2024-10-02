@@ -25,18 +25,22 @@
 #' A. The standard method follows the standard protocol which can be adjusted
 #' using the provided parameters and follows the following order: \cr
 #' \itemize{
-#'   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+#'   \item{1. Data normalization for total library size and scaling by a custom 
+#'   scale-factor.}
 #'   \item{2. Log transformation of data.}
 #'   \item{3. Z-scoring of data by genes and/or cells.}
 #' }
-#' B. The normalization method as provided by the osmFISH paper is also implemented: \cr
+#' B. The normalization method as provided by the osmFISH paper is also 
+#' implemented: \cr
 #' \itemize{
-#'   \item{1. First normalize genes, for each gene divide the counts by the total gene count and
-#' multiply by the total number of genes.}
-#'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
-#' counts per cell and multiply by the total number of cells.}
+#'   \item{1. First normalize genes, for each gene divide the counts by the 
+#'   total gene count and multiply by the total number of genes.}
+#'   \item{2. Next normalize cells, for each cell divide the normalized gene 
+#'   counts by the total counts per cell and multiply by the total number of 
+#'   cells.}
 #' }
-#' C. The normalization method as provided by Lause/Kobak et al is also implemented: \cr
+#' C. The normalization method as provided by Lause/Kobak et al is also 
+#' implemented: \cr
 #' \itemize{
 #'   \item{1. First calculate expected values based on Pearson correlations.}
 #'   \item{2. Next calculate z-scores based on observed and expected values.}
@@ -44,8 +48,10 @@
 #' D. Quantile normalization across features
 #' \itemize{
 #'   \item{1. Rank feature expression}
-#'   \item{2. Define a common distribution by sorting expression values per feature then finding the mean across all features per index}
-#'   \item{3. Apply common distribution to expression information by using the ranks from step 1 as indices}
+#'   \item{2. Define a common distribution by sorting expression values per 
+#'   feature then finding the mean across all features per index}
+#'   \item{3. Apply common distribution to expression information by using 
+#'   the ranks from step 1 as indices}
 #' }
 #' By default the latter two results will be saved in the Giotto slot for
 #' scaled expression, this can be changed by changing the update_slot parameters
@@ -54,23 +60,24 @@
 #'
 #' normalizeGiotto(g) # default is method A
 #' @export
-normalizeGiotto <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = "raw",
-    norm_methods = c("standard", "pearson_resid", "osmFISH", "quantile"),
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_genes = NULL,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    theta = 100,
-    update_slot = "scaled",
-    verbose = TRUE) {
+normalizeGiotto <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = "raw",
+        norm_methods = c("standard", "pearson_resid", "osmFISH", "quantile"),
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_genes = NULL,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        theta = 100,
+        update_slot = "scaled",
+        verbose = TRUE) {
     ## deprecated arguments
     if (!is.null(scale_genes)) {
         scale_feats <- scale_genes
@@ -211,7 +218,8 @@ normalizeGiotto <- function(gobject,
     } else if (methods::is(mymatrix, "Matrix")) {
         mymatrix@x <- log(mymatrix@x + offset) / log(base)
     } else if (methods::is(mymatrix, "dbMatrix")) {
-        mymatrix[] <- dplyr::mutate(mymatrix[], x = x + offset) # workaround for lack of @x slot
+        mymatrix[] <- dplyr::mutate(mymatrix[], x = x + offset) 
+        # workaround for lack of @x slot
         mymatrix <- log(mymatrix) / log(base)
     } else {
         mymatrix <- log(as.matrix(mymatrix) + offset) / log(base)
@@ -252,7 +260,7 @@ normalizeGiotto <- function(gobject,
     }
 
     dbMatrix[] |>
-        dplyr::compute(temporary = F, name = name)
+        dplyr::compute(temporary = FALSE, name = name)
 
     # TODO: update below with proper setters from dbMatrix
     dbMatrix[] <- dplyr::tbl(con, name) # reassign to computed mat
@@ -269,19 +277,20 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_standard_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    verbose = TRUE) {
+.rna_standard_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: Standard normalization was developed for RNA data \n")
@@ -426,12 +435,13 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_osmfish_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    name = "custom",
-    verbose = TRUE) {
+.rna_osmfish_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "custom",
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: osmFISH normalization was developed for RNA in situ
@@ -476,13 +486,14 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_pears_resid_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    theta = 100,
-    name = "scaled",
-    verbose = TRUE) {
+.rna_pears_resid_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        theta = 100,
+        name = "scaled",
+        verbose = TRUE) {
     # print message with information #
     if (verbose) {
         message("using 'Lause/Kobak' method to normalize count matrix If used in
@@ -522,12 +533,13 @@ normalizeGiotto <- function(gobject,
     return(gobject)
 }
 
-.quantile_norm <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    name = "quantile",
-    verbose = TRUE) {
+.quantile_norm <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "quantile",
+        verbose = TRUE) {
     z <- .qnorm(x = raw_expr[])
     z <- create_expr_obj(
         name = name,
@@ -548,10 +560,11 @@ normalizeGiotto <- function(gobject,
 # x      : raw expression matrix
 # .csums : function for colSums that does not drop to vector
 # .rsums : function for rowSums that does not drop to vector
-.prnorm <- function(x,
-    theta = 100,
-    .csums = .csum_nodrop.Matrix,
-    .rsums = .rsum_nodrop.Matrix) {
+.prnorm <- function(
+        x,
+        theta = 100,
+        .csums = .csum_nodrop.Matrix,
+        .rsums = .rsum_nodrop.Matrix) {
     # find 1. colsums, 2. rowsums, 3. matrix sum
     counts_sum0 <- .csums(x)
     counts_sum1 <- .rsums(x)

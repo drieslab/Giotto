@@ -124,7 +124,7 @@ colnames(sign_matrix) <- paste0("celltype_", unique(x$cluster))
 g <- runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
 ave_celltype_exp <- calculateMetaTable(g, metadata_cols = "leiden_clus")
 ave_celltype_exp <- data.table::dcast(
-    ave_celltype_exp, variable~leiden_clus
+    ave_celltype_exp, variable ~ leiden_clus
 )
 ave_celltype_exp <- as.matrix(ave_celltype_exp, rownames = "variable")
 colnames(ave_celltype_exp) <- colnames(sign_matrix)
