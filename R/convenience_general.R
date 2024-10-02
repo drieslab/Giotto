@@ -30,9 +30,9 @@
 #' \itemize{
 #'   \item{1. detection of items within \code{data_dir} by looking for keywords
 #'   assigned through \code{dir_items}}
-#'   \item{2. check of detected items to see if everything needed has been found.
-#'   Dictionary of necessary vs optional items for each \code{data_to_use}
-#'   *workflow* is provided through \code{require_data_DT}}
+#'   \item{2. check of detected items to see if everything needed has been 
+#'   found. Dictionary of necessary vs optional items for each 
+#'   \code{data_to_use} *workflow* is provided through \code{require_data_DT}}
 #'   \item{3. if multiple filepaths are found to be matching then select the
 #'   first one. This function is only intended to find the first level
 #'   subdirectories and files.}
@@ -227,8 +227,10 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 # pattern - list.files pattern to use to search for specific files/dirs
 # warn - whether to warn when a pattern does not find any files
 # first - whether to only return the first match
-.detect_in_dir <- function(path, pattern, recursive = FALSE, platform, warn = TRUE, first = TRUE) {
-    f <- list.files(path, pattern = pattern, recursive = recursive, full.names = TRUE)
+.detect_in_dir <- function(path, pattern, recursive = FALSE, 
+                            platform, warn = TRUE, first = TRUE) {
+    f <- list.files(path, pattern = pattern, recursive = recursive, 
+                    full.names = TRUE)
     lenf <- length(f)
     if (lenf == 1L) {
         return(f)
@@ -278,7 +280,7 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 #' @param h5_gene_ids gene names as symbols (default) or ensemble gene ids
 #' @param h5_tissue_positions_path path to tissue locations (.csv file)
 #' @param h5_image_png_path path to tissue .png file (optional). Image
-#' autoscaling looks for matches in the filename for either 'hires' or 'lowres'
+#' autoscaling looks for matches in the filename for either "hires" or "lowres"
 #' @param h5_json_scalefactors_path path to .json scalefactors (optional)
 #' @param png_name select name of png to use (see details)
 #' @param do_manual_adj deprecated
@@ -291,7 +293,7 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 #' @param cores how many cores or threads to use to read data if paths are
 #' provided
 #' @param expression_matrix_class class of expression matrix to use
-#' (e.g. 'dgCMatrix', 'DelayedArray')
+#' (e.g. "dgCMatrix", "DelayedArray")
 #' @param h5_file optional path to create an on-disk h5 file
 #' @param verbose be verbose
 #'
@@ -299,18 +301,25 @@ abbrev_path <- function(path, head = 15, tail = 35L) {
 #' @details
 #' If starting from a Visium 10X directory:
 #' \itemize{
-#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
-#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
-#'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
-#'   \item{the file scalefactors_json.json will be detected automatically and used to attempt to align the data}
+#'   \item{expr_data: raw will take expression data from 
+#'   raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
+#'   \item{gene_column_index: which gene identifiers (names) to use if there 
+#'   are multiple columns (e.g. ensemble and gene symbol)}
+#'   \item{png_name: by default the first png will be selected, provide the png 
+#'   name to override this (e.g. myimage.png)}
+#'   \item{the file scalefactors_json.json will be detected automatically and 
+#'   used to attempt to align the data}
 #' }
 #'
 #' If starting from a Visium 10X .h5 file
 #' \itemize{
 #'   \item{h5_visium_path: full path to .h5 file: /your/path/to/visium_file.h5}
-#'   \item{h5_tissue_positions_path: full path to spatial locations file: /you/path/to/tissue_positions_list.csv}
-#'   \item{h5_image_png_path: full path to png: /your/path/to/images/tissue_lowres_image.png}
-#'   \item{h5_json_scalefactors_path: full path to .json file: /your/path/to/scalefactors_json.json}
+#'   \item{h5_tissue_positions_path: full path to spatial locations file: 
+#'   /you/path/to/tissue_positions_list.csv}
+#'   \item{h5_image_png_path: full path to png: 
+#'   /your/path/to/images/tissue_lowres_image.png}
+#'   \item{h5_json_scalefactors_path: full path to .json file: 
+#'   /your/path/to/scalefactors_json.json}
 #' }
 #'
 #' @export
@@ -955,7 +964,8 @@ createMerscopeLargeImage <- function(
 #' function matches against:
 #' \itemize{
 #'   \item{\strong{cell_boundaries} (folder .hdf5 files)}
-#'   \item{\strong{images} (folder of .tif images and a scalefactor/transfrom table)}
+#'   \item{\strong{images} (folder of .tif images and a 
+#'   scalefactor/transfrom table)}
 #'   \item{\strong{cell_by_gene}.csv (file)}
 #'   \item{cell_metadata\strong{fov_positions_file}.csv (file)}
 #'   \item{detected_transcripts\strong{metadata_file}.csv (file)}
@@ -965,7 +975,7 @@ createGiottoMerscopeObject <- function(
         merscope_dir,
         data_to_use = c("subcellular", "aggregate"),
         FOVs = NULL,
-        poly_z_indices = 1:7,
+        poly_z_indices = seq(from = 1, to = 7),
         calculate_overlap = TRUE,
         overlap_to_matrix = TRUE,
         aggregate_stack = TRUE,
@@ -985,7 +995,8 @@ createGiottoMerscopeObject <- function(
     poly_z_indices <- as.integer(poly_z_indices)
     if (any(poly_z_indices < 1)) {
         stop(wrap_txt(
-            "poly_z_indices is a vector of one or more integers starting from 1.",
+            "poly_z_indices is a vector of one or more integers starting 
+            from 1.",
             errWidth = TRUE
         ))
     }
@@ -1282,7 +1293,7 @@ NULL
         dir_items,
         data_to_use,
         fovs = NULL,
-        poly_z_indices = 1L:7L,
+        poly_z_indices = seq(from = 1, to = 7),
         cores = NA,
         verbose = TRUE) {
     # 1. load data_to_use-specific
@@ -1459,7 +1470,8 @@ NULL
 #' These files can be in one of the following formats: (i) scATAC tabix files,
 #' (ii) fragment files, or (iii) bam files.
 #' @param genome A string indicating the default genome to be used for all ArchR
-#' functions. Currently supported values include "hg19","hg38","mm9", and "mm10".
+#' functions. Currently supported values include "hg19","hg38","mm9", and 
+#' "mm10".
 #' This value is stored as a global environment variable, not part of the
 #' ArchRProject.
 #' This can be overwritten on a per-function basis using the given function's

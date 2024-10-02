@@ -25,18 +25,22 @@
 #' A. The standard method follows the standard protocol which can be adjusted
 #' using the provided parameters and follows the following order: \cr
 #' \itemize{
-#'   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+#'   \item{1. Data normalization for total library size and scaling by a custom 
+#'   scale-factor.}
 #'   \item{2. Log transformation of data.}
 #'   \item{3. Z-scoring of data by genes and/or cells.}
 #' }
-#' B. The normalization method as provided by the osmFISH paper is also implemented: \cr
+#' B. The normalization method as provided by the osmFISH paper is also 
+#' implemented: \cr
 #' \itemize{
-#'   \item{1. First normalize genes, for each gene divide the counts by the total gene count and
-#' multiply by the total number of genes.}
-#'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
-#' counts per cell and multiply by the total number of cells.}
+#'   \item{1. First normalize genes, for each gene divide the counts by the 
+#'   total gene count and multiply by the total number of genes.}
+#'   \item{2. Next normalize cells, for each cell divide the normalized gene 
+#'   counts by the total counts per cell and multiply by the total number of 
+#'   cells.}
 #' }
-#' C. The normalization method as provided by Lause/Kobak et al is also implemented: \cr
+#' C. The normalization method as provided by Lause/Kobak et al is also 
+#' implemented: \cr
 #' \itemize{
 #'   \item{1. First calculate expected values based on Pearson correlations.}
 #'   \item{2. Next calculate z-scores based on observed and expected values.}
@@ -44,8 +48,10 @@
 #' D. Quantile normalization across features
 #' \itemize{
 #'   \item{1. Rank feature expression}
-#'   \item{2. Define a common distribution by sorting expression values per feature then finding the mean across all features per index}
-#'   \item{3. Apply common distribution to expression information by using the ranks from step 1 as indices}
+#'   \item{2. Define a common distribution by sorting expression values per 
+#'   feature then finding the mean across all features per index}
+#'   \item{3. Apply common distribution to expression information by using 
+#'   the ranks from step 1 as indices}
 #' }
 #' By default the latter two results will be saved in the Giotto slot for
 #' scaled expression, this can be changed by changing the update_slot parameters
@@ -212,7 +218,8 @@ normalizeGiotto <- function(
     } else if (methods::is(mymatrix, "Matrix")) {
         mymatrix@x <- log(mymatrix@x + offset) / log(base)
     } else if (methods::is(mymatrix, "dbMatrix")) {
-        mymatrix[] <- dplyr::mutate(mymatrix[], x = x + offset) # workaround for lack of @x slot
+        mymatrix[] <- dplyr::mutate(mymatrix[], x = x + offset) 
+        # workaround for lack of @x slot
         mymatrix <- log(mymatrix) / log(base)
     } else {
         mymatrix <- log(as.matrix(mymatrix) + offset) / log(base)
@@ -253,7 +260,7 @@ normalizeGiotto <- function(
     }
 
     dbMatrix[] |>
-        dplyr::compute(temporary = F, name = name)
+        dplyr::compute(temporary = FALSE, name = name)
 
     # TODO: update below with proper setters from dbMatrix
     dbMatrix[] <- dplyr::tbl(con, name) # reassign to computed mat

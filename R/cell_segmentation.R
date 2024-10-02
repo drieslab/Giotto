@@ -92,16 +92,23 @@ doCellSegmentation <- function(raster_img,
 #' @title perform cellpose segmentation
 #' @description
 #'
-#' perform the Giotto Wrapper of cellpose segmentation. This is for a model inference to generate segmentation mask file from input image.
+#' perform the Giotto Wrapper of cellpose segmentation. This is for a model 
+#' inference to generate segmentation mask file from input image. 
 #' main parameters needed
 #' @name doCellposeSegmentation
-#' @param image_dir character, required. Provide a path to a gray scale or a three channel image.
-#' @param python_path python environment with cellpose installed. default = "giotto_cellpose".
+#' @param image_dir character, required. Provide a path to a gray scale or a 
+#' three channel image.
+#' @param python_path python environment with cellpose installed. 
+#' default = "giotto_cellpose".
 #' @param mask_output required. Provide a path to the output mask file.
 #' @param channel_1 channel number for cytoplasm, default to 0(gray scale)
 #' @param channel_2 channel number for Nuclei, default to 0(gray scale)
-#' @param model_name Name of the model to run inference. Default to 'cyto3', if you want to run cutomized trained model, place your model file in ~/.cellpose/models and specify your model name.
-#' @param batch_size Cellpose Parameter, Number of 224x224 patches to run simultaneously on the GPU. Can make smaller or bigger depending on GPU memory usage. Defaults to 8.
+#' @param model_name Name of the model to run inference. Default to 'cyto3', 
+#' if you want to run cutomized trained model, place your model file in 
+#' ~/.cellpose/models and specify your model name.
+#' @param batch_size Cellpose Parameter, Number of 224x224 patches to run 
+#' simultaneously on the GPU. Can make smaller or bigger depending on GPU 
+#' memory usage. Defaults to 8.
 #' @param resample Cellpose Parameter
 #' @param channel_axis Cellpose Parameter
 #' @param z_axis Cellpose Parameter
@@ -123,10 +130,13 @@ doCellSegmentation <- function(raster_img,
 #' @param interp Cellpose Parameter
 #' @param compute_masks Cellpose Parameter
 #' @param progress Cellpose Parameter
-#' @returns No return variable, as this will write directly to output path provided.
+#' @returns No return variable, as this will write directly to output path 
+#' provided.
 #' @examples
 #' # example code
-#' doCellposeSegmentation(image_dir = input_image, mask_output = output, channel_1 = 2, channel_2 = 1, model_name = "cyto3", batch_size = 4)
+#' doCellposeSegmentation(image_dir = input_image, 
+#' mask_output = output, channel_1 = 2, 
+#' channel_2 = 1, model_name = "cyto3", batch_size = 4)
 #' @export
 doCellposeSegmentation <- function(python_env = "giotto_cellpose",
     image_dir,
@@ -158,7 +168,8 @@ doCellposeSegmentation <- function(python_env = "giotto_cellpose",
     progress = NULL,
     verbose = TRUE, ...) {
     # Check Input arguments
-    model_name <- match.arg(model_name, unique(c("cyto3", "cyto2", "cyto", "nuclei", model_name)))
+    model_name <- match.arg(
+        model_name, unique(c("cyto3", "cyto2", "cyto", "nuclei", model_name)))
     ## Load required python libraries
     GiottoClass::set_giotto_python_path(python_env)
     GiottoUtils::package_check("cellpose", repository = "pip")
@@ -170,18 +181,20 @@ doCellposeSegmentation <- function(python_env = "giotto_cellpose",
     message("successfully loaded giotto environment with cellpose.")
 
     if (!(torch$cuda$is_available())) {
-        warning("GPU is not available for this session, inference may be slow.\n ")
+        warning("GPU is not available for this session, inference may be slow.")
     }
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = F, "Loading Image from ", image_dir)
+    GiottoUtils::vmsg(.v = verbose, .is_debug = FALSE, "Loading Image from ", 
+                    image_dir)
 
     img <- cellpose$io$imread(image_dir)
-    GiottoUtils::vmsg(.v = verbose, .is_debug = F, "Loading Model...")
+    GiottoUtils::vmsg(.v = verbose, .is_debug = FALSE, "Loading Model...")
 
-    model_to_seg <- cellpose$models$Cellpose(model_type = model_name, gpu = torch$cuda$is_available())
+    model_to_seg <- cellpose$models$Cellpose(model_type = model_name, 
+                                            gpu = torch$cuda$is_available())
     channel_to_seg <- as.integer(c(channel_1, channel_2))
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = F, "Segmenting Image...")
+    GiottoUtils::vmsg(.v = verbose, .is_debug = FALSE, "Segmenting Image...")
     segmentation <- model_to_seg$eval
 
     result <- segmentation(img,
@@ -210,7 +223,8 @@ doCellposeSegmentation <- function(python_env = "giotto_cellpose",
         progress = progress
     )
     masks <- result[[1]]
-    GiottoUtils::vmsg(.v = verbose, .is_debug = F, "Segmentation finished... Saving mask file...")
+    GiottoUtils::vmsg(.v = verbose, .is_debug = FALSE, 
+                    "Segmentation finished... Saving mask file...")
     GiottoUtils::package_check("terra")
     rast <- terra::rast(masks)
     terra::writeRaster(rast, mask_output, overwrite = TRUE)

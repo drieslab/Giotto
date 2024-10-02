@@ -145,16 +145,16 @@ doHMRF <- function(
 
     # overwrite if exists
     if (file.exists(expression_file) & overwrite_output == TRUE) {
-        message("\n expression_matrix.txt already exists at this location, will be
-                overwritten")
+        message("\n expression_matrix.txt already exists at this location, 
+        will be overwritten")
         data.table::fwrite(
             data.table::as.data.table(expr_values, keep.rownames = "gene"),
             file = expression_file, quote = FALSE, col.names = TRUE,
             row.names = FALSE, sep = " "
         )
     } else if (file.exists(expression_file) & overwrite_output == FALSE) {
-        message("\n expression_matrix.txt already exists at this location, will be
-                used again")
+        message("\n expression_matrix.txt already exists at this location, 
+        will be used again")
     } else {
         data.table::fwrite(
             data.table::as.data.table(expr_values, keep.rownames = "gene"),
@@ -1050,7 +1050,8 @@ numPts_below_line <- function(myVector,
 #'
 #' filterSpatialGenes(g, spatial_genes = "Gm19935")
 #' @export
-filterSpatialGenes <- function(gobject, spat_unit = NULL, feat_type = NULL, spatial_genes, max = 2500,
+filterSpatialGenes <- function(gobject, spat_unit = NULL, feat_type = NULL, 
+                                spatial_genes, max = 2500,
     name = c("binSpect", "silhouetteRank", "silhouetteRankTest"),
     method = c("none", "elbow")) {
     name <- match.arg(
@@ -1144,7 +1145,8 @@ filterSpatialGenes <- function(gobject, spat_unit = NULL, feat_type = NULL, spat
 #' Priorities for showing the spatial gene test names are ‘binSpect’ >
 #' ‘silhouetteRankTest’ > ‘silhouetteRank’.
 #' @keywords internal
-chooseAvailableSpatialGenes <- function(gobject, spat_unit = NULL, feat_type = NULL) {
+chooseAvailableSpatialGenes <- function(gobject, 
+                                        spat_unit = NULL, feat_type = NULL) {
     gx <- fDataDT(gobject, spat_unit = NULL, feat_type = NULL)
     eval1 <- "binSpect.pval" %in% names(gx)
     eval2 <- "silhouetteRankTest.pval" %in% names(gx)
@@ -1221,7 +1223,7 @@ checkAndFixSpatialGenes <- function(gobject,
         }
         return(use_spatial_genes)
     } else {
-        stop(paste0("\n use_spatial_genes is set to one that is not supported."),
+        stop("use_spatial_genes is set to one that is not supported.",
             call. = FALSE
         )
     }
@@ -1748,7 +1750,7 @@ initHMRF_V2 <-
         cl.method <- tolower(cl.method)
         if (!cl.method %in% c("km", "leiden", "louvain")) {
             cl.method <- "km"
-            message("\n clustering method not specified, use kmeans as default...")
+            message("clustering method not specified, use kmeans as default...")
         }
 
         if (cl.method == "km") {
@@ -1768,7 +1770,9 @@ initHMRF_V2 <-
             gobject@dimension_reduction$cells$spatial$spatial_feat$coordinates <- y
 
             gobject <- createNearestNetwork(
-                gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
+                gobject = gobject, 
+                spat_unit = spat_unit, 
+                feat_type = feat_type,
                 dim_reduction_to_use = "spatial",
                 dim_reduction_name = "spatial_feat",
                 dimensions_to_use = seq_len(ncol(y)),
@@ -1778,7 +1782,9 @@ initHMRF_V2 <-
             if (cl.method == "leiden") {
                 message("\n Leiden clustering initialization...")
                 leiden.cl <- doLeidenCluster(
-                    gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
+                    gobject = gobject, 
+                    spat_unit = spat_unit, 
+                    feat_type = feat_type,
                     nn_network_to_use = "sNN",
                     network_name = "sNN.initHMRF",
                     set_seed = hmrf_seed,
@@ -1793,7 +1799,9 @@ initHMRF_V2 <-
             } else if (cl.method == "louvain") {
                 message("\n Louvain clustering initialization...")
                 louvain.cl <- doLouvainCluster(
-                    gobject = gobject, spat_unit = spat_unit, feat_type = feat_type,
+                    gobject = gobject, 
+                    spat_unit = spat_unit, 
+                    feat_type = feat_type,
                     nn_network_to_use = "sNN",
                     network_name = "sNN.initHMRF",
                     set_seed = hmrf_seed,

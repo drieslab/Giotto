@@ -2292,11 +2292,15 @@ runUMAP <- function(gobject,
 #' @details See \code{\link[uwot]{umap}} for more information about these and
 #' other parameters.
 #' \itemize{
-#'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item Input for UMAP dimension reduction can be another dimension 
+#'   reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
-#'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a 
+#'   column name of
+#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a 
+#'   vector of genes
+#'   \item multiple UMAP results can be stored by changing the \emph{name} of 
+#'   the analysis
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
@@ -2553,15 +2557,18 @@ runUMAPprojection <- function(gobject,
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional tSNE parameters
-#' @returns giotto object with updated tSNE dimension recuction
+#' @returns giotto object with updated tSNE dimension reduction
 #' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and
 #' other parameters. \cr
 #' \itemize{
-#'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item Input for tSNE dimension reduction can be another dimension 
+#'   reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
-#'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select 
+#'   a column name of highly variable genes 
+#'   (see \code{\link{calculateHVF}}) or simply provide a vector of genes
+#'   \item multiple tSNE results can be stored by changing the \emph{name} of 
+#'   the analysis
 #' }
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")

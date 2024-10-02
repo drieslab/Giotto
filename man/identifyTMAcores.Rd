@@ -26,8 +26,8 @@ identifyTMAcores(
 
 \item{core_id_name}{metadata column name for the core information}
 
-\item{include_all_ids}{Boolean. Include all ids, including vertex ids not found
-in the spatial network}
+\item{include_all_ids}{Boolean. Include all ids, including vertex ids not 
+found in the spatial network}
 
 \item{missing_id_name}{Character. Name for vertices that were missing from
 spatial network}

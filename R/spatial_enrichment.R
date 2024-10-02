@@ -2152,7 +2152,8 @@ spatialAutoCorLocal <- function(gobject = NULL,
     # 2. Get and format node values for use with autocorrelation function.
     # End outputs are:
     #  - use_values for a spatID (rows) by features (cols) table or matrix
-    #  - feats the names of selected features to use that will be iterated through downstream
+    #  - feats the names of selected features to use that will be iterated 
+    # through downstream
     if (isTRUE(use_expr)) {
         # EXPR=================================================================#
         values <- match.arg(
@@ -2411,7 +2412,9 @@ spot_deconvolution <- function(expr,
                         solDWLS <- optimize_solveDampenedWLS(S_k, B[
                             uniq_ct_k_gene,
                         ], constant_J)
-                        dwls_results[names(solDWLS), colnames(cluster_cell_exp)[k]] <- solDWLS
+                        dwls_results[
+                            names(solDWLS), 
+                            colnames(cluster_cell_exp)[k]] <- solDWLS
                     }
                 }
             }

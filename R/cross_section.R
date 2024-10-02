@@ -315,7 +315,8 @@ find_x_y_ranges <- function(data, extend_ratio) {
 #' @param mesh_grid_n mesh_grid_n
 #' @returns 2d mesh grid line object
 #' @keywords internal
-create_2d_mesh_grid_line_obj <- function(x_min, x_max, y_min, y_max, mesh_grid_n) {
+create_2d_mesh_grid_line_obj <- function(x_min, x_max, y_min, 
+                                        y_max, mesh_grid_n) {
     x_grid <- seq(x_min, x_max, length.out = mesh_grid_n)
     y_grid <- seq(y_min, y_max, length.out = mesh_grid_n)
 
@@ -413,7 +414,8 @@ reshape_to_mesh_grid_obj <- function(data_points, mesh_grid_n) {
 #' @param mesh_grid_n mesh_grid_n
 #' @returns 3d mesh
 #' @keywords internal
-transform_2d_mesh_to_3d_mesh <- function(mesh_line_obj_2d, pca_out, center_vec, mesh_grid_n) {
+transform_2d_mesh_to_3d_mesh <- function(mesh_line_obj_2d, pca_out, 
+                                        center_vec, mesh_grid_n) {
     data_point_2d <- reshape_to_data_point(mesh_line_obj_2d)
     center_mat <- matrix(
         rep(center_vec, dim(data_point_2d)[1]),
@@ -456,7 +458,8 @@ get_cross_section_coordinates <- function(cell_subset_projection_locations) {
 #' @param mesh_grid_n mesh_grid_n
 #' @returns mesh grid lines
 #' @keywords internal
-create_mesh_grid_lines <- function(cell_subset_projection_locations, extend_ratio, mesh_grid_n) {
+create_mesh_grid_lines <- function(cell_subset_projection_locations, 
+                                    extend_ratio, mesh_grid_n) {
     cell_subset_projection_PCA <- stats::prcomp(
         cell_subset_projection_locations
     )
@@ -936,7 +939,8 @@ crossSectionPlot <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @param crossSection_obj cross section object as alternative input. default = NULL.
+#' @param crossSection_obj cross section object as alternative input. 
+#' default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param show_other_cells logical. Default = TRUE

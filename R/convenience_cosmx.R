@@ -133,7 +133,8 @@ setMethod(
 #' force(g)
 #' }
 #' @export
-importCosMx <- function(cosmx_dir = NULL, slide = 1, fovs = NULL, micron = FALSE, px2mm = 0.12028) {
+importCosMx <- function(cosmx_dir = NULL, slide = 1, fovs = NULL, 
+                        micron = FALSE, px2mm = 0.12028) {
     # get params
     a <- list(Class = "CosmxReader")
     if (!is.null(cosmx_dir)) {
@@ -150,7 +151,8 @@ importCosMx <- function(cosmx_dir = NULL, slide = 1, fovs = NULL, micron = FALSE
 }
 
 # * init ####
-setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, slide, fovs, micron, px2mm) {
+setMethod("initialize", signature("CosmxReader"), 
+          function(.Object, cosmx_dir, slide, fovs, micron, px2mm) {
     # provided params (if any)
     if (!missing(cosmx_dir)) {
         checkmate::assert_directory_exists(cosmx_dir)
@@ -223,7 +225,8 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, s
             pos <- data.table::data.table()
             warning(wrap_txt(
                 "NO FOV SHIFTS.
-                fov_positions_file, tx_file, and metadata_file not auto detected.
+                fov_positions_file, tx_file, 
+                and metadata_file not auto detected.
                 One of these must be provided to infer FOV shifts.\n
                 Alternatively, directly supply a data.table with:
                 fov(int), x(numeric), y(numeric) in px scaling to `$offsets`"
@@ -370,7 +373,8 @@ setMethod("initialize", signature("CosmxReader"), function(.Object, cosmx_dir, s
         if (!is.null(load_images)) {
             checkmate::assert_list(load_images)
             if (is.null(names(load_images))) {
-                stop("Images directories provided to 'load_images' must be named")
+                stop("Images directories provided to 
+                    'load_images' must be named")
             }
         }
 
@@ -588,7 +592,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 #' When the variance is higher than 0.001, the function is re-run with the
 #' opposite `flip_loc_y` value.
 #' @keywords internal
-.cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, flip_loc_y = TRUE, navg = 100L) {
+.cosmx_infer_fov_shifts <- function(tx_dt, meta_dt, 
+                                    flip_loc_y = TRUE, navg = 100L) {
     fov <- NULL # NSE vars
     if (!missing(tx_dt)) {
         tx_head <- tx_dt[, head(.SD, navg), by = fov]
@@ -616,7 +621,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
             # test if flip is needed
             # Usual yshift variance / fov expected when correct is 0 to 1e-22
             # if var is too high for any fov, swap `flip_loc_y` value
-            y <- meta_head[, var(CenterY_global_px + CenterY_local_px), by = fov]
+            y <- meta_head[
+                , var(CenterY_global_px + CenterY_local_px), by = fov]
             if (y[, any(V1 > 0.001)]) {
                 return(.cosmx_infer_fov_shifts(
                     meta_dt = meta_dt, flip_loc_y = FALSE, navg = navg
@@ -1050,7 +1056,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
     spatloc_oldnames <- c("CenterX_global_px", "CenterY_global_px", "cell_ID")
     spatloc_oldnames_fov <- c("CenterX_local_px", "CenterY_local_px", "cell_ID")
     spatloc_newnames <- c("sdimx", "sdimy", "cell_ID")
-    data.table::setnames(spatlocs, old = spatloc_oldnames, new = spatloc_newnames)
+    data.table::setnames(
+        spatlocs, old = spatloc_oldnames, new = spatloc_newnames)
     data.table::setnames(
         spatlocs_fov,
         old = spatloc_oldnames_fov, new = spatloc_newnames
@@ -1070,7 +1077,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 
 
     # convert protein metadata to expr mat
-    # take all mean intensity protein information except for MembraneStain and DAPI
+    # take all mean intensity protein information except for 
+    # MembraneStain and DAPI
     protein_meta_cols <- colnames(metadata)
     protein_meta_cols <- protein_meta_cols[
         grepl(pattern = "Mean.*", x = protein_meta_cols)
@@ -1159,7 +1167,8 @@ setMethod("$<-", signature("CosmxReader"), function(x, name, value) {
 #'   \item{experimentname_\strong{tx_file}.csv (file)}
 #' }
 #'
-#' [\strong{Workflows}] Workflow to use is accessed through the data_to_use param
+#' [\strong{Workflows}] Workflow to use is accessed through the data_to_use 
+#' param
 #' \itemize{
 #'   \item{'all' - loads and requires subcellular information from tx_file and
 #'   fov_positions_file
@@ -1568,13 +1577,17 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
         if (length(compartmentLabel_dir) > 0) {
             compartmentLabel_imgList <- lapply(
                 compartmentLabel_dir, function(x) {
-                    createGiottoLargeImage(x, name = "composite", negative_y = TRUE)
+                    createGiottoLargeImage(x, 
+                                           name = "composite", 
+                                           negative_y = TRUE)
                 }
             )
         }
         if (length(overlay_dir) > 0) {
             overlay_imgList <- lapply(overlay_dir, function(x) {
-                createGiottoLargeImage(x, name = "composite", negative_y = TRUE)
+                createGiottoLargeImage(x, 
+                                       name = "composite", 
+                                       negative_y = TRUE)
             })
         }
     }
@@ -1593,7 +1606,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 #' (subellular transcript detection information) and
 #' \emph{aggregate} (aggregated detection count matrices by cell polygon from
 #' NanoString)
-#' data will be loaded in. The two will be separated into 'cell' and 'cell_agg'
+#' data will be loaded in. The two will be separated into "cell" and "cell_agg"
 #' spatial units in order to denote the difference in origin of the two.
 #' @seealso createGiottoCosMxObject .createGiottoCosMxObject_aggregate
 #' .createGiottoCosMxObject_subcellular
@@ -1601,7 +1614,7 @@ createGiottoCosMxObject <- function(cosmx_dir = NULL,
 .createGiottoCosMxObject_all <- function(dir_items,
     FOVs,
     remove_background_polygon = TRUE,
-    background_algo = c("range"),
+    background_algo = "range",
     remove_unvalid_polygons = TRUE,
     cores,
     verbose = TRUE,

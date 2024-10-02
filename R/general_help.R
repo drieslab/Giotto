@@ -272,24 +272,30 @@ rank_binarize_wrapper <- function(expr_values,
 
 #' @title writeChatGPTqueryDEG
 #' @name writeChatGPTqueryDEG
-#' @description This function writes a query as a .txt file that can be used with
-#' ChatGPT or a similar LLM service to find the most likely cell types based on the
-#' top differential expressed genes (DEGs) between identified clusters.
-#' @param DEG_output the output format from the differenetial expression functions
+#' @description This function writes a query as a .txt file that can be used 
+#' with ChatGPT or a similar LLM service to find the most likely cell types 
+#' based on the top differential expressed genes (DEGs) between identified 
+#' clusters.
+#' @param DEG_output the output format from the differential expression 
+#' functions
 #' @param top_n_genes number of genes for each cluster
 #' @param tissue_type tissue type
 #' @param folder_name path to the folder where you want to save the .txt file
 #' @param file_name name of .txt file
 #' @returns writes a .txt file to the desired location
-#' @details This function does not run any LLM service. It simply creates the .txt
-#' file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
+#' @details This function does not run any LLM service. It simply creates the 
+#' .txt file that can then be used any LLM service (e.g. OpenAI, Gemini, ...)
 #' @export
 writeChatGPTqueryDEG <- function(DEG_output,
     top_n_genes = 10,
     tissue_type = "human breast cancer",
     folder_name = getwd(),
     file_name = "chatgpt_query.txt") {
-    chatgpt_query <- paste0("Identify cell types of ", tissue_type, " tissue using the following markers. Identify one cell type for each row. Only provide the cell type name and the marker genes used for cell type identification.")
+    chatgpt_query <- paste0(
+        "Identify cell types of ", tissue_type, 
+        " tissue using the following markers. Identify one cell type for each 
+        row. Only provide the cell type name and the marker genes used for cell 
+        type identification.")
 
     selected_DEG_output <- DEG_output[, head(.SD, top_n_genes), by = "cluster"]
 
@@ -308,7 +314,7 @@ writeChatGPTqueryDEG <- function(DEG_output,
     data.table::fwrite(
         x = outputdt,
         file = paste0(folder_name, "/", file_name),
-        sep2 = c("", " ", ""), col.names = F
+        sep2 = c("", " ", ""), col.names = FALSE
     )
 }
 
@@ -731,7 +737,8 @@ get10Xmatrix_h5 <- function(path_to_data,
 #' `[GiottoClass::createGiottoLargeImage]`
 #' @md
 #' @export
-read10xAffineImage <- function(file, imagealignment_path, name = "aligned_image", micron = 0.2125, ...) {
+read10xAffineImage <- function(file, imagealignment_path, 
+                                name = "aligned_image", micron = 0.2125, ...) {
     checkmate::assert_file_exists(file)
     checkmate::assert_file_exists(imagealignment_path)
     if (!is.numeric(micron)) {
@@ -1182,7 +1189,8 @@ readPolygonFilesVizgenHDF5 <- function(boundaries_path,
                         )
                     }
                     if (isTRUE(calc_centroids)) {
-                        # NOTE: won't recalculate if centroids are already attached
+                        # NOTE: won't recalculate if centroids are already 
+                        # attached
                         cell_polygons <- centroids(
                             cell_polygons,
                             append_gpolygon = TRUE

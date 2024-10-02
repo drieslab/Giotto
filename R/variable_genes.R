@@ -519,7 +519,8 @@ calculateHVF <- function(gobject,
 
 
 # plot generation ####
-.create_cov_group_hvf_plot <- function(feat_in_cells_detected, nr_expression_groups) {
+.create_cov_group_hvf_plot <- function(feat_in_cells_detected, 
+                                        nr_expression_groups) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() +
         ggplot2::theme(
@@ -550,7 +551,8 @@ calculateHVF <- function(gobject,
 }
 
 
-.create_cov_loess_hvf_plot <- function(feat_in_cells_detected, difference_in_cov, var_col) {
+.create_cov_loess_hvf_plot <- function(feat_in_cells_detected, 
+                                        difference_in_cov, var_col) {
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic() +
         ggplot2::theme(

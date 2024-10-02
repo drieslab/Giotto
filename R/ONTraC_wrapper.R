@@ -893,7 +893,8 @@ plotCTCompositionInNicheCluster <- function(
     )
     avg_scores <- data_df %>%
         dplyr::group_by(!!rlang::sym(cell_type)) %>%
-        dplyr::summarise(Avg_NTScore = mean(NTScore)) # nolint: object_usage_linter.
+        dplyr::summarise(Avg_NTScore = mean(NTScore)) 
+        # nolint: object_usage_linter.
     df_long[[cell_type]] <- factor(df_long[[cell_type]],
         levels = avg_scores[[cell_type]][order(avg_scores$Avg_NTScore)]
     )
@@ -908,7 +909,8 @@ plotCTCompositionInNicheCluster <- function(
         viridis::scale_fill_viridis(option = "inferno", limits = c(0, 1)) +
         theme_minimal() +
         labs(
-            title = "Normalized cell type compositions within each niche cluster",
+            title = "Normalized cell type compositions within each niche 
+            cluster",
             x = "Cell_Type",
             y = "Cluster"
         ) +

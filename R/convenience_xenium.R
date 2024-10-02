@@ -859,7 +859,8 @@ importXenium <- function(xenium_dir = NULL, qv_threshold = 20) {
     return(cx)
 }
 
-.xenium_cellmeta_csv <- function(path, dropcols = c(), cores = determine_cores()) {
+.xenium_cellmeta_csv <- function(path, dropcols = c(), 
+                                cores = determine_cores()) {
     data.table::fread(path, nThread = cores, drop = dropcols)
 }
 
@@ -955,7 +956,8 @@ importXenium <- function(xenium_dir = NULL, qv_threshold = 20) {
     verbose = NULL) {
     if (missing(path)) {
         stop(wrap_txt(
-            "No path to expression dir (mtx) or file (h5) provided or auto-detected"
+            "No path to expression dir (mtx) or file (h5) provided or 
+            auto-detected"
         ), call. = FALSE)
     }
     if (!file.exists(path)) stop("filepath or directory does not exist.\n")
@@ -1314,7 +1316,7 @@ createGiottoXeniumObject <- function(xenium_dir,
 
 
 
-#'
+
 #' #' @title Create 10x Xenium Giotto Object
 #' #' @name createGiottoXeniumObject
 #' #' @description Given the path to a Xenium experiment output folder, creates a

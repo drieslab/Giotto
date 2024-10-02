@@ -55,11 +55,11 @@ voting}
 
 \item{prob}{output probabilities together with label predictions}
 
-\item{reduction}{reduction on cells or features (default = 'cells')}
+\item{reduction}{reduction on cells or features (default = "cells")}
 
-\item{reduction_method}{shared reduction method (default = 'pca' space)}
+\item{reduction_method}{shared reduction method (default = "pca" space)}
 
-\item{reduction_name}{name of shared reduction space (default name = 'pca')}
+\item{reduction_name}{name of shared reduction space (default name = "pca")}
 
 \item{dimensions_to_use}{dimensions to use in shared reduction space
 (default = 1:10)}

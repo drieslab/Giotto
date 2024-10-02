@@ -752,7 +752,8 @@ plotInteractive3D <- function(gobject, spat_unit = "cell", feat_type = "rna",
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
-#' @param expression expression values to extract (e.g. "raw", "normalized", "scaled")
+#' @param expression expression values to extract (e.g. "raw", "normalized", 
+#' "scaled")
 #' @param output_path path to create and save the anndata zarr folder
 #'
 #' @return local anndata zarr folder

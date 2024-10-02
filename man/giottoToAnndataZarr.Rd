@@ -19,7 +19,8 @@ giottoToAnndataZarr(
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{expression}{expression values to extract (e.g. "raw", "normalized", "scaled")}
+\item{expression}{expression values to extract (e.g. "raw", "normalized", 
+"scaled")}
 
 \item{output_path}{path to create and save the anndata zarr folder}
 }

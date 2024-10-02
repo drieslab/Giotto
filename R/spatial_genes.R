@@ -2959,7 +2959,8 @@ showPattern3D <- function(gobject,
 
     dpl <- plotly::plot_ly(
         type = "scatter3d",
-        x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
+        x = annotated_grid$center_x, 
+        y = annotated_grid$center_y, z = annotated_grid$center_z,
         color = annotated_grid[[selected_PC]], marker = list(size = point_size),
         mode = "markers", colors = c("darkblue", "white", "darkred")
     )
@@ -5094,7 +5095,8 @@ run_spatial_sim_tests_multi <- function(gobject,
 #'         "AAAGGGATGTAGCAAG-1",
 #'         "TCAAACAACCGCGTCG-1", "ACGATCATACATAGAG-1", "TATGCTCCCTACTTAC-1"
 #'     ),
-#'     spatial_network_name = "spatial_network", gene_names = c("Gna12", "Ccnd2")
+#'     spatial_network_name = "spatial_network", 
+#'     gene_names = c("Gna12", "Ccnd2")
 #' )
 #' @export
 runPatternSimulation <- function(gobject,

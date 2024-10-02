@@ -43,7 +43,8 @@
 #' @param g igraph
 #' @param clus_name character. name to assign column of clustering info
 #' @param all_ids (optional) character vector with all ids
-#' @param missing_id_name character and name for vertices that were missing from g
+#' @param missing_id_name character and name for vertices that were missing 
+#' from g
 #' @returns data.table
 #' @keywords internal
 .igraph_vertex_membership <- function(g,
@@ -58,9 +59,11 @@
     # add vertices that were missing from g back
     if (!is.null(all_ids)) {
         missing_ids <- all_ids[!all_ids %in% igraph::V(g)$name]
-        missing_membership <- data.table::data.table("cell_ID" = missing_ids, "cluster_name" = missing_id_name)
+        missing_membership <- data.table::data.table(
+            "cell_ID" = missing_ids, "cluster_name" = missing_id_name)
         data.table::setnames(missing_membership, c("cell_ID", clus_name))
-        membership <- data.table::rbindlist(list(membership, missing_membership))
+        membership <- data.table::rbindlist(
+            list(membership, missing_membership))
     }
 
     return(membership)
@@ -77,8 +80,8 @@
 #' @param cluster_col character. Column in metadata containing original
 #' clustering
 #' @param split_clus_name character. Name to assign the split cluster results
-#' @param include_all_ids Boolean. Include all ids, including vertex ids not found
-#' in the spatial network
+#' @param include_all_ids Boolean. Include all ids, including vertex ids not 
+#' found in the spatial network
 #' @param missing_id_name Character. Name for vertices that were missing from
 #' spatial network
 #' @param return_gobject Boolean. Return giotto object
@@ -194,8 +197,8 @@ spatialSplitCluster <- function(gobject,
 #' @inheritParams data_access_params
 #' @param spatial_network_name character. Name of spatial network to use
 #' @param core_id_name metadata column name for the core information
-#' @param include_all_ids Boolean. Include all ids, including vertex ids not found
-#' in the spatial network
+#' @param include_all_ids Boolean. Include all ids, including vertex ids not 
+#' found in the spatial network
 #' @param missing_id_name Character. Name for vertices that were missing from
 #' spatial network
 #' @param return_gobject Boolean. Return giotto object

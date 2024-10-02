@@ -266,15 +266,15 @@
 #' @param spat_unit spatial unit
 #' @param method Method used to align gobjects. Current options are either
 #' using FIJI register_virtual_stack_slices output or rvision
-#' @param image_unreg Gobject image slot to use. Defaults to 'image' (optional)
+#' @param image_unreg Gobject image slot to use. Defaults to "image" (optional)
 #' @param image_reg_name Arbitrary image slot name for registered images to
-#' occupy. Defaults to replacement of 'image' slot (optional)
+#' occupy. Defaults to replacement of "image" slot (optional)
 #' @param image_list RVISION - under construction
 #' @param save_dir RVISION - under construction
 #' @param spatloc_unreg Unregistered spatial locations to align. Defaults to
 #' 'raw' slot (optional)
 #' @param spatloc_reg_name Arbitrary name for registered spatial locations.
-#' Defaults to replacement of 'raw' slot (optional)
+#' Defaults to replacement of "raw" slot (optional)
 #' @param fiji_xml_files Filepaths to FIJI registration XML outputs
 #' @param fiji_registered_images Registered images output by FIJI
 #' register_virtual_stack_slices
@@ -340,16 +340,16 @@ registerGiottoObjectList <- function(gobject_list,
 #' @param gobject_list list of gobjects to register
 #' @param spat_unit spatial unit
 #' @param image_unreg name of original unregistered images. Defaults to
-#' 'image' (optional)
+#' "image" (optional)
 #' @param image_reg_name arbitrary name for registered images to occupy.
-#' Defaults to replacement of 'image' (optional)
+#' Defaults to replacement of "image" (optional)
 #' @param image_replace_name arbitrary name for any images replaced due to
 #' image_reg_name argument (optional)
 #' @param registered_images registered images output by FIJI
 #' register_virtual_stack_slices
-#' @param spatloc_unreg spatial locations to use. Defaults to 'raw' (optional)
+#' @param spatloc_unreg spatial locations to use. Defaults to "raw" (optional)
 #' @param spatloc_reg_name name for registered spatial locations. Defaults to
-#' replacement of 'raw' (optional)
+#' replacement of "raw" (optional)
 #' @param spatloc_replace_name arbitrary name for any spatial locations
 #' replaced due to spatloc_reg_name argument (optional)
 #' @param xml_files atomic vector of filepaths to xml outputs from FIJI
@@ -624,7 +624,7 @@ registerGiottoObjectListRvision <- function(gobject_list = gobject_list,
 
     package_check(
         pkg_name = "Rvision",
-        repository = c("github"),
+        repository = "github",
         github_repo = "swarm-lab/Rvision"
     )
 
@@ -1017,8 +1017,12 @@ registerImagesFIJI <- function(source_img_dir,
 #' @title title Record landmarks by interactive selection
 #' @name interactiveLandmarkSelection
 #' @description Record landmarks by interactive selection
-#' @param source_image the image to be plotted on the left, and landmarks will output in the first of the list. Input can be a ggplot object, a GiottoImage, or a character represent a path to a image
-#' @param target_image the image to be plotted on the right, and landmarks will output in the second of the list. Input can be a ggplot object, a GiottoImage, or a character represent a path to a image
+#' @param source_image the image to be plotted on the left, and landmarks will 
+#' output in the first of the list. Input can be a ggplot object, 
+#' a GiottoImage, or a character represent a path to a image
+#' @param target_image the image to be plotted on the right, and landmarks will 
+#' output in the second of the list. Input can be a ggplot object, a 
+#' GiottoImage, or a character represent a path to a image
 #'
 #' @returns a list of landmarks
 #'
@@ -1061,19 +1065,37 @@ interactiveLandmarkSelection <- function(source, target) {
         miniUI::gadgetTitleBar("Select Extents and Points"),
         miniUI::miniContentPanel(
             shiny::fluidRow(
-                shiny::column(6, shiny::plotOutput("plot1", click = "plot1_click")),
-                shiny::column(6, shiny::plotOutput("plot2", click = "plot2_click"))
+                shiny::column(
+                    6, shiny::plotOutput("plot1", click = "plot1_click")),
+                shiny::column(
+                    6, shiny::plotOutput("plot2", click = "plot2_click"))
             ),
             shiny::fluidRow(
                 shiny::column(
                     6,
-                    shiny::sliderInput("xrange1", "X Range for Plot 1", min = source_ranges$x_range[1], max = source_ranges$x_range[2], value = source_ranges$x_range),
-                    shiny::sliderInput("yrange1", "Y Range for Plot 1", min = source_ranges$y_range[1], max = source_ranges$y_range[2], value = source_ranges$y_range)
+                    shiny::sliderInput(
+                        "xrange1", "X Range for Plot 1", 
+                        min = source_ranges$x_range[1], 
+                        max = source_ranges$x_range[2], 
+                        value = source_ranges$x_range),
+                    shiny::sliderInput(
+                        "yrange1", "Y Range for Plot 1", 
+                        min = source_ranges$y_range[1], 
+                        max = source_ranges$y_range[2], 
+                        value = source_ranges$y_range)
                 ),
                 shiny::column(
                     6,
-                    shiny::sliderInput("xrange2", "X Range for Plot 2", min = target_ranges$x_range[1], max = target_ranges$x_range[2], value = target_ranges$x_range),
-                    shiny::sliderInput("yrange2", "Y Range for Plot 2", min = target_ranges$y_range[1], max = target_ranges$y_range[2], value = target_ranges$y_range)
+                    shiny::sliderInput(
+                        "xrange2", "X Range for Plot 2", 
+                        min = target_ranges$x_range[1], 
+                        max = target_ranges$x_range[2], 
+                        value = target_ranges$x_range),
+                    shiny::sliderInput(
+                        "yrange2", "Y Range for Plot 2", 
+                        min = target_ranges$y_range[1], 
+                        max = target_ranges$y_range[2], 
+                        value = target_ranges$y_range)
                 )
             ),
             shiny::fluidRow(
@@ -1081,50 +1103,64 @@ interactiveLandmarkSelection <- function(source, target) {
                 shiny::column(6, shiny::verbatimTextOutput("click_info2"))
             ),
             shiny::fluidRow(
-                shiny::column(6, shiny::actionButton("undo1", "Undo Click on Source Image")),
-                shiny::column(6, shiny::actionButton("undo2", "Undo Click on Target Image"))
+                shiny::column(6, shiny::actionButton(
+                    "undo1", "Undo Click on Source Image")),
+                shiny::column(6, shiny::actionButton(
+                    "undo2", "Undo Click on Target Image"))
             )
         )
     )
 
     server <- function(input, output, session) {
-        click_history1 <- shiny::reactiveVal(data.frame(x = numeric(), y = numeric()))
-        click_history2 <- shiny::reactiveVal(data.frame(x = numeric(), y = numeric()))
+        click_history1 <- shiny::reactiveVal(data.frame(x = numeric(), 
+                                                        y = numeric()))
+        click_history2 <- shiny::reactiveVal(data.frame(x = numeric(), 
+                                                        y = numeric()))
 
         output$plot1 <- shiny::renderPlot({
             source_image +
-                ggplot2::coord_cartesian(xlim = input$xrange1, ylim = input$yrange1) +
-                ggplot2::geom_point(data = click_history1(), ggplot2::aes(x = x, y = y), color = "red", size = 4.5)
+                ggplot2::coord_cartesian(
+                    xlim = input$xrange1, ylim = input$yrange1) +
+                ggplot2::geom_point(
+                    data = click_history1(), ggplot2::aes(x = x, y = y), 
+                    color = "red", size = 4.5)
         })
 
         output$plot2 <- shiny::renderPlot({
             target_image +
-                ggplot2::coord_cartesian(xlim = input$xrange2, ylim = input$yrange2) +
-                ggplot2::geom_point(data = click_history2(), ggplot2::aes(x = x, y = y), color = "blue", size = 4.5)
+                ggplot2::coord_cartesian(
+                    xlim = input$xrange2, ylim = input$yrange2) +
+                ggplot2::geom_point(
+                    data = click_history2(), ggplot2::aes(x = x, y = y), 
+                    color = "blue", size = 4.5)
         })
 
         shiny::observeEvent(input$plot1_click, {
             click <- input$plot1_click
-            new_coords <- rbind(click_history1(), data.frame(x = click$x, y = click$y))
+            new_coords <- rbind(
+                click_history1(), data.frame(x = click$x, y = click$y))
             click_history1(new_coords)
         })
 
         shiny::observeEvent(input$plot2_click, {
             click <- input$plot2_click
-            new_coords <- rbind(click_history2(), data.frame(x = click$x, y = click$y))
+            new_coords <- rbind(
+                click_history2(), data.frame(x = click$x, y = click$y))
             click_history2(new_coords)
         })
 
         shiny::observeEvent(input$undo1, {
             if (nrow(click_history1()) > 0) {
-                new_coords <- click_history1()[-nrow(click_history1()), , drop = FALSE]
+                new_coords <- click_history1()[
+                    -nrow(click_history1()), , drop = FALSE]
                 click_history1(new_coords)
             }
         })
 
         shiny::observeEvent(input$undo2, {
             if (nrow(click_history2()) > 0) {
-                new_coords <- click_history2()[-nrow(click_history2()), , drop = FALSE]
+                new_coords <- click_history2()[
+                    -nrow(click_history2()), , drop = FALSE]
                 click_history2(new_coords)
             }
         })
@@ -1153,19 +1189,24 @@ interactiveLandmarkSelection <- function(source, target) {
 
 #' @title Calculate a affine transformation matrix from two set of landmarks
 #' @name calculateAffineMatrixFromLandmarks
-#' @description calculate a affine transformation matrix from two set of landmarks
-#' @param source_df source landmarks, two columns, first column represent x coordinate and second column represent y coordinate.
-#' @param target_df target landmarks, two columns, first column represent x coordinate and second column represent y coordinate.
+#' @description calculate a affine transformation matrix from two set of 
+#' landmarks
+#' @param source_df source landmarks, two columns, first column represent 
+#' x coordinate and second column represent y coordinate.
+#' @param target_df target landmarks, two columns, first column represent 
+#' x coordinate and second column represent y coordinate.
 #'
 #' @returns a 3 by 3 matrix with the third row close to (0,0,1)
 #'
 #' @export
 calculateAffineMatrixFromLandmarks <- function(source_df, target_df) {
     source_landmarks_matrix <- as.matrix(source_df)
-    source_landmarks_matrix <- cbind(source_landmarks_matrix, rep(1, nrow(source_landmarks_matrix)))
+    source_landmarks_matrix <- cbind(
+        source_landmarks_matrix, rep(1, nrow(source_landmarks_matrix)))
     ## Create landmark matrix for the target image
     target_landmarks_matrix <- as.matrix(target_df)
-    target_landmarks_matrix <- cbind(target_landmarks_matrix, rep(1, nrow(target_landmarks_matrix)))
+    target_landmarks_matrix <- cbind(
+        target_landmarks_matrix, rep(1, nrow(target_landmarks_matrix)))
     ## Compute the affine matrix
     source_dp <- t(source_landmarks_matrix) %*% source_landmarks_matrix
     source_target_dp <- t(source_landmarks_matrix) %*% target_landmarks_matrix
@@ -1180,8 +1221,10 @@ calculateAffineMatrixFromLandmarks <- function(source_df, target_df) {
 #' @name .sift_detect
 #' @title Run SIFT feature detector and descriptor extractor
 #' @description
-#' Perform feature detector and descriptor extractor on a matrix object or preprocessed image object
-#' @param x input matrix or preprocessed image to extract feature and descriptor from
+#' Perform feature detector and descriptor extractor on a matrix object or 
+#' preprocessed image object
+#' @param x input matrix or preprocessed image to extract feature and 
+#' descriptor from
 #' @param ... additional params to pass to `skimage.feature.SIFT()`
 #' @returns list of keypoints and descriptors
 #'
@@ -1296,27 +1339,34 @@ calculateAffineMatrixFromLandmarks <- function(source_df, target_df) {
 
 
 #' @name preprocessImageToMatrix
-#' @title Preprocess from image directory to the required matrix format for Image registration pipeline built on scikit-image
+#' @title Preprocess from image directory to the required matrix format for 
+#' Image registration pipeline built on scikit-image
 #' @description
-#' Preprocess a image path to the required matrix format for Image registration pipeline built on scikit-image
+#' Preprocess a image path to the required matrix format for Image 
+#' registration pipeline built on scikit-image
 #' @param x input file path, required
-#' @param invert whether or not to invert intensity to make calculation of descriptors more accurate, default FALSE
-#' @param equalize_histogram whether or not to calculate equalized histogram of the image,default TRUE
+#' @param invert whether or not to invert intensity to make calculation of 
+#' descriptors more accurate, default FALSE
+#' @param equalize_histogram whether or not to calculate equalized histogram of 
+#' the image,default TRUE
 #' @param flip_vertical whether or not to flip vertical, default FALSE
 #' @param flip_horizontal whether or not to flip horizontal, default FALSE
-#' @param rotate_90 whether or not to rotates the image 90 degrees counter-clockwise, default FALSE
-#' @param use_single_channel If input is a multichannel image, whether or not to extract single channel, default FALSE
-#' @param single_channel_number Channel number in the multichannel image, required if use_single_channel = TRUE
+#' @param rotate_90 whether or not to rotates the image 90 degrees 
+#' counter-clockwise, default FALSE
+#' @param use_single_channel If input is a multichannel image, whether or not 
+#' to extract single channel, default FALSE
+#' @param single_channel_number Channel number in the multichannel image, 
+#' required if use_single_channel = TRUE
 #' @returns a matrix array to input to .sift_detect
 #'
 #' @export
 preprocessImageToMatrix <- function(x,
-    invert = F,
-    equalize_histogram = T,
-    flip_vertical = F,
-    flip_horizontal = F,
-    rotate_90 = F,
-    use_single_channel = F,
+    invert = FALSE,
+    equalize_histogram = TRUE,
+    flip_vertical = FALSE,
+    flip_horizontal = FALSE,
+    rotate_90 = FALSE,
+    use_single_channel = FALSE,
     single_channel_number = NULL,
     pkg_ptr) {
     if (missing(pkg_ptr)) {
@@ -1335,25 +1385,26 @@ preprocessImageToMatrix <- function(x,
     }
     if (use_single_channel == TRUE) {
         if (is.null(single_channel_number)) {
-            stop("Set use single channel == TRUE, please provide a channel number to continue")
+            stop("Set use single channel == TRUE, please provide a channel 
+                number to continue")
         }
         image <- image[, , single_channel_number]
     }
 
 
-    if (flip_vertical == T) {
+    if (flip_vertical == TRUE) {
         image <- np$flipud(image)
     }
-    if (flip_horizontal == T) {
+    if (flip_horizontal == TRUE) {
         image <- np$fliplr(image)
     }
-    if (rotate_90 == T) {
+    if (rotate_90 == TRUE) {
         image <- np$rot90(image)
     }
-    if (invert == T) {
+    if (invert == TRUE) {
         image <- SKI$util$invert(image)
     }
-    if (equalize_histogram == T) {
+    if (equalize_histogram == TRUE) {
         image <- SKI$exposure$equalize_hist(image)
     }
     return(image)
@@ -1366,7 +1417,8 @@ preprocessImageToMatrix <- function(x,
 #' Estimate affine transformation from matched descriptor
 #' @param keypoints1 keypoints extracted from source image via .sift_detect
 #' @param keypoints1 keypoints extracted from target image via .sift_detect
-#' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
+#' @param match a 2 col matrix of x to y index matched descriptors via 
+#' .match_descriptor_single
 #' @returns a list of model and inliners
 .estimate_transform_from_matched_descriptor <- function(keypoints1,
     keypoints2,
@@ -1385,7 +1437,10 @@ preprocessImageToMatrix <- function(x,
     src_pts <- keypoints1[match[, 1] + 1, , drop = FALSE]
     dst_pts <- keypoints2[match[, 2] + 1, , drop = FALSE]
 
-    estimate_fun <- match.arg(estimate_fun, unique(c("euclidean", "similarity", "affine", "piecewise-affine", "projective", "polynomial", estimate_fun)))
+    estimate_fun <- match.arg(
+        estimate_fun, 
+        unique(c("euclidean", "similarity", "affine", "piecewise-affine", 
+                "projective", "polynomial", estimate_fun)))
 
     # Estimate homography matrix
     ransac_result <- SKI$transform$estimate_transform(
@@ -1404,7 +1459,8 @@ preprocessImageToMatrix <- function(x,
 #' Warp transformed images from estimated transformation
 #' @param x source image from .sift_preprocess
 #' @param y target image from .sift_preprocess
-#' @param model estimated transformation object from .estimate_transform_from_matched_descriptor
+#' @param model estimated transformation object from 
+#' .estimate_transform_from_matched_descriptor
 #' @returns None, it will write to a output path
 .warp_transformed_image <- function(x,
     y,
@@ -1431,14 +1487,17 @@ preprocessImageToMatrix <- function(x,
 #' @name .plot_matched_descriptors
 #' @title plot matched descriptors
 #' @description
-#' A wrapper function for the plot_matches for the SIFT feature extractor and descriptor pipeline
+#' A wrapper function for the plot_matches for the SIFT feature extractor and 
+#' descriptor pipeline
 #' @param x source image from .sift_preprocess
 #' @param y target image from .sift_preprocess
 #' @param keypoints1 keypoints extracted from source image via .sift_detect
 #' @param keypoints1 keypoints extracted from target image via .sift_detect
-#' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
+#' @param match a 2 col matrix of x to y index matched descriptors via 
+#' .match_descriptor_single
 #' @returns None
-.plot_matched_descriptors <- function(x, y, keypoints1, keypoints2, match, pkg_ptr) {
+.plot_matched_descriptors <- function(
+        x, y, keypoints1, keypoints2, match, pkg_ptr) {
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1446,8 +1505,9 @@ preprocessImageToMatrix <- function(x,
         SKI <- pkg_ptr
     }
 
-    matplotlib <- reticulate::import("matplotlib", convert = TRUE, delay_load = TRUE)
-    np <- reticulate::import("numpy", convert = T, delay_load = T)
+    matplotlib <- reticulate::import(
+        "matplotlib", convert = TRUE, delay_load = TRUE)
+    np <- reticulate::import("numpy", convert = TRUE, delay_load = TRUE)
     plt <- matplotlib$pyplot
 
     match_py <- reticulate::r_to_py(match)
@@ -1459,7 +1519,8 @@ preprocessImageToMatrix <- function(x,
     ax <- fig_ax[[2]]
 
     # Plot the matches
-    SKI$feature$plot_matches(ax, x, y, keypoints1, keypoints2, match_py, only_matches = TRUE)
+    SKI$feature$plot_matches(
+        ax, x, y, keypoints1, keypoints2, match_py, only_matches = TRUE)
 
     ax$axis("off")
     plt$show()
@@ -1470,36 +1531,50 @@ preprocessImageToMatrix <- function(x,
 #' @title Estimate Automated ImageRegistration With SIFT
 #' @name estimateAutomatedImageRegistrationWithSIFT
 #' @description
-#' Automatically estimate a transform with SIFT feature detection, descriptor match and returns a transformation object to use
-#' @param x required. Source matrix input, could be generated from preprocessImageToMatrix
-#' @param y required. Source matrix input, could be generated from preprocessImageToMatrix
+#' Automatically estimate a transform with SIFT feature detection, descriptor 
+#' match and returns a transformation object to use
+#' @param x required. Source matrix input, could be generated from 
+#' preprocessImageToMatrix
+#' @param y required. Source matrix input, could be generated from 
+#' preprocessImageToMatrix
 #' @param max_ratio max_ratio parameter for matching descriptors, default 0.6
-#' @param save_warp default NULL, if not NULL, please provide an output image path to save the warpped image.
-#' @param estimate_fun default Affine. The transformation model to use estimation
-#' @param plot_match whether or not to plot the matching descriptors.Default False
+#' @param save_warp default NULL, if not NULL, please provide an output image 
+#' path to save the warpped image.
+#' @param estimate_fun default Affine. The transformation model to use 
+#' estimation
+#' @param plot_match whether or not to plot the matching descriptors.
+#' Default False
 #' @returns a list of the estimated transformation object
-#' example estimation <- estimateAutomatedImageRegistrationWithSIFT(x = image_mtx1,y = image_mtx2)
+#' @examples
+#' estimation <- estimateAutomatedImageRegistrationWithSIFT(
+#' x = image_mtx1, y = image_mtx2)
 #' @export
 estimateAutomatedImageRegistrationWithSIFT <- function(x,
     y,
-    plot_match = F,
+    plot_match = FALSE,
     max_ratio = 0.6,
     estimate_fun = "affine",
     save_warp = NULL,
-    verbose = T) {
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Detecting features via SIFT... ")
+    verbose = TRUE) {
+    GiottoUtils::vmsg(.v = verbose, .is_debug = TRUE, 
+                    "Detecting features via SIFT... ")
     x_sift <- .sift_detect(x)
     y_sift <- .sift_detect(y)
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Matching Descriptors via SIFT... ")
-    matched <- .match_descriptor_single(x_sift$descriptor, y_sift$descriptor, max_ratio = max_ratio)
+    GiottoUtils::vmsg(.v = verbose, .is_debug = TRUE, 
+                    "Matching Descriptors via SIFT... ")
+    matched <- .match_descriptor_single(
+        x_sift$descriptor, y_sift$descriptor, max_ratio = max_ratio)
 
     if (plot_match == TRUE) {
-        .plot_matched_descriptors(x, y, x_sift$keypoints, y_sift$keypoints, matched)
+        .plot_matched_descriptors(
+            x, y, x_sift$keypoints, y_sift$keypoints, matched)
     }
 
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Estimating transformation matrix from matched descriptor... ")
+    GiottoUtils::vmsg(
+        .v = verbose, .is_debug = TRUE, 
+        "Estimating transformation matrix from matched descriptor... ")
     estimation <- .estimate_transform_from_matched_descriptor(x_sift$keypoints,
         y_sift$keypoints,
         matched,
