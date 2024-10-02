@@ -771,7 +771,7 @@ plotInteractive3D <- function(
 #' giotto_object <- GiottoData::loadGiottoMini("visium")
 #' 
 #' giottoToAnndataZarr(giotto_object,
-#'                     expression = "raw"
+#'                     expression = "raw",
 #'                     output_path = tempdir())
 #' 
 #' # using the mini vizgen object
