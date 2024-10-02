@@ -100,7 +100,7 @@ sign_list <- list(
     ),
     cell_type2 = c(
         "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", "Hrh3",
-         "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a"
+        "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a"
     ),
     cell_type2 = c(
         "Arpp19", "Lamp5", "Galnt6", "Hlf", "Hs3st2",
@@ -113,7 +113,8 @@ sm <- makeSignMatrixPAGE(
     sign_list = sign_list
 )
 
-g <- runPAGEEnrich(gobject = g,
+g <- runPAGEEnrich(
+    gobject = g,
     sign_matrix = sm,
     min_overlap_genes = 2
 )

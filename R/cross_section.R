@@ -31,21 +31,20 @@
 #' @param cell_subset_projection_coords 2D PCA coordinates of selected cells
 #' in the cross section plane
 #' @returns crossSection object
-create_crossSection_object <- function(
-        name = NULL,
-        method = NULL,
-        thickness_unit = NULL,
-        slice_thickness = NULL,
-        cell_distance_estimate_method = NULL,
-        extend_ratio = NULL,
-        plane_equation = NULL,
-        mesh_grid_n = NULL,
-        mesh_obj = NULL,
-        cell_subset = NULL,
-        cell_subset_spatial_locations = NULL,
-        cell_subset_projection_locations = NULL,
-        cell_subset_projection_PCA = NULL,
-        cell_subset_projection_coords = NULL) {
+create_crossSection_object <- function(name = NULL,
+    method = NULL,
+    thickness_unit = NULL,
+    slice_thickness = NULL,
+    cell_distance_estimate_method = NULL,
+    extend_ratio = NULL,
+    plane_equation = NULL,
+    mesh_grid_n = NULL,
+    mesh_obj = NULL,
+    cell_subset = NULL,
+    cell_subset_spatial_locations = NULL,
+    cell_subset_projection_locations = NULL,
+    cell_subset_projection_PCA = NULL,
+    cell_subset_projection_coords = NULL) {
     crossSection_obj <- list(
         "method" = method,
         "thickness_unit" = thickness_unit,
@@ -70,11 +69,10 @@ create_crossSection_object <- function(
 #' @param spatial_network_name spatial_network_name
 #' @returns crossSectionObjects
 #' @keywords internal
-read_crossSection <- function(
-        gobject,
-        spat_unit = NULL,
-        name = NULL,
-        spatial_network_name = NULL) {
+read_crossSection <- function(gobject,
+    spat_unit = NULL,
+    name = NULL,
+    spatial_network_name = NULL) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -131,11 +129,10 @@ read_crossSection <- function(
 #' @param method method
 #' @returns matrix
 #' @keywords internal
-estimateCellCellDistance <- function(
-        gobject,
-        spat_unit = NULL,
-        spatial_network_name = "Delaunay_network",
-        method = c("mean", "median")) {
+estimateCellCellDistance <- function(gobject,
+    spat_unit = NULL,
+    spatial_network_name = "Delaunay_network",
+    method = c("mean", "median")) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -165,14 +162,13 @@ estimateCellCellDistance <- function(
 #' @param plane_equation plane_equation
 #' @returns numeric
 #' @keywords internal
-get_sectionThickness <- function(
-        gobject,
-        spat_unit = NULL,
-        thickness_unit = c("cell", "natural"),
-        slice_thickness = 2,
-        spatial_network_name = "Delaunay_network",
-        cell_distance_estimate_method = c("mean", "median"),
-        plane_equation = NULL) {
+get_sectionThickness <- function(gobject,
+    spat_unit = NULL,
+    thickness_unit = c("cell", "natural"),
+    slice_thickness = 2,
+    spatial_network_name = "Delaunay_network",
+    cell_distance_estimate_method = c("mean", "median"),
+    plane_equation = NULL) {
     thickness_unit <- match.arg(thickness_unit, c("cell", "natural"))
 
     section_thickness <- switch(thickness_unit,
@@ -229,10 +225,9 @@ projection_fun <- function(point_to_project, plane_point, plane_norm) {
 #' @param mesh_obj mesh_obj
 #' @returns numeric
 #' @keywords internal
-adapt_aspect_ratio <- function(
-        current_ratio, cell_locations,
-        sdimx = NULL, sdimy = NULL, sdimz = NULL,
-        mesh_obj = NULL) {
+adapt_aspect_ratio <- function(current_ratio, cell_locations,
+    sdimx = NULL, sdimy = NULL, sdimz = NULL,
+    mesh_obj = NULL) {
     x_range <- max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
     y_range <- max(cell_locations[[sdimy]]) - min(cell_locations[[sdimy]])
     z_range <- max(cell_locations[[sdimz]]) - min(cell_locations[[sdimz]])
@@ -559,27 +554,26 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations, extend_rati
 #'
 #' crossSectionPlot(g, name = "new_cs")
 #' @export
-createCrossSection <- function(
-        gobject,
-        spat_unit = NULL,
-        spat_loc_name = "raw",
-        name = "cross_section",
-        spatial_network_name = "Delaunay_network",
-        thickness_unit = c("cell", "natural"),
-        slice_thickness = 2,
-        cell_distance_estimate_method = "mean",
-        extend_ratio = 0.2,
-        method = c(
-            "equation", "3 points", "point and norm vector",
-            "point and two plane vectors"
-        ),
-        equation = NULL,
-        point1 = NULL, point2 = NULL, point3 = NULL,
-        normVector = NULL,
-        planeVector1 = NULL, planeVector2 = NULL,
-        mesh_grid_n = 20,
-        return_gobject = TRUE,
-        verbose = NULL) {
+createCrossSection <- function(gobject,
+    spat_unit = NULL,
+    spat_loc_name = "raw",
+    name = "cross_section",
+    spatial_network_name = "Delaunay_network",
+    thickness_unit = c("cell", "natural"),
+    slice_thickness = 2,
+    cell_distance_estimate_method = "mean",
+    extend_ratio = 0.2,
+    method = c(
+        "equation", "3 points", "point and norm vector",
+        "point and two plane vectors"
+    ),
+    equation = NULL,
+    point1 = NULL, point2 = NULL, point3 = NULL,
+    normVector = NULL,
+    planeVector1 = NULL, planeVector2 = NULL,
+    mesh_grid_n = 20,
+    return_gobject = TRUE,
+    verbose = NULL) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -781,15 +775,16 @@ createCrossSection <- function(
 #' @md
 #' @seealso [GiottoVisuals::spatGenePlot3D] and [GiottoVisuals::spatFeatPlot2D]
 #' @export
-crossSectionFeatPlot <- function(gobject = NULL,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spat_loc_name = "raw",
-    crossSection_obj = NULL,
-    name = NULL,
-    spatial_network_name = "Delaunay_network",
-    default_save_name = "crossSectionGenePlot",
-    ...) {
+crossSectionFeatPlot <- function(
+        gobject = NULL,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spat_loc_name = "raw",
+        crossSection_obj = NULL,
+        name = NULL,
+        spatial_network_name = "Delaunay_network",
+        default_save_name = "crossSectionGenePlot",
+        ...) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -867,16 +862,15 @@ crossSectionFeatPlot <- function(gobject = NULL,
 #' @details Description of parameters.
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
-crossSectionPlot <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        spat_loc_name = "raw",
-        crossSection_obj = NULL,
-        name = NULL,
-        spatial_network_name = "Delaunay_network",
-        default_save_name = "crossSectionPlot",
-        ...) {
+crossSectionPlot <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    spat_loc_name = "raw",
+    crossSection_obj = NULL,
+    name = NULL,
+    spatial_network_name = "Delaunay_network",
+    default_save_name = "crossSectionPlot",
+    ...) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -954,17 +948,16 @@ crossSectionPlot <- function(
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-crossSectionFeatPlot3D <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        crossSection_obj = NULL,
-        name = NULL,
-        spatial_network_name = "Delaunay_network",
-        show_other_cells = TRUE,
-        other_cell_color = alpha("lightgrey", 0),
-        default_save_name = "crossSectionGenePlot3D",
-        ...) {
+crossSectionFeatPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    crossSection_obj = NULL,
+    name = NULL,
+    spatial_network_name = "Delaunay_network",
+    show_other_cells = TRUE,
+    other_cell_color = alpha("lightgrey", 0),
+    default_save_name = "crossSectionGenePlot3D",
+    ...) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -1023,17 +1016,16 @@ crossSectionFeatPlot3D <- function(
 #' @returns ggplot
 #' @details Description of parameters.
 #' @export
-crossSectionPlot3D <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        crossSection_obj = NULL,
-        name = NULL,
-        spatial_network_name = "Delaunay_network",
-        show_other_cells = TRUE,
-        other_cell_color = alpha("lightgrey", 0),
-        default_save_name = "crossSection3D",
-        ...) {
+crossSectionPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    crossSection_obj = NULL,
+    name = NULL,
+    spatial_network_name = "Delaunay_network",
+    show_other_cells = TRUE,
+    other_cell_color = alpha("lightgrey", 0),
+    default_save_name = "crossSection3D",
+    ...) {
     spat_unit <- set_default_spat_unit(
         gobject = gobject, spat_unit = spat_unit
     )
@@ -1102,24 +1094,22 @@ crossSectionPlot3D <- function(
 #' @returns ggplot
 #' @details Description of parameters.
 #' @export
-insertCrossSectionSpatPlot3D <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        spat_loc_name = "raw",
-        crossSection_obj = NULL,
-        name = NULL,
-        spatial_network_name = "Delaunay_network",
-        mesh_grid_color = "#1f77b4",
-        mesh_grid_width = 3,
-        mesh_grid_style = "dot",
-        sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
-        show_other_cells = FALSE,
-        axis_scale = c("cube", "real", "custom"),
-        custom_ratio = NULL,
-        default_save_name = "spat3D_with_cross_section",
-        ...) {
-
+insertCrossSectionSpatPlot3D <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    spat_loc_name = "raw",
+    crossSection_obj = NULL,
+    name = NULL,
+    spatial_network_name = "Delaunay_network",
+    mesh_grid_color = "#1f77b4",
+    mesh_grid_width = 3,
+    mesh_grid_style = "dot",
+    sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
+    show_other_cells = FALSE,
+    axis_scale = c("cube", "real", "custom"),
+    custom_ratio = NULL,
+    default_save_name = "spat3D_with_cross_section",
+    ...) {
     package_check("plotly", repository = "CRAN:plotly")
 
     spat_unit <- set_default_spat_unit(
@@ -1238,25 +1228,25 @@ insertCrossSectionSpatPlot3D <- function(
 #' @details Description of parameters.
 #' @md
 #' @export
-insertCrossSectionFeatPlot3D <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    spat_loc_name = "raw",
-    crossSection_obj = NULL,
-    name = NULL,
-    spatial_network_name = "Delaunay_network",
-    mesh_grid_color = "#1f77b4",
-    mesh_grid_width = 3,
-    mesh_grid_style = "dot",
-    sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
-    show_other_cells = FALSE,
-    axis_scale = c("cube", "real", "custom"),
-    custom_ratio = NULL,
-    show_plot = NULL, return_plot = NULL, save_plot = NULL,
-    save_param = list(),
-    default_save_name = "spatGenePlot3D_with_cross_section",
-    ...) {
-
+insertCrossSectionFeatPlot3D <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        spat_loc_name = "raw",
+        crossSection_obj = NULL,
+        name = NULL,
+        spatial_network_name = "Delaunay_network",
+        mesh_grid_color = "#1f77b4",
+        mesh_grid_width = 3,
+        mesh_grid_style = "dot",
+        sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
+        show_other_cells = FALSE,
+        axis_scale = c("cube", "real", "custom"),
+        custom_ratio = NULL,
+        show_plot = NULL, return_plot = NULL, save_plot = NULL,
+        save_param = list(),
+        default_save_name = "spatGenePlot3D_with_cross_section",
+        ...) {
     package_check("plotly", repository = "CRAN:plotly")
 
     spat_unit <- set_default_spat_unit(

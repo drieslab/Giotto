@@ -88,10 +88,9 @@
 #' @returns spatlocs
 #' @keywords internal
 # Rotation is performed first, followed by XY transform.
-.rigid_transform_spatial_locations <- function(
-        spatlocs,
-        transform_values,
-        method) {
+.rigid_transform_spatial_locations <- function(spatlocs,
+    transform_values,
+    method) {
     if (method == "fiji") {
         spatlocsXY <- spatlocs[, c("sdimx", "sdimy")]
         # These functions must be performed in positive y values
@@ -139,13 +138,12 @@
 #' @returns list
 #' @keywords internal
 # Automatically account for changes in image size due to alignment
-.reg_img_minmax_finder <- function(
-        gobject_list,
-        image_unreg = NULL,
-        largeImage_unreg = NULL, # TODO Currently unused
-        scale_factor,
-        transform_values,
-        method) {
+.reg_img_minmax_finder <- function(gobject_list,
+    image_unreg = NULL,
+    largeImage_unreg = NULL, # TODO Currently unused
+    scale_factor,
+    transform_values,
+    method) {
     # Find image spatial info from original image if possible
     # Check to make sure that image_unreg finds an existing image in each
     # gobject to be registered
@@ -287,22 +285,21 @@
 #' @returns List of registered giotto objects where the registered images and
 #' spatial locations
 #' @export
-registerGiottoObjectList <- function(
-        gobject_list,
-        spat_unit = NULL,
-        method = c("fiji", "rvision"),
-        image_unreg = "image",
-        image_reg_name = "image",
-        image_list = NULL, # Rvision
-        save_dir = NULL, # Rvision
-        spatloc_unreg = "raw",
-        spatloc_reg_name = "raw",
-        fiji_xml_files,
-        fiji_registered_images,
-        scale_factor = NULL,
-        allow_rvision_autoscale = TRUE, # Rvision
-        # auto_comp_reg_border = TRUE,
-        verbose = TRUE) {
+registerGiottoObjectList <- function(gobject_list,
+    spat_unit = NULL,
+    method = c("fiji", "rvision"),
+    image_unreg = "image",
+    image_reg_name = "image",
+    image_list = NULL, # Rvision
+    save_dir = NULL, # Rvision
+    spatloc_unreg = "raw",
+    spatloc_reg_name = "raw",
+    fiji_xml_files,
+    fiji_registered_images,
+    scale_factor = NULL,
+    allow_rvision_autoscale = TRUE, # Rvision
+    # auto_comp_reg_border = TRUE,
+    verbose = TRUE) {
     method <- match.arg(method, choices = c("fiji", "rvision"))
 
     if (method == "fiji") {
@@ -363,19 +360,18 @@ registerGiottoObjectList <- function(
 #' @returns list of registered giotto objects where the registered images and
 #' spatial locations
 #' @export
-registerGiottoObjectListFiji <- function(
-        gobject_list,
-        spat_unit = NULL,
-        image_unreg = "image",
-        image_reg_name = "image",
-        image_replace_name = "unregistered",
-        registered_images = NULL,
-        spatloc_unreg = "raw",
-        spatloc_reg_name = "raw",
-        spatloc_replace_name = "unregistered",
-        xml_files,
-        scale_factor = NULL,
-        verbose = TRUE) {
+registerGiottoObjectListFiji <- function(gobject_list,
+    spat_unit = NULL,
+    image_unreg = "image",
+    image_reg_name = "image",
+    image_replace_name = "unregistered",
+    registered_images = NULL,
+    spatloc_unreg = "raw",
+    spatloc_reg_name = "raw",
+    spatloc_replace_name = "unregistered",
+    xml_files,
+    scale_factor = NULL,
+    verbose = TRUE) {
     # set spat_unit based on first gobject
     spat_unit <- set_default_spat_unit(
         gobject = gobject_list[[1]],
@@ -619,13 +615,12 @@ registerGiottoObjectListFiji <- function(
 #' spatial locations
 #' @export
 # Register giotto objects when given raw images and spatial locations
-registerGiottoObjectListRvision <- function(
-        gobject_list = gobject_list,
-        image_list = NULL,
-        save_dir = NULL,
-        spatloc_unreg = NULL,
-        spatloc_reg_name = "raw",
-        verbose = TRUE) { # Not used
+registerGiottoObjectListRvision <- function(gobject_list = gobject_list,
+    image_list = NULL,
+    save_dir = NULL,
+    spatloc_unreg = NULL,
+    spatloc_reg_name = "raw",
+    verbose = TRUE) { # Not used
 
     package_check(
         pkg_name = "Rvision",
@@ -885,36 +880,35 @@ fiji <- function(fijiPath = NULL) {
 #' jimpipeline by jefferislab
 #'
 #' @export
-registerImagesFIJI <- function(
-        source_img_dir,
-        output_img_dir,
-        transforms_save_dir,
-        ref_img_name,
-        # Scale Invariant Interest Point Detector Options
-        init_gauss_blur = 1.6,
-        steps_per_scale_octave = 3,
-        min_img_size = 64,
-        max_img_size = 1024,
-        # Feature Descriptor Options
-        feat_desc_size = 8,
-        feat_desc_orient_bins = 8,
-        closest_next_closest_ratio = 0.92,
-        # Geometric Consensus Filter Options
-        max_align_err = 25,
-        inlier_ratio = 0.05,
-        # FIJI Options
-        headless = FALSE,
-        batch = TRUE,
-        MinMem = MaxMem,
-        MaxMem = 2500,
-        IncrementalGC = TRUE,
-        Threads = NULL,
-        fijiArgs = NULL,
-        javaArgs = NULL,
-        ijArgs = NULL,
-        jython = FALSE,
-        fijiPath = fiji(),
-        DryRun = FALSE) {
+registerImagesFIJI <- function(source_img_dir,
+    output_img_dir,
+    transforms_save_dir,
+    ref_img_name,
+    # Scale Invariant Interest Point Detector Options
+    init_gauss_blur = 1.6,
+    steps_per_scale_octave = 3,
+    min_img_size = 64,
+    max_img_size = 1024,
+    # Feature Descriptor Options
+    feat_desc_size = 8,
+    feat_desc_orient_bins = 8,
+    closest_next_closest_ratio = 0.92,
+    # Geometric Consensus Filter Options
+    max_align_err = 25,
+    inlier_ratio = 0.05,
+    # FIJI Options
+    headless = FALSE,
+    batch = TRUE,
+    MinMem = MaxMem,
+    MaxMem = 2500,
+    IncrementalGC = TRUE,
+    Threads = NULL,
+    fijiArgs = NULL,
+    javaArgs = NULL,
+    ijArgs = NULL,
+    jython = FALSE,
+    fijiPath = fiji(),
+    DryRun = FALSE) {
     # Check if output directory exists. If not, create the directory
     if (!file.exists(output_img_dir)) {
         dir.create(output_img_dir)
@@ -1034,19 +1028,17 @@ interactiveLandmarkSelection <- function(source, target) {
     GiottoUtils::package_check("ggplot2")
     GiottoUtils::package_check("miniUI")
 
-    .create_image_to_plot <- function(x){
-        if (inherits(x, "gg")){
+    .create_image_to_plot <- function(x) {
+        if (inherits(x, "gg")) {
             return(x)
-        }
-        else if (is.character(x)){
-            gimg = Giotto::createGiottoLargeImage(x)
+        } else if (is.character(x)) {
+            gimg <- Giotto::createGiottoLargeImage(x)
             gg <- ggplot2::ggplot()
-            gg_raster = GiottoVisuals::gg_annotation_raster(gg,gimg)
+            gg_raster <- GiottoVisuals::gg_annotation_raster(gg, gimg)
             return(gg_raster)
-        }
-        else{
+        } else {
             gg <- ggplot2::ggplot()
-            gg_raster = GiottoVisuals::gg_annotation_raster(gg,x)
+            gg_raster <- GiottoVisuals::gg_annotation_raster(gg, x)
             return(gg_raster)
         }
     }
@@ -1073,13 +1065,15 @@ interactiveLandmarkSelection <- function(source, target) {
                 shiny::column(6, shiny::plotOutput("plot2", click = "plot2_click"))
             ),
             shiny::fluidRow(
-                shiny::column(6,
-                              shiny::sliderInput("xrange1", "X Range for Plot 1", min = source_ranges$x_range[1], max = source_ranges$x_range[2], value = source_ranges$x_range),
-                              shiny::sliderInput("yrange1", "Y Range for Plot 1", min = source_ranges$y_range[1], max = source_ranges$y_range[2], value = source_ranges$y_range)
+                shiny::column(
+                    6,
+                    shiny::sliderInput("xrange1", "X Range for Plot 1", min = source_ranges$x_range[1], max = source_ranges$x_range[2], value = source_ranges$x_range),
+                    shiny::sliderInput("yrange1", "Y Range for Plot 1", min = source_ranges$y_range[1], max = source_ranges$y_range[2], value = source_ranges$y_range)
                 ),
-                shiny::column(6,
-                              shiny::sliderInput("xrange2", "X Range for Plot 2", min = target_ranges$x_range[1], max = target_ranges$x_range[2], value = target_ranges$x_range),
-                              shiny::sliderInput("yrange2", "Y Range for Plot 2", min = target_ranges$y_range[1], max = target_ranges$y_range[2], value = target_ranges$y_range)
+                shiny::column(
+                    6,
+                    shiny::sliderInput("xrange2", "X Range for Plot 2", min = target_ranges$x_range[1], max = target_ranges$x_range[2], value = target_ranges$x_range),
+                    shiny::sliderInput("yrange2", "Y Range for Plot 2", min = target_ranges$y_range[1], max = target_ranges$y_range[2], value = target_ranges$y_range)
                 )
             ),
             shiny::fluidRow(
@@ -1106,7 +1100,7 @@ interactiveLandmarkSelection <- function(source, target) {
         output$plot2 <- shiny::renderPlot({
             target_image +
                 ggplot2::coord_cartesian(xlim = input$xrange2, ylim = input$yrange2) +
-                ggplot2::geom_point(data = click_history2(), ggplot2::aes(x = x, y = y), color = "blue",size = 4.5)
+                ggplot2::geom_point(data = click_history2(), ggplot2::aes(x = x, y = y), color = "blue", size = 4.5)
         })
 
         shiny::observeEvent(input$plot1_click, {
@@ -1144,7 +1138,7 @@ interactiveLandmarkSelection <- function(source, target) {
         })
 
         shiny::observeEvent(input$done, {
-            returnValue <- list(click_history1(),click_history2())
+            returnValue <- list(click_history1(), click_history2())
             shiny::stopApp(returnValue)
         })
     }
@@ -1166,17 +1160,17 @@ interactiveLandmarkSelection <- function(source, target) {
 #' @returns a 3 by 3 matrix with the third row close to (0,0,1)
 #'
 #' @export
-calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
-    source_landmarks_matrix = as.matrix(source_df)
-    source_landmarks_matrix = cbind(source_landmarks_matrix,rep(1,nrow(source_landmarks_matrix)))
+calculateAffineMatrixFromLandmarks <- function(source_df, target_df) {
+    source_landmarks_matrix <- as.matrix(source_df)
+    source_landmarks_matrix <- cbind(source_landmarks_matrix, rep(1, nrow(source_landmarks_matrix)))
     ## Create landmark matrix for the target image
     target_landmarks_matrix <- as.matrix(target_df)
-    target_landmarks_matrix = cbind(target_landmarks_matrix,rep(1,nrow(target_landmarks_matrix)))
+    target_landmarks_matrix <- cbind(target_landmarks_matrix, rep(1, nrow(target_landmarks_matrix)))
     ## Compute the affine matrix
-    source_dp = t(source_landmarks_matrix) %*% source_landmarks_matrix
-    source_target_dp = t(source_landmarks_matrix) %*% target_landmarks_matrix
+    source_dp <- t(source_landmarks_matrix) %*% source_landmarks_matrix
+    source_target_dp <- t(source_landmarks_matrix) %*% target_landmarks_matrix
     source_dp_inv <- solve(source_dp)
-    Affine_matrix = t(source_dp_inv %*% source_target_dp)
+    Affine_matrix <- t(source_dp_inv %*% source_target_dp)
     return(Affine_matrix)
 }
 
@@ -1192,7 +1186,6 @@ calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
 #' @returns list of keypoints and descriptors
 #'
 .sift_detect <- function(x, ..., pkg_ptr) {
-
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1231,15 +1224,12 @@ calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
 #' @param ... additional params to pass to `skimage.feature.match_descriptors()`
 #' @returns list
 #'
-.match_descriptor <- function(
-        descriptor_list,
-        target_idx = 1L,
-        cross_check = TRUE,
-        max_ratio = 0.8,
-        ...,
-        pkg_ptr
-) {
-
+.match_descriptor <- function(descriptor_list,
+    target_idx = 1L,
+    cross_check = TRUE,
+    max_ratio = 0.8,
+    ...,
+    pkg_ptr) {
     checkmate::assert_list(descriptor_list, min.len = 2L)
     target_idx <- as.integer(target_idx)
 
@@ -1282,8 +1272,7 @@ calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
 
 # wrapper for sklearn-image match_descriptors
 # returns a 2 col matrix of x to y index matches
-.match_descriptor_single <- function(x, y,max_ratio, ..., pkg_ptr) {
-
+.match_descriptor_single <- function(x, y, max_ratio, ..., pkg_ptr) {
     checkmate::assert_class(x, "matrix")
     checkmate::assert_class(y, "matrix")
 
@@ -1322,15 +1311,14 @@ calculateAffineMatrixFromLandmarks <- function(source_df,target_df){
 #'
 #' @export
 preprocessImageToMatrix <- function(x,
-                                    invert = F,
-                                    equalize_histogram = T,
-                                    flip_vertical = F,
-                                    flip_horizontal = F,
-                                    rotate_90 = F,
-                                    use_single_channel = F,
-                                    single_channel_number = NULL,
-                                    pkg_ptr) {
-
+    invert = F,
+    equalize_histogram = T,
+    flip_vertical = F,
+    flip_horizontal = F,
+    rotate_90 = F,
+    use_single_channel = F,
+    single_channel_number = NULL,
+    pkg_ptr) {
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1340,31 +1328,33 @@ preprocessImageToMatrix <- function(x,
     GiottoUtils::package_check("numpy", repository = "pip:scikit-image")
     np <- reticulate::import("numpy", convert = TRUE, delay_load = TRUE)
 
-    image = SKI$io$imread(x)
+    image <- SKI$io$imread(x)
 
-    if (length(dim(image)) >2 & use_single_channel == FALSE){
-        image = SKI$color$rgb2gray(image)
+    if (length(dim(image)) > 2 & use_single_channel == FALSE) {
+        image <- SKI$color$rgb2gray(image)
     }
-    if (use_single_channel  == TRUE) {
-        if (is.null(single_channel_number)) {stop("Set use single channel == TRUE, please provide a channel number to continue")}
-        image <- image[,,single_channel_number]
+    if (use_single_channel == TRUE) {
+        if (is.null(single_channel_number)) {
+            stop("Set use single channel == TRUE, please provide a channel number to continue")
+        }
+        image <- image[, , single_channel_number]
     }
 
 
-    if (flip_vertical == T){
-        image = np$flipud(image)
+    if (flip_vertical == T) {
+        image <- np$flipud(image)
     }
-    if (flip_horizontal == T){
-        image = np$fliplr(image)
+    if (flip_horizontal == T) {
+        image <- np$fliplr(image)
     }
-    if (rotate_90 == T){
-        image = np$rot90(image)
+    if (rotate_90 == T) {
+        image <- np$rot90(image)
     }
-    if (invert == T){
-        image = SKI$util$invert(image)
+    if (invert == T) {
+        image <- SKI$util$invert(image)
     }
-    if (equalize_histogram == T){
-        image = SKI$exposure$equalize_hist(image)
+    if (equalize_histogram == T) {
+        image <- SKI$exposure$equalize_hist(image)
     }
     return(image)
 }
@@ -1379,11 +1369,11 @@ preprocessImageToMatrix <- function(x,
 #' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
 #' @returns a list of model and inliners
 .estimate_transform_from_matched_descriptor <- function(keypoints1,
-                                                        keypoints2,
-                                                        match,
-                                                        estimate_fun,
-                                                        ...,
-                                                        pkg_ptr){
+    keypoints2,
+    match,
+    estimate_fun,
+    ...,
+    pkg_ptr) {
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1395,7 +1385,7 @@ preprocessImageToMatrix <- function(x,
     src_pts <- keypoints1[match[, 1] + 1, , drop = FALSE]
     dst_pts <- keypoints2[match[, 2] + 1, , drop = FALSE]
 
-    estimate_fun <- match.arg(estimate_fun, unique(c('euclidean', 'similarity', 'affine', 'piecewise-affine', 'projective', 'polynomial', estimate_fun)))
+    estimate_fun <- match.arg(estimate_fun, unique(c("euclidean", "similarity", "affine", "piecewise-affine", "projective", "polynomial", estimate_fun)))
 
     # Estimate homography matrix
     ransac_result <- SKI$transform$estimate_transform(
@@ -1417,10 +1407,10 @@ preprocessImageToMatrix <- function(x,
 #' @param model estimated transformation object from .estimate_transform_from_matched_descriptor
 #' @returns None, it will write to a output path
 .warp_transformed_image <- function(x,
-                                    y,
-                                    model,
-                                    outpath = NULL,
-                                    pkg_ptr){
+    y,
+    model,
+    outpath = NULL,
+    pkg_ptr) {
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1433,7 +1423,7 @@ preprocessImageToMatrix <- function(x,
 
     # Warp the source image to align with the destination image
     warped_image <- SKI$transform$warp(x_copy, model, output_shape = dim(y))
-    SKI$io$imsave(outpath,warped_image)
+    SKI$io$imsave(outpath, warped_image)
 }
 
 
@@ -1448,7 +1438,7 @@ preprocessImageToMatrix <- function(x,
 #' @param keypoints1 keypoints extracted from target image via .sift_detect
 #' @param match a 2 col matrix of x to y index matched descriptors via .match_descriptor_single
 #' @returns None
-.plot_matched_descriptors <- function(x, y, keypoints1, keypoints2, match, pkg_ptr){
+.plot_matched_descriptors <- function(x, y, keypoints1, keypoints2, match, pkg_ptr) {
     if (missing(pkg_ptr)) {
         GiottoUtils::package_check("skimage", repository = "pip:scikit-image")
         SKI <- reticulate::import("skimage", convert = TRUE, delay_load = TRUE)
@@ -1456,8 +1446,8 @@ preprocessImageToMatrix <- function(x,
         SKI <- pkg_ptr
     }
 
-    matplotlib <-reticulate::import("matplotlib", convert = TRUE, delay_load = TRUE)
-    np <- reticulate::import("numpy",convert = T, delay_load = T)
+    matplotlib <- reticulate::import("matplotlib", convert = TRUE, delay_load = TRUE)
+    np <- reticulate::import("numpy", convert = T, delay_load = T)
     plt <- matplotlib$pyplot
 
     match_py <- reticulate::r_to_py(match)
@@ -1471,7 +1461,7 @@ preprocessImageToMatrix <- function(x,
     # Plot the matches
     SKI$feature$plot_matches(ax, x, y, keypoints1, keypoints2, match_py, only_matches = TRUE)
 
-    ax$axis('off')
+    ax$axis("off")
     plt$show()
     plt$close()
 }
@@ -1491,40 +1481,38 @@ preprocessImageToMatrix <- function(x,
 #' example estimation <- estimateAutomatedImageRegistrationWithSIFT(x = image_mtx1,y = image_mtx2)
 #' @export
 estimateAutomatedImageRegistrationWithSIFT <- function(x,
-                                                       y,
-                                                       plot_match = F,
-                                                       max_ratio = 0.6,
-                                                       estimate_fun = 'affine',
-                                                       save_warp = NULL,
-                                                       verbose = T){
-
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T,'Detecting features via SIFT... ')
+    y,
+    plot_match = F,
+    max_ratio = 0.6,
+    estimate_fun = "affine",
+    save_warp = NULL,
+    verbose = T) {
+    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Detecting features via SIFT... ")
     x_sift <- .sift_detect(x)
     y_sift <- .sift_detect(y)
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T,'Matching Descriptors via SIFT... ')
-    matched <- .match_descriptor_single(x_sift$descriptor, y_sift$descriptor,max_ratio = max_ratio)
+    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Matching Descriptors via SIFT... ")
+    matched <- .match_descriptor_single(x_sift$descriptor, y_sift$descriptor, max_ratio = max_ratio)
 
-    if (plot_match == TRUE){
+    if (plot_match == TRUE) {
         .plot_matched_descriptors(x, y, x_sift$keypoints, y_sift$keypoints, matched)
     }
 
 
-    GiottoUtils::vmsg(.v = verbose, .is_debug = T,'Estimating transformation matrix from matched descriptor... ')
+    GiottoUtils::vmsg(.v = verbose, .is_debug = T, "Estimating transformation matrix from matched descriptor... ")
     estimation <- .estimate_transform_from_matched_descriptor(x_sift$keypoints,
-                                                              y_sift$keypoints,
-                                                              matched,
-                                                              estimate_fun = estimate_fun)
+        y_sift$keypoints,
+        matched,
+        estimate_fun = estimate_fun
+    )
 
-    if (!is.null(save_warp)){
-        .warp_transformed_image(x = x,
-                                y = y,
-                                model = estimation$inverse, outpath = save_warp)
+    if (!is.null(save_warp)) {
+        .warp_transformed_image(
+            x = x,
+            y = y,
+            model = estimation$inverse, outpath = save_warp
+        )
     }
 
     return(estimation)
 }
-
-
-
-

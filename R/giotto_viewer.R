@@ -6,10 +6,9 @@
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_annotation <- function(
-        annotation,
-        annot_name = "test",
-        output_directory = getwd()) {
+write_giotto_viewer_annotation <- function(annotation,
+    annot_name = "test",
+    output_directory = getwd()) {
     if (is.numeric(annotation) == TRUE) {
         # annotation information and mapping
         sorted_unique_numbers <- sort(unique(annotation))
@@ -56,10 +55,9 @@ write_giotto_viewer_annotation <- function(
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_numeric_annotation <- function(
-        annotation,
-        annot_name = "test",
-        output_directory = getwd()) {
+write_giotto_viewer_numeric_annotation <- function(annotation,
+    annot_name = "test",
+    output_directory = getwd()) {
     # write to output directory
     annot_inf_map <- paste0(annot_name, "_num_annot_information", ".txt")
     write.table(annotation,
@@ -82,13 +80,12 @@ write_giotto_viewer_numeric_annotation <- function(
 #' @param output_directory directory where to save the files
 #' @returns write a .txt and .annot file for the selection annotation
 #' @keywords internal
-write_giotto_viewer_dim_reduction <- function(
-        dim_reduction_cell,
-        dim_red = NULL,
-        dim_red_name = NULL,
-        dim_red_rounding = NULL,
-        dim_red_rescale = c(-20, 20),
-        output_directory = getwd()) {
+write_giotto_viewer_dim_reduction <- function(dim_reduction_cell,
+    dim_red = NULL,
+    dim_red_name = NULL,
+    dim_red_rounding = NULL,
+    dim_red_rescale = c(-20, 20),
+    output_directory = getwd()) {
     dim_red_coord <- dim_reduction_cell[[dim_red]][[
         dim_red_name
     ]]$coordinates[, seq_len(2)]
@@ -143,23 +140,22 @@ write_giotto_viewer_dim_reduction <- function(
 #' include the provided spatial enrichment name (default PAGE or rank)
 #' and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 #' @export
-exportGiottoViewer <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        spat_loc_name = "raw",
-        output_directory = NULL,
-        spat_enr_names = NULL,
-        factor_annotations = NULL,
-        numeric_annotations = NULL,
-        dim_reductions,
-        dim_reduction_names,
-        expression_values = c("scaled", "normalized", "custom"),
-        dim_red_rounding = NULL,
-        dim_red_rescale = c(-20, 20),
-        expression_rounding = 2,
-        overwrite_dir = TRUE,
-        verbose = TRUE) {
+exportGiottoViewer <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    spat_loc_name = "raw",
+    output_directory = NULL,
+    spat_enr_names = NULL,
+    factor_annotations = NULL,
+    numeric_annotations = NULL,
+    dim_reductions,
+    dim_reduction_names,
+    expression_values = c("scaled", "normalized", "custom"),
+    dim_red_rounding = NULL,
+    dim_red_rescale = c(-20, 20),
+    expression_rounding = 2,
+    overwrite_dir = TRUE,
+    verbose = TRUE) {
     ## output directory ##
     if (file.exists(output_directory)) {
         if (overwrite_dir == TRUE) {

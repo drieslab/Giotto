@@ -103,5 +103,5 @@ main parameters needed
 }
 \examples{
 # example code
-doCellposeSegmentation(image_dir = input_image, mask_output = output, channel_1 = 2, channel_2 = 1, model_name = 'cyto3',batch_size=4)
+doCellposeSegmentation(image_dir = input_image, mask_output = output, channel_1 = 2, channel_2 = 1, model_name = "cyto3", batch_size = 4)
 }

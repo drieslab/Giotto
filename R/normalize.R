@@ -54,23 +54,24 @@
 #'
 #' normalizeGiotto(g) # default is method A
 #' @export
-normalizeGiotto <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = "raw",
-    norm_methods = c("standard", "pearson_resid", "osmFISH", "quantile"),
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_genes = NULL,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    theta = 100,
-    update_slot = "scaled",
-    verbose = TRUE) {
+normalizeGiotto <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = "raw",
+        norm_methods = c("standard", "pearson_resid", "osmFISH", "quantile"),
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_genes = NULL,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        theta = 100,
+        update_slot = "scaled",
+        verbose = TRUE) {
     ## deprecated arguments
     if (!is.null(scale_genes)) {
         scale_feats <- scale_genes
@@ -269,19 +270,20 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_standard_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    library_size_norm = TRUE,
-    scalefactor = 6e3,
-    log_norm = TRUE,
-    log_offset = 1,
-    logbase = 2,
-    scale_feats = TRUE,
-    scale_cells = TRUE,
-    scale_order = c("first_feats", "first_cells"),
-    verbose = TRUE) {
+.rna_standard_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        library_size_norm = TRUE,
+        scalefactor = 6e3,
+        log_norm = TRUE,
+        log_offset = 1,
+        logbase = 2,
+        scale_feats = TRUE,
+        scale_cells = TRUE,
+        scale_order = c("first_feats", "first_cells"),
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: Standard normalization was developed for RNA data \n")
@@ -426,12 +428,13 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_osmfish_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    name = "custom",
-    verbose = TRUE) {
+.rna_osmfish_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "custom",
+        verbose = TRUE) {
     # check feature type compatibility
     if (!feat_type %in% c("rna", "RNA")) {
         warning("Caution: osmFISH normalization was developed for RNA in situ
@@ -476,13 +479,14 @@ normalizeGiotto <- function(gobject,
 #' @returns giotto object
 #' @keywords internal
 #' @noRd
-.rna_pears_resid_normalization <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    theta = 100,
-    name = "scaled",
-    verbose = TRUE) {
+.rna_pears_resid_normalization <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        theta = 100,
+        name = "scaled",
+        verbose = TRUE) {
     # print message with information #
     if (verbose) {
         message("using 'Lause/Kobak' method to normalize count matrix If used in
@@ -522,12 +526,13 @@ normalizeGiotto <- function(gobject,
     return(gobject)
 }
 
-.quantile_norm <- function(gobject,
-    raw_expr,
-    feat_type,
-    spat_unit,
-    name = "quantile",
-    verbose = TRUE) {
+.quantile_norm <- function(
+        gobject,
+        raw_expr,
+        feat_type,
+        spat_unit,
+        name = "quantile",
+        verbose = TRUE) {
     z <- .qnorm(x = raw_expr[])
     z <- create_expr_obj(
         name = name,
@@ -548,10 +553,11 @@ normalizeGiotto <- function(gobject,
 # x      : raw expression matrix
 # .csums : function for colSums that does not drop to vector
 # .rsums : function for rowSums that does not drop to vector
-.prnorm <- function(x,
-    theta = 100,
-    .csums = .csum_nodrop.Matrix,
-    .rsums = .rsum_nodrop.Matrix) {
+.prnorm <- function(
+        x,
+        theta = 100,
+        .csums = .csum_nodrop.Matrix,
+        .rsums = .rsum_nodrop.Matrix) {
     # find 1. colsums, 2. rowsums, 3. matrix sum
     counts_sum0 <- .csums(x)
     counts_sum1 <- .rsums(x)

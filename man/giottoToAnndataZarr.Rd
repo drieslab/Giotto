@@ -34,14 +34,16 @@ Create a local anndata zarr folder
 giotto_object <- GiottoData::loadGiottoMini("visium")
 
 giottoToAnndataZarr(giotto_object,
-                    expression = "raw",
-                    output_path = tempdir())
+    expression = "raw",
+    output_path = tempdir()
+)
 
 # using the mini vizgen object
 giotto_object <- GiottoData::loadGiottoMini("vizgen")
 
 giottoToAnndataZarr(giotto_object,
-                    spat_unit = "aggregate",
-                    expression = "scaled",
-                    output_path = tempdir())
+    spat_unit = "aggregate",
+    expression = "scaled",
+    output_path = tempdir()
+)
 }

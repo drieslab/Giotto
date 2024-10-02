@@ -26,14 +26,15 @@
 #'
 #' adjustGiottoMatrix(g, covariate_columns = "leiden_clus")
 #' @export
-adjustGiottoMatrix <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    batch_columns = NULL,
-    covariate_columns = NULL,
-    return_gobject = TRUE,
-    update_slot = c("custom")) {
+adjustGiottoMatrix <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        batch_columns = NULL,
+        covariate_columns = NULL,
+        return_gobject = TRUE,
+        update_slot = c("custom")) {
     # Catch for both batch and covariate being null
     if (is.null(batch_columns) & is.null(covariate_columns)) {
         stop("Metadata for either different batches or covariates must be
@@ -188,12 +189,13 @@ adjustGiottoMatrix <- function(gobject,
 #'     adjust_params = list(covariate_columns = "leiden_clus")
 #' )
 #' @export
-processGiotto <- function(gobject,
-    filter_params = list(),
-    norm_params = list(),
-    stat_params = list(),
-    adjust_params = list(),
-    verbose = TRUE) {
+processGiotto <- function(
+        gobject,
+        filter_params = list(),
+        norm_params = list(),
+        stat_params = list(),
+        adjust_params = list(),
+        verbose = TRUE) {
     # filter Giotto
     vmsg(.v = verbose, "1. start filter step")
     if (!inherits(filter_params, "list")) {
@@ -279,13 +281,14 @@ processGiotto <- function(gobject,
 #'
 #' addFeatStatistics(g)
 #' @export
-addFeatStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addFeatStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -450,13 +453,14 @@ addFeatStatistics <- function(gobject,
 #'
 #' addCellStatistics(g)
 #' @export
-addCellStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addCellStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -597,13 +601,14 @@ addCellStatistics <- function(gobject,
 #'
 #' addStatistics(g)
 #' @export
-addStatistics <- function(gobject,
-    feat_type = NULL,
-    spat_unit = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    detection_threshold = 0,
-    return_gobject = TRUE,
-    verbose = TRUE) {
+addStatistics <- function(
+        gobject,
+        feat_type = NULL,
+        spat_unit = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        detection_threshold = 0,
+        return_gobject = TRUE,
+        verbose = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -670,13 +675,14 @@ addStatistics <- function(gobject,
 #'
 #' addFeatsPerc(g, feats = c("Gm19935", "9630013A20Rik", "2900040C04Rik"))
 #' @export
-addFeatsPerc <- function(gobject,
-    spat_unit = NULL,
-    feat_type = NULL,
-    expression_values = c("normalized", "scaled", "custom"),
-    feats = NULL,
-    vector_name = "feat_perc",
-    return_gobject = TRUE) {
+addFeatsPerc <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        feats = NULL,
+        vector_name = "feat_perc",
+        return_gobject = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -766,11 +772,12 @@ addFeatsPerc <- function(gobject,
 #'     source_cell_ids = c("AACTCGATGGCGCAGT-1", "GGCTGGCTAGCTTAAA-1")
 #' )
 #' @export
-findNetworkNeighbors <- function(gobject,
-    spat_unit = NULL,
-    spatial_network_name = NULL,
-    source_cell_ids = NULL,
-    name = "nb_cells") {
+findNetworkNeighbors <- function(
+        gobject,
+        spat_unit = NULL,
+        spatial_network_name = NULL,
+        source_cell_ids = NULL,
+        name = "nb_cells") {
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
         spat_unit = spat_unit

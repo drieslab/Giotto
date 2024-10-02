@@ -53,7 +53,7 @@
 #'     ),
 #'     cell_type2 = c(
 #'         "Prr18", "Grb14", "Tprn", "Clic1", "Olig2", "Hrh3",
-#'          "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a"
+#'         "Tmbim1", "Carhsp1", "Tmem88b", "Ugt8a"
 #'     ),
 #'     cell_type2 = c(
 #'         "Arpp19", "Lamp5", "Galnt6", "Hlf", "Hs3st2",
@@ -66,7 +66,8 @@
 #'     sign_list = sign_list
 #' )
 #'
-#' g <- runPAGEEnrich(gobject = g,
+#' g <- runPAGEEnrich(
+#'     gobject = g,
 #'     sign_matrix = sm,
 #'     min_overlap_genes = 2
 #' )
@@ -80,9 +81,8 @@ NULL
 
 #' @rdname enrichment_PAGE
 #' @export
-makeSignMatrixPAGE <- function(
-        sign_names,
-        sign_list) {
+makeSignMatrixPAGE <- function(sign_names,
+    sign_list) {
     ## check input
     if (!inherits(sign_list, "list")) {
         stop("sign_list needs to be a list of signatures for each cell type /
@@ -146,10 +146,9 @@ makeSignMatrixPAGE <- function(
 #'     cell_type_vector = c("cell_type1", "cell_type2", "cell_type3")
 #' )
 #' @export
-makeSignMatrixDWLSfromMatrix <- function(
-        matrix,
-        sign_gene,
-        cell_type_vector) {
+makeSignMatrixDWLSfromMatrix <- function(matrix,
+    sign_gene,
+    cell_type_vector) {
     # 1. check if cell_type_vector and matrix are compatible
     if (ncol(matrix) != length(cell_type_vector)) {
         stop("ncol(matrix) needs to be the same as length(cell_type_vector)")
@@ -223,16 +222,15 @@ makeSignMatrixDWLSfromMatrix <- function(
 #'     cell_type_vector = pDataDT(g)[["leiden_clus"]]
 #' )
 #' @export
-makeSignMatrixDWLS <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized", "scaled", "custom"),
-        reverse_log = TRUE,
-        log_base = 2,
-        sign_gene,
-        cell_type_vector,
-        cell_type = NULL) {
+makeSignMatrixDWLS <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    reverse_log = TRUE,
+    log_base = 2,
+    sign_gene,
+    cell_type_vector,
+    cell_type = NULL) {
     ## deprecated arguments
     if (!is.null(cell_type)) {
         warning("cell_type is deprecated, use cell_type_vector in the future")
@@ -311,11 +309,10 @@ makeSignMatrixDWLS <- function(
 #'     sc_cluster_ids = c("cell_type1", "cell_type2", "cell_type3")
 #' )
 #' @export
-makeSignMatrixRank <- function(
-        sc_matrix,
-        sc_cluster_ids,
-        ties_method = c("random", "max"),
-        gobject = NULL) {
+makeSignMatrixRank <- function(sc_matrix,
+    sc_cluster_ids,
+    ties_method = c("random", "max"),
+    gobject = NULL) {
     if (inherits(sc_matrix, "exprObj")) {
         sc_matrix <- sc_matrix[]
     }
@@ -396,10 +393,9 @@ makeSignMatrixRank <- function(
 #' @description creates permutation for the PAGEEnrich test
 #' @returns PAGEEnrich test
 #' @keywords internal
-.do_page_permutation <- function(
-        gobject,
-        sig_gene,
-        ntimes) {
+.do_page_permutation <- function(gobject,
+    sig_gene,
+    ntimes) {
     # check available gene
     available_ct <- c()
     for (i in colnames(sig_gene)) {
@@ -472,18 +468,17 @@ makeSignMatrixRank <- function(
 #' @param expr_values matrix of expression values
 #' @returns data.table
 #' @keywords internal
-.page_dt_method <- function(
-        sign_matrix,
-        expr_values,
-        min_overlap_genes = 5,
-        logbase = 2,
-        reverse_log_scale = TRUE,
-        output_enrichment = c("original", "zscore"),
-        p_value = FALSE,
-        include_depletion = FALSE,
-        n_times = 1000,
-        max_block = 20e6,
-        verbose = TRUE) {
+.page_dt_method <- function(sign_matrix,
+    expr_values,
+    min_overlap_genes = 5,
+    logbase = 2,
+    reverse_log_scale = TRUE,
+    output_enrichment = c("original", "zscore"),
+    p_value = FALSE,
+    include_depletion = FALSE,
+    n_times = 1000,
+    max_block = 20e6,
+    verbose = TRUE) {
     # data.table variables
     Var1 <- value <- Var2 <- V1 <- marker <- nr_markers <- fc <- cell_ID <-
         zscore <- colmean <- colSd <- pval <- NULL
@@ -718,23 +713,22 @@ makeSignMatrixRank <- function(
 
 #' @rdname enrichment_PAGE
 #' @export
-runPAGEEnrich <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        sign_matrix,
-        expression_values = c("normalized", "scaled", "custom"),
-        min_overlap_genes = 5,
-        reverse_log_scale = TRUE,
-        logbase = 2,
-        output_enrichment = c("original", "zscore"),
-        p_value = FALSE,
-        include_depletion = FALSE,
-        n_times = 1000,
-        max_block = 20e6,
-        name = NULL,
-        verbose = TRUE,
-        return_gobject = TRUE) {
+runPAGEEnrich <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    sign_matrix,
+    expression_values = c("normalized", "scaled", "custom"),
+    min_overlap_genes = 5,
+    reverse_log_scale = TRUE,
+    logbase = 2,
+    output_enrichment = c("original", "zscore"),
+    p_value = FALSE,
+    include_depletion = FALSE,
+    n_times = 1000,
+    max_block = 20e6,
+    name = NULL,
+    verbose = TRUE,
+    return_gobject = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -916,22 +910,21 @@ runPAGEEnrich <- function(
 #'     expression_values = "normalized"
 #' )
 #' @export
-runRankEnrich <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        sign_matrix,
-        expression_values = c("normalized", "raw", "scaled", "custom"),
-        reverse_log_scale = TRUE,
-        logbase = 2,
-        output_enrichment = c("original", "zscore"),
-        ties_method = c("average", "max"),
-        p_value = FALSE,
-        n_times = 1000,
-        rbp_p = 0.99,
-        num_agg = 100,
-        name = NULL,
-        return_gobject = TRUE) {
+runRankEnrich <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    sign_matrix,
+    expression_values = c("normalized", "raw", "scaled", "custom"),
+    reverse_log_scale = TRUE,
+    logbase = 2,
+    output_enrichment = c("original", "zscore"),
+    ties_method = c("average", "max"),
+    p_value = FALSE,
+    n_times = 1000,
+    rbp_p = 0.99,
+    num_agg = 100,
+    name = NULL,
+    return_gobject = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1175,19 +1168,18 @@ runRankEnrich <- function(
 #'
 #' runHyperGeometricEnrich(gobject = g, sign_matrix = sign_matrix)
 #' @export
-runHyperGeometricEnrich <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        sign_matrix,
-        expression_values = c("normalized", "scaled", "custom"),
-        reverse_log_scale = TRUE,
-        logbase = 2,
-        top_percentage = 5,
-        output_enrichment = c("original", "zscore"),
-        p_value = FALSE,
-        name = NULL,
-        return_gobject = TRUE) {
+runHyperGeometricEnrich <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    sign_matrix,
+    expression_values = c("normalized", "scaled", "custom"),
+    reverse_log_scale = TRUE,
+    logbase = 2,
+    top_percentage = 5,
+    output_enrichment = c("original", "zscore"),
+    p_value = FALSE,
+    name = NULL,
+    return_gobject = TRUE) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1404,26 +1396,25 @@ runHyperGeometricEnrich <- function(
 #'
 #' runSpatialEnrich(gobject = g, sign_matrix = sign_matrix)
 #' @export
-runSpatialEnrich <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        enrich_method = c("PAGE", "rank", "hypergeometric"),
-        sign_matrix,
-        expression_values = c("normalized", "scaled", "custom"),
-        min_overlap_genes = 5,
-        reverse_log_scale = TRUE,
-        logbase = 2,
-        p_value = FALSE,
-        n_times = 1000,
-        rbp_p = 0.99,
-        num_agg = 100,
-        max_block = 20e6,
-        top_percentage = 5,
-        output_enrichment = c("original", "zscore"),
-        name = NULL,
-        verbose = TRUE,
-        return_gobject = TRUE) {
+runSpatialEnrich <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    enrich_method = c("PAGE", "rank", "hypergeometric"),
+    sign_matrix,
+    expression_values = c("normalized", "scaled", "custom"),
+    min_overlap_genes = 5,
+    reverse_log_scale = TRUE,
+    logbase = 2,
+    p_value = FALSE,
+    n_times = 1000,
+    rbp_p = 0.99,
+    num_agg = 100,
+    max_block = 20e6,
+    top_percentage = 5,
+    output_enrichment = c("original", "zscore"),
+    name = NULL,
+    verbose = TRUE,
+    return_gobject = TRUE) {
     enrich_method <- match.arg(
         enrich_method,
         choices = c("PAGE", "rank", "hypergeometric")
@@ -1559,25 +1550,24 @@ NULL
 #'   \item{\emph{Geary's C} 'geary'}
 #' }
 #' @export
-spatialAutoCorGlobal <- function(
-        gobject = NULL,
-        spat_unit = NULL,
-        feat_type = NULL,
-        feats = NULL,
-        method = c("moran", "geary"),
-        data_to_use = c("expression", "cell_meta"),
-        expression_values = c("normalized", "scaled", "custom"),
-        meta_cols = NULL,
-        spatial_network_to_use = "kNN_network",
-        wm_method = c("distance", "adjacency"),
-        wm_name = "spat_weights",
-        node_values = NULL,
-        weight_matrix = NULL,
-        test_method = c("none", "monte_carlo"),
-        mc_nsim = 99,
-        cor_name = NULL,
-        return_gobject = FALSE,
-        verbose = TRUE) {
+spatialAutoCorGlobal <- function(gobject = NULL,
+    spat_unit = NULL,
+    feat_type = NULL,
+    feats = NULL,
+    method = c("moran", "geary"),
+    data_to_use = c("expression", "cell_meta"),
+    expression_values = c("normalized", "scaled", "custom"),
+    meta_cols = NULL,
+    spatial_network_to_use = "kNN_network",
+    wm_method = c("distance", "adjacency"),
+    wm_name = "spat_weights",
+    node_values = NULL,
+    weight_matrix = NULL,
+    test_method = c("none", "monte_carlo"),
+    mc_nsim = 99,
+    cor_name = NULL,
+    return_gobject = FALSE,
+    verbose = TRUE) {
     # 0. determine inputs
     method <- match.arg(method, choices = c("moran", "geary"))
     test_method <- match.arg(test_method, choices = c("none", "monte_carlo"))
@@ -1732,26 +1722,25 @@ spatialAutoCorGlobal <- function(
 #'   \item{\emph{Local mean} 'mean'}
 #' }
 #' @export
-spatialAutoCorLocal <- function(
-        gobject = NULL,
-        spat_unit = NULL,
-        feat_type = NULL,
-        feats = NULL,
-        method = c("moran", "gi", "gi*", "mean"),
-        data_to_use = c("expression", "cell_meta"),
-        expression_values = c("normalized", "scaled", "custom"),
-        meta_cols = NULL,
-        spatial_network_to_use = "kNN_network",
-        wm_method = c("distance", "adjacency"),
-        wm_name = "spat_weights",
-        node_values = NULL,
-        weight_matrix = NULL,
-        test_method = c("none"),
-        # cor_name = NULL,
-        enrich_name = NULL,
-        return_gobject = TRUE,
-        output = c("spatEnrObj", "data.table"),
-        verbose = TRUE) {
+spatialAutoCorLocal <- function(gobject = NULL,
+    spat_unit = NULL,
+    feat_type = NULL,
+    feats = NULL,
+    method = c("moran", "gi", "gi*", "mean"),
+    data_to_use = c("expression", "cell_meta"),
+    expression_values = c("normalized", "scaled", "custom"),
+    meta_cols = NULL,
+    spatial_network_to_use = "kNN_network",
+    wm_method = c("distance", "adjacency"),
+    wm_name = "spat_weights",
+    node_values = NULL,
+    weight_matrix = NULL,
+    test_method = c("none"),
+    # cor_name = NULL,
+    enrich_name = NULL,
+    return_gobject = TRUE,
+    output = c("spatEnrObj", "data.table"),
+    verbose = TRUE) {
     # 0. determine inputs
     method_select <- match.arg(
         method,
@@ -1918,14 +1907,13 @@ spatialAutoCorLocal <- function(
 #' .run_spat_autocor_global
 #' @returns data.table
 #' @keywords internal
-.run_spat_autocor_global <- function(
-        use_values,
-        feats,
-        weight_matrix,
-        method,
-        test_method,
-        mc_nsim,
-        cor_name) {
+.run_spat_autocor_global <- function(use_values,
+    feats,
+    weight_matrix,
+    method,
+    test_method,
+    mc_nsim,
+    cor_name) {
     # data.table vars
     cell_ID <- nsim <- NULL
 
@@ -2003,13 +1991,12 @@ spatialAutoCorLocal <- function(
 #' .run_spat_autocor_local
 #' @returns data.table
 #' @keywords internal
-.run_spat_autocor_local <- function(
-        use_values,
-        feats,
-        weight_matrix,
-        method,
-        test_method,
-        IDs) {
+.run_spat_autocor_local <- function(use_values,
+    feats,
+    weight_matrix,
+    method,
+    test_method,
+    IDs) {
     cell_ID <- NULL
 
     nfeats <- length(feats)
@@ -2090,24 +2077,23 @@ spatialAutoCorLocal <- function(
 # 4, IDs - cell_IDs if available
 # Some additional information about information used in specific workflows are
 # also returned
-.evaluate_autocor_input <- function(
-        gobject,
-        use_ext_vals,
-        use_sn,
-        use_expr,
-        use_meta,
-        spat_unit,
-        feat_type,
-        feats,
-        data_to_use,
-        expression_values,
-        meta_cols,
-        spatial_network_to_use,
-        wm_method,
-        wm_name,
-        node_values,
-        weight_matrix,
-        verbose = TRUE) {
+.evaluate_autocor_input <- function(gobject,
+    use_ext_vals,
+    use_sn,
+    use_expr,
+    use_meta,
+    spat_unit,
+    feat_type,
+    feats,
+    data_to_use,
+    expression_values,
+    meta_cols,
+    spatial_network_to_use,
+    wm_method,
+    wm_name,
+    node_values,
+    weight_matrix,
+    verbose = TRUE) {
     cell_ID <- NULL
 
     # 1. Get spatial network to either get or generate a spatial weight matrix
@@ -2270,12 +2256,11 @@ spatialAutoCorLocal <- function(
 #' @description Rui to fill in
 #' @returns matrix
 #' @keywords internal
-enrich_deconvolution <- function(
-        expr,
-        log_expr,
-        cluster_info,
-        ct_exp,
-        cutoff) {
+enrich_deconvolution <- function(expr,
+    log_expr,
+    cluster_info,
+    ct_exp,
+    cutoff) {
     ##### generate enrich 0/1 matrix based on expression matrix
     ct_exp <- ct_exp[rowSums(ct_exp) > 0, ]
     enrich_matrix <- matrix(0, nrow = dim(ct_exp)[1], ncol = dim(ct_exp)[2])
@@ -2342,11 +2327,10 @@ enrich_deconvolution <- function(
 #' @description Rui to fill in
 #' @returns matrix
 #' @keywords internal
-spot_deconvolution <- function(
-        expr,
-        cluster_info,
-        ct_exp,
-        binary_matrix) {
+spot_deconvolution <- function(expr,
+    cluster_info,
+    ct_exp,
+    binary_matrix) {
     ##### generate enrich 0/1 matrix based on expression matrix
     enrich_matrix <- matrix(0, nrow = dim(ct_exp)[1], ncol = dim(ct_exp)[2])
     rowmax_col <- Rfast::rowMaxs(ct_exp)
@@ -2447,10 +2431,9 @@ spot_deconvolution <- function(
 #' @description Rui to fill in
 #' @returns enrichment values
 #' @keywords internal
-cluster_enrich_analysis <- function(
-        exp_matrix,
-        cluster_info,
-        enrich_sig_matrix) {
+cluster_enrich_analysis <- function(exp_matrix,
+    cluster_info,
+    enrich_sig_matrix) {
     uniq_cluster <- mixedsort(unique(cluster_info))
     if (length(uniq_cluster) == 1) {
         stop("Only one cluster identified, need at least two.")
@@ -2476,9 +2459,8 @@ cluster_enrich_analysis <- function(
 #' @description Rui to fill in
 #' @returns enrichment matrix
 #' @keywords internal
-enrich_analysis <- function(
-        expr_values,
-        sign_matrix) {
+enrich_analysis <- function(expr_values,
+    sign_matrix) {
     # output enrichment
     # only continue with genes present in both datasets
     interGene <- intersect(rownames(sign_matrix), rownames(expr_values))
@@ -2521,9 +2503,8 @@ enrich_analysis <- function(
 #' @description Rui to fill in
 #' @returns matrix
 #' @keywords internal
-optimize_deconvolute_dwls <- function(
-        exp,
-        Signature) {
+optimize_deconvolute_dwls <- function(exp,
+    Signature) {
     ###### overlap signature with spatial genes
     Genes <- intersect(rownames(Signature), rownames(exp))
     S <- Signature[Genes, ]
@@ -2557,10 +2538,9 @@ optimize_deconvolute_dwls <- function(
 #' @title optimize_solveDampenedWLS
 #' @returns numeric
 #' @keywords internal
-optimize_solveDampenedWLS <- function(
-        S,
-        B,
-        constant_J) {
+optimize_solveDampenedWLS <- function(S,
+    B,
+    constant_J) {
     # first solve OLS, use this solution to find a starting point for the
     # weights
     solution <- solve_OLS_internal(S, B)
@@ -2596,10 +2576,9 @@ optimize_solveDampenedWLS <- function(
 #' @description find a dampening constant for the weights using cross-validation
 #' @returns numeric
 #' @keywords internal
-find_dampening_constant <- function(
-        S,
-        B,
-        goldStandard) {
+find_dampening_constant <- function(S,
+    B,
+    goldStandard) {
     solutionsSd <- NULL
 
     # goldStandard is used to define the weights
@@ -2648,9 +2627,8 @@ find_dampening_constant <- function(
 #' @description basic functions for dwls
 #' @returns numeric
 #' @keywords internal
-solve_OLS_internal <- function(
-        S,
-        B) {
+solve_OLS_internal <- function(S,
+    B) {
     D <- t(S) %*% S
     d <- t(S) %*% B
     A <- cbind(diag(dim(S)[2]))
@@ -2715,11 +2693,10 @@ solve_OLS_internal <- function(
 #' @description solve WLS given a dampening constant
 #' @returns matrix
 #' @keywords internal
-solve_dampened_WLSj <- function(
-        S,
-        B,
-        goldStandard,
-        j) {
+solve_dampened_WLSj <- function(S,
+    B,
+    goldStandard,
+    j) {
     multiplier <- 1 * 2^(j - 1)
     sol <- goldStandard
     ws <- as.vector((1 / (S %*% sol))^2)
@@ -2780,18 +2757,17 @@ solve_dampened_WLSj <- function(
 #'
 #' runDWLSDeconv(gobject = g, sign_matrix = sign_matrix)
 #' @export
-runDWLSDeconv <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        expression_values = c("normalized"),
-        logbase = 2,
-        cluster_column = "leiden_clus",
-        sign_matrix,
-        n_cell = 50,
-        cutoff = 2,
-        name = NULL,
-        return_gobject = TRUE) {
+runDWLSDeconv <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized"),
+    logbase = 2,
+    cluster_column = "leiden_clus",
+    sign_matrix,
+    n_cell = 50,
+    cutoff = 2,
+    name = NULL,
+    return_gobject = TRUE) {
     # verify if optional package is installed
     package_check(pkg_name = "quadprog", repository = "CRAN")
     package_check(pkg_name = "Rfast", repository = "CRAN")
@@ -2960,19 +2936,18 @@ runDWLSDeconv <- function(
 #'
 #' runSpatialDeconv(gobject = g, sign_matrix = sign_matrix)
 #' @export
-runSpatialDeconv <- function(
-        gobject,
-        spat_unit = NULL,
-        feat_type = NULL,
-        deconv_method = c("DWLS"),
-        expression_values = c("normalized"),
-        logbase = 2,
-        cluster_column = "leiden_clus",
-        sign_matrix,
-        n_cell = 50,
-        cutoff = 2,
-        name = NULL,
-        return_gobject = TRUE) {
+runSpatialDeconv <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    deconv_method = c("DWLS"),
+    expression_values = c("normalized"),
+    logbase = 2,
+    cluster_column = "leiden_clus",
+    sign_matrix,
+    n_cell = 50,
+    cutoff = 2,
+    name = NULL,
+    return_gobject = TRUE) {
     deconv_method <- match.arg(deconv_method, choices = c("DWLS"))
 
 
