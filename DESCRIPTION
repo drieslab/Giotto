@@ -22,7 +22,6 @@ Authors@R: c(
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 URL: https://drieslab.github.io/Giotto/, https://github.com/drieslab/Giotto
 BugReports: https://github.com/drieslab/Giotto/issues
 RoxygenNote: 7.3.2
@@ -112,10 +111,6 @@ Suggests:
     trendsceek,
     testthat (>= 3.0.0),
     rmarkdown
-Remotes:
-    drieslab/GiottoUtils,
-    drieslab/GiottoClass,
-    drieslab/GiottoVisuals
 Collate:
     'ONTraC_wrapper.R'
     'auxiliary_giotto.R'
