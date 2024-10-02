@@ -1384,6 +1384,7 @@ findICF <- findInteractionChangedFeats
 #' @param x object to print
 #' @param \dots additional params to pass (none implemented)
 #' @keywords internal
+#' @returns icfObject
 #' @export
 print.icfObject <- function(x, ...) {
     cat("An object of class", class(x), "\n")
@@ -2056,6 +2057,7 @@ combineICF <- combineInteractionChangedFeats
 #' @param x object to print
 #' @param \dots additional params to pass (none implemented)
 #' @keywords internal
+#' @returns combIcfObject
 #' @export
 print.combIcfObject <- function(x, ...) {
     cat("An object of class", class(x), "\n")

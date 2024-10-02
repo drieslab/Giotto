@@ -577,6 +577,7 @@ loadOntraCResults <- function(gobject,
 #' values
 #' @param ... additional arguments to be passed to the spatFeatPlot2D function
 #' @details This function plots the spatial niche cluster probability
+#' @returns ggplot
 #' @export
 plotSpatNicheClusterProb <- function(
         gobject,
@@ -613,6 +614,7 @@ plotSpatNicheClusterProb <- function(
 #' @param niche_cluster_label name of the niche cluster label
 #' @param ... additional arguments to be passed to the spatFeatPlot2D function
 #' @details This function plots the spatial niche cluster binarized
+#' @returns ggplot
 #' @export
 plotSpatNicheClusterBin <- function(
         gobject,
@@ -654,6 +656,7 @@ plotSpatNicheClusterBin <- function(
 #' @param feat_type name of the feature type stored niche cluster connectivities
 #' @param values name of the expression matrix stored connectivity values
 #' @details This function plots the niche cluster connectivity matrix
+#' @returns ggplot
 #' @export
 plotNicheClusterConnectivity <- function(
         gobject,
@@ -799,6 +802,7 @@ plotNicheClusterConnectivity <- function(
 #' assigned to each niche cluster
 #' @details This function plots the cell type composition within each niche
 #' cluster
+#' @returns ggplot
 #' @export
 plotCTCompositionInNicheCluster <- function(
         gobject,
@@ -936,6 +940,7 @@ plotCTCompositionInNicheCluster <- function(
 #' @param cell_type the cell type column name in the metadata
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
+#' @returns ggplot
 #' @export
 plotCellTypeNTScore <- function(gobject,
     cell_type,

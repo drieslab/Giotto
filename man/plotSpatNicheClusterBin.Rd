@@ -26,6 +26,9 @@ change save_name in save_param}
 
 \item{niche_cluster_label}{name of the niche cluster label}
 }
+\value{
+ggplot
+}
 \description{
 plot spatial niche cluster binarized
 }

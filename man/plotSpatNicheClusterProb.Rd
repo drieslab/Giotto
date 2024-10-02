@@ -28,6 +28,9 @@ values}
 \item{default_save_name}{default save name for saving, don't change, 
 change save_name in save_param}
 }
+\value{
+ggplot
+}
 \description{
 plot spatial niche cluster probability
 }

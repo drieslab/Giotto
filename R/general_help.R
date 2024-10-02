@@ -736,6 +736,7 @@ get10Xmatrix_h5 <- function(path_to_data,
 #' @param \dots additional params to pass to
 #' `[GiottoClass::createGiottoLargeImage]`
 #' @md
+#' @returns 10xAffineImage
 #' @export
 read10xAffineImage <- function(file, imagealignment_path, 
                                 name = "aligned_image", micron = 0.2125, ...) {
