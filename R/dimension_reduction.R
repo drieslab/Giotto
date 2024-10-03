@@ -313,6 +313,7 @@
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -353,6 +354,7 @@ runPCA <- function(
         set_seed = TRUE,
         seed_number = 1234,
         verbose = TRUE,
+        toplevel = 1L,
         ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -501,7 +503,9 @@ runPCA <- function(
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -709,6 +713,7 @@ runPCA <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -747,6 +752,7 @@ runPCAprojection <- function(
         set_seed = TRUE,
         seed_number = 1234,
         verbose = TRUE,
+        toplevel = 1L,
         ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -903,7 +909,9 @@ runPCAprojection <- function(
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -1307,7 +1315,9 @@ runPCAprojectionBatch <- function(
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -2027,7 +2037,8 @@ signPCA <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @inheritDotParams uwot::umap -X -n_neighbors -n_components -n_epochs
 #' -min_dist -n_threads -spread -seed -scale -pca -pca_center -pca_method
 #' @returns giotto object with updated UMAP dimension reduction
@@ -2069,10 +2080,15 @@ runUMAP <- function(
         set_seed = TRUE,
         seed_number = 1234L,
         verbose = TRUE,
-        toplevel_params = 2L,
+        toplevel_params = deprecated(),
+        toplevel = 1L,
         ...) {
     # NSE vars
     cell_ID <- NULL
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runUMAP",when = "4.1.2"
+    )
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -2253,7 +2269,7 @@ runUMAP <- function(
             gobject <- update_giotto_params(gobject,
                 description = "_umap",
                 return_gobject = TRUE,
-                toplevel = toplevel_params
+                toplevel = toplevel + 1L
             )
             return(gobject)
         } else {
@@ -2294,7 +2310,8 @@ runUMAP <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @param ... additional UMAP parameters
 #' @returns giotto object with updated UMAP dimension reduction
 #' @details See \code{\link[uwot]{umap}} for more information about these and
@@ -2333,10 +2350,15 @@ runUMAPprojection <- function(
         set_seed = TRUE,
         seed_number = 1234,
         verbose = TRUE,
-        toplevel_params = 2,
+        toplevel_params = deprecated(),
+        toplevel = 1L,
         ...) {
     # NSE vars
     cell_ID <- NULL
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runUMAPprojection", when = "4.1.2"
+    )
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -2524,7 +2546,7 @@ runUMAPprojection <- function(
             gobject,
             description = "_umap",
             return_gobject = TRUE,
-            toplevel = toplevel_params
+            toplevel = toplevel + 1L
         )
         return(gobject)
     } else {
@@ -2561,6 +2583,7 @@ runUMAPprojection <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made from
 #' @param ... additional tSNE parameters
 #' @returns giotto object with updated tSNE dimension recuction
 #' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and
@@ -2596,6 +2619,7 @@ runtSNE <- function(
         set_seed = TRUE,
         seed_number = 1234,
         verbose = TRUE,
+        toplevel = 1L,
         ...) {
 
     package_check("Rtsne")
@@ -2748,7 +2772,9 @@ runtSNE <- function(
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             ## update parameters used ##
-            gobject <- update_giotto_params(gobject, description = "_tsne")
+            gobject <- update_giotto_params(
+                gobject, description = "_tsne", toplevel = toplevel + 1L
+            )
             return(gobject)
         } else {
             return(tsne_clus_pos_DT)
@@ -2783,7 +2809,8 @@ runtSNE <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @param verbose be verbose
 #' @param ... additional \code{\link[harmony]{HarmonyMatrix}} parameters
 #' @returns giotto object with updated Harmony dimension reduction
@@ -2806,10 +2833,16 @@ runGiottoHarmony <- function(
         name = NULL,
         set_seed = TRUE,
         seed_number = 1234,
-        toplevel_params = 2,
+        toplevel_params = deprecated(),
+        toplevel = 1L,
         return_gobject = TRUE,
         verbose = NULL,
         ...) {
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runGiottoHarmony", when = "4.1.2"
+    )
+
     # verify if optional package is installed
     package_check(pkg_name = "harmony", repository = "CRAN")
 
@@ -2936,7 +2969,7 @@ runGiottoHarmony <- function(
         gobject <- update_giotto_params(gobject,
             description = "_harmony",
             return_gobject = TRUE,
-            toplevel = toplevel_params
+            toplevel = toplevel + 1L
         )
         return(gobject)
     } else {
