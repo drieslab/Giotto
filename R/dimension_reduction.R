@@ -945,6 +945,7 @@ runPCAprojection <- function(
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension reduction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -989,6 +990,7 @@ runPCAprojectionBatch <- function(
         set_seed = TRUE,
         seed_number = 1234,
         verbose = TRUE,
+        toplevel = 1L,
         ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
