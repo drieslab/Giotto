@@ -217,7 +217,7 @@ processGiotto <- function(gobject,
     gobject <- do.call("addStatistics", c(gobject = gobject, stat_params))
 
     # adjust Giotto, if applicable
-    if (!is.null(adjust_params)) {
+    if (length(adjust_params) > 0L) {
         if (verbose == TRUE) message("4. start adjusted matrix step")
         if (!inherits(adjust_params, "list")) {
             stop("adjust_params need to be a list of parameters for
