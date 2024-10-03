@@ -870,17 +870,6 @@ runPCAprojection <- function(
     }
 
     if (isTRUE(return_gobject)) {
-        pca_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "pca"
-        )
-
-        if (name %in% pca_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
 
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
@@ -1278,17 +1267,6 @@ runPCAprojectionBatch <- function(
 
 
     if (return_gobject == TRUE) {
-        pca_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "pca"
-        )
-
-        if (name %in% pca_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
 
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
@@ -2233,18 +2211,6 @@ runUMAP <- function(
 
 
         if (return_gobject == TRUE) {
-            umap_names <- list_dim_reductions_names(
-                gobject = gobject,
-                data_type = reduction,
-                spat_unit = spat_unit,
-                feat_type = feat_type,
-                dim_type = "umap"
-            )
-
-            if (name %in% umap_names) {
-                message(name, " has already been used, will be overwritten")
-            }
-
 
             coordinates <- uwot_clus
             rownames(coordinates) <- rownames(matrix_to_use)
@@ -2512,18 +2478,6 @@ runUMAPprojection <- function(
 
 
     if (isTRUE(return_gobject)) {
-        umap_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "umap"
-        )
-
-        if (name %in% umap_names) {
-            message(name, " has already been used, will be overwritten")
-        }
-
 
         coordinates <- coords_umap
 
@@ -2744,16 +2698,6 @@ runtSNE <- function(
 
 
         if (isTRUE(return_gobject)) {
-            tsne_names <- list_dim_reductions_names(
-                gobject = gobject, data_type = reduction,
-                spat_unit = spat_unit, feat_type = feat_type,
-                dim_type = "tsne"
-            )
-
-            if (name %in% tsne_names) {
-                cat(name, " has already been used, will be overwritten")
-            }
-
 
             coordinates <- tsne_clus$Y
             rownames(coordinates) <- rownames(matrix_to_use)
