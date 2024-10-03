@@ -10,7 +10,7 @@ doKmeans(
   spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats_to_use = NULL,
-  dim_reduction_to_use = c("pca", "umap", "tsne"),
+  dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
   distance_method = c("original", "pearson", "spearman", "euclidean", "maximum",

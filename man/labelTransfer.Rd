@@ -53,13 +53,11 @@ voting}
 
 \item{name}{metadata column in target to apply the full set of labels to}
 
-\item{prob}{output probabilities together with label predictions}
-
-\item{reduction}{reduction on cells or features (default = "cells")}
-
-\item{reduction_method}{shared reduction method (default = "pca" space)}
+\item{prob}{output knn probabilities together with label predictions}
 
 \item{reduction_name}{name of shared reduction space (default name = "pca")}
+
+\item{reduction_method}{shared reduction method (default = "pca" space)}
 
 \item{dimensions_to_use}{dimensions to use in shared reduction space
 (default = 1:10)}
@@ -74,6 +72,8 @@ voting}
 
 \item{target_cell_ids}{cell/spatial IDs to transfer the labels to.
 IDs from \code{source_cell_ids} are always included as well.}
+
+\item{reduction}{reduction on cells or features (default = "cells")}
 }
 \value{
 object \code{x} with new transferred labels added to metadata
@@ -110,11 +110,9 @@ n_pred <- nrow(pDataDT(g)) - 300
 g_small <- g[, id_subset]
 # additional steps to get labels to transfer on smaller object...
 g <- labelTransfer(g, g_small, labels = "leiden_clus")
-sum(!g$trnsfr_leiden_clus == g$leiden_clus) / n_pred * 100 # percent wrong
 
 # transfer labels between subsets of a single object ###########
 g <- labelTransfer(g,
     label = "leiden_clus", source_cell_ids = id_subset, name = "knn_leiden2"
 )
-sum(!g$knn_leiden2 == g$leiden_clus) / n_pred * 100 # percent wrong
 }
