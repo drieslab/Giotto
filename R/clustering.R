@@ -1237,7 +1237,7 @@ doKmeans <- function(gobject,
     spat_unit = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     feats_to_use = NULL,
-    dim_reduction_to_use = c("pca", "umap", "tsne"),
+    dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
     dim_reduction_name = "pca",
     dimensions_to_use = 1:10,
     distance_method = c(
@@ -1265,16 +1265,16 @@ doKmeans <- function(gobject,
         feat_type = feat_type
     )
 
-
-    distance_method <- match.arg(distance_method, choices = c(
+    dm <- c(
         "original", "pearson", "spearman",
         "euclidean", "maximum", "manhattan",
         "canberra", "binary", "minkowski"
-    ))
+    )
+    distance_method <- match.arg(distance_method[match], choices = dm)
 
 
     ## using dimension reduction ##
-    if (!is.null(dim_reduction_to_use)) {
+    if (dim_reduction_to_use != "cells" && !is.null(dim_reduction_to_use)) {
         # use only available dimensions if dimensions < dimensions_to_use
         dim_coord <- getDimReduction(
             gobject = gobject,
@@ -1492,7 +1492,6 @@ doHclust <- function(gobject,
 
     ## using dimension reduction ##
     if (dim_reduction_to_use != "cells" && !is.null(dim_reduction_to_use)) {
-        ## TODO: check if reduction exists
 
         # use only available dimensions if dimensions < dimensions_to_use
         dim_coord <- getDimReduction(
@@ -3254,6 +3253,9 @@ getDendrogramSplits <- function(gobject,
 
 # projection ####
 
+
+# * labelTransfer ####
+
 #' @name labelTransfer
 #' @title Transfer labels/annotations between sets of data via similarity
 #' voting
@@ -3268,7 +3270,7 @@ getDendrogramSplits <- function(gobject,
 #' @param labels metadata column in source with labels to transfer
 #' @param k number of k-neighbors to train a KNN classifier
 #' @param name metadata column in target to apply the full set of labels to
-#' @param prob output probabilities together with label predictions
+#' @param prob output knn probabilities together with label predictions
 #' @param reduction reduction on cells or features (default = "cells")
 #' @param reduction_method shared reduction method (default = "pca" space)
 #' @param reduction_name name of shared reduction space (default name = "pca")
@@ -3304,13 +3306,11 @@ getDendrogramSplits <- function(gobject,
 #' g_small <- g[, id_subset]
 #' # additional steps to get labels to transfer on smaller object...
 #' g <- labelTransfer(g, g_small, labels = "leiden_clus")
-#' sum(!g$trnsfr_leiden_clus == g$leiden_clus) / n_pred * 100 # percent wrong
 #'
 #' # transfer labels between subsets of a single object ###########
 #' g <- labelTransfer(g,
 #'     label = "leiden_clus", source_cell_ids = id_subset, name = "knn_leiden2"
 #' )
-#' sum(!g$knn_leiden2 == g$leiden_clus) / n_pred * 100 # percent wrong
 #' @md
 NULL
 
