@@ -1988,6 +1988,261 @@ signPCA <- function(
 
 
 
+# * NMF ####
+
+#' @name runNMF
+#' @title Run Non-Negative Matrix Factorization
+#' @description
+#' Use NMF to perform dimension reduction.
+#' @inheritParams data_access_params
+#' @param expression_values expression values to use
+#' @param reduction "cells" or "feats"
+#' @param name arbitrary name for NMF run
+#' @param feats_to_use subset of features to use for NMF
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param scale_unit scale features before NMF (default = TRUE)
+#' @param k NMF rank (number of components to decompose into). Default is 20
+#' @param method which implementation to use (only rcppml right now)
+#' @param rev do a reverse NMF
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
+#' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
+#' @param ... additional parameters for NMF (see details)
+#' @returns giotto object with updated NMF dimension reduction
+#' @details
+#' See \code{\link[RcppML]{nmf}} for more information about other parameters.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- runNMF(g, k = 20)
+#' x <- runUMAP(x,
+#'     dim_reduction_to_use = "nmf",
+#'     dimensions_to_use = 1:20,
+#'     name = "nmf_umap"
+#' )
+#' x <- createNearestNetwork(x,
+#'     dim_reduction_to_use = "nmf",
+#'     dim_reduction_name = "nmf",
+#'     dimensions_to_use = 1:20
+#' )
+#' x <- doLeidenCluster(x, name = "nmf_leiden", network_name = "sNN.nmf")
+#' plotUMAP(x, dim_reduction_name = "nmf_umap", cell_color = "nmf_leiden")
+#' spatPlot2D(x, cell_color = "nmf_leiden")
+#' @export
+runNMF <- function(
+        gobject,
+        spat_unit = NULL,
+        feat_type = NULL,
+        expression_values = c("normalized", "scaled", "custom"),
+        reduction = c("cells", "feats"),
+        name = NULL,
+        feats_to_use = "hvf",
+        return_gobject = TRUE,
+        scale_unit = TRUE,
+        k = 20,
+        method = c("rcppml"),
+        rev = FALSE,
+        set_seed = TRUE,
+        seed_number = 1234,
+        verbose = TRUE,
+        toplevel = 1L,
+        ...
+) {
+    checkmate::assert_class(gobject, "giotto")
+    reduction <- match.arg(reduction, c("cells", "feats"))
+    # Set feat_type and spat_unit
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject,
+        spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type
+    )
+
+    # specify name to use for nmf
+    if (is.null(name)) {
+        if (feat_type == "rna") {
+            name <- "nmf"
+        } else {
+            name <- paste0(feat_type, ".", "nmf")
+        }
+    }
+
+    # expression values to be used
+    values <- match.arg(
+        expression_values,
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
+    expr_values <- getExpression(
+        gobject = gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit,
+        values = values,
+        output = "exprObj"
+    )
+
+    provenance <- prov(expr_values)
+
+    expr_values <- expr_values[] # extract matrix
+
+    ## subset matrix
+    if (!is.null(feats_to_use)) {
+        expr_values <- .create_feats_to_use_matrix(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            sel_matrix = expr_values,
+            feats_to_use = feats_to_use,
+            verbose = verbose
+        )
+    }
+
+    # reduction type
+    expr_values <- switch(reduction,
+        "cells" = t_flex(expr_values),
+        "feats" = expr_values
+    )
+
+    # do NMF
+    nmf_res <- switch(method,
+        "rcppml" = .run_nmf_rcppml(
+            x = expr_values,
+            k = k,
+            scale = scale_unit,
+            rev = rev,
+            set_seed = set_seed,
+            seed_number = seed_number,
+            verbose = verbose,
+            ...
+        ),
+        stop("method not implemented")
+    )
+
+    if (return_gobject) {
+
+        if (reduction == "cells") {
+            my_row_names <- rownames(expr_values)
+        } else {
+            my_row_names <- colnames(expr_values)
+        }
+
+        dimObject <- create_dim_obj(
+            name = name,
+            feat_type = feat_type,
+            spat_unit = spat_unit,
+            provenance = provenance,
+            reduction = reduction,
+            reduction_method = "nmf",
+            coordinates = nmf_res$coords,
+            misc = list(
+                diag = nmf_res$d,
+                loadings = nmf_res$loadings,
+                iter = nmf_res$iter,
+                tol = nmf_res$tol
+            ),
+            my_rownames = my_row_names
+        )
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+        ## update parameters used ##
+        gobject <- update_giotto_params(
+            gobject, description = "_nmf", toplevel = toplevel + 1L
+        )
+    } else {
+        return(nmf_res)
+    }
+}
+
+.run_nmf_rcppml <- function(x,
+    k = 50,
+    scale = TRUE,
+    rev = FALSE,
+    set_seed = TRUE,
+    seed_number = 1234,
+    verbose = TRUE,
+    ...
+) {
+    package_check("RcppML", repository = "CRAN")
+    .rcppml_cite()
+
+    # catch max k
+    max_k <- min(dim(x))
+    if (k > max_k) {
+        warning(wrap_txt("k >= minimum dimension of x, will be set to
+            minimum dimension of x: ", max_k))
+        k <- max_k
+    }
+
+    if (rev) x <- t_flex(x)
+
+    if (!set_seed) seed_number <- NULL
+
+    nmf_res <- gwith_package("Matrix", {
+        RcppML::nmf(
+            A = x,
+            k = k,
+            verbose = verbose,
+            seed = seed_number,
+            diag = TRUE,
+            nonneg = TRUE,
+            ...
+        )
+    })
+
+    # diag (scale)
+    d <- nmf_res$d
+
+    # loadings and coords
+    if (rev) {
+        loadings <- t_flex(nmf_res$w)
+        coords <- nmf_res$h
+        rownames(loadings) <- rownames(x)
+        rownames(coords) <- colnames(x)
+    } else {
+        loadings <- t_flex(nmf_res$h)
+        coords <- nmf_res$w
+        rownames(loadings) <- colnames(x)
+        rownames(coords) <- rownames(x)
+    }
+
+    if (scale) coords <- coords %*% diag(d)
+
+    colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
+    colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
+
+    result = list(
+        coords = coords, loadings = loadings, d = d,
+        iter = nmf_res$iter, tol = nmf_res$tol
+    )
+
+    vmsg(.is_debug = TRUE,
+         "finished .run_nmf_rcppml")
+
+    return(result)
+}
+
+
+
+
+.rcppml_cite <- function() {
+    if (isFALSE(getOption("giotto.rcppml_cite", TRUE))) {
+        return(invisible())
+    }
+    message("[Running RcppML NMF]. This citation shown once per session:\n")
+    wrap_msg(
+        "Zachary J. DeBruine, Karsten Melcher, Timothy J. Triche Jr
+        Fast and robust non-negative matrix factorization for single-cell experiments
+        bioRxiv 2021.09.01.458620.
+        https://doi.org/10.1101/2021.09.01.458620"
+    )
+    options("giotto.rcppml_cite" = FALSE)
+    return(invisible())
+}
 
 
 
