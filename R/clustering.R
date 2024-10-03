@@ -253,7 +253,7 @@ doLeidenCluster <- function(gobject,
 #' as long as they can fit in memory. See \code{\link[igraph]{cluster_leiden}}
 #' for more information.
 #'
-#' Set \emph{weights = NULL} to use the vertices weights associated with the 
+#' Set \emph{weights = NULL} to use the vertices weights associated with the
 #' igraph network.
 #' Set \emph{weights = NA} if you don't want to use vertices weights
 #'
@@ -1219,12 +1219,12 @@ doSNNCluster <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed (default = TRUE)
 #' @param seed_number number for seed
-#' @returns if return_gobject = TRUE: giotto object with new clusters appended 
+#' @returns if return_gobject = TRUE: giotto object with new clusters appended
 #' to cell metadata
 #' @details The default settings will use dimension reduction results as input.
-#' Set dim_reduction_to_use = NULL if you want to directly use expression 
+#' Set dim_reduction_to_use = NULL if you want to directly use expression
 #' values as input.
-#' By providing a feature vector to feats_to_use you can subset the expression 
+#' By providing a feature vector to feats_to_use you can subset the expression
 #' matrix.
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @examples
@@ -1237,7 +1237,7 @@ doKmeans <- function(gobject,
     spat_unit = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     feats_to_use = NULL,
-    dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+    dim_reduction_to_use = c("pca", "umap", "tsne"),
     dim_reduction_name = "pca",
     dimensions_to_use = 1:10,
     distance_method = c(
@@ -1253,6 +1253,7 @@ doKmeans <- function(gobject,
     return_gobject = TRUE,
     set_seed = TRUE,
     seed_number = 1234) {
+
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
         gobject = gobject,
@@ -1988,7 +1989,7 @@ subClusterCells <- function(
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg,
                                        use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
@@ -2101,7 +2102,7 @@ doLeidenSubCluster <- function(gobject,
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg,
                                        use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
@@ -2676,7 +2677,7 @@ doLouvainSubCluster <- function(gobject,
     hvf_param <- .dep_param(hvg_param, hvf_param)
     hvf_min_perc_cells <- .dep_param(hvg_min_perc_cells, hvf_min_perc_cells)
     hvf_mean_expr_det <- .dep_param(hvg_mean_expr_det, hvf_mean_expr_det)
-    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg, 
+    use_all_feats_as_hvf <- .dep_param(use_all_genes_as_hvg,
                                        use_all_feats_as_hvf)
     min_nr_of_hvf <- .dep_param(min_nr_of_hvg, min_nr_of_hvf)
 
@@ -3313,7 +3314,7 @@ getDendrogramSplits <- function(gobject,
 #' @md
 NULL
 
-setGeneric("labelTransfer", 
+setGeneric("labelTransfer",
            function(x, y, ...) standardGeneric("labelTransfer"))
 
 #' @rdname labelTransfer
@@ -3366,9 +3367,9 @@ setMethod("labelTransfer", signature(x = "giotto", y = "giotto"), function(x, y,
     source_annot_vec <- cx_src[[labels]]
     names(source_annot_vec) <- cx_src[["cell_ID"]]
 
-    # create the matrix from the target object that you want to use for the 
+    # create the matrix from the target object that you want to use for the
     # kNN classifier
-    # the matrix should be the same for the source and target objects 
+    # the matrix should be the same for the source and target objects
     # (e.g. same PCA space)
     dimensions_to_use <- dimensions_to_use[
         # ensure dims to use exist
@@ -3490,16 +3491,16 @@ setMethod("labelTransfer", signature(x = "giotto", y = "missing"), function(x,
     names(source_annot_vec) <- cx[["cell_ID"]]
     source_annot_vec <- source_annot_vec[source_cell_ids]
 
-    # target cell IDs (if not provided) are everything not in the source cell 
+    # target cell IDs (if not provided) are everything not in the source cell
     # IDs
     if (missing(target_cell_ids)) {
         sids <- cx[["cell_ID"]]
         target_cell_ids <- sids[!sids %in% source_cell_ids]
     }
 
-    # create the matrix from the target object that you want to use for the 
+    # create the matrix from the target object that you want to use for the
     # kNN classifier
-    # the matrix should be the same for the source and target objects 
+    # the matrix should be the same for the source and target objects
     # (e.g. same PCA space)
     dimensions_to_use <- dimensions_to_use[
         # ensure dims to use exist
@@ -3669,9 +3670,9 @@ doClusterProjection <- function(target_gobject,
     source_annot_vec <- cell_meta_source[[source_cluster_labels]]
     names(source_annot_vec) <- cell_meta_source[["cell_ID"]]
 
-    # create the matrix from the target object that you want to use for the 
+    # create the matrix from the target object that you want to use for the
     # kNN classifier
-    # the matrix should be the same for the source and target objects 
+    # the matrix should be the same for the source and target objects
     # (e.g. same PCA space)
     dim_obj <- getDimReduction(
         gobject = target_gobject,
