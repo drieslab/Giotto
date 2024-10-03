@@ -3,6 +3,60 @@
 
 
 
+## * general function ####
+
+#' @name reduceDims
+#' @title Run dimension reduction method
+#' @description
+#' Wrapper function for Giotto dimension reduction methods for easier coding.
+#' @param gobject giotto object
+#' @param method character. Dimension reduction method to use
+#' @param projection logical. Whether to run in a projection manner
+#' (faster, but is an approximation)
+#' @param toplevel relative stackframe the call was made at. do not use.
+#' @param \dots additional params to pass to specific functions
+#' @returns `giotto` object with attached dimension reduction
+#' @examples
+#' g <- GiottoData::loadGiottoMini("vis")
+#' x <- reduceDims(g, "tsne", spat_unit = "cell")
+#' x <- reduceDims(x, "umap", projection = TRUE)
+#' x <- reduceDims(x, method = "nmf")
+#' @export
+reduceDims <- function(
+    gobject,
+    method = c("pca", "nmf", "umap", "tsne"),
+    projection = FALSE,
+    toplevel = 1L,
+    ...
+) {
+    a <- list(...)
+    method <- match.arg(method, choices = c("pca", "nmf", "umap", "tsne"))
+    if (projection) method <- paste(method, "proj", sep = "_")
+
+    fun <- switch(method,
+        "pca" = runPCA,
+        "umap" = runUMAP,
+        "tsne" = runtSNE,
+        "pca_proj" = runPCAprojection,
+        "umap_proj" = runUMAPprojection,
+        "nmf" = runNMF,
+        stop("Not implemented yet.")
+    )
+    res <- do.call(fun, args = list(gobject, toplevel = -100, ...))
+
+    if (!isFALSE(a$return_gobject)) {
+        res <- update_giotto_params(res,
+            description = "_reduce_dims",
+            toplevel = toplevel + 1L
+        )
+    }
+
+    return(res)
+}
+
+
+
+
 ## * PCA  ####
 # ---------- #
 
@@ -315,6 +369,7 @@
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -354,6 +409,7 @@ runPCA <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234,
     verbose = TRUE,
+    toplevel = 1L,
     ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -502,7 +558,9 @@ runPCA <- function(gobject,
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -709,6 +767,7 @@ runPCA <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension recuction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -746,6 +805,7 @@ runPCAprojection <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234,
     verbose = TRUE,
+    toplevel = 1L,
     ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -863,17 +923,6 @@ runPCAprojection <- function(gobject,
     }
 
     if (isTRUE(return_gobject)) {
-        pca_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "pca"
-        )
-
-        if (name %in% pca_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
 
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
@@ -902,7 +951,9 @@ runPCAprojection <- function(gobject,
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -936,6 +987,7 @@ runPCAprojection <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
 #' @param ... additional parameters for PCA (see details)
 #' @returns giotto object with updated PCA dimension reduction
 #' @details See \code{\link[BiocSingular]{runPCA}} and
@@ -979,6 +1031,7 @@ runPCAprojectionBatch <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234,
     verbose = TRUE,
+    toplevel = 1L,
     ...) {
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -1266,17 +1319,6 @@ runPCAprojectionBatch <- function(gobject,
 
 
     if (return_gobject == TRUE) {
-        pca_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "pca"
-        )
-
-        if (name %in% pca_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
 
         if (reduction == "cells") {
             my_row_names <- colnames(expr_values)
@@ -1305,7 +1347,9 @@ runPCAprojectionBatch <- function(gobject,
 
 
         ## update parameters used ##
-        gobject <- update_giotto_params(gobject, description = "_pca")
+        gobject <- update_giotto_params(
+            gobject, description = "_pca", toplevel = toplevel + 1L
+        )
         return(gobject)
     } else {
         return(pca_object)
@@ -1990,6 +2034,260 @@ signPCA <- function(gobject,
 
 
 
+# * NMF ####
+
+#' @name runNMF
+#' @title Run Non-Negative Matrix Factorization
+#' @description
+#' Use NMF to perform dimension reduction.
+#' @inheritParams data_access_params
+#' @param expression_values expression values to use
+#' @param reduction "cells" or "feats"
+#' @param name arbitrary name for NMF run
+#' @param feats_to_use subset of features to use for NMF
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param scale_unit scale features before NMF (default = TRUE)
+#' @param k NMF rank (number of components to decompose into). Default is 20
+#' @param method which implementation to use (only rcppml right now)
+#' @param rev do a reverse NMF
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
+#' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made
+#' @param ... additional parameters for NMF (see details)
+#' @returns giotto object with updated NMF dimension reduction
+#' @details
+#' See \code{\link[RcppML]{nmf}} for more information about other parameters.
+#' @examples
+#' g <- GiottoData::loadGiottoMini("visium")
+#' x <- runNMF(g, k = 20)
+#' x <- runUMAP(x,
+#'     dim_reduction_to_use = "nmf",
+#'     dimensions_to_use = 1:20,
+#'     name = "nmf_umap"
+#' )
+#' x <- createNearestNetwork(x,
+#'     dim_reduction_to_use = "nmf",
+#'     dim_reduction_name = "nmf",
+#'     dimensions_to_use = 1:20
+#' )
+#' x <- doLeidenCluster(x, name = "nmf_leiden", network_name = "sNN.nmf")
+#' plotUMAP(x, dim_reduction_name = "nmf_umap", cell_color = "nmf_leiden")
+#' spatPlot2D(x, cell_color = "nmf_leiden")
+#' @export
+runNMF <- function(gobject,
+    spat_unit = NULL,
+    feat_type = NULL,
+    expression_values = c("normalized", "scaled", "custom"),
+    reduction = c("cells", "feats"),
+    name = NULL,
+    feats_to_use = "hvf",
+    return_gobject = TRUE,
+    scale_unit = TRUE,
+    k = 20,
+    method = c("rcppml"),
+    rev = FALSE,
+    set_seed = TRUE,
+    seed_number = 1234,
+    verbose = TRUE,
+    toplevel = 1L,
+    ...
+) {
+    checkmate::assert_class(gobject, "giotto")
+    reduction <- match.arg(reduction, c("cells", "feats"))
+    # Set feat_type and spat_unit
+    spat_unit <- set_default_spat_unit(
+        gobject = gobject,
+        spat_unit = spat_unit
+    )
+    feat_type <- set_default_feat_type(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type
+    )
+
+    # specify name to use for nmf
+    if (is.null(name)) {
+        if (feat_type == "rna") {
+            name <- "nmf"
+        } else {
+            name <- paste0(feat_type, ".", "nmf")
+        }
+    }
+
+    # expression values to be used
+    values <- match.arg(
+        expression_values,
+        unique(c("normalized", "scaled", "custom", expression_values))
+    )
+    expr_values <- getExpression(
+        gobject = gobject,
+        feat_type = feat_type,
+        spat_unit = spat_unit,
+        values = values,
+        output = "exprObj"
+    )
+
+    provenance <- prov(expr_values)
+
+    expr_values <- expr_values[] # extract matrix
+
+    ## subset matrix
+    if (!is.null(feats_to_use)) {
+        expr_values <- .create_feats_to_use_matrix(
+            gobject = gobject,
+            spat_unit = spat_unit,
+            feat_type = feat_type,
+            sel_matrix = expr_values,
+            feats_to_use = feats_to_use,
+            verbose = verbose
+        )
+    }
+
+    # reduction type
+    expr_values <- switch(reduction,
+        "cells" = t_flex(expr_values),
+        "feats" = expr_values
+    )
+
+    # do NMF
+    nmf_res <- switch(method,
+        "rcppml" = .run_nmf_rcppml(
+            x = expr_values,
+            k = k,
+            scale = scale_unit,
+            rev = rev,
+            set_seed = set_seed,
+            seed_number = seed_number,
+            verbose = verbose,
+            ...
+        ),
+        stop("method not implemented")
+    )
+
+    if (return_gobject) {
+
+        if (reduction == "cells") {
+            my_row_names <- rownames(expr_values)
+        } else {
+            my_row_names <- colnames(expr_values)
+        }
+
+        dimObject <- create_dim_obj(
+            name = name,
+            feat_type = feat_type,
+            spat_unit = spat_unit,
+            provenance = provenance,
+            reduction = reduction,
+            reduction_method = "nmf",
+            coordinates = nmf_res$coords,
+            misc = list(
+                diag = nmf_res$d,
+                loadings = nmf_res$loadings,
+                iter = nmf_res$iter,
+                tol = nmf_res$tol
+            ),
+            my_rownames = my_row_names
+        )
+
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+        gobject <- setGiotto(gobject, dimObject, verbose = verbose)
+        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+        ## update parameters used ##
+        gobject <- update_giotto_params(
+            gobject, description = "_nmf", toplevel = toplevel + 1L
+        )
+    } else {
+        return(nmf_res)
+    }
+}
+
+.run_nmf_rcppml <- function(x,
+    k = 50,
+    scale = TRUE,
+    rev = FALSE,
+    set_seed = TRUE,
+    seed_number = 1234,
+    verbose = TRUE,
+    ...
+) {
+    package_check("RcppML", repository = "CRAN")
+    .rcppml_cite()
+
+    # catch max k
+    max_k <- min(dim(x))
+    if (k > max_k) {
+        warning(wrap_txt("k >= minimum dimension of x, will be set to
+            minimum dimension of x: ", max_k))
+        k <- max_k
+    }
+
+    if (rev) x <- t_flex(x)
+
+    if (!set_seed) seed_number <- NULL
+
+    nmf_res <- gwith_package("Matrix", {
+        RcppML::nmf(
+            A = x,
+            k = k,
+            verbose = verbose,
+            seed = seed_number,
+            diag = TRUE,
+            nonneg = TRUE,
+            ...
+        )
+    })
+
+    # diag (scale)
+    d <- nmf_res$d
+
+    # loadings and coords
+    if (rev) {
+        loadings <- t_flex(nmf_res$w)
+        coords <- nmf_res$h
+        rownames(loadings) <- rownames(x)
+        rownames(coords) <- colnames(x)
+    } else {
+        loadings <- t_flex(nmf_res$h)
+        coords <- nmf_res$w
+        rownames(loadings) <- colnames(x)
+        rownames(coords) <- rownames(x)
+    }
+
+    if (scale) coords <- coords %*% diag(d)
+
+    colnames(loadings) <- paste0("Dim.", seq_len(ncol(loadings)))
+    colnames(coords) <- paste0("Dim.", seq_len(ncol(coords)))
+
+    result = list(
+        coords = coords, loadings = loadings, d = d,
+        iter = nmf_res$iter, tol = nmf_res$tol
+    )
+
+    vmsg(.is_debug = TRUE,
+         "finished .run_nmf_rcppml")
+
+    return(result)
+}
+
+
+
+
+.rcppml_cite <- function() {
+    if (isFALSE(getOption("giotto.rcppml_cite", TRUE))) {
+        return(invisible())
+    }
+    message("[Running RcppML NMF]. This citation shown once per session:\n")
+    wrap_msg(
+        "Zachary J. DeBruine, Karsten Melcher, Timothy J. Triche Jr
+        Fast and robust non-negative matrix factorization for single-cell experiments
+        bioRxiv 2021.09.01.458620.
+        https://doi.org/10.1101/2021.09.01.458620"
+    )
+    options("giotto.rcppml_cite" = FALSE)
+    return(invisible())
+}
 
 
 
@@ -2020,7 +2318,8 @@ signPCA <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @inheritDotParams uwot::umap -X -n_neighbors -n_components -n_epochs
 #' -min_dist -n_threads -spread -seed -scale -pca -pca_center -pca_method
 #' @returns giotto object with updated UMAP dimension reduction
@@ -2061,10 +2360,15 @@ runUMAP <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234L,
     verbose = TRUE,
-    toplevel_params = 2L,
+    toplevel_params = deprecated(),
+    toplevel = 1L,
     ...) {
     # NSE vars
     cell_ID <- NULL
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runUMAP",when = "4.1.2"
+    )
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -2207,18 +2511,6 @@ runUMAP <- function(gobject,
 
 
         if (return_gobject == TRUE) {
-            umap_names <- list_dim_reductions_names(
-                gobject = gobject,
-                data_type = reduction,
-                spat_unit = spat_unit,
-                feat_type = feat_type,
-                dim_type = "umap"
-            )
-
-            if (name %in% umap_names) {
-                message(name, " has already been used, will be overwritten")
-            }
-
 
             coordinates <- uwot_clus
             rownames(coordinates) <- rownames(matrix_to_use)
@@ -2245,7 +2537,7 @@ runUMAP <- function(gobject,
             gobject <- update_giotto_params(gobject,
                 description = "_umap",
                 return_gobject = TRUE,
-                toplevel = toplevel_params
+                toplevel = toplevel + 1L
             )
             return(gobject)
         } else {
@@ -2286,20 +2578,21 @@ runUMAP <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @param ... additional UMAP parameters
 #' @returns giotto object with updated UMAP dimension reduction
 #' @details See \code{\link[uwot]{umap}} for more information about these and
 #' other parameters.
 #' \itemize{
-#'   \item Input for UMAP dimension reduction can be another dimension 
+#'   \item Input for UMAP dimension reduction can be another dimension
 #'   reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a 
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select a
 #'   column name of
-#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a 
+#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a
 #'   vector of genes
-#'   \item multiple UMAP results can be stored by changing the \emph{name} of 
+#'   \item multiple UMAP results can be stored by changing the \emph{name} of
 #'   the analysis
 #' }
 #' @examples
@@ -2328,10 +2621,15 @@ runUMAPprojection <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234,
     verbose = TRUE,
-    toplevel_params = 2,
+    toplevel_params = deprecated(),
+    toplevel = 1L,
     ...) {
     # NSE vars
     cell_ID <- NULL
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runUMAPprojection", when = "4.1.2"
+    )
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -2483,18 +2781,6 @@ runUMAPprojection <- function(gobject,
 
 
     if (isTRUE(return_gobject)) {
-        umap_names <- list_dim_reductions_names(
-            gobject = gobject,
-            data_type = reduction,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            dim_type = "umap"
-        )
-
-        if (name %in% umap_names) {
-            message(name, " has already been used, will be overwritten")
-        }
-
 
         coordinates <- coords_umap
 
@@ -2519,7 +2805,7 @@ runUMAPprojection <- function(gobject,
             gobject,
             description = "_umap",
             return_gobject = TRUE,
-            toplevel = toplevel_params
+            toplevel = toplevel + 1L
         )
         return(gobject)
     } else {
@@ -2556,18 +2842,19 @@ runUMAPprojection <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
+#' @param toplevel relative stackframe where call was made from
 #' @param ... additional tSNE parameters
 #' @returns giotto object with updated tSNE dimension reduction
 #' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and
 #' other parameters. \cr
 #' \itemize{
-#'   \item Input for tSNE dimension reduction can be another dimension 
+#'   \item Input for tSNE dimension reduction can be another dimension
 #'   reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
-#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select 
-#'   a column name of highly variable genes 
+#'   \item If dim_reduction_to_use = NULL, feats_to_use can be used to select
+#'   a column name of highly variable genes
 #'   (see \code{\link{calculateHVF}}) or simply provide a vector of genes
-#'   \item multiple tSNE results can be stored by changing the \emph{name} of 
+#'   \item multiple tSNE results can be stored by changing the \emph{name} of
 #'   the analysis
 #' }
 #' @examples
@@ -2593,7 +2880,9 @@ runtSNE <- function(gobject,
     set_seed = TRUE,
     seed_number = 1234,
     verbose = TRUE,
+    toplevel = 1L,
     ...) {
+
     package_check("Rtsne")
 
     # Set feat_type and spat_unit
@@ -2714,16 +3003,6 @@ runtSNE <- function(gobject,
 
 
         if (isTRUE(return_gobject)) {
-            tsne_names <- list_dim_reductions_names(
-                gobject = gobject, data_type = reduction,
-                spat_unit = spat_unit, feat_type = feat_type,
-                dim_type = "tsne"
-            )
-
-            if (name %in% tsne_names) {
-                cat(name, " has already been used, will be overwritten")
-            }
-
 
             coordinates <- tsne_clus$Y
             rownames(coordinates) <- rownames(matrix_to_use)
@@ -2744,7 +3023,9 @@ runtSNE <- function(gobject,
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             ## update parameters used ##
-            gobject <- update_giotto_params(gobject, description = "_tsne")
+            gobject <- update_giotto_params(
+                gobject, description = "_tsne", toplevel = toplevel + 1L
+            )
             return(gobject)
         } else {
             return(tsne_clus_pos_DT)
@@ -2779,7 +3060,8 @@ runtSNE <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param toplevel_params parameters to extract
+#' @param toplevel_params deprecated
+#' @param toplevel relative stackframe where call was made from
 #' @param verbose be verbose
 #' @param ... additional \code{\link[harmony]{HarmonyMatrix}} parameters
 #' @returns giotto object with updated Harmony dimension reduction
@@ -2801,10 +3083,16 @@ runGiottoHarmony <- function(gobject,
     name = NULL,
     set_seed = TRUE,
     seed_number = 1234,
-    toplevel_params = 2,
+    toplevel_params = deprecated(),
+    toplevel = 1L,
     return_gobject = TRUE,
     verbose = NULL,
     ...) {
+
+    toplevel <- deprecate_param(
+        toplevel_params, toplevel, fun = "runGiottoHarmony", when = "4.1.2"
+    )
+
     # verify if optional package is installed
     package_check(pkg_name = "harmony", repository = "CRAN")
 
@@ -2931,7 +3219,7 @@ runGiottoHarmony <- function(gobject,
         gobject <- update_giotto_params(gobject,
             description = "_harmony",
             return_gobject = TRUE,
-            toplevel = toplevel_params
+            toplevel = toplevel + 1L
         )
         return(gobject)
     } else {

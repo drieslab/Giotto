@@ -10,7 +10,7 @@ doKmeans(
   spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats_to_use = NULL,
-  dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+  dim_reduction_to_use = c("pca", "umap", "tsne"),
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
   distance_method = c("original", "pearson", "spearman", "euclidean", "maximum",
@@ -65,7 +65,7 @@ doKmeans(
 \item{seed_number}{number for seed}
 }
 \value{
-if return_gobject = TRUE: giotto object with new clusters appended 
+if return_gobject = TRUE: giotto object with new clusters appended
 to cell metadata
 }
 \description{
@@ -73,9 +73,9 @@ cluster cells using kmeans algorithm
 }
 \details{
 The default settings will use dimension reduction results as input.
-Set dim_reduction_to_use = NULL if you want to directly use expression 
+Set dim_reduction_to_use = NULL if you want to directly use expression
 values as input.
-By providing a feature vector to feats_to_use you can subset the expression 
+By providing a feature vector to feats_to_use you can subset the expression
 matrix.
 }
 \examples{

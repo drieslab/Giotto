@@ -16,7 +16,8 @@ runGiottoHarmony(
   name = NULL,
   set_seed = TRUE,
   seed_number = 1234,
-  toplevel_params = 2,
+  toplevel_params = deprecated(),
+  toplevel = 1L,
   return_gobject = TRUE,
   verbose = NULL,
   ...
@@ -46,7 +47,9 @@ for harmony to remove}
 
 \item{seed_number}{seed number to use}
 
-\item{toplevel_params}{parameters to extract}
+\item{toplevel_params}{deprecated}
+
+\item{toplevel}{relative stackframe where call was made from}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
