@@ -859,7 +859,7 @@ importXenium <- function(xenium_dir = NULL, qv_threshold = 20) {
     return(cx)
 }
 
-.xenium_cellmeta_csv <- function(path, dropcols = c(), 
+.xenium_cellmeta_csv <- function(path, dropcols = c(),
                                 cores = determine_cores()) {
     data.table::fread(path, nThread = cores, drop = dropcols)
 }
@@ -956,7 +956,7 @@ importXenium <- function(xenium_dir = NULL, qv_threshold = 20) {
     verbose = NULL) {
     if (missing(path)) {
         stop(wrap_txt(
-            "No path to expression dir (mtx) or file (h5) provided or 
+            "No path to expression dir (mtx) or file (h5) provided or
             auto-detected"
         ), call. = FALSE)
     }
