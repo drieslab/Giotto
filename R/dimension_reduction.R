@@ -3,6 +3,60 @@
 
 
 
+## * general function ####
+
+#' @name reduceDims
+#' @title Run dimension reduction method
+#' @description
+#' Wrapper function for Giotto dimension reduction methods for easier coding.
+#' @param gobject giotto object
+#' @param method character. Dimension reduction method to use
+#' @param projection logical. Whether to run in a projection manner
+#' (faster, but is an approximation)
+#' @param toplevel relative stackframe the call was made at. do not use.
+#' @param \dots additional params to pass to specific functions
+#' @returns `giotto` object with attached dimension reduction
+#' @examples
+#' g <- GiottoData::loadGiottoMini("vis")
+#' x <- reduceDims(g, "tsne", spat_unit = "cell")
+#' x <- reduceDims(x, "umap", projection = TRUE)
+#' x <- reduceDims(x, method = "nmf")
+#' @export
+reduceDims <- function(
+    gobject,
+    method = c("pca", "nmf", "umap", "tsne"),
+    projection = FALSE,
+    toplevel = 1L,
+    ...
+) {
+    a <- list(...)
+    method <- match.arg(method, choices = c("pca", "nmf", "umap", "tsne"))
+    if (projection) method <- paste(method, "proj", sep = "_")
+
+    fun <- switch(method,
+        "pca" = runPCA,
+        "umap" = runUMAP,
+        "tsne" = runtSNE,
+        "pca_proj" = runPCAprojection,
+        "umap_proj" = runUMAPprojection,
+        "nmf" = runNMF,
+        stop("Not implemented yet.")
+    )
+    res <- do.call(fun, args = list(gobject, toplevel = -100, ...))
+
+    if (!isFALSE(a$return_gobject)) {
+        res <- update_giotto_params(res,
+            description = "_reduce_dims",
+            toplevel = toplevel + 1L
+        )
+    }
+
+    return(res)
+}
+
+
+
+
 ## * PCA  ####
 # ---------- #
 
