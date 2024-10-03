@@ -1987,7 +1987,6 @@ signPCA <- function(
 
 
 
-
 # * NMF ####
 
 #' @name runNMF
@@ -2243,6 +2242,7 @@ runNMF <- function(
     options("giotto.rcppml_cite" = FALSE)
     return(invisible())
 }
+
 
 
 
