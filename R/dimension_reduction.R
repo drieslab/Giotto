@@ -3031,7 +3031,7 @@ runtSNE <- function(gobject,
             return(tsne_clus_pos_DT)
         }
     } else if (reduction == "feats") {
-        message("Not yet implemented")
+        stop("Not yet implemented")
     }
 }
 
