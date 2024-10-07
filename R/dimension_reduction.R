@@ -1672,7 +1672,8 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
 #' @param set_seed logical. whether to set a seed when random_subset is used
 #' @param seed_number seed number to use when random_subset is used
 #' @param verbose show progress of jackstraw method
-#' @returns ggplot object for jackstraw method
+#' @returns if `return_plot` = `TRUE`: ggplot object for jackstraw method
+#' if `return_plot` = `FALSE`: silently returns number of significant PCs
 #' @details
 #'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}}
 #'  function. By systematically permuting genes it identifies robust, and thus
@@ -1799,6 +1800,11 @@ jackstrawPlot <- function(gobject,
              "\nnumber of estimated significant components: ",
              nr_sign_components)
 
+        warning(wrap_txt(
+            "Number of significant components equals `ncp`.
+            Increasing `ncp` may be needed."
+        ))
+
         final_results <- jtest[c("p", "cum_var_explained")]
         vmsg(.v = verbose, .is_debug = TRUE, final_results$p)
 
@@ -1819,7 +1825,7 @@ jackstrawPlot <- function(gobject,
         show_plot = show_plot,
         default_save_name = default_save_name,
         save_param = save_param,
-        else_return = NULL
+        else_return = nr_sign_components
     ))
 }
 

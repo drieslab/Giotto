@@ -10,9 +10,9 @@ jackstrawPlot(
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
-  feats_to_use = NULL,
-  center = FALSE,
-  scale_unit = FALSE,
+  feats_to_use = "hvf",
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 20,
   ylim = c(0, 1),
   iter = 10,
@@ -75,7 +75,8 @@ speed up calculation}
 change save_name in save_param}
 }
 \value{
-ggplot object for jackstraw method
+if \code{return_plot} = \code{TRUE}: ggplot object for jackstraw method
+if \code{return_plot} = \code{FALSE}: silently returns number of significant PCs
 }
 \description{
 Identify significant principal components (PCs)
