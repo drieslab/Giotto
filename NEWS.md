@@ -5,6 +5,7 @@
 
 ## Changes
 * `runWNN()` and `runIntegratedUMAP()` arguments were updated to make the function flexible to handle any number of modalities.
+* update `jackstrawPlot()` to make more flexible and efficient. Changed default params for `scaling`, `centering`, and `feats_to_use` to match `runPCA()`
 
 # Giotto 4.1.2
 
