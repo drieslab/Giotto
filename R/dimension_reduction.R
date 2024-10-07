@@ -1715,7 +1715,6 @@ jackstrawPlot <- function(gobject,
     save_plot = NULL,
     save_param = list(),
     default_save_name = "jackstrawPlot") {
-    package_check(pkg_name = "jackstraw", repository = "CRAN")
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(

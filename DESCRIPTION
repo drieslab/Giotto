@@ -75,7 +75,6 @@ Suggests:
     graphcoloring,
     HDF5Array (>= 1.18.1),
     hdf5r,
-    jackstraw,
     kableExtra,
     knitr,
     limma,
