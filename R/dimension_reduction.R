@@ -1655,7 +1655,7 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
 
 #' @title jackstrawPlot
 #' @name jackstrawPlot
-#' @description identify significant prinicipal components (PCs)
+#' @description Identify significant principal components (PCs)
 #' @inheritParams data_access_params
 #' @inheritParams plot_output_params
 #' @param expression_values expression values to use
@@ -1665,31 +1665,50 @@ create_screeplot <- function(eigs, ncp = 20, ylim = c(0, 20)) {
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
 #' @param ylim y-axis limits on jackstraw plot
-#' @param iter number of interations for jackstraw
+#' @param iter number of iterations for jackstraw
 #' @param threshold p-value threshold to call a PC significant
+#' @param random_subset randomized subset of matrix to use to approximate but
+#' speed up calculation
+#' @param set_seed logical. whether to set a seed when random_subset is used
+#' @param seed_number seed number to use when random_subset is used
 #' @param verbose show progress of jackstraw method
 #' @returns ggplot object for jackstraw method
 #' @details
 #'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}}
 #'  function. By systematically permuting genes it identifies robust, and thus
-#'  significant, PCs.
+#'  significant, PCs. This implementation makes small modifications to SVD
+#'  calculation for improved efficiency and flexibility with different matrix
+#'  types. \cr
+#'  This implementation supports both dense and sparse input matrices. \cr
+#'
+#'  \strong{steps}
+#'
+#'  1. Select singular values to calculate based on matrix dims and ncp
+#'  2. Find SVD to get variance explained of each PC
+#'  3. Randomly sample across features then re-calculate randomized variance
+#'  4. Determine P-value by comparing actual vs randomized explained variance,
+#'     indicating the significance of each PC
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
 #' jackstrawPlot(gobject = g)
+#' @md
 #' @export
 jackstrawPlot <- function(gobject,
     spat_unit = NULL,
     feat_type = NULL,
     expression_values = c("normalized", "scaled", "custom"),
     reduction = c("cells", "feats"),
-    feats_to_use = NULL,
-    center = FALSE,
-    scale_unit = FALSE,
+    feats_to_use = "hvf",
+    center = TRUE,
+    scale_unit = TRUE,
     ncp = 20,
     ylim = c(0, 1),
     iter = 10,
     threshold = 0.01,
+    random_subset = NULL,
+    set_seed = TRUE,
+    seed_number = 1234,
     verbose = TRUE,
     show_plot = NULL,
     return_plot = NULL,
@@ -1710,13 +1729,14 @@ jackstrawPlot <- function(gobject,
     )
 
     # print message with information #
-    if (verbose) {
-        message("using 'jackstraw' to identify significant PCs If used in
+    vmsg(
+        .v = verbose, .prefix = "  ",
+        "using 'jackstraw' to identify significant PCs If used in
         published research, please cite:
         Neo Christopher Chung and John D. Storey (2014).
         'Statistical significance of variables driving systematic variation in
-        high-dimensional data. Bioinformatics")
-    }
+        high-dimensional data. Bioinformatics\n\n"
+    )
 
     # select direction of reduction
     reduction <- match.arg(reduction, c("cells", "feats"))
@@ -1734,6 +1754,16 @@ jackstrawPlot <- function(gobject,
         output = "matrix"
     )
 
+    # create a random subset if random_subset is not NULL
+    if (!is.null(random_subset)) {
+        withSeed(seed = seed_number, {
+            random_selection <- sort(sample(
+                seq_len(ncol(expr_values)), random_subset
+            ))
+            expr_values <- expr_values[, random_selection]
+        })
+    }
+
 
     ## subset matrix
     if (!is.null(feats_to_use)) {
@@ -1749,30 +1779,36 @@ jackstrawPlot <- function(gobject,
 
     # reduction of cells
     if (reduction == "cells") {
-        if (scale_unit == TRUE | center == TRUE) {
+        if (scale_unit || center) {
             expr_values <- t_flex(scale(
                 t_flex(expr_values),
                 center = center, scale = scale_unit
             ))
         }
 
-        jtest <- jackstraw::permutationPA(
-            dat = as.matrix(expr_values),
-            B = iter, threshold = threshold, verbose = verbose
+        jtest <- .perm_pa(
+            dat = expr_values,
+            iter = iter,
+            threshold = threshold,
+            ncp = ncp,
+            verbose = verbose
         )
 
         ## results ##
         nr_sign_components <- jtest$r
-        if (verbose) {
-            cat(
-                "number of estimated significant components: ",
-                nr_sign_components
-            )
-        }
-        final_results <- jtest$p
-        jackplot <- create_jackstrawplot(
+        vmsg(.v = verbose,
+             "\nnumber of estimated significant components: ",
+             nr_sign_components)
+
+        final_results <- jtest[c("p", "cum_var_explained")]
+        vmsg(.v = verbose, .is_debug = TRUE, final_results$p)
+
+        jackplot <- .create_jackstrawplot(
             jackstraw_data = final_results,
-            ncp = ncp, ylim = ylim, threshold = threshold
+            ncp = ncp,
+            ylim = ylim,
+            threshold = threshold,
+            iter = iter
         )
     }
 
@@ -1793,17 +1829,20 @@ jackstrawPlot <- function(gobject,
 #' @title create_jackstrawplot
 #' @name create_jackstrawplot
 #' @description create jackstrawplot with ggplot
-#' @param jackstraw_data result from jackstraw function (`testresult$p`)
+#' @param jackstraw_data result from jackstraw function (`testresult$p`) and
+#' (`testresult$cum_var_explained`)
 #' @param ncp number of principal components to calculate
 #' @param ylim y-axis limits on jackstraw plot
 #' @param threshold p.value threshold to call a PC significant
+#' @param iter number of iterations performed
 #' @keywords internal
 #' @returns ggplot
-#' @export
-create_jackstrawplot <- function(jackstraw_data,
+#' @noRd
+.create_jackstrawplot <- function(jackstraw_data,
     ncp = 20,
     ylim = c(0, 1),
-    threshold = 0.01) {
+    threshold = 0.01,
+    iter = 100) {
     checkmate::assert_numeric(ncp, len = 1L)
     checkmate::assert_numeric(ylim, len = 2L)
     checkmate::assert_numeric(threshold, len = 1L)
@@ -1812,34 +1851,88 @@ create_jackstrawplot <- function(jackstraw_data,
     PC <- p.val <- NULL
 
     testDT <- data.table::data.table(
-        PC = paste0("PC.", seq_along(jackstraw_data)),
-        p.val = jackstraw_data
+        PC = paste0("PC.", seq_along(jackstraw_data$p)),
+        p.val = jackstraw_data$p,
+        cum_var = jackstraw_data$cum_var_explained # TODO
     )
     testDT[, "PC" := factor(PC, levels = PC)]
     testDT[, "sign" := ifelse(p.val <= threshold, "sign", "n.s.")]
 
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_bw()
-    pl <- pl + ggplot2::geom_point(
-        data = testDT[seq_len(ncp)],
-        ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21
-    )
-    pl <- pl + ggplot2::scale_fill_manual(
-        values = c("n.s." = "lightgrey", "sign" = "darkorange")
-    )
-    pl <- pl + ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
-    )
-    pl <- pl + ggplot2::coord_cartesian(ylim = ylim)
-    pl <- pl + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
-    pl <- pl + ggplot2::labs(x = "", y = "p-value per PC")
+    pl <- ggplot2::ggplot() +
+        ggplot2::theme_bw() +
+        ggplot2::geom_point(
+            data = testDT[seq_len(ncp)],
+            ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21
+        ) +
+        ggplot2::scale_fill_manual(
+            values = c("n.s." = "lightgrey", "sign" = "darkorange")
+        ) +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(
+                angle = 45, hjust = 1, vjust = 1
+            )
+        ) +
+        ggplot2::coord_cartesian(ylim = ylim) +
+        ggplot2::theme(panel.grid.major.x = ggplot2::element_blank()) +
+        ggplot2::labs(
+            x = "", y = "p-value per PC",
+            title = paste("PC Significance Plot (iter =", iter, ")")
+        )
 
     return(pl)
 }
 
 
+# based on the `permutationPA`() implementation in jackstraw package
+.perm_pa <- function (dat, iter = 100, threshold = 0.05, ncp, verbose = TRUE)
+{
+    if (missing(dat))
+        stop("`dat` is required!")
+    n <- ncol(dat)
+    m <- nrow(dat)
+    ndf <- min(m, n - 1, ncp) # this is a limitation of svd singular values
+    sum_of_squared_singular_vals <- sum(dat^2)
 
+    # pick SVD fun based on whether partial or full is appropriate
+    # These biocsingular functions should not scale or center
+    svd_fun <- if (ndf >= 0.5 * m || ndf >= 100) BiocSingular::runExactSVD
+    else BiocSingular::runIrlbaSVD # partial SVDs
 
+    .calc_svd_var_explained <- function(x, k) {
+        res <- svd_fun(x, k = k)
+        singular_val_square <- res$d[1:k]^2
+        return(singular_val_square / sum_of_squared_singular_vals)
+    }
+
+    dstat <- .calc_svd_var_explained(dat, k = ndf)
+    cum_var_explained <- cumsum(dstat)
+
+    # randomize and compare
+    dstat0 <- matrix(0, nrow = iter, ncol = ndf)
+    vmsg(.v = verbose,
+         "Estimating number of significant principal components: ")
+
+    with_pbar({
+        pb <- pbar(steps = iter)
+
+        for (i in seq_len(iter)) {
+            pb()
+            dat0 <- t(apply(dat, 1, sample))
+            dstat0[i, ] <- .calc_svd_var_explained(dat0, k = ndf)
+        }
+    })
+
+    p <- rep(1, ndf)
+    for (i in 1:ndf) {
+        p[i] <- mean(dstat0[, i] >= dstat[i])
+    }
+    # ensure all p vals are 1 after the first 1 detected
+    for (i in 2:ndf) {
+        p[i] <- max(p[i - 1], p[i])
+    }
+    r <- sum(p <= threshold)
+    return(list(r = r, p = p, cum_var_explained = cum_var_explained))
+}
 
 
 

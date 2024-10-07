@@ -17,6 +17,9 @@ jackstrawPlot(
   ylim = c(0, 1),
   iter = 10,
   threshold = 0.01,
+  random_subset = NULL,
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = TRUE,
   show_plot = NULL,
   return_plot = NULL,
@@ -46,9 +49,16 @@ jackstrawPlot(
 
 \item{ylim}{y-axis limits on jackstraw plot}
 
-\item{iter}{number of interations for jackstraw}
+\item{iter}{number of iterations for jackstraw}
 
 \item{threshold}{p-value threshold to call a PC significant}
+
+\item{random_subset}{randomized subset of matrix to use to approximate but
+speed up calculation}
+
+\item{set_seed}{logical. whether to set a seed when random_subset is used}
+
+\item{seed_number}{seed number to use when random_subset is used}
 
 \item{verbose}{show progress of jackstraw method}
 
@@ -68,12 +78,24 @@ change save_name in save_param}
 ggplot object for jackstraw method
 }
 \description{
-identify significant prinicipal components (PCs)
+Identify significant principal components (PCs)
 }
 \details{
 The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}}
- function. By systematically permuting genes it identifies robust, and thus
- significant, PCs.
+function. By systematically permuting genes it identifies robust, and thus
+significant, PCs. This implementation makes small modifications to SVD
+calculation for improved efficiency and flexibility with different matrix
+types. \cr
+This implementation supports both dense and sparse input matrices. \cr
+
+\strong{steps}
+\enumerate{
+\item Select singular values to calculate based on matrix dims and ncp
+\item Find SVD to get variance explained of each PC
+\item Randomly sample across features then re-calculate randomized variance
+\item Determine P-value by comparing actual vs randomized explained variance,
+indicating the significance of each PC
+}
 }
 \examples{
 g <- GiottoData::loadGiottoMini("visium")
