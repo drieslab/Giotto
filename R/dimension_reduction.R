@@ -1821,10 +1821,12 @@ jackstrawPlot <- function(gobject,
              "\nnumber of estimated significant components: ",
              nr_sign_components)
 
-        warning(wrap_txt(
-            "Number of significant components equals `ncp`.
+        if (ncp <= nr_sign_components) {
+            warning(wrap_txt(
+                "Number of significant components equals `ncp`.
             Increasing `ncp` may be needed."
-        ))
+            ))
+        }
 
         final_results <- jtest[c("p", "cum_var_explained")]
         vmsg(.v = verbose, .is_debug = TRUE, final_results$p)
