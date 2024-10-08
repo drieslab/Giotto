@@ -1756,12 +1756,20 @@ jackstrawPlot <- function(gobject,
 
     # create a random subset if random_subset is not NULL
     if (!is.null(random_subset)) {
-        withSeed(seed = seed_number, {
+        if (set_seed) {
+            withSeed(seed = seed_number, {
+                random_selection <- sort(sample(
+                    seq_len(ncol(expr_values)), random_subset
+                ))
+                expr_values <- expr_values[, random_selection]
+            })
+        } else {
             random_selection <- sort(sample(
                 seq_len(ncol(expr_values)), random_subset
             ))
             expr_values <- expr_values[, random_selection]
-        })
+        }
+
     }
 
 
@@ -1786,13 +1794,26 @@ jackstrawPlot <- function(gobject,
             ))
         }
 
-        jtest <- .perm_pa(
-            dat = expr_values,
-            iter = iter,
-            threshold = threshold,
-            ncp = ncp,
-            verbose = verbose
-        )
+        if (set_seed) {
+            withSeed(seed = seed_number, {
+                jtest <- .perm_pa(
+                    dat = expr_values,
+                    iter = iter,
+                    threshold = threshold,
+                    ncp = ncp,
+                    verbose = verbose
+                )
+            })
+        } else {
+            jtest <- .perm_pa(
+                dat = expr_values,
+                iter = iter,
+                threshold = threshold,
+                ncp = ncp,
+                verbose = verbose
+            )
+        }
+
 
         ## results ##
         nr_sign_components <- jtest$r
