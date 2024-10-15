@@ -1295,6 +1295,7 @@ doKmeans <- function(gobject,
         ]
         matrix_to_use <- dim_coord[][, dimensions_to_use]
     } else {
+        vmsg(.is_debug = TRUE, "clustering from expression values")
         ## using original matrix ##
         expr_values <- getExpression(
             gobject = gobject,
@@ -1485,6 +1486,9 @@ doHclust <- function(gobject,
         )
     )
     values <- match.arg(expression_values, c("normalized", "scaled", "custom"))
+    dim_reduction_to_use <- match.arg(
+        dim_reduction_to_use, c("cells", "pca", "umap", "tsne")
+    )
 
 
     ## using dimension reduction ##
@@ -1506,6 +1510,7 @@ doHclust <- function(gobject,
         ]
         matrix_to_use <- dim_coord[, dimensions_to_use]
     } else {
+        vmsg(.is_debug = TRUE, "clustering from expression values")
         ## using original matrix ##
         expr_values <- getExpression(
             gobject = gobject,
