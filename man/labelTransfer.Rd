@@ -55,9 +55,11 @@ voting}
 
 \item{prob}{output knn probabilities together with label predictions}
 
-\item{reduction_name}{name of shared reduction space (default name = "pca")}
+\item{reduction}{reduction on cells or features (default = "cells")}
 
 \item{reduction_method}{shared reduction method (default = "pca" space)}
+
+\item{reduction_name}{name of shared reduction space (default name = "pca")}
 
 \item{dimensions_to_use}{dimensions to use in shared reduction space
 (default = 1:10)}
@@ -72,8 +74,6 @@ voting}
 
 \item{target_cell_ids}{cell/spatial IDs to transfer the labels to.
 IDs from \code{source_cell_ids} are always included as well.}
-
-\item{reduction}{reduction on cells or features (default = "cells")}
 }
 \value{
 object \code{x} with new transferred labels added to metadata
