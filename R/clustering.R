@@ -1265,13 +1265,17 @@ doKmeans <- function(gobject,
         feat_type = feat_type
     )
 
-    dm <- c(
+    distance_method <- match.arg(distance_method, choices = c(
         "original", "pearson", "spearman",
         "euclidean", "maximum", "manhattan",
         "canberra", "binary", "minkowski"
+    ))
+    dim_reduction_to_use <- match.arg(
+        dim_reduction_to_use, c("cells", "pca", "umap", "tsne")
     )
-    distance_method <- match.arg(distance_method[match], choices = dm)
-
+    expression_values <- match.arg(
+        expression_values, c("normalized", "scaled", "custom")
+    )
 
     ## using dimension reduction ##
     if (dim_reduction_to_use != "cells" && !is.null(dim_reduction_to_use)) {
@@ -1330,7 +1334,7 @@ doKmeans <- function(gobject,
     ## kmeans clustering
     # start seed
     if (isTRUE(set_seed)) {
-        set.seed(seed = as.integer(seed_number))
+        GiottoUtils::local_seed(seed_number)
     }
 
     # start clustering
@@ -1342,13 +1346,8 @@ doKmeans <- function(gobject,
         algorithm = algorithm
     )
 
-    # exit seed
-    if (isTRUE(set_seed)) {
-        set.seed(seed = Sys.time())
-    }
-
     ident_clusters_DT <- data.table::data.table(
-        cell_ID = names(kclusters[["cluster"]]),
+        "cell_ID" = names(kclusters[["cluster"]]),
         "name" = kclusters[["cluster"]]
     )
     data.table::setnames(ident_clusters_DT, "name", name)
@@ -1375,11 +1374,9 @@ doKmeans <- function(gobject,
             cell_metadata[][, eval(name) := NULL]
 
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-            gobject <- setCellMetadata(
-                gobject = gobject,
-                x = cell_metadata,
-                verbose = FALSE,
-                initialize = FALSE
+            gobject <- setGiotto(
+                gobject, cell_metadata,
+                verbose = FALSE, initialize = FALSE
             )
             ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
         }
