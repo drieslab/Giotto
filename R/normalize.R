@@ -1,7 +1,7 @@
 #' @title normalizeGiotto
 #' @name normalizeGiotto
-#' @description fast normalize and/or scale expresion values of Giotto object
-#' @param gobject giotto object
+#' @description fast normalize and/or scale expression values of Giotto object
+#' @param gobject `giotto` object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
@@ -12,14 +12,15 @@
 #' @param log_offset offset value to add to expression matrix, default = 1
 #' @param logbase log base to use to log normalize expression values
 #' @param scale_feats z-score genes over all cells
-#' @param scale_genes deprecated, use scale_feats
 #' @param scale_cells z-score cells over all genes
 #' @param scale_order order to scale feats and cells
 #' @param theta theta parameter for the pearson residual normalization step
-#' @param update_slot slot or name to use for the results from osmFISH and
-#' pearson residual normalization
+#' @param name character. name to use for normalization results
 #' @param verbose be verbose
-#' @returns giotto object
+#' @param scale_genes deprecated, use scale_feats
+#' @param update_slot deprecated. Use `name` param instead
+#' @md
+#' @returns `giotto` object
 #' @details Currently there are two 'methods' to normalize your raw counts data.
 #'
 #' A. The standard method follows the standard protocol which can be adjusted
@@ -72,17 +73,24 @@ normalizeGiotto <- function(
         log_offset = 1,
         logbase = 2,
         scale_feats = TRUE,
-        scale_genes = NULL,
+        scale_genes = deprecated(),
         scale_cells = TRUE,
         scale_order = c("first_feats", "first_cells"),
         theta = 100,
-        update_slot = "scaled",
+        name = "scaled",
+        update_slot = deprecated(),
         verbose = TRUE) {
     ## deprecated arguments
-    if (!is.null(scale_genes)) {
-        scale_feats <- scale_genes
-        warning("scale_genes is deprecated, use scale_feats in the future \n")
-    }
+    scale_feats <- deprecate_param(
+        scale_genes, scale_feats,
+        fun = "normalizeGiotto",
+        when = "3.0.0"
+    )
+    name <- deprecate_param(
+        update_slot, name,
+        fun = "normalizeGiotto",
+        when = "4.1.3"
+    )
 
     # Set feat_type and spat_unit
     spat_unit <- set_default_spat_unit(
@@ -133,7 +141,7 @@ normalizeGiotto <- function(
             raw_expr = raw_expr,
             feat_type = feat_type,
             spat_unit = spat_unit,
-            name = update_slot,
+            name = name,
             verbose = verbose
         ),
         "pearson_resid" = .rna_pears_resid_normalization(
@@ -142,7 +150,7 @@ normalizeGiotto <- function(
             feat_type = feat_type,
             spat_unit = spat_unit,
             theta = theta,
-            name = update_slot,
+            name = name,
             verbose = verbose
         ),
         "quantile" = .quantile_norm(
@@ -150,7 +158,7 @@ normalizeGiotto <- function(
             raw_expr = raw_expr,
             feat_type = feat_type,
             spat_unit = spat_unit,
-            name = update_slot,
+            name = name,
             verbose = verbose
         )
     )
