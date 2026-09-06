@@ -1467,12 +1467,15 @@ runSpatialEnrich <- function(
             feat_type = feat_type,
             sign_matrix = sign_matrix,
             expression_values = expression_values,
+            min_overlap_genes = min_overlap_genes,
             reverse_log_scale = reverse_log_scale,
             logbase = logbase,
             output_enrichment = output_enrichment,
             p_value = p_value,
             n_times = n_times,
+            max_block = max_block,
             name = name,
+            verbose = verbose,
             return_gobject = return_gobject
         )
     } else if (enrich_method == "rank") {

@@ -229,3 +229,33 @@ test_that("runRankEnrich(p_value = TRUE) returns p-values", {
     expect_equal(head(plain[]$typeA, 3),
                  c(0.887582, 0.880433, 0.877802), tolerance = 1e-5)
 })
+
+
+test_that("runSpatialEnrich forwards the PAGE-only arguments it accepts", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # min_overlap_genes, max_block and verbose are in runSpatialEnrich()'s
+    # signature but were never passed on to runPAGEEnrich(). Setting them did
+    # nothing, with no warning -- the router is a hand-written switch and
+    # forgot three of its own formals.
+    sm <- cbind(f$sm, typeD = 0L)
+    set.seed(9)
+    sm[sample(nrow(sm), 20), "typeD"] <- 1L
+
+    via <- runSpatialEnrich(f$g, enrich_method = "PAGE", sign_matrix = sm,
+        min_overlap_genes = 30, return_gobject = FALSE, verbose = FALSE)$matrix[]
+    direct <- runPAGEEnrich(f$g, sign_matrix = sm,
+        min_overlap_genes = 30, return_gobject = FALSE, verbose = FALSE)$matrix[]
+
+    # typeD has 20 markers and is dropped by both
+    expect_false("typeD" %in% names(via))
+    expect_setequal(names(via), names(direct))
+    expect_equal(via, direct)
+
+    # and at the default threshold it is kept, so the test above is
+    # discriminating rather than vacuous
+    kept <- runSpatialEnrich(f$g, enrich_method = "PAGE", sign_matrix = sm,
+        return_gobject = FALSE, verbose = FALSE)$matrix[]
+    expect_true("typeD" %in% names(kept))
+})
