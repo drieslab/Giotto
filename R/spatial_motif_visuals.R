@@ -332,9 +332,13 @@ plotMotifGlyphs <- function(gobject,
         ct <- d$color_tuple[[i]]
         k <- length(ct)
         if (nrow(lay$xy) != k) next
+        # One cell type per line. Pasted onto a single line these overflow the
+        # facet strip and are silently clipped at both ends -- "Secretory
+        # epithelial" three times is well past what a 2-inch panel can show.
         panel <- sprintf(
-            "%s\n%s  (n=%s, z=%.1f)",
-            d$topology[i], d$label[i], d$observed[i], d$z[i]
+            "%s  (n=%s, z=%.1f)\n%s",
+            d$topology[i], d$observed[i], d$z[i],
+            paste(d$color_tuple[[i]], collapse = "\n")
         )
         nodes[[length(nodes) + 1L]] <- data.table::data.table(
             panel = panel, ord = i,
@@ -376,7 +380,8 @@ plotMotifGlyphs <- function(gobject,
             axis.title = ggplot2::element_blank(),
             axis.ticks = ggplot2::element_blank(),
             panel.grid = ggplot2::element_blank(),
-            strip.text = ggplot2::element_text(size = 7)
+            strip.text = ggplot2::element_text(size = 6.5, lineheight = 0.95),
+            panel.spacing = ggplot2::unit(0.35, "lines")
         )
 
     return(plot_output_handler(
