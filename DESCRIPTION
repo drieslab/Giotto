@@ -71,6 +71,7 @@ Suggests:
     ggalluvial,
     ggdendro,
     ggforce,
+    ggrepel,
     ggspavis,
     graphcoloring,
     HDF5Array (>= 1.18.1),
@@ -159,6 +160,7 @@ Collate:
     'spatial_interaction_spot.R'
     'spatial_interaction_visuals.R'
     'spatial_motif.R'
+    'spatial_motif_visuals.R'
     'spdep.R'
     'variable_genes.R'
     'wnn.R'
