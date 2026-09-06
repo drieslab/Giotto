@@ -15,6 +15,8 @@ runSpatialEnrich(
   reverse_log_scale = TRUE,
   logbase = 2,
   p_value = FALSE,
+  include_depletion = FALSE,
+  ties_method = c("average", "max"),
   n_times = 1000,
   rbp_p = 0.99,
   num_agg = 100,
@@ -47,6 +49,12 @@ required to calculate enrichment (PAGE)}
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
 
 \item{p_value}{calculate p-value (default = FALSE)}
+
+\item{include_depletion}{(PAGE) also test for depletion, not enrichment
+only (default = FALSE)}
+
+\item{ties_method}{(rank) how to rank tied expression values, \code{"average"}
+(default) or \code{"max"}}
 
 \item{n_times}{(page/rank) number of permutation iterations to calculate
 p-value}

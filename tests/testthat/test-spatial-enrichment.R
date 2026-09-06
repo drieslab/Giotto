@@ -259,3 +259,168 @@ test_that("runSpatialEnrich forwards the PAGE-only arguments it accepts", {
         return_gobject = FALSE, verbose = FALSE)$matrix[]
     expect_true("typeD" %in% names(kept))
 })
+
+
+test_that("every runSpatialEnrich formal reaches a method", {
+    # The router used to accept min_overlap_genes, max_block and verbose and
+    # forward none of them. This asserts the property rather than the three
+    # instances: every formal of the router, apart from the ones it consumes
+    # itself, must be a formal of the method it dispatches to.
+    router <- names(formals(runSpatialEnrich))
+    own <- c("gobject", "enrich_method")
+
+    targets <- list(
+        PAGE = runPAGEEnrich,
+        rank = runRankEnrich,
+        hypergeometric = runHyperGeometricEnrich
+    )
+    # arguments that belong to exactly one method
+    method_only <- c(
+        min_overlap_genes = "PAGE", include_depletion = "PAGE",
+        max_block = "PAGE", verbose = "PAGE",
+        ties_method = "rank", rbp_p = "rank", num_agg = "rank",
+        n_times = NA, top_percentage = "hypergeometric"
+    )
+
+    for (arg in setdiff(router, own)) {
+        owner <- if (arg %in% names(method_only)) method_only[[arg]] else NULL
+        if (is.null(owner)) {
+            # shared: must be a formal of all three
+            for (m in names(targets)) {
+                expect_true(arg %in% names(formals(targets[[m]])),
+                            info = paste(arg, "->", m))
+            }
+        } else if (!is.na(owner)) {
+            expect_true(arg %in% names(formals(targets[[owner]])),
+                        info = paste(arg, "->", owner))
+        }
+    }
+
+    # and the router body actually names each one
+    body_txt <- paste(deparse(body(runSpatialEnrich)), collapse = " ")
+    for (arg in setdiff(router, own)) {
+        expect_match(body_txt, arg, fixed = TRUE, info = arg)
+    }
+})
+
+
+# --- the param family --------------------------------------------------------
+
+test_that("enrichParam builds the right class with the right defaults", {
+    expect_true(isVirtualClass("enrichParam"))
+    for (cl in c("pageEnrichParam", "rankEnrichParam", "hyperEnrichParam")) {
+        expect_true(extends(cl, "enrichParam"), info = cl)
+        expect_true(extends(cl, "analyzeParam"), info = cl)
+    }
+
+    p <- enrichParam("PAGE")
+    expect_s4_class(p, "pageEnrichParam")
+    expect_identical(p$min_overlap_genes, 5)
+    expect_false(p$include_depletion)
+    expect_identical(p$output_enrichment, "original")
+
+    r <- enrichParam("rank")
+    expect_s4_class(r, "rankEnrichParam")
+    expect_identical(r$ties_method, "average")
+    expect_identical(r$rbp_p, 0.99)
+
+    h <- enrichParam("hypergeometric")
+    expect_s4_class(h, "hyperEnrichParam")
+    expect_identical(h$top_percentage, 5)
+
+    # method name is case-insensitive, and unknown methods are refused
+    expect_s4_class(enrichParam("page"), "pageEnrichParam")
+    expect_error(enrichParam("gsva"))
+    # an inapplicable value is refused rather than ignored
+    expect_error(enrichParam("PAGE", output_enrichment = "quantile"))
+})
+
+
+test_that("the result contract is enforced at the seam", {
+    good <- data.table::data.table(cell_ID = c("a", "b"), tA = c(1, 2))
+    expect_identical(.enrich_check_contract(good), good)
+
+    expect_error(.enrich_check_contract(as.data.frame(good)), "data.table")
+    expect_error(
+        .enrich_check_contract(data.table::data.table(id = "a", tA = 1)),
+        "cell_ID"
+    )
+    expect_error(
+        .enrich_check_contract(data.table::data.table(cell_ID = 1L, tA = 1)),
+        "must be character"
+    )
+    expect_error(
+        .enrich_check_contract(data.table::data.table(cell_ID = "a")),
+        "no cell-type score columns"
+    )
+    expect_error(
+        .enrich_check_contract(
+            data.table::data.table(cell_ID = "a", tA = "x")
+        ),
+        "must be numeric"
+    )
+})
+
+
+test_that("another package could contribute an enrichment method", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # Stand-in for what GiottoDisk (or any extension) does: define a subclass
+    # of the VIRTUAL parent outside this package and attach one method. If
+    # this passes, the seam is real -- nothing between the wrapper and the
+    # arithmetic names a specific engine.
+    setClass("fakeEnrichParam", contains = "enrichParam")
+    on.exit(removeClass("fakeEnrichParam"), add = TRUE)
+    setMethod("analyzeData", signature(x = "ANY", param = "fakeEnrichParam"),
+        function(x, param, ..., sign_matrix) {
+            data.table::data.table(
+                cell_ID = colnames(x),
+                constant = rep(param$fill, ncol(x))
+            )
+        }
+    )
+    on.exit(removeMethod("analyzeData", c("ANY", "fakeEnrichParam")),
+            add = TRUE)
+
+    param <- new("fakeEnrichParam", param = list(fill = 7))
+    out <- .enrich_run(
+        gobject = f$g, param = param, sign_matrix = f$sm,
+        method = "fake", name = "fake", return_gobject = FALSE
+    )
+    expect_s4_class(out$enrObj, "spatEnrObj")
+    expect_identical(out$enrObj@method, "fake")
+    expect_identical(unique(out$enrObj[]$constant), 7)
+
+    # and it goes into the gobject through the same path
+    g2 <- .enrich_run(
+        gobject = f$g, param = param, sign_matrix = f$sm,
+        method = "fake", name = "fake", return_gobject = TRUE
+    )$gobject
+    expect_true("fake" %in% list_spatial_enrichments_names(
+        g2, spat_unit = "cell", feat_type = "rna"
+    ))
+})
+
+
+test_that("the verb runs on a bare matrix, with no gobject", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+    m <- getExpression(f$g, values = "normalized", output = "matrix")
+
+    # The point of moving the arithmetic onto analyzeData: it is testable
+    # without an object, and the numbers match what the wrapper produces.
+    for (spec in list(
+        list(p = enrichParam("rank"), w = function() runRankEnrich(
+            f$g, sign_matrix = f$sm, return_gobject = FALSE)[]),
+        list(p = enrichParam("hypergeometric"), w = function()
+            runHyperGeometricEnrich(
+                f$g, sign_matrix = f$sm, return_gobject = FALSE)[])
+    )) {
+        direct <- analyzeData(m, spec$p, sign_matrix = f$sm)
+        via <- data.table::as.data.table(spec$w())
+        data.table::setcolorder(via, names(direct))
+        expect_equal(as.data.frame(direct), as.data.frame(via),
+                     info = class(spec$p))
+    }
+})

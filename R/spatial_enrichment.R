@@ -736,44 +736,19 @@ runPAGEEnrich <- function(
         name = NULL,
         verbose = TRUE,
         return_gobject = TRUE) {
-    # Set feat_type and spat_unit
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
-    # expression values to be used
     values <- match.arg(
         expression_values,
         unique(c("normalized", "scaled", "custom", expression_values))
     )
-    expr_values <- getExpression(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        values = values,
-        output = "exprObj"
+    output_enrichment <- match.arg(
+        output_enrichment, choices = c("original", "zscore")
     )
-
-    # check parameters
     if (is.null(name)) name <- "PAGE"
 
-    output_enrichment <- match.arg(
-        output_enrichment,
-        choices = c("original", "zscore")
-    )
-
-    PAGE_results <- .page_dt_method(
-        sign_matrix = sign_matrix,
-        expr_values = as.matrix(expr_values[]),
+    param <- enrichParam("PAGE",
         min_overlap_genes = min_overlap_genes,
-        logbase = logbase,
         reverse_log_scale = reverse_log_scale,
+        logbase = logbase,
         output_enrichment = output_enrichment,
         p_value = p_value,
         include_depletion = include_depletion,
@@ -782,14 +757,12 @@ runPAGEEnrich <- function(
         verbose = verbose
     )
 
-    # create spatial enrichment object
-    enrObj <- createSpatEnrObj(
-        name = name,
-        method = "PAGE",
-        enrichment_data =PAGE_results[["matrix"]],
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        provenance = expr_values@provenance,
+    out <- .enrich_run(
+        gobject = gobject, param = param, sign_matrix = sign_matrix,
+        method = "PAGE", name = name,
+        spat_unit = spat_unit, feat_type = feat_type,
+        values = values, expression_values = expression_values,
+        densify = TRUE,
         misc = list(
             expr_values_used = expression_values,
             reverse_log_scale = reverse_log_scale,
@@ -798,28 +771,8 @@ runPAGEEnrich <- function(
             output_enrichment_scores = output_enrichment,
             include_depletion = include_depletion,
             nr_permutations = n_times
-        )
-    )
-
-    ## return object or results ##
-    if (return_gobject == TRUE) {
-        spenr_names <- list_spatial_enrichments_names(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type
-        )
-
-        if (name %in% spenr_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
-
-        ## update parameters used ##
-        parameters_list <- gobject@parameters
-        number_of_rounds <- length(parameters_list)
-        update_name <- paste0(number_of_rounds, "_spatial_enrichment")
-
-        # parameters to include
-        parameters_list[[update_name]] <- c(
+        ),
+        history = c(
             "method used" = "PAGE",
             "enrichment name" = name,
             "expression values" = expression_values,
@@ -829,28 +782,16 @@ runPAGEEnrich <- function(
             "p values calculated" = p_value,
             "include depletion" = include_depletion,
             "nr permutations" = n_times
-        )
+        ),
+        return_gobject = return_gobject
+    )
 
-        gobject@parameters <- parameters_list
-
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- setGiotto(gobject, enrObj)
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-
-        return(gobject)
-    } else {
-        PAGE_results[["matrix"]] <- enrObj
-        return(PAGE_results)
-    }
+    if (isTRUE(return_gobject)) return(out$gobject)
+    # PAGE is the only one of the four that returns a list. Kept as it was:
+    # changing it is a breaking change to a public return value and belongs in
+    # its own commit, not in a refactor that is meant to be a no-op.
+    list(DT = out$detail, matrix = out$enrObj)
 }
-
-
-
-
-
-
-
 
 
 #' @title Rank permutation
@@ -938,181 +879,38 @@ runRankEnrich <- function(
         num_agg = 100,
         name = NULL,
         return_gobject = TRUE) {
-    # Set feat_type and spat_unit
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
-    # determine ties.method
     ties_method <- match.arg(ties_method, choices = c("average", "max"))
-
-    # expression values to be used
-    #
-    # The choices have to *start* with this function's own formal default, or
-    # match.arg() sees an arg of length 4 whose value is not identical to
-    # choices and errors instead of taking the first. "raw" sits second here
-    # and third in the sibling functions, which is why only this one was
-    # affected. Trailing `expression_values` keeps custom value names working.
+    # The choices have to start with this function's own formal default, or
+    # match.arg() sees a length-4 arg that is not identical to choices and
+    # errors. "raw" sits second here and third in the sibling functions.
     values <- match.arg(
         expression_values,
         unique(c("normalized", "raw", "scaled", "custom", expression_values))
     )
-    expr_values <- getExpression(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        values = values,
-        output = "exprObj"
+    output_enrichment <- match.arg(
+        output_enrichment, choices = c("original", "zscore")
     )
-
-    if (values == "raw") {
-        expr_values[] <- Matrix::as.matrix(expr_values[])
-    }
-
-    # check parameters
     if (is.null(name)) name <- "rank"
 
-    # check gene list
-    interGene <- intersect(rownames(sign_matrix), rownames(expr_values[]))
-    if (length(interGene) < 100) {
-        stop("Please check the gene numbers or names of scRNA-seq. The names
-            of scRNA-seq should be consistent with spatial data.")
-    }
-
-    # output enrichment
-    output_enrichment <- match.arg(
-        output_enrichment,
-        choices = c("original", "zscore")
+    param <- enrichParam("rank",
+        reverse_log_scale = reverse_log_scale,
+        logbase = logbase,
+        output_enrichment = output_enrichment,
+        ties_method = ties_method,
+        p_value = p_value,
+        n_times = n_times,
+        rbp_p = rbp_p,
+        num_agg = num_agg
     )
 
-    enrichment <- matrix(
-        data = NA,
-        nrow = dim(sign_matrix)[2],
-        ncol = dim(expr_values[])[2]
-    )
-
-    # calculate mean gene expression
-    if (reverse_log_scale == TRUE) {
-        mean_gene_expr <- log(Matrix::rowMeans(
-            logbase^expr_values[] - 1,
-            dims = 1
-        ) + 1)
-    } else {
-        mean_gene_expr <- Matrix::rowMeans(expr_values[])
-    }
-
-    # fold change and ranking
-
-    ties_1 <- ties_method
-    ties_2 <- ties_method
-    if (ties_method == "max") {
-        ties_1 <- "min"
-        ties_2 <- "max"
-    }
-    # else ties_1=ties_2 is equal to random
-    geneFold <- expr_values[]
-    geneFold <- sparseMatrixStats::rowRanks(geneFold, ties.method = ties_1)
-    rankFold <- t(sparseMatrixStats::colRanks(-geneFold, ties.method = ties_2))
-
-    rownames(rankFold) <- rownames(expr_values[])
-    colnames(rankFold) <- colnames(expr_values[])
-
-    for (i in seq_len(dim(sign_matrix)[2])) {
-        signames <- rownames(sign_matrix)[which(sign_matrix[, i] > 0)]
-        interGene <- intersect(signames, rownames(rankFold))
-        filterSig <- sign_matrix[interGene, ]
-        filterRankFold <- rankFold[interGene, ]
-
-        multiplyRank <- (filterRankFold * filterSig[, i])^(1 / 2)
-        rpb <- (1.0 - rbp_p) * (rbp_p^(multiplyRank - 1))
-
-        vectorX <- rep(NA, dim(filterRankFold)[2])
-
-        for (j in seq_len(dim(filterRankFold)[2])) {
-            toprpb <- sort(rpb[, j], decreasing = TRUE)
-            zscore <- sum(toprpb[seq_len(num_agg)])
-            vectorX[j] <- zscore
-        }
-        enrichment[i, ] <- vectorX
-    }
-
-    rownames(enrichment) <- colnames(sign_matrix)
-    colnames(enrichment) <- colnames(rankFold)
-
-    enrichment <- t(enrichment)
-
-    if (output_enrichment == "zscore") {
-        enrichment <- scale(enrichment)
-    }
-
-    enrichmentDT <- data.table::data.table(cell_ID = rownames(enrichment))
-    enrichmentDT <- cbind(enrichmentDT, data.table::as.data.table(enrichment))
-
-
-    # default name for page enrichment
-
-    if (isTRUE(p_value)) {
-        random_rank <- .do_rank_permutation(
-            sc_gene = rownames(sign_matrix),
-            n = n_times
-        )
-
-        # `return_gobject = FALSE` and `values`, not `expression_values`: the
-        # recursion previously inherited the caller's return_gobject (TRUE by
-        # default), so `random_DT` was a giotto object and the next line
-        # subset it as a table. p_value = TRUE could not work at all.
-        random_enr <- runRankEnrich(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            sign_matrix = random_rank,
-            expression_values = values,
-            reverse_log_scale = reverse_log_scale,
-            logbase = logbase,
-            output_enrichment = output_enrichment,
-            p_value = FALSE,
-            return_gobject = FALSE
-        )[]
-
-        # by name, not by position: createSpatEnrObj() does not promise where
-        # it puts cell_ID, and unlisting a character column into the gamma fit
-        # is how this fails silently rather than loudly
-        score_cols <- names(random_enr)[
-            vapply(random_enr, is.numeric, logical(1L))
-        ]
-        background <- unlist(
-            random_enr[, score_cols, with = FALSE], use.names = FALSE
-        )
-        fit.gamma <- fitdistrplus::fitdist(
-            background,
-            distr = "gamma", method = "mle"
-        )
-        own_cols <- names(enrichmentDT)[
-            vapply(enrichmentDT, is.numeric, logical(1L))
-        ]
-        enrichmentDT[, (own_cols) := lapply(.SD, function(x) {
-            stats::pgamma(
-                x, fit.gamma$estimate[1],
-                rate = fit.gamma$estimate[2],
-                lower.tail = FALSE, log.p = FALSE
-            )
-        }), .SDcols = own_cols]
-    }
-
-    # create spatial enrichment object
-    enrObj <- createSpatEnrObj(
-        name = name,
-        method = "rank",
-        enrichment_data =enrichmentDT,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        provenance = expr_values@provenance,
+    out <- .enrich_run(
+        gobject = gobject, param = param, sign_matrix = sign_matrix,
+        method = "rank", name = name,
+        spat_unit = spat_unit, feat_type = feat_type,
+        values = values, expression_values = expression_values,
+        # "raw" is the one values slot that can still hold a sparse matrix the
+        # rank sweep cannot index into
+        densify = identical(values, "raw"),
         misc = list(
             expr_values_used = expression_values,
             reverse_log_scale = reverse_log_scale,
@@ -1120,27 +918,8 @@ runRankEnrich <- function(
             p_values_calculated = p_value,
             output_enrichment_scores = output_enrichment,
             nr_permutations = n_times
-        )
-    )
-
-    ## return object or results ##
-    if (return_gobject == TRUE) {
-        spenr_names <- list_spatial_enrichments_names(
-            gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
-        )
-
-
-        if (name %in% spenr_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
-
-        ## update parameters used ##
-        parameters_list <- gobject@parameters
-        number_of_rounds <- length(parameters_list)
-        update_name <- paste0(number_of_rounds, "_spatial_enrichment")
-
-        # parameters to include
-        parameters_list[[update_name]] <- c(
+        ),
+        history = c(
             "method used" = "rank",
             "enrichment name" = name,
             "expression values" = expression_values,
@@ -1150,17 +929,11 @@ runRankEnrich <- function(
             "output enrichment scores" = output_enrichment,
             "p values calculated" = p_value,
             "nr permutations" = n_times
-        )
-        gobject@parameters <- parameters_list
+        ),
+        return_gobject = return_gobject
+    )
 
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- setGiotto(gobject, enrObj)
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-        return(gobject)
-    } else {
-        return(enrObj)
-    }
+    if (isTRUE(return_gobject)) out$gobject else out$enrObj
 }
 
 
@@ -1213,123 +986,28 @@ runHyperGeometricEnrich <- function(
         p_value = FALSE,
         name = NULL,
         return_gobject = TRUE) {
-    # Set feat_type and spat_unit
-    spat_unit <- set_default_spat_unit(
-        gobject = gobject,
-        spat_unit = spat_unit
-    )
-    feat_type <- set_default_feat_type(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type
-    )
-
     values <- match.arg(
         expression_values,
         unique(c("normalized", "scaled", "custom", expression_values))
     )
-    expr_values <- getExpression(
-        gobject = gobject,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        values = values,
-        output = "exprObj"
+    output_enrichment <- match.arg(
+        output_enrichment, choices = c("original", "zscore")
     )
-
-
-    # check parameters
     if (is.null(name)) name <- "hypergeometric"
 
-    # output enrichment
-    output_enrichment <- match.arg(
-        output_enrichment,
-        choices = c("original", "zscore")
+    param <- enrichParam("hypergeometric",
+        reverse_log_scale = reverse_log_scale,
+        logbase = logbase,
+        top_percentage = top_percentage,
+        output_enrichment = output_enrichment,
+        p_value = p_value
     )
 
-    # calculate mean gene expression
-    if (reverse_log_scale == TRUE) {
-        expr_values[] <- logbase^expr_values[] - 1
-    }
-
-    interGene <- intersect(rownames(expr_values[]), rownames(sign_matrix))
-
-    inter_sign_matrix <- sign_matrix[interGene, ]
-
-    aveExp <- log2(2 * (Matrix::rowMeans(2^(expr_values[] - 1), dims = 1)) + 1)
-
-    foldChange <- expr_values[] - aveExp
-
-    top_q <- 1 - top_percentage / 100
-    quantilecut <- apply(
-        foldChange, 2, stats::quantile,
-        probs = top_q, na.rm = TRUE
-    )
-    expbinary <- t_flex(1 * t_flex(foldChange > quantilecut))
-
-    markerGenes <- rownames(inter_sign_matrix)
-    expbinaryOverlap <- expbinary[markerGenes, ]
-    total <- length(markerGenes)
-    enrichment <- matrix(
-        data = NA,
-        nrow = dim(inter_sign_matrix)[2],
-        ncol = dim(expbinaryOverlap)[2]
-    )
-
-    for (i in seq_len(dim(inter_sign_matrix)[2])) {
-        signames <- rownames(inter_sign_matrix)[
-            which(inter_sign_matrix[, i] == 1)
-        ]
-        vectorX <- NULL
-
-        for (j in seq_len(dim(expbinaryOverlap)[2])) {
-            cellsiggene <- names(expbinaryOverlap[
-                which(expbinaryOverlap[, j] == 1), j
-            ])
-            x <- length(intersect(cellsiggene, signames))
-            m <- length(rownames(inter_sign_matrix)[which(
-                inter_sign_matrix[, i] == 1
-            )])
-            n <- total - m
-            k <- length(intersect(cellsiggene, markerGenes))
-            enrich <- (0 - log10(stats::phyper(
-                x, m, n, k,
-                log.p = FALSE, lower.tail = FALSE
-            )))
-            vectorX <- append(vectorX, enrich)
-        }
-        enrichment[i, ] <- vectorX
-    }
-
-    rownames(enrichment) <- colnames(inter_sign_matrix)
-    colnames(enrichment) <- colnames(expbinaryOverlap)
-
-    enrichment <- t(enrichment)
-
-    if (output_enrichment == "zscore") {
-        enrichment <- scale(enrichment)
-    }
-
-    enrichmentDT <- data.table::data.table(cell_ID = rownames(enrichment))
-    enrichmentDT <- cbind(enrichmentDT, data.table::as.data.table(enrichment))
-
-
-    ## calculate p-values ##
-    if (p_value == TRUE) {
-        enrichmentDT[, 2:dim(enrichmentDT)[2]] <- lapply(
-            enrichmentDT[, 2:dim(enrichmentDT)[2]], function(x) {
-                10^(-x)
-            }
-        )
-    }
-
-    # create spatial enrichment object
-    enrObj <- createSpatEnrObj(
-        name = name,
-        method = "hypergeometric",
-        enrichment_data =enrichmentDT,
-        spat_unit = spat_unit,
-        feat_type = feat_type,
-        provenance = expr_values@provenance,
+    out <- .enrich_run(
+        gobject = gobject, param = param, sign_matrix = sign_matrix,
+        method = "hypergeometric", name = name,
+        spat_unit = spat_unit, feat_type = feat_type,
+        values = values, expression_values = expression_values,
         misc = list(
             expr_values_used = expression_values,
             reverse_log_scale = reverse_log_scale,
@@ -1337,26 +1015,8 @@ runHyperGeometricEnrich <- function(
             top_percentage = top_percentage,
             p_values_calculated = p_value,
             output_enrichment_scores = output_enrichment
-        )
-    )
-
-    ## return object or results ##
-    if (return_gobject == TRUE) {
-        spenr_names <- list_spatial_enrichments_names(
-            gobject = gobject, spat_unit = spat_unit, feat_type = feat_type
-        )
-
-        if (name %in% spenr_names) {
-            cat(name, " has already been used, will be overwritten")
-        }
-
-        ## update parameters used ##
-        parameters_list <- gobject@parameters
-        number_of_rounds <- length(parameters_list)
-        update_name <- paste0(number_of_rounds, "_spatial_enrichment")
-
-        # parameters to include
-        parameters_list[[update_name]] <- c(
+        ),
+        history = c(
             "method used" = "hypergeometric",
             "enrichment name" = name,
             "expression values" = expression_values,
@@ -1366,17 +1026,11 @@ runHyperGeometricEnrich <- function(
             "p-values calculated" = p_value,
             "output enrichment scores" = output_enrichment,
             "p values calculated" = p_value
-        )
-        gobject@parameters <- parameters_list
+        ),
+        return_gobject = return_gobject
+    )
 
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-        gobject <- setGiotto(gobject, enrObj)
-        ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-        return(gobject)
-    } else {
-        return(enrObj)
-    }
+    if (isTRUE(return_gobject)) out$gobject else out$enrObj
 }
 
 
@@ -1397,6 +1051,10 @@ runHyperGeometricEnrich <- function(
 #' required to calculate enrichment (PAGE)
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
+#' @param include_depletion (PAGE) also test for depletion, not enrichment
+#' only (default = FALSE)
+#' @param ties_method (rank) how to rank tied expression values, `"average"`
+#' (default) or `"max"`
 #' @param n_times (page/rank) number of permutation iterations to calculate
 #' p-value
 #' @param rbp_p (rank) fractional binarization threshold (default = 0.99)
@@ -1440,6 +1098,8 @@ runSpatialEnrich <- function(
         reverse_log_scale = TRUE,
         logbase = 2,
         p_value = FALSE,
+        include_depletion = FALSE,
+        ties_method = c("average", "max"),
         n_times = 1000,
         rbp_p = 0.99,
         num_agg = 100,
@@ -1453,68 +1113,48 @@ runSpatialEnrich <- function(
         enrich_method,
         choices = c("PAGE", "rank", "hypergeometric")
     )
-
     output_enrichment <- match.arg(
         output_enrichment,
         choices = c("original", "zscore")
     )
+    ties_method <- match.arg(ties_method, choices = c("average", "max"))
 
+    # Shared by all three; the method-specific arguments are added below.
+    # Every formal of this function reaches exactly one method -- see
+    # test-spatial-enrichment.R, which asserts it rather than trusting it.
+    common <- list(
+        gobject = gobject,
+        spat_unit = spat_unit,
+        feat_type = feat_type,
+        sign_matrix = sign_matrix,
+        expression_values = expression_values,
+        reverse_log_scale = reverse_log_scale,
+        logbase = logbase,
+        output_enrichment = output_enrichment,
+        p_value = p_value,
+        name = name,
+        return_gobject = return_gobject
+    )
 
-    if (enrich_method == "PAGE") {
-        results <- runPAGEEnrich(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            sign_matrix = sign_matrix,
-            expression_values = expression_values,
+    switch(enrich_method,
+        "PAGE" = do.call(runPAGEEnrich, c(common, list(
             min_overlap_genes = min_overlap_genes,
-            reverse_log_scale = reverse_log_scale,
-            logbase = logbase,
-            output_enrichment = output_enrichment,
-            p_value = p_value,
+            include_depletion = include_depletion,
             n_times = n_times,
             max_block = max_block,
-            name = name,
-            verbose = verbose,
-            return_gobject = return_gobject
-        )
-    } else if (enrich_method == "rank") {
-        results <- runRankEnrich(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            sign_matrix = sign_matrix,
-            expression_values = expression_values,
-            reverse_log_scale = reverse_log_scale,
-            logbase = logbase,
-            output_enrichment = output_enrichment,
-            p_value = p_value,
+            verbose = verbose
+        ))),
+        "rank" = do.call(runRankEnrich, c(common, list(
+            ties_method = ties_method,
             n_times = n_times,
             rbp_p = rbp_p,
-            num_agg = num_agg,
-            name = name,
-            return_gobject = return_gobject
-        )
-    } else if (enrich_method == "hypergeometric") {
-        results <- runHyperGeometricEnrich(
-            gobject = gobject,
-            spat_unit = spat_unit,
-            feat_type = feat_type,
-            sign_matrix = sign_matrix,
-            expression_values = expression_values,
-            reverse_log_scale = reverse_log_scale,
-            logbase = logbase,
-            top_percentage = top_percentage,
-            output_enrichment = output_enrichment,
-            p_value = p_value,
-            name = name,
-            return_gobject = return_gobject
-        )
-    }
-
-    return(results)
+            num_agg = num_agg
+        ))),
+        "hypergeometric" = do.call(runHyperGeometricEnrich, c(common, list(
+            top_percentage = top_percentage
+        )))
+    )
 }
-
 
 
 
