@@ -1063,33 +1063,46 @@ runRankEnrich <- function(
             n = n_times
         )
 
-        random_DT <- runRankEnrich(
+        # `return_gobject = FALSE` and `values`, not `expression_values`: the
+        # recursion previously inherited the caller's return_gobject (TRUE by
+        # default), so `random_DT` was a giotto object and the next line
+        # subset it as a table. p_value = TRUE could not work at all.
+        random_enr <- runRankEnrich(
             gobject = gobject,
             spat_unit = spat_unit,
             feat_type = feat_type,
             sign_matrix = random_rank,
-            expression_values = expression_values,
+            expression_values = values,
             reverse_log_scale = reverse_log_scale,
             logbase = logbase,
             output_enrichment = output_enrichment,
-            p_value = FALSE
-        )
+            p_value = FALSE,
+            return_gobject = FALSE
+        )[]
 
-        background <- unlist(random_DT[, 2:dim(random_DT)[2]])
+        # by name, not by position: createSpatEnrObj() does not promise where
+        # it puts cell_ID, and unlisting a character column into the gamma fit
+        # is how this fails silently rather than loudly
+        score_cols <- names(random_enr)[
+            vapply(random_enr, is.numeric, logical(1L))
+        ]
+        background <- unlist(
+            random_enr[, score_cols, with = FALSE], use.names = FALSE
+        )
         fit.gamma <- fitdistrplus::fitdist(
             background,
             distr = "gamma", method = "mle"
         )
-        pvalue_DT <- enrichmentDT
-        enrichmentDT[, 2:dim(enrichmentDT)[2]] <- lapply(
-            enrichmentDT[, 2:dim(enrichmentDT)[2]], function(x) {
-                stats::pgamma(
-                    x, fit.gamma$estimate[1],
-                    rate = fit.gamma$estimate[2],
-                    lower.tail = FALSE, log.p = FALSE
-                )
-            }
-        )
+        own_cols <- names(enrichmentDT)[
+            vapply(enrichmentDT, is.numeric, logical(1L))
+        ]
+        enrichmentDT[, (own_cols) := lapply(.SD, function(x) {
+            stats::pgamma(
+                x, fit.gamma$estimate[1],
+                rate = fit.gamma$estimate[2],
+                lower.tail = FALSE, log.p = FALSE
+            )
+        }), .SDcols = own_cols]
     }
 
     # create spatial enrichment object

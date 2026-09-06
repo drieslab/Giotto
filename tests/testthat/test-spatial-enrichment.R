@@ -202,3 +202,30 @@ test_that("runPAGEEnrich honours output_enrichment", {
         orig
     )
 })
+
+
+test_that("runRankEnrich(p_value = TRUE) returns p-values", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # The permutation branch recursed into runRankEnrich() without
+    # return_gobject = FALSE, so it got a giotto object back and then subset it
+    # as a table. p_value = TRUE errored in fitdistrplus every time.
+    res <- runRankEnrich(f$g, sign_matrix = f$sm, p_value = TRUE,
+                         n_times = 20, return_gobject = FALSE)
+    expect_s4_class(res, "spatEnrObj")
+
+    dt <- res[]
+    score_cols <- c("typeA", "typeB", "typeC")
+    for (cl in score_cols) {
+        expect_true(all(dt[[cl]] >= 0 & dt[[cl]] <= 1), info = cl)
+    }
+    # cell_ID must survive as an ID, not be swept into the gamma transform
+    expect_type(dt$cell_ID, "character")
+    expect_identical(nrow(dt), 624L)
+
+    # and p_value = FALSE still gives the scores, unchanged
+    plain <- runRankEnrich(f$g, sign_matrix = f$sm, return_gobject = FALSE)
+    expect_equal(head(plain[]$typeA, 3),
+                 c(0.887582, 0.880433, 0.877802), tolerance = 1e-5)
+})
