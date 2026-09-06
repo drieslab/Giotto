@@ -217,10 +217,9 @@ cellProximityEnrichment <- function(gobject,
     ))
 
     # data.table variables
-    unified_cells <- unified_int <- type_int <- V1 <- orig <- original <-
-        simulations <- enrichm <- sd_sim <- z <- p_higher_orig <-
-        p_lower_orig <- p.adj_higher <- p.adj_lower <- PI_value <-
-        int_ranking <- NULL
+    unified_cells <- unified_int <- original <- simulations <- enrichm <-
+        sd_sim <- z <- p_higher_orig <- p_lower_orig <- p.adj_higher <-
+        p.adj_lower <- PI_value <- int_ranking <- NULL
 
     spatial_network_annot <- annotateSpatialNetwork(
         gobject = gobject,
