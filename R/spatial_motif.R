@@ -189,15 +189,6 @@ setMethod(
             .gstop("cluster_column is required")
         }
 
-        ig <- .motif_network_as_igraph(x, spat_unit, spatial_network_name)
-        vids <- igraph::V(ig)$name
-        if (is.null(vids)) {
-            .gstop(
-                "the spatial network has no vertex names, so its nodes",
-                "cannot be matched to cell metadata"
-            )
-        }
-
         meta <- getCellMetadata(x,
             spat_unit = spat_unit, feat_type = feat_type,
             output = "data.table", copy_obj = TRUE
@@ -207,6 +198,34 @@ setMethod(
                 "cluster_column '%s' is not a cell metadata column",
                 cluster_column
             ))
+        }
+
+        # Fast path: a disk-backed network with nothing pending can be read
+        # straight from parquet in the backend, skipping the igraph
+        # materialization entirely. Anything else -- a subset store, another
+        # engine, an in-memory network -- goes the ordinary way.
+        store <- .motif_edge_store_paths(x, spat_unit, spatial_network_name)
+        if (!is.null(store) && is.null(strata_column) &&
+            is.null(anchored_on) && is(param, "smotifParam") &&
+            param$null %in% c("label", "conditional")) {
+            order_dt <- smotif::store_node_order(store$nodes)
+            lab <- .motif_align(meta, order_dt$node_id, cluster_column)
+            res <- smotif::motif_enrichment_store(
+                nodes_path = store$nodes, edges_path = store$edges,
+                cell_type = lab, size = param$size, n_perm = param$n_perm,
+                seed = as.integer(param$seed_number), null = param$null, ...
+            )
+            .motif_check_contract(res)
+            return(res)
+        }
+
+        ig <- .motif_network_as_igraph(x, spat_unit, spatial_network_name)
+        vids <- igraph::V(ig)$name
+        if (is.null(vids)) {
+            .gstop(
+                "the spatial network has no vertex names, so its nodes",
+                "cannot be matched to cell metadata"
+            )
         }
         lab <- .motif_align(meta, vids, cluster_column)
         strata <- NULL
@@ -271,6 +290,41 @@ setMethod(
         ))
     }
     net
+}
+
+
+# Paths to a parquetEdgeStore's parquet files, or NULL when the network is not
+# one, when ops are pending on it (the files on disk do not reflect a pending
+# subset), or when the backend that reads them is absent.
+#' @keywords internal
+#' @noRd
+.motif_edge_store_paths <- function(gobject, spat_unit, name) {
+    if (!requireNamespace("smotif", quietly = TRUE) ||
+        !requireNamespace("smotifrs", quietly = TRUE)) {
+        return(NULL)
+    }
+    sn <- try(
+        getSpatialNetwork(gobject,
+            spat_unit = spat_unit, name = name,
+            output = "spatialNetworkObj", verbose = FALSE
+        ),
+        silent = TRUE
+    )
+    if (inherits(sn, "try-error")) return(NULL)
+    net <- sn[]
+    if (!inherits(net, "parquetEdgeStore")) return(NULL)
+    if (length(methods::slot(net, "ops")) > 0L) return(NULL)
+    root <- methods::slot(net, "path")
+    nodes <- list.files(file.path(root, "nodes"), "[.]parquet$",
+        full.names = TRUE
+    )
+    edges <- list.files(file.path(root, "edges"), "[.]parquet$",
+        full.names = TRUE
+    )
+    # one file per subdir today; hive-partitioned writes are a future change
+    # on the GiottoDisk side, and this path must not silently read only part
+    if (length(nodes) != 1L || length(edges) != 1L) return(NULL)
+    list(nodes = nodes, edges = edges)
 }
 
 # The contract every engine must satisfy. Checked here rather than trusted, so
