@@ -763,13 +763,18 @@ runPAGEEnrich <- function(
     # check parameters
     if (is.null(name)) name <- "PAGE"
 
+    output_enrichment <- match.arg(
+        output_enrichment,
+        choices = c("original", "zscore")
+    )
+
     PAGE_results <- .page_dt_method(
         sign_matrix = sign_matrix,
         expr_values = as.matrix(expr_values[]),
         min_overlap_genes = min_overlap_genes,
         logbase = logbase,
         reverse_log_scale = reverse_log_scale,
-        output_enrichment = c("original", "zscore"),
+        output_enrichment = output_enrichment,
         p_value = p_value,
         include_depletion = include_depletion,
         n_times = n_times,

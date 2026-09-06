@@ -177,3 +177,28 @@ test_that("runRankEnrich works on its own default expression_values", {
         expression_values = "normalized", return_gobject = FALSE)
     expect_equal(res[], explicit[])
 })
+
+
+test_that("runPAGEEnrich honours output_enrichment", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # The wrapper passed the literal c("original", "zscore") down to
+    # .page_dt_method(), which match.arg'd it back to "original". The user's
+    # choice was discarded, so PAGE always returned unscaled scores.
+    orig <- runPAGEEnrich(f$g, sign_matrix = f$sm, output_enrichment = "original",
+        return_gobject = FALSE, verbose = FALSE)$matrix[]
+    zsc <- runPAGEEnrich(f$g, sign_matrix = f$sm, output_enrichment = "zscore",
+        return_gobject = FALSE, verbose = FALSE)$matrix[]
+
+    expect_false(isTRUE(all.equal(orig$typeA, zsc$typeA)))
+    # "zscore" standardizes within cell type
+    expect_equal(mean(zsc$typeA), 0, tolerance = 1e-8)
+    expect_equal(stats::sd(zsc$typeA), 1, tolerance = 1e-8)
+    # the default is still "original"
+    expect_equal(
+        runPAGEEnrich(f$g, sign_matrix = f$sm,
+            return_gobject = FALSE, verbose = FALSE)$matrix[],
+        orig
+    )
+})
