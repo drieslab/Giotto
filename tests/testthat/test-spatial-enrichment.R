@@ -157,3 +157,23 @@ test_that("runSpatialEnrich routes to the same result as the direct call", {
         expect_equal(via[], direct[], info = m)
     }
 })
+
+
+# --- bug fixes ---------------------------------------------------------------
+
+test_that("runRankEnrich works on its own default expression_values", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # `expression_values` defaults to c("normalized", "raw", "scaled",
+    # "custom") but the choices were built as unique(c("normalized", "scaled",
+    # "custom", expression_values)) -- the same four in a different order. Not
+    # identical to the arg, so match.arg refused a length-4 arg and the
+    # function could not be called without naming a value explicitly.
+    res <- runRankEnrich(f$g, sign_matrix = f$sm, return_gobject = FALSE)
+    expect_s4_class(res, "spatEnrObj")
+
+    explicit <- runRankEnrich(f$g, sign_matrix = f$sm,
+        expression_values = "normalized", return_gobject = FALSE)
+    expect_equal(res[], explicit[])
+})

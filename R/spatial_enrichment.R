@@ -948,9 +948,15 @@ runRankEnrich <- function(
     ties_method <- match.arg(ties_method, choices = c("average", "max"))
 
     # expression values to be used
+    #
+    # The choices have to *start* with this function's own formal default, or
+    # match.arg() sees an arg of length 4 whose value is not identical to
+    # choices and errors instead of taking the first. "raw" sits second here
+    # and third in the sibling functions, which is why only this one was
+    # affected. Trailing `expression_values` keeps custom value names working.
     values <- match.arg(
         expression_values,
-        unique(c("normalized", "scaled", "custom", expression_values))
+        unique(c("normalized", "raw", "scaled", "custom", expression_values))
     )
     expr_values <- getExpression(
         gobject = gobject,
