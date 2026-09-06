@@ -7,6 +7,7 @@
 plotMotifEnrichment(
   gobject,
   motif_result,
+  style = c("effect", "volcano"),
   p_thresh = 0.05,
   min_observed = 5,
   top = 15L,
@@ -22,6 +23,10 @@ plotMotifEnrichment(
 \item{gobject}{giotto object}
 
 \item{motif_result}{output of [cellProximityMotifs()]}
+
+\item{style}{`"effect"` plots effect size against occurrence count with
+significance as colour; `"volcano"` plots effect size against
+`-log10(p_adj)`. See Description for why `"effect"` is the default.}
 
 \item{p_thresh}{adjusted p-value threshold for calling a motif significant}
 
@@ -48,14 +53,20 @@ change save_name in save_param}
 ggplot
 }
 \description{
-Volcano-style triage plot of motif enrichment: effect size against
-significance, sized by how often the motif actually occurs, split by
-topology.
-
-This is the plot for deciding which motifs are worth pursuing out of the
+Triage plot for deciding which motifs are worth pursuing out of the
 thousands a size-4 run produces. Enriched and depleted motifs appear in one
-frame, and point size keeps a huge z-score built on three occurrences from
-reading like a finding.
+frame, split by topology.
+
+The default `style = "effect"` plots effect size against how often the motif
+actually occurs, with significance as colour. That is deliberate: permutation
+p-values are floored at `1 / (n_perm + 1)`, so on a real run most significant
+classes sit exactly on that floor and a volcano's y-axis collapses to a
+single line carrying no information. Effect size and occurrence count both
+vary, and together they are what separates a real finding from a large
+z-score built on three occurrences.
+
+`style = "volcano"` gives the conventional view for when p-values are not
+saturated -- raise `n_perm` to lower the floor.
 }
 \examples{
 \dontrun{

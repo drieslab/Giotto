@@ -81,6 +81,42 @@ at size 4. Positions in `color_tuple` are structural roles, not sorted, so
 Requires an engine. \pkg{smotif} is the reference one, and its
 \pkg{smotifrs} backend is what makes size 4 tractable at scale.
 }
+\section{Building the network for a large section}{
+
+On a large section the network, not the motif counting, is the slow step --
+at 170,000 cells the enrichment takes seconds while the default Delaunay
+construction takes minutes. Two arguments to
+[GiottoClass::createSpatialNetwork()] matter:
+
+```r
+g <- createSpatialNetwork(g,
+    method = "Delaunay",
+    delaunay_method = "delaunayn_geometry",   # same graph, far faster
+    maximum_distance_delaunay = <explicit>    # trim gap-spanning edges
+)
+```
+
+`"delaunayn_geometry"` returns the *identical* triangulation to the default
+`"deldir"` -- the same edges, not an approximation -- in 0.94 s against
+~363 s at 200,000 points. It needs the \pkg{geometry} package.
+
+Set `maximum_distance_delaunay` explicitly rather than leaving it at
+`"auto"`. A Delaunay triangulation joins cells across empty space, so a
+section with gaps gets long edges that are not adjacency in any biological
+sense, and those edges become motifs. `"auto"` does trim them -- it is the
+boxplot upper whisker -- but it is one global threshold on a section whose
+density varies, and on a clustered 20,000-cell set it stranded 124 cells with
+no edges at all. A cell with no edges is not in the network and so is in no
+motif; `createSpatialNetwork()` now reports how many. Picking the cutoff from
+a high quantile of the unfiltered edge lengths keeps that trade-off visible.
+
+kNN is faster still but is a different neighbourhood definition, not a speed
+setting: measured against Delaunay on the same points it shares only ~59% of
+edges, and `k = 6` gives mean degree 7.1 against Delaunay's 5.9, so it is
+denser than it looks. [GiottoClass::radiusNetworkParam()] is the option
+closest in spirit to "cells within this distance".
+}
+
 \examples{
 \dontrun{
 g <- GiottoData::loadGiottoMini("visium")

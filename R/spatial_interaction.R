@@ -180,6 +180,14 @@ make_simulated_network <- function(gobject,
 #' Alongside the enrichment score `enrichm`, the result carries the standard
 #' deviation of the simulated counts (`sd_sim`) and a standardized effect size
 #' (`z`).
+#'
+#' The result is only as good as the network it is given. On a large section
+#' pass `delaunay_method = "delaunayn_geometry"` to
+#' [GiottoClass::createSpatialNetwork()] -- an identical triangulation, orders
+#' of magnitude faster -- and set `maximum_distance_delaunay` explicitly, so
+#' that edges spanning empty tissue are not counted as proximity. See the
+#' *Building the network for a large section* section of
+#' [cellProximityMotifs()].
 #' @examples
 #' g <- GiottoData::loadGiottoMini("visium")
 #'
