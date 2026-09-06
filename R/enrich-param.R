@@ -455,7 +455,13 @@ setMethod("analyzeData",
         values = values, output = "exprObj"
     )
     mat <- expr_values[]
-    if (isTRUE(densify)) mat <- Matrix::as.matrix(mat)
+    # `densify` is about a sparse Matrix that a method cannot index into. A
+    # disk-backed store is exempt: materializing it here is exactly what the
+    # streaming method exists to avoid, and it would turn an out-of-core run
+    # into an out-of-memory one.
+    if (isTRUE(densify) && !inherits(mat, "dataStore")) {
+        mat <- Matrix::as.matrix(mat)
+    }
 
     # Dispatched on the expression object, not called directly: getExpression()
     # returns whatever the slot holds, so a disk-backed store arrives here
