@@ -2,6 +2,7 @@
 % Please edit documentation in R/enrich-param.R
 \name{enrich_page}
 \alias{enrich_page}
+\alias{analyzeData,ANY,pageEnrichParam-method}
 \title{PAGE enrichment}
 \usage{
 \S4method{analyzeData}{ANY,pageEnrichParam}(x, param, ..., sign_matrix)
@@ -16,7 +17,11 @@ engine registered against [pageEnrichParam-class] accepts.}
 }
 \value{
 a `data.table` of `cell_ID` and one column per cell type
+
+a `data.table` of `cell_ID` and one column per cell type
 }
 \description{
+PAGE enrichment
+
 PAGE enrichment
 }

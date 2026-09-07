@@ -2,6 +2,7 @@
 % Please edit documentation in R/enrich-param.R
 \name{enrich_hyper}
 \alias{enrich_hyper}
+\alias{analyzeData,ANY,hyperEnrichParam-method}
 \title{Hypergeometric enrichment}
 \usage{
 \S4method{analyzeData}{ANY,hyperEnrichParam}(x, param, ..., sign_matrix)
@@ -16,7 +17,11 @@ engine registered against [pageEnrichParam-class] accepts.}
 }
 \value{
 a `data.table` of `cell_ID` and one column per cell type
+
+a `data.table` of `cell_ID` and one column per cell type
 }
 \description{
+Hypergeometric enrichment
+
 Hypergeometric enrichment
 }

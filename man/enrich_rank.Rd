@@ -2,6 +2,7 @@
 % Please edit documentation in R/enrich-param.R
 \name{enrich_rank}
 \alias{enrich_rank}
+\alias{analyzeData,ANY,rankEnrichParam-method}
 \title{Rank enrichment}
 \usage{
 \S4method{analyzeData}{ANY,rankEnrichParam}(x, param, ..., sign_matrix)
@@ -16,7 +17,11 @@ engine registered against [pageEnrichParam-class] accepts.}
 }
 \value{
 a `data.table` of `cell_ID` and one column per cell type
+
+a `data.table` of `cell_ID` and one column per cell type
 }
 \description{
+Rank enrichment
+
 Rank enrichment
 }

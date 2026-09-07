@@ -168,10 +168,31 @@ enrichParam <- function(method = "PAGE", ...) {
 }
 
 
+# Topic definitions. These own the `@name`; the setMethod blocks below use
+# `@rdname` so roxygen still emits each method's \alias{} -- a `@name` on a
+# setMethod block suppresses it, and R CMD check then reports the method as
+# undocumented. Same arrangement as markersParam in differential_expression.R.
+
+#' @name enrich_page
+#' @title PAGE enrichment
+#' @returns a `data.table` of `cell_ID` and one column per cell type
+NULL
+
+#' @name enrich_rank
+#' @title Rank enrichment
+#' @returns a `data.table` of `cell_ID` and one column per cell type
+NULL
+
+#' @name enrich_hyper
+#' @title Hypergeometric enrichment
+#' @returns a `data.table` of `cell_ID` and one column per cell type
+NULL
+
+
 # PAGE ####
 
 #' @title PAGE enrichment
-#' @name enrich_page
+#' @rdname enrich_page
 #' @param x expression values. A `matrix`, a `Matrix`, or anything an
 #'   engine registered against [pageEnrichParam-class] accepts.
 #' @param param a [pageEnrichParam-class].
@@ -206,7 +227,7 @@ setMethod("analyzeData",
 # rank ####
 
 #' @title Rank enrichment
-#' @name enrich_rank
+#' @rdname enrich_rank
 #' @inheritParams enrich_page
 #' @param param a [rankEnrichParam-class].
 #' @returns a `data.table` of `cell_ID` and one column per cell type
@@ -331,7 +352,7 @@ setMethod("analyzeData",
 # hypergeometric ####
 
 #' @title Hypergeometric enrichment
-#' @name enrich_hyper
+#' @rdname enrich_hyper
 #' @inheritParams enrich_page
 #' @param param a [hyperEnrichParam-class].
 #' @returns a `data.table` of `cell_ID` and one column per cell type
