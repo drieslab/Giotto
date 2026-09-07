@@ -1098,8 +1098,6 @@ runSpatialEnrich <- function(
         reverse_log_scale = TRUE,
         logbase = 2,
         p_value = FALSE,
-        include_depletion = FALSE,
-        ties_method = c("average", "max"),
         n_times = 1000,
         rbp_p = 0.99,
         num_agg = 100,
@@ -1108,6 +1106,12 @@ runSpatialEnrich <- function(
         output_enrichment = c("original", "zscore"),
         name = NULL,
         verbose = TRUE,
+        # Appended rather than grouped with the arguments they belong beside:
+        # inserting them mid-list shifts every positional argument after it,
+        # so a caller passing past `p_value` positionally would silently bind
+        # the wrong one.
+        include_depletion = FALSE,
+        ties_method = c("average", "max"),
         return_gobject = TRUE) {
     enrich_method <- match.arg(
         enrich_method,
