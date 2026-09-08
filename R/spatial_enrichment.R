@@ -736,8 +736,14 @@ runPAGEEnrich <- function(
         name = NULL,
         verbose = TRUE,
         return_gobject = TRUE) {
+    # `match.arg(x, choices)` returns choices[[1]] only when `x` is *identical*
+    # to `choices`, order included. That made this idiom depend on the caller's
+    # default vector matching the hardcoded list exactly -- it broke once for
+    # runRankEnrich()'s own default, and again when runSpatialEnrich() forwarded
+    # its shorter default here. Taking the first element is what match.arg does
+    # for a default anyway, and it validates a single value the same as before.
     values <- match.arg(
-        expression_values,
+        expression_values[[1L]],
         unique(c("normalized", "scaled", "custom", expression_values))
     )
     output_enrichment <- match.arg(
@@ -880,11 +886,37 @@ runRankEnrich <- function(
         name = NULL,
         return_gobject = TRUE) {
     ties_method <- match.arg(ties_method, choices = c("average", "max"))
+
+    # `reverse_log_scale` and `logbase` cannot affect a rank statistic. Warn
+    # only when one is passed explicitly -- a call relying on the defaults is
+    # not doing anything wrong and should stay quiet.
+    .rank_inert <- paste(
+        "Rank enrichment ranks genes across cells and then ranks those ranks",
+        "within each cell. Ranking is invariant to any monotonic per-gene",
+        "transform, so no value of this argument can change the result.",
+        "Use runPAGEEnrich() or runHyperGeometricEnrich() if the reverse-log",
+        "step needs to matter."
+    )
+    if (!missing(reverse_log_scale)) {
+        deprecate_warn("4.2.4", "runRankEnrich(reverse_log_scale)",
+            details = .rank_inert)
+    }
+    if (!missing(logbase)) {
+        deprecate_warn("4.2.4", "runRankEnrich(logbase)",
+            details = .rank_inert)
+    }
+
     # The choices have to start with this function's own formal default, or
     # match.arg() sees a length-4 arg that is not identical to choices and
     # errors. "raw" sits second here and third in the sibling functions.
+    # `match.arg(x, choices)` returns choices[[1]] only when `x` is *identical*
+    # to `choices`, order included. That made this idiom depend on the caller's
+    # default vector matching the hardcoded list exactly -- it broke once for
+    # runRankEnrich()'s own default, and again when runSpatialEnrich() forwarded
+    # its shorter default here. Taking the first element is what match.arg does
+    # for a default anyway, and it validates a single value the same as before.
     values <- match.arg(
-        expression_values,
+        expression_values[[1L]],
         unique(c("normalized", "raw", "scaled", "custom", expression_values))
     )
     output_enrichment <- match.arg(
@@ -986,8 +1018,14 @@ runHyperGeometricEnrich <- function(
         p_value = FALSE,
         name = NULL,
         return_gobject = TRUE) {
+    # `match.arg(x, choices)` returns choices[[1]] only when `x` is *identical*
+    # to `choices`, order included. That made this idiom depend on the caller's
+    # default vector matching the hardcoded list exactly -- it broke once for
+    # runRankEnrich()'s own default, and again when runSpatialEnrich() forwarded
+    # its shorter default here. Taking the first element is what match.arg does
+    # for a default anyway, and it validates a single value the same as before.
     values <- match.arg(
-        expression_values,
+        expression_values[[1L]],
         unique(c("normalized", "scaled", "custom", expression_values))
     )
     output_enrichment <- match.arg(
@@ -1123,6 +1161,20 @@ runSpatialEnrich <- function(
     )
     ties_method <- match.arg(ties_method, choices = c("average", "max"))
 
+    if (identical(enrich_method, "rank")) {
+        for (a in c("reverse_log_scale", "logbase")) {
+            if (!eval(call("missing", as.name(a)))) {
+                deprecate_warn("4.2.4",
+                    sprintf("runSpatialEnrich(%s)", a),
+                    details = paste(
+                        "Ignored when enrich_method = \"rank\": ranking is",
+                        "invariant to any monotonic per-gene transform, so no",
+                        "value of this argument can change the result."
+                    ))
+            }
+        }
+    }
+
     # Shared by all three; the method-specific arguments are added below.
     # Every formal of this function reaches exactly one method -- see
     # test-spatial-enrichment.R, which asserts it rather than trusting it.
@@ -1148,12 +1200,21 @@ runSpatialEnrich <- function(
             max_block = max_block,
             verbose = verbose
         ))),
-        "rank" = do.call(runRankEnrich, c(common, list(
-            ties_method = ties_method,
-            n_times = n_times,
-            rbp_p = rbp_p,
-            num_agg = num_agg
-        ))),
+        # `reverse_log_scale` / `logbase` are dropped for rank rather than
+        # forwarded. They are inert there, and forwarding them would fire
+        # runRankEnrich()'s deprecation on every routed call including ones
+        # that never mentioned them. The warning below keeps it at the layer
+        # the user actually called.
+        "rank" = do.call(runRankEnrich, c(
+            common[setdiff(names(common),
+                           c("reverse_log_scale", "logbase"))],
+            list(
+                ties_method = ties_method,
+                n_times = n_times,
+                rbp_p = rbp_p,
+                num_agg = num_agg
+            )
+        )),
         "hypergeometric" = do.call(runHyperGeometricEnrich, c(common, list(
             top_percentage = top_percentage
         )))

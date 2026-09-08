@@ -262,15 +262,18 @@ setMethod("analyzeData",
         ncol = dim(expr_values)[2]
     )
 
-    # calculate mean gene expression
-    if (param$reverse_log_scale == TRUE) {
-        mean_gene_expr <- log(Matrix::rowMeans(
-            param$logbase^expr_values - 1,
-            dims = 1
-        ) + 1)
-    } else {
-        mean_gene_expr <- Matrix::rowMeans(expr_values)
-    }
+    # No per-gene reference level is computed here, and `reverse_log_scale` /
+    # `logbase` are deliberately unused.
+    #
+    # This method's statistic is a rank of a rank: genes are ranked across cells
+    # and those ranks are then ranked within each cell. Ranking is invariant to
+    # any monotonic per-gene transform, so `logbase^x - 1` and subtracting a
+    # per-gene mean both leave every rank exactly where it was -- verified in
+    # test-spatial-enrichment.R against `sparseMatrixStats::rowRanks()`.
+    #
+    # The previous code computed `log(rowMeans(logbase^expr - 1) + 1)` and never
+    # read it. Beyond being dead, `logbase^expr` on a dgCMatrix returns dense:
+    # roughly 460 MB allocated and discarded on a 377 x 151,782 store.
 
     # fold change and ranking
     ties_1 <- ties_2 <- param$ties_method

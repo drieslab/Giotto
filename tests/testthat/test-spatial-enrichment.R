@@ -424,3 +424,86 @@ test_that("the verb runs on a bare matrix, with no gobject", {
                      info = class(spec$p))
     }
 })
+
+
+test_that("rank's reverse_log_scale and logbase are inert, and say so", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # Silent on the defaults -- an existing call is not doing anything wrong.
+    expect_no_warning(
+        base <- runRankEnrich(f$g, sign_matrix = f$sm, return_gobject = FALSE)
+    )
+    # Deprecated when passed explicitly.
+    expect_warning(
+        runRankEnrich(f$g, sign_matrix = f$sm, logbase = 2,
+                      return_gobject = FALSE),
+        "logbase"
+    )
+    expect_warning(
+        runRankEnrich(f$g, sign_matrix = f$sm, reverse_log_scale = FALSE,
+                      return_gobject = FALSE),
+        "reverse_log_scale"
+    )
+
+    # And genuinely inert: the scores do not move.
+    for (args in list(list(logbase = 10), list(reverse_log_scale = FALSE),
+                      list(reverse_log_scale = TRUE, logbase = 10))) {
+        got <- suppressWarnings(do.call(runRankEnrich, c(
+            list(f$g, sign_matrix = f$sm, return_gobject = FALSE), args)))
+        expect_equal(got[], base[], info = paste(names(args), collapse = ","))
+    }
+})
+
+test_that("ranking is invariant to the transform those arguments would apply", {
+    # The reason the arguments cannot work, asserted rather than claimed:
+    # rank is invariant to any monotonic per-gene transform, so neither the
+    # reverse-log step nor per-gene centring can move a single rank.
+    skip_if_not_installed("sparseMatrixStats")
+    set.seed(1)
+    x <- matrix(rpois(600, 3) + runif(600), 20, 30)
+
+    r_raw <- sparseMatrixStats::rowRanks(x, ties.method = "average")
+    expect_identical(
+        r_raw, sparseMatrixStats::rowRanks(2^x - 1, ties.method = "average"))
+    expect_identical(
+        r_raw, sparseMatrixStats::rowRanks(10^x - 1, ties.method = "average"))
+    expect_identical(
+        r_raw,
+        sparseMatrixStats::rowRanks(x - rowMeans(x), ties.method = "average"))
+
+    # and the second ranking, which is what the method actually reports
+    expect_identical(
+        sparseMatrixStats::colRanks(-r_raw),
+        sparseMatrixStats::colRanks(
+            -sparseMatrixStats::rowRanks(2^x - 1, ties.method = "average")))
+})
+
+
+test_that("the router does not fire rank's deprecation on its own behalf", {
+    skip_if_no_mini()
+    f <- .enrich_fixture()
+
+    # runSpatialEnrich() has reverse_log_scale/logbase in its own signature and
+    # used to forward them to every method, so routing to rank warned even when
+    # the caller never mentioned them.
+    expect_no_warning(
+        runSpatialEnrich(f$g, enrich_method = "rank", sign_matrix = f$sm,
+                         return_gobject = FALSE)
+    )
+    # but asking for them explicitly is still told
+    expect_warning(
+        runSpatialEnrich(f$g, enrich_method = "rank", sign_matrix = f$sm,
+                         logbase = 10, return_gobject = FALSE),
+        "logbase"
+    )
+    # and the other two methods, where they do work, stay quiet
+    for (m in c("PAGE", "hypergeometric")) {
+        expect_no_warning(
+            runSpatialEnrich(f$g, enrich_method = m, sign_matrix = f$sm,
+                             logbase = 2, return_gobject = FALSE,
+                             verbose = FALSE),
+            message = m
+        )
+    }
+})
